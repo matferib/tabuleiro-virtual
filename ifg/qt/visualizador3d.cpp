@@ -1596,9 +1596,45 @@ void PreencheConfiguraDadosAtaque(
   gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
 }
 
-// Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela.
-void AdicionaOuEditaNivel(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  int indice = gerador.lista_niveis->currentRow();
+// Atualiza a UI de nivel (lista e nivel total).
+void AtualizaUINivel(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  // nivel total.
+  int total = 0;
+  int total_bba = 0;
+  for (const auto& info_classe : proto.info_classes()) {
+    total += info_classe.nivel();
+    total_bba += info_classe.bba();
+  }
+  gerador.linha_nivel->setText(QString::number(total));
+  gerador.linha_bba->setText(QString::number(total_bba));
+
+  // Lista de niveis.
+  const int indice_antes = gerador.lista_niveis->currentRow();
+  gerador.lista_niveis->clear();
+  for (const auto& info_classe : proto.info_classes()) {
+    std::string string_nivel;
+    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", info_classe.id().c_str(), info_classe.nivel());
+    if (info_classe.nivel_conjurador() > 0) {
+      google::protobuf::StringAppendF(
+          &string_nivel, ", conjurador: %d, mod: %d",
+          info_classe.nivel_conjurador(), info_classe.modificador_atributo_conjuracao());
+    }
+    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d", info_classe.bba());
+    gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
+  }
+  if (indice_antes < proto.info_classes().size()) {
+    gerador.lista_niveis->setCurrentRow(indice_antes);
+  } else {
+    gerador.lista_niveis->setCurrentRow(-1);
+  }
+}
+
+// Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela. Nao atualiza a UI.
+void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  const int indice = gerador.lista_niveis->currentRow();
+  if (gerador.linha_classe->text().isEmpty()) {
+    return;
+  }
   ent::InfoClasse* info_classe = (indice < 0 || indice >= proto_retornado->info_classes().size())
       ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
   info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
@@ -1606,115 +1642,101 @@ void AdicionaOuEditaNivel(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& g
   info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
   info_classe->set_bba(gerador.spin_bba->value());
   info_classe->set_modificador_atributo_conjuracao(gerador.spin_mod_conjuracao->value());
-  ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
-  AtualizaUIAtaque(this_->tabelas(), gerador, *proto_retornado);
+  ent::RecomputaDependencias(tabelas, proto_retornado);
 }
 
 void PreencheConfiguraNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  auto AtualizaNivelTotal = [&gerador, proto_retornado] () {
-    int total = 0;
-    int total_bba = 0;
-    for (const auto& info_classe : proto_retornado->info_classes()) {
-      total += info_classe.nivel();
-      total_bba += info_classe.bba();
-    }
-    gerador.linha_nivel->setText(QString::number(total));
-    gerador.linha_bba->setText(QString::number(total_bba));
+  // Objetos da UI a serem bloqueados. Passa por copia.
+  std::vector<QObject*> objs = {
+      gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+      gerador.spin_mod_conjuracao
   };
-  auto RefrescaNiveis = [&gerador, proto_retornado, AtualizaNivelTotal] () {
-    gerador.lista_niveis->clear();
-    for (const auto& info_classe : proto_retornado->info_classes()) {
-      std::string string_nivel;
-      google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", info_classe.id().c_str(), info_classe.nivel());
-      if (info_classe.nivel_conjurador() > 0) {
-        google::protobuf::StringAppendF(
-            &string_nivel, ", conjurador: %d, mod: %d",
-            info_classe.nivel_conjurador(), info_classe.modificador_atributo_conjuracao());
-      }
-      google::protobuf::StringAppendF(&string_nivel, ", BBA: %d", info_classe.bba());
-      gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
-    }
-    AtualizaNivelTotal();
+  auto BloqueiaSinais = [objs] {
+    for (auto* obj : objs) obj->blockSignals(true);
   };
-  RefrescaNiveis();
+  auto DesbloqueiaSinais = [objs] {
+    for (auto* obj : objs) obj->blockSignals(false);
+  };
 
-  auto EditaRefrescaNiveis = [this_, &gerador, proto_retornado, RefrescaNiveis] () {
-    int indice_antes = gerador.lista_niveis->currentRow();
-    if (indice_antes < 0 || indice_antes >= proto_retornado->info_classes().size()) {
+  // Responde uma edicao da UI se houver selecao. caso contrario nada sera feito.
+  auto EditaAtualizaNiveis = [this_, &gerador, proto_retornado] () {
+    int indice = gerador.lista_niveis->currentRow();
+    if (indice < 0 || indice >= proto_retornado->info_classes().size()) {
       return;
     }
-    AdicionaOuEditaNivel(this_, gerador, proto_retornado);
-    RefrescaNiveis();
-    if (indice_antes < proto_retornado->info_classes().size()) {
-      gerador.lista_niveis->setCurrentRow(indice_antes);
-    } else {
-      gerador.lista_niveis->setCurrentRow(-1);
-    }
+    AdicionaOuEditaNivel(this_->tabelas(), gerador, proto_retornado);
+    AtualizaUINivel(gerador, *proto_retornado);
+    AtualizaUIAtaque(this_->tabelas(), gerador, *proto_retornado);
   };
 
-  auto LimpaCampos = [&gerador] () {
+  // Limpa os controles da UI.
+  auto LimpaCampos = [&gerador, BloqueiaSinais, DesbloqueiaSinais] () {
+    BloqueiaSinais();
     gerador.linha_classe->clear();
     gerador.spin_nivel_classe->clear();
     gerador.spin_nivel_conjurador->clear();
     gerador.spin_bba->clear();
     gerador.spin_mod_conjuracao->clear();
+    gerador.botao_remover_nivel->setEnabled(false);
+    DesbloqueiaSinais();
   };
 
-  lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&gerador, proto_retornado] () {
-    std::vector<QObject*> objs = {
-        gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
-        gerador.spin_mod_conjuracao
-    };
-    for (auto* obj : objs) obj->blockSignals(true);
+  // Atualiza os campos de acordo com a selecao.
+  auto AtualizaCampos = [&gerador, proto_retornado, BloqueiaSinais, DesbloqueiaSinais] () {
+    BloqueiaSinais();
+    if (gerador.lista_niveis->currentRow() < 0 || gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
+      DesbloqueiaSinais();
+      return;
+    }
+    gerador.botao_remover_nivel->setEnabled(true);
+    const auto& info_classe = proto_retornado->info_classes(gerador.lista_niveis->currentRow());
+    gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
+    gerador.spin_nivel_classe->setValue(info_classe.nivel());
+    gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
+    gerador.spin_bba->setValue(info_classe.bba());
+    gerador.spin_mod_conjuracao->setValue(info_classe.modificador_atributo_conjuracao());
+    DesbloqueiaSinais();
+  };
+
+  AtualizaUINivel(gerador, *proto_retornado);
+
+  // Ao mudar a selecao, atualiza os controles.
+  lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&gerador, LimpaCampos, AtualizaCampos, proto_retornado] () {
     if (gerador.lista_niveis->currentRow() == -1 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
-      gerador.botao_remover_nivel->setEnabled(false);
+      LimpaCampos();
     } else {
-      gerador.botao_remover_nivel->setEnabled(true);
-      const auto& info_classe = proto_retornado->info_classes(gerador.lista_niveis->currentRow());
-      gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
-      gerador.spin_nivel_classe->setValue(info_classe.nivel());
-      gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
-      gerador.spin_bba->setValue(info_classe.bba());
-      gerador.spin_mod_conjuracao->setValue(info_classe.modificador_atributo_conjuracao());
-      for (auto* obj : objs) obj->blockSignals(false);
+      AtualizaCampos();
     }
-  });
-  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [this_, LimpaCampos, RefrescaNiveis, &gerador, proto_retornado] () {
-    auto* info_classe = proto_retornado->mutable_info_classes()->Add();
-    if (gerador.lista_niveis->currentRow() < 0 ||
-        gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
-      // So usa os campos se for um novo nivel.
-      info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
-      info_classe->set_nivel(gerador.spin_nivel_classe->value());
-      info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
-      info_classe->set_bba(gerador.spin_bba->value());
-      info_classe->set_modificador_atributo_conjuracao(gerador.spin_mod_conjuracao->value());
-    }
-    RefrescaNiveis();
-    // Deixa deselecionado.
-    //gerador.lista_niveis->setCurrentRow(proto_retornado->info_classes().size() - 1);
-    gerador.lista_niveis->setCurrentRow(-1);
-    LimpaCampos();
-    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
-    AtualizaUIAtaque(this_->tabelas(), gerador, *proto_retornado);
   });
 
-  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [LimpaCampos, RefrescaNiveis, &gerador, proto_retornado] () {
+  // Adiciona um nivel ao personagem ao clicar no botao de adicionar.
+  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [this_, LimpaCampos, &gerador, proto_retornado] () {
+    gerador.lista_niveis->setCurrentRow(-1);
+    AdicionaOuEditaNivel(this_->tabelas(), gerador, proto_retornado);
+    LimpaCampos();
+    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+    AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
+    AtualizaUINivel(gerador, *proto_retornado);
+  });
+
+  // Remove o nivel selecionado.
+  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [this_, LimpaCampos, &gerador, proto_retornado] () {
     if (gerador.lista_niveis->currentRow() == -1 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
       return;
     }
     proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
     LimpaCampos();
-    RefrescaNiveis();
+    AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
+    AtualizaUINivel(gerador, *proto_retornado);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals).
-  lambda_connect(gerador.linha_classe, SIGNAL(textEdited(const QString&)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
-  lambda_connect(gerador.spin_nivel_classe, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
-  lambda_connect(gerador.spin_nivel_conjurador, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
-  lambda_connect(gerador.spin_bba, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
-  lambda_connect(gerador.spin_mod_conjuracao, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+  lambda_connect(gerador.linha_classe, SIGNAL(textEdited(const QString&)), [EditaAtualizaNiveis]() { EditaAtualizaNiveis(); } );
+  lambda_connect(gerador.spin_nivel_classe, SIGNAL(valueChanged(int)), [EditaAtualizaNiveis]() { EditaAtualizaNiveis(); } );
+  lambda_connect(gerador.spin_nivel_conjurador, SIGNAL(valueChanged(int)), [EditaAtualizaNiveis]() { EditaAtualizaNiveis(); } );
+  lambda_connect(gerador.spin_bba, SIGNAL(valueChanged(int)), [EditaAtualizaNiveis]() { EditaAtualizaNiveis(); } );
+  lambda_connect(gerador.spin_mod_conjuracao, SIGNAL(valueChanged(int)), [EditaAtualizaNiveis]() { EditaAtualizaNiveis(); } );
 }
 
 void PreencheConfiguraSalvacoes(ifg::qt::Visualizador3d* pai, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto) {
@@ -1998,7 +2020,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       AdicionaOuAtualizaAtaqueEntidade(this, gerador, proto_retornado);
     }
     if (gerador.spin_nivel_classe->value() > 0) {
-      AdicionaOuEditaNivel(this, gerador, proto_retornado);
+      AdicionaOuEditaNivel(this->tabelas(), gerador, proto_retornado);
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
