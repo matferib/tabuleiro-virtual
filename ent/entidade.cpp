@@ -1308,7 +1308,8 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao)
 std::string Entidade::DetalhesAcao() const {
   const auto* dado_ataque = DadoCorrente();
   if (dado_ataque == nullptr) {
-    return google::protobuf::StringPrintf("CA: %s", StringCAParaAcao().c_str());
+    std::string sca = StringCAParaAcao();
+    return sca.empty() ? "" : google::protobuf::StringPrintf("CA: %s", sca.c_str());
   }
 
   int modificador = ModificadorAtaque(dado_ataque->tipo_ataque() != "Ataque Corpo a Corpo", proto_, EntidadeProto());
@@ -1351,10 +1352,12 @@ std::string Entidade::StringCAParaAcao() const {
   if (proto_.dados_defesa().has_ca()) {
     normal = proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
     toque = proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
-  } else {
+  } else if (da != nullptr) {
     normal = proto_.surpreso() ? da->ca_surpreso() : da->ca_normal();
     // TODO nao tem toque surpreso.
     toque = da->ca_toque();
+  } else {
+    return "";
   }
   return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
 }

@@ -1168,8 +1168,7 @@ int CATotal(const EntidadeProto& proto, bool permite_escudo) {
 }
 
 int CASurpreso(const EntidadeProto& proto, bool permite_escudo) {
-  const int destreza = BonusTotal(proto.atributos().destreza());
-  const int modificador_destreza = destreza > 0 ? ModificadorAtributo(destreza) : 0;
+  const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
   return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
 }
 
@@ -1179,7 +1178,7 @@ int CAToque(const EntidadeProto& proto) {
 }
 
 int CAToqueSurpreso(const EntidadeProto& proto) {
-  const int modificador_destreza = proto.atributos().has_destreza() ? ModificadorAtributo(BonusTotal(proto.atributos().destreza())) : 0;
+  const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
   return BonusTotalExcluindo(proto.dados_defesa().ca(),
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
 }
