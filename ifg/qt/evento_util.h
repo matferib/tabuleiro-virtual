@@ -45,9 +45,10 @@ class ModeloEvento : public QAbstractTableModel {
 
   // Os cabeçalhos.
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
-    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole) {
+    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole && section == 0) {
+      // Hack pra aumentar o tamanho da primeira coluna.
       QSize qs;
-      qs.setWidth(20);
+      qs.setWidth(100);
       return QVariant(qs);
     }
     if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
