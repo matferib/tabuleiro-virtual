@@ -71,6 +71,7 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 class Tabuleiro : public ntf::Receptor {
  public:
   explicit Tabuleiro(const OpcoesProto& opcoes,
+                     const Tabelas& tabelas,
                      tex::Texturas* texturas, const m3d::Modelos3d* m3d,
                      ntf::CentralNotificacoes* central);
 
@@ -965,6 +966,7 @@ class Tabuleiro : public ntf::Receptor {
   void ReativaWatchdog();
 
  private:
+  const Tabelas& tabelas_;
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   mutable ParametrosDesenho parametros_desenho_;
   // Parametros do tabuleiro (sem entidades).

@@ -32,7 +32,9 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+Entidade* NovaEntidade(
+    const EntidadeProto& proto,
+    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -152,8 +154,7 @@ class Entidade {
   /** Retorna as coordenadas do objeto como posicao. */
   const Posicao& Pos() const { return proto_.pos(); }
 
-  /** Adiciona um evento para acontecer em rodadas. */
-  void AdicionaEvento(int rodadas, const std::string& descricao) { proto_.add_evento()->set_rodadas(rodadas); }
+  /** Retorna uma string de uma linha com o resumo dos eventos sobre a entidade. */
   std::string ResumoEventos() const;
 
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
@@ -232,9 +233,10 @@ class Entidade {
   int CA(TipoCA tipo = CA_NORMAL) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
-  int ChanceFalha() const {
-    return proto_.dados_ataque_globais().chance_falha();
-  }
+  // A chance de falha ao atacar.
+  int ChanceFalhaAtaque() const;
+  // A chance de um inimigo falhar um ataque contra esta entidade.
+  int ChanceFalhaDefesa() const;
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
@@ -288,8 +290,9 @@ class Entidade {
   static constexpr int AtaqueCaInvalido = -100;
 
  protected:
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
-  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+  friend Entidade* NovaEntidade(
+      const EntidadeProto& proto, const Tabelas& tabelas, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
@@ -504,6 +507,7 @@ class Entidade {
 
  private:
   EntidadeProto proto_;
+  const Tabelas& tabelas_;
   VariaveisDerivadas vd_;
   const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 

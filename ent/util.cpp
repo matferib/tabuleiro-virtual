@@ -730,43 +730,6 @@ TipoEvento StringParaEfeito(const std::string& s) {
   return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
 }
 
-google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
-  google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
-  std::istringstream ss(eventos_str);
-  while (1) {
-    std::string linha;
-    if (!std::getline(ss, linha)) {
-      break;
-    }
-    // Cada linha.
-    size_t pos_dois_pontos = linha.find(':');
-    if (pos_dois_pontos == std::string::npos) {
-      LOG(ERROR) << "Ignorando evento: " << linha;
-      continue;
-    }
-    std::string descricao(linha.substr(0, pos_dois_pontos));
-    std::string complemento;
-    size_t pos_par = descricao.find("(");
-    if (pos_par != std::string::npos) {
-      complemento = descricao.substr(pos_par + 1);
-      descricao = descricao.substr(0, pos_par);
-    }
-    std::string rodadas(linha.substr(pos_dois_pontos + 1));
-    EntidadeProto::Evento evento;
-    evento.set_descricao(ent::trim(descricao));
-    evento.set_rodadas(atoi(rodadas.c_str()));
-    if (!complemento.empty()) {
-      evento.set_complemento(atoi(complemento.c_str()));
-    }
-    TipoEvento id_efeito = StringParaEfeito(evento.descricao());
-    if (id_efeito != EFEITO_INVALIDO) {
-      evento.set_id_efeito(id_efeito);
-    }
-    ret.Add()->Swap(&evento);
-  }
-  return ret;
-}
-
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
 const std::string StringSemUtf8(const std::string& id_acao) {
   std::string ret(id_acao);
@@ -1040,11 +1003,14 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     return std::make_tuple(0, texto, true);
   }
   // Chance de falha.
-  if (ea.ChanceFalha() > 0) {
-    int d100 = RolaDado(100);
-    VLOG(1) << "Chance de falha: " << ea.ChanceFalha() << ", tirou: " << d100;
-    if (d100 < ea.ChanceFalha()) {
-      return std::make_tuple(0, google::protobuf::StringPrintf("Falhou, chance %d, tirou %d", ea.ChanceFalha(), d100), true);
+  {
+    const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa());
+    if (chance_falha > 0) {
+      const int d100 = RolaDado(100);
+      VLOG(1) << "Chance de falha: " << chance_falha << ", tirou: " << d100;
+      if (d100 < chance_falha) {
+        return std::make_tuple(0, google::protobuf::StringPrintf("Falhou, chance %d, tirou %d", chance_falha, d100), true);
+      }
     }
   }
 
@@ -1183,7 +1149,7 @@ int CAToqueSurpreso(const EntidadeProto& proto) {
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
 }
 
-bool TemBonus(TipoBonus tipo, const Bonus& bonus) {
+bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
     if (bi.tipo() == tipo) {
       return true;
@@ -1280,7 +1246,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   const auto& arma = tabelas.Arma(da->id_arma());
   if (arma.has_id()) {
     da->set_acuidade(false);
-    if (proto.dados_ataque_globais().acuidade() && 
+    if (proto.dados_ataque_globais().acuidade() &&
         (PossuiCategoria(CAT_LEVE, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
@@ -1325,7 +1291,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   const std::string& tipo_str = da->tipo_ataque();
   bool usar_forca_dano = false;
   const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
-  if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" || 
+  if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" ||
       tipo_str == "Pedrada (gigante)" || tipo_str == "Raio") {
     bba = bba_distancia;
     if (PossuiCategoria(CAT_ARCO, arma)) {
@@ -1356,9 +1322,49 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   }
 }
 
+void AplicaBonus(const Bonus& bonus, Bonus* alvo) {
+  for (const auto& bi : bonus.bonus_individual()) {
+    for (const auto& po : bi.por_origem()) {
+      AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
+    }
+  }
+}
+
+void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  AplicaBonus(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
+  AplicaBonus(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
+  AplicaBonus(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
+  AplicaBonus(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
+  AplicaBonus(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
+  AplicaBonus(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+}
+
+void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
+  std::set<int, std::greater<int>> eventos_a_remover;
+  int i = 0;
+  // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
+  for (const auto& evento : proto->evento()) {
+    if (evento.rodadas() < 0) {
+      const auto& efeito = tabelas.Efeito(evento.id_efeito());
+      AplicaEfeito(efeito.consequencia_fim(), proto);
+      eventos_a_remover.insert(i);
+    }
+    ++i;
+  }
+  for (int i : eventos_a_remover) {
+    proto->mutable_evento()->DeleteSubrange(i, 1);
+  }
+  for (const auto& evento : proto->evento()) {
+    const auto& efeito = tabelas.Efeito(evento.id_efeito());
+    AplicaEfeito(efeito.consequencia(), proto);
+  }
+}
+
 }  // namespace
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
+  RecomputaDependenciasEfeitos(tabelas, proto);
+
   auto* dd = proto->mutable_dados_defesa();
   // Ajusta a destreza de acordo com a armadura. Primeiro limpa para calcular a penalidade de armadura ou escudo.
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
@@ -1487,7 +1493,7 @@ int ModificadorAtributo(int atributo) {
 
 int ModificadorAtributo(const Bonus& atributo) {
   int total_atributo = BonusTotal(atributo);
-  if (!TemBonus(TB_BASE, atributo)) {
+  if (!PossuiBonus(TB_BASE, atributo)) {
     total_atributo += 10;
   }
   return ModificadorAtributo(total_atributo);
@@ -1521,6 +1527,12 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
     case TM_COLOSSAL: return 16;
   }
   return 0;
+}
+
+bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade) {
+  return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
+    return evento.id_efeito() == tipo;
+  });
 }
 
 

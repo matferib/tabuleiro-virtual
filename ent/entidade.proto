@@ -1,6 +1,5 @@
 import "ent/acoes.proto";
 import "ent/comum.proto";
-//import "ent/tabelas.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -49,6 +48,12 @@ enum TipoEvento {
   EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
   EFEITO_PISCAR = 2;
   EFEITO_BORRAR = 3;
+
+  EFEITO_FORCA_TOURO = 4;
+  EFEITO_AGILIDADE_DO_GATO = 5;
+  EFEITO_ACELERAR = 6;
+  EFEITO_AUMENTAR_PESSOA = 7;
+  EFEITO_DIMINUIR_PESSOA = 8;
 }
 
 // Informacoes sobre a classe de um personagem.
@@ -126,6 +131,16 @@ message BonusIndividual {
 // Diferentes tipos de bonus.
 message Bonus {
   repeated BonusIndividual bonus_individual = 1;
+}
+
+// Os atributos basicos.
+message Atributos {
+  optional Bonus forca = 1;
+  optional Bonus destreza = 2;
+  optional Bonus constituicao = 3;
+  optional Bonus inteligencia = 4;
+  optional Bonus sabedoria = 5;
+  optional Bonus carisma = 6;
 }
 
 message EntidadeProto {
@@ -244,14 +259,6 @@ message EntidadeProto {
   }
   repeated Evento evento = 31;
 
-  message Atributos {
-    optional Bonus forca = 1;
-    optional Bonus destreza = 2;
-    optional Bonus constituicao = 3;
-    optional Bonus inteligencia = 4;
-    optional Bonus sabedoria = 5;
-    optional Bonus carisma = 6;
-  }
   optional Atributos atributos = 68;
 
   // Dados para ataque automatico.

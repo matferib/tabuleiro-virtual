@@ -20,12 +20,14 @@ bool ImprimeSeErro();
 namespace ent {
 
 // Factory.
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
+Entidade* NovaEntidade(
+    const EntidadeProto& proto,
+    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(texturas, m3d, central, pd);
+      auto* entidade = new Entidade(tabelas, texturas, m3d, central, pd);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -37,7 +39,9 @@ Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, con
 }
 
 // Entidade
-Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
+Entidade::Entidade(
+    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
+    : tabelas_(tabelas) {
   vd_.texturas = texturas;
   vd_.m3d = m3d;
   parametros_desenho_ = pd;
@@ -304,10 +308,15 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
+  // Seta pra -1. faz o merge, no final recomputa remove.
+  for (auto& evento : *proto_original.mutable_evento()) {
+    evento.set_rodadas(-1);
+  }
   proto_.CopyFrom(novo_proto);
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
+  proto_.mutable_evento()->MergeFrom(proto_original.evento());
   proto_.set_id(proto_original.id());
   proto_.set_tipo(proto_original.tipo());
   proto_.mutable_pos()->Swap(proto_original.mutable_pos());
@@ -335,6 +344,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   }
 #endif
   AtualizaVbo(parametros_desenho_);
+  RecomputaDependencias(tabelas_, &proto_);
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
@@ -346,7 +356,7 @@ void Entidade::AtualizaEfeitos() {
     a_remover.insert(efeito_vd.first);
   }
   for (const auto& evento : proto_.evento()) {
-    if (!evento.has_id_efeito()) {
+    if (!evento.has_id_efeito() || evento.id_efeito() == EFEITO_INVALIDO) {
       continue;
     }
     AtualizaEfeito(static_cast<TipoEvento>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
@@ -499,9 +509,9 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
 
 void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 #if DEBUG
-    glFinish();
+  glFinish();
 #endif
-    timer->stop();
+  timer->stop();
 
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaEscopo {
@@ -887,8 +897,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
-    // Evento eh repeated, merge nao serve.
-    proto_.clear_evento();
+    // As duracoes -1 serao retiradas ao recomputar dependencias.
+    for (auto& evento : *proto_.mutable_evento()) {
+      evento.set_rodadas(-1);
+    }
   }
   if (proto_parcial.lista_acoes_size() > 0) {
     // repeated.
@@ -909,10 +921,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // casos especiais.
   if (proto_parcial.iniciativa() == INICIATIVA_INVALIDA) {
     proto_.clear_iniciativa();
-  }
-  if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
-    // Evento dummy so para limpar eventos.
-    proto_.clear_evento();
   }
   // Transicao nunca eh atualizacao parcial. Se for, deve considerar se ha transicao.
   // if ((proto_parcial.has_transicao_cenario && proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) ||
@@ -948,6 +956,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
   }
+  RecomputaDependencias(tabelas_, &proto_);
   VLOG(1) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
 
@@ -1680,11 +1689,29 @@ std::string Entidade::ResumoEventos() const {
   }
   std::string resumo_eventos;
   for (const auto& evento : proto_.evento()) {
+    if (evento.rodadas() < 0 || evento.id_efeito() == EFEITO_INVALIDO) continue;
     resumo_eventos += evento.descricao() + ", ";
   }
   resumo_eventos.pop_back();
   resumo_eventos.pop_back();
   return resumo_eventos;
+}
+
+int Entidade::ChanceFalhaDefesa() const {
+  int chance = 0;
+  if (PossuiEvento(EFEITO_BORRAR, proto_)) chance = 20;
+  // TODO
+  // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
+  if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
+  return chance;
+}
+
+int Entidade::ChanceFalhaAtaque() const {
+  // Chance de ficar etereo ao atacar.
+  int chance = 0;
+  if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
+  chance = std::max(chance, proto_.dados_ataque_globais().chance_falha());
+  return chance;
 }
 
 }  // namespace ent

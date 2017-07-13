@@ -175,7 +175,7 @@ modelo {
     dados_vida: '4d10' modelo_3d { id: 'blinkdog' }
     modificador_iniciativa: 3
     rotulo_especial: 'Piscar a vontade\nporta dimensional uma vez por rodada como acao livre\nsalv: 4/7/4'
-    evento { id_efeito: 2 rodadas: 8 }
+    evento { id_efeito: EFEITO_PISCAR rodadas: 8 }
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 16 ca_toque: 13 ca_surpreso: 13
     }

@@ -147,11 +147,6 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 /** Posicionamento do raster em 2d. */
 void PosicionaRaster2d(int x, int y);
 
-/** Realiza a leitura de uma string de eventos, um por linha, formato:
-* descricao [(complemento)] : rodadas.
-*/
-google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
-
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
 TipoEvento StringParaEfeito(const std::string& s);
 
@@ -238,7 +233,7 @@ int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus);
 int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual);
 // Retorna true se tipo estiver presente em bonus.
-bool TemBonus(TipoBonus tipo, const Bonus& bonus);
+bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
@@ -257,6 +252,9 @@ int CAToqueSurpreso(const EntidadeProto& proto);
 
 inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
 inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+
+// Retorna verdadeiro se a entidade tiver um evento do tipo passado.
+bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade);
 
 }  // namespace ent
 

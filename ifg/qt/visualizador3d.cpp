@@ -921,15 +921,17 @@ void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
     QLabel* label;
     std::tie(bonus, spin, botao, label) = t;
     spin->blockSignals(true);
-    spin->setValue(ent::BonusIndividualTotal(ent::TB_BASE, *bonus));
-    spin->blockSignals(false);
-    const int bonus_total = ent::BonusTotal(*bonus);
-    botao->setText(QString::number(bonus_total));
-    if (label != gerador.label_mod_destreza) {
-      label->setText(NumeroSinalizado(ent::ModificadorAtributo(bonus_total)));
+    int bonus_total = ent::BonusTotal(*bonus);
+    if (!PossuiBonus(ent::TB_BASE, *bonus)) {
+      bonus_total += 10;
+      spin->setValue(10);
     } else {
-      const int mod_destreza = ent::ModificadorAtributo(proto.atributos().destreza());
-      label->setText(NumeroSinalizado(mod_destreza));
+      spin->setValue(ent::BonusIndividualTotal(ent::TB_BASE, *bonus));
+    }
+    spin->blockSignals(false);
+    botao->setText(QString::number(bonus_total));
+    label->setText(NumeroSinalizado(ent::ModificadorAtributo(*bonus)));
+    if (label == gerador.label_mod_destreza) {
       if (ent::BonusIndividualTotal(ent::TB_ARMADURA, proto.atributos().destreza()) < 0) {
         label->setStyleSheet("color: red;");
       } else {
@@ -1180,7 +1182,8 @@ void PreencheConfiguraComboArmaArmaduraEscudo(
   });
 }
 
-void PreencheConfiguraEventos(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraEventos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   *proto_retornado->mutable_evento() = proto.evento();
   auto* modelo(new ModeloEvento(proto_retornado->mutable_evento(), gerador.tabela_lista_eventos));
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
@@ -1200,6 +1203,13 @@ void PreencheConfiguraEventos(ifg::qt::Ui::DialogoEntidade& gerador, const ent::
   gerador.tabela_lista_eventos->setItemDelegateForColumn(0, delegado);
   delegado->deleteLater();
   gerador.tabela_lista_eventos->resizeColumnsToContents();
+  // TODO nao ta funcionando esse sinal.
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&)), 
+                 [this_, proto_retornado, &gerador] () {
+    RecomputaDependencias(this_->tabelas(), proto_retornado);
+    AtualizaUIAtributos(this_->tabelas(), gerador, *proto_retornado);
+    AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
+  });
 }
 
 void PreencheConfiguraAtributos(
@@ -1207,10 +1217,6 @@ void PreencheConfiguraAtributos(
   AtualizaUIAtributos(this_->tabelas(), gerador, proto);
   // Atualiza os campos.
   auto* atrib = proto_retornado->mutable_atributos();
-  lambda_connect(gerador.spin_forca, SIGNAL(valueChanged(int)), [this_, &gerador, atrib, proto_retornado] () {
-    ent::AtribuiBonus(gerador.spin_forca->value(), ent::TB_BASE, "base", atrib->mutable_forca());
-    AtualizaUIAtributos(this_->tabelas(), gerador, *proto_retornado);
-  });
   std::vector<std::tuple<QPushButton*, QSpinBox*, ent::Bonus*>> tuplas = {
     std::make_tuple(gerador.botao_bonus_forca,        gerador.spin_forca,        atrib->mutable_forca()),
     std::make_tuple(gerador.botao_bonus_destreza,     gerador.spin_destreza,     atrib->mutable_destreza()),
@@ -1580,7 +1586,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
 
   // Eventos.
-  PreencheConfiguraEventos(gerador, entidade, proto_retornado);
+  PreencheConfiguraEventos(this, gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);

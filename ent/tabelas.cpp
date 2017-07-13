@@ -121,6 +121,11 @@ Tabelas::Tabelas() {
   };
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 75, Arma("arco_curto_composto"));
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 100, Arma("arco_longo_composto"));
+
+  for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {
+    efeitos_[efeito.id()] = &efeito;
+  }
+
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -136,6 +141,12 @@ const ArmaduraOuEscudoProto& Tabelas::Escudo(const std::string& id) const {
 const ArmaProto& Tabelas::Arma(const std::string& id) const {
   auto it = armas_.find(id);
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
+}
+
+const EfeitoProto& Tabelas::Efeito(TipoEvento tipo) const {
+  auto it = efeitos_.find(tipo);
+  return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
+
 }
 
 }  // namespace

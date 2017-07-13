@@ -874,3 +874,16 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
   }
 }
+
+tabela_efeitos {
+  efeitos {
+    id: EFEITO_FORCA_TOURO
+    consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
+    consequencia_fim { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'forca_touro%s' } } } } }
+  }
+  efeitos {
+    id: EFEITO_AGILIDADE_DO_GATO
+    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
+    consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
+  }
+}

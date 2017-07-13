@@ -149,9 +149,10 @@ void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* t
 }  // namespace.
 
 Tabuleiro::Tabuleiro(
-    const OpcoesProto& opcoes, tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+    const OpcoesProto& opcoes, const Tabelas& tabelas, tex::Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central)
-    : id_cliente_(0),
+    : tabelas_(tabelas),
+      id_cliente_(0),
       proximo_id_cliente_(1),
       texturas_(texturas),
       m3d_(m3d),
@@ -1064,7 +1065,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(modelo, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
@@ -1097,7 +1098,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -4731,7 +4732,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, texturas_, m3d_, central_, &parametros_desenho_);
+    auto* e = NovaEntidade(ep, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
@@ -6592,17 +6593,13 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
   // Desfazer.
   proto_antes.set_id(id);
   proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+  proto_depois.mutable_evento()->CopyFrom(entidade->Proto().evento());
   // Novo proto.
   proto_depois.set_id(id);
-  for (const auto& evento : entidade->Proto().evento()) {
-    int rodadas = evento.rodadas();
-    if (rodadas > 0) {
-      proto_depois.add_evento()->CopyFrom(evento);
+  for (auto& evento : *proto_depois.mutable_evento()) {
+    if (evento.rodadas() == 0) {
+      evento.set_rodadas(-1);
     }
-  }
-  // Hack: se nao tiver nenhum evento mais, cria um dummy para a atualizacao parcial saber que deve mexer nos eventos.
-  if (proto_depois.evento_size() == 0) {
-    proto_depois.add_evento();
   }
 
   ntf::Notificacao n;
