@@ -720,8 +720,8 @@ void PosicionaRaster2d(int x, int y) {
   gl::PosicaoRasterAbsoluta(x, y);
 }
 
-efeitos_e StringParaEfeito(const std::string& s) {
-  static std::unordered_map<std::string, efeitos_e> mapa = {
+TipoEvento StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, TipoEvento> mapa = {
     { "borrar", EFEITO_BORRAR },
     { "reflexos", EFEITO_REFLEXOS },
     { "piscar", EFEITO_PISCAR },
@@ -758,7 +758,7 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
     if (!complemento.empty()) {
       evento.set_complemento(atoi(complemento.c_str()));
     }
-    efeitos_e id_efeito = StringParaEfeito(evento.descricao());
+    TipoEvento id_efeito = StringParaEfeito(evento.descricao());
     if (id_efeito != EFEITO_INVALIDO) {
       evento.set_id_efeito(id_efeito);
     }

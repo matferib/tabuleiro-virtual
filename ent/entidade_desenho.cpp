@@ -382,7 +382,7 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {
-  efeitos_e efeito = static_cast<efeitos_e>(efeito_proto.id_efeito());
+  TipoEvento efeito = static_cast<TipoEvento>(efeito_proto.id_efeito());
   if (efeito == EFEITO_INVALIDO) {
     return;
   }

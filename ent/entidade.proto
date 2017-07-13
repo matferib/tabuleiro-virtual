@@ -43,6 +43,14 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
+enum TipoEvento {
+  EFEITO_INVALIDO = -1;
+  EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
+  EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
+  EFEITO_PISCAR = 2;
+  EFEITO_BORRAR = 3;
+}
+
 // Informacoes sobre a classe de um personagem.
 message InfoClasse {
   optional string id = 1;
@@ -231,7 +239,7 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
-    optional int32 id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. Ids validos em nt/util.h.
+    optional TipoEvento id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;

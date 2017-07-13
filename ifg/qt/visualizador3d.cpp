@@ -23,12 +23,12 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "goog/stringprintf.h"
+#include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
-#include "ifg/qt/ui/dialogo_bonus.h"
+#include "ifg/qt/evento_util.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
-#include "ifg/qt/ui/dialogobonus.h"
 #include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/cenario.h"
 #include "ifg/qt/ui/opcoes.h"
@@ -557,282 +557,6 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
   teclado_mouse_->TrataRodela(event->delta());
   event->accept();
-}
-
-int TipoParaIndice(ent::TipoBonus tipo) {
-  return tipo;
-}
-
-int NumeroLinhas(const ent::Bonus& bonus) {
-  int total = 0;
-  for (const auto& bi : bonus.bonus_individual()) {
-    total += bi.por_origem_size();
-  }
-  return total;
-}
-
-void PreencheComboBonus(ent::TipoBonus tipo, QComboBox* combo) {
-  for (int tipo = ent::TipoBonus_MIN; tipo <= ent::TipoBonus_MAX; tipo++) {
-    if (!ent::TipoBonus_IsValid(tipo)) continue;
-    combo->addItem(ent::TipoBonus_Name(ent::TipoBonus(tipo)).c_str(), QVariant(tipo));
-  }
-  combo->setCurrentIndex(tipo);
-}
-
-// Modelo de bonus para ser usado pelos views de tabela.
-class ModeloBonus : public QAbstractTableModel {
- public:
-  ModeloBonus(const ent::Bonus& bonus, QTableView* tabela)
-      : QAbstractTableModel(tabela), tabela_(tabela), bonus_(bonus) {}
-
-  // Numero de linhas da tabela.
-  int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
-    return NumeroLinhas(bonus_);
-  }
-
-  // 0: tipo. 1: origem. 2: valor.
-  int columnCount(const QModelIndex& parent = QModelIndex()) const override {
-    return 3;
-  }
-
-  bool insertRows(int row, int count, const QModelIndex& parent) override {
-    if (count != 1) return false;
-    beginInsertRows(parent, 0, 0);
-    ent::AtribuiBonus(0, ent::TB_BASE, "origem", &bonus_);
-    endInsertRows();
-    return true;
-  }
-
-  bool removeRows(int row, int count, const QModelIndex& parent) override {
-    beginRemoveRows(parent, row, row + count - 1);
-    std::vector<std::pair<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*>> bis_pos(count);
-    while (count--) {
-      auto& bi_po = bis_pos[count];
-      std::tie(bi_po.first, bi_po.second) = DadosEm(row);
-    }
-    for (const auto& bi_po : bis_pos) {
-      RemoveBonus(bi_po.first->tipo(), bi_po.second->origem(), &bonus_);
-    }
-    endRemoveRows();
-    return true;
-  }
-
-  // Os cabeçalhos.
-  QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
-      return QVariant();
-    }
-    switch (section) {
-      case 0: return QVariant("Tipo");
-      case 1: return QVariant("Origem");
-      case 2: return QVariant("Valor");
-    }
-    return QVariant("Desconhecido");
-  }
-
-  // Dado de cada celula.
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
-      return QVariant();
-    }
-
-    const ent::BonusIndividual* bi;
-    const ent::BonusIndividual_PorOrigem* po;
-    std::tie(bi, po) = DadosEm(index);
-    if (bi == nullptr || po == nullptr) {
-      LOG(INFO) << "bi == nullptr?  " << (bi == nullptr ? "YES" : "NO")
-                << ", po == nullptr? " << (po == nullptr ? "YES" : "NO");
-      return QVariant();
-    }
-    const int column = index.column();
-    switch (column) {
-      case 0: return role == Qt::EditRole ? QVariant() : QVariant(ent::TipoBonus_Name(bi->tipo()).c_str());
-      case 1: return QVariant(po->origem().c_str());
-      case 2: return QVariant(po->valor());
-    }
-    // Nunca deveria chegar aqui.
-    LOG(INFO) << "Coluna invalida: " << column;
-    return QVariant();
-  }
-
-  bool setData(const QModelIndex& index, const QVariant& value, int role) override {
-    if (role != Qt::EditRole) {
-      return false;
-    }
-
-    ent::BonusIndividual* bi = nullptr;
-    ent::BonusIndividual_PorOrigem* po = nullptr;
-    std::tie(bi, po) = DadosEm(index);
-    if (bi == nullptr || po == nullptr) {
-      LOG(INFO) << "bi == nullptr?  " << (bi == nullptr ? "YES" : "NO")
-                << ", po == nullptr? " << (po == nullptr ? "YES" : "NO");
-      return false;
-    }
-    const int column = index.column();
-    switch (column) {
-      case 0: {
-        int tipo = value.toInt();
-        if (!ent::TipoBonus_IsValid(tipo)) {
-          LOG(INFO) << "Tipo de bonus invalido: " << tipo;
-          return false;
-        }
-        if (tipo == bi->tipo()) {
-          LOG(INFO) << "Sem mudanca de tipo: " << value.toString().toUtf8().constData();
-          return false;
-        }
-        // Adiciona nova origem.
-        ent::AtribuiBonus(po->valor(), ent::TipoBonus(tipo), po->origem(), &bonus_);
-        // Remove a origem do tipo corrente.
-        RemoveBonus(bi->tipo(), po->origem(), &bonus_);
-        LOG(INFO) << "novo proto: " << bonus_.DebugString();
-        tabela_->setIndexWidget(index, nullptr);
-        return true;
-      }
-      case 1: {
-        po->set_origem(value.toString().toUtf8().constData());
-        return true;
-      }
-      case 2: {
-        bool ok = false;
-        int valor = value.toInt(&ok);
-        if (!ok) return false;
-        po->set_valor(valor);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Qt::ItemFlags flags(const QModelIndex & index) const {
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
-  }
-
-  const ent::Bonus Bonus() const { return bonus_; }
-
- private:
-  std::tuple<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*> DadosEm(int row) {
-    while (row >= 0) {
-      for (auto& bi : *bonus_.mutable_bonus_individual()) {
-        if (row < bi.por_origem_size()) {
-          // achou o bi.
-          return std::make_tuple(&bi, bi.mutable_por_origem(row));
-        } else {
-          row -= bi.por_origem_size();
-        }
-      }
-    }
-    return std::make_tuple(nullptr, nullptr);
-  }
-
-  std::tuple<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*> DadosEm(const QModelIndex& index) {
-    return DadosEm(index.row());
-  }
-
-  std::tuple<const ent::BonusIndividual*, const ent::BonusIndividual_PorOrigem*> DadosEm(
-      const QModelIndex& index) const {
-    return DadosEm(index.row());
-  }
-
-  std::tuple<const ent::BonusIndividual*, const ent::BonusIndividual_PorOrigem*> DadosEm(int row) const {
-    while (row >= 0) {
-      for (auto& bi : bonus_.bonus_individual()) {
-        if (row < bi.por_origem_size()) {
-          // achou o bi.
-          return std::make_tuple(&bi, &bi.por_origem(row));
-        } else {
-          row -= bi.por_origem_size();
-        }
-      }
-    }
-    return std::make_tuple(nullptr, nullptr);
-  }
-
- private:
-  QTableView* tabela_;
-  ent::Bonus bonus_;
-};
-
-// Responsavel por tratar a edicao do tipo de bonus.
-class TipoBonusDelegate : public QItemDelegate {
- public:
-  TipoBonusDelegate(QTableView* tabela, ModeloBonus* modelo, QObject* parent)
-      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {}
-
-  QWidget* createEditor(
-      QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-    QComboBox* combo = new QComboBox(parent);
-    PreencheComboBonus(ent::TB_BASE, combo);
-    LOG(INFO) << "Criando combo";
-    return combo;
-  }
-
-  void setEditorData(QWidget* editor, const QModelIndex& index) const override {
-    auto* combo = qobject_cast<QComboBox*>(editor);
-    if (combo == nullptr) {
-      LOG(INFO) << "combo == nullptr em setEditorData";
-      return;
-    }
-    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo, index] () {
-      setModelData(combo, modelo_, index);
-      emit closeEditor(combo);
-    });
-    QVariant data = modelo_->data(index);
-    ent::TipoBonus tipo;
-    if (!ent::TipoBonus_Parse(data.toString().toUtf8().constData(), &tipo)) {
-      return;
-    }
-    combo->setCurrentIndex(tipo);
-  }
-
-  void setModelData(
-      QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
-    auto* combo = qobject_cast<QComboBox*>(editor);
-    if (combo == nullptr) {
-      LOG(INFO) << "combo == nullptr em setEditorData";
-      return;
-    }
-    modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
-    tabela_->reset();
-  }
-
- private:
-  QTableView* tabela_;
-  ModeloBonus* modelo_;
-  ent::TipoBonus tipo_;
-};
-
-void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
-  ifg::qt::Ui::DialogoBonus gerador;
-  std::unique_ptr<QDialog> dialogo(new QDialog(pai));
-  gerador.setupUi(dialogo.get());
-  std::unique_ptr<QItemSelectionModel> delete_model(gerador.tabela_bonus->selectionModel());
-  std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(*bonus, gerador.tabela_bonus));
-  gerador.tabela_bonus->setModel(modelo.get());
-  lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&modelo] () {
-    modelo->insertRows(0, 1, QModelIndex());
-  });
-  lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&modelo, &gerador] () {
-#if 0
-    auto selecionados = gerador.tabela_bonus->selectedIndexes();
-    std::set<int, std::greater> linhas;
-    for (const QModelIndex index : selecionados) {
-      linhas.insert(index.row());
-    }
-    for (int linha : linhas) {
-      modelo->RemoveRows(index.row(), 1, QModelIndex());
-    }
-#endif
-  });
-  std::unique_ptr<QAbstractItemDelegate> delegado(
-      new TipoBonusDelegate(gerador.tabela_bonus, modelo.get(), gerador.tabela_bonus));
-  std::unique_ptr<QAbstractItemDelegate> delete_previous(gerador.tabela_bonus->itemDelegateForColumn(0));
-  gerador.tabela_bonus->setItemDelegateForColumn(0, delegado.get());
-
-  auto res = dialogo->exec();
-  if (res == QDialog::Rejected) {
-    return;
-  }
-  *bonus = modelo->Bonus();
 }
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
@@ -1456,6 +1180,28 @@ void PreencheConfiguraComboArmaArmaduraEscudo(
   });
 }
 
+void PreencheConfiguraEventos(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  *proto_retornado->mutable_evento() = proto.evento();
+  auto* modelo(new ModeloEvento(proto_retornado->mutable_evento(), gerador.tabela_lista_eventos));
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
+  gerador.tabela_lista_eventos->setModel(modelo);
+  lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [modelo] () { modelo->insertRows(0, 1, QModelIndex()); });
+  lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
+    std::set<int, std::greater<int>> linhas;
+    for (const QModelIndex& index : gerador.tabela_lista_eventos->selectionModel()->selectedIndexes()) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->removeRows(linha, 1, QModelIndex());
+    }
+  });
+  auto* delegado = new TipoEventoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);
+  std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(gerador.tabela_lista_eventos->itemDelegateForColumn(0));
+  gerador.tabela_lista_eventos->setItemDelegateForColumn(0, delegado);
+  delegado->deleteLater();
+  gerador.tabela_lista_eventos->resizeColumnsToContents();
+}
+
 void PreencheConfiguraAtributos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   AtualizaUIAtributos(this_->tabelas(), gerador, proto);
@@ -1832,18 +1578,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     rotulos_especiais += rotulo_especial + "\n";
   }
   gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
-  // Eventos entidades.
-  std::string eventos;
-  for (const auto& evento : entidade.evento()) {
-    eventos += evento.descricao();
-    if (evento.has_complemento()) {
-      eventos += " (";
-      eventos += net::to_string(evento.complemento());
-      eventos += ")";
-    }
-    eventos += ": " + net::to_string(evento.rodadas()) + "\n";
-  }
-  gerador.lista_eventos->appendPlainText(QString::fromUtf8(eventos.c_str()));
+
+  // Eventos.
+  PreencheConfiguraEventos(gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -1990,8 +1727,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toUtf8().constData());
     }
-    google::protobuf::RepeatedPtrField<ent::EntidadeProto::Evento> eventos = ent::LeEventos(gerador.lista_eventos->toPlainText().toUtf8().constData());
-    proto_retornado->mutable_evento()->Swap(&eventos);
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
@@ -2069,6 +1804,30 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   dialogo->exec();
   delete dialogo;
   return proto_retornado;
+}
+
+void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
+  ifg::qt::Ui::DialogoBonus gerador;
+  std::unique_ptr<QDialog> dialogo(new QDialog(pai));
+  gerador.setupUi(dialogo.get());
+  std::unique_ptr<QItemSelectionModel> delete_model(gerador.tabela_bonus->selectionModel());
+  std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(*bonus, gerador.tabela_bonus));
+  gerador.tabela_bonus->setModel(modelo.get());
+  lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&modelo] () {
+      modelo->insertRows(0, 1, QModelIndex());
+  });
+  lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&modelo, &gerador] () {
+  });
+  std::unique_ptr<QAbstractItemDelegate> delegado(
+      new TipoBonusDelegate(gerador.tabela_bonus, modelo.get(), gerador.tabela_bonus));
+  std::unique_ptr<QAbstractItemDelegate> delete_previous(gerador.tabela_bonus->itemDelegateForColumn(0));
+  gerador.tabela_bonus->setItemDelegateForColumn(0, delegado.get());
+
+  auto res = dialogo->exec();
+  if (res == QDialog::Rejected) {
+    return;
+  }
+  *bonus = modelo->Bonus();
 }
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(

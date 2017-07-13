@@ -31,6 +31,7 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
+#include <QtGui/QTableView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
@@ -108,7 +109,7 @@ public:
     QWidget *layoutWidget_2;
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_11;
-    QPlainTextEdit *lista_eventos;
+    QTableView *tabela_lista_eventos;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
     QHBoxLayout *horizontalLayout_14;
@@ -138,6 +139,8 @@ public:
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_10;
     QPlainTextEdit *lista_rotulos;
+    QPushButton *botao_adicionar_evento;
+    QPushButton *botao_remover_evento;
     QWidget *tab_nivel;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_31;
@@ -699,22 +702,22 @@ public:
 
         layoutWidget_2 = new QWidget(tab_geral);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
-        layoutWidget_2->setGeometry(QRect(420, 10, 421, 141));
+        layoutWidget_2->setGeometry(QRect(420, 10, 541, 141));
         horizontalLayout_19 = new QHBoxLayout(layoutWidget_2);
         horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
         horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
         label_11 = new QLabel(layoutWidget_2);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        sizePolicy2.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
-        label_11->setSizePolicy(sizePolicy2);
+        sizePolicy5.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy5);
         label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_19->addWidget(label_11);
 
-        lista_eventos = new QPlainTextEdit(layoutWidget_2);
-        lista_eventos->setObjectName(QString::fromUtf8("lista_eventos"));
+        tabela_lista_eventos = new QTableView(layoutWidget_2);
+        tabela_lista_eventos->setObjectName(QString::fromUtf8("tabela_lista_eventos"));
 
-        horizontalLayout_19->addWidget(lista_eventos);
+        horizontalLayout_19->addWidget(tabela_lista_eventos);
 
         horizontalLayoutWidget_3 = new QWidget(tab_geral);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
@@ -876,6 +879,12 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_18);
 
+        botao_adicionar_evento = new QPushButton(tab_geral);
+        botao_adicionar_evento->setObjectName(QString::fromUtf8("botao_adicionar_evento"));
+        botao_adicionar_evento->setGeometry(QRect(970, 40, 31, 27));
+        botao_remover_evento = new QPushButton(tab_geral);
+        botao_remover_evento->setObjectName(QString::fromUtf8("botao_remover_evento"));
+        botao_remover_evento->setGeometry(QRect(970, 70, 31, 27));
         tab_tesouro->addTab(tab_geral, QString());
         tab_nivel = new QWidget();
         tab_nivel->setObjectName(QString::fromUtf8("tab_nivel"));
@@ -1768,8 +1777,7 @@ public:
         QWidget::setTabOrder(combo_visao, spin_raio_visao_escuro_quad);
         QWidget::setTabOrder(spin_raio_visao_escuro_quad, spin_translacao_quad);
         QWidget::setTabOrder(spin_translacao_quad, combo_salvacao);
-        QWidget::setTabOrder(combo_salvacao, lista_eventos);
-        QWidget::setTabOrder(lista_eventos, checkbox_cor);
+        QWidget::setTabOrder(combo_salvacao, checkbox_cor);
         QWidget::setTabOrder(checkbox_cor, botao_cor);
         QWidget::setTabOrder(botao_cor, slider_alfa);
         QWidget::setTabOrder(slider_alfa, spin_raio_quad);
@@ -1912,9 +1920,6 @@ public:
         spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Largura da textura, de 0 a 1", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        lista_eventos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cada linha deve conter um evento com formato <descricao:rodadas> sem as <>.", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
         label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_raio_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da luz, em metros.", 0, QApplication::UnicodeUTF8));
@@ -1941,6 +1946,8 @@ public:
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
+        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
         label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

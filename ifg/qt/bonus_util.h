@@ -1,5 +1,5 @@
-#ifndef IFG_QT_DIALOGO_BONUS_H
-#define IFG_QT_DIALOGO_BONUS_H
+#ifndef IFG_QT_DIALOGO_BONUS_UTIL_H
+#define IFG_QT_DIALOGO_BONUS_UTIL_H
 
 #include <QComboBox>
 #include "ifg/qt/ui/dialogobonus.h"

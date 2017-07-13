@@ -147,21 +147,13 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 /** Posicionamento do raster em 2d. */
 void PosicionaRaster2d(int x, int y);
 
-// Tipos de efeitos possiveis.
-enum efeitos_e {
-  EFEITO_INVALIDO = -1,
-  EFEITO_BORRAR = 0,
-  EFEITO_REFLEXOS = 1,  // complemento: numero de imagens.
-  EFEITO_PISCAR = 2,
-};
-
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
 * descricao [(complemento)] : rodadas.
 */
 google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
-efeitos_e StringParaEfeito(const std::string& s);
+TipoEvento StringParaEfeito(const std::string& s);
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {

@@ -734,7 +734,7 @@ QGroupBox::title {
       <rect>
        <x>420</x>
        <y>10</y>
-       <width>421</width>
+       <width>541</width>
        <height>141</height>
       </rect>
      </property>
@@ -742,7 +742,7 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="label_11">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -756,11 +756,7 @@ QGroupBox::title {
        </widget>
       </item>
       <item>
-       <widget class="QPlainTextEdit" name="lista_eventos">
-        <property name="toolTip">
-         <string>Cada linha deve conter um evento com formato &lt;descricao:rodadas&gt; sem as &lt;&gt;.</string>
-        </property>
-       </widget>
+       <widget class="QTableView" name="tabela_lista_eventos"/>
       </item>
      </layout>
     </widget>
@@ -1032,6 +1028,32 @@ QGroupBox::title {
        </layout>
       </item>
      </layout>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_evento">
+     <property name="geometry">
+      <rect>
+       <x>970</x>
+       <y>40</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_evento">
+     <property name="geometry">
+      <rect>
+       <x>970</x>
+       <y>70</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>-</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_nivel">
@@ -2918,7 +2940,6 @@ QGroupBox::title {
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
   <tabstop>spin_translacao_quad</tabstop>
   <tabstop>combo_salvacao</tabstop>
-  <tabstop>lista_eventos</tabstop>
   <tabstop>checkbox_cor</tabstop>
   <tabstop>botao_cor</tabstop>
   <tabstop>slider_alfa</tabstop>

@@ -13,13 +13,14 @@ namespace qt {
 class ModeloEvento : public QAbstractTableModel {
  public:
   using Evento = ent::EntidadeProto::Evento;
+  using Eventos = google::protobuf::RepeatedPtrField<Evento>;
 
-  ModeloEvento(const google::protobuf::RepeatedPtrField<Evento>& eventos, QTableView* tabela)
+  ModeloEvento(Eventos* eventos, QTableView* tabela)
       : QAbstractTableModel(tabela), tabela_(tabela), eventos_(eventos) {}
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
-    return eventos_.size();
+    return eventos_->size();
   }
 
   // 0: id efeito. 1: complemento. 2: rodadas. 3. descricao.
@@ -30,14 +31,14 @@ class ModeloEvento : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    eventos_.Add();
+    eventos_->Add();
     endInsertRows();
     return true;
   }
 
   bool removeRows(int row, int count, const QModelIndex& parent) override {
     beginRemoveRows(parent, row, row + count - 1);
-    eventos_.DeleteSubrange(row, count);
+    eventos_->DeleteSubrange(row, count);
     endRemoveRows();
     return true;
   }
@@ -48,10 +49,10 @@ class ModeloEvento : public QAbstractTableModel {
       return QVariant();
     }
     switch (section) {
-      case 0: return QVariant("Id");
-      case 1: return QVariant("Complemento");
-      case 2: return QVariant("Rodadas");
-      case 3: return QVariant("Descrição");
+      case 0: return QVariant(QString::fromUtf8("Id"));
+      case 1: return QVariant(QString::fromUtf8("Complemento"));
+      case 2: return QVariant(QString::fromUtf8("Rodadas"));
+      case 3: return QVariant(QString::fromUtf8("Descrição"));
     }
     return QVariant("Desconhecido");
   }
@@ -63,14 +64,14 @@ class ModeloEvento : public QAbstractTableModel {
     }
 
     const int row = index.row();
-    if (row < 0 || row >= eventos_.size()) {
+    if (row < 0 || row >= eventos_->size()) {
       LOG(INFO) << "Linha invalida " << row;
       return QVariant();
     }
     const int column = index.column();
-    const auto& evento = eventos_.Get(row);
+    const auto& evento = eventos_->Get(row);
     switch (column) {
-      case 0: return QVariant(evento.id_efeito());
+      case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEvento_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
       case 1: return QVariant(evento.complemento());
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
@@ -86,15 +87,16 @@ class ModeloEvento : public QAbstractTableModel {
     }
 
     const int row = index.row();
-    if (row < 0 || row >= eventos_.size()) {
+    if (row < 0 || row >= eventos_->size()) {
       LOG(INFO) << "Linha invalida " << row;
       return false;
     }
     const int column = index.column();
-    auto* evento = eventos_.Mutable(row);
+    auto* evento = eventos_->Mutable(row);
     switch (column) {
       case 0: {
-        evento->set_id_efeito(value.toInt());
+        if (!ent::TipoEvento_IsValid(value.toInt())) return false;
+        evento->set_id_efeito(ent::TipoEvento(value.toInt()));
         return true;
       }
       case 1: {
@@ -116,12 +118,67 @@ class ModeloEvento : public QAbstractTableModel {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
-  const google::protobuf::RepeatedPtrField<Evento> Eventos() const { return eventos_; }
-
  private:
   QTableView* tabela_;
-  google::protobuf::RepeatedPtrField<Evento> eventos_;
+  Eventos* eventos_;
 };
+
+// Responsavel por tratar a edicao do tipo de efeito.
+class TipoEventoDelegate : public QItemDelegate {
+ public:
+  TipoEventoDelegate(QTableView* tabela, ModeloEvento* modelo, QObject* parent)
+      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {}
+
+  QWidget* createEditor(
+      QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+    QComboBox* combo = new QComboBox(parent);
+    PreencheComboEvento(combo);
+    return combo;
+  }
+
+  // Escreve o valor do combo.
+  void setEditorData(QWidget* editor, const QModelIndex& index) const override {
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+      LOG(INFO) << "combo == nullptr em setEditorData";
+      return;
+    }
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo, index] () {
+      setModelData(combo, modelo_, index);
+      emit closeEditor(combo);
+    });
+    const QVariant& data = modelo_->data(index, Qt::EditRole);
+    if (!ent::TipoEvento_IsValid(data.toInt())) return;
+    combo->setCurrentIndex(data.toInt());
+  }
+
+  // Salva o valor do combo no modelo.
+  void setModelData(
+      QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+      LOG(INFO) << "combo == nullptr em setEditorData";
+      return;
+    }
+    modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
+    tabela_->reset();
+  }
+
+ private:
+  // Preenche o combo box de bonus.
+  void PreencheComboEvento(QComboBox* combo) const {
+    // O min eh -1, invalido. Entao comeca do 0.
+    for (int tipo = 0; tipo <= ent::TipoEvento_MAX; tipo++) {
+      if (!ent::TipoEvento_IsValid(tipo)) continue;
+      combo->addItem(ent::TipoEvento_Name(ent::TipoEvento(tipo)).c_str(), QVariant(tipo));
+    }
+  }
+
+  QTableView* tabela_;
+  ModeloEvento* modelo_;
+  ent::TipoEvento tipo_;
+};
+
 
 }  // namespace qt
 }  // namespace ifg

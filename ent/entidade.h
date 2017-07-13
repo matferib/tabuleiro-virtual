@@ -398,7 +398,7 @@ class Entidade {
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();
-  void AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento);
+  void AtualizaEfeito(TipoEvento id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
 
