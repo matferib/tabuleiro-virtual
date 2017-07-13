@@ -24,7 +24,6 @@
 #include "gltab/gl.h"
 #include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
-#include "ifg/qt/ui/bonus_individual.h"
 #include "ifg/qt/ui/dialogo_bonus.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
