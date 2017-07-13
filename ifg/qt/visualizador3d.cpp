@@ -1048,11 +1048,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_rotacao_z_graus(-gerador.dial_rotacao->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
-    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * QUADRADOS_PARA_METROS);
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * ent::QUADRADOS_PARA_METROS);
     proto_retornado->clear_translacao_z_deprecated();
-    proto_retornado->mutable_escala()->set_x(QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
-    proto_retornado->mutable_escala()->set_y(QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
-    proto_retornado->mutable_escala()->set_z(QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
+    proto_retornado->mutable_escala()->set_x(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
+    proto_retornado->mutable_escala()->set_y(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
+    proto_retornado->mutable_escala()->set_z(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       bool ok = false;
@@ -1224,7 +1224,6 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 
   gerador.combo_empunhadura->setCurrentIndex(0);
   gerador.checkbox_op->setCheckState(Qt::Unchecked);
-  gerador.checkbox_acuidade->setCheckState(Qt::Unchecked);
   gerador.botao_bonus_ataque->setText("0");
   gerador.botao_bonus_dano->setText("0");
   gerador.spin_bonus_magico->setValue(0);
@@ -1235,10 +1234,12 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 // Refresca a lista de ataques toda e atualiza os controles de acordo com a linha selecionada.
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
-      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_acuidade,
+      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_possui_acuidade,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques };
   for (auto* obj : objs) obj->blockSignals(true);
+
+  gerador.checkbox_possui_acuidade->setCheckState(proto.dados_ataque_globais().acuidade() ? Qt::Checked : Qt::Unchecked);
 
   // Tem que vir antes do clear.
   const int linha = gerador.lista_ataques->currentRow();
@@ -1272,7 +1273,6 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
-  gerador.checkbox_acuidade->setCheckState(da.acuidade() ? Qt::Checked : Qt::Unchecked);
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));
   gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.outros_bonus_ataque())));
   gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.outros_bonus_dano())));
@@ -1370,20 +1370,26 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
   }
+  // Bonus magico vale para ataque e dano.
   ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_ataque());
   ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
+
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
   ent::AtribuiBonus(da.obra_prima() ? 1 : 0, ent::TB_MELHORIA, "arma_obra_prima", da.mutable_outros_bonus_ataque());
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
-  da.set_acuidade(gerador.checkbox_acuidade->checkState() == Qt::Checked);
-  ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
-  da.set_dano_basico_arma(dano_arma.dano);
-  da.set_multiplicador_critico(dano_arma.multiplicador);
-  da.set_margem_critico(dano_arma.margem_critico);
+  std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
+  if (id == "nenhuma") {
+    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+    da.set_dano_basico_arma(dano_arma.dano);
+    da.set_multiplicador_critico(dano_arma.multiplicador);
+    da.set_margem_critico(dano_arma.margem_critico);
+  } else {
+    da.set_id_arma(id);
+  }
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
   da.set_incrementos(gerador.spin_incrementos->value());
   if (gerador.spin_alcance_quad->value() > 0) {
-    da.set_alcance_m(gerador.spin_alcance_quad->value() * QUADRADOS_PARA_METROS);
+    da.set_alcance_m(gerador.spin_alcance_quad->value() * ent::QUADRADOS_PARA_METROS);
   } else {
     da.clear_alcance_m();
   }
@@ -1396,17 +1402,43 @@ void AdicionaOuAtualizaAtaqueEntidade(
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
 }
 
-void PreencheConfiguraComboArmaduraEscudo(
+void PreencheConfiguraComboArmaArmaduraEscudo(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  QComboBox* combo_arma = gerador.combo_arma;
   QComboBox* combo_armadura = gerador.combo_armadura;
   QComboBox* combo_escudo = gerador.combo_escudo;
   const ent::Tabelas& tabelas = this_->tabelas();
+  combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
+  std::map<std::string, std::string> name_id_map;
+  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
+    name_id_map[arma.nome()] = arma.id();
+  }
+  for (const auto& name_id : name_id_map) {
+    combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
+  }
   for (const auto& armadura : tabelas.todas().tabela_armaduras().armaduras()) {
     combo_armadura->addItem(QString::fromUtf8(armadura.nome().c_str()), QVariant(armadura.id().c_str()));
   }
   for (const auto& escudo : tabelas.todas().tabela_escudos().escudos()) {
     combo_escudo->addItem(QString::fromUtf8(escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
+  lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
+    const int index = gerador.lista_ataques->currentRow();
+    if (index < 0 || index >= proto_retornado->dados_ataque_size()) {
+      return;
+    }
+    auto* da = proto_retornado->mutable_dados_ataque(index);
+    std::string id = combo_arma->itemData(combo_arma->currentIndex()).toString().toStdString();
+    if (id == "nenhuma") {
+      da->clear_id_arma();
+    } else {
+      da->set_id_arma(id);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
+    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
+  });
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
     QVariant id = combo_armadura->itemData(combo_armadura->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_id_armadura(id.toString().toStdString());
@@ -1467,7 +1499,6 @@ void PreencheConfiguraAtributos(
 
 void PreencheConfiguraDadosDefesa(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
-  PreencheConfiguraComboArmaduraEscudo(this_, gerador, proto_retornado);
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
@@ -1513,6 +1544,10 @@ void PreencheConfiguraDadosAtaque(
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   const ent::Tabelas& tabelas = this_->tabelas();
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+
+  lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&gerador, proto_retornado]() {
+    proto_retornado->mutable_dados_ataque_globais()->set_acuidade(gerador.checkbox_possui_acuidade->isChecked());
+  });
 
   auto EditaRefrescaLista = [this_, &tabelas, &gerador, proto_retornado] () {
     int indice_antes = gerador.lista_ataques->currentRow();
@@ -1575,7 +1610,6 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.checkbox_acuidade, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.botao_bonus_ataque, SIGNAL(clicked()), [this_, EditaRefrescaLista, &gerador, proto_retornado] {
@@ -1920,6 +1954,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Iniciativa.
   PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
 
+  // Combos dinamicos.
+  PreencheConfiguraComboArmaArmaduraEscudo(this, gerador, proto_retornado);
+
   // Dados de defesa.
   PreencheConfiguraDadosDefesa(this, gerador, entidade, proto_retornado);
 
@@ -1966,7 +2003,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
     if (gerador.spin_raio_quad->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
-      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio_quad->value() * QUADRADOS_PARA_METROS);
+      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio_quad->value() * ent::QUADRADOS_PARA_METROS);
     } else {
       proto_retornado->clear_luz();
     }
@@ -1987,7 +2024,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_pontos_vida_temporarios(gerador.spin_pontos_vida_temporarios->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
-    float aura_m = gerador.spin_aura_quad->value() * QUADRADOS_PARA_METROS;
+    float aura_m = gerador.spin_aura_quad->value() * ent::QUADRADOS_PARA_METROS;
     if (aura_m > 0) {
       proto_retornado->set_aura_m(aura_m);
     } else {
@@ -1998,14 +2035,14 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
-    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * QUADRADOS_PARA_METROS);
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * ent::QUADRADOS_PARA_METROS);
     proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
-      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * QUADRADOS_PARA_METROS);
+      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());

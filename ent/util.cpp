@@ -1263,32 +1263,92 @@ std::string CalculaDanoArma(const EntidadeProto::DadosAtaque& da, const Entidade
   return da.dano_basico_arma().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
 
-void RecomputaDependenciasArma(EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
+  return std::any_of(arma.categoria().begin(), arma.categoria().end(), [categoria] (int c) { return c == categoria; });
+}
+
+std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
+  switch (tamanho) {
+    case TM_MEDIO: return dano.medio();
+    case TM_PEQUENO: return dano.pequeno();
+    case TM_GRANDE: return dano.grande();
+    default: return "";
+  }
+}
+
+void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+  const auto& arma = tabelas.Arma(da->id_arma());
+  if (arma.has_id()) {
+    da->set_acuidade(false);
+    if (proto.dados_ataque_globais().acuidade() && 
+        (PossuiCategoria(CAT_LEVE, arma) ||
+         arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
+      da->set_acuidade(true);
+    }
+
+    // tipo certo de ataque.
+    bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    bool cac = PossuiCategoria(CAT_CAC, arma);
+    if (distancia && cac) {
+      // Pode ser qualquer um dos dois. Preferencia para distancia.
+      if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
+        da->set_tipo_ataque("Ataque a Distância");
+      }
+    } else if (cac) {
+      da->set_tipo_ataque("Ataque Corpo a Corpo");
+    } else {
+      da->set_tipo_ataque("Ataque a Distância");
+    }
+
+    if (arma.has_alcance_quadrados()) {
+      da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
+    }
+    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
+      da->set_dano_basico_arma(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
+      da->set_margem_critico(arma.margem_critico_secundario());
+      da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
+    } else {
+      da->set_dano_basico_arma(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
+      da->set_margem_critico(arma.margem_critico());
+      da->set_multiplicador_critico(arma.multiplicador_critico());
+    }
+    if (PossuiCategoria(CAT_ARREMESSO, arma)) {
+      da->set_incrementos(5);
+    } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
+      da->set_incrementos(10);
+    }
+  }
+
   int bba = 0;
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
   const std::string& tipo_str = da->tipo_ataque();
   bool usar_forca_dano = false;
+  const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
   if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" || 
       tipo_str == "Pedrada (gigante)" || tipo_str == "Raio") {
     bba = bba_distancia;
+    if (PossuiCategoria(CAT_ARCO, arma)) {
+      if (arma.has_max_forca() && modificador_forca < arma.max_forca()) bba -= 2;
+      usar_forca_dano = true;
+    }
   } else if (tipo_str == "Ataque Corpo a Corpo") {
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
     usar_forca_dano = true;
   }
   AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
   if (usar_forca_dano) {
-    const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
+    int modificador_forca_dano = arma.has_max_forca() ? std::min(modificador_forca, arma.max_forca()) : modificador_forca;
     int dano_forca = 0;
     EmpunhaduraArma ea = da->empunhadura();
-    if (modificador_forca < 0) {
+    if (modificador_forca_dano < 0) {
       dano_forca = modificador_forca;
     } else if (ea == EA_2_MAOS) {
-      dano_forca = floorf(modificador_forca * 1.5f);
+      dano_forca = floorf(modificador_forca_dano * 1.5f);
     } else if (ea == EA_MAO_RUIM) {
-      dano_forca = modificador_forca / 2;
+      dano_forca = modificador_forca_dano / 2;
     } else {
-      dano_forca = modificador_forca;
+      dano_forca = modificador_forca_dano;
     }
     AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
   } else {
@@ -1352,7 +1412,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasArma(&da, *proto);
+    RecomputaDependenciasArma(tabelas, &da, *proto);
     da.set_bonus_ataque(CalculaBonusBaseAtaqueArma(da, *proto));
     da.set_dano(CalculaDanoArma(da, *proto));
   }

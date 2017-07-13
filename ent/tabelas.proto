@@ -64,10 +64,15 @@ message ArmaProto {
   optional StringPorTamanho dano = 5;
   // Presente em armas duplas.
   optional StringPorTamanho dano_secundario = 6;
-  optional string critico = 7;
   optional StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
-  optional int32 incremento_quadrados = 10;
+  optional int32 alcance_quadrados = 10;
+  optional int32 margem_critico = 7 [default=20];
+  optional int32 multiplicador_critico = 11 [default=2];
+  optional int32 margem_critico_secundario = 12 [default=20];
+  optional int32 multiplicador_critico_secundario = 13 [default=2];
+  // Maximo modificador de forca permitido pela arma (valido para arcos).
+  optional int32 max_forca = 14;
 }
 
 message TabelaArmaduraOuEscudo {

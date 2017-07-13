@@ -110,26 +110,17 @@ Tabelas::Tabelas() {
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
   }
-  {
-    const ArmaProto& arco_curto_composto = Arma("arco_curto_composto");
-    for (int i = 1; i < 10; ++i) {
-      auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
-      *novo_arco = arco_curto_composto;
-      novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_curto_composto.id().c_str(), i));
-      novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * 75) + 75));
-      armas_[novo_arco->id()] = novo_arco;
-    }
-  }
-  {
-    const ArmaProto& arco_longo_composto = Arma("arco_longo_composto");
-    for (int i = 1; i < 10; ++i) {
-      auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
-      *novo_arco = arco_longo_composto;
-      novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_longo_composto.id().c_str(), i));
-      novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * 100) + 100));
-      armas_[novo_arco->id()] = novo_arco;
-    }
-  }
+  auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
+    auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
+    *novo_arco = arco_base;
+    novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_base.id().c_str(), i));
+    novo_arco->set_nome(google::protobuf::StringPrintf("%s (%d)", arco_base.nome().c_str(), i));
+    novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * preco) + preco));
+    novo_arco->set_max_forca(i);
+    armas_[novo_arco->id()] = novo_arco;
+  };
+  for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 75, Arma("arco_curto_composto"));
+  for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 100, Arma("arco_longo_composto"));
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {

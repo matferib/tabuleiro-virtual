@@ -182,14 +182,12 @@ public:
     QLineEdit *linha_rotulo_ataque;
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
+    QComboBox *combo_arma;
     QSpacerItem *horizontalSpacer_5;
     QCheckBox *checkbox_op;
     QLabel *label_23;
     QSpinBox *spin_bonus_magico;
-    QCheckBox *checkbox_acuidade;
     QHBoxLayout *horizontalLayout_6;
-    QLabel *label_64;
-    QSpinBox *spin_composto;
     QLabel *label_29;
     QSpinBox *spin_alcance_quad;
     QLabel *label_30;
@@ -290,6 +288,7 @@ public:
     QPushButton *botao_bonus_iniciativa;
     QCheckBox *checkbox_iniciativa;
     QSpinBox *spin_iniciativa;
+    QCheckBox *checkbox_possui_acuidade;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -1074,6 +1073,11 @@ public:
 
         horizontalLayout_29->addWidget(combo_tipo_ataque);
 
+        combo_arma = new QComboBox(verticalLayoutWidget_2);
+        combo_arma->setObjectName(QString::fromUtf8("combo_arma"));
+
+        horizontalLayout_29->addWidget(combo_arma);
+
         horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_29->addItem(horizontalSpacer_5);
@@ -1102,35 +1106,11 @@ public:
 
         horizontalLayout_29->addWidget(spin_bonus_magico);
 
-        checkbox_acuidade = new QCheckBox(verticalLayoutWidget_2);
-        checkbox_acuidade->setObjectName(QString::fromUtf8("checkbox_acuidade"));
-        sizePolicy1.setHeightForWidth(checkbox_acuidade->sizePolicy().hasHeightForWidth());
-        checkbox_acuidade->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_29->addWidget(checkbox_acuidade);
-
 
         verticalLayout_2->addLayout(horizontalLayout_29);
 
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
-        label_64 = new QLabel(verticalLayoutWidget_2);
-        label_64->setObjectName(QString::fromUtf8("label_64"));
-        sizePolicy5.setHeightForWidth(label_64->sizePolicy().hasHeightForWidth());
-        label_64->setSizePolicy(sizePolicy5);
-        label_64->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        horizontalLayout_6->addWidget(label_64);
-
-        spin_composto = new QSpinBox(verticalLayoutWidget_2);
-        spin_composto->setObjectName(QString::fromUtf8("spin_composto"));
-        sizePolicy1.setHeightForWidth(spin_composto->sizePolicy().hasHeightForWidth());
-        spin_composto->setSizePolicy(sizePolicy1);
-        spin_composto->setMinimum(-50);
-        spin_composto->setMaximum(50);
-
-        horizontalLayout_6->addWidget(spin_composto);
-
         label_29 = new QLabel(verticalLayoutWidget_2);
         label_29->setObjectName(QString::fromUtf8("label_29"));
         sizePolicy5.setHeightForWidth(label_29->sizePolicy().hasHeightForWidth());
@@ -1244,11 +1224,11 @@ public:
 
         label_38 = new QLabel(tab_estatisticas);
         label_38->setObjectName(QString::fromUtf8("label_38"));
-        label_38->setGeometry(QRect(353, 457, 41, 34));
+        label_38->setGeometry(QRect(280, 460, 41, 34));
         label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         linha_furtivo = new QLineEdit(tab_estatisticas);
         linha_furtivo->setObjectName(QString::fromUtf8("linha_furtivo"));
-        linha_furtivo->setGeometry(QRect(400, 460, 129, 27));
+        linha_furtivo->setGeometry(QRect(330, 460, 129, 27));
         groupBox_3 = new QGroupBox(tab_estatisticas);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
         groupBox_3->setGeometry(QRect(280, 90, 511, 71));
@@ -1707,7 +1687,28 @@ public:
 
         horizontalLayout_28->addWidget(spin_iniciativa);
 
+        checkbox_possui_acuidade = new QCheckBox(tab_estatisticas);
+        checkbox_possui_acuidade->setObjectName(QString::fromUtf8("checkbox_possui_acuidade"));
+        checkbox_possui_acuidade->setGeometry(QRect(470, 460, 91, 22));
+        sizePolicy1.setHeightForWidth(checkbox_possui_acuidade->sizePolicy().hasHeightForWidth());
+        checkbox_possui_acuidade->setSizePolicy(sizePolicy1);
         tab_tesouro->addTab(tab_estatisticas, QString());
+        botao_remover_ataque->raise();
+        lista_ataques->raise();
+        checkbox_imune_critico->raise();
+        botao_ataque_cima->raise();
+        botao_ataque_baixo->raise();
+        botao_clonar_ataque->raise();
+        groupBox->raise();
+        label_38->raise();
+        linha_furtivo->raise();
+        groupBox_3->raise();
+        groupBox_4->raise();
+        groupBox_5->raise();
+        groupBox_6->raise();
+        groupBox_7->raise();
+        checkbox_possui_acuidade->raise();
+        checkbox_possui_acuidade->raise();
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         layoutWidget_4 = new QWidget(tab);
@@ -1974,7 +1975,7 @@ public:
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
-        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
+        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", 0, QApplication::UnicodeUTF8));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", 0, QApplication::UnicodeUTF8));
         botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", 0, QApplication::UnicodeUTF8));
         botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", 0, QApplication::UnicodeUTF8));
@@ -2003,6 +2004,9 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
 #ifndef QT_NO_TOOLTIP
+        combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
         checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", 0, QApplication::UnicodeUTF8));
@@ -2013,19 +2017,11 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        checkbox_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma permite acuidade?", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
-        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Composto", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_composto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arco composto", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
+        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance (quads)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads, incrementos", 0, QApplication::UnicodeUTF8));
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max incrementos", 0, QApplication::UnicodeUTF8));
         label_32->setText(QString());
 #ifndef QT_NO_TOOLTIP
         spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
@@ -2044,8 +2040,8 @@ public:
         combo_empunhadura->insertItems(0, QStringList()
          << QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", 0, QApplication::UnicodeUTF8)
         );
         label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", 0, QApplication::UnicodeUTF8));
@@ -2176,6 +2172,10 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_possui_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Personagem possui acuidade com arma?", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_possui_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

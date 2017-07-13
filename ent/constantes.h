@@ -136,6 +136,7 @@ constexpr float OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA = 5.0f * TAMANHO_LADO_QUADRAD
 
 constexpr int MINUTOS_PARA_RODADAS = 10;
 constexpr int HORAS_PARA_RODADAS = 60 * MINUTOS_PARA_RODADAS;
+constexpr float QUADRADOS_PARA_METROS = 1.5f;
 
 }  // namespace ent
 

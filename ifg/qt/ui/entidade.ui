@@ -1362,7 +1362,7 @@ QGroupBox::title {
       </rect>
      </property>
      <property name="text">
-      <string>Imune a Crítico</string>
+      <string>Imune a Crítico?</string>
      </property>
     </widget>
     <widget class="QPushButton" name="botao_ataque_cima">
@@ -1556,6 +1556,13 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
+          <widget class="QComboBox" name="combo_arma">
+           <property name="toolTip">
+            <string>Escolha uma arma, ou nenhuma para preencher manualmente.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -1622,61 +1629,10 @@ QGroupBox::title {
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QCheckBox" name="checkbox_acuidade">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Arma permite acuidade?</string>
-           </property>
-           <property name="text">
-            <string>Acuidade?</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QLabel" name="label_64">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Composto</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spin_composto">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Arco composto</string>
-           </property>
-           <property name="minimum">
-            <number>-50</number>
-           </property>
-           <property name="maximum">
-            <number>50</number>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QLabel" name="label_29">
            <property name="sizePolicy">
@@ -1686,7 +1642,7 @@ QGroupBox::title {
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Alcance</string>
+            <string>Alcance (quads)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1718,7 +1674,7 @@ QGroupBox::title {
             </sizepolicy>
            </property>
            <property name="text">
-            <string>quads, incrementos</string>
+            <string>Max incrementos</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1862,12 +1818,12 @@ QGroupBox::title {
            </item>
            <item>
             <property name="text">
-             <string>2 Armas, mão boa</string>
+             <string>2 Armas, mão boa ou Arma Dupla, principal</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>2 Armas, mão ruim</string>
+             <string>2 Armas, mão ruim ou Arma Dupla, secundário</string>
             </property>
            </item>
            <item>
@@ -1924,8 +1880,8 @@ QGroupBox::title {
     <widget class="QLabel" name="label_38">
      <property name="geometry">
       <rect>
-       <x>353</x>
-       <y>457</y>
+       <x>280</x>
+       <y>460</y>
        <width>41</width>
        <height>34</height>
       </rect>
@@ -1940,7 +1896,7 @@ QGroupBox::title {
     <widget class="QLineEdit" name="linha_furtivo">
      <property name="geometry">
       <rect>
-       <x>400</x>
+       <x>330</x>
        <y>460</y>
        <width>129</width>
        <height>27</height>
@@ -2824,6 +2780,44 @@ QGroupBox::title {
       </layout>
      </widget>
     </widget>
+    <widget class="QCheckBox" name="checkbox_possui_acuidade">
+     <property name="geometry">
+      <rect>
+       <x>470</x>
+       <y>460</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Personagem possui acuidade com arma?</string>
+     </property>
+     <property name="text">
+      <string>Acuidade?</string>
+     </property>
+    </widget>
+    <zorder>botao_remover_ataque</zorder>
+    <zorder>lista_ataques</zorder>
+    <zorder>checkbox_imune_critico</zorder>
+    <zorder>botao_ataque_cima</zorder>
+    <zorder>botao_ataque_baixo</zorder>
+    <zorder>botao_clonar_ataque</zorder>
+    <zorder>groupBox</zorder>
+    <zorder>label_38</zorder>
+    <zorder>linha_furtivo</zorder>
+    <zorder>groupBox_3</zorder>
+    <zorder>groupBox_4</zorder>
+    <zorder>groupBox_5</zorder>
+    <zorder>groupBox_6</zorder>
+    <zorder>groupBox_7</zorder>
+    <zorder>checkbox_possui_acuidade</zorder>
+    <zorder>checkbox_possui_acuidade</zorder>
    </widget>
    <widget class="QWidget" name="tab">
     <attribute name="title">

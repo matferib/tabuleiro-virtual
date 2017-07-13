@@ -264,7 +264,7 @@ int CAToque(const EntidadeProto& proto);
 int CAToqueSurpreso(const EntidadeProto& proto);
 
 inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
-inline bool ArmaDistancia(const ArmaProto& arma) { return arma.incremento_quadrados() > 0; }
+inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
 
 }  // namespace ent
 
