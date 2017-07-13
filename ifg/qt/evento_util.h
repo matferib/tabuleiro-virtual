@@ -45,6 +45,11 @@ class ModeloEvento : public QAbstractTableModel {
 
   // Os cabeçalhos.
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
+    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole) {
+      QSize qs;
+      qs.setWidth(20);
+      return QVariant(qs);
+    }
     if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
       return QVariant();
     }
