@@ -97,18 +97,23 @@ class ModeloEvento : public QAbstractTableModel {
       case 0: {
         if (!ent::TipoEvento_IsValid(value.toInt())) return false;
         evento->set_id_efeito(ent::TipoEvento(value.toInt()));
+        emit dataChanged(index, index);
         return true;
       }
       case 1: {
         evento->set_complemento(value.toInt());
+        emit dataChanged(index, index);
         return true;
       }
       case 2: {
         evento->set_rodadas(value.toInt());
+        emit dataChanged(index, index);
         return true;
       }
       case 3: {
         evento->set_descricao(value.toString().toUtf8().constData());
+        emit dataChanged(index, index);
+        return true;
       }
     }
     return false;

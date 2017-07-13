@@ -1203,8 +1203,7 @@ void PreencheConfiguraEventos(
   gerador.tabela_lista_eventos->setItemDelegateForColumn(0, delegado);
   delegado->deleteLater();
   gerador.tabela_lista_eventos->resizeColumnsToContents();
-  // TODO nao ta funcionando esse sinal.
-  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&)), 
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), 
                  [this_, proto_retornado, &gerador] () {
     RecomputaDependencias(this_->tabelas(), proto_retornado);
     AtualizaUIAtributos(this_->tabelas(), gerador, *proto_retornado);
