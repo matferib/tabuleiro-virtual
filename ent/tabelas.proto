@@ -87,7 +87,12 @@ message TabelaArmas {
 }
 
 message ConsequenciaEvento {
+  // Afeta todos atributos.
   optional Atributos atributos = 1;
+  // Afeta os dados de defesa: ca e salvacoes.
+  optional DadosDefesa dados_defesa = 2;
+  // Afeta o bonus das jogadas de ataque.
+  optional Bonus jogada_ataque = 3;
 }
 
 message EfeitoProto {

@@ -101,6 +101,8 @@ enum TipoBonus {
   TB_SORTE = 26;
   TB_TALENTO = 27;
   TB_TAMANHO = 28;
+  // Cumulativo.
+  TB_SEM_NOME = 29;
 }
 
 // Como uma arma esta empunhada.
@@ -141,6 +143,20 @@ message Atributos {
   optional Bonus inteligencia = 4;
   optional Bonus sabedoria = 5;
   optional Bonus carisma = 6;
+}
+
+// Dados de defesa global (independe de ataque).
+message DadosDefesa {
+  optional string tipo_defesa = 1 [deprecated=true];
+  optional bool imune_critico = 3;
+  optional int32 ca_deprecated = 2 [deprecated=true];
+  optional Bonus ca = 4;
+  optional Bonus salvacao_fortitude = 5;
+  optional Bonus salvacao_reflexo = 6;
+  optional Bonus salvacao_vontade = 7;
+  // TODO outras salvacoes.
+  optional string id_armadura = 8;
+  optional string id_escudo = 9;
 }
 
 message EntidadeProto {
@@ -329,19 +345,6 @@ message EntidadeProto {
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
-  // Dados de defesa global (independe de ataque).
-  message DadosDefesa {
-    optional string tipo_defesa = 1 [deprecated=true];
-    optional bool imune_critico = 3;
-    optional int32 ca_deprecated = 2 [deprecated=true];
-    optional Bonus ca = 4;
-    optional Bonus salvacao_fortitude = 5;
-    optional Bonus salvacao_reflexo = 6;
-    optional Bonus salvacao_vontade = 7;
-    // TODO outras salvacoes.
-    optional string id_armadura = 8;
-    optional string id_escudo = 9;
-  }
   optional DadosDefesa dados_defesa = 45;
 
   // Geracao de tesouro automatica?

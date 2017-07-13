@@ -1115,6 +1115,7 @@ bool BonusCumulativo(TipoBonus tipo) {
     case TB_RACIAL:
     case TB_TEMPLATE:
     case TB_TALENTO:
+    case TB_SEM_NOME:
       return true;
     default: return false;
   }
@@ -1337,6 +1338,11 @@ void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) 
   AplicaBonus(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
   AplicaBonus(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
   AplicaBonus(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+  AplicaBonus(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonus(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    AplicaBonus(consequencia.jogada_ataque(), da.mutable_outros_bonus_ataque());
+  }
 }
 
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {

@@ -886,4 +886,22 @@ tabela_efeitos {
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
     consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
   }
+  efeitos {
+    id: EFEITO_ACELERAR
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar%s' } } }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
+    }
+  }
+
 }
