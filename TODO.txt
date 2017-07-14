@@ -1,10 +1,10 @@
-Efeitos automaticos que modificam atributos, curam etc.
-Modelar dano por forca em armas a distancia.
+Efeitos automaticos para tamanho e cura.
+Ataque de Agarrar.
+Se possivel, separar armas por classe no combo (simples, comum, exoticas).
 Fazer tabela nao copiavel para evitar copia a toa.
 Atualizacao de atributos pelo botao nao esta atualizando o resto da UI.
 Salvações.
 Modificador de ataque para higher ground.
-Ranges automaticos de flechas.
 Resistencia a magia.
 Passar salvacoes para as informacoes de classe e calcular base automaticamente.
 
@@ -12,7 +12,6 @@ Glitch de icone de rotacao.
 Ao adicionar entidade, incluir nos algemados.
 Lista de cenarios na UI de transicao.
 Objetos inflamaveis (sem ser entidade) e permitir duracao infinita.
-Falha automatica de piscar.
 Ajuste de eventos no android para fazer resolucao menor.
 
 Ao limpar a iniciativa, nao esta atualizando a selecao.

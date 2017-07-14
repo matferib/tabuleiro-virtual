@@ -1296,7 +1296,10 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       tipo_str == "Pedrada (gigante)" || tipo_str == "Raio") {
     bba = bba_distancia;
     if (PossuiCategoria(CAT_ARCO, arma)) {
+      // Ajuste de arcos compostos sem forca suficiente.
       if (arma.has_max_forca() && modificador_forca < arma.max_forca()) bba -= 2;
+      usar_forca_dano = true;
+    } else if (PossuiCategoria(CAT_ARREMESSO, arma)) {
       usar_forca_dano = true;
     }
   } else if (tipo_str == "Ataque Corpo a Corpo") {
