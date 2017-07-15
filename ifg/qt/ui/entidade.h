@@ -169,7 +169,8 @@ public:
     QSpinBox *spin_nivel_conjurador;
     QSpacerItem *horizontalSpacer_8;
     QLabel *label_44;
-    QSpinBox *spin_mod_conjuracao;
+    QComboBox *combo_mod_conjuracao;
+    QLabel *label_mod_conjuracao;
     QWidget *tab_estatisticas;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
@@ -937,7 +938,7 @@ public:
         groupBox_2->setGeometry(QRect(10, 70, 661, 61));
         horizontalLayoutWidget = new QWidget(groupBox_2);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(9, 20, 650, 41));
+        horizontalLayoutWidget->setGeometry(QRect(9, 20, 651, 41));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -1013,11 +1014,18 @@ public:
 
         horizontalLayout->addWidget(label_44);
 
-        spin_mod_conjuracao = new QSpinBox(horizontalLayoutWidget);
-        spin_mod_conjuracao->setObjectName(QString::fromUtf8("spin_mod_conjuracao"));
-        spin_mod_conjuracao->setMinimum(-1);
+        combo_mod_conjuracao = new QComboBox(horizontalLayoutWidget);
+        combo_mod_conjuracao->setObjectName(QString::fromUtf8("combo_mod_conjuracao"));
 
-        horizontalLayout->addWidget(spin_mod_conjuracao);
+        horizontalLayout->addWidget(combo_mod_conjuracao);
+
+        label_mod_conjuracao = new QLabel(horizontalLayoutWidget);
+        label_mod_conjuracao->setObjectName(QString::fromUtf8("label_mod_conjuracao"));
+        sizePolicy5.setHeightForWidth(label_mod_conjuracao->sizePolicy().hasHeightForWidth());
+        label_mod_conjuracao->setSizePolicy(sizePolicy5);
+        label_mod_conjuracao->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_mod_conjuracao);
 
         tab_tesouro->addTab(tab_nivel, QString());
         tab_estatisticas = new QWidget();
@@ -1791,8 +1799,7 @@ public:
         QWidget::setTabOrder(linha_classe, spin_nivel_classe);
         QWidget::setTabOrder(spin_nivel_classe, spin_bba);
         QWidget::setTabOrder(spin_bba, spin_nivel_conjurador);
-        QWidget::setTabOrder(spin_nivel_conjurador, spin_mod_conjuracao);
-        QWidget::setTabOrder(spin_mod_conjuracao, lista_niveis);
+        QWidget::setTabOrder(spin_nivel_conjurador, lista_niveis);
         QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
         QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
         QWidget::setTabOrder(botao_remover_nivel, checkbox_iniciativa);
@@ -1979,9 +1986,16 @@ public:
         spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_mod_conjuracao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador do atributo de conjura\303\247\303\243o (exemplo: sabedoria para cl\303\251rigos)", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
+        combo_mod_conjuracao->clear();
+        combo_mod_conjuracao->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Consitui\303\247\303\243o", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", 0, QApplication::UnicodeUTF8)
+        );
+        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", 0, QApplication::UnicodeUTF8));
