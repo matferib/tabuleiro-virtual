@@ -28,6 +28,7 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -820,13 +821,13 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
-void Tabuleiro::TrataAcaoUmaEntidade(
+float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
   if (!acao_proto.has_tipo()) {
     LOG(ERROR) << "Acao invalida da entidade";
-    return;
+    return atraso_s;
   }
   if (id_entidade_destino != Entidade::IdInvalido) {
     acao_proto.add_id_entidade_destino(id_entidade_destino);
@@ -871,20 +872,26 @@ void Tabuleiro::TrataAcaoUmaEntidade(
       }
       int delta_pv_pos_salvacao = delta_pontos_vida;
       if (acao_proto.permite_salvacao()) {
-        if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
-          delta_pv_pos_salvacao /= 2;
-        } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
-          delta_pv_pos_salvacao /= 4;
-        } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-          delta_pv_pos_salvacao = 0;
-        }
+        std::string resultado_salvacao;
+        std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+        AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
+        atraso_s += 0.5f;
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+              "entidade %s: %s",
+              (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
+              resultado_salvacao.c_str()));
       }
+      auto* delta_por_entidade = acao_proto.add_delta_por_entidade();
+      delta_por_entidade->set_id(id);
+      delta_por_entidade->set_delta(delta_pv_pos_salvacao);
+      // Notificacao de desfazer.
       auto* nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
     }
     VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
     n.mutable_acao()->CopyFrom(acao_proto);
   } else {
+    // Efeito individual.
     Entidade* entidade_destino =
        id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
     bool realiza_acao = true;
@@ -915,7 +922,6 @@ void Tabuleiro::TrataAcaoUmaEntidade(
         acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
         TrataNotificacao(n_texto);
       } else {
-        // Ja faz a notificacao de desfazer aqui.
         for (int i = 0; i < vezes; ++i) {
           delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
         }
@@ -924,16 +930,18 @@ void Tabuleiro::TrataAcaoUmaEntidade(
         }
         entidade->ProximoAtaque();
         if (acao_proto.permite_salvacao()) {
-          if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
-            delta_pontos_vida /= 2;
-          } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
-            delta_pontos_vida /= 4;
-          } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-            delta_pontos_vida = 0;
-          }
+          std::string resultado_salvacao;
+          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+          AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
+          atraso_s += 0.5f;
+          AdicionaLogEvento(google::protobuf::StringPrintf(
+                "entidade %s: %s",
+                (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
+                resultado_salvacao.c_str()));
         }
         acao_proto.set_delta_pontos_vida(delta_pontos_vida);
         acao_proto.set_afeta_pontos_vida(true);
+        // Faz a notificacao de desfazer aqui.
         PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
       }
     }
@@ -943,6 +951,7 @@ void Tabuleiro::TrataAcaoUmaEntidade(
     }
   }
   TrataNotificacao(n);
+  return atraso_s;
 }
 
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
@@ -1013,14 +1022,13 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     // Para desfazer.
     ntf::Notificacao grupo_desfazer;
     grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    float atraso_segundos = 0;
+    float atraso_s = 0.0f;
     for (auto id_selecionado : ids_origem) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_segundos, &grupo_desfazer);
-      atraso_segundos += 0.5f;
+      atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_s, &grupo_desfazer);
     }
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }

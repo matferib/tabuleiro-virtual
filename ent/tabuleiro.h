@@ -515,6 +515,11 @@ class Tabuleiro : public ntf::Receptor {
     bool presente;  // usado durante atualizacao de iniciativa.
   };
 
+  /** Adiciona uma acao de texto na entidade. */
+  void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f);
+  /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
+  void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f);
+
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
 
@@ -619,7 +624,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
-  void TrataAcaoUmaEntidade(
+  /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
+  float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer);
 

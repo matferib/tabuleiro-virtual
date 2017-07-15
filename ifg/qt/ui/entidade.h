@@ -77,7 +77,7 @@ public:
     QSlider *slider_tamanho;
     QWidget *horizontalLayoutWidget_10;
     QHBoxLayout *horizontalLayout_16;
-    QLabel *label_9;
+    QCheckBox *checkbox_salvacao;
     QComboBox *combo_salvacao;
     QWidget *horizontalLayoutWidget_6;
     QHBoxLayout *horizontalLayout_13;
@@ -526,11 +526,10 @@ public:
         horizontalLayout_16 = new QHBoxLayout(horizontalLayoutWidget_10);
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         horizontalLayout_16->setContentsMargins(0, 0, 0, 0);
-        label_9 = new QLabel(horizontalLayoutWidget_10);
-        label_9->setObjectName(QString::fromUtf8("label_9"));
-        label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        checkbox_salvacao = new QCheckBox(horizontalLayoutWidget_10);
+        checkbox_salvacao->setObjectName(QString::fromUtf8("checkbox_salvacao"));
 
-        horizontalLayout_16->addWidget(label_9);
+        horizontalLayout_16->addWidget(checkbox_salvacao);
 
         combo_salvacao = new QComboBox(horizontalLayoutWidget_10);
         combo_salvacao->setObjectName(QString::fromUtf8("combo_salvacao"));
@@ -1872,7 +1871,10 @@ public:
 #ifndef QT_NO_TOOLTIP
         slider_tamanho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da entidade", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pr\303\263xima Salva\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Marcar, se a entidade tiver rolado a pr\303\263xima salva\303\247\303\243o.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_salvacao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pr\303\263xima Salva\303\247\303\243o", 0, QApplication::UnicodeUTF8));
         combo_salvacao->clear();
         combo_salvacao->insertItems(0, QStringList()
          << QApplication::translate("ifg::qt::DialogoEntidade", "Falha", 0, QApplication::UnicodeUTF8)

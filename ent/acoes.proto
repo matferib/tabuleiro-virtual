@@ -73,7 +73,7 @@ message AcaoProto {
   // Posicao do clique na entidade, se houver.
   optional Posicao pos_entidade = 12;
   // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
-  optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
+  optional int32 delta_pontos_vida = 14;  // quanto de vida. Se afeta_pontos_vida, afetara de verdade.
   optional string texto = 24;  // tambem cosmetico, usado para regua.
   // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
   optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
@@ -103,6 +103,12 @@ message AcaoProto {
   optional bool dois_lados = 30;
   // Consequencia da acao.
   optional TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
+  // Para acoes que afetam multiplos alvos.
+  message DeltaPontosVidaPorEntidade {
+    optional uint32 id = 1;
+    optional int32 delta = 2;
+  }
+  repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
 }
 
 // O arquivo de acoes é serializado desta forma.

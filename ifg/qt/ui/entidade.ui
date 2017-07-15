@@ -397,12 +397,12 @@ QGroupBox::title {
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_16">
       <item>
-       <widget class="QLabel" name="label_9">
+       <widget class="QCheckBox" name="checkbox_salvacao">
+        <property name="toolTip">
+         <string>Marcar, se a entidade tiver rolado a próxima salvação.</string>
+        </property>
         <property name="text">
          <string>Próxima Salvação</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>

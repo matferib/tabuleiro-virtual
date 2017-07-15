@@ -1679,6 +1679,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.texto_notas->appendPlainText(QString::fromUtf8(entidade.notas().c_str()));
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
+  gerador.checkbox_salvacao->setCheckState(entidade.has_proxima_salvacao() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
 
   // Tipo de visao.
@@ -1776,7 +1777,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * ent::QUADRADOS_PARA_METROS);
     proto_retornado->clear_translacao_z_deprecated();
-    proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
+    if (gerador.checkbox_salvacao->isChecked()) {
+      proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
+    } else {
+      proto_retornado->clear_proxima_salvacao();
+    }
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());

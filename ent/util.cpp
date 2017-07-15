@@ -1039,9 +1039,8 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   return std::make_tuple(vezes, texto, true);
 }
 
-std::tuple<int, std::string> AtaqueVsSalvacao(const Acao& acao, const Entidade& ed) {
+std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ed) {
   std::string descricao_resultado;
-  const auto& ap = acao.Proto();
   int delta_pontos_vida = ap.delta_pontos_vida();
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
