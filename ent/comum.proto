@@ -8,6 +8,19 @@ enum TipoVisao {
   VISAO_ESCURO = 2;
 }
 
+enum TipoSalvacao {
+  TS_FORTITUDE = 0;
+  TS_REFLEXO = 1;
+  TS_VONTADE = 2;
+}
+
+enum ResultadoSalvacao {
+  RS_FALHOU = 0;
+  RS_MEIO = 1;
+  RS_QUARTO = 2;
+  RS_ANULOU = 3;
+}
+
 // Tambem usado como vetor.
 message Posicao {
   optional float x = 3;

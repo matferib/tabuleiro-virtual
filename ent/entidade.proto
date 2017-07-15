@@ -35,13 +35,6 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
-enum ResultadoSalvacao {
-  RS_FALHOU = 0;
-  RS_MEIO = 1;
-  RS_QUARTO = 2;
-  RS_ANULOU = 3;
-}
-
 enum TipoEvento {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.

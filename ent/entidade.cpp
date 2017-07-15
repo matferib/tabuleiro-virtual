@@ -146,6 +146,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
  
   AtualizaVbo(parametros_desenho_);
+  RecomputaDependencias(tabelas_, &proto_);
 }
 
 // static
@@ -1261,8 +1262,14 @@ Matrix4 Entidade::MontaMatrizModelagem(
   return matrix;
 }
 
-void Entidade::AtualizaProximaSalvacao(ResultadoSalvacao rs) {
-  proto_.set_proxima_salvacao(rs);
+int Entidade::Salvacao(TipoSalvacao tipo) const {
+  switch (tipo) {
+    case TS_FORTITUDE: return BonusTotal(proto_.dados_defesa().salvacao_fortitude());
+    case TS_REFLEXO:   return BonusTotal(proto_.dados_defesa().salvacao_reflexo());
+    case TS_VONTADE:   return BonusTotal(proto_.dados_defesa().salvacao_vontade()); 
+  }
+  LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
+  return 0;
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {

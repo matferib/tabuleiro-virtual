@@ -1528,7 +1528,7 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   entidade->AtualizaParcial(notificacao.entidade());
 }
 
-void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade, int delta_pontos_vida) {
+void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade) {
   auto* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr) {
     LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
@@ -1536,14 +1536,10 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   }
 
   const auto& ap = acao.Proto();
+  int delta_pontos_vida = ap.delta_pontos_vida();
+  std::string descricao_resultado;
   if (ap.permite_salvacao()) {
-    if (entidade->ProximaSalvacao() == RS_MEIO) {
-      delta_pontos_vida /= 2;
-    } else if (entidade->ProximaSalvacao() == RS_QUARTO) {
-      delta_pontos_vida /= 4;
-    } else if (entidade->ProximaSalvacao() == RS_ANULOU) {
-      delta_pontos_vida = 0;
-    }
+    std::tie(delta_pontos_vida, descricao_resultado) = AtaqueVsSalvacao(acao, *entidade);
   }
 
   // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
@@ -1551,6 +1547,19 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, &n);
   TrataNotificacao(n);
+
+  float atraso_s = 0;
+  if (!descricao_resultado.empty()) {
+    ntf::Notificacao na;
+    na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* a = na.mutable_acao();
+    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    a->add_id_entidade_destino(entidade->Id());
+    a->set_afeta_pontos_vida(false);
+    a->set_texto(descricao_resultado);
+    TrataNotificacao(na);
+    atraso_s += 0.5f;
+  }
 
   // Acao de pontos de vida sem efeito.
   if (!acao.Proto().texto().empty()) {
@@ -1561,7 +1570,9 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
     a->add_id_entidade_destino(entidade->Id());
     a->set_afeta_pontos_vida(false);
     a->set_texto(acao.Proto().texto());
+    a->set_atraso_s(atraso_s);
     TrataNotificacao(na);
+    atraso_s += 0.5f;
   }
 
   ntf::Notificacao na;
@@ -1571,9 +1582,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   a->add_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   a->set_afeta_pontos_vida(false);
-  if (!acao.Proto().texto().empty()) {
-    a->set_atraso_s(0.5f);
-  }
+  a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
 }
 
@@ -2108,7 +2117,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_LIMPAR_SALVACOES: {
       for (auto& id_entidade : entidades_) {
-        id_entidade.second->AtualizaProximaSalvacao(RS_FALHOU);
+        id_entidade.second->LimpaProximaSalvacao();
       }
       if (notificacao.local()) {
         // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando
@@ -4287,7 +4296,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
           limpar_salvacoes = true;
         }
         for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino, ap.delta_pontos_vida());
+          AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino);
         }
       }
     }

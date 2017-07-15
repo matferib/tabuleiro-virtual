@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
@@ -1036,6 +1037,44 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
 
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
   return std::make_tuple(vezes, texto, true);
+}
+
+std::tuple<int, std::string> AtaqueVsSalvacao(const Acao& acao, const Entidade& ed) {
+  std::string descricao_resultado;
+  const auto& ap = acao.Proto();
+  int delta_pontos_vida = ap.delta_pontos_vida();
+  if (ed.TemProximaSalvacao()) {
+    if (ed.ProximaSalvacao() == RS_MEIO) {
+      delta_pontos_vida /= 2;
+      descricao_resultado = google::protobuf::StringPrintf("salvou metade (manual), dano: %d", delta_pontos_vida);
+    } else if (ed.ProximaSalvacao() == RS_QUARTO) {
+      delta_pontos_vida /= 4;
+      descricao_resultado = google::protobuf::StringPrintf("salvou um quarto (manual), dano: %d", delta_pontos_vida);
+    } else if (ed.ProximaSalvacao() == RS_ANULOU) {
+      delta_pontos_vida = 0;
+      descricao_resultado = "salvou tudo (manual)";
+    }
+  } else if (ap.has_dificuldade_salvacao()) {
+    // TODO evasao e evasao aprimorada.
+    int d20 = RolaDado(20);
+    int bonus = ed.Salvacao(ap.tipo_salvacao());
+    int total = d20 + bonus;
+    if (total >= ap.dificuldade_salvacao()) {
+      if (ap.resultado_salvacao() == RS_MEIO) {
+        delta_pontos_vida /= 2;
+      } else if (ap.resultado_salvacao() == RS_QUARTO) {
+        delta_pontos_vida /= 4;
+      } else {
+        delta_pontos_vida = 0;
+      }
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), delta_pontos_vida);
+    } else {
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), delta_pontos_vida);
+    }
+  } else {
+    descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", delta_pontos_vida);
+  }
+  return std::make_tuple(delta_pontos_vida, descricao_resultado);
 }
 
 namespace {

@@ -15,6 +15,7 @@
 // Funcoes uteis de ent.
 namespace ent {
 
+class Acao;
 class Cor;
 class Entidade;
 class EntidadeProto_Evento;
@@ -210,6 +211,9 @@ int ModificadorDano(const EntidadeProto& ea);
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+
+// Rola o dado de ataque contra a salvacao, retornando o dano, texto do resultado e verdadeiro se acertou.
+std::tuple<int, std::string> AtaqueVsSalvacao(const Acao& acao, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);

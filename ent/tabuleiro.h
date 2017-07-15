@@ -174,7 +174,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
   * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
   */
-  void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id, int delta_pontos_vida);
+  void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
@@ -619,6 +619,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
+  void TrataAcaoUmaEntidade(
+      Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
+      unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer);
 
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */

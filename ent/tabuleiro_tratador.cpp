@@ -820,6 +820,131 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
+void Tabuleiro::TrataAcaoUmaEntidade(
+    Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
+    unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
+  AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
+  if (!acao_proto.has_tipo()) {
+    LOG(ERROR) << "Acao invalida da entidade";
+    return;
+  }
+  if (id_entidade_destino != Entidade::IdInvalido) {
+    acao_proto.add_id_entidade_destino(id_entidade_destino);
+  }
+  acao_proto.set_atraso_s(atraso_s);
+  acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
+  acao_proto.set_id_entidade_origem(entidade->Id());
+
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  if (acao_proto.efeito_area()) {
+    if (acao_proto.permite_salvacao()) {
+      acao_proto.set_dificuldade_salvacao(acao_proto.dificuldade_salvacao() + entidade->ModificadorAtributoConjuracao());
+    }
+    if (pos_entidade.has_x()) {
+      acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
+    }
+    int delta_pontos_vida = 0;
+    if (HaValorListaPontosVida()) {
+      delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
+      entidade->ProximoAtaque();
+      acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+      acao_proto.set_afeta_pontos_vida(true);
+    }
+    acao_proto.clear_id_entidade_destino();
+    std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
+    for (auto id : ids_afetados) {
+      const Entidade* entidade_destino = BuscaEntidade(id);
+      if (entidade_destino == nullptr) {
+        // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
+        LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+        continue;
+      }
+      if (entidade_destino->MaximoPontosVida() <= 0) {
+        VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
+        continue;
+      }
+      acao_proto.add_id_entidade_destino(id);
+      // Para desfazer.
+      if (delta_pontos_vida == 0) {
+        continue;
+      }
+      int delta_pv_pos_salvacao = delta_pontos_vida;
+      if (acao_proto.permite_salvacao()) {
+        if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
+          delta_pv_pos_salvacao /= 2;
+        } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
+          delta_pv_pos_salvacao /= 4;
+        } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
+          delta_pv_pos_salvacao = 0;
+        }
+      }
+      auto* nd = grupo_desfazer->add_notificacao();
+      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
+    }
+    VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
+    n.mutable_acao()->CopyFrom(acao_proto);
+  } else {
+    Entidade* entidade_destino =
+       id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
+    bool realiza_acao = true;
+    if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+      int vezes = 1;
+      std::string texto;
+      if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
+        VLOG(1) << "--------------------------";
+        VLOG(1) << "iniciando ataque vs defesa";
+        std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+        VLOG(1) << "--------------------------";
+        AdicionaLogEvento(std::string("entidade ") +
+            (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
+            texto);
+        acao_proto.set_texto(texto);
+      }
+      int delta_pontos_vida = 0;
+      auto* nd = grupo_desfazer->add_notificacao();
+      if (vezes < 0 || !realiza_acao) {
+        if (vezes < 0) {
+          PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+        }
+        ntf::Notificacao n_texto;
+        n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
+        auto* acao_texto = n_texto.mutable_acao();
+        acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+        acao_texto->set_texto(acao_proto.texto());
+        acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
+        TrataNotificacao(n_texto);
+      } else {
+        // Ja faz a notificacao de desfazer aqui.
+        for (int i = 0; i < vezes; ++i) {
+          delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
+        }
+        if (vezes > 0) {
+          delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+        }
+        entidade->ProximoAtaque();
+        if (acao_proto.permite_salvacao()) {
+          if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
+            delta_pontos_vida /= 2;
+          } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
+            delta_pontos_vida /= 4;
+          } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
+            delta_pontos_vida = 0;
+          }
+        }
+        acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+        acao_proto.set_afeta_pontos_vida(true);
+        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
+      }
+    }
+    if (realiza_acao) {
+      VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
+      n.mutable_acao()->CopyFrom(acao_proto);
+    }
+  }
+  TrataNotificacao(n);
+}
+
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
@@ -894,123 +1019,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
-      if (!acao_proto.has_tipo()) {
-        LOG(ERROR) << "Acao invalida da entidade";
-        continue;
-      }
-      if (id_entidade_destino != Entidade::IdInvalido) {
-        acao_proto.add_id_entidade_destino(id_entidade_destino);
-      }
-      acao_proto.set_atraso_s(atraso_segundos);
-      acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
-      acao_proto.set_id_entidade_origem(id_selecionado);
-
-      ntf::Notificacao n;
-      n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-      if (acao_proto.efeito_area()) {
-        if (pos_entidade.has_x()) {
-          acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
-        }
-        int delta_pontos_vida = 0;
-        if (HaValorListaPontosVida()) {
-          delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
-          entidade->ProximoAtaque();
-          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-          acao_proto.set_afeta_pontos_vida(true);
-        }
-        acao_proto.clear_id_entidade_destino();
-        std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
-        for (auto id : ids_afetados) {
-          const Entidade* entidade_destino = BuscaEntidade(id);
-          if (entidade_destino == nullptr) {
-            // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
-            LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
-            continue;
-          }
-          if (entidade_destino->MaximoPontosVida() <= 0) {
-            VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
-            continue;
-          }
-          acao_proto.add_id_entidade_destino(id);
-          // Para desfazer.
-          if (delta_pontos_vida == 0) {
-            continue;
-          }
-          int delta_pv_pos_salvacao = delta_pontos_vida;
-          if (acao_proto.permite_salvacao()) {
-            if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
-              delta_pv_pos_salvacao /= 2;
-            } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
-              delta_pv_pos_salvacao /= 4;
-            } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-              delta_pv_pos_salvacao = 0;
-            }
-          }
-          auto* nd = grupo_desfazer.add_notificacao();
-          PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
-        }
-        VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
-        n.mutable_acao()->CopyFrom(acao_proto);
-      } else {
-        Entidade* entidade_destino =
-           id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
-        bool realiza_acao = true;
-        if (HaValorListaPontosVida() && entidade_destino != nullptr) {
-          int vezes = 1;
-          std::string texto;
-          if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
-            VLOG(1) << "--------------------------";
-            VLOG(1) << "iniciando ataque vs defesa";
-            std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
-            VLOG(1) << "--------------------------";
-            AdicionaLogEvento(std::string("entidade ") +
-                (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
-                texto);
-            acao_proto.set_texto(texto);
-          }
-          int delta_pontos_vida = 0;
-          auto* nd = grupo_desfazer.add_notificacao();
-          if (vezes < 0 || !realiza_acao) {
-            if (vezes < 0) {
-              PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
-            }
-            ntf::Notificacao n_texto;
-            n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
-            auto* acao_texto = n_texto.mutable_acao();
-            acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-            acao_texto->set_texto(acao_proto.texto());
-            acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
-            TrataNotificacao(n_texto);
-          } else {
-            // Ja faz a notificacao de desfazer aqui.
-            for (int i = 0; i < vezes; ++i) {
-              delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
-            }
-            if (vezes > 0) {
-              delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
-            }
-            entidade->ProximoAtaque();
-            if (acao_proto.permite_salvacao()) {
-              if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
-                delta_pontos_vida /= 2;
-              } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
-                delta_pontos_vida /= 4;
-              } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-                delta_pontos_vida = 0;
-              }
-            }
-            acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-            acao_proto.set_afeta_pontos_vida(true);
-            PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
-          }
-        }
-        if (realiza_acao) {
-          VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
-          n.mutable_acao()->CopyFrom(acao_proto);
-        }
-      }
-      TrataNotificacao(n);
+      TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_segundos, &grupo_desfazer);
       atraso_segundos += 0.5f;
     }
     AdicionaNotificacaoListaEventos(grupo_desfazer);

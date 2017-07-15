@@ -255,10 +255,14 @@ class Entidade {
   float Espaco() const;
 
   /** Limpa a proxima salvacao para a entidade. */
-  void AtualizaProximaSalvacao(ResultadoSalvacao rs);
+  void AtualizaProximaSalvacao(ResultadoSalvacao rs) { proto_.set_proxima_salvacao(rs); }
+  void LimpaProximaSalvacao() { proto_.clear_proxima_salvacao(); }
 
   /** Retorna a proxima salvacao para a entidade. */
   ResultadoSalvacao ProximaSalvacao() const { return static_cast<ResultadoSalvacao>(proto_.proxima_salvacao()); }
+  bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
+  /** Retorna o bonus de salvacao de um tipo para entidade. */
+  int Salvacao(TipoSalvacao tipo) const;
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);

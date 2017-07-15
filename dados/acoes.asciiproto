@@ -1,4 +1,4 @@
-# Este arquivo eh uma representacao texto do proto ent::Acoes.
+# Este arquivo eh uma representacao texto do proto ent::Acoes (repeated de AcaoProto).
 acao {
   id: 'Ácido'
   tipo: ACAO_DISPERSAO
@@ -43,6 +43,10 @@ acao {
   duracao_s: 0.350
   ignora_luz: true
   consequencia: TC_INFLAMA_ALVO
+  # Mais modificador de conjurador.
+  dificuldade_salvacao: 13
+  resultado_salvacao: RS_MEIO
+  tipo_salvacao: TS_REFLEXO
 }
 acao {
   id: 'Coluna de Chamas'
@@ -56,6 +60,10 @@ acao {
   info_textura { id: 'fire.png' }
   duracao_s: 0.350
   dois_lados: true
+  # TODO: para druida eh 14.
+  dificuldade_salvacao: 15
+  resultado_salvacao: RS_MEIO
+  tipo_salvacao: TS_REFLEXO
 }
 acao {
   id: 'Cone de Gelo'
@@ -68,6 +76,10 @@ acao {
   icone: 'icon_ice.png'
   duracao_s: 0.350
   dois_lados: true
+  # TODO para clerigo da agua eh 16.
+  dificuldade_salvacao: 15
+  resultado_salvacao: RS_MEIO
+  tipo_salvacao: TS_REFLEXO
 }
 acao {
   id: 'Feitiço de Toque'
@@ -101,6 +113,9 @@ acao {
   icone: 'icon_burning_hands.png'
   duracao_s: 0.350
   consequencia: TC_INFLAMA_ALVO
+  resultado_salvacao: RS_MEIO
+  dificuldade_salvacao: 11
+  tipo_salvacao: TS_REFLEXO
 }
 acao {
   id: 'Míssil Mágico'
@@ -148,6 +163,9 @@ acao {
   icone: "icon_lightning.png"
   info_textura { id: 'lightning.png' }
   ignora_luz: true
+  dificuldade_salvacao: 13
+  resultado_salvacao: RS_MEIO
+  tipo_salvacao: TS_REFLEXO
 }
 acao {
   id: 'Tempestade Glacial'
