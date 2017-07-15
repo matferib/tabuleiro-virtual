@@ -8,6 +8,15 @@ enum TipoVisao {
   VISAO_ESCURO = 2;
 }
 
+enum TipoAtributo {
+  TA_FORCA = 0;
+  TA_DESTREZA = 1;
+  TA_CONSTITUICAO = 2;
+  TA_INTELIGENCIA = 3;
+  TA_SABEDORIA = 4;
+  TA_CARISMA = 5;
+}
+
 enum TipoSalvacao {
   TS_FORTITUDE = 0;
   TS_REFLEXO = 1;

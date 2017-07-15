@@ -58,6 +58,8 @@ message InfoClasse {
   optional int32 bba = 4;
   // Exemplo: modificador de sabedoria para clerigos.
   optional int32 modificador_atributo_conjuracao = 5;
+  // Qual o atributo de conjuracao da classe.
+  optional TipoAtributo atributo_conjuracao = 6;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

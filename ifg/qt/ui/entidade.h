@@ -1990,7 +1990,7 @@ public:
         combo_mod_conjuracao->insertItems(0, QStringList()
          << QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Consitui\303\247\303\243o", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", 0, QApplication::UnicodeUTF8)

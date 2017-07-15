@@ -243,6 +243,7 @@ bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
 int ModificadorAtributo(const Bonus& atributo);
+int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
 
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);

@@ -1407,11 +1407,8 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
 }
 
-}  // namespace
-
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
-  RecomputaDependenciasEfeitos(tabelas, proto);
-
+// Recomputa as dependencias de atributos (destreza com armadura).
+void RecomputaDependenciasDestreza(const Tabelas& tabelas, EntidadeProto* proto) {
   auto* dd = proto->mutable_dados_defesa();
   // Ajusta a destreza de acordo com a armadura. Primeiro limpa para calcular a penalidade de armadura ou escudo.
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
@@ -1425,6 +1422,23 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   }
   int penalidade = mod_antes > bonus_maximo ? bonus_maximo - mod_antes : 0;
   AtribuiBonus(penalidade, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
+}
+
+// Recomputa os modificadores de conjuracao.
+void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (ic.has_atributo_conjuracao()) { 
+      ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
+    }
+  }
+}
+
+}  // namespace
+
+void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
+  RecomputaDependenciasEfeitos(tabelas, proto);
+  RecomputaDependenciasDestreza(tabelas, proto);
+  RecomputaDependenciasClasses(tabelas, proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
@@ -1438,6 +1452,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
 
+  auto* dd = proto->mutable_dados_defesa();
   // Testes de resistencia.
   AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
@@ -1544,6 +1559,20 @@ int ModificadorAtributo(const Bonus& atributo) {
     total_atributo += 10;
   }
   return ModificadorAtributo(total_atributo);
+}
+
+int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
+  switch (ta) {
+    case TA_FORCA: return ModificadorAtributo(proto.atributos().forca());
+    case TA_DESTREZA: return ModificadorAtributo(proto.atributos().destreza());
+    case TA_CONSTITUICAO: return ModificadorAtributo(proto.atributos().constituicao());
+    case TA_INTELIGENCIA: return ModificadorAtributo(proto.atributos().inteligencia());
+    case TA_SABEDORIA: return ModificadorAtributo(proto.atributos().sabedoria());
+    case TA_CARISMA: return ModificadorAtributo(proto.atributos().carisma());
+    default:
+      LOG(ERROR) << "Tipo atributo invalido: " << (int)ta;
+  }
+  return 0;
 }
 
 int ModificadorTamanho(TamanhoEntidade tamanho) {

@@ -1,7 +1,110 @@
 #include "ifg/qt/atualiza_ui.h"
 
+#include "goog/stringprintf.h"
+#include "ent/entidade.pb.h"
+#include "ent/constantes.h"
+#include "ent/util.h"
+#include "net/util.h"
+#include "ifg/qt/constantes.h"
+
 namespace ifg {
 namespace qt {
+
+void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  AtualizaUIClassesNiveis(tabelas, gerador, proto);
+  AtualizaUIAtributos(tabelas, gerador, proto);
+  AtualizaUIAtaque(tabelas, gerador, proto);
+  AtualizaUIDefesa(gerador, proto);
+  AtualizaUIAtaquesDefesa(tabelas, gerador, proto);
+  AtualizaUIIniciativa(tabelas, gerador, proto);
+  AtualizaUISalvacoes(gerador, proto);
+}
+
+namespace {
+
+QString NumeroSinalizado(int valor) {
+  QString ret = QString::number(valor);
+  if (valor > 0) ret.prepend("+");
+  return ret;
+}
+
+void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
+  gerador.linha_classe->clear();
+  gerador.spin_nivel_classe->clear();
+  gerador.spin_nivel_conjurador->clear();
+  gerador.spin_bba->clear();
+  gerador.label_mod_conjuracao->setText("0");
+  gerador.combo_mod_conjuracao->setCurrentIndex(0);
+  gerador.botao_remover_nivel->setEnabled(false);
+}
+
+// Atualiza a UI com a lista de niveis e os totais.
+void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  // nivel total.
+  int total = 0;
+  int total_bba = 0;
+  for (const auto& info_classe : proto.info_classes()) {
+    total += info_classe.nivel();
+    total_bba += info_classe.bba();
+  }
+  gerador.linha_nivel->setText(QString::number(total));
+  gerador.linha_bba->setText(QString::number(total_bba));
+
+  // Lista de niveis.
+  const int indice_antes = gerador.lista_niveis->currentRow();
+  gerador.lista_niveis->clear();
+  for (const auto& info_classe : proto.info_classes()) {
+    std::string string_nivel;
+    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", info_classe.id().c_str(), info_classe.nivel());
+    if (info_classe.nivel_conjurador() > 0) {
+      google::protobuf::StringAppendF(
+          &string_nivel, ", conjurador: %d, mod (%s): %d",
+          info_classe.nivel_conjurador(), TipoAtributo_Name(info_classe.atributo_conjuracao()).substr(3, 3).c_str(),
+          info_classe.modificador_atributo_conjuracao());
+    }
+    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d", info_classe.bba());
+    gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
+  }
+  if (indice_antes < proto.info_classes().size()) {
+    gerador.lista_niveis->setCurrentRow(indice_antes);
+  } else {
+    gerador.lista_niveis->setCurrentRow(-1);
+  }
+}
+
+}  // namespace
+
+void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  // Objetos da UI a serem bloqueados. Passa por copia.
+  std::vector<QObject*> objs = {
+      gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+      gerador.combo_mod_conjuracao, gerador.lista_niveis
+  };
+  auto BloqueiaSinais = [objs] {
+    for (auto* obj : objs) obj->blockSignals(true);
+  };
+  auto DesbloqueiaSinais = [objs] {
+    for (auto* obj : objs) obj->blockSignals(false);
+  };
+
+  BloqueiaSinais();
+  AtualizaUINiveis(gerador, proto);
+  const int indice = gerador.lista_niveis->currentRow();
+  if (indice < 0 || indice >= proto.info_classes_size()) {
+    LimpaCamposClasse(gerador);
+    DesbloqueiaSinais();
+    return;
+  }
+  const auto& info_classe = proto.info_classes(indice);
+  gerador.botao_remover_nivel->setEnabled(true);
+  gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
+  gerador.spin_nivel_classe->setValue(info_classe.nivel());
+  gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
+  gerador.spin_bba->setValue(info_classe.bba());
+  gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
+  gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
+  DesbloqueiaSinais();
+}
 
 void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& a = proto.atributos();
@@ -40,6 +143,8 @@ void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
   }
 }
 
+namespace {
+
 void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_remover_ataque->setEnabled(false);
   gerador.botao_ataque_cima->setEnabled(false);
@@ -54,6 +159,105 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.linha_dano->clear();
   gerador.spin_alcance_quad->setValue(0);
 }
+
+// Monta a string de dano de um ataque incluindo modificadores, como 1d6+3 (x3), CA: 12/12/10.
+std::string StringFinalDanoComCA(const ent::EntidadeProto::DadosAtaque& da) {
+  // Monta a string.
+  std::string critico;
+  if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
+    critico += "(";
+    if (da.margem_critico() < 20) {
+      critico += net::to_string(da.margem_critico()) + "-20";
+      if (da.multiplicador_critico() > 2) {
+        critico += "/";
+      }
+    }
+    if (da.multiplicador_critico() > 2) {
+      critico += "x" + net::to_string(da.multiplicador_critico());
+    }
+    critico += "), " + google::protobuf::StringPrintf("CA: %d/%d/%d", da.ca_normal(), da.ca_surpreso(), da.ca_toque());
+  }
+  return da.dano() + critico;
+}
+
+// Retorna o resumo da arma, algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
+std::string ResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
+  // Monta a string.
+  char string_rotulo[40] = { '\0' };
+  if (!da.rotulo().empty()) {
+    snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
+  }
+  char string_alcance[40] = { '\0' };
+  if (da.has_alcance_m()) {
+    char string_incrementos[40] = { '\0' };
+    if (da.has_incrementos()) {
+      snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
+    }
+    snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
+  }
+  std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
+  return google::protobuf::StringPrintf(
+      "id: %s%s, %sbonus: %d, dano: %s, ca%s: %d toque: %d surpresa%s: %d",
+      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringFinalDanoComCA(da).c_str(), string_escudo.c_str(), da.ca_normal(),
+      da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
+}
+
+// Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
+std::string StringDano(const ent::EntidadeProto::DadosAtaque& da) {
+  std::string critico;
+  if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
+    critico += "(";
+    if (da.margem_critico() < 20) {
+      critico += net::to_string(da.margem_critico()) + "-20";
+      if (da.multiplicador_critico() > 2) {
+        critico += "/";
+      }
+    }
+    if (da.multiplicador_critico() > 2) {
+      critico += "x" + net::to_string(da.multiplicador_critico());
+    }
+    critico += ")";
+  }
+  return da.dano_basico_arma() + critico;
+}
+
+int TipoParaIndice(const std::string& tipo_str) {
+  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
+  // Os indices sao na ordem definida pela UI.
+  if (tipo_str == "Ácido") {
+    return 0;
+  } else if (tipo_str == "Ataque Corpo a Corpo") {
+    return 1;
+  } else if (tipo_str == "Ataque a Distância") {
+    return 2;
+  } else if (tipo_str == "Bola de Fogo") {
+    return 3;
+  } else if (tipo_str == "Coluna de Chamas") {
+    return 4;
+  } else if (tipo_str == "Cone de Gelo") {
+    return 5;
+  } else if (tipo_str == "Feitiço de Toque") {
+    return 6;
+  } else if (tipo_str == "Fogo Alquímico") {
+    return 7;
+  } else if (tipo_str == "Mãos Flamejantes") {
+    return 8;
+  } else if (tipo_str == "Míssil Mágico") {
+    return 9;
+  } else if (tipo_str == "Pedrada (gigante)") {
+    return 10;
+  } else if (tipo_str == "Raio") {
+    return 11;
+  } else if (tipo_str == "Relâmpago") {
+    return 12;
+  } else if (tipo_str == "Tempestade Glacial") {
+    return 13;
+  } else {
+    return 14;
+  }
+}
+
+}  // namespace
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =

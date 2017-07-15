@@ -1344,7 +1344,7 @@ QGroupBox::title {
          </item>
          <item>
           <property name="text">
-           <string>Consituição</string>
+           <string>Constituição</string>
           </property>
          </item>
          <item>

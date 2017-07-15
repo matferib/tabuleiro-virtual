@@ -1,3 +1,10 @@
+Modificador de atributo de conjuracao automatico.
+Modelar dificuldade de acao por classe (por exemplo, coluna de chamas eh 5 clerigo, 4 druida).
+Resistencia a magia.
+UI para aplicacao de efeitos em massa.
+Ataque de multiplos alvos em uma area distribuindo em alvos.
+Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
+
 Efeitos automaticos para tamanho e cura.
 Ataque de Agarrar.
 Se possivel, separar armas por classe no combo (simples, comum, exoticas).
@@ -42,7 +49,6 @@ Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 Arrumar a funcao MousePara3dParaleloZero para montar as matrizes baseado na camera.
 
 Versao 2.6.0
-- Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
 - Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).
