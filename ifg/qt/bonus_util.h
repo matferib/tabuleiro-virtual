@@ -2,8 +2,10 @@
 #define IFG_QT_DIALOGO_BONUS_UTIL_H
 
 #include <QComboBox>
+#include <QItemDelegate>
 #include "ifg/qt/ui/dialogobonus.h"
 #include "ent/entidade.pb.h"
+#include "ent/util.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
