@@ -1000,7 +1000,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   if (d20 == 1) {
     VLOG(1) << "Falha critica";
     return std::make_tuple(-1, "falha critica", false);
-  } else if (d20 != 20 && total < ca_destino) {
+  } else if ((d20 != 20 || da->ataque_agarrar()) && total < ca_destino) {
     texto = google::protobuf::StringPrintf(
         "falhou: %d+%d%s%s= %d vs %s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, str_ca_destino.c_str());
     return std::make_tuple(0, texto, true);
@@ -1019,7 +1019,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
 
   // Se chegou aqui acertou.
   int vezes = 1;
-  if (d20 >= ea.MargemCritico()) {
+  if (d20 >= ea.MargemCritico() && !da->ataque_agarrar()) {
     if (ed.ImuneCritico()) {
       snprintf(texto_critico, 49, ", imune a critico");
     } else {
