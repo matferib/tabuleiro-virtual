@@ -57,6 +57,7 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
+  ent::Tabelas tabelas;
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
   arq::Inicializa();
@@ -67,11 +68,10 @@ int main(int argc, char** argv) {
   net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);
   m3d::Modelos3d modelos3d(&central);
-  ent::Tabuleiro tabuleiro(opcoes, &texturas, &modelos3d, &central);
+  ent::Tabuleiro tabuleiro(opcoes, tabelas, &texturas, &modelos3d, &central);
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
-  ent::Tabelas tabelas;
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(argc, argv, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
