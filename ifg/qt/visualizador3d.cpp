@@ -948,12 +948,11 @@ void PreencheConfiguraDadosDefesa(
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
 
   auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
-  ent::AtribuiBonus(10, ent::TB_BASE, "base",  mca);
   const ent::Tabelas& tabelas = this_->tabelas();
   lambda_connect(gerador.combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
     QComboBox* combo = gerador.combo_armadura;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
-    ent::AtribuiBonus(tabelas.Armadura(id).bonus(), ent::TB_ARMADURA, "armadura", mca);
+    proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
@@ -961,7 +960,7 @@ void PreencheConfiguraDadosDefesa(
   lambda_connect(gerador.combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
     QComboBox* combo = gerador.combo_escudo;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
-    ent::AtribuiBonus(tabelas.Escudo(id).bonus(), ent::TB_ESCUDO, "escudo", mca);
+    proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);

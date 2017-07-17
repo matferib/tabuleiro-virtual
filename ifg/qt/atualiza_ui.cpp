@@ -201,21 +201,13 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 // Monta a string de dano de um ataque incluindo modificadores, como 1d6+3 (x3), CA: 12/12/10.
 std::string StringFinalDanoComCA(const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
-  std::string critico;
-  if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
-    critico += "(";
-    if (da.margem_critico() < 20) {
-      critico += net::to_string(da.margem_critico()) + "-20";
-      if (da.multiplicador_critico() > 2) {
-        critico += "/";
-      }
-    }
-    if (da.multiplicador_critico() > 2) {
-      critico += "x" + net::to_string(da.multiplicador_critico());
-    }
-    critico += "), " + google::protobuf::StringPrintf("CA: %d/%d/%d", da.ca_normal(), da.ca_surpreso(), da.ca_toque());
-  }
-  return da.dano() + critico;
+  std::string critico = ent::StringCritico(da);
+  return google::protobuf::StringPrintf(
+      "%s%s%sCA: %d/%d/%d",
+      da.dano().c_str(),
+      critico.c_str(),
+      critico.empty() ? "" : ", ",
+      da.ca_normal(), da.ca_surpreso(), da.ca_toque());
 }
 
 // Retorna o resumo da arma, algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
