@@ -1337,13 +1337,17 @@ std::string Entidade::DetalhesAcao() const {
     snprintf(texto_furtivo, 99, "+%s", proto_.dados_ataque_globais().dano_furtivo().c_str());
   }
 
+  std::string critico = StringCritico(*dado_ataque);
   return google::protobuf::StringPrintf(
-      "%s%s: %+d%s, %s%s, CA: %s",
+      "%s%s: %+d%s, %s%s%s, CA: %s",
       dado_ataque->rotulo().c_str(),
       dado_ataque->ataque_toque() ? " (T)" : "",
       dado_ataque->bonus_ataque(),
       texto_modificador,
-      StringDanoParaAcao().c_str(), texto_furtivo, StringCAParaAcao().c_str());
+      StringDanoParaAcao().c_str(),
+      critico.c_str(),
+      texto_furtivo,
+      StringCAParaAcao().c_str());
 }
 
 std::string Entidade::StringDanoParaAcao() const {
@@ -1351,14 +1355,12 @@ std::string Entidade::StringDanoParaAcao() const {
   if (dado_ataque == nullptr) {
    return "";
   }
-  char texto_dano[100] = { '\0' };
   char texto_modificador_dano[100] = { '\0' };
   int modificador_dano = ModificadorDano(proto_);
   if (modificador_dano != 0) {
     snprintf(texto_modificador_dano, 99, "%+d", modificador_dano);
   }
-  snprintf(texto_dano, 99, "%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
-  return texto_dano;
+  return google::protobuf::StringPrintf("%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
 }
 
 std::string Entidade::StringCAParaAcao() const {

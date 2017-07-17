@@ -91,7 +91,7 @@ void AtualizaStringDadosVida(int delta, std::string* dados_vida);
 */
 std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida);
 
-/** Converte a resposta para string. */
+/** Converte os dados convertido para string. */
 std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados);
 
 // Le o resultado de um dano de uma arma.
@@ -267,6 +267,9 @@ void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dad
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
+
+// Retorna a string de critico se for diferente de 20/x2. Exemplo: '(19-20/x3)'. Se for 20/x2, retorna vazio.
+std::string StringCritico(const EntidadeProto::DadosAtaque& da);
 
 }  // namespace ent
 

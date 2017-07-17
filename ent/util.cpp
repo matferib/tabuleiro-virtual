@@ -1283,6 +1283,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 
   const auto& arma = tabelas.Arma(da->id_arma());
   if (arma.has_id()) {
+    if (!da->has_rotulo()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
     if (proto.dados_ataque_globais().acuidade() &&
         (PossuiCategoria(CAT_LEVE, arma) ||
@@ -1333,9 +1334,11 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   if (da->ataque_distancia()) {
     bba = bba_distancia;
     if (PossuiCategoria(CAT_ARCO, arma)) {
-      // Ajuste de arcos compostos sem forca suficiente.
-      if (arma.has_max_forca() && modificador_forca < arma.max_forca()) bba -= 2;
-      usar_forca_dano = true;
+      if (arma.has_max_forca()) {
+        // Ajuste de arcos compostos.
+        if (modificador_forca < arma.max_forca()) bba -= 2;
+        usar_forca_dano = true;
+      }
     } else if (PossuiCategoria(CAT_ARREMESSO, arma)) {
       usar_forca_dano = true;
     }
@@ -1475,6 +1478,24 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   }
 }
 
+void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+  auto* dd = proto_retornado->mutable_dados_defesa();
+  const int modificador_destreza = ModificadorAtributo(proto_retornado->atributos().destreza());
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
+  const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
+  ent::AtribuiBonus(10, ent::TB_BASE, "base",  dd->mutable_ca());
+  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
+  ent::AtribuiBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, ent::TB_ARMADURA, "armadura", dd->mutable_ca());
+  ent::AtribuiBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
+  // CA dos ataques.
+  for (auto& da : *proto_retornado->mutable_dados_ataque()) {
+    bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
+    da.set_ca_normal(CATotal(*proto_retornado, permite_escudo));
+    da.set_ca_surpreso(CASurpreso(*proto_retornado, permite_escudo));
+    da.set_ca_toque(CAToque(*proto_retornado));
+  }
+}
+
 }  // namespace
 
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
@@ -1492,8 +1513,6 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   const int modificador_sabedoria    = ModificadorAtributo(proto->atributos().sabedoria());
   //const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
 
-  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
-
   // Iniciativa.
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
@@ -1505,16 +1524,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
 
   // CA.
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
-  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
-
-  // CA dos ataques.
-  for (auto& da : *proto->mutable_dados_ataque()) {
-    bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
-    da.set_ca_normal(CATotal(*proto, permite_escudo));
-    da.set_ca_surpreso(CASurpreso(*proto, permite_escudo));
-    da.set_ca_toque(CAToque(*proto));
-  }
+  RecomputaDependenciasCA(tabelas, proto);
 
   // BBA.
   const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
@@ -1669,6 +1679,22 @@ void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da)
   } else {
     da->clear_ataque_distancia();
   }
+}
+
+std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
+  if (da.multiplicador_critico() == 2 && da.margem_critico() == 20) return "";
+  std::string critico = "(";
+  if (da.margem_critico() < 20) {
+    critico += net::to_string(da.margem_critico()) + "-20";
+    if (da.multiplicador_critico() > 2) {
+      critico += "/";
+    }
+  }
+  if (da.multiplicador_critico() > 2) {
+    critico += "x" + net::to_string(da.multiplicador_critico());
+  }
+  critico += ")";
+  return critico;
 }
 
 }  // namespace ent
