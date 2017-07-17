@@ -271,6 +271,27 @@ bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
 // Retorna a string de critico se for diferente de 20/x2. Exemplo: '(19-20/x3)'. Se for 20/x2, retorna vazio.
 std::string StringCritico(const EntidadeProto::DadosAtaque& da);
 
+// Retorna o resumo da arma, para display na UI. Nao inclui modificadores circunstanciais.
+// Algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
+std::string StringResumoArma(const EntidadeProto::DadosAtaque& da);
+
+// Retorna os detalhes da arma para display na lista de acoes, incluindo alguns modificadores de circunstancia (como caido, por exemplo).
+// Algo como: 'machado: +8+2, 1d8(x3)+2d6, CA 15/15/12'
+std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+
+// Retorna a string de dano para o ataque, sem critico e com modificadores.
+// Exemplo: 1d8+5+2.
+// Usado para gerar dano.
+std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+
+// Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
+// Exemplo: 1d8(19-20).
+std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
+
+// Retorna a strinf de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
+// Exemplo: '(esc+surp) 16, tq: 12'
+std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

@@ -590,7 +590,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Translacao em Z.
-  gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
+  gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
   // Rotacoes.
   auto AjustaSliderSpin = [] (float angulo, QDial* dial, QSpinBox* spin) {
@@ -615,9 +615,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
 
   // Escalas.
-  gerador.spin_escala_x_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().x());
-  gerador.spin_escala_y_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().y());
-  gerador.spin_escala_z_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().z());
+  gerador.spin_escala_x_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().x());
+  gerador.spin_escala_y_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().y());
+  gerador.spin_escala_z_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().z());
 
   if (entidade.has_tesouro()) {
     gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
@@ -1294,7 +1294,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_luz()) {
     luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
     gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
-    gerador.spin_raio_quad->setValue(METROS_PARA_QUADRADOS * (entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f));
+    gerador.spin_raio_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f));
   } else {
     ent::Cor branco;
     branco.set_r(1.0f);
@@ -1313,7 +1313,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     luz_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
     gerador.botao_luz->setStyleSheet(CorParaEstilo(cor));
     if (gerador.spin_raio_quad->value() == 0.0) {
-      gerador.spin_raio_quad->setValue(METROS_PARA_QUADRADOS * 6.0f);
+      gerador.spin_raio_quad->setValue(ent::METROS_PARA_QUADRADOS * 6.0f);
     }
   });
   // Textura do objeto.
@@ -1330,7 +1330,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_pontos_vida_temporarios->setValue(entidade.pontos_vida_temporarios());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
-  gerador.spin_aura_quad->setValue(entidade.aura_m() * METROS_PARA_QUADRADOS);
+  gerador.spin_aura_quad->setValue(entidade.aura_m() * ent::METROS_PARA_QUADRADOS);
   // Voo.
   gerador.checkbox_voadora->setCheckState(entidade.voadora() ? Qt::Checked : Qt::Unchecked);
   // Caida.
@@ -1338,7 +1338,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
-  gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
+  gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
   if (entidade.has_tesouro()) {
     gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
@@ -1354,7 +1354,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
     gerador.spin_raio_visao_escuro_quad->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
   });
-  gerador.spin_raio_visao_escuro_quad->setValue(METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
+  gerador.spin_raio_visao_escuro_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
   gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Preenche os atributos.

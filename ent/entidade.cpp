@@ -1322,64 +1322,26 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao)
 }
 
 std::string Entidade::DetalhesAcao() const {
-  const auto* dado_ataque = DadoCorrente();
-  if (dado_ataque == nullptr) {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
     std::string sca = StringCAParaAcao();
     return sca.empty() ? "" : google::protobuf::StringPrintf("CA: %s", sca.c_str());
   }
-
-  int modificador = ModificadorAtaque(dado_ataque->tipo_ataque() != "Ataque Corpo a Corpo", proto_, EntidadeProto());
-  char texto_modificador[100] = { '\0' };
-  if (modificador != 0) snprintf(texto_modificador, 99, "%+d", modificador);
-
-  char texto_furtivo[100] = { '\0' };
-  if (proto_.furtivo() && !proto_.dados_ataque_globais().dano_furtivo().empty()) {
-    snprintf(texto_furtivo, 99, "+%s", proto_.dados_ataque_globais().dano_furtivo().c_str());
-  }
-
-  std::string critico = StringCritico(*dado_ataque);
-  return google::protobuf::StringPrintf(
-      "%s%s: %+d%s, %s%s%s, CA: %s",
-      dado_ataque->rotulo().c_str(),
-      dado_ataque->ataque_toque() ? " (T)" : "",
-      dado_ataque->bonus_ataque(),
-      texto_modificador,
-      StringDanoParaAcao().c_str(),
-      critico.c_str(),
-      texto_furtivo,
-      StringCAParaAcao().c_str());
+  return StringAtaque(*da, proto_);
 }
 
 std::string Entidade::StringDanoParaAcao() const {
-  const auto* dado_ataque = DadoCorrente();
-  if (dado_ataque == nullptr) {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
    return "";
   }
-  char texto_modificador_dano[100] = { '\0' };
-  int modificador_dano = ModificadorDano(proto_);
-  if (modificador_dano != 0) {
-    snprintf(texto_modificador_dano, 99, "%+d", modificador_dano);
-  }
-  return google::protobuf::StringPrintf("%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
+  return ent::StringDanoParaAcao(*da, proto_);
 }
 
 std::string Entidade::StringCAParaAcao() const {
   const auto* da = DadoCorrente();
-  const bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
-  int normal, toque;
-  std::string info = !permite_escudo && !proto_.surpreso()
-      ? "" : permite_escudo && proto_.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
-  if (proto_.dados_defesa().has_ca()) {
-    normal = proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
-    toque = proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
-  } else if (da != nullptr) {
-    normal = proto_.surpreso() ? da->ca_surpreso() : da->ca_normal();
-    // TODO nao tem toque surpreso.
-    toque = da->ca_toque();
-  } else {
-    return "";
-  }
-  return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
+  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  return ent::StringCAParaAcao(*da, proto_);
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {

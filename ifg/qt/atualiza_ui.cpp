@@ -198,59 +198,6 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-// Monta a string de dano de um ataque incluindo modificadores, como 1d6+3 (x3), CA: 12/12/10.
-std::string StringFinalDanoComCA(const ent::EntidadeProto::DadosAtaque& da) {
-  // Monta a string.
-  std::string critico = ent::StringCritico(da);
-  return google::protobuf::StringPrintf(
-      "%s%s%sCA: %d/%d/%d",
-      da.dano().c_str(),
-      critico.c_str(),
-      critico.empty() ? "" : ", ",
-      da.ca_normal(), da.ca_surpreso(), da.ca_toque());
-}
-
-// Retorna o resumo da arma, algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
-std::string ResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
-  // Monta a string.
-  char string_rotulo[40] = { '\0' };
-  if (!da.rotulo().empty()) {
-    snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
-  }
-  char string_alcance[40] = { '\0' };
-  if (da.has_alcance_m()) {
-    char string_incrementos[40] = { '\0' };
-    if (da.has_incrementos()) {
-      snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
-    }
-    snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
-  }
-  std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
-  return google::protobuf::StringPrintf(
-      "id: %s%s, %sbonus: %d, dano: %s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringFinalDanoComCA(da).c_str(), string_escudo.c_str(), da.ca_normal(),
-      da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
-}
-
-// Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
-std::string StringDano(const ent::EntidadeProto::DadosAtaque& da) {
-  std::string critico;
-  if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
-    critico += "(";
-    if (da.margem_critico() < 20) {
-      critico += net::to_string(da.margem_critico()) + "-20";
-      if (da.multiplicador_critico() > 2) {
-        critico += "/";
-      }
-    }
-    if (da.multiplicador_critico() > 2) {
-      critico += "x" + net::to_string(da.multiplicador_critico());
-    }
-    critico += ")";
-  }
-  return da.dano_basico_arma() + critico;
-}
-
 int TipoParaIndice(const std::string& tipo_str) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
   // Os indices sao na ordem definida pela UI.
@@ -305,7 +252,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const int linha = gerador.lista_ataques->currentRow();
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
-    gerador.lista_ataques->addItem(QString::fromUtf8(ResumoArma(da).c_str()));
+    gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(da).c_str()));
   }
   // Restaura a linha.
   gerador.lista_ataques->setCurrentRow(linha);
@@ -332,9 +279,9 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();
   gerador.combo_tipo_ataque->setCurrentIndex(gerador.combo_tipo_ataque->findData(tipo_str.c_str()));
-  gerador.linha_dano->setText(QString::fromUtf8(StringDano(da).c_str()));
+  gerador.linha_dano->setText(QString::fromUtf8(ent::StringDanoBasicoComCritico(da).c_str()));
   gerador.spin_incrementos->setValue(da.incrementos());
-  gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
+  gerador.spin_alcance_quad->setValue(ent::METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));

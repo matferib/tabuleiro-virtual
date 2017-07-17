@@ -1353,7 +1353,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       usar_forca_dano = true;
     }
   } else if (da->ataque_agarrar()) {
-    bba = proto.bba().agarrar(); 
+    bba = proto.bba().agarrar();
     usar_forca_dano = true;
   } else if (tipo_str == "Ataque Corpo a Corpo") {
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
@@ -1544,14 +1544,16 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   // CA.
   RecomputaDependenciasCA(tabelas, proto);
 
-  // BBA.
-  const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
-  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
-  const int bba = CalculaBonusBaseAtaque(*proto);
-  proto->mutable_bba()->set_base(bba);
-  proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
-  proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
-  proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
+  // BBA: so atualiza se tiver classes, caso contrario deixa o que esta no BBA.
+  if (proto->info_classes_size() > 0) {
+    const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
+    const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
+    const int bba = CalculaBonusBaseAtaque(*proto);
+    proto->mutable_bba()->set_base(bba);
+    proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
+    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
+    proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
+  }
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
@@ -1718,6 +1720,81 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
   }
   critico += ")";
   return critico;
+}
+
+std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  int modificador = ModificadorAtaque(da.tipo_ataque() != "Ataque Corpo a Corpo", proto, EntidadeProto());
+  char texto_modificador[100] = { '\0' };
+  if (modificador != 0) snprintf(texto_modificador, 99, "%+d", modificador);
+
+  char texto_furtivo[100] = { '\0' };
+  if (proto.furtivo() && !proto.dados_ataque_globais().dano_furtivo().empty()) {
+    snprintf(texto_furtivo, 99, "+%s", proto.dados_ataque_globais().dano_furtivo().c_str());
+  }
+
+  std::string critico = StringCritico(da);
+  return google::protobuf::StringPrintf(
+      "%s%s: %+d%s, %s%s%s, CA: %s",
+      da.rotulo().c_str(),
+      da.ataque_toque() ? " (T)" : "",
+      da.bonus_ataque(),
+      texto_modificador,
+      StringDanoParaAcao(da, proto).c_str(),
+      critico.c_str(),
+      texto_furtivo,
+      StringCAParaAcao(da, proto).c_str());
+}
+
+std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  const bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
+  int normal, toque;
+  std::string info = !permite_escudo && !proto.surpreso()
+      ? "" : permite_escudo && proto.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
+  if (proto.dados_defesa().has_ca()) {
+    normal = proto.surpreso() ? CASurpreso(proto, permite_escudo) : CATotal(proto, permite_escudo);
+    toque = proto.surpreso() ? CAToqueSurpreso(proto) : CAToque(proto);
+  } else {
+    normal = proto.surpreso() ? da.ca_surpreso() : da.ca_normal();
+    toque = da.ca_toque();
+  }
+  return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
+}
+
+std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
+  // Monta a string.
+  char string_rotulo[40] = { '\0' };
+  if (!da.rotulo().empty()) {
+    snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
+  }
+  char string_alcance[40] = { '\0' };
+  if (da.has_alcance_m()) {
+    char string_incrementos[40] = { '\0' };
+    if (da.has_incrementos()) {
+      snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
+    }
+    snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
+  }
+  std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
+  return google::protobuf::StringPrintf(
+      "id: %s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
+      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), da.dano().c_str(), StringCritico(da).c_str(),
+      string_escudo.c_str(), da.ca_normal(),
+      da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
+}
+
+std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  int modificador_dano = ModificadorDano(proto);
+  return google::protobuf::StringPrintf(
+      "%s%s",
+      da.dano().c_str(),
+      modificador_dano != 0 ? google::protobuf::StringPrintf("%+d", modificador_dano).c_str() : "");
+
+}
+
+// Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
+std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da) {
+  std::string critico = StringCritico(da);
+  return google::protobuf::StringPrintf("%s%s", da.dano_basico_arma().c_str(), critico.empty() ? "" : critico.c_str());
 }
 
 }  // namespace ent
