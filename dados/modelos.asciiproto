@@ -500,8 +500,23 @@ modelo {
     modificador_iniciativa: 0
     rotulo_especial: "salv: for 3 ref 0 von 0"
     info_textura { id: 'gnoll.png' largura: 0.5 translacao_x: 0.25 }
-    dados_ataque { rotulo: 'Machado de Guerra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d8+2' multiplicador_critico: 3 ca_normal: 15 ca_toque: 10 ca_surpreso: 15 }
-    dados_ataque { rotulo: 'Arco Curto' tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6' multiplicador_critico: 3 ca_normal: 15 ca_toque: 10 ca_surpreso: 15 }
+    dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { id_arma: 'arco_curto' }
+    dados_ataque { rotulo: 'Machado com 2 mãos' id_arma: 'machado_de_batalha' empunhadura: EA_2_MAOS }
+    dados_defesa {
+      id_armadura: 'couro' id_escudo: 'pesado_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
+    }
+    info_classes {
+      id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
