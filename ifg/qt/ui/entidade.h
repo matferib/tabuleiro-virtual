@@ -171,6 +171,9 @@ public:
     QLabel *label_44;
     QComboBox *combo_mod_conjuracao;
     QLabel *label_mod_conjuracao;
+    QSpacerItem *horizontalSpacer_9;
+    QLabel *label_64;
+    QComboBox *combo_salvacoes_fortes;
     QWidget *tab_estatisticas;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
@@ -268,10 +271,6 @@ public:
     QPushButton *botao_bonus_salvacao_fortitude;
     QPushButton *botao_bonus_salvacao_vontade;
     QLabel *label_67;
-    QSpinBox *spin_salvacao_fortitude;
-    QLabel *label_68;
-    QSpinBox *spin_salvacao_reflexo;
-    QSpinBox *spin_salvacao_vontade;
     QPushButton *botao_bonus_salvacao_reflexo;
     QLabel *label_70;
     QGroupBox *groupBox_6;
@@ -935,10 +934,10 @@ public:
 
         groupBox_2 = new QGroupBox(tab_nivel);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(10, 70, 661, 61));
+        groupBox_2->setGeometry(QRect(10, 70, 951, 61));
         horizontalLayoutWidget = new QWidget(groupBox_2);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(9, 20, 651, 41));
+        horizontalLayoutWidget->setGeometry(QRect(9, 20, 941, 41));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -1026,6 +1025,21 @@ public:
         label_mod_conjuracao->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_mod_conjuracao);
+
+        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_9);
+
+        label_64 = new QLabel(horizontalLayoutWidget);
+        label_64->setObjectName(QString::fromUtf8("label_64"));
+        label_64->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_64);
+
+        combo_salvacoes_fortes = new QComboBox(horizontalLayoutWidget);
+        combo_salvacoes_fortes->setObjectName(QString::fromUtf8("combo_salvacoes_fortes"));
+
+        horizontalLayout->addWidget(combo_salvacoes_fortes);
 
         tab_tesouro->addTab(tab_nivel, QString());
         tab_estatisticas = new QWidget();
@@ -1360,11 +1374,11 @@ public:
 
         groupBox_4 = new QGroupBox(tab_estatisticas);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setGeometry(QRect(0, 0, 271, 261));
+        groupBox_4->setGeometry(QRect(0, 0, 231, 261));
         groupBox_4->setStyleSheet(QString::fromUtf8(""));
         gridLayoutWidget_2 = new QWidget(groupBox_4);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(9, 10, 235, 241));
+        gridLayoutWidget_2->setGeometry(QRect(9, 10, 211, 241));
         gridLayout_2 = new QGridLayout(gridLayoutWidget_2);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         gridLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -1530,10 +1544,10 @@ public:
 
         groupBox_5 = new QGroupBox(tab_estatisticas);
         groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        groupBox_5->setGeometry(QRect(0, 270, 251, 141));
+        groupBox_5->setGeometry(QRect(0, 270, 171, 141));
         gridLayoutWidget_4 = new QWidget(groupBox_5);
         gridLayoutWidget_4->setObjectName(QString::fromUtf8("gridLayoutWidget_4"));
-        gridLayoutWidget_4->setGeometry(QRect(-1, 19, 231, 118));
+        gridLayoutWidget_4->setGeometry(QRect(-1, 19, 161, 118));
         gridLayout_4 = new QGridLayout(gridLayoutWidget_4);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         gridLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -1552,12 +1566,12 @@ public:
         botao_bonus_salvacao_fortitude = new QPushButton(gridLayoutWidget_4);
         botao_bonus_salvacao_fortitude->setObjectName(QString::fromUtf8("botao_bonus_salvacao_fortitude"));
 
-        gridLayout_4->addWidget(botao_bonus_salvacao_fortitude, 1, 2, 1, 1);
+        gridLayout_4->addWidget(botao_bonus_salvacao_fortitude, 1, 1, 1, 1);
 
         botao_bonus_salvacao_vontade = new QPushButton(gridLayoutWidget_4);
         botao_bonus_salvacao_vontade->setObjectName(QString::fromUtf8("botao_bonus_salvacao_vontade"));
 
-        gridLayout_4->addWidget(botao_bonus_salvacao_vontade, 3, 2, 1, 1);
+        gridLayout_4->addWidget(botao_bonus_salvacao_vontade, 3, 1, 1, 1);
 
         label_67 = new QLabel(gridLayoutWidget_4);
         label_67->setObjectName(QString::fromUtf8("label_67"));
@@ -1565,34 +1579,10 @@ public:
 
         gridLayout_4->addWidget(label_67, 1, 0, 1, 1);
 
-        spin_salvacao_fortitude = new QSpinBox(gridLayoutWidget_4);
-        spin_salvacao_fortitude->setObjectName(QString::fromUtf8("spin_salvacao_fortitude"));
-        spin_salvacao_fortitude->setMinimum(-99);
-
-        gridLayout_4->addWidget(spin_salvacao_fortitude, 1, 1, 1, 1);
-
-        label_68 = new QLabel(gridLayoutWidget_4);
-        label_68->setObjectName(QString::fromUtf8("label_68"));
-        label_68->setAlignment(Qt::AlignCenter);
-
-        gridLayout_4->addWidget(label_68, 0, 1, 1, 1);
-
-        spin_salvacao_reflexo = new QSpinBox(gridLayoutWidget_4);
-        spin_salvacao_reflexo->setObjectName(QString::fromUtf8("spin_salvacao_reflexo"));
-        spin_salvacao_reflexo->setMinimum(-99);
-
-        gridLayout_4->addWidget(spin_salvacao_reflexo, 2, 1, 1, 1);
-
-        spin_salvacao_vontade = new QSpinBox(gridLayoutWidget_4);
-        spin_salvacao_vontade->setObjectName(QString::fromUtf8("spin_salvacao_vontade"));
-        spin_salvacao_vontade->setMinimum(-99);
-
-        gridLayout_4->addWidget(spin_salvacao_vontade, 3, 1, 1, 1);
-
         botao_bonus_salvacao_reflexo = new QPushButton(gridLayoutWidget_4);
         botao_bonus_salvacao_reflexo->setObjectName(QString::fromUtf8("botao_bonus_salvacao_reflexo"));
 
-        gridLayout_4->addWidget(botao_bonus_salvacao_reflexo, 2, 2, 1, 1);
+        gridLayout_4->addWidget(botao_bonus_salvacao_reflexo, 2, 1, 1, 1);
 
         label_70 = new QLabel(gridLayoutWidget_4);
         label_70->setObjectName(QString::fromUtf8("label_70"));
@@ -1601,7 +1591,7 @@ public:
         label_70->setFont(font);
         label_70->setAlignment(Qt::AlignCenter);
 
-        gridLayout_4->addWidget(label_70, 0, 2, 1, 1);
+        gridLayout_4->addWidget(label_70, 0, 1, 1, 1);
 
         groupBox_6 = new QGroupBox(tab_estatisticas);
         groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
@@ -1996,6 +1986,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", 0, QApplication::UnicodeUTF8)
         );
         label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", 0, QApplication::UnicodeUTF8));
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", 0, QApplication::UnicodeUTF8));
@@ -2143,16 +2134,6 @@ public:
         botao_bonus_salvacao_fortitude->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         botao_bonus_salvacao_vontade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_67->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Fortitude", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_salvacao_fortitude->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Base fortitude", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_68->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_salvacao_reflexo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Base reflexo", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        spin_salvacao_vontade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Base vontade", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
         botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", 0, QApplication::UnicodeUTF8));
         groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque", 0, QApplication::UnicodeUTF8));

@@ -40,6 +40,41 @@ void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_remover_nivel->setEnabled(false);
 }
 
+std::string StringSalvacoesFortes(const ent::InfoClasse& ic) {
+  std::string salvacoes_fortes;
+  if (ClassePossuiSalvacaoForte(ent::TS_FORTITUDE, ic)) {
+    salvacoes_fortes += "F";
+  }
+  if (ClassePossuiSalvacaoForte(ent::TS_REFLEXO, ic)) {
+    salvacoes_fortes += "R";
+  }
+  if (ClassePossuiSalvacaoForte(ent::TS_VONTADE, ic)) {
+    salvacoes_fortes += "V";
+  }
+  return salvacoes_fortes;
+}
+
+int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
+  bool fortitude_forte = ClassePossuiSalvacaoForte(ent::TS_FORTITUDE, ic);
+  bool reflexo_forte = ClassePossuiSalvacaoForte(ent::TS_REFLEXO, ic);
+  bool vontade_forte = ClassePossuiSalvacaoForte(ent::TS_VONTADE, ic);
+  if (fortitude_forte && reflexo_forte && vontade_forte) {
+    return 6;
+  } else if (reflexo_forte && vontade_forte) {
+    return 5;
+  } else if (fortitude_forte && vontade_forte) {
+    return 4;
+  } else if (fortitude_forte && reflexo_forte) {
+    return 3;
+  } else if (vontade_forte) {
+    return 2;
+  } else if (reflexo_forte) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 // Atualiza a UI com a lista de niveis e os totais.
 void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // nivel total.
@@ -55,16 +90,16 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   // Lista de niveis.
   const int indice_antes = gerador.lista_niveis->currentRow();
   gerador.lista_niveis->clear();
-  for (const auto& info_classe : proto.info_classes()) {
+  for (const auto& ic : proto.info_classes()) {
     std::string string_nivel;
-    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", info_classe.id().c_str(), info_classe.nivel());
-    if (info_classe.nivel_conjurador() > 0) {
+    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
+    if (ic.nivel_conjurador() > 0) {
       google::protobuf::StringAppendF(
           &string_nivel, ", conjurador: %d, mod (%s): %d",
-          info_classe.nivel_conjurador(), TipoAtributo_Name(info_classe.atributo_conjuracao()).substr(3, 3).c_str(),
-          info_classe.modificador_atributo_conjuracao());
+          ic.nivel_conjurador(), TipoAtributo_Name(ic.atributo_conjuracao()).substr(3, 3).c_str(),
+          ic.modificador_atributo_conjuracao());
     }
-    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d", info_classe.bba());
+    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
   }
   if (indice_antes < proto.info_classes().size()) {
@@ -80,7 +115,7 @@ void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEn
   // Objetos da UI a serem bloqueados. Passa por copia.
   std::vector<QObject*> objs = {
       gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
-      gerador.combo_mod_conjuracao, gerador.lista_niveis
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -105,6 +140,7 @@ void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEn
   gerador.spin_bba->setValue(info_classe.bba());
   gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
   gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
+  gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(info_classe));
   DesbloqueiaSinais();
 }
 
@@ -370,15 +406,14 @@ void AtualizaUIIniciativa(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
 
 void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& dd = proto.dados_defesa();
-  std::vector<std::tuple<QSpinBox*, QPushButton*, const ent::Bonus*>> tuplas = {
-    std::make_tuple(gerador.spin_salvacao_fortitude, gerador.botao_bonus_salvacao_fortitude, &dd.salvacao_fortitude()),
-    std::make_tuple(gerador.spin_salvacao_reflexo, gerador.botao_bonus_salvacao_reflexo, &dd.salvacao_reflexo()),
-    std::make_tuple(gerador.spin_salvacao_vontade, gerador.botao_bonus_salvacao_vontade, &dd.salvacao_vontade()),
+  std::vector<std::tuple<QPushButton*, const ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.botao_bonus_salvacao_fortitude, &dd.salvacao_fortitude()),
+    std::make_tuple(gerador.botao_bonus_salvacao_reflexo, &dd.salvacao_reflexo()),
+    std::make_tuple(gerador.botao_bonus_salvacao_vontade, &dd.salvacao_vontade()),
   };
   for (const auto& t : tuplas) {
-    QSpinBox* spin; QPushButton* botao; const ent::Bonus* bonus;
-    std::tie(spin, botao, bonus) = t;
-    spin->setValue(ent::BonusIndividualTotal(ent::TB_BASE, *bonus));
+    QPushButton* botao; const ent::Bonus* bonus;
+    std::tie(botao, bonus) = t;
     botao->setText(NumeroSinalizado(ent::BonusTotal(*bonus)));
   }
 }

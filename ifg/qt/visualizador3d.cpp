@@ -1091,24 +1091,53 @@ void PreencheConfiguraDadosAtaque(
   gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
 }
 
+void PreencheComboSalvacoesFortes(QComboBox* combo) {
+  combo->addItem("Fortitude");
+  combo->addItem("Reflexo");
+  combo->addItem("Vontade");
+  combo->addItem("Fortitude e Reflexo");
+  combo->addItem("Fortitude e Vontade");
+  combo->addItem("Reflexo e Vontade");
+  combo->addItem("Todas");
+}
+
+std::vector<ent::TipoSalvacao> ComboParaSalvacoesFortes(const QComboBox* combo) {
+  switch (combo->currentIndex()) {
+    case 0: return { ent::TS_FORTITUDE };
+    case 1: return { ent::TS_REFLEXO };
+    case 2: return { ent::TS_VONTADE };
+    case 3: return { ent::TS_FORTITUDE, ent::TS_REFLEXO };
+    case 4: return { ent::TS_FORTITUDE, ent::TS_VONTADE };
+    case 5: return { ent::TS_REFLEXO, ent::TS_VONTADE };
+    case 6: return { ent::TS_FORTITUDE, ent::TS_REFLEXO, ent::TS_VONTADE };
+    default:
+      LOG(INFO) << "valor de combo invalido: " << combo->currentIndex();
+      return { ent::TS_FORTITUDE };
+  }
+}
+
 // Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela. Nao atualiza a UI.
 void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   const int indice = gerador.lista_niveis->currentRow();
   if (gerador.linha_classe->text().isEmpty()) {
     return;
   }
-  ent::InfoClasse* info_classe = (indice < 0 || indice >= proto_retornado->info_classes().size())
+  ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
       ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
-  info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
-  info_classe->set_nivel(gerador.spin_nivel_classe->value());
-  info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
-  info_classe->set_bba(gerador.spin_bba->value());
-  info_classe->set_atributo_conjuracao(static_cast<ent::TipoAtributo>(gerador.combo_mod_conjuracao->currentIndex()));
+  ic->set_id(gerador.linha_classe->text().toUtf8().constData());
+  ic->set_nivel(gerador.spin_nivel_classe->value());
+  ic->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+  ic->set_bba(gerador.spin_bba->value());
+  ic->set_atributo_conjuracao(static_cast<ent::TipoAtributo>(gerador.combo_mod_conjuracao->currentIndex()));
+  ic->clear_salvacoes_fortes();
+  for (auto ts : ComboParaSalvacoesFortes(gerador.combo_salvacoes_fortes)) {
+    ic->add_salvacoes_fortes(ts);
+  }
   ent::RecomputaDependencias(tabelas, proto_retornado);
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
-void PreencheConfiguraNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
   // Ao mudar a selecao, atualiza os controles.
   lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1119,6 +1148,20 @@ void PreencheConfiguraNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade
   lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
     gerador.lista_niveis->setCurrentRow(-1);
     AdicionaOuEditaNivel(tabelas, gerador, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+
+  PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
+  lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+    if (gerador.lista_niveis->currentRow() == -1 ||
+        gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
+      return;
+    }
+    auto* ic = proto_retornado->mutable_info_classes(gerador.lista_niveis->currentRow());
+    ic->clear_salvacoes_fortes();
+    for (auto ts : ComboParaSalvacoesFortes(gerador.combo_salvacoes_fortes)) {
+      ic->add_salvacoes_fortes(ts);
+    }
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 
@@ -1155,18 +1198,14 @@ void PreencheConfiguraNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade
 void PreencheConfiguraSalvacoes(ifg::qt::Visualizador3d* pai, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto) {
   auto* dd = proto->mutable_dados_defesa();
   AtualizaUISalvacoes(gerador, *proto);
-  std::vector<std::tuple<QSpinBox*, QPushButton*, ent::Bonus*>> tuplas = {
-    std::make_tuple(gerador.spin_salvacao_fortitude, gerador.botao_bonus_salvacao_fortitude, dd->mutable_salvacao_fortitude()),
-    std::make_tuple(gerador.spin_salvacao_reflexo, gerador.botao_bonus_salvacao_reflexo, dd->mutable_salvacao_reflexo()),
-    std::make_tuple(gerador.spin_salvacao_vontade, gerador.botao_bonus_salvacao_vontade, dd->mutable_salvacao_vontade()),
+  std::vector<std::tuple<QPushButton*, ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.botao_bonus_salvacao_fortitude, dd->mutable_salvacao_fortitude()),
+    std::make_tuple(gerador.botao_bonus_salvacao_reflexo, dd->mutable_salvacao_reflexo()),
+    std::make_tuple(gerador.botao_bonus_salvacao_vontade, dd->mutable_salvacao_vontade()),
   };
   for (const auto& t : tuplas) {
-    QSpinBox* spin; QPushButton* botao; ent::Bonus* bonus;
-    std::tie(spin, botao, bonus) = t;
-    lambda_connect(spin, SIGNAL(valueChanged(int)), [spin, bonus, &gerador, proto] {
-      ent::AtribuiBonus(spin->value(), ent::TB_BASE, "base", bonus);
-      AtualizaUISalvacoes(gerador, *proto);
-    });
+    QPushButton* botao; ent::Bonus* bonus;
+    std::tie(botao, bonus) = t;
     lambda_connect(botao, SIGNAL(clicked()), [pai, bonus, &gerador, proto] () {
       AbreDialogoBonus(pai, bonus);
       AtualizaUISalvacoes(gerador, *proto);
@@ -1334,8 +1373,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Dados de ataque.
   PreencheConfiguraDadosAtaque(this, gerador, entidade, proto_retornado);
 
-  // Preenche configura niveis.
-  PreencheConfiguraNiveis(this, gerador, proto_retornado);
+  // Preenche configura classes e niveis.
+  PreencheConfiguraClassesNiveis(this, gerador, proto_retornado);
 
   // Preenche a parte de resistencias.
   PreencheConfiguraSalvacoes(this, gerador, proto_retornado);

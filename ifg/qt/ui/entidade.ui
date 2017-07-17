@@ -1165,7 +1165,7 @@ QGroupBox::title {
       <rect>
        <x>10</x>
        <y>70</y>
-       <width>661</width>
+       <width>951</width>
        <height>61</height>
       </rect>
      </property>
@@ -1177,7 +1177,7 @@ QGroupBox::title {
        <rect>
         <x>9</x>
         <y>20</y>
-        <width>651</width>
+        <width>941</width>
         <height>41</height>
        </rect>
       </property>
@@ -1379,6 +1379,32 @@ QGroupBox::title {
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_9">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_64">
+         <property name="text">
+          <string>Salvações Fortes</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="combo_salvacoes_fortes"/>
        </item>
       </layout>
      </widget>
@@ -2106,7 +2132,7 @@ QGroupBox::title {
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>271</width>
+       <width>231</width>
        <height>261</height>
       </rect>
      </property>
@@ -2121,7 +2147,7 @@ QGroupBox::title {
        <rect>
         <x>9</x>
         <y>10</y>
-        <width>235</width>
+        <width>211</width>
         <height>241</height>
        </rect>
       </property>
@@ -2411,7 +2437,7 @@ QGroupBox::title {
       <rect>
        <x>0</x>
        <y>270</y>
-       <width>251</width>
+       <width>171</width>
        <height>141</height>
       </rect>
      </property>
@@ -2423,7 +2449,7 @@ QGroupBox::title {
        <rect>
         <x>-1</x>
         <y>19</y>
-        <width>231</width>
+        <width>161</width>
         <height>118</height>
        </rect>
       </property>
@@ -2448,14 +2474,14 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="1" column="1">
         <widget class="QPushButton" name="botao_bonus_salvacao_fortitude">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="2">
+       <item row="3" column="1">
         <widget class="QPushButton" name="botao_bonus_salvacao_vontade">
          <property name="text">
           <string>Bonus</string>
@@ -2472,54 +2498,14 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="spin_salvacao_fortitude">
-         <property name="toolTip">
-          <string>Base fortitude</string>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_68">
-         <property name="text">
-          <string>Base</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="1">
-        <widget class="QSpinBox" name="spin_salvacao_reflexo">
-         <property name="toolTip">
-          <string>Base reflexo</string>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="spin_salvacao_vontade">
-         <property name="toolTip">
-          <string>Base vontade</string>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
         <widget class="QPushButton" name="botao_bonus_salvacao_reflexo">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
+       <item row="0" column="1">
         <widget class="QLabel" name="label_70">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">

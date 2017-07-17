@@ -1425,16 +1425,61 @@ void RecomputaDependenciasDestreza(const Tabelas& tabelas, EntidadeProto* proto)
   AtribuiBonus(penalidade, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
 }
 
+// Retorna o bonus base de uma salvacao, dado o nivel. Forte indica que a salvacao eh forte.
+int CalculaBaseSalvacao(bool forte, int nivel) {
+  if (forte) {
+    return 2 + (nivel / 2);
+  } else {
+    return nivel / 3;
+  }
+}
+
+Bonus* BonusSalvacao(TipoSalvacao ts, EntidadeProto* proto) {
+  switch (ts) {
+    case TS_FORTITUDE: return proto->mutable_dados_defesa()->mutable_salvacao_fortitude();
+    case TS_REFLEXO: return proto->mutable_dados_defesa()->mutable_salvacao_reflexo();
+    case TS_VONTADE: return proto->mutable_dados_defesa()->mutable_salvacao_vontade();
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)ts;
+      return proto->mutable_dados_defesa()->mutable_salvacao_fortitude();
+  }
+}
+
 // Recomputa os modificadores de conjuracao.
 void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
+  int salvacao_fortitude = 0;
+  int salvacao_reflexo = 0;
+  int salvacao_vontade = 0;
+  // Para evitar recomputar quando nao tiver base.
+  bool recomputa_base = false;
   for (auto& ic : *proto->mutable_info_classes()) {
-    if (ic.has_atributo_conjuracao()) { 
+    if (ic.has_atributo_conjuracao()) {
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
     }
+
+    if (ic.salvacoes_fortes_size() > 0) {
+      recomputa_base = true;
+      salvacao_fortitude += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_FORTITUDE, ic), ic.nivel());
+      salvacao_reflexo += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_REFLEXO, ic), ic.nivel());
+      salvacao_vontade += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_VONTADE, ic), ic.nivel());
+    }
+  }
+  if (recomputa_base) {
+    AtribuiBonus(salvacao_fortitude, TB_BASE, "base", BonusSalvacao(TS_FORTITUDE, proto));
+    AtribuiBonus(salvacao_reflexo, TB_BASE, "base", BonusSalvacao(TS_REFLEXO, proto));
+    AtribuiBonus(salvacao_vontade, TB_BASE, "base", BonusSalvacao(TS_VONTADE, proto));
+  } else {
+    RemoveBonus(TB_BASE, "base", BonusSalvacao(TS_FORTITUDE, proto));
+    RemoveBonus(TB_BASE, "base", BonusSalvacao(TS_REFLEXO, proto));
+    RemoveBonus(TB_BASE, "base", BonusSalvacao(TS_VONTADE, proto));
   }
 }
 
 }  // namespace
+
+bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
+  return std::any_of(ic.salvacoes_fortes().begin(), ic.salvacoes_fortes().end(), [ts] (int icts) { return icts == ts; });
+}
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasEfeitos(tabelas, proto);

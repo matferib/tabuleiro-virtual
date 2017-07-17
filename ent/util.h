@@ -231,6 +231,7 @@ int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
 void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
+inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);
@@ -263,6 +264,9 @@ bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque.
 void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+
+// Retorna true se a classe possuir a salvacao forte do tipo passado.
+bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
 
 }  // namespace ent
 

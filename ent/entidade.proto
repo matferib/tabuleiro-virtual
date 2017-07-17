@@ -60,6 +60,8 @@ message InfoClasse {
   optional int32 modificador_atributo_conjuracao = 5;
   // Qual o atributo de conjuracao da classe.
   optional TipoAtributo atributo_conjuracao = 6;
+  // Quais salvacoes sao fortes para a classe.
+  repeated TipoSalvacao salvacoes_fortes = 7;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
