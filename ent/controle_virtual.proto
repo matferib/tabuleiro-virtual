@@ -232,6 +232,7 @@ enum TipoDuracao {
 enum TipoModificadorAtaque {
   // Usa BBA + modificador do atributo de conjurador.
   TMA_BBA_MAIS_ATRIBUTO_CONJURACAO = 0;
+  TMA_BBA_NIVEL_CONJURADOR         = 1;
   TMA_OUTROS                       = 100;
 }
 

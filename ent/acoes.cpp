@@ -116,6 +116,27 @@ class AcaoSinalizacao : public Acao {
 };
 gl::VboGravado AcaoSinalizacao::vbo_;
 
+class AcaoAgarrar : public Acao {
+ public:
+  AcaoAgarrar(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
+      Acao(acao_proto, tabuleiro, texturas) {
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+  }
+
+  void AtualizaAposAtraso(int intervalo_ms) override {
+    finalizada_ = true;
+  }
+
+  bool Finalizada() const override {
+    return finalizada_;
+  }
+
+ private:
+  bool finalizada_ = false;
+};
+
 // Sobe um numero verde ou vermelho de acordo com o dano causado.
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
@@ -1170,6 +1191,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
     case ACAO_FEITICO_TOQUE:
       return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
+    case ACAO_AGARRAR:
+      return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;

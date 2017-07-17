@@ -898,10 +898,11 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     if (HaValorListaPontosVida() && entidade_destino != nullptr) {
       int vezes = 1;
       std::string texto;
-      if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
+      if (modo_dano_automatico_ && acao_proto.permite_ataque_vs_defesa()) {
         VLOG(1) << "--------------------------";
         VLOG(1) << "iniciando ataque vs defesa";
-        std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+        std::tie(vezes, texto, realiza_acao) =
+            AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
         VLOG(1) << "--------------------------";
         AdicionaLogEvento(std::string("entidade ") +
             (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
@@ -939,6 +940,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
                 (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
                 resultado_salvacao.c_str()));
         }
+        VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
         acao_proto.set_delta_pontos_vida(delta_pontos_vida);
         acao_proto.set_afeta_pontos_vida(true);
         // Faz a notificacao de desfazer aqui.

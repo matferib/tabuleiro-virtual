@@ -12,6 +12,7 @@ enum TipoAcao {
   ACAO_DELTA_PONTOS_VIDA = 5;
   ACAO_CORPO_A_CORPO = 6;
   ACAO_FEITICO_TOQUE = 7;
+  ACAO_AGARRAR = 8;
 }
 
 // Algumas acoes causam consequencias, como deslocamento do alvo.
@@ -90,7 +91,9 @@ message AcaoProto {
   optional ResultadoSalvacao resultado_salvacao = 32;
   optional int32 dificuldade_salvacao = 33;
   optional TipoSalvacao tipo_salvacao = 34;
-  optional bool permite_defesa_armadura = 27;
+  // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
+  // ira considerar sempre um acerto e pular esta etapa.
+  optional bool permite_ataque_vs_defesa = 27;
   // A textura que representa a acao (icone).
   optional string icone = 25;
   // A acao deve ser feita apenas localmente.
@@ -113,6 +116,8 @@ message AcaoProto {
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
+  // O ataque eh de agarrar.
+  optional bool ataque_agarrar = 38;
 }
 
 // O arquivo de acoes é serializado desta forma.

@@ -928,9 +928,13 @@ Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
 // Posicao ataque eh para calculo de distancia.
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
-  auto tipo_ataque = da == nullptr ? "Ataque Corpo a Corpo" : da->tipo_ataque();
-  int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(da == nullptr ? Entidade::CA_NORMAL : CATipoAtaque(*da));
+  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  const int ataque_origem = ea.BonusAtaque();
+  const int d20_defesa_agarrar = RolaDado(20);
+  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(CATipoAtaque(*da));
+  const std::string str_ca_destino = da->ataque_agarrar()
+      ? google::protobuf::StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
+      : google::protobuf::StringPrintf("%d", ca_destino);
   int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
@@ -978,9 +982,10 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
 
-  int outros_modificadores = ModificadorAtaque(tipo_ataque != "Ataque Corpo a Corpo", ea.Proto(), ed.Proto());
+  auto tipo_ataque = da->tipo_ataque();
+  int outros_modificadores = ModificadorAtaque(da->ataque_distancia(), ea.Proto(), ed.Proto());
   int d20 = RolaDado(20);
-  char texto[100] = {'\0'};
+  std::string texto;
   char texto_critico[50] = {'\0'};
   char texto_incremento[50] = {'\0'};
   char texto_outros_modificadores[50] = {'\0'};
@@ -996,7 +1001,8 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     VLOG(1) << "Falha critica";
     return std::make_tuple(-1, "falha critica", false);
   } else if (d20 != 20 && total < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d%s%s= %d", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total);
+    texto = google::protobuf::StringPrintf(
+        "falhou: %d+%d%s%s= %d vs %s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, str_ca_destino.c_str());
     return std::make_tuple(0, texto, true);
   }
   // Chance de falha.
@@ -1022,15 +1028,19 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
       if (d20 == 1) {
         snprintf(texto_critico, 49, ", critico falhou: 1");
       } else if (total_critico >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
+        snprintf(
+            texto_critico, 49, ", critico %d+%d%s%s= %d",
+            d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
         vezes = ea.MultiplicadorCritico();
       } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
+        snprintf(
+            texto_critico, 49, ", critico falhou: %d+%d%s%s= %d",
+            d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
       }
     }
   }
-  snprintf(texto, 99, "acertou: %d+%d%s%s= %d%s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, texto_critico);
-
+  texto = google::protobuf::StringPrintf("acertou: %d+%d%s%s= %d%s vs %s",
+           d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, texto_critico, str_ca_destino.c_str());
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
   return std::make_tuple(vezes, texto, true);
 }
@@ -1254,12 +1264,12 @@ int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
 }
 
 // Retorna o bonus de ataque para uma determinada arma.
-int CalculaBonusBaseAtaqueArma(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+int CalculaBonusBaseParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
   return BonusTotal(da.outros_bonus_ataque());
 }
 
 // Retorna a string de dano para uma arma.
-std::string CalculaDanoArma(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
   const int mod_final = BonusTotal(da.outros_bonus_dano());
   return da.dano_basico_arma().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
@@ -1342,6 +1352,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     } else if (PossuiCategoria(CAT_ARREMESSO, arma)) {
       usar_forca_dano = true;
     }
+  } else if (da->ataque_agarrar()) {
+    bba = proto.bba().agarrar(); 
+    usar_forca_dano = true;
   } else if (tipo_str == "Ataque Corpo a Corpo") {
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
     usar_forca_dano = true;
@@ -1364,8 +1377,13 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     }
     AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
   } else {
-    AtribuiBonus(0, TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
+    RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
   }
+  // Estes dois sao os mais importantes, porque eh o que vale.
+  da->set_bonus_ataque(CalculaBonusBaseParaAtaque(*da, proto));
+  da->set_dano(CalculaDanoParaAtaque(*da, proto));
+
+  VLOG(1) << "Proto apos RecomputaDependencias: " << proto.DebugString();
 }
 
 void AplicaBonus(const Bonus& bonus, Bonus* alvo) {
@@ -1528,17 +1546,16 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   // BBA.
   const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
+  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
   const int bba = CalculaBonusBaseAtaque(*proto);
   proto->mutable_bba()->set_base(bba);
-  proto->mutable_bba()->set_cac(modificador_forca + bba);
-  proto->mutable_bba()->set_distancia(modificador_destreza + bba);
+  proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
+  proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
   proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
     RecomputaDependenciasArma(tabelas, &da, *proto);
-    da.set_bonus_ataque(CalculaBonusBaseAtaqueArma(da, *proto));
-    da.set_dano(CalculaDanoArma(da, *proto));
   }
 }
 
@@ -1679,6 +1696,12 @@ void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da)
   } else {
     da->clear_ataque_distancia();
   }
+  if (acao_proto.has_ataque_agarrar()) {
+    da->set_ataque_agarrar(acao_proto.ataque_agarrar());
+  } else {
+    da->clear_ataque_agarrar();
+  }
+
 }
 
 std::string StringCritico(const EntidadeProto::DadosAtaque& da) {

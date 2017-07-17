@@ -315,6 +315,8 @@ message EntidadeProto {
     optional bool ataque_toque = 28;
     // Indica que o ataque eh a distancia.
     optional bool ataque_distancia = 29;
+    // Indica ataque de agarrar.
+    optional bool ataque_agarrar = 30;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.

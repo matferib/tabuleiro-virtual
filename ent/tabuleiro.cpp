@@ -961,10 +961,11 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
         if (StringSemUtf8(modelo->evento(i).descricao()) == "duracao") {
           modelo->mutable_evento()->DeleteSubrange(i, 1);
           break;
-       }
+        }
       }
       auto* evento = modelo->add_evento();
       evento->set_descricao("duração");
+      evento->set_id_efeito(EFEITO_OUTRO);
       evento->set_rodadas(duracao_rodadas);
     }
   }
@@ -976,36 +977,48 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
     }
     google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
     for (auto& da : *modelo->mutable_dados_ataque()) {
-      da.set_dano(dano_str);
+      da.set_dano_basico_arma(dano_str);
     }
   }
   if (parametros.has_tipo_modificador_ataque()) {
     int modificador_ataque = -100;
-    int ref_bba = referencia.BonusBaseAtaque();
-    int num_ataques = 1 + (ref_bba / 6);
+    int num_ataques = 1;
     switch (parametros.tipo_modificador_ataque()) {
-      case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO:
+      case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO: {
+        int ref_bba = referencia.BonusBaseAtaque();
+        num_ataques = 1 + (ref_bba / 6);
         modificador_ataque = ref_bba + referencia.ModificadorAtributoConjuracao();
+        break;
+      }
+      case TMA_BBA_NIVEL_CONJURADOR:
+        modificador_ataque = referencia.NivelConjurador();
         break;
       default:
         break;
     }
     // Hack para quando o personagem nao tiver modificadores.
     if (modificador_ataque > -50) {
+      // Adiciona uma classe ficticia com o bba. Os ataques adicionais receberao o bonus dentro de outros_bonus_ataque.
+      auto* ic = modelo->add_info_classes();
+      ic->set_id("modelo");
+      ic->set_nivel(modificador_ataque);
+      ic->set_bba(modificador_ataque);
       // Salva o ataque como modelo para usar ao criar os demais.
       auto da = modelo->dados_ataque().empty() ? EntidadeProto::DadosAtaque() : modelo->dados_ataque(0);
       modelo->clear_dados_ataque();
+      int ordem_ataque = 0;
       while (num_ataques-- > 0) {
         auto* nda = modelo->add_dados_ataque();
         *nda = da;
-        nda->set_bonus_ataque(modificador_ataque);
-        modificador_ataque -= 5;
+        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_outros_bonus_ataque());
+        ++ordem_ataque;
       }
     }
   }
   if (!parametros.rotulo_especial().empty()) {
     *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
   }
+  VLOG(1) << "Modelo parametrizado: " << modelo->DebugString();
 }
 
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {

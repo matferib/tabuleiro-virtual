@@ -12,10 +12,17 @@ acao {
   ataque_distancia: true
 }
 acao {
+  id: 'Agarrar'
+  tipo: ACAO_AGARRAR
+  icone: 'icon_grapple.png'
+  ataque_agarrar: true
+  permite_ataque_vs_defesa: true
+}
+acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
   icone: 'icon_sword.png'
-  permite_defesa_armadura: true
+  permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
 }
 acao {
@@ -29,7 +36,7 @@ acao {
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
   icone: 'icon_bow.png'
-  permite_defesa_armadura: true
+  permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
   ataque_distancia: true
 }
@@ -91,7 +98,7 @@ acao {
   escala { x: 0.5 y: 0.5 z: 0.5 }
   translacao { x: 0 y: -0.3 z: -0.3 }
   cor { r: 0.0 g: 0.0  b: 1.0 }
-  permite_defesa_armadura: true
+  permite_ataque_vs_defesa: true
   icone: 'icon_touch.png'
   ataque_toque: true
 }
@@ -102,7 +109,7 @@ acao {
   escala { x: 0.5 y: 0.5 z: 0.5 }
   translacao { x: 0 y: -0.3 z: -0.3 }
   cor { r: 0.0 g: 0.0  b: 1.0 }
-  permite_defesa_armadura: true
+  permite_ataque_vs_defesa: true
   icone: 'icon_ranged_touch.png'
   ataque_toque: true
   ataque_distancia: true
@@ -167,7 +174,7 @@ acao {
   cor { r: 1.0 g: 1.0 b: 1.0 a: 0.8 }
   duracao_s: 0.5
   icone: 'icon_ray.png'
-  permite_defesa_armadura: true
+  permite_ataque_vs_defesa: true
   info_textura { id: 'fire.png' }
   consequencia: TC_INFLAMA_ALVO
   ataque_toque: true

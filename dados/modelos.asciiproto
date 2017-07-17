@@ -68,7 +68,6 @@ modelo {
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'flail' }
-    tamanho: TM_PEQUENO
     dados_ataque {
       rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
@@ -91,7 +90,6 @@ modelo {
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'axe' }
-    tamanho: TM_PEQUENO
     dados_ataque {
     rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
@@ -114,7 +112,6 @@ modelo {
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'sword' }
-    tamanho: TM_PEQUENO
     dados_ataque {
     rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' margem_critico: 19 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
@@ -314,7 +311,7 @@ modelo {
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano: '2d6'
-      acao { cor { r: 1.0 g: 1.0  b: 0.0 } permite_defesa_armadura: false permite_salvacao: true consequencia: TC_INFLAMA_ALVO }
+      acao { cor { r: 1.0 g: 1.0  b: 0.0 } permite_ataque_vs_defesa: false permite_salvacao: true consequencia: TC_INFLAMA_ALVO }
     }
     ignora_luz: true
     evento { rodadas: 3 descricao: 'duração' }
@@ -328,14 +325,18 @@ modelo {
   entidade {
     modelo_3d { id: 'black_tentacles' }
     cor { r: 0.1 g: 0.1 b: 0.1 a: 1 }
+    tamanho: TM_GRANDE
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+    }
     dados_ataque {
-      # TODO: refazer quando agarrar estiver pronto.
-      rotulo: 'Agarrar' tipo_ataque: 'Feitiço de Toque' dano: '1d6+4' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_defesa_armadura: false }
+      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico_arma: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true }
     }
     evento { rodadas: 7 descricao: 'duração' }
   }
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
+    tipo_modificador_ataque: TMA_BBA_NIVEL_CONJURADOR
   }
 }
 modelo {
@@ -768,7 +769,15 @@ modelo {
 }
 modelo {
   id: 'Humano Mago'
-  entidade { dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
+  entidade {
+    dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes {
+      id: 'mago' nivel: 1 bba: 0 nivel_conjurador: 1 atributo_conjuracao: TA_INTELIGENCIA salvacoes_fortes: TS_VONTADE
+    }
+    atributos {
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+    }
+  }
 }
 modelo {
   id: 'Humano Monge'
@@ -1028,7 +1037,7 @@ modelo {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
     cor { r: 1 g: 1 b: 1 a: 0.5 }
     dados_ataque {
-      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano: '2d6+3d6' acao { permite_defesa_armadura: false }
+      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano: '2d6+3d6' acao { permite_ataque_vs_defesa: false }
     }
     dados_ataque {
       rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano: '2d6+3d6'
