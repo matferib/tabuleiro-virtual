@@ -1293,7 +1293,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 
   const auto& arma = tabelas.Arma(da->id_arma());
   if (arma.has_id()) {
-    if (!da->has_rotulo()) da->set_rotulo(arma.nome());
+    if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
     if (proto.dados_ataque_globais().acuidade() &&
         (PossuiCategoria(CAT_LEVE, arma) ||
@@ -1303,10 +1303,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 
     // tipo certo de ataque.
     bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
-    da->set_ataque_distancia(distancia);
     bool cac = PossuiCategoria(CAT_CAC, arma);
     if (distancia && cac) {
-      // Pode ser qualquer um dos dois. Preferencia para distancia.
+      // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
       if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
         da->set_tipo_ataque("Ataque a Distância");
       }
@@ -1315,6 +1314,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     } else {
       da->set_tipo_ataque("Ataque a Distância");
     }
+    da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
     if (arma.has_alcance_quadrados()) {
       da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
@@ -1358,7 +1358,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else if (tipo_str == "Ataque Corpo a Corpo") {
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
     usar_forca_dano = true;
-  } else if (tipo_str == "Feitiço de Toque") {
+  } else if (da->ataque_toque()) {
     bba = proto.dados_ataque_globais().acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
   }
   AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
@@ -1544,16 +1544,14 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   // CA.
   RecomputaDependenciasCA(tabelas, proto);
 
-  // BBA: so atualiza se tiver classes, caso contrario deixa o que esta no BBA.
-  if (proto->info_classes_size() > 0) {
-    const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
-    const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
-    const int bba = CalculaBonusBaseAtaque(*proto);
-    proto->mutable_bba()->set_base(bba);
-    proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
-    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
-    proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
-  }
+  // BBA: tenta atualizar por classe, se nao houver, pelo bba base, senao apenas modificadores.
+  const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
+  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
+  const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().has_base() ? proto->bba().base() : 0;
+  proto->mutable_bba()->set_base(bba);
+  proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
+  proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
+  proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
