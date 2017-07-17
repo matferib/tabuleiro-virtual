@@ -261,6 +261,9 @@ inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade);
 
+// Passa alguns dados de acao proto para dados ataque.
+void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "arq/arquivo.h"
+#include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "goog/stringprintf.h"
@@ -126,6 +127,16 @@ Tabelas::Tabelas() {
     efeitos_[efeito.id()] = &efeito;
   }
 
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
+  } catch (...) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto";
+  }
+  for (const auto& acao : tabela_acoes_.acao()) {
+    acoes_[acao.id()] = &acao;
+  }
+
+
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -146,7 +157,11 @@ const ArmaProto& Tabelas::Arma(const std::string& id) const {
 const EfeitoProto& Tabelas::Efeito(TipoEvento tipo) const {
   auto it = efeitos_.find(tipo);
   return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
+}
 
+const AcaoProto& Tabelas::Acao(const std::string& id) const {
+  auto it = acoes_.find(id);
+  return it == acoes_.end() ? AcaoProto::default_instance() : *it->second;
 }
 
 }  // namespace

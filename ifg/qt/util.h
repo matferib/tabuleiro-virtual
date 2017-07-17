@@ -5,6 +5,7 @@
 #include <string>
 #include <QColor>
 #include <QObject>
+#include <QComboBox>
 #include "ent/entidade.pb.h"
 
 class QColor;
@@ -45,5 +46,8 @@ const ent::Cor CorParaProto(const QColor& qcor);
 
 /** Converte o proto para cor Qt. */
 const QColor ProtoParaCor(const ent::Cor& cor);
+
+/** Funcao faltante para QComboBox. */
+inline QVariant CurrentData(QComboBox* combo) { return combo->itemData(combo->currentIndex()); }
 
 #endif  // IFG_QT_UTIL_H

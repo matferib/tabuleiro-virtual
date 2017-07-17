@@ -60,30 +60,6 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-std::string IndiceParaTipo(int indice) {
-  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
-  // Os indices sao na ordem definida pela UI.
-  switch (indice) {
-    case 0: return "Ácido";
-    case 1: return "Ataque Corpo a Corpo";
-    case 2: return "Ataque a Distância";
-    case 3: return "Bola de Fogo";
-    case 4: return "Coluna de Chamas";
-    case 5: return "Cone de Gelo";
-    case 6: return "Feitiço de Toque";
-    case 7: return "Feitiço de Toque a Distância";
-    case 8: return "Fogo Alquímico";
-    case 9: return "Mãos Flamejantes";
-    case 10: return "Míssil Mágico";
-    case 11: return "Pedrada (gigante)";
-    case 12: return "Raio";
-    case 13: return "Relâmpago";
-    case 14: return "Tempestade Glacial";
-    default: return "Ataque Corpo a Corpo";
-  }
-};
-constexpr int ULTIMO_TIPO_VALIDO = 14;
-
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -813,15 +789,12 @@ ent::EmpunhaduraArma ComboParaEmpunhadura(QComboBox* combo) {
 // Se houver selecionada, ira atualizar o dado de ataque. Caso contrario, criara um novo dado de ataque com os dados
 // lidos dos controles da UI. No final, recomputara dependencias e atualizara a UI.
 void AdicionaOuAtualizaAtaqueEntidade(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   int indice = gerador.lista_ataques->currentRow();
   bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
   ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
-  if (gerador.combo_tipo_ataque->currentIndex() > ULTIMO_TIPO_VALIDO && indice_valido) {
-    da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
-  } else {
-    da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
-  }
+  da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
+
   // Bonus magico vale para ataque e dano.
   ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_ataque());
   ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
@@ -850,8 +823,8 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
-  RecomputaDependencias(this_->tabelas(), proto_retornado);
-  AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
+  RecomputaDependencias(tabelas, proto_retornado);
+  AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
 void PreencheConfiguraComboArmaArmaduraEscudo(
@@ -1010,10 +983,40 @@ void PreencheConfiguraDadosDefesa(
   });
 }
 
+void PreencheConfiguraComboTipoAtaque(const ent::Acoes& acoes, ifg::qt::Ui::DialogoEntidade& gerador, std::function<void()> EditaRefrescaLista) {
+  std::set<std::string> tipos_acoes;
+  for (const auto& acao : acoes.acao()) {
+    tipos_acoes.insert(acao.id());
+  }
+  for (const auto& id : tipos_acoes) {
+    gerador.combo_tipo_ataque->addItem(QString::fromUtf8(id.c_str()), QVariant(id.c_str()));
+  }
+  lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [&gerador, EditaRefrescaLista]() {
+    const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
+    gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+    EditaRefrescaLista();
+  });
+}
+
 void PreencheConfiguraDadosAtaque(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
-  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   const ent::Tabelas& tabelas = this_->tabelas();
+  auto EditaRefrescaLista = [this_, &tabelas, &gerador, proto_retornado] () {
+    int indice_antes = gerador.lista_ataques->currentRow();
+    if (indice_antes < 0 || indice_antes >= proto_retornado->dados_ataque().size()) {
+      // Vale apenas para edicao.
+      return;
+    }
+    AdicionaOuAtualizaAtaqueEntidade(tabelas, gerador, proto_retornado);
+    if (indice_antes < proto_retornado->dados_ataque().size()) {
+      gerador.lista_ataques->setCurrentRow(indice_antes);
+    } else {
+      gerador.lista_ataques->setCurrentRow(-1);
+    }
+  };
+
+  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
+  PreencheConfiguraComboTipoAtaque(tabelas.TodasAcoes(), gerador, EditaRefrescaLista);
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
   lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&tabelas, &gerador, proto_retornado]() {
@@ -1022,27 +1025,13 @@ void PreencheConfiguraDadosAtaque(
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });
 
-  auto EditaRefrescaLista = [this_, &tabelas, &gerador, proto_retornado] () {
-    int indice_antes = gerador.lista_ataques->currentRow();
-    if (indice_antes < 0 || indice_antes >= proto_retornado->dados_ataque().size()) {
-      // Vale apenas para edicao.
-      return;
-    }
-    AdicionaOuAtualizaAtaqueEntidade(this_, gerador, proto_retornado);
-    if (indice_antes < proto_retornado->dados_ataque().size()) {
-      gerador.lista_ataques->setCurrentRow(indice_antes);
-    } else {
-      gerador.lista_ataques->setCurrentRow(-1);
-    }
-  };
-
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(gerador.botao_clonar_ataque, SIGNAL(clicked()), [this_, &tabelas, &gerador, proto_retornado] () {
     int indice = gerador.lista_ataques->currentRow();
     if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
-      AdicionaOuAtualizaAtaqueEntidade(this_, gerador, proto_retornado);
+      AdicionaOuAtualizaAtaqueEntidade(tabelas, gerador, proto_retornado);
     } else {
       *proto_retornado->mutable_dados_ataque()->Add() = proto_retornado->dados_ataque(indice);
     }
@@ -1079,7 +1068,6 @@ void PreencheConfiguraDadosAtaque(
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaRefrescaLista]() { EditaRefrescaLista(); } );  // nao pode refrescar no meio pois tem processamento da string.
-  lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
@@ -1439,7 +1427,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
     if ((gerador.lista_ataques->currentRow() >= 0 && gerador.lista_ataques->currentRow() < proto_retornado->dados_ataque().size()) ||
         gerador.linha_dano->text().size() > 0) {
-      AdicionaOuAtualizaAtaqueEntidade(this, gerador, proto_retornado);
+      AdicionaOuAtualizaAtaqueEntidade(this->tabelas(), gerador, proto_retornado);
     }
     if (gerador.spin_nivel_classe->value() > 0) {
       AdicionaOuEditaNivel(this->tabelas(), gerador, proto_retornado);

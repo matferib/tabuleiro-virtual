@@ -917,7 +917,7 @@ int ModificadorDano(const EntidadeProto& ea) {
 namespace {
 
 Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  return da.toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
+  return da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
 }
 
 }  // namespace
@@ -1278,6 +1278,9 @@ std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+  // Passa alguns campos da acao para o ataque.
+  AcaoParaAtaque(tabelas.Acao(da->tipo_ataque()), da);
+
   const auto& arma = tabelas.Arma(da->id_arma());
   if (arma.has_id()) {
     da->set_acuidade(false);
@@ -1289,6 +1292,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 
     // tipo certo de ataque.
     bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    da->set_ataque_distancia(distancia);
     bool cac = PossuiCategoria(CAT_CAC, arma);
     if (distancia && cac) {
       // Pode ser qualquer um dos dois. Preferencia para distancia.
@@ -1326,8 +1330,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   const std::string& tipo_str = da->tipo_ataque();
   bool usar_forca_dano = false;
   const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
-  if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" ||
-      tipo_str == "Pedrada (gigante)" || tipo_str == "Raio" || tipo_str == "Feitiço de Toque a Distância") {
+  if (da->ataque_distancia()) {
     bba = bba_distancia;
     if (PossuiCategoria(CAT_ARCO, arma)) {
       // Ajuste de arcos compostos sem forca suficiente.
@@ -1609,5 +1612,18 @@ bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade) {
   });
 }
 
+void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+  da->set_tipo_ataque(acao_proto.id());
+  if (acao_proto.has_ataque_toque()) {
+    da->set_ataque_toque(acao_proto.ataque_toque());
+  } else {
+    da->clear_ataque_toque();
+  } 
+  if (acao_proto.has_ataque_distancia()) {
+    da->set_ataque_distancia(acao_proto.ataque_distancia());
+  } else {
+    da->clear_ataque_distancia();
+  }
+}
 
 }  // namespace ent

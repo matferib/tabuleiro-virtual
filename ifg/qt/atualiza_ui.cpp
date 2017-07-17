@@ -1,11 +1,13 @@
 #include "ifg/qt/atualiza_ui.h"
 
-#include "goog/stringprintf.h"
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
 #include "ent/util.h"
-#include "net/util.h"
+#include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
+#include "ifg/qt/util.h"
+#include "log/log.h"
+#include "net/util.h"
 
 namespace ifg {
 namespace qt {
@@ -265,7 +267,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_possui_acuidade,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
-       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques };
+       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
+       gerador.combo_arma };
   for (auto* obj : objs) obj->blockSignals(true);
 
   gerador.checkbox_possui_acuidade->setCheckState(proto.dados_ataque_globais().acuidade() ? Qt::Checked : Qt::Unchecked);
@@ -288,15 +291,19 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.label_bba_cac->setText(QString::number(proto.bba().cac()));
   gerador.label_bba_distancia->setText(QString::number(proto.bba().distancia()));
 
-  if (linha < 0 || linha >= proto.dados_ataque_size()) {
+  const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
+  const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
+  gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+  if (!linha_valida) {
     LimpaCamposAtaque(gerador);
     for (auto* obj : objs) obj->blockSignals(false);
     return;
   }
-  gerador.botao_remover_ataque->setEnabled(true);
   const auto& da = proto.dados_ataque(linha);
+  gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
-  gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
+  const auto& tipo_str = da.tipo_ataque();
+  gerador.combo_tipo_ataque->setCurrentIndex(gerador.combo_tipo_ataque->findData(tipo_str.c_str()));
   gerador.linha_dano->setText(QString::fromUtf8(StringDano(da).c_str()));
   gerador.spin_incrementos->setValue(da.incrementos());
   gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));

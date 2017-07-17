@@ -2008,25 +2008,6 @@ public:
         linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", 0, QApplication::UnicodeUTF8));
-        combo_tipo_ataque->clear();
-        combo_tipo_ataque->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "\303\201cido", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Corpo a Corpo", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque a Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Bola de Fogo", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Coluna de Chamas", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Cone de Gelo", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque a Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Fogo Alqu\303\255mico", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\243os Flamejantes", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\255ssil M\303\241gico", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Pedrada", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Rel\303\242mpago", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Tempestade Glacial", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
-        );
 #ifndef QT_NO_TOOLTIP
         combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP

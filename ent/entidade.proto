@@ -310,7 +310,9 @@ message EntidadeProto {
     // TODO implementar.
     optional string dano_adicional = 27;
     // Indica ataque de toque.
-    optional bool toque = 28;
+    optional bool ataque_toque = 28;
+    // Indica que o ataque eh a distancia.
+    optional bool ataque_distancia = 29;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.

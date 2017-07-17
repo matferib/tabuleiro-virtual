@@ -1337,11 +1337,13 @@ std::string Entidade::DetalhesAcao() const {
     snprintf(texto_furtivo, 99, "+%s", proto_.dados_ataque_globais().dano_furtivo().c_str());
   }
 
-  char texto[100] = { '\0' };
-  snprintf(texto, 99, "%s: %+d%s, %s%s, CA: %s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
-                                        texto_modificador,
-                                        StringDanoParaAcao().c_str(), texto_furtivo, StringCAParaAcao().c_str());
-  return texto;
+  return google::protobuf::StringPrintf(
+      "%s%s: %+d%s, %s%s, CA: %s",
+      dado_ataque->rotulo().c_str(),
+      dado_ataque->ataque_toque() ? " (T)" : "",
+      dado_ataque->bonus_ataque(),
+      texto_modificador,
+      StringDanoParaAcao().c_str(), texto_furtivo, StringCAParaAcao().c_str());
 }
 
 std::string Entidade::StringDanoParaAcao() const {
