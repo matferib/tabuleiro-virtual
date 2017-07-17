@@ -916,13 +916,8 @@ int ModificadorDano(const EntidadeProto& ea) {
 
 namespace {
 
-Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
-  if (tipo_ataque == "Raio") {
-    return Entidade::CA_TOQUE;
-  } else if (tipo_ataque == "Feitiço de Toque") {
-    return Entidade::CA_TOQUE;
-  }
-  return Entidade::CA_NORMAL;
+Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
+  return da.toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
 }
 
 }  // namespace
@@ -932,9 +927,10 @@ Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  auto tipo_ataque = ea.TipoAtaque();
+  const auto* da = ea.DadoCorrente();
+  auto tipo_ataque = da == nullptr ? "Ataque Corpo a Corpo" : da->tipo_ataque();
   int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
+  int ca_destino = ed.CA(da == nullptr ? Entidade::CA_NORMAL : CATipoAtaque(*da));
   int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
@@ -1331,7 +1327,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   bool usar_forca_dano = false;
   const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
   if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" ||
-      tipo_str == "Pedrada (gigante)" || tipo_str == "Raio") {
+      tipo_str == "Pedrada (gigante)" || tipo_str == "Raio" || tipo_str == "Feitiço de Toque a Distância") {
     bba = bba_distancia;
     if (PossuiCategoria(CAT_ARCO, arma)) {
       // Ajuste de arcos compostos sem forca suficiente.
@@ -1343,6 +1339,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else if (tipo_str == "Ataque Corpo a Corpo") {
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
     usar_forca_dano = true;
+  } else if (tipo_str == "Feitiço de Toque") {
+    bba = proto.dados_ataque_globais().acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
   }
   AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
   if (usar_forca_dano) {

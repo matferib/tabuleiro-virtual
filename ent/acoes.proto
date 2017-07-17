@@ -109,6 +109,8 @@ message AcaoProto {
     optional int32 delta = 2;
   }
   repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
+  // Ataque de toque.
+  optional bool toque = 36;
 }
 
 // O arquivo de acoes é serializado desta forma.

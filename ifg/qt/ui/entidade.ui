@@ -1577,6 +1577,11 @@ QGroupBox::title {
            </item>
            <item>
             <property name="text">
+             <string>Feitiço de Toque a Distância</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Fogo Alquímico</string>
             </property>
            </item>

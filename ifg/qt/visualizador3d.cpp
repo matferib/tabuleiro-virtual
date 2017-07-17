@@ -60,7 +60,6 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-constexpr int ULTIMO_TIPO_VALIDO = 12;
 std::string IndiceParaTipo(int indice) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
   // Os indices sao na ordem definida pela UI.
@@ -72,16 +71,18 @@ std::string IndiceParaTipo(int indice) {
     case 4: return "Coluna de Chamas";
     case 5: return "Cone de Gelo";
     case 6: return "Feitiço de Toque";
-    case 7: return "Fogo Alquímico";
-    case 8: return "Mãos Flamejantes";
-    case 9: return "Míssil Mágico";
-    case 10: return "Pedrada (gigante)";
-    case 11: return "Raio";
-    case 12: return "Relâmpago";
-    case 13: return "Tempestade Glacial";
+    case 7: return "Feitiço de Toque a Distância";
+    case 8: return "Fogo Alquímico";
+    case 9: return "Mãos Flamejantes";
+    case 10: return "Míssil Mágico";
+    case 11: return "Pedrada (gigante)";
+    case 12: return "Raio";
+    case 13: return "Relâmpago";
+    case 14: return "Tempestade Glacial";
     default: return "Ataque Corpo a Corpo";
   }
 };
+constexpr int ULTIMO_TIPO_VALIDO = 14;
 
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
@@ -874,16 +875,17 @@ void PreencheConfiguraComboArmaArmaduraEscudo(
     combo_escudo->addItem(QString::fromUtf8(escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
-    const int index = gerador.lista_ataques->currentRow();
-    if (index < 0 || index >= proto_retornado->dados_ataque_size()) {
-      return;
-    }
-    auto* da = proto_retornado->mutable_dados_ataque(index);
-    std::string id = combo_arma->itemData(combo_arma->currentIndex()).toString().toStdString();
-    if (id == "nenhuma") {
+    const int index_combo = gerador.combo_arma->currentIndex();
+    std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
+    gerador.linha_dano->setEnabled(id_arma == "nenhuma");
+
+    const int index_lista = gerador.lista_ataques->currentRow();
+    if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
+    auto* da = proto_retornado->mutable_dados_ataque(index_lista);
+    if (id_arma == "nenhuma") {
       da->clear_id_arma();
     } else {
-      da->set_id_arma(id);
+      da->set_id_arma(id_arma);
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
@@ -1014,8 +1016,10 @@ void PreencheConfiguraDadosAtaque(
   const ent::Tabelas& tabelas = this_->tabelas();
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
-  lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&gerador, proto_retornado]() {
+  lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&tabelas, &gerador, proto_retornado]() {
     proto_retornado->mutable_dados_ataque_globais()->set_acuidade(gerador.checkbox_possui_acuidade->isChecked());
+    RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });
 
   auto EditaRefrescaLista = [this_, &tabelas, &gerador, proto_retornado] () {

@@ -2017,6 +2017,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Coluna de Chamas", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Cone de Gelo", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque a Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Fogo Alqu\303\255mico", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\243os Flamejantes", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\255ssil M\303\241gico", 0, QApplication::UnicodeUTF8)

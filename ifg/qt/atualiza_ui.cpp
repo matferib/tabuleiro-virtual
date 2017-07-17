@@ -238,22 +238,24 @@ int TipoParaIndice(const std::string& tipo_str) {
     return 5;
   } else if (tipo_str == "Feitiço de Toque") {
     return 6;
-  } else if (tipo_str == "Fogo Alquímico") {
+  } else if (tipo_str == "Feitiço de Toque a Distância") {
     return 7;
-  } else if (tipo_str == "Mãos Flamejantes") {
+  } else if (tipo_str == "Fogo Alquímico") {
     return 8;
-  } else if (tipo_str == "Míssil Mágico") {
+  } else if (tipo_str == "Mãos Flamejantes") {
     return 9;
-  } else if (tipo_str == "Pedrada (gigante)") {
+  } else if (tipo_str == "Míssil Mágico") {
     return 10;
-  } else if (tipo_str == "Raio") {
+  } else if (tipo_str == "Pedrada (gigante)") {
     return 11;
-  } else if (tipo_str == "Relâmpago") {
+  } else if (tipo_str == "Raio") {
     return 12;
-  } else if (tipo_str == "Tempestade Glacial") {
+  } else if (tipo_str == "Relâmpago") {
     return 13;
-  } else {
+  } else if (tipo_str == "Tempestade Glacial") {
     return 14;
+  } else {
+    return 1;
   }
 }
 

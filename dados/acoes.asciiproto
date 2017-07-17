@@ -8,6 +8,7 @@ acao {
   efeito_area: true
   icone: "icon_acid.png"
   duracao_s: 0.350
+  toque: true
 }
 acao {
   id: 'Ataque Corpo a Corpo'
@@ -90,6 +91,18 @@ acao {
   cor { r: 0.0 g: 0.0  b: 1.0 }
   permite_defesa_armadura: true
   icone: 'icon_touch.png'
+  toque: true
+}
+acao {
+  id: 'Feitiço de Toque a Distância'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+  permite_defesa_armadura: true
+  icone: 'icon_ranged_touch.png'
+  toque: true
 }
 acao {
   id: 'Fogo Alquímico'
@@ -101,6 +114,7 @@ acao {
   icone: 'icon_alchemist_fire.png'
   duracao_s: 0.350
   consequencia: TC_INFLAMA_ALVO
+  toque: true
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -151,6 +165,7 @@ acao {
   permite_defesa_armadura: true
   info_textura { id: 'fire.png' }
   consequencia: TC_INFLAMA_ALVO
+  toque: true
 }
 acao {
   id: 'Relâmpago'

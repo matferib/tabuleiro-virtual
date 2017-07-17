@@ -306,6 +306,11 @@ message EntidadeProto {
     optional string id_arma = 24;
     // A arma pode ter tamanho diferente.
     optional TamanhoEntidade tamanho = 26;
+    // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
+    // TODO implementar.
+    optional string dano_adicional = 27;
+    // Indica ataque de toque.
+    optional bool toque = 28;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
