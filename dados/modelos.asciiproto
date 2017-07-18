@@ -20,8 +20,24 @@ modelo {
   id: 'Ankheg'
   entidade {
     dados_vida: '3d10+12' tamanho: TM_GRANDE info_textura { id: 'ankheg.png' } cor { r: 0.3 g: 0.3 b: 0.3 } ultima_acao: 'Ataque Corpo a Corpo'
-    rotulo_especial: 'ini 0\nataque: +7 dano: 2d6+7+1d4\nca 18/9/18'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' ca_normal: 18 }
+    rotulo_especial: '1d4 dano ácido\nsalvacoes fort 6 ref 3 vontade 2'
+    info_classes {
+      id: 'besta magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO bba: 3
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } }
+      }
+    }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
   }
 }
 modelo {
