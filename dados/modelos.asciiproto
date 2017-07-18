@@ -774,7 +774,7 @@ modelo {
 modelo {
   id: 'Humano Mago'
   entidade {
-    dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 }
+    dados_vida: '1d4' info_textura { id: 'wizard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes {
       id: 'mago' nivel: 1 bba: 0 nivel_conjurador: 1 atributo_conjuracao: TA_INTELIGENCIA salvacoes_fortes: TS_VONTADE
     }
