@@ -805,7 +805,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
   if (id == "nenhuma") {
     ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
-    da.set_dano_basico_arma(dano_arma.dano);
+    da.set_dano_basico(dano_arma.dano);
     da.set_multiplicador_critico(dano_arma.multiplicador);
     da.set_margem_critico(dano_arma.margem_critico);
   } else {

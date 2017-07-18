@@ -303,7 +303,7 @@ message EntidadeProto {
     optional Bonus outros_bonus_ataque = 21;
     optional Bonus outros_bonus_dano = 22;
     // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
-    optional string dano_basico_arma = 23;
+    optional string dano_basico = 23;
     // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
     optional string id_arma = 24;
     // A arma pode ter tamanho diferente.

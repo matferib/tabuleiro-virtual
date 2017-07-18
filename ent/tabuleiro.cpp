@@ -977,7 +977,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
     }
     google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
     for (auto& da : *modelo->mutable_dados_ataque()) {
-      da.set_dano_basico_arma(dano_str);
+      da.set_dano_basico(dano_str);
     }
   }
   if (parametros.has_tipo_modificador_ataque()) {

@@ -1271,7 +1271,7 @@ int CalculaBonusBaseParaAtaque(const EntidadeProto::DadosAtaque& da, const Entid
 // Retorna a string de dano para uma arma.
 std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
   const int mod_final = BonusTotal(da.outros_bonus_dano());
-  return da.dano_basico_arma().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
+  return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
@@ -1320,11 +1320,11 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
     }
     if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
-      da->set_dano_basico_arma(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
+      da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico_secundario());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
     } else {
-      da->set_dano_basico_arma(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
+      da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
@@ -1792,7 +1792,7 @@ std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const Entid
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
 std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da) {
   std::string critico = StringCritico(da);
-  return google::protobuf::StringPrintf("%s%s", da.dano_basico_arma().c_str(), critico.empty() ? "" : critico.c_str());
+  return google::protobuf::StringPrintf("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
 }
 
 }  // namespace ent

@@ -932,6 +932,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         entidade->ProximoAtaque();
         if (acao_proto.permite_salvacao()) {
           std::string resultado_salvacao;
+          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
           AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
           atraso_s += 0.5f;

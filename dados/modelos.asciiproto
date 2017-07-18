@@ -310,8 +310,12 @@ modelo {
     cor { r: 1 g: 1 b: 1 a: 1 }
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     dados_ataque {
-      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano: '2d6'
-      acao { cor { r: 1.0 g: 1.0  b: 0.0 } permite_ataque_vs_defesa: false permite_salvacao: true consequencia: TC_INFLAMA_ALVO }
+      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
+      acao {
+        cor { r: 1.0 g: 1.0  b: 0.0 } permite_ataque_vs_defesa: false
+        tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
+        dificuldade_salvacao: 12
+      }
     }
     ignora_luz: true
     evento { rodadas: 3 descricao: 'duração' }
@@ -330,7 +334,7 @@ modelo {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
     }
     dados_ataque {
-      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico_arma: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true }
+      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true }
     }
     evento { rodadas: 7 descricao: 'duração' }
   }
