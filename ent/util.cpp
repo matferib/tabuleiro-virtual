@@ -1380,8 +1380,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
   }
   // Estes dois sao os mais importantes, porque eh o que vale.
-  da->set_bonus_ataque(CalculaBonusBaseParaAtaque(*da, proto));
-  da->set_dano(CalculaDanoParaAtaque(*da, proto));
+  // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
+  if (proto.has_bba() || !da->has_bonus_ataque()) da->set_bonus_ataque(CalculaBonusBaseParaAtaque(*da, proto));
+  if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
 
   VLOG(1) << "Proto apos RecomputaDependencias: " << proto.DebugString();
 }
@@ -1544,14 +1545,16 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   // CA.
   RecomputaDependenciasCA(tabelas, proto);
 
-  // BBA: tenta atualizar por classe, se nao houver, pelo bba base, senao apenas modificadores.
-  const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
-  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
-  const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().has_base() ? proto->bba().base() : 0;
-  proto->mutable_bba()->set_base(bba);
-  proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
-  proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
-  proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
+  // BBA: tenta atualizar por classe, se nao houver, pelo bba base, senao nao faz nada.
+  if (proto->info_classes_size() > 0 ||  proto->bba().has_base()) {
+    const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
+    const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
+    const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
+    proto->mutable_bba()->set_base(bba);
+    proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
+    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
+    proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
+  }
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
