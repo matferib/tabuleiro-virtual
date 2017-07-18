@@ -20,7 +20,7 @@ modelo {
   id: 'Ankheg'
   entidade {
     dados_vida: '3d10+12' tamanho: TM_GRANDE info_textura { id: 'ankheg.png' } cor { r: 0.3 g: 0.3 b: 0.3 } ultima_acao: 'Ataque Corpo a Corpo'
-    rotulo_especial: '1d4 dano ácido\nsalvacoes fort 6 ref 3 vontade 2'
+    rotulo_especial: '1d4 dano ácido\n1Jato de acido a cada 6 horas 4d4 CD 14 metdade'
     info_classes {
       id: 'besta magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO bba: 3
     }
@@ -38,6 +38,10 @@ modelo {
       }
     }
     dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
+    dados_ataque {
+      rotulo: 'jato (1 vez so)' tipo_ataque: 'Relâmpago' dano_basico: '4d4'
+      acao { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
+    }
   }
 }
 modelo {
