@@ -1041,10 +1041,10 @@ modelo {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
     cor { r: 1 g: 1 b: 1 a: 0.5 }
     dados_ataque {
-      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano: '2d6+3d6' acao { permite_ataque_vs_defesa: false }
+      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d6+3d6' acao { permite_ataque_vs_defesa: false }
     }
     dados_ataque {
-      rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano: '2d6+3d6'
+      rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano_basico: '2d6+3d6'
     }
     info_textura { id: 'ice.png' }
     faz_sombra: false
