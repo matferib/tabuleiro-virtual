@@ -971,6 +971,9 @@ bool Entidade::ProximaAcao() {
     return false;
   }
   if (proto_.dados_ataque().size() == 1) {
+    // Pode acontecer quando a entidade tem ultima_acao default e eh colocada outra
+    // manualmente. Neste caso, eh bom setar pra ter certeza.
+    proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
     return true;
   }
   for (int i = 0; i < static_cast<int>(proto_.dados_ataque().size()) - 1; ++i) {
@@ -985,6 +988,8 @@ bool Entidade::AcaoAnterior() {
     return false;
   }
   if (proto_.dados_ataque().size() == 1) {
+    // ditto.
+    proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
     return true;
   }
   for (int i = proto_.dados_ataque().size() - 1; i > 0; --i) {

@@ -20,6 +20,7 @@ enum TipoConsequencia {
   TC_NENHUMA           = 0;
   TC_DESLOCA_ALVO      = 1;
   TC_INFLAMA_ALVO      = 2;
+  TC_AGARRA_ALVO       = 3;
 }
 
 enum GeometriaAcao {
@@ -118,6 +119,8 @@ message AcaoProto {
   optional bool ataque_distancia = 37;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
+  // Indica que a acao foi bem sucedida.
+  optional bool bem_sucedida = 39;
 }
 
 // O arquivo de acoes é serializado desta forma.

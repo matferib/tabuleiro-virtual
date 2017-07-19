@@ -120,13 +120,27 @@ class AcaoAgarrar : public Acao {
  public:
   AcaoAgarrar(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
       Acao(acao_proto, tabuleiro, texturas) {
+    Entidade* entidade_destino = EntidadeDestino();
+    Entidade* entidade_origem = EntidadeOrigem();
+    if (entidade_origem == nullptr || entidade_destino == nullptr || entidade_destino->Proto().fixa())  {
+      VLOG(1) << "Finalizando alvo, origem ou destino não existe ou eh fixo.";
+      finalizada_ = true;
+      return;
+    }
+
+    auto vo_vd = PosParaVector3(entidade_origem->Pos()) - PosParaVector3(entidade_destino->Pos());
+    if (vo_vd.length() < 0.001) return;
+    auto deslocamento = vo_vd.normalize() * TAMANHO_LADO_QUADRADO_2;
+    dx_ = deslocamento.x;
+    dy_ = deslocamento.y;
+    dz_ = deslocamento.z;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
-    finalizada_ = true;
+    finalizada_ = !AtualizaAlvo(intervalo_ms);
   }
 
   bool Finalizada() const override {
@@ -899,6 +913,11 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     return false;
   }
   if (acao_proto_.consequencia() == TC_DESLOCA_ALVO) {
+    if (!acao_proto_.bem_sucedida()) {
+      VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
     if (entidade_destino->Proto().fixa()) {
       VLOG(1) << "Finalizando alvo fixo.";
       dx_total_ = dy_total_ = dz_total_ = 0;
@@ -917,9 +936,9 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       dx_total_ = dy_total_ = dz_total_ = 0;
       return false;
     }
-    const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
+    const float DURACAO_ATUALIZACAO_ALVO_MS = 100.0f;
     // dt representa a fracao do arco ate 90 graus que o alvo andou. Os outros 90 sao da volta.
-    const float dt = std::min((static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS), 1.0f);
+    const float dt = std::min(((intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS), 1.0f);
     float cos_delta_alvo = cosf(disco_alvo_rad_) * dt;
     float dx_alvo = dx_ * cos_delta_alvo;
     float dy_alvo = dy_ * cos_delta_alvo;
@@ -941,6 +960,11 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     // Nao terminou de atualizar.
     return true;
   } else if (acao_proto_.consequencia() == TC_INFLAMA_ALVO) {
+    if (!acao_proto_.bem_sucedida()) {
+      VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
     for (auto id : acao_proto_.id_entidade_destino()) {
       entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
@@ -951,6 +975,48 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       entidade_destino->AtualizaParcial(parcial);
     }
     return false;
+  } else if (acao_proto_.consequencia() == TC_AGARRA_ALVO) {
+    Entidade* entidade_origem = EntidadeOrigem();
+    Entidade* entidade_destino = EntidadeDestino();
+    if (entidade_origem == nullptr || entidade_destino == nullptr) {
+      VLOG(1) << "Finalizando alvo, origem ou destino não existe.";
+      return false;
+    }
+    if (entidade_destino->Proto().agarrando()) {
+      VLOG(1) << "Finalizando alvo, esta agarrando.";
+      return false;
+    }
+    if (fabs(dx_total_) >= fabs(dx_) && fabs(dy_total_) >= fabs(dy_) && fabs(dz_total_) >= fabs(dz_)) {
+      if (acao_proto_.bem_sucedida()) disco_alvo_rad_ = 1.0f;
+      if (disco_alvo_rad_ > 0.0f) {
+        VLOG(1) << "Finalizando alvo apos movimento.";
+        if (acao_proto_.bem_sucedida()) {
+          EntidadeProto parcial;
+          parcial.set_agarrando(true);
+          entidade_origem->AtualizaParcial(parcial);
+          entidade_destino->AtualizaParcial(parcial);
+        }
+        return false;
+      } else {
+        dx_ = -dx_; dx_total_ = 0;
+        dy_ = -dy_; dy_total_ = 0;
+        dz_ = -dz_; dz_total_ = 0;
+        disco_alvo_rad_ = 1.0f;
+      }
+    }
+
+    const float DURACAO_ATUALIZACAO_ALVO_MS = 100.0f;
+    const float fracao = intervalo_ms / DURACAO_ATUALIZACAO_ALVO_MS;
+    if (fracao < 0.00001f) return false;
+    float dx_alvo = dx_ * fracao;
+    float dy_alvo = dy_ * fracao;
+    float dz_alvo = dz_ * fracao;
+    dx_total_ += dx_alvo;
+    dy_total_ += dy_alvo;
+    dz_total_ += dz_alvo;
+    VLOG(2) << "dx_alvo " << dx_alvo << ", dy_alvo " << dy_alvo << ", dz_alvo " << dz_alvo << ", fracao: " << fracao;
+    MoveDeltaRespeitandoChao(dx_alvo, dy_alvo, dz_alvo, *tabuleiro_, entidade_destino);
+    return true;
   }
   return false;
 }
@@ -1069,6 +1135,15 @@ Posicao Acao::AjustaPonto(
   }
   VLOG(1) << "Retornando proprio ponto.";
   return pos_ponto;
+}
+
+Entidade* Acao::EntidadeOrigem() {
+  return tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+}
+
+Entidade* Acao::EntidadeDestino() {
+  if (acao_proto_.id_entidade_destino_size() != 1) return nullptr;
+  return tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
 }
 
 

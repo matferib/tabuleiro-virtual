@@ -411,6 +411,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_VISIBILIDADE:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
       break;
+    case CONTROLE_AGARRANDO:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_AGARRANDO);
+      break;
     case CONTROLE_DESFAZER:
       if (!alterna_selecao) {
         TrataComandoDesfazer();
@@ -1159,6 +1162,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
       return entidade != nullptr && !entidade->Proto().visivel();
+    } },
+    { CONTROLE_AGARRANDO, [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().agarrando();
     } },
     { CONTROLE_DESENHO_LIVRE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE;

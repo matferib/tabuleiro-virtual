@@ -17,6 +17,7 @@ acao {
   icone: 'icon_grapple.png'
   ataque_agarrar: true
   permite_ataque_vs_defesa: true
+  consequencia: TC_AGARRA_ALVO
 }
 acao {
   id: 'Ataque Corpo a Corpo'

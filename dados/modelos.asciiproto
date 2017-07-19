@@ -38,6 +38,7 @@ modelo {
       }
     }
     dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
+    dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
       rotulo: 'jato (1 vez so)' tipo_ataque: 'Relâmpago' dano_basico: '4d4'
       acao { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }

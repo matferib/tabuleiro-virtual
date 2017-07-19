@@ -1,4 +1,6 @@
-Modificador de atributo de conjuracao automatico.
+Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
+Arrumar dados/modelos: dano_basico, bba, bonus etc.
+Implementar dano adicional.
 Modelar dificuldade de acao por classe (por exemplo, coluna de chamas eh 5 clerigo, 4 druida).
 Resistencia a magia.
 UI para aplicacao de efeitos em massa.
@@ -6,14 +8,9 @@ Ataque de multiplos alvos em uma area distribuindo em alvos.
 Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 
 Efeitos automaticos para tamanho e cura.
-Ataque de Agarrar.
 Se possivel, separar armas por classe no combo (simples, comum, exoticas).
 Fazer tabela nao copiavel para evitar copia a toa.
-Atualizacao de atributos pelo botao nao esta atualizando o resto da UI.
-Salvações.
 Modificador de ataque para higher ground.
-Resistencia a magia.
-Passar salvacoes para as informacoes de classe e calcular base automaticamente.
 
 Glitch de icone de rotacao.
 Ao adicionar entidade, incluir nos algemados.

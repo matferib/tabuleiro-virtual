@@ -252,6 +252,7 @@ message EntidadeProto {
   optional bool surpreso = 64;
   optional bool furtivo = 62;
   optional bool fumegando = 67;
+  optional bool agarrando = 71;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;

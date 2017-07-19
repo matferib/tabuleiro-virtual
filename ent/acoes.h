@@ -67,6 +67,7 @@ class Acao {
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade(int intervalo_ms);
+
   // Pode ser chamado para atualizar o alvo de uma acao. Retorna false quando terminar.
   // Utiliza os parametros dx_, dy_ e dz_ para calcular o deslocamento do alvo num movimento senoide
   // usando disco_alvo_rad_ para manter o estado.
@@ -79,6 +80,11 @@ class Acao {
   // Igual as anteriores, mas usa a posicao do alvo em relacao ao tabuleiro ao inves de dx_ dy_.
   void AtualizaRotacaoZFonteRelativoTabuleiro(Entidade* entidade);
   void AtualizaDirecaoQuedaAlvoRelativoTabuleiro(Entidade* entidade);
+
+  // Retorna a entidade de origem, ou nullptr se nao houver.
+  Entidade* EntidadeOrigem();
+  // Retorna a entidade de destino se houver apenas 1, caso contrario, nullptr.
+  Entidade* EntidadeDestino();
 
  protected:
   AcaoProto acao_proto_;

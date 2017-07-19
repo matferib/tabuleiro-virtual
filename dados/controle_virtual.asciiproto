@@ -736,6 +736,17 @@ pagina {
     forma: FORMA_RETANGULO
     dica: "Liga/desliga invisibilidade para entidades selecionadas."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 10
+    rotulo: "Ag"
+    cor_rotulo {}
+    textura: "icon_grapple.png"
+    id: CONTROLE_AGARRANDO
+    forma: FORMA_RETANGULO
+    dica: "Agarra/desagarra personagem."
+  }
 
   # Setas.
   dados_botoes {

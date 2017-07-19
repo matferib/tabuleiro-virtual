@@ -79,6 +79,8 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
   return true;
 }
 
+// As funcoes Preenchem assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
+// n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubaOrigem(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -94,6 +96,23 @@ void PreencheNotificacaoDerrubaOrigem(
     e_antes->set_caida(entidade.Proto().caida());
   }
 }
+
+void PreencheNotificacaoAgarrar(
+    const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  entidade_depois->set_agarrando(true);
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    *n_desfazer->mutable_entidade() = *entidade_depois;
+    auto* e_antes = n_desfazer->mutable_entidade_antes();
+    e_antes->set_id(entidade.Id());
+    e_antes->set_agarrando(entidade.Proto().agarrando());
+  }
+}
+
 
 }  // namespace
 
@@ -895,6 +914,8 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_destino =
        id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
     bool realiza_acao = true;
+    auto* nd = grupo_desfazer->add_notificacao();
+    acao_proto.set_bem_sucedida(true);
     if (HaValorListaPontosVida() && entidade_destino != nullptr) {
       int vezes = 1;
       std::string texto;
@@ -910,7 +931,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         acao_proto.set_texto(texto);
       }
       int delta_pontos_vida = 0;
-      auto* nd = grupo_desfazer->add_notificacao();
+      acao_proto.set_bem_sucedida(vezes >= 1);
       if (vezes < 0 || !realiza_acao) {
         if (vezes < 0) {
           PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
@@ -944,11 +965,16 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
         acao_proto.set_delta_pontos_vida(delta_pontos_vida);
         acao_proto.set_afeta_pontos_vida(true);
-        // Faz a notificacao de desfazer aqui.
         PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
       }
     }
     if (realiza_acao) {
+      // Se agarrou, desfaz aqui.
+      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida()) {
+        auto* no = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoAgarrar(*entidade, no, no);
+        PreencheNotificacaoAgarrar(*entidade_destino, nd, nd);
+      }
       VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
       n.mutable_acao()->CopyFrom(acao_proto);
     }
