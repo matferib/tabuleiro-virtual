@@ -414,6 +414,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_AGARRANDO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_AGARRANDO);
       break;
+    case CONTROLE_ALTERAR_FORMA:
+      AlteraFormaEntidadeNotificando();
+      break;
     case CONTROLE_DESFAZER:
       if (!alterna_selecao) {
         TrataComandoDesfazer();

@@ -690,6 +690,18 @@ pagina {
     mestre_apenas: false
     dica: "Surpreso."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 13
+    rotulo: "Mf"
+    cor_rotulo {}
+    textura: "icon_shapechange.png"
+    id: CONTROLE_ALTERAR_FORMA
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Mudar forma."
+  }
 
   dados_botoes {
     tamanho: 1

@@ -916,8 +916,18 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     atualizar_vbo = true;
   }
 
+  auto atributos_antes = proto_.atributos();
+  if (proto_parcial.has_atributos()) {
+    proto_.clear_atributos();
+  }
+
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (proto_parcial.has_atributos()) {
+    *proto_.mutable_atributos() = atributos_antes;
+    CombinaAtributos(proto_parcial.atributos(), proto_.mutable_atributos());
+  }
 
   // casos especiais.
   if (proto_parcial.iniciativa() == INICIATIVA_INVALIDA) {

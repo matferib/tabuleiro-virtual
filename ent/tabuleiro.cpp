@@ -1122,6 +1122,46 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   }
 }
 
+void Tabuleiro::AlteraFormaEntidadeNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      LOG(INFO) << "Nao foi possivel alterar forma, entidade nao encontrada: " << id;;
+      return;
+    }
+    const auto& proto = entidade_selecionada->Proto();
+    if (proto.formas_alternativas_size() < 2) {
+      LOG(INFO) << "Nao foi possivel alterar forma, entidade nao possui formas alternativas.";
+      return;
+    }
+
+    int indice = proto.forma_alternativa_corrente();
+    int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
+
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    {
+      auto* proto_antes = n->mutable_entidade_antes();
+      *proto_antes = ProtoFormaAlternativa(proto);
+      proto_antes->set_forma_alternativa_corrente(indice);
+      proto_antes->set_id(id);
+    }
+    {
+      auto* proto_depois = n->mutable_entidade();
+      *proto_depois = ProtoFormaAlternativa(proto.formas_alternativas(proximo_indice));
+      proto_depois->set_forma_alternativa_corrente(proximo_indice);
+      proto_depois->set_id(id);
+      LOG(INFO) << "Alterando para forma " << proximo_indice
+                << ", entidade " << id << ", proto: " << proto_depois->DebugString();
+    }
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";

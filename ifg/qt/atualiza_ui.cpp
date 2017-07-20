@@ -357,6 +357,22 @@ void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entid
   }
 }
 
+void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.lista_formas_alternativas->blockSignals(true);
+  int indice_antes = gerador.lista_formas_alternativas->currentRow();
+  gerador.lista_formas_alternativas->clear();
+  bool first = true;
+  for (const auto& fa : proto.formas_alternativas()) {
+    gerador.lista_formas_alternativas->addItem(QString::fromUtf8(
+          first
+          ? google::protobuf::StringPrintf("%s (padrão)", fa.rotulo().c_str()).c_str()
+          : google::protobuf::StringPrintf("%s (secundária)", fa.rotulo().c_str()).c_str()));
+    first = false;
+  }
+  gerador.lista_formas_alternativas->setCurrentRow(indice_antes);
+  gerador.lista_formas_alternativas->blockSignals(false);
+}
+
 }  // namespace qt
 }  // namespace ifg
 

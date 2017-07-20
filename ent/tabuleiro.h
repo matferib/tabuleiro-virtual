@@ -163,6 +163,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
+  /** Altera a forma da entidade selecionada, notificando. */
+  void AlteraFormaEntidadeNotificando();
+
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
   void TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida);
 

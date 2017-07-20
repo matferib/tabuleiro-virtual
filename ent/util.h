@@ -240,6 +240,11 @@ int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& b
 // Retorna true se tipo estiver presente em bonus.
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
+// Combina os bonus_novos em bonus.
+void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
+// Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).
+void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos);
+
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
@@ -291,6 +296,21 @@ std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
 // Retorna a strinf de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
 // Exemplo: '(esc+surp) 16, tq: 12'
 std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+
+//--------------------
+// Formas Alternativas
+//--------------------
+// Dado um proto, retorna outro apenas com os campos de forma alternativa setados.
+EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto);
+// Adiciona a forma alternativa a proto. Se nao tiver, cria a padrao tb.
+void AdicionaFormaAlternativa(const EntidadeProto& proto_forma, EntidadeProto* proto);
+// Remove uma forma alternativa do proto. Parametro indice deve ser > 0.
+void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
+
+
+//-------------------------
+// Fim Formas Alternativas.
+//-------------------------
 
 }  // namespace ent
 

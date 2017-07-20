@@ -376,13 +376,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
-      auto* entidade = AbreDialogoEntidade(notificacao);
-      if (entidade == nullptr) {
+      std::unique_ptr<ent::EntidadeProto> entidade_proto(AbreDialogoEntidade(notificacao));
+      if (entidade_proto == nullptr) {
         VLOG(1) << "Alterações descartadas";
         break;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
-      n->mutable_entidade()->Swap(entidade);
+      n->mutable_entidade()->Swap(entidade_proto.get());
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -531,7 +531,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   lambda_connect(gerador.checkbox_fixa, SIGNAL(clicked()),
-      [this, &gerador, &notificacao] () {
+      [&gerador, &notificacao] () {
     gerador.checkbox_selecionavel->setEnabled(notificacao.modo_mestre() &&
                                               (gerador.checkbox_fixa->checkState() != Qt::Checked));
   });
@@ -554,7 +554,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
   gerador.checkbox_cor->setCheckState(entidade.has_cor() ? Qt::Checked : Qt::Unchecked);
   gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
-  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
+  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &ent_cor] {
     QColor cor = QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
     if (!cor.isValid()) {
       return;
@@ -578,7 +578,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
   }
   gerador.checkbox_luz->setCheckState(entidade.has_luz() ? Qt::Checked : Qt::Unchecked);
-  lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
+  lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [dialogo, &gerador, &luz_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(luz_cor.cor()), dialogo, QObject::tr("Cor da luz"));
     if (!cor.isValid()) {
@@ -911,6 +911,39 @@ void PreencheConfiguraEventos(
   });
 }
 
+void PreencheConfiguraFormasAlternativas(
+    Visualizador3d* this_, QDialog* dialogo,
+    ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado,
+    bool forma_primaria = true) {
+  AtualizaUIFormasAlternativas(gerador, proto);
+  lambda_connect(gerador.botao_adicionar_forma_alternativa, SIGNAL(clicked()),
+      [this_, dialogo, &gerador, &proto, proto_retornado] () {
+    ntf::Notificacao n;
+    *n.mutable_entidade() = proto;
+    std::unique_ptr<ent::EntidadeProto> proto_forma = this_->AbreDialogoTipoEntidade(n, false, dialogo);
+    if (proto_forma == nullptr) return;
+    ent::AdicionaFormaAlternativa(*proto_forma, proto_retornado);
+    AtualizaUIFormasAlternativas(gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.botao_remover_forma_alternativa, SIGNAL(clicked()), [&gerador, proto_retornado] () {
+    ent::RemoveFormaAlternativa(gerador.lista_formas_alternativas->currentRow(), proto_retornado);
+    gerador.lista_formas_alternativas->setCurrentRow(-1);
+    AtualizaUIFormasAlternativas(gerador, *proto_retornado);
+  });
+  // Clique duplo em item.
+  lambda_connect(gerador.lista_formas_alternativas, SIGNAL(doubleClicked(const QModelIndex &)),
+      [this_, dialogo, &gerador, proto_retornado] () {
+    const int row = gerador.lista_formas_alternativas->currentRow();
+    if (row < 0 || row >= proto_retornado->formas_alternativas_size()) return;
+    ntf::Notificacao n;
+    *n.mutable_entidade() = proto_retornado->formas_alternativas(row);
+    std::unique_ptr<ent::EntidadeProto> proto_forma = this_->AbreDialogoTipoEntidade(n, false, dialogo);
+    if (proto_forma == nullptr) return;
+    proto_retornado->mutable_formas_alternativas(row)->Swap(proto_forma.get());
+    AtualizaUIFormasAlternativas(gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraAtributos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   // Atualiza os campos.
@@ -1230,13 +1263,14 @@ void PreencheConfiguraDadosIniciativa(
 
 }  // namespace
 
-ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
-    const ntf::Notificacao& notificacao) {
+std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
+    const ntf::Notificacao& notificacao, bool forma_primaria, QWidget* pai) {
   const auto& entidade = notificacao.entidade();
-  auto* proto_retornado = new ent::EntidadeProto(entidade);
+  std::unique_ptr<ent::EntidadeProto> delete_proto_retornado(new ent::EntidadeProto(entidade));
+  auto* proto_retornado = delete_proto_retornado.get();
   proto_retornado->set_id(entidade.id());
   ifg::qt::Ui::DialogoEntidade gerador;
-  auto* dialogo = new QDialog(this);
+  auto* dialogo = new QDialog(pai == nullptr ? this : pai);
   gerador.setupUi(dialogo);
   // ID.
   QString id_str;
@@ -1253,6 +1287,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Eventos.
   PreencheConfiguraEventos(this, gerador, entidade, proto_retornado);
+
+  // Formas alternativas.
+  PreencheConfiguraFormasAlternativas(this, dialogo, gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -1474,13 +1511,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
   // Cancelar.
-  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
-      delete proto_retornado;
-      proto_retornado = nullptr;
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &delete_proto_retornado] {
+      delete_proto_retornado.reset();
   });
   dialogo->exec();
   delete dialogo;
-  return proto_retornado;
+  return std::move(delete_proto_retornado);
 }
 
 void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
@@ -1507,14 +1543,14 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
   *bonus = modelo->Bonus();
 }
 
-ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
+std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoEntidade(
     const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().tipo() == ent::TE_ENTIDADE) {
     return AbreDialogoTipoEntidade(notificacao);
   } else if (notificacao.entidade().tipo() == ent::TE_FORMA || notificacao.entidade().tipo() == ent::TE_COMPOSTA) {
-    return AbreDialogoTipoForma(notificacao);
+    return std::unique_ptr<ent::EntidadeProto>(AbreDialogoTipoForma(notificacao));
   }
-  return nullptr;
+  return std::unique_ptr<ent::EntidadeProto>();
 }
 
 ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(

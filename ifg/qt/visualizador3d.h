@@ -60,11 +60,16 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
 
   const ent::Tabelas& tabelas() const { return tabelas_; }
 
+  // Abre o dialogo de entidade para o subtipo TE_ENTIDADE. Retorna null se cancelado.
+  // Parametros forma_primaria indica que o dialogo se refere a forma primaria. Parametro pai
+  // eh usado para indicar o pai do dialogo. Se nullptr, usa this.
+  std::unique_ptr<ent::EntidadeProto> AbreDialogoTipoEntidade(
+      const ntf::Notificacao& notificacao, bool forma_primaria = true, QWidget* pai = nullptr);
+
  private:
   // Dialogos.
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
-  ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
-  ent::EntidadeProto* AbreDialogoTipoEntidade(const ntf::Notificacao& notificacao);
+  std::unique_ptr<ent::EntidadeProto> AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoForma(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoCenario(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);

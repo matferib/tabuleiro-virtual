@@ -860,14 +860,14 @@ modelo {
     dados_ataque { rotulo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     dados_ataque { rotulo: 'besta leve' tipo_ataque: 'Ataque a Distância' bonus_ataque: 4 dano: '1d8' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
-    outras_formas {
+    formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 0
       dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' margem_critico: 18 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
       dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' margem_critico: 19 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
     }
-    outras_formas {
+    formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3
@@ -886,14 +886,14 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
-    outras_formas {
+    formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 1
       dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
       dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
-    outras_formas {
+    formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3
@@ -912,14 +912,14 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
-    outras_formas {
+    formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 1
       dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
       dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     }
-    outras_formas {
+    formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3

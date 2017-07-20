@@ -363,8 +363,11 @@ message EntidadeProto {
   optional int32 iniciativa = 55;
   optional int32 modificador_iniciativa = 56;
   optional Bonus bonus_iniciativa = 69;
-  // Algumas entidades tem varias formas.
-  repeated EntidadeProto outras_formas = 60;
+  // Algumas entidades tem varias formas. Neste caso, a primeira sera a original para poder reverter
+  // enquanto as outras serao as alternativas. Ou seja, eh 0 ou 2+.
+  repeated EntidadeProto formas_alternativas = 60;
+  // Se houver forma alternativa, indica qual esta em uso.
+  optional int32 forma_alternativa_corrente = 74;
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;

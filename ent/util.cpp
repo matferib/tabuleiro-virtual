@@ -1203,6 +1203,23 @@ bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   return false;
 }
 
+void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus) {
+  for (const auto& bi : bonus_novos.bonus_individual()) {
+    for (const auto& po : bi.por_origem()) {
+      AtribuiBonus(po.valor(), bi.tipo(), po.origem(), bonus);
+    }
+  }
+}
+
+void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos) {
+  CombinaBonus(atributos_novos.forca(), atributos->mutable_forca());
+  CombinaBonus(atributos_novos.destreza(), atributos->mutable_destreza());
+  CombinaBonus(atributos_novos.constituicao(), atributos->mutable_constituicao());
+  CombinaBonus(atributos_novos.inteligencia(), atributos->mutable_inteligencia());
+  CombinaBonus(atributos_novos.sabedoria(), atributos->mutable_sabedoria());
+  CombinaBonus(atributos_novos.carisma(), atributos->mutable_carisma());
+}
+
 // Retorna o total de um bonus individual, contabilizando acumulo caso as origens sejam diferentes.
 int BonusIndividualTotal(const BonusIndividual& bonus_individual) {
   if (BonusCumulativo(bonus_individual.tipo())) {
@@ -1637,18 +1654,38 @@ int ModificadorAtributo(const Bonus& atributo) {
   return ModificadorAtributo(total_atributo);
 }
 
-int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
+namespace {
+Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto) {
   switch (ta) {
-    case TA_FORCA: return ModificadorAtributo(proto.atributos().forca());
-    case TA_DESTREZA: return ModificadorAtributo(proto.atributos().destreza());
-    case TA_CONSTITUICAO: return ModificadorAtributo(proto.atributos().constituicao());
-    case TA_INTELIGENCIA: return ModificadorAtributo(proto.atributos().inteligencia());
-    case TA_SABEDORIA: return ModificadorAtributo(proto.atributos().sabedoria());
-    case TA_CARISMA: return ModificadorAtributo(proto.atributos().carisma());
+    case TA_FORCA: return proto->mutable_atributos()->mutable_forca();
+    case TA_DESTREZA: return proto->mutable_atributos()->mutable_destreza();
+    case TA_CONSTITUICAO: return proto->mutable_atributos()->mutable_constituicao();
+    case TA_INTELIGENCIA: return proto->mutable_atributos()->mutable_inteligencia();
+    case TA_SABEDORIA: return proto->mutable_atributos()->mutable_sabedoria();
+    case TA_CARISMA: return proto->mutable_atributos()->mutable_carisma();
     default:
       LOG(ERROR) << "Tipo atributo invalido: " << (int)ta;
   }
-  return 0;
+  return proto->mutable_atributos()->mutable_forca();
+}
+const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto) {
+  switch (ta) {
+    case TA_FORCA: return proto.atributos().forca();
+    case TA_DESTREZA: return proto.atributos().destreza();
+    case TA_CONSTITUICAO: return proto.atributos().constituicao();
+    case TA_INTELIGENCIA: return proto.atributos().inteligencia();
+    case TA_SABEDORIA: return proto.atributos().sabedoria();
+    case TA_CARISMA: return proto.atributos().carisma();
+    default:
+      LOG(ERROR) << "Tipo atributo invalido: " << (int)ta;
+  }
+  return proto.atributos().forca();
+}
+
+}  // namespace
+
+int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
+  return ModificadorAtributo(BonusAtributo(ta, proto));
 }
 
 int ModificadorTamanho(TamanhoEntidade tamanho) {
@@ -1797,5 +1834,44 @@ std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da
   std::string critico = StringCritico(da);
   return google::protobuf::StringPrintf("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
 }
+
+//--------------------
+// Formas Alternativas
+//--------------------
+
+// Gera um proto de forma alternativa a partir de proto. Apenas alguns campos sao usados.
+EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
+  EntidadeProto ret;
+  ret.set_rotulo(proto.rotulo());
+  std::vector<TipoAtributo> av = { TA_FORCA, TA_DESTREZA, TA_CONSTITUICAO, TA_INTELIGENCIA, TA_SABEDORIA, TA_CARISMA };
+  for (TipoAtributo ta : av) {
+    const auto& bonus = BonusAtributo(ta, proto);
+    AtribuiBonus(BonusIndividualTotal(TB_BASE, bonus), TB_BASE, "base", BonusAtributo(ta, &ret));
+  }
+  if (proto.has_info_textura()) {
+    *ret.mutable_info_textura() = proto.info_textura();
+  }
+  if (proto.has_modelo_3d()) {
+    *ret.mutable_modelo_3d() = proto.modelo_3d();
+  }
+  return ret;
+}
+
+void AdicionaFormaAlternativa(const EntidadeProto& proto_forma, EntidadeProto* proto) {
+  if (proto->formas_alternativas().empty()) {
+    *proto->add_formas_alternativas() = ProtoFormaAlternativa(*proto);
+  }
+  *proto->add_formas_alternativas() = ProtoFormaAlternativa(proto_forma);
+}
+
+void RemoveFormaAlternativa(int indice, EntidadeProto* proto) {
+  // Deve ser maior que zero.
+  if (indice <= 0 || indice >= proto->formas_alternativas_size()) return;
+  proto->mutable_formas_alternativas()->DeleteSubrange(indice, 1);
+  if (proto->formas_alternativas_size() <= 1) {
+    proto->clear_formas_alternativas();
+  }
+}
+// Fim Formas Alternativas
 
 }  // namespace ent

@@ -141,6 +141,12 @@ public:
     QPlainTextEdit *lista_rotulos;
     QPushButton *botao_adicionar_evento;
     QPushButton *botao_remover_evento;
+    QWidget *layoutWidget_6;
+    QHBoxLayout *horizontalLayout_35;
+    QLabel *label_68;
+    QListWidget *lista_formas_alternativas;
+    QPushButton *botao_adicionar_forma_alternativa;
+    QPushButton *botao_remover_forma_alternativa;
     QWidget *tab_nivel;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_31;
@@ -884,6 +890,31 @@ public:
         botao_remover_evento = new QPushButton(tab_geral);
         botao_remover_evento->setObjectName(QString::fromUtf8("botao_remover_evento"));
         botao_remover_evento->setGeometry(QRect(970, 70, 31, 27));
+        layoutWidget_6 = new QWidget(tab_geral);
+        layoutWidget_6->setObjectName(QString::fromUtf8("layoutWidget_6"));
+        layoutWidget_6->setGeometry(QRect(420, 360, 421, 121));
+        horizontalLayout_35 = new QHBoxLayout(layoutWidget_6);
+        horizontalLayout_35->setObjectName(QString::fromUtf8("horizontalLayout_35"));
+        horizontalLayout_35->setContentsMargins(0, 0, 0, 0);
+        label_68 = new QLabel(layoutWidget_6);
+        label_68->setObjectName(QString::fromUtf8("label_68"));
+        sizePolicy5.setHeightForWidth(label_68->sizePolicy().hasHeightForWidth());
+        label_68->setSizePolicy(sizePolicy5);
+        label_68->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_35->addWidget(label_68);
+
+        lista_formas_alternativas = new QListWidget(layoutWidget_6);
+        lista_formas_alternativas->setObjectName(QString::fromUtf8("lista_formas_alternativas"));
+
+        horizontalLayout_35->addWidget(lista_formas_alternativas);
+
+        botao_adicionar_forma_alternativa = new QPushButton(tab_geral);
+        botao_adicionar_forma_alternativa->setObjectName(QString::fromUtf8("botao_adicionar_forma_alternativa"));
+        botao_adicionar_forma_alternativa->setGeometry(QRect(850, 390, 31, 27));
+        botao_remover_forma_alternativa = new QPushButton(tab_geral);
+        botao_remover_forma_alternativa->setObjectName(QString::fromUtf8("botao_remover_forma_alternativa"));
+        botao_remover_forma_alternativa->setGeometry(QRect(850, 420, 31, 27));
         tab_tesouro->addTab(tab_geral, QString());
         tab_nivel = new QWidget();
         tab_nivel->setObjectName(QString::fromUtf8("tab_nivel"));
@@ -1699,22 +1730,6 @@ public:
         sizePolicy1.setHeightForWidth(checkbox_possui_acuidade->sizePolicy().hasHeightForWidth());
         checkbox_possui_acuidade->setSizePolicy(sizePolicy1);
         tab_tesouro->addTab(tab_estatisticas, QString());
-        botao_remover_ataque->raise();
-        lista_ataques->raise();
-        checkbox_imune_critico->raise();
-        botao_ataque_cima->raise();
-        botao_ataque_baixo->raise();
-        botao_clonar_ataque->raise();
-        groupBox->raise();
-        label_38->raise();
-        linha_furtivo->raise();
-        groupBox_3->raise();
-        groupBox_4->raise();
-        groupBox_5->raise();
-        groupBox_6->raise();
-        groupBox_7->raise();
-        checkbox_possui_acuidade->raise();
-        checkbox_possui_acuidade->raise();
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         layoutWidget_4 = new QWidget(tab);
@@ -1947,6 +1962,18 @@ public:
 #endif // QT_NO_TOOLTIP
         botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
         botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
+        label_68->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Formas Alternativas", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_formas_alternativas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de formas alternativas, clique duplo para editar.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        botao_adicionar_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Adiciona uma forma alternativa", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_adicionar_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        botao_remover_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Remove a forma alternativa selecionada", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
         label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
