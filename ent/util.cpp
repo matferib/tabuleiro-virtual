@@ -1846,14 +1846,22 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   std::vector<TipoAtributo> av = { TA_FORCA, TA_DESTREZA, TA_CONSTITUICAO, TA_INTELIGENCIA, TA_SABEDORIA, TA_CARISMA };
   for (TipoAtributo ta : av) {
     const auto& bonus = BonusAtributo(ta, proto);
-    AtribuiBonus(BonusIndividualTotal(TB_BASE, bonus), TB_BASE, "base", BonusAtributo(ta, &ret));
+    const int base = PossuiBonus(TB_BASE, bonus) ? BonusIndividualTotal(TB_BASE, bonus) : 10;
+    AtribuiBonus(base, TB_BASE, "base", BonusAtributo(ta, &ret));
   }
-  if (proto.has_info_textura()) {
-    *ret.mutable_info_textura() = proto.info_textura();
+  *ret.mutable_info_textura() = proto.info_textura();
+  *ret.mutable_modelo_3d() = proto.modelo_3d();
+  if (!proto.dados_ataque().empty()) {
+    *ret.mutable_dados_ataque() = proto.dados_ataque();
+  } else {
+    // Cria uma entrada dummy.
+    ret.add_dados_ataque()->set_tipo_ataque("");
   }
-  if (proto.has_modelo_3d()) {
-    *ret.mutable_modelo_3d() = proto.modelo_3d();
-  }
+  ret.set_tamanho(proto.tamanho());
+  const int ca_natural = BonusIndividualPorOrigem(TB_ARMADURA_NATURAL, "racial", proto.dados_defesa().ca());
+  AtribuiBonus(ca_natural, TB_ARMADURA_NATURAL, "racial", ret.mutable_dados_defesa()->mutable_ca());
+  ret.mutable_dados_defesa()->set_id_armadura(proto.dados_defesa().id_armadura());
+  ret.mutable_dados_defesa()->set_id_escudo(proto.dados_defesa().id_escudo());
   return ret;
 }
 

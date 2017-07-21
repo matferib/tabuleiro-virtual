@@ -919,7 +919,6 @@ void PreencheConfiguraFormasAlternativas(
   lambda_connect(gerador.botao_adicionar_forma_alternativa, SIGNAL(clicked()),
       [this_, dialogo, &gerador, &proto, proto_retornado] () {
     ntf::Notificacao n;
-    *n.mutable_entidade() = proto;
     std::unique_ptr<ent::EntidadeProto> proto_forma = this_->AbreDialogoTipoEntidade(n, false, dialogo);
     if (proto_forma == nullptr) return;
     ent::AdicionaFormaAlternativa(*proto_forma, proto_retornado);
@@ -932,14 +931,14 @@ void PreencheConfiguraFormasAlternativas(
   });
   // Clique duplo em item.
   lambda_connect(gerador.lista_formas_alternativas, SIGNAL(doubleClicked(const QModelIndex &)),
-      [this_, dialogo, &gerador, proto_retornado] () {
+      [this_, &proto, dialogo, &gerador, proto_retornado] () {
     const int row = gerador.lista_formas_alternativas->currentRow();
-    if (row < 0 || row >= proto_retornado->formas_alternativas_size()) return;
+    if (row < 0 || row >= proto_retornado->formas_alternativas_size() || row == proto.forma_alternativa_corrente()) return;
     ntf::Notificacao n;
     *n.mutable_entidade() = proto_retornado->formas_alternativas(row);
     std::unique_ptr<ent::EntidadeProto> proto_forma = this_->AbreDialogoTipoEntidade(n, false, dialogo);
     if (proto_forma == nullptr) return;
-    proto_retornado->mutable_formas_alternativas(row)->Swap(proto_forma.get());
+    *proto_retornado->mutable_formas_alternativas(row) = ProtoFormaAlternativa(*proto_forma);
     AtualizaUIFormasAlternativas(gerador, *proto_retornado);
   });
 }
@@ -1425,7 +1424,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
+                 [this, notificacao, &entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, forma_primaria] () {
     ent::RecomputaDependencias(tabelas(), proto_retornado);
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
@@ -1506,6 +1505,13 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     }
     if (gerador.spin_nivel_classe->value() > 0) {
       AdicionaOuEditaNivel(this->tabelas(), gerador, proto_retornado);
+    }
+    if (forma_primaria &&
+        entidade.forma_alternativa_corrente() >= 0 &&
+        entidade.forma_alternativa_corrente() < proto_retornado->formas_alternativas_size()) {
+      // Atualiza a forma alternativa correspondente.
+      *proto_retornado->mutable_formas_alternativas(entidade.forma_alternativa_corrente()) =
+          ProtoFormaAlternativa(*proto_retornado);
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

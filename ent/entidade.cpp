@@ -881,6 +881,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 }
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
+  VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
   int pontos_vida_antes = PontosVida();
   if (proto_parcial.has_cor()) {
@@ -921,12 +922,39 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_atributos();
   }
 
+  auto ca_antes = proto_.dados_defesa().ca();
+  if (proto_parcial.dados_defesa().has_ca()) {
+    proto_.mutable_dados_defesa()->clear_ca();
+  }
+
+  auto dados_ataque_antes = proto_parcial.dados_ataque();
+  if (!proto_parcial.dados_ataque().empty()) {
+    proto_.clear_dados_ataque();
+  }
+
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (proto_parcial.info_textura().id().empty()) {
+    proto_.clear_info_textura();
+  }
+  if (proto_parcial.modelo_3d().id().empty()) {
+    proto_.clear_modelo_3d();
+  }
+
+  if (proto_parcial.dados_defesa().has_ca()) {
+    *proto_.mutable_dados_defesa()->mutable_ca() = ca_antes;
+    CombinaBonus(proto_parcial.dados_defesa().ca(), proto_.mutable_dados_defesa()->mutable_ca());
+  }
 
   if (proto_parcial.has_atributos()) {
     *proto_.mutable_atributos() = atributos_antes;
     CombinaAtributos(proto_parcial.atributos(), proto_.mutable_atributos());
+  }
+
+  if (!proto_parcial.dados_ataque().empty()) {
+    *proto_.mutable_dados_ataque() = proto_parcial.dados_ataque();
+    if (proto_.dados_ataque_size() == 1 && proto_.dados_ataque(0).tipo_ataque().empty()) proto_.clear_dados_ataque();
   }
 
   // casos especiais.
@@ -968,7 +996,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     AtualizaVbo(parametros_desenho_);
   }
   RecomputaDependencias(tabelas_, &proto_);
-  VLOG(1) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
+  VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
 
 // Acao de display.
