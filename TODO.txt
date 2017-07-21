@@ -1,5 +1,5 @@
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
-Arrumar dados/modelos: dano_basico, bba, bonus etc.
+Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
 Modelar dificuldade de acao por classe (por exemplo, coluna de chamas eh 5 clerigo, 4 druida).
 Resistencia a magia.

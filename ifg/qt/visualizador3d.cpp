@@ -827,44 +827,17 @@ void AdicionaOuAtualizaAtaqueEntidade(
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
-void PreencheConfiguraComboArmaArmaduraEscudo(
+void PreencheConfiguraComboArmaduraEscudo(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  QComboBox* combo_arma = gerador.combo_arma;
   QComboBox* combo_armadura = gerador.combo_armadura;
   QComboBox* combo_escudo = gerador.combo_escudo;
   const ent::Tabelas& tabelas = this_->tabelas();
-  combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
-  std::map<std::string, std::string> name_id_map;
-  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
-    name_id_map[arma.nome()] = arma.id();
-  }
-  for (const auto& name_id : name_id_map) {
-    combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
-  }
   for (const auto& armadura : tabelas.todas().tabela_armaduras().armaduras()) {
     combo_armadura->addItem(QString::fromUtf8(armadura.nome().c_str()), QVariant(armadura.id().c_str()));
   }
   for (const auto& escudo : tabelas.todas().tabela_escudos().escudos()) {
     combo_escudo->addItem(QString::fromUtf8(escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
-  lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
-    const int index_combo = gerador.combo_arma->currentIndex();
-    std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
-    gerador.linha_dano->setEnabled(id_arma == "nenhuma");
-
-    const int index_lista = gerador.lista_ataques->currentRow();
-    if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
-    auto* da = proto_retornado->mutable_dados_ataque(index_lista);
-    if (id_arma == "nenhuma") {
-      da->clear_id_arma();
-    } else {
-      da->set_id_arma(id_arma);
-    }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUI(tabelas, gerador, *proto_retornado);
-    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
-    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
-  });
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
     QVariant id = combo_armadura->itemData(combo_armadura->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_id_armadura(id.toString().toStdString());
@@ -1014,7 +987,31 @@ void PreencheConfiguraDadosDefesa(
   });
 }
 
-void PreencheConfiguraComboTipoAtaque(const ent::Acoes& acoes, ifg::qt::Ui::DialogoEntidade& gerador, std::function<void()> EditaRefrescaLista) {
+// Preenche o combo de arma de acordo com o tipo de ataque selecionado.
+void ConfiguraComboArma(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo_arma = gerador.combo_arma;
+  lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
+    const int index_combo = gerador.combo_arma->currentIndex();
+    std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
+    gerador.linha_dano->setEnabled(id_arma == "nenhuma");
+
+    const int index_lista = gerador.lista_ataques->currentRow();
+    if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
+    auto* da = proto_retornado->mutable_dados_ataque(index_lista);
+    if (id_arma == "nenhuma") {
+      da->clear_id_arma();
+    } else {
+      da->set_id_arma(id_arma);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+  });
+}
+
+void PreencheConfiguraComboTipoAtaque(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, std::function<void()> EditaAtualizaUIAtaque, ent::EntidadeProto* proto_retornado) {
+  const ent::Acoes& acoes = tabelas.TodasAcoes();
   std::set<std::string> tipos_acoes;
   for (const auto& acao : acoes.acao()) {
     tipos_acoes.insert(acao.id());
@@ -1022,17 +1019,23 @@ void PreencheConfiguraComboTipoAtaque(const ent::Acoes& acoes, ifg::qt::Ui::Dial
   for (const auto& id : tipos_acoes) {
     gerador.combo_tipo_ataque->addItem(QString::fromUtf8(id.c_str()), QVariant(id.c_str()));
   }
-  lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [&gerador, EditaRefrescaLista]() {
+  lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
+      [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
     gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
-    EditaRefrescaLista();
+    EditaAtualizaUIAtaque();
+    int indice = gerador.lista_ataques->currentRow();
+    if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
+      // Se nao for edicao, tem que atualizar a UI por causa do combo de armas.
+      AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+    }
   });
 }
 
 void PreencheConfiguraDadosAtaque(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
-  auto EditaRefrescaLista = [this_, &tabelas, &gerador, proto_retornado] () {
+  auto EditaAtualizaUIAtaque = [this_, &tabelas, &gerador, proto_retornado] () {
     int indice_antes = gerador.lista_ataques->currentRow();
     if (indice_antes < 0 || indice_antes >= proto_retornado->dados_ataque().size()) {
       // Vale apenas para edicao.
@@ -1047,7 +1050,9 @@ void PreencheConfiguraDadosAtaque(
   };
 
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
-  PreencheConfiguraComboTipoAtaque(tabelas.TodasAcoes(), gerador, EditaRefrescaLista);
+  PreencheConfiguraComboTipoAtaque(tabelas, gerador, EditaAtualizaUIAtaque, proto_retornado);
+  ConfiguraComboArma(tabelas, gerador, proto_retornado);
+
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
   lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&tabelas, &gerador, proto_retornado]() {
@@ -1097,26 +1102,26 @@ void PreencheConfiguraDadosAtaque(
     gerador.lista_ataques->setCurrentRow(-1);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
-  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaRefrescaLista]() { EditaRefrescaLista(); } );  // nao pode refrescar no meio pois tem processamento da string.
-  lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.botao_bonus_ataque, SIGNAL(clicked()), [this_, EditaRefrescaLista, &gerador, proto_retornado] {
+  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
+  lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.botao_bonus_ataque, SIGNAL(clicked()), [this_, EditaAtualizaUIAtaque, &gerador, proto_retornado] {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
     AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_ataque());
-    EditaRefrescaLista();
+    EditaAtualizaUIAtaque();
   });
-  lambda_connect(gerador.botao_bonus_dano, SIGNAL(clicked()), [this_, EditaRefrescaLista, &gerador, proto_retornado] {
+  lambda_connect(gerador.botao_bonus_dano, SIGNAL(clicked()), [this_, EditaAtualizaUIAtaque, &gerador, proto_retornado] {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
     AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_dano());
-    EditaRefrescaLista();
+    EditaAtualizaUIAtaque();
   });
   // Furtivo
   gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
@@ -1400,7 +1405,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
 
   // Combos dinamicos.
-  PreencheConfiguraComboArmaArmaduraEscudo(this, gerador, proto_retornado);
+  PreencheConfiguraComboArmaduraEscudo(this, gerador, proto_retornado);
 
   // Dados de defesa.
   PreencheConfiguraDadosDefesa(this, gerador, entidade, proto_retornado);

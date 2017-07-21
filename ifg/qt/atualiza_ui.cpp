@@ -15,8 +15,6 @@ namespace qt {
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
-  AtualizaUIAtaque(tabelas, gerador, proto);
-  AtualizaUIDefesa(gerador, proto);
   AtualizaUIAtaquesDefesa(tabelas, gerador, proto);
   AtualizaUIIniciativa(tabelas, gerador, proto);
   AtualizaUISalvacoes(gerador, proto);
@@ -236,6 +234,21 @@ int TipoParaIndice(const std::string& tipo_str) {
   }
 }
 
+void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,  const std::string& tipo_ataque) {
+  bool cac = tipo_ataque == "Ataque Corpo a Corpo";
+  std::map<std::string, std::string> name_id_map;
+  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
+    if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) || (!cac && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
+      name_id_map[arma.nome()] = arma.id();
+    }
+  }
+  gerador.combo_arma->clear();
+  gerador.combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
+  for (const auto& name_id : name_id_map) {
+    gerador.combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
+  }
+}
+
 }  // namespace
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -269,6 +282,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
   gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+  PreencheComboArma(tabelas, gerador, tipo_ataque);
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
     for (auto* obj : objs) obj->blockSignals(false);
