@@ -18,15 +18,11 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus);
 class ModeloBonus : public QAbstractTableModel {
  public:
   ModeloBonus(const ent::Bonus& bonus, QTableView* tabela)
-      : QAbstractTableModel(tabela), tabela_(tabela), bonus_(bonus) {}
+      : QAbstractTableModel(tabela), modelo_(BonusParaModelo(bonus)), tabela_(tabela) {}
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
-    int total = 0;
-    for (const auto& bi : bonus_.bonus_individual()) {
-      total += bi.por_origem_size();
-    }
-    return total;
+    return modelo_.size();
   }
 
   // 0: tipo. 1: origem. 2: valor.
@@ -37,21 +33,14 @@ class ModeloBonus : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    ent::AtribuiBonus(0, ent::TB_BASE, "origem", &bonus_);
+    modelo_.insert(modelo_.end(), Linha());
     endInsertRows();
     return true;
   }
 
   bool removeRows(int row, int count, const QModelIndex& parent) override {
     beginRemoveRows(parent, row, row + count - 1);
-    std::vector<std::pair<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*>> bis_pos(count);
-    while (count--) {
-      auto& bi_po = bis_pos[count];
-      std::tie(bi_po.first, bi_po.second) = DadosEm(row);
-    }
-    for (const auto& bi_po : bis_pos) {
-      RemoveBonus(bi_po.first->tipo(), bi_po.second->origem(), &bonus_);
-    }
+    modelo_.erase(modelo_.begin() + row, modelo_.begin() + row + count);
     endRemoveRows();
     return true;
   }
@@ -75,19 +64,15 @@ class ModeloBonus : public QAbstractTableModel {
       return QVariant();
     }
 
-    const ent::BonusIndividual* bi;
-    const ent::BonusIndividual_PorOrigem* po;
-    std::tie(bi, po) = DadosEm(index);
-    if (bi == nullptr || po == nullptr) {
-      LOG(INFO) << "bi == nullptr?  " << (bi == nullptr ? "YES" : "NO")
-                << ", po == nullptr? " << (po == nullptr ? "YES" : "NO");
-      return QVariant();
-    }
+    ent::TipoBonus tipo;
+    std::string origem;
+    int valor;
+    std::tie(tipo, origem, valor) = DadosEm(index);
     const int column = index.column();
     switch (column) {
-      case 0: return role == Qt::EditRole ? QVariant() : QVariant(ent::TipoBonus_Name(bi->tipo()).c_str());
-      case 1: return QVariant(po->origem().c_str());
-      case 2: return QVariant(po->valor());
+      case 0: return role == Qt::EditRole ? QVariant() : QVariant(ent::TipoBonus_Name(tipo).c_str());
+      case 1: return QVariant(QString::fromUtf8(origem.c_str()));
+      case 2: return QVariant(valor);
     }
     // Nunca deveria chegar aqui.
     LOG(INFO) << "Coluna invalida: " << column;
@@ -98,44 +83,34 @@ class ModeloBonus : public QAbstractTableModel {
     if (role != Qt::EditRole) {
       return false;
     }
-
-    ent::BonusIndividual* bi = nullptr;
-    ent::BonusIndividual_PorOrigem* po = nullptr;
-    std::tie(bi, po) = DadosEm(index);
-    if (bi == nullptr || po == nullptr) {
-      LOG(INFO) << "bi == nullptr?  " << (bi == nullptr ? "YES" : "NO")
-                << ", po == nullptr? " << (po == nullptr ? "YES" : "NO");
+    const int linha = index.row();
+    if (linha < 0 || linha >= (int)modelo_.size()) {
       return false;
     }
-    const int column = index.column();
-    switch (column) {
+    const int coluna = index.column();
+    if (coluna < 0 || (int)coluna > 2) {
+      return false;
+    }
+
+    switch (coluna) {
       case 0: {
-        int tipo = value.toInt();
-        if (!ent::TipoBonus_IsValid(tipo)) {
-          LOG(INFO) << "Tipo de bonus invalido: " << tipo;
+        if (!ent::TipoBonus_IsValid(value.toInt())) {
+          LOG(INFO) << "Tipo de bonus invalido: " << value.toInt();
           return false;
         }
-        if (tipo == bi->tipo()) {
-          LOG(INFO) << "Sem mudanca de tipo: " << value.toString().toUtf8().constData();
-          return false;
-        }
-        // Adiciona nova origem.
-        ent::AtribuiBonus(po->valor(), ent::TipoBonus(tipo), po->origem(), &bonus_);
-        // Remove a origem do tipo corrente.
-        RemoveBonus(bi->tipo(), po->origem(), &bonus_);
-        LOG(INFO) << "novo proto: " << bonus_.DebugString();
+        modelo_[linha].tipo = static_cast<ent::TipoBonus>(value.toInt());
         tabela_->setIndexWidget(index, nullptr);
         return true;
       }
       case 1: {
-        po->set_origem(value.toString().toUtf8().constData());
+        modelo_[linha].origem = value.toString().toUtf8().constData();
         return true;
       }
       case 2: {
         bool ok = false;
         int valor = value.toInt(&ok);
         if (!ok) return false;
-        po->set_valor(valor);
+        modelo_[linha].valor = valor;
         return true;
       }
     }
@@ -146,49 +121,49 @@ class ModeloBonus : public QAbstractTableModel {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
-  const ent::Bonus Bonus() const { return bonus_; }
-
- private:
-  std::tuple<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*> DadosEm(int row) {
-    while (row >= 0) {
-      for (auto& bi : *bonus_.mutable_bonus_individual()) {
-        if (row < bi.por_origem_size()) {
-          // achou o bi.
-          return std::make_tuple(&bi, bi.mutable_por_origem(row));
-        } else {
-          row -= bi.por_origem_size();
-        }
-      }
+  ent::Bonus ModeloParaBonus() const {
+    ent::Bonus bonus;
+    for (const auto& linha : modelo_) {
+      ent::AtribuiBonus(linha.valor, linha.tipo, linha.origem, &bonus);
     }
-    return std::make_tuple(nullptr, nullptr);
-  }
-
-  std::tuple<ent::BonusIndividual*, ent::BonusIndividual_PorOrigem*> DadosEm(const QModelIndex& index) {
-    return DadosEm(index.row());
-  }
-
-  std::tuple<const ent::BonusIndividual*, const ent::BonusIndividual_PorOrigem*> DadosEm(
-      const QModelIndex& index) const {
-    return DadosEm(index.row());
-  }
-
-  std::tuple<const ent::BonusIndividual*, const ent::BonusIndividual_PorOrigem*> DadosEm(int row) const {
-    while (row >= 0) {
-      for (auto& bi : bonus_.bonus_individual()) {
-        if (row < bi.por_origem_size()) {
-          // achou o bi.
-          return std::make_tuple(&bi, &bi.por_origem(row));
-        } else {
-          row -= bi.por_origem_size();
-        }
-      }
-    }
-    return std::make_tuple(nullptr, nullptr);
+    return bonus;
   }
 
  private:
+  // Cada origem sera transformada em uma linha.
+  struct Linha {
+    Linha(ent::TipoBonus tipo, const ent::BonusIndividual::PorOrigem& po) : tipo(tipo), origem(po.origem()), valor(po.valor()) {}
+    Linha() : tipo(ent::TB_SEM_NOME), valor(0) {}
+
+    ent::TipoBonus tipo;
+    std::string origem;
+    int valor;
+  };
+
+  std::vector<Linha> BonusParaModelo(const ent::Bonus& bonus) const {
+    std::vector<Linha> modelo;
+    for (const auto& bi : bonus.bonus_individual()) {
+      for (const auto& po : bi.por_origem()) {
+        modelo.emplace_back(bi.tipo(), po);
+      }
+    }
+    return modelo;
+  }
+
+  std::tuple<ent::TipoBonus, std::string, int> DadosEm(int linha) const {
+    if (linha < 0 || linha >= (int)modelo_.size()) return std::make_tuple(ent::TB_SEM_NOME, "", 0);
+    const auto& linha_modelo = modelo_[linha];
+    return std::make_tuple(linha_modelo.tipo, linha_modelo.origem, linha_modelo.valor);
+  }
+
+  std::tuple<ent::TipoBonus, std::string, int> DadosEm(const QModelIndex& index) const {
+    return DadosEm(index.row());
+  }
+
+ private:
+  // O bonus eh convertido para modelo, que na volta eh convertido para bonus.
+  std::vector<Linha> modelo_;
   QTableView* tabela_;
-  ent::Bonus bonus_;
 };
 
 // Responsavel por tratar a edicao do tipo de bonus.

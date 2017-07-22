@@ -1541,6 +1541,13 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
       modelo->insertRows(0, 1, QModelIndex());
   });
   lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&modelo, &gerador] () {
+    std::set<int, std::greater<int>> linhas;
+    for (const QModelIndex& index : gerador.tabela_bonus->selectionModel()->selectedIndexes()) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->removeRows(linha, 1, QModelIndex());
+    }
   });
   std::unique_ptr<QAbstractItemDelegate> delegado(
       new TipoBonusDelegate(gerador.tabela_bonus, modelo.get(), gerador.tabela_bonus));
@@ -1551,7 +1558,7 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
   if (res == QDialog::Rejected) {
     return;
   }
-  *bonus = modelo->Bonus();
+  *bonus = modelo->ModeloParaBonus();
 }
 
 std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoEntidade(
