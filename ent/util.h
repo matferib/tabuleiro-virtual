@@ -306,11 +306,12 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto);
 void AdicionaFormaAlternativa(const EntidadeProto& proto_forma, EntidadeProto* proto);
 // Remove uma forma alternativa do proto. Parametro indice deve ser > 0.
 void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
-
-
 //-------------------------
 // Fim Formas Alternativas.
 //-------------------------
+
+// Retorna true se uma arma possui a categoria passada.
+bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
 }  // namespace ent
 

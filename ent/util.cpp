@@ -1291,10 +1291,6 @@ std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const En
   return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
 
-bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
-  return std::any_of(arma.categoria().begin(), arma.categoria().end(), [categoria] (int c) { return c == categoria; });
-}
-
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
   switch (tamanho) {
     case TM_MEDIO: return dano.medio();
@@ -1533,6 +1529,10 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
 }
 
 }  // namespace
+
+bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
+  return std::any_of(arma.categoria().begin(), arma.categoria().end(), [categoria] (int c) { return c == categoria; });
+}
 
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
   return std::any_of(ic.salvacoes_fortes().begin(), ic.salvacoes_fortes().end(), [ts] (int icts) { return icts == ts; });
