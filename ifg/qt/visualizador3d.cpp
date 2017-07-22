@@ -862,7 +862,11 @@ void PreencheConfiguraEventos(
   auto* modelo(new ModeloEvento(proto_retornado->mutable_evento(), gerador.tabela_lista_eventos));
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
   gerador.tabela_lista_eventos->setModel(modelo);
-  lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [modelo] () { modelo->insertRows(0, 1, QModelIndex()); });
+  lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
+    const int linha = modelo->rowCount();
+    modelo->insertRows(linha, 1, QModelIndex()); 
+    gerador.tabela_lista_eventos->selectRow(linha);
+  });
   lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
     std::set<int, std::greater<int>> linhas;
     for (const QModelIndex& index : gerador.tabela_lista_eventos->selectionModel()->selectedIndexes()) {
@@ -1527,7 +1531,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   });
   dialogo->exec();
   delete dialogo;
-  return std::move(delete_proto_retornado);
+  return delete_proto_retornado;
 }
 
 void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
@@ -1537,10 +1541,12 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
   std::unique_ptr<QItemSelectionModel> delete_model(gerador.tabela_bonus->selectionModel());
   std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(*bonus, gerador.tabela_bonus));
   gerador.tabela_bonus->setModel(modelo.get());
-  lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&modelo] () {
-      modelo->insertRows(0, 1, QModelIndex());
+  lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&gerador, &modelo] () {
+    const int linha = modelo->rowCount();
+    modelo->insertRows(linha, 1, QModelIndex());
+    gerador.tabela_bonus->selectRow(linha);
   });
-  lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&modelo, &gerador] () {
+  lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&gerador, &modelo] () {
     std::set<int, std::greater<int>> linhas;
     for (const QModelIndex& index : gerador.tabela_bonus->selectionModel()->selectedIndexes()) {
       linhas.insert(index.row());

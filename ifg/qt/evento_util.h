@@ -16,7 +16,7 @@ class ModeloEvento : public QAbstractTableModel {
   using Eventos = google::protobuf::RepeatedPtrField<Evento>;
 
   ModeloEvento(Eventos* eventos, QTableView* tabela)
-      : QAbstractTableModel(tabela), tabela_(tabela), eventos_(eventos) {}
+      : QAbstractTableModel(tabela), eventos_(eventos) {}
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
@@ -125,12 +125,11 @@ class ModeloEvento : public QAbstractTableModel {
     return false;
   }
 
-  Qt::ItemFlags flags(const QModelIndex & index) const {
+  Qt::ItemFlags flags(const QModelIndex & index) const override {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
  private:
-  QTableView* tabela_;
   Eventos* eventos_;
 };
 
@@ -142,9 +141,7 @@ class TipoEventoDelegate : public QItemDelegate {
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-    QComboBox* combo = new QComboBox(parent);
-    PreencheComboEvento(combo);
-    return combo;
+    return PreencheConfiguraComboEvento(new QComboBox(parent));
   }
 
   // Escreve o valor do combo.
@@ -154,10 +151,6 @@ class TipoEventoDelegate : public QItemDelegate {
       LOG(INFO) << "combo == nullptr em setEditorData";
       return;
     }
-    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo, index] () {
-      setModelData(combo, modelo_, index);
-      emit closeEditor(combo);
-    });
     const QVariant& data = modelo_->data(index, Qt::EditRole);
     if (!ent::TipoEvento_IsValid(data.toInt())) return;
     combo->setCurrentIndex(data.toInt());
@@ -175,19 +168,28 @@ class TipoEventoDelegate : public QItemDelegate {
     tabela_->reset();
   }
 
+ private slots:
+  void commitAndCloseEditor() {
+    QComboBox* combo = qobject_cast<QComboBox*>(sender());
+    setModelData(combo, modelo_, combo->rootModelIndex());
+    emit commitData(combo);
+    emit closeEditor(combo);
+  }
+
  private:
   // Preenche o combo box de bonus.
-  void PreencheComboEvento(QComboBox* combo) const {
+  QComboBox* PreencheConfiguraComboEvento(QComboBox* combo) const {
     // O min eh -1, invalido. Entao comeca do 0.
     for (int tipo = 0; tipo <= ent::TipoEvento_MAX; tipo++) {
       if (!ent::TipoEvento_IsValid(tipo)) continue;
       combo->addItem(ent::TipoEvento_Name(ent::TipoEvento(tipo)).c_str(), QVariant(tipo));
     }
+    connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    return combo;
   }
 
   QTableView* tabela_;
   ModeloEvento* modelo_;
-  ent::TipoEvento tipo_;
 };
 
 

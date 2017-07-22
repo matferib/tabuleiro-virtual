@@ -33,7 +33,7 @@ class ModeloBonus : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    modelo_.insert(modelo_.end(), Linha());
+    modelo_.insert(modelo_.begin() + row, Linha());
     endInsertRows();
     return true;
   }
@@ -117,7 +117,7 @@ class ModeloBonus : public QAbstractTableModel {
     return false;
   }
 
-  Qt::ItemFlags flags(const QModelIndex & index) const {
+  Qt::ItemFlags flags(const QModelIndex & index) const override {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
@@ -170,13 +170,12 @@ class ModeloBonus : public QAbstractTableModel {
 class TipoBonusDelegate : public QItemDelegate {
  public:
   TipoBonusDelegate(QTableView* tabela, ModeloBonus* modelo, QObject* parent)
-      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {}
+      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {
+  }
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-    QComboBox* combo = new QComboBox(parent);
-    PreencheComboBonus(ent::TB_BASE, combo);
-    return combo;
+    return PreencheConfiguraComboBonus(new QComboBox(parent));
   }
 
   void setEditorData(QWidget* editor, const QModelIndex& index) const override {
@@ -185,10 +184,6 @@ class TipoBonusDelegate : public QItemDelegate {
       LOG(INFO) << "combo == nullptr em setEditorData";
       return;
     }
-    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo, index] () {
-      setModelData(combo, modelo_, index);
-      emit closeEditor(combo);
-    });
     QVariant data = modelo_->data(index);
     ent::TipoBonus tipo;
     if (!ent::TipoBonus_Parse(data.toString().toUtf8().constData(), &tipo)) {
@@ -208,19 +203,28 @@ class TipoBonusDelegate : public QItemDelegate {
     tabela_->reset();
   }
 
+ private slots:
+  void commitAndCloseEditor() {
+    QComboBox* combo = qobject_cast<QComboBox*>(sender());
+    setModelData(combo, modelo_, combo->rootModelIndex());
+    emit commitData(combo);
+    emit closeEditor(combo);
+  }
+
  private:
-  // Preenche o combo box de bonus.
-  void PreencheComboBonus(ent::TipoBonus tipo, QComboBox* combo) const {
+  // Preenche o combo box de bonus. Retorna o combo.
+  QComboBox* PreencheConfiguraComboBonus(QComboBox* combo) const {
     for (int tipo = ent::TipoBonus_MIN; tipo <= ent::TipoBonus_MAX; tipo++) {
       if (!ent::TipoBonus_IsValid(tipo)) continue;
       combo->addItem(ent::TipoBonus_Name(ent::TipoBonus(tipo)).c_str(), QVariant(tipo));
     }
-    combo->setCurrentIndex(tipo);
+    combo->setCurrentIndex(0);
+    connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commiAndCloseEditor()));
+    return combo;
   }
 
   QTableView* tabela_;
   ModeloBonus* modelo_;
-  ent::TipoBonus tipo_;
 };
 
 }  // namespace qt
