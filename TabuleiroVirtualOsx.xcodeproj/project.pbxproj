@@ -15,6 +15,11 @@
 		EA07B31A1E48A1A2004B15E5 /* servidor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA07B3131E48A1A2004B15E5 /* servidor.cpp */; };
 		EA07B31B1E48A1A2004B15E5 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA07B3151E48A1A2004B15E5 /* socket.cpp */; };
 		EA07B31C1E48A1A2004B15E5 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA07B3171E48A1A2004B15E5 /* util.cpp */; };
+		EAA38BC21F241C2300616689 /* atualiza_ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC11F241C2300616689 /* atualiza_ui.cpp */; };
+		EAA38BC41F241C7B00616689 /* comum.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC31F241C7B00616689 /* comum.pb.cc */; };
+		EAA38BC71F241CA700616689 /* tabelas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC51F241CA700616689 /* tabelas.cpp */; };
+		EAA38BC81F241CA700616689 /* tabelas.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC61F241CA700616689 /* tabelas.pb.cc */; };
+		EAA38BCA1F241CC400616689 /* tabuleiro_tratador.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC91F241CC400616689 /* tabuleiro_tratador.cpp */; };
 		EAD073231DA4B86E00F234A1 /* gl_char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491101BABCB6E00F86C24 /* gl_char.cpp */; };
 		EAD073241DA4B86E00F234A1 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491121BABCB6E00F86C24 /* gl_comum.cpp */; };
 		EAD073261DA4B86E00F234A1 /* gl_normal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491161BABCB6E00F86C24 /* gl_normal.cpp */; };
@@ -92,6 +97,11 @@
 		EA07B3161E48A1A2004B15E5 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
 		EA07B3171E48A1A2004B15E5 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		EA07B3181E48A1A2004B15E5 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		EAA38BC11F241C2300616689 /* atualiza_ui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atualiza_ui.cpp; sourceTree = "<group>"; };
+		EAA38BC31F241C7B00616689 /* comum.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comum.pb.cc; sourceTree = "<group>"; };
+		EAA38BC51F241CA700616689 /* tabelas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabelas.cpp; sourceTree = "<group>"; };
+		EAA38BC61F241CA700616689 /* tabelas.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabelas.pb.cc; sourceTree = "<group>"; };
+		EAA38BC91F241CC400616689 /* tabuleiro_tratador.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabuleiro_tratador.cpp; sourceTree = "<group>"; };
 		EAA490DD1BAA3EDC00F86C24 /* arquivo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arquivo.cpp; sourceTree = "<group>"; };
 		EAA490DE1BAA3EDC00F86C24 /* arquivo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = arquivo.h; sourceTree = "<group>"; };
 		EAA490E01BAA3EDC00F86C24 /* arquivo_pc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arquivo_pc.cpp; sourceTree = "<group>"; };
@@ -239,6 +249,10 @@
 		EAA490E41BAA40C000F86C24 /* ent */ = {
 			isa = PBXGroup;
 			children = (
+				EAA38BC91F241CC400616689 /* tabuleiro_tratador.cpp */,
+				EAA38BC51F241CA700616689 /* tabelas.cpp */,
+				EAA38BC61F241CA700616689 /* tabelas.pb.cc */,
+				EAA38BC31F241C7B00616689 /* comum.pb.cc */,
 				EAD0733B1DA4BC9200F234A1 /* controle_virtual.pb.cc */,
 				EAD0733C1DA4BC9200F234A1 /* tabuleiro_interface.cpp */,
 				EAD0733D1DA4BC9200F234A1 /* tabuleiro_interface.h */,
@@ -376,6 +390,7 @@
 		EAD0736C1DA4BEB400F234A1 /* qt */ = {
 			isa = PBXGroup;
 			children = (
+				EAA38BC11F241C2300616689 /* atualiza_ui.cpp */,
 				EAD073881DA4BFF300F234A1 /* ui */,
 				EAD073821DA4BFEF00F234A1 /* util.cpp */,
 				EAD073831DA4BFEF00F234A1 /* util.h */,
@@ -478,12 +493,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAA38BC41F241C7B00616689 /* comum.pb.cc in Sources */,
 				EAD073631DA4BDA700F234A1 /* modelos.pb.cc in Sources */,
 				EAD0737B1DA4BEEA00F234A1 /* menuprincipal.cpp in Sources */,
 				EAD0737A1DA4BEEA00F234A1 /* constantes.cpp in Sources */,
 				EA07B30C1E48A16A004B15E5 /* notificacao.pb.cc in Sources */,
+				EAA38BC81F241CA700616689 /* tabelas.pb.cc in Sources */,
 				EAD073231DA4B86E00F234A1 /* gl_char.cpp in Sources */,
 				EA07B31C1E48A1A2004B15E5 /* util.cpp in Sources */,
+				EAA38BC71F241CA700616689 /* tabelas.cpp in Sources */,
 				EAD073621DA4BDA700F234A1 /* interface.cpp in Sources */,
 				EAD073241DA4B86E00F234A1 /* gl_comum.cpp in Sources */,
 				EAD073261DA4B86E00F234A1 /* gl_normal.cpp in Sources */,
@@ -491,6 +509,7 @@
 				EAD0739F1DA4C68400F234A1 /* lodepng.cpp in Sources */,
 				EA07B3101E48A188004B15E5 /* matrices.cpp in Sources */,
 				EAD073271DA4B86E00F234A1 /* gl_vbo.cpp in Sources */,
+				EAA38BCA1F241CC400616689 /* tabuleiro_tratador.cpp in Sources */,
 				EAD0737D1DA4BEEA00F234A1 /* moc_principal.cpp in Sources */,
 				EAD073281DA4B86E00F234A1 /* glues.cpp in Sources */,
 				EAD073641DA4BDA700F234A1 /* tecladomouse.cpp in Sources */,
@@ -500,6 +519,7 @@
 				EAD0732A1DA4B86E00F234A1 /* acoes.pb.cc in Sources */,
 				EAD073861DA4BFEF00F234A1 /* util.cpp in Sources */,
 				EAD0736B1DA4BE4200F234A1 /* m3d.cpp in Sources */,
+				EAA38BC21F241C2300616689 /* atualiza_ui.cpp in Sources */,
 				EAD0732B1DA4B86E00F234A1 /* constantes.cpp in Sources */,
 				EAD073A01DA4C68400F234A1 /* texturas.cpp in Sources */,
 				EAD0732C1DA4B86E00F234A1 /* entidade.cpp in Sources */,
