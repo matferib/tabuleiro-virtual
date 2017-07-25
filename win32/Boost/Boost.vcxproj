@@ -146,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <OutputFile>$(ProjectDir)$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
