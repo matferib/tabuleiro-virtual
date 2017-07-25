@@ -53,6 +53,8 @@
     <ClCompile Include="..\..\ent\entidade_composta.cpp" />
     <ClCompile Include="..\..\ent\entidade_desenho.cpp" />
     <ClCompile Include="..\..\ent\entidade_forma.cpp" />
+    <ClCompile Include="..\..\ent\tabelas.cpp" />
+    <ClCompile Include="..\..\ent\tabelas.pb.cc" />
     <ClCompile Include="..\..\ent\tabuleiro.cpp" />
     <ClCompile Include="..\..\ent\tabuleiro.pb.cc" />
     <ClCompile Include="..\..\ent\tabuleiro_controle_virtual.cpp" />
@@ -73,6 +75,7 @@
     <ClCompile Include="..\..\gltab\gl_vbo.cpp" />
     <ClCompile Include="..\..\ifg\interface.cpp" />
     <ClCompile Include="..\..\ifg\modelos.pb.cc" />
+    <ClCompile Include="..\..\ifg\qt\atualiza_ui.cpp" />
     <ClCompile Include="..\..\ifg\qt\constantes.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
