@@ -1,4 +1,4 @@
-import "ent/entidade.proto";
+import "ent/comum.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -84,23 +84,6 @@ message TabelaArmaduraOuEscudo {
 
 message TabelaArmas {
   repeated ArmaProto armas = 1;
-}
-
-message ConsequenciaEvento {
-  // Afeta todos atributos.
-  optional Atributos atributos = 1;
-  // Afeta os dados de defesa: ca e salvacoes.
-  optional DadosDefesa dados_defesa = 2;
-  // Afeta o bonus das jogadas de ataque.
-  optional Bonus jogada_ataque = 3;
-}
-
-message EfeitoProto {
-  optional TipoEfeito id = 1;  // id do efeito.
-  // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
-  // O que ocorre quando o efeito termina.
-  optional ConsequenciaEvento consequencia_fim = 3;
 }
 
 message TabelaEfeitos {

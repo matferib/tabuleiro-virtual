@@ -2,6 +2,7 @@
 #define ENT_TABELAS_H
 
 #include <unordered_map>
+#include "ent/acoes.pb.h"
 #include "ent/tabelas.pb.h"
 
 namespace ent {

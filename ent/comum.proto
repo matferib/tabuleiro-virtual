@@ -1,6 +1,36 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum TamanhoEntidade {
+  TM_MINUSCULO = 0;
+  TM_DIMINUTO = 1;
+  TM_MIUDO = 2;
+  TM_PEQUENO = 3;
+  TM_MEDIO = 4;
+  TM_GRANDE = 5;
+  TM_ENORME = 6;
+  TM_IMENSO = 7;
+  TM_COLOSSAL = 8;
+}
+
+enum TipoEfeito {
+  EFEITO_INVALIDO = -1;
+  EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
+  EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
+  EFEITO_PISCAR = 2;
+  EFEITO_BORRAR = 3;
+
+  EFEITO_FORCA_TOURO = 4;
+  EFEITO_AGILIDADE_DO_GATO = 5;
+  EFEITO_ACELERAR = 6;
+
+  EFEITO_AUMENTAR_PESSOA = 7;
+  EFEITO_DIMINUIR_PESSOA = 8;
+  EFEITO_ARMADURA_ARCANA = 9;
+  EFEITO_ESCUDO_FE       = 10;
+}
+
+
 // Tipo de visao para entidades e camera.
 enum TipoVisao {
   VISAO_NORMAL = 0;
@@ -110,6 +140,116 @@ message Projecao {
   optional float razao_aspecto = 5;
   optional float largura_m = 6;
   optional float altura_m = 7;
+}
+
+// Os atributos basicos.
+message Atributos {
+  optional Bonus forca = 1;
+  optional Bonus destreza = 2;
+  optional Bonus constituicao = 3;
+  optional Bonus inteligencia = 4;
+  optional Bonus sabedoria = 5;
+  optional Bonus carisma = 6;
+}
+
+// Dados de defesa global (independe de ataque).
+message DadosDefesa {
+  optional string tipo_defesa = 1 [deprecated=true];
+  optional bool imune_critico = 3;
+  optional int32 ca_deprecated = 2 [deprecated=true];
+  optional Bonus ca = 4;
+  optional Bonus salvacao_fortitude = 5;
+  optional Bonus salvacao_reflexo = 6;
+  optional Bonus salvacao_vontade = 7;
+  // TODO outras salvacoes.
+  // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.
+  optional string id_armadura = 8;
+  optional string id_escudo = 9;
+  optional bool armadura_obra_prima = 10;
+  optional bool escudo_obra_prima = 11;
+  optional int32 bonus_magico_armadura = 12;
+  optional int32 bonus_magico_escudo = 13;
+}
+
+// Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
+enum TipoBonus {
+  TB_ALQUIMICO = 0;
+  TB_ARMADURA = 1;
+  TB_ARMADURA_MELHORIA = 2;
+  TB_ARMADURA_NATURAL = 3;
+  TB_ATRIBUTO = 4;
+  TB_BASE = 5;
+  TB_CIRCUNSTANCIA = 6;
+  TB_CLASSE = 7;
+  TB_COMPETENCIA = 8;
+  TB_DEFLEXAO = 9;
+  TB_ESCUDO = 10;
+  TB_ESCUDO_MELHORIA = 11;
+  TB_ESQUIVA = 12;
+  TB_FAMILIAR = 13;
+  TB_INERENTE = 14;
+  TB_INTUICAO = 15;
+  TB_MELHORIA = 16;
+  TB_MORAL = 17;
+  // cumulativo para poder ter valores negativos.
+  TB_NIVEIS_NEGATIVOS = 18;
+  // Bonus de atributos ganhados a cada 4 niveis.
+  TB_NIVEL = 19;
+  TB_PROFANO = 20;
+  // cumulativo para aceitar valores negativos.
+  TB_RACIAL = 21;
+  TB_TEMPLATE = 22;
+  TB_RESISTENCIA = 23;
+  TB_SAGRADO = 24;
+  TB_SINERGIA = 25;
+  TB_SORTE = 26;
+  TB_TALENTO = 27;
+  TB_TAMANHO = 28;
+  // Cumulativo.
+  TB_SEM_NOME = 29;
+}
+
+
+// Um tipo de bonus.
+message BonusIndividual {
+  optional TipoBonus tipo = 1;
+  message PorOrigem {
+    optional int32 valor = 1;
+    optional string origem = 2;
+  }
+  repeated PorOrigem por_origem = 2;
+}
+
+// Diferentes tipos de bonus.
+message Bonus {
+  repeated BonusIndividual bonus_individual = 1;
+}
+
+
+message ConsequenciaEvento {
+  // Afeta todos atributos.
+  optional Atributos atributos = 1;
+  // Afeta os dados de defesa: ca e salvacoes.
+  optional DadosDefesa dados_defesa = 2;
+  // Afeta o bonus das jogadas de ataque.
+  optional Bonus jogada_ataque = 3;
+}
+
+message EfeitoProto {
+  optional TipoEfeito id = 1;  // id do efeito.
+  // O que ocorre com a entidade quando efeito comeca.
+  optional ConsequenciaEvento consequencia = 2;
+  // O que ocorre quando o efeito termina.
+  optional ConsequenciaEvento consequencia_fim = 3;
+}
+
+
+
+message Pocao {
+  // Chave da pocao na tabela.
+  optional string id = 1;
+  // Nome da pocao.
+  optional string nome = 2;
 }
 
 // Alguns estados são mantidos nesta variável.
