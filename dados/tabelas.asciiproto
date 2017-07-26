@@ -9,7 +9,7 @@ tabela_armaduras {
   armaduras { id: 'gibao_peles'      nome: 'Gibão de Peles'  bonus: 3  max_bonus_destreza: 4  preco { po:  15  } tipo: TA_MEDIO }
   armaduras { id: 'brunea'           nome: 'Brunea'  bonus: 4  max_bonus_destreza: 3  preco { po:  50  } tipo: TA_MEDIO }
   armaduras { id: 'cota_malha'       nome: 'Cota de Malha'  bonus: 5  max_bonus_destreza: 2  preco { po:  150  } tipo: TA_MEDIO }
-  armaduras { id: 'peitorial_aco'    nome: 'Peitoral de Aço'  bonus: 5  max_bonus_destreza: 3  preco { po:  200  } tipo: TA_MEDIO }
+  armaduras { id: 'peitoral_de_aco'  nome: 'Peitoral de Aço'  bonus: 5  max_bonus_destreza: 3  preco { po:  200  } tipo: TA_MEDIO }
 
   armaduras { id: 'cota_talas'       nome: 'Cota de Talas'  bonus: 6  max_bonus_destreza: 0  preco { po:  200  } tipo: TA_PESADO }
   armaduras { id: 'loriga'           nome: 'Loriga Segmentada'  bonus: 6  max_bonus_destreza: 1  preco { po:  250  } tipo: TA_PESADO }

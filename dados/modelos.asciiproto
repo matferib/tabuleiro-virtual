@@ -90,7 +90,7 @@ modelo {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'flail' }
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
     desenha_base: true
     voadora: true
@@ -112,7 +112,7 @@ modelo {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'axe' }
     dados_ataque {
-    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
     desenha_base: true
     voadora: true
@@ -134,7 +134,7 @@ modelo {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'sword' }
     dados_ataque {
-    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' margem_critico: 19 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' margem_critico: 19 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
     rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
     evento { rodadas: 3 descricao: 'duração' }
@@ -157,8 +157,8 @@ modelo {
     voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
     modificador_iniciativa: 7
     rotulo_especial: 'dois ataques, agarrar +13/1d4+2\nlamento, engolfar e sombras (reflexos, imagem silenciosa ou camuflagem 20%; 6o nivel)'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 8 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
   }
 }
 modelo {
@@ -167,9 +167,9 @@ modelo {
     dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
     modificador_iniciativa: 6
     rotulo_especial: 'for 6, ref 7, von 7\nreducao dano 5/magia\nmudar forma\npiscar, levitar, confundir detecao cd 14, furia cd 15: a vontade\nencantar monstro, desespero esmagador, porta dimensional cd 16 1/dia'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+3' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
@@ -195,7 +195,7 @@ modelo {
     rotulo_especial: 'Piscar a vontade\nporta dimensional uma vez por rodada como acao livre\nsalv: 4/7/4'
     evento { id_efeito: EFEITO_PISCAR rodadas: 8 }
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 16 ca_toque: 13 ca_surpreso: 13
+      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 16 ca_toque: 13 ca_surpreso: 13
     }
   }
 }
@@ -214,9 +214,9 @@ modelo {
     cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 2
     rotulo_especial: 'paralisia CD 12 for (exceto elfo), mordida febre, 1 dia, CD 12 for 1d3 con, 1d3 dex\nfor 0 ref 2 von 5'
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
@@ -226,9 +226,9 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modificador_iniciativa: 3
     rotulo_especial: 'catinga da morte 2 quad CD 15 for\nparalisia CD 15 for (inclui elfo)\nmordida doença CD 15 inc 1 dia, dano 1d3 con 1d3 dex\nfor 1 ref 4 von 6'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+3' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d8+3' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
     dados_defesa { imune_critico: true }
     tipo_visao: VISAO_ESCURO alcance_visao: 12
   }
@@ -241,7 +241,7 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     modificador_iniciativa: 2
     rotulo_especial: 'agarrar: +15\nveneno fort 14, 1d6 des/1d6 des'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '2d6+4' ca_normal: 16 ca_toque: 11 ca_surpreso: 12 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '2d6+4' ca_normal: 16 ca_toque: 11 ca_surpreso: 12 }
   }
 }
 modelo {
@@ -252,7 +252,7 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     modificador_iniciativa: 2
     rotulo_especial: 'agarrar: +27\nveneno fort 17, 1d8 des/1d8 des'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' ca_normal: 18 ca_toque: 10 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 11 dano: '2d8+9' ca_normal: 18 ca_toque: 10 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -422,7 +422,7 @@ modelo {
     modificador_iniciativa: 5
     rotulo_especial: 'reducao 5/estourante'
     dados_ataque {
-      rotulo: 'cimitarra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d6+1 (18-20)' ca_normal: 15 ca_toque: 11 ca_surpreso: 14 }
+      rotulo: 'cimitarra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d6+1 (18-20)' ca_normal: 15 ca_toque: 11 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -524,7 +524,6 @@ modelo {
   entidade {
     dados_vida: '2d8+2'
     modificador_iniciativa: 0
-    rotulo_especial: "salv: for 3 ref 0 von 0"
     info_textura { id: 'gnoll.png' largura: 0.5 translacao_x: 0.25 }
     dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { id_arma: 'arco_curto' }
@@ -536,6 +535,7 @@ modelo {
       id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE
     }
     atributos {
+      # Usa o array padrao: 11 10 11 10 11 10.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
@@ -549,39 +549,65 @@ modelo {
   id: 'Gnoll Sargento Bárbaro 3'
   entidade {
     dados_vida: '2d8+3d12+10'
-    tesouro { tesouro: '50 PO\npocao forca touro' }
-    rotulo_especial: "salv: for 8 ref 1 von 1"
+    tesouro { tesouro: '100 PO\npocao forca touro\nagilidade gato\najuda\nescudo da fé +4\ncurar ferimentos leves x2' }
     modificador_iniciativa: 0
     info_textura { id: 'gnoll_barbarian.png' largura: 0.5 translacao_x: 0.25 }
-    dados_ataque { rotulo: 'Machado de Guerra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d8+6' multiplicador_critico: 3 ca_normal: 16 ca_toque: 10 ca_surpreso: 16 }
-    dados_ataque { rotulo: 'Arco Curto' tipo_ataque: 'Ataque a Distância' bonus_ataque: 4 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 ca_toque: 10 ca_surpreso: 16 }
+    # Ataques.
+    dados_ataque { rotulo: 'Machado Grande' obra_prima: true id_arma: 'machado_grande' empunhadura: EA_2_MAOS  }
+    dados_ataque { rotulo: 'Arco Longo Composto' id_arma: 'arco_longo_composto_3' }
+    # Defesa.
+    dados_defesa {
+      # TODO A armadura eh obra prima.
+      id_armadura: 'peitoral_de_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
+    }
+    info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
+    info_classes { id: 'bárbaro' nivel: 3 bba: 3 salvacoes_fortes: TS_FORTITUDE }
+    atributos {
+      # Usa o array nao elite 13 12 11 10 9 8 + ajustes.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
   id: 'Gnoll Lider Ranger 6'
   entidade {
     dados_vida: '2d8+6d8+16'
-    modificador_iniciativa: 7
-    rotulo_especial: "salv: for 11 ref 9 von 4"
     info_textura { id: 'gnoll_ranger.png' largura: 0.5 translacao_x: 0.25 }
-    tesouro { tesouro: '140 PO\npocao escudo da fe 2\npocao pele de arvore 2' }
-    dados_ataque {
-      rotulo: 'Espada Longa +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d8+5' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+
+    info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
+    info_classes { id: 'ranger' nivel: 6 bba: 6 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+
+    tesouro { tesouro: 'couro batido+1\nespada longa +1, espada curta +1, arco longo composto (4) OP\npocao agilidade gato\nescudo da fe +2' }
+
+    # Espadas.
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
+    # Arco.
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true ordem_ataque: 1 }
+    # Defesa.
+    dados_defesa {
+      id_armadura: 'couro_batido'
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+        bonus_individual { tipo: TB_MELHORIA         por_origem { origem: 'armadura' valor: 1 } }
+      }
     }
-    dados_ataque {
-      rotulo: 'Espada Longa +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+5' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
-    }
-    dados_ataque {
-      rotulo: 'Espada Curta +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
-    }
-    dados_ataque {
-      rotulo: 'Espada Curta +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
-    }
-    dados_ataque {
-      rotulo: 'Arco Curto Composto 4' tipo_ataque: 'Ataque a Distância' bonus_ataque: 10 dano: '1d6+4' multiplicador_critico: 17 ca_normal: 13 ca_toque: 0 ca_surpreso: 17
-    }
-    dados_ataque {
-      rotulo: 'Arco Curto Composto 4' tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+4' multiplicador_critico: 3 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+    atributos {
+      # Usa o array elite 15 14 13 12 10 8 + 2 ajustes de nivel destreza e constituicao (2HD + 6 niveis).
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
   }
 }
@@ -598,7 +624,7 @@ modelo {
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: ''
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+3' ca_normal: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6+3' ca_normal: 14 }
     modificador_iniciativa: 2
   }
 }
@@ -608,9 +634,9 @@ modelo {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'talentos: esquiva e wingover'
     modificador_iniciativa: 2
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+2' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d8+2' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
   }
 }
 modelo {
@@ -618,8 +644,8 @@ modelo {
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' margem_critico: 19 ca_normal: 15 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d8+1' margem_critico: 19 ca_normal: 15 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 }
     modificador_iniciativa: 1
   }
 }
@@ -628,8 +654,8 @@ modelo {
   entidade {
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' margem_critico: 19 ca_normal: 21 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d8+2' margem_critico: 19 ca_normal: 21 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d6+3' ca_normal: 20 }
     modificador_iniciativa: 2
   }
 }
@@ -638,8 +664,8 @@ modelo {
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d10+6' margem_critico: 19 ca_normal: 20 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 10 dano: '1d10+6' margem_critico: 19 ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
   }
 }
@@ -683,9 +709,9 @@ modelo {
   entidade {
     dados_vida: '3d6+6' info_textura { id: 'adept3.png'} cor { r: 0.898 g: 0.475 b: 0.475 }
     rotulo_especial: 'Humano Adepto 3\nini: -1\nat: +2 ou +1 (24 q)\ndano: 1d6 ou 1d10\nca: 13'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 13 }
-    dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque: 0 dano: '3d4' ca_normal: 13 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d10' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque_final: 0 dano: '3d4' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d10' ca_normal: 13 }
     modificador_iniciativa: -1
   }
 }
@@ -699,8 +725,8 @@ modelo {
   entidade {
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
     rotulo_especial: 'Humano Combatente 1\nini: +0\nat: +3 ou +1 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d8' ca_normal: 16 }
   }
 }
 modelo {
@@ -708,8 +734,8 @@ modelo {
   entidade {
     dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
     rotulo_especial: 'Humano Combatente 2\nini: +0\nat: +4 ou +2 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d8' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 2 dano: '1d8' ca_normal: 16 }
   }
 }
 modelo {
@@ -717,8 +743,8 @@ modelo {
   entidade {
     dados_vida: '4d8+7' info_textura { id: 'warrior4.png'} cor { r: 0.6 g: 0.5 b: 0.3 }
     rotulo_especial: 'Humano Combatente 4\nini: +0\nat: +8 ou +5 (24 q)\ndano: 1d8+2 ou 1d10\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d8+2' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d10' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 8 dano: '1d8+2' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d10' ca_normal: 16 }
   }
 }
 modelo {
@@ -751,8 +777,8 @@ modelo {
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 3'
     modificador_iniciativa: 6
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 }
     dados_ataque_globais { dano_furtivo: '2d6' }
   }
 }
@@ -763,8 +789,8 @@ modelo {
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 4'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
     dados_ataque_globais { dano_furtivo: '2d6' }
   }
 }
@@ -775,8 +801,8 @@ modelo {
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
     dados_ataque_globais { dano_furtivo: '3d6' }
   }
 }
@@ -787,8 +813,8 @@ modelo {
     info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 7'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' ca_normal: 18 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d4+1' ca_normal: 18 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d6+1' ca_normal: 17 }
     dados_ataque_globais { dano_furtivo: '4d6' }
   }
 }
@@ -820,9 +846,9 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     modificador_iniciativa: 1
     dados_ataque {
-      rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
+      rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
     dados_ataque {
-      rotulo: 'azagaia' alcance_m: 9 incrementos: 5 tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
+      rotulo: 'azagaia' alcance_m: 9 incrementos: 5 tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -836,9 +862,9 @@ modelo {
     tesouro { tesouro: '1d100 PO' }
     modificador_iniciativa: 1
     dados_ataque {
-      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6' margem_critico: 19 ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
     dados_ataque {
-      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6' margem_critico: 19 ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
@@ -857,22 +883,22 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12'
     modificador_iniciativa: 3
-    dados_ataque { rotulo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
-    dados_ataque { rotulo: 'besta leve' tipo_ataque: 'Ataque a Distância' bonus_ataque: 4 dano: '1d8' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'besta leve' tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 4 dano: '1d8' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 0
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' margem_critico: 18 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
-      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' margem_critico: 19 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1' margem_critico: 18 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d8' margem_critico: 19 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
     }
     formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3
       rotulo_especial: 'doença febre esgoto CD 12'
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
   }
 }
@@ -883,22 +909,22 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 2d6\nevasao ref 7 for 9 von 5\npocao agilidade gato, pocao forca touro, pocao cura serio\n150 PO'
     modificador_iniciativa: 4
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 1
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
-      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
     formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3
       rotulo_especial: 'doença febre esgoto CD 12'
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 8 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
   }
 }
@@ -909,22 +935,22 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 3d6 evasao, esquiva sobrenatural\nref 7 for 10 von 5\npocao cura serio\nsabre + 1, besta + 1, bracadura armadura + 2 anel prot 1\n250 PO'
     modificador_iniciativa: 4
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     formas_alternativas {
       # Humano.
       rotulo: 'humano'
       modificador_iniciativa: 1
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
-      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     }
     formas_alternativas {
       # Rato.
       rotulo: 'rato'
       modificador_iniciativa: 3
       rotulo_especial: 'doença febre esgoto CD 12'
-      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
   }
 }
@@ -935,7 +961,7 @@ modelo {
     dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' }
     rotulo_especial: 'at toque +3 ferrugem (outro mordida)\nca: 18/13/15'
     modificador_iniciativa: 3
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d3' ca_normal: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -2 dano: '1d3' ca_normal: 18 }
   }
 }
 modelo {
@@ -951,8 +977,8 @@ modelo {
   entidade {
     dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '2d4+4' ca_normal: 13 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6+3' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '2d4+4' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d6+3' ca_normal: 13 }
   }
 }
 modelo {
@@ -990,9 +1016,9 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 12
     tamanho: TM_GRANDE
     rotulo_especial: 'agarrar aprimorado: +8 livre tentáculo\nfor +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d4' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -2 dano: '1d4' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
     modificador_iniciativa: 0
   }
 }
@@ -1003,7 +1029,7 @@ modelo {
     tamanho: TM_GRANDE
     rotulo_especial: 'movimento 3 quad\nengolfar, paralisia fort CD 20 3d6 rodadas'
     modificador_iniciativa: -5
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1d6' ca_normal: 4 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1d6' ca_normal: 4 }
     dados_defesa { imune_critico: true }
   }
 }
@@ -1013,7 +1039,7 @@ modelo {
     dados_vida: '10d10+60' cor { r: 0.3 b: 0.3 g: 0.3 } modelo_3d { id: 'black_pudding' } tamanho: TM_ENORME
     rotulo_especial: 'movimento 4\ndano possui ácido\nagarrar aprimorado +18\nconstricao 2d6+4+2d6'
     modificador_iniciativa: -5
-    dados_ataque { bonus_ataque: 8 dano: '2d6+4+2d6' ca_normal: 3 }
+    dados_ataque { bonus_ataque_final: 8 dano: '2d6+4+2d6' ca_normal: 3 }
     dados_defesa { imune_critico: true }
   }
 }
@@ -1045,7 +1071,7 @@ modelo {
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
     rotulo_especial: 'dano da doenca fort 11 febre esgoto'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
     modificador_iniciativa: 3
   }
 }
@@ -1084,9 +1110,9 @@ modelo {
     dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     modificador_iniciativa: 2
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6+3' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
     rotulo_especial: 'rend: acertar os dois da 2d6+9 automaticamente\nfort: 11 ref: 4 von: 3'
   }
 }
@@ -1154,7 +1180,7 @@ modelo {
     modificador_iniciativa: -1
     rotulo_especial: 'reducao 5/cortante, acoes parciais apenas'
     dados_ataque {
-      rotulo: 'punho' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' ca_normal: 11 ca_toque: 9 ca_surpreso: 11 }
+      rotulo: 'punho' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 11 ca_toque: 9 ca_surpreso: 11 }
 
   }
 }
@@ -1171,7 +1197,7 @@ modelo {
     dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
     rotulo_especial: 'derrubar como ação livre se acertar mordida'
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
