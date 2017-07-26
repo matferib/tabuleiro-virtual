@@ -935,10 +935,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
-  if (proto_parcial.info_textura().id().empty()) {
+  if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();
   }
-  if (proto_parcial.modelo_3d().id().empty()) {
+  if (proto_.modelo_3d().id().empty()) {
     proto_.clear_modelo_3d();
   }
 
@@ -1450,7 +1450,7 @@ int Entidade::BonusAtaque() const {
   if (da == nullptr) {
     return AtaqueCaInvalido;
   }
-  return da->bonus_ataque();
+  return da->bonus_ataque_final();
 }
 
 int Entidade::CA(TipoCA tipo_ca) const {
