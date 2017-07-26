@@ -873,7 +873,7 @@ void PreencheConfiguraEventos(
       modelo->removeRows(linha, 1, QModelIndex());
     }
   });
-  auto* delegado = new TipoEventoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);
+  auto* delegado = new TipoEfeitoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);
   std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(gerador.tabela_lista_eventos->itemDelegateForColumn(0));
   gerador.tabela_lista_eventos->setItemDelegateForColumn(0, delegado);
   delegado->deleteLater();

@@ -149,7 +149,7 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 void PosicionaRaster2d(int x, int y);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
-TipoEvento StringParaEfeito(const std::string& s);
+TipoEfeito StringParaEfeito(const std::string& s);
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {
@@ -265,7 +265,7 @@ inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario()
 inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
-bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade);
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque.
 void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);

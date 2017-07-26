@@ -721,8 +721,8 @@ void PosicionaRaster2d(int x, int y) {
   gl::PosicaoRasterAbsoluta(x, y);
 }
 
-TipoEvento StringParaEfeito(const std::string& s) {
-  static std::unordered_map<std::string, TipoEvento> mapa = {
+TipoEfeito StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, TipoEfeito> mapa = {
     { "borrar", EFEITO_BORRAR },
     { "reflexos", EFEITO_REFLEXOS },
     { "piscar", EFEITO_PISCAR },
@@ -1744,7 +1744,7 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
   return 0;
 }
 
-bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade) {
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
   });

@@ -360,7 +360,7 @@ void Entidade::AtualizaEfeitos() {
     if (!evento.has_id_efeito() || evento.id_efeito() == EFEITO_INVALIDO) {
       continue;
     }
-    AtualizaEfeito(static_cast<TipoEvento>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
+    AtualizaEfeito(static_cast<TipoEfeito>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
     a_remover.erase(evento.id_efeito());
   }
   for (const auto& id_remocao : a_remover) {
@@ -368,7 +368,7 @@ void Entidade::AtualizaEfeitos() {
   }
 }
 
-void Entidade::AtualizaEfeito(TipoEvento id_efeito, ComplementoEfeito* complemento) {
+void Entidade::AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento) {
   switch (id_efeito) {
     case EFEITO_PISCAR:
       if (++complemento->quantidade >= 40) {

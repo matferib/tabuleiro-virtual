@@ -35,7 +35,7 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
-enum TipoEvento {
+enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
   EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
@@ -276,7 +276,7 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
-    optional TipoEvento id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+    optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;

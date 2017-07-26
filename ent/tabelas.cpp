@@ -154,7 +154,7 @@ const ArmaProto& Tabelas::Arma(const std::string& id) const {
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
 }
 
-const EfeitoProto& Tabelas::Efeito(TipoEvento tipo) const {
+const EfeitoProto& Tabelas::Efeito(TipoEfeito tipo) const {
   auto it = efeitos_.find(tipo);
   return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
 }

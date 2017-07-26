@@ -18,7 +18,7 @@ class Tabelas {
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
   const ArmaProto& Arma(const std::string& id) const;
-  const EfeitoProto& Efeito(TipoEvento tipo) const;
+  const EfeitoProto& Efeito(TipoEfeito tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
 

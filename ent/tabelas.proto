@@ -96,7 +96,7 @@ message ConsequenciaEvento {
 }
 
 message EfeitoProto {
-  optional TipoEvento id = 1;  // id do efeito.
+  optional TipoEfeito id = 1;  // id do efeito.
   // O que ocorre com a entidade quando efeito comeca.
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
