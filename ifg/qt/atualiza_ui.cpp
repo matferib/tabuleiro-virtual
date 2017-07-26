@@ -298,9 +298,9 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.spin_alcance_quad->setValue(ent::METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
-  gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));
-  gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.outros_bonus_ataque())));
-  gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.outros_bonus_dano())));
+  gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
+  gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.bonus_ataque())));
+  gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.bonus_dano())));
   gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
   if (proto.dados_ataque().size() > 1) {
     gerador.botao_ataque_cima->setEnabled(true);

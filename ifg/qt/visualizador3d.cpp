@@ -795,12 +795,9 @@ void AdicionaOuAtualizaAtaqueEntidade(
   ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
   da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
 
-  // Bonus magico vale para ataque e dano.
-  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_ataque());
-  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
+  da.set_bonus_magico(gerador.spin_bonus_magico->value());
 
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
-  ent::AtribuiBonus(da.obra_prima() ? 1 : 0, ent::TB_MELHORIA, "arma_obra_prima", da.mutable_outros_bonus_ataque());
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
   if (id == "nenhuma") {
@@ -1117,14 +1114,14 @@ void PreencheConfiguraDadosAtaque(
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
-    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_ataque());
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_ataque());
     EditaAtualizaUIAtaque();
   });
   lambda_connect(gerador.botao_bonus_dano, SIGNAL(clicked()), [this_, EditaAtualizaUIAtaque, &gerador, proto_retornado] {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
-    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_dano());
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_dano());
     EditaAtualizaUIAtaque();
   });
   // Furtivo
