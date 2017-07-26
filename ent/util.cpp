@@ -1282,12 +1282,12 @@ int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
 
 // Retorna o bonus de ataque para uma determinada arma.
 int CalculaBonusBaseParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  return BonusTotal(da.outros_bonus_ataque());
+  return BonusTotal(da.bonus_ataque());
 }
 
 // Retorna a string de dano para uma arma.
 std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  const int mod_final = BonusTotal(da.outros_bonus_dano());
+  const int mod_final = BonusTotal(da.bonus_dano());
   return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
 
@@ -1374,7 +1374,33 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else if (da->ataque_toque()) {
     bba = proto.dados_ataque_globais().acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
   }
-  AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
+
+  {
+    auto* bonus_ataque = da->mutable_bonus_ataque();
+    auto* bonus_dano = da->mutable_bonus_dano();
+    // Obra prima e bonus magico.
+    AtribuiBonus(bba, TB_BASE, "base", bonus_ataque);
+    if (da->bonus_magico()) {
+      da->set_obra_prima(true);  // Toda arma magica eh obra prima.
+      AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_ataque);
+      AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_dano);
+    } else {
+      RemoveBonus(TB_MELHORIA, "arma_magica", bonus_ataque);
+      RemoveBonus(TB_MELHORIA, "arma_magica", bonus_dano);
+    }
+    if (da->obra_prima()) {
+      AtribuiBonus(1, TB_MELHORIA, "obra_prima", bonus_ataque);
+    } else {
+      RemoveBonus(TB_MELHORIA, "obra_prima", bonus_ataque);
+    }
+    // Outros ataques.
+    if (da->ordem_ataque() > 1) {
+      AtribuiBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
+    } else {
+      RemoveBonus(TB_SEM_NOME, google::protobuf::StringPrintf("multiplos_ataque"), bonus_ataque);
+    }
+  }
+  // Forca no dano.
   if (usar_forca_dano) {
     int modificador_forca_dano = arma.has_max_forca() ? std::min(modificador_forca, arma.max_forca()) : modificador_forca;
     int dano_forca = 0;
@@ -1388,13 +1414,13 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     } else {
       dano_forca = modificador_forca_dano;
     }
-    AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
+    AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   } else {
-    RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
+    RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   }
   // Estes dois sao os mais importantes, porque eh o que vale.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
-  if (proto.has_bba() || !da->has_bonus_ataque()) da->set_bonus_ataque(CalculaBonusBaseParaAtaque(*da, proto));
+  if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
 
   VLOG(1) << "Proto apos RecomputaDependencias: " << proto.DebugString();
@@ -1418,7 +1444,7 @@ void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) 
   AplicaBonus(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
   AplicaBonus(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   for (auto& da : *proto->mutable_dados_ataque()) {
-    AplicaBonus(consequencia.jogada_ataque(), da.mutable_outros_bonus_ataque());
+    AplicaBonus(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
   }
 }
 
@@ -1775,7 +1801,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
       "%s%s: %+d%s, %s%s%s, CA: %s",
       da.rotulo().c_str(),
       da.ataque_toque() ? " (T)" : "",
-      da.bonus_ataque(),
+      da.bonus_ataque_final(),
       texto_modificador,
       StringDanoParaAcao(da, proto).c_str(),
       critico.c_str(),
@@ -1815,7 +1841,7 @@ std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
       "id: %s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), da.dano().c_str(), StringCritico(da).c_str(),
+      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }

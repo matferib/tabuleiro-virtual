@@ -1010,7 +1010,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       while (num_ataques-- > 0) {
         auto* nda = modelo->add_dados_ataque();
         *nda = da;
-        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_outros_bonus_ataque());
+        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_bonus_ataque());
         ++ordem_ataque;
       }
     }
