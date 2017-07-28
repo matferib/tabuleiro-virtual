@@ -19,11 +19,9 @@ enum TipoEfeito {
   EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
   EFEITO_PISCAR = 2;
   EFEITO_BORRAR = 3;
-
   EFEITO_FORCA_TOURO = 4;
   EFEITO_AGILIDADE_GATO = 5;
   EFEITO_ACELERAR = 6;
-
   EFEITO_ARMADURA_ARCANA = 9;
   EFEITO_AUMENTAR_PESSOA = 7;
   EFEITO_DIMINUIR_PESSOA = 8;
@@ -233,6 +231,9 @@ message ConsequenciaEvento {
   optional DadosDefesa dados_defesa = 2;
   // Afeta o bonus das jogadas de ataque.
   optional Bonus jogada_ataque = 3;
+
+  // se verdadeiro, usara complemento ao inves do valor passado.
+  optional bool usa_complemento = 10;
 }
 
 message EfeitoProto {
@@ -252,6 +253,10 @@ message Pocao {
   optional TipoEfeito efeito = 3;
   // Duracao do efeito da pocao.
   optional int32 duracao_rodadas = 4;
+  // Custo da pocao em PO.
+  optional int32 custo_po = 5;
+  // Para efeitos que usam complemento.
+  optional int32 complemento = 6;
 }
 
 // Alguns estados são mantidos nesta variável.

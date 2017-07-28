@@ -1426,25 +1426,30 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   VLOG(1) << "Proto apos RecomputaDependencias: " << proto.DebugString();
 }
 
-void AplicaBonus(const Bonus& bonus, Bonus* alvo) {
+// Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
+void AplicaBonusOuRemove(bool usa_complemento, int complemento, const Bonus& bonus, Bonus* alvo) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
-      AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
+      if (po.valor() != 0 || usa_complemento) {
+        AtribuiBonus(usa_complemento ? complemento : po.valor(), bi.tipo(), po.origem(), alvo);
+      } else {
+        RemoveBonus(bi.tipo(), po.origem(), alvo);
+      }
     }
   }
 }
 
-void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
-  AplicaBonus(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
-  AplicaBonus(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
-  AplicaBonus(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
-  AplicaBonus(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
-  AplicaBonus(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
-  AplicaBonus(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
-  AplicaBonus(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
-  AplicaBonus(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+void AplicaEfeito(int complemento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   for (auto& da : *proto->mutable_dados_ataque()) {
-    AplicaBonus(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.jogada_ataque(), da.mutable_bonus_ataque());
   }
 }
 
@@ -1455,7 +1460,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (const auto& evento : proto->evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      AplicaEfeito(efeito.consequencia_fim(), proto);
+      AplicaEfeito(evento.complemento(), efeito.consequencia_fim(), proto);
       eventos_a_remover.insert(i);
     }
     ++i;
@@ -1465,7 +1470,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   for (const auto& evento : proto->evento()) {
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(efeito.consequencia(), proto);
+    AplicaEfeito(evento.complemento(), efeito.consequencia(), proto);
   }
 }
 
