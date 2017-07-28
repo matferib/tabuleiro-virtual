@@ -946,7 +946,23 @@ tabela_efeitos {
       }
     }
   }
-
+  efeitos {
+    id: EFEITO_DIMINUIR_PESSOA
+    consequencia {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'diminuir_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'diminuir_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'diminuir_pessoa' } } }
+      }
+    }
+    consequencia_fim {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+      }
+    }
+  }
 }
 
 tabela_pocoes {
