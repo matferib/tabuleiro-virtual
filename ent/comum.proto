@@ -231,6 +231,8 @@ message ConsequenciaEvento {
   optional DadosDefesa dados_defesa = 2;
   // Afeta o bonus das jogadas de ataque.
   optional Bonus jogada_ataque = 3;
+  // Alteracao no tamanho da entidade.
+  optional Bonus tamanho = 4;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;

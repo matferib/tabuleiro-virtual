@@ -328,11 +328,14 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (proto_original.tipo() == TE_ENTIDADE) {
     *proto_.mutable_escala() = proto_original.escala();
     float fator = novo_proto.escala().x() / proto_original.escala().x();
+    int delta = 0;
     if (fator > 1.1f) {
-      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::min<int>(TM_COLOSSAL, proto_.tamanho() + 1)));
+      delta = 1;
     } else if (fator < 0.9f) {
-      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::max<int>(TM_MINUSCULO, proto_.tamanho() - 1)));
+      delta = -1;
     }
+    int base_corrente = BonusIndividualTotal(TB_BASE, proto_original.bonus_tamanho());
+    if (delta != 0) AtribuiBonus(base_corrente + delta, TB_BASE, "base", proto_.mutable_bonus_tamanho());
   }
   if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();

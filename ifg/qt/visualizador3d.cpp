@@ -1307,10 +1307,10 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Tamanho.
-  gerador.slider_tamanho->setSliderPosition(entidade.tamanho());
+  gerador.slider_tamanho->setSliderPosition(ent::BonusIndividualTotal(ent::TB_BASE, entidade.bonus_tamanho()));
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
   lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] () {
-    proto_retornado->set_tamanho(ent::TamanhoEntidade(gerador.slider_tamanho->sliderPosition()));
+    ent::AtribuiBonus(gerador.slider_tamanho->sliderPosition(), ent::TB_BASE, "base", proto_retornado->mutable_bonus_tamanho());
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
     ent::RecomputaDependencias(tabelas(), proto_retornado);
     AtualizaUI(tabelas(), gerador, *proto_retornado);

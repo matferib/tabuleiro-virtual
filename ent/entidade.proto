@@ -74,8 +74,10 @@ message EntidadeProto {
   // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
   // Algumas informacoes serao concatenadas ao valor do campo.
   repeated string rotulo_especial = 30;
-  // Os varios tamanhos de uma entidade no tabuleiro.
+  // O tamanho final da entidade.
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
+  // O tamanho da entidade.
+  optional Bonus bonus_tamanho = 78;
   // Se verdadeiro, objeto sera desenhado de forma achatada.
   optional bool achatado = 17 [default=false];
   // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela

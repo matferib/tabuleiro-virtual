@@ -1427,11 +1427,11 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 }
 
 // Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
-void AplicaBonusOuRemove(bool usa_complemento, int complemento, const Bonus& bonus, Bonus* alvo) {
+void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
-      if (po.valor() != 0 || usa_complemento) {
-        AtribuiBonus(usa_complemento ? complemento : po.valor(), bi.tipo(), po.origem(), alvo);
+      if (po.valor() != 0) {
+        AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
       } else {
         RemoveBonus(bi.tipo(), po.origem(), alvo);
       }
@@ -1439,28 +1439,54 @@ void AplicaBonusOuRemove(bool usa_complemento, int complemento, const Bonus& bon
   }
 }
 
-void AplicaEfeito(int complemento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
-  AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
+  AplicaBonusOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
+  AplicaBonusOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
+  AplicaBonusOuRemove(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
+  AplicaBonusOuRemove(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
+  AplicaBonusOuRemove(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+  AplicaBonusOuRemove(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   for (auto& da : *proto->mutable_dados_ataque()) {
-    AplicaBonusOuRemove(consequencia.usa_complemento(), complemento, consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
   }
+  AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
+}
+
+void PreencheValorBonus(int valor, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    for (auto& po : *bi.mutable_por_origem()) {
+      po.set_valor(valor);
+    }
+  }
+}
+
+// Caso a consequencia use complemento, preenchera os valores existentes com ela.
+ConsequenciaEvento PreencheConsequencia(int complemento, const ConsequenciaEvento& consequencia_original) {
+  ConsequenciaEvento c(consequencia_original);
+  if (c.usa_complemento()) {
+    if (c.atributos().has_forca()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_forca());
+    if (c.atributos().has_destreza()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_destreza());
+    if (c.atributos().has_constituicao()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_constituicao());
+    if (c.atributos().has_inteligencia()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_inteligencia());
+    if (c.atributos().has_sabedoria()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_sabedoria());
+    if (c.atributos().has_carisma()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_carisma());
+    if (c.dados_defesa().has_ca()) PreencheValorBonus(complemento, c.mutable_dados_defesa()->mutable_ca());
+    if (c.has_jogada_ataque()) PreencheValorBonus(complemento, c.mutable_jogada_ataque());
+    if (c.has_tamanho()) PreencheValorBonus(complemento, c.mutable_tamanho());
+  }
+  return c;
 }
 
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
   int i = 0;
   // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
-  for (const auto& evento : proto->evento()) {
+  for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      AplicaEfeito(evento.complemento(), efeito.consequencia_fim(), proto);
+      AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia_fim()), proto);
       eventos_a_remover.insert(i);
     }
     ++i;
@@ -1470,7 +1496,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   for (const auto& evento : proto->evento()) {
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(evento.complemento(), efeito.consequencia(), proto);
+    AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia()), proto);
   }
 }
 
@@ -1559,6 +1585,16 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   }
 }
 
+void RecomputaDependenciaTamanho(EntidadeProto* proto) {
+  if (!proto->has_bonus_tamanho()) {
+    AtribuiBonus(proto->tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
+  }
+  int total = BonusTotal(proto->bonus_tamanho());
+  if (total > TM_COLOSSAL) { total = TM_COLOSSAL; }
+  else if (total < TM_MINUSCULO) { total = TM_MINUSCULO; }
+  proto->set_tamanho(TamanhoEntidade(total));
+}
+
 }  // namespace
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
@@ -1573,6 +1609,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasEfeitos(tabelas, proto);
   RecomputaDependenciasDestreza(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
+  RecomputaDependenciaTamanho(proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());

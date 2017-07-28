@@ -929,6 +929,24 @@ tabela_efeitos {
       }
     }
   }
+  efeitos {
+    id: EFEITO_AUMENTAR_PESSOA
+    consequencia {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 1 origem: 'aumentar_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'aumentar_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'aumentar_pessoa' } } }
+      }
+    }
+    consequencia_fim {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+      }
+    }
+  }
+
 }
 
 tabela_pocoes {
@@ -937,11 +955,45 @@ tabela_pocoes {
     nome: 'Força do Touro'
     efeito: EFEITO_FORCA_TOURO
     duracao_rodadas: 30
+    custo_po: 300
   }
   pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
     efeito: EFEITO_AGILIDADE_GATO
     duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'escudo_fe_2'
+    nome: 'Escudo da Fé (2)'
+    efeito: EFEITO_ESCUDO_FE
+    complemento: 2
+    custo_po: 50
+    duracao_rodadas: 10
+  }
+  pocoes {
+    id: 'escudo_fe_3'
+    nome: 'Escudo da Fé (3)'
+    efeito: EFEITO_ESCUDO_FE
+    complemento: 3
+    custo_po: 300
+    duracao_rodadas: 60
+  }
+  pocoes {
+    id: 'escudo_fe_4'
+    nome: 'Escudo da Fé (4)'
+    efeito: EFEITO_ESCUDO_FE
+    complemento: 4
+    custo_po: 600
+    duracao_rodadas: 120
+  }
+  pocoes {
+    id: 'escudo_fe_5'
+    nome: 'Escudo da Fé (5)'
+    efeito: EFEITO_ESCUDO_FE
+    complemento: 5
+    custo_po: 900
+    duracao_rodadas: 180
   }
 }
