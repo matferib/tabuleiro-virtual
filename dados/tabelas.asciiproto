@@ -915,6 +915,20 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
     }
   }
+  efeitos {
+    id: EFEITO_ESCUDO_FE
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 2 origem: 'escudo_fe' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 0 origem: 'escudo_fe' } } }
+      }
+    }
+  }
 }
 
 tabela_pocoes {
