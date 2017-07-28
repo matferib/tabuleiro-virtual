@@ -21,12 +21,12 @@ enum TipoEfeito {
   EFEITO_BORRAR = 3;
 
   EFEITO_FORCA_TOURO = 4;
-  EFEITO_AGILIDADE_DO_GATO = 5;
+  EFEITO_AGILIDADE_GATO = 5;
   EFEITO_ACELERAR = 6;
 
+  EFEITO_ARMADURA_ARCANA = 9;
   EFEITO_AUMENTAR_PESSOA = 7;
   EFEITO_DIMINUIR_PESSOA = 8;
-  EFEITO_ARMADURA_ARCANA = 9;
   EFEITO_ESCUDO_FE       = 10;
 }
 
@@ -243,13 +243,15 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia_fim = 3;
 }
 
-
-
 message Pocao {
   // Chave da pocao na tabela.
   optional string id = 1;
   // Nome da pocao.
   optional string nome = 2;
+  // Tipo do efeito da pocao.
+  optional TipoEfeito efeito = 3;
+  // Duracao do efeito da pocao.
+  optional int32 duracao_rodadas = 4;
 }
 
 // Alguns estados são mantidos nesta variável.

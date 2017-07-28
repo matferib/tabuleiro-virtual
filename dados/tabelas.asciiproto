@@ -1,7 +1,6 @@
 tabela_armaduras {
   armaduras { id: 'nenhuma'          nome: 'Nenhuma' bonus: 0 preco { po:  0  } tipo: TA_LEVE }
   armaduras { id: 'acolchoada'       nome: 'Acolchoada'  bonus: 1  max_bonus_destreza: 8  preco { po:  5  } tipo: TA_LEVE }
-  armaduras { id: 'armadura_arcana'  nome: 'Armadura Arcana'  bonus: 4  preco { po:  0  } tipo: TA_LEVE }
   armaduras { id: 'couro'            nome: 'Couro'  bonus: 2   max_bonus_destreza: 6  preco { po:  10  } tipo: TA_LEVE }
   armaduras { id: 'couro_batido'     nome: 'Couro Batido'  bonus: 3  max_bonus_destreza: 5  preco { po:  25  } tipo: TA_LEVE }
   armaduras { id: 'camisao'          nome: 'Camisão de Cota de Malha'  bonus: 4  max_bonus_destreza: 4  preco { po:  100  } tipo: TA_LEVE }
@@ -877,12 +876,25 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ARMADURA_ARCANA
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 4 origem: 'armadura_arcana' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 0 origem: 'armadura_arcana' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_FORCA_TOURO
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
     consequencia_fim { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'forca_touro%s' } } } } }
   }
   efeitos {
-    id: EFEITO_AGILIDADE_DO_GATO
+    id: EFEITO_AGILIDADE_GATO
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
     consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
   }
@@ -903,5 +915,19 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
     }
   }
+}
 
+tabela_pocoes {
+  pocoes {
+    id: 'forca_touro'
+    nome: 'Força do Touro'
+    efeito: EFEITO_FORCA_TOURO
+    duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'agilidade_gato'
+    nome: 'Agilidade do Gato'
+    efeito: EFEITO_AGILIDADE_GATO
+    duracao_rodadas: 30
+  }
 }

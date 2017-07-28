@@ -90,10 +90,15 @@ message TabelaEfeitos {
   repeated EfeitoProto efeitos = 1; 
 }
 
+message TabelaPocoes {
+  repeated Pocao pocoes = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
   optional TabelaArmaduraOuEscudo tabela_escudos = 2;
   optional TabelaArmas tabela_armas = 3;
   optional TabelaEfeitos tabela_efeitos = 4;
+  optional TabelaPocoes tabela_pocoes = 50;
 }
