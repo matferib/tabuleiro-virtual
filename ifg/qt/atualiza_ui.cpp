@@ -196,44 +196,6 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-int TipoParaIndice(const std::string& tipo_str) {
-  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
-  // Os indices sao na ordem definida pela UI.
-  if (tipo_str == "Ácido") {
-    return 0;
-  } else if (tipo_str == "Ataque Corpo a Corpo") {
-    return 1;
-  } else if (tipo_str == "Ataque a Distância") {
-    return 2;
-  } else if (tipo_str == "Bola de Fogo") {
-    return 3;
-  } else if (tipo_str == "Coluna de Chamas") {
-    return 4;
-  } else if (tipo_str == "Cone de Gelo") {
-    return 5;
-  } else if (tipo_str == "Feitiço de Toque") {
-    return 6;
-  } else if (tipo_str == "Feitiço de Toque a Distância") {
-    return 7;
-  } else if (tipo_str == "Fogo Alquímico") {
-    return 8;
-  } else if (tipo_str == "Mãos Flamejantes") {
-    return 9;
-  } else if (tipo_str == "Míssil Mágico") {
-    return 10;
-  } else if (tipo_str == "Pedrada (gigante)") {
-    return 11;
-  } else if (tipo_str == "Raio") {
-    return 12;
-  } else if (tipo_str == "Relâmpago") {
-    return 13;
-  } else if (tipo_str == "Tempestade Glacial") {
-    return 14;
-  } else {
-    return 1;
-  }
-}
-
 void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,  const std::string& tipo_ataque) {
   bool cac = tipo_ataque == "Ataque Corpo a Corpo";
   std::map<std::string, std::string> name_id_map;
