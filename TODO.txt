@@ -1,3 +1,5 @@
+Setas de pocoes na UI e botoes de uso no controle virtual.
+Fazer atualizacao de tamanho ser parcial.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
