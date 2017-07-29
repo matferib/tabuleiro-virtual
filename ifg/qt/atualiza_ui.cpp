@@ -18,6 +18,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIAtaquesDefesa(tabelas, gerador, proto);
   AtualizaUIIniciativa(tabelas, gerador, proto);
   AtualizaUISalvacoes(gerador, proto);
+  AtualizaUITesouro(tabelas, gerador, proto);
 }
 
 namespace {
@@ -347,6 +348,21 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
   }
   gerador.lista_formas_alternativas->setCurrentRow(indice_antes);
   gerador.lista_formas_alternativas->blockSignals(false);
+}
+
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes };
+  for (auto* obj : objs) obj->blockSignals(true);
+  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
+  const int indice = gerador.lista_pocoes->currentRow();
+  gerador.lista_pocoes->clear();
+  for (const auto& pocao : proto.tesouro().pocoes()) {
+    const auto& pp = tabelas.Pocao(pocao.id());
+    auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_pocoes);
+    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  }
+  gerador.lista_pocoes->setCurrentRow(indice);
+  for (auto* obj : objs) obj->blockSignals(false);
 }
 
 }  // namespace qt

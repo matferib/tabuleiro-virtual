@@ -42,6 +42,9 @@ void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entid
 // Lista de formas alternativas.
 void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Atualiza a UI de tesouros: pocoes e lista.
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
 }  // namespace qt
 }  // namespace ifg
 
