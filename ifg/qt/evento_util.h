@@ -137,7 +137,7 @@ class ModeloEvento : public QAbstractTableModel {
 class TipoEfeitoDelegate : public QItemDelegate {
  public:
   TipoEfeitoDelegate(QTableView* tabela, ModeloEvento* modelo, QObject* parent)
-      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {}
+      : QItemDelegate(), modelo_(modelo) {}
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
@@ -161,22 +161,18 @@ class TipoEfeitoDelegate : public QItemDelegate {
       QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
     auto* combo = qobject_cast<QComboBox*>(editor);
     if (combo == nullptr) {
-      LOG(INFO) << "combo == nullptr em setEditorData";
+      LOG(ERROR) << "combo == nullptr em setEditorData";
       return;
     }
     modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
-    tabela_->reset();
   }
 
- private slots:
-  void commitAndCloseEditor() {
-    QComboBox* combo = qobject_cast<QComboBox*>(sender());
-    setModelData(combo, modelo_, combo->rootModelIndex());
+ private:
+  void commitAndCloseEditor(QComboBox* combo) {
     emit commitData(combo);
     emit closeEditor(combo);
   }
 
- private:
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraComboEvento(QComboBox* combo) const {
     // O min eh -1, invalido. Entao comeca do 0.
@@ -184,11 +180,14 @@ class TipoEfeitoDelegate : public QItemDelegate {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
       combo->addItem(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)).c_str(), QVariant(tipo));
     }
-    connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
+      auto* thiz = const_cast<TipoEfeitoDelegate*>(this);
+      thiz->commitAndCloseEditor(combo);
+    });
     return combo;
   }
 
-  QTableView* tabela_;
   ModeloEvento* modelo_;
 };
 
