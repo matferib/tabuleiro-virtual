@@ -619,9 +619,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_y_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().y());
   gerador.spin_escala_z_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().z());
 
-  if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
-  }
+  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
 
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
@@ -861,7 +859,7 @@ void PreencheConfiguraEventos(
   gerador.tabela_lista_eventos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
     const int linha = modelo->rowCount();
-    modelo->insertRows(linha, 1, QModelIndex()); 
+    modelo->insertRows(linha, 1, QModelIndex());
     gerador.tabela_lista_eventos->selectRow(linha);
   });
   lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
@@ -915,6 +913,117 @@ void PreencheConfiguraFormasAlternativas(
     *proto_retornado->mutable_formas_alternativas(row) = ProtoFormaAlternativa(*proto_forma);
     AtualizaUIFormasAlternativas(gerador, *proto_retornado);
   });
+}
+
+// Responsavel por tratar a edicao do tipo de efeito.
+class PocaoDelegate : public QItemDelegate {
+ public:
+  PocaoDelegate(const ent::Tabelas& tabelas, QListWidget* lista, ent::EntidadeProto* proto)
+      : QItemDelegate(lista), tabelas_(tabelas), lista_(lista), proto_(proto) {}
+
+  QWidget* createEditor(
+      QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+    return PreencheConfiguraComboPocoes(new QComboBox(parent));
+  }
+
+  // Escreve o valor do combo.
+  void setEditorData(QWidget* editor, const QModelIndex& index) const override {
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+      LOG(ERROR) << "combo == nullptr em setEditorData";
+      return;
+    }
+    combo->setCurrentIndex(combo->findData(IdPocaoCorrenteDoProto()));
+  }
+
+  // Salva o valor do combo no modelo.
+  void setModelData(
+      QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
+    const int indice_proto = lista_->currentRow();
+    if (indice_proto < 0 || indice_proto >= proto_->tesouro().pocoes_size()) {
+      LOG(ERROR) << "indice invalido em setEditorData: " << indice_proto;
+      return;
+    }
+    proto_->mutable_tesouro()->mutable_pocoes(indice_proto)->set_id(IdPocaoCorrenteDoCombo(qobject_cast<QComboBox*>(editor)));
+  }
+
+  QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+    auto s = QItemDelegate::sizeHint(option, index);
+    s.setHeight(s.height() + 4);
+    return s;
+  }
+
+ private:
+  // Retorna o id da pocao corrente do combo.
+  const char* IdPocaoCorrenteDoCombo(QComboBox* combo) const {
+    if (combo == nullptr) {
+      LOG(ERROR) << "combo == nullptr";
+      return "";
+    }
+    const int indice_pocao = combo->currentIndex();
+    return combo->itemData(indice_pocao).toString().toStdString().c_str();
+  }
+
+  // Retorna o id da pocao do item corrente.
+  const char* IdPocaoCorrenteDoProto() const {
+    const int indice_proto = lista_->currentRow();
+    if (indice_proto < 0 || indice_proto >= proto_->tesouro().pocoes_size()) {
+      LOG(ERROR) << "indice invalido em IdPocao: " << indice_proto;
+      return "";
+    }
+    return proto_->tesouro().pocoes(indice_proto).id().c_str();
+  }
+
+  const char* NomePocaoCorrente() const {
+    return tabelas_.Pocao(IdPocaoCorrenteDoProto()).nome().c_str();
+  }
+
+  QComboBox* PreencheConfiguraComboPocoes(QComboBox* combo) const {
+    for (const auto& pp : tabelas_.todas().tabela_pocoes().pocoes()) {
+      combo->addItem(QString::fromUtf8(pp.nome().c_str()), QString(pp.id().c_str()));
+    }
+    //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo] () {
+      // Tem que tirar o const aqui, pois quando for executado, o this nao sera const.
+      auto* thiz = const_cast<PocaoDelegate*>(this);
+      emit thiz->commitData(combo);
+      emit thiz->closeEditor(combo);
+      // Aqui eh so para trigar o itemChanged.
+      emit lista_->model()->setData(lista_->currentIndex(), QString::fromUtf8(NomePocaoCorrente()));
+    });
+    return combo;
+  }
+
+  const ent::Tabelas& tabelas_;
+  QListWidget* lista_;
+  ent::EntidadeProto* proto_;
+};
+
+
+void PreencheConfiguraTesouro(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  const auto& tabelas = this_->tabelas();
+
+  std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
+  auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
+  gerador.lista_pocoes->setItemDelegate(delegado);
+  delegado->deleteLater();
+
+  lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    auto* pocao = proto_retornado->mutable_tesouro()->add_pocoes();
+    pocao->set_id("forca_touro");
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    gerador.lista_pocoes->setCurrentRow(proto_retornado->tesouro().pocoes_size() - 1);
+  });
+  lambda_connect(gerador.botao_remover_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    const int indice = gerador.lista_pocoes->currentRow();
+    if (indice >= 0 && indice < proto_retornado->tesouro().pocoes_size()) {
+      proto_retornado->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice, 1);
+    }
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    gerador.lista_pocoes->setCurrentRow(indice);
+  });
+  AtualizaUITesouro(tabelas, gerador, proto);
 }
 
 void PreencheConfiguraAtributos(
@@ -1382,9 +1491,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Translacao em Z.
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
-  if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
-  }
+  PreencheConfiguraTesouro(this, gerador, entidade, proto_retornado);
+
   gerador.texto_notas->appendPlainText(QString::fromUtf8(entidade.notas().c_str()));
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
