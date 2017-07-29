@@ -91,7 +91,7 @@ message TabelaEfeitos {
 }
 
 message TabelaPocoes {
-  repeated Pocao pocoes = 1;
+  repeated PocaoProto pocoes = 1;
 }
 
 // O arquivo tabelas.asciiproto eh desse tipo.

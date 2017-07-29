@@ -246,7 +246,7 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia_fim = 3;
 }
 
-message Pocao {
+message PocaoProto {
   // Chave da pocao na tabela.
   optional string id = 1;
   // Nome da pocao.

@@ -260,7 +260,7 @@ message EntidadeProto {
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
-    repeated Pocao pocoes = 2;
+    repeated PocaoProto pocoes = 2;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
