@@ -372,6 +372,64 @@ class ElementoListaPaginada : public ElementoInterface {
   std::vector<ElementoBotao*> elementos_rotulos_;
 };
 
+// Elemento com uma lista paginada de items.
+class ElementoItemLista : public ElementoInterface {
+ public:
+  ElementoItemLista(InterfaceGraficaOpengl* interface_grafica,
+                    const std::vector<std::string>& lista,
+                    std::function<void(bool, int)> funcao_volta)
+    : interface_grafica_(interface_grafica) {
+    int fonte_x_int, fonte_y_int;
+    gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
+    GLint viewport[4];
+    gl::Le(GL_VIEWPORT, viewport);
+    GLint xc = viewport[2] / 2, yc = viewport[3] / 2;
+    GLint largura = std::min(50 * fonte_x_int, static_cast<int>(viewport[2] * 0.8f));
+    GLint altura = std::min(20 * fonte_y_int, static_cast<int>(viewport[3] * 0.8f));
+    Posiciona(xc - (largura / 2), yc - (altura / 2));
+    Dimensoes(largura, altura);
+    std::function<void()> volta_cancela = [this, funcao_volta] () {
+      funcao_volta(false, -1);
+      interface_grafica_->FechaElemento();
+    };
+    std::function<void()> volta_ok = [this, funcao_volta] () {
+      unsigned int indice = lista_paginada_->ItemSelecionado();
+      funcao_volta(true, indice);
+      interface_grafica_->FechaElemento();
+    };
+    barra_ok_cancela_.reset(
+        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx),
+                                   volta_ok, volta_cancela, this));
+    lista_paginada_.reset(new ElementoListaPaginada(
+          lista,
+          X(), Y() + barra_ok_cancela_->Altura(),
+          Largura(), Altura() - barra_ok_cancela_->Altura(), this));
+  }
+  ~ElementoItemLista() {}
+
+  void Desenha(ParametrosDesenho* pd) override {
+    MudaCor(COR_PRETA);
+    gl::Retangulo(X(), Y(), X() + Largura(), Y() + Altura());
+    lista_paginada_->Desenha(pd);
+    barra_ok_cancela_->Desenha(pd);
+  }
+
+  bool Picking(int x, int y) override {
+    if (barra_ok_cancela_->Clicado(x, y)) {
+      return barra_ok_cancela_->Picking(x, y);
+    } else if (lista_paginada_->Clicado(x, y)) {
+      return lista_paginada_->Picking(x, y);
+    }
+    return false;
+  }
+
+ private:
+  InterfaceGraficaOpengl* interface_grafica_ = nullptr;
+  std::unique_ptr<ElementoListaPaginada> lista_paginada_;
+  std::unique_ptr<ElementoBarraOkCancela> barra_ok_cancela_;
+};
+
+
 class ElementoAbrirTabuleiro : public ElementoInterface {
  public:
   ElementoAbrirTabuleiro(InterfaceGraficaOpengl* interface_grafica,
@@ -498,6 +556,17 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
 //-------------------------
 // Interface Grafica OpenGL
 //-------------------------
+void InterfaceGraficaOpengl::EscolheItemLista(
+    const std::string& titulo,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, int)> funcao_volta) {
+  if (elemento_.get() != nullptr) {
+    LOG(WARNING) << "So pode haver um elemento por vez.";
+    return;
+  }
+  elemento_.reset(new ElementoItemLista(this, lista, funcao_volta));
+}
+
 void InterfaceGraficaOpengl::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,
     const std::vector<std::string>& tab_dinamicos,

@@ -1,5 +1,19 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
 fixo {
+  # Coisas da primeira pessoa.
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 3
+    rotulo: "Pc"
+    cor_rotulo {}
+    textura: "icon_potion.png"
+    id: CONTROLE_BEBER_POCAO
+    forma: FORMA_RETANGULO
+    dica: "Bebe a poção."
+    visibilidade { referencia { tipo: VIS_CAMERA_PRESA } }
+  }
+
   # Salvar e abrir.
   dados_botoes {
     tamanho: 1
@@ -703,17 +717,6 @@ pagina {
     dica: "Mudar forma."
   }
 
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 10
-    rotulo: "Pc"
-    cor_rotulo {}
-    textura: "icon_acid.png"
-    id: CONTROLE_BEBER_POCAO
-    forma: FORMA_RETANGULO
-    dica: "Bebe a poção."
-  }
   dados_botoes {
     tamanho: 1
     linha: 2

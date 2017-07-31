@@ -403,9 +403,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
-    case CONTROLE_BEBER_POCAO:
-      BebePocaoNotificando(0);
+    case CONTROLE_BEBER_POCAO: {
+      const auto* e = EntidadeCameraPresaOuSelecionada();
+      if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return;
+      std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
+      *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
+      central_->AdicionaNotificacao(n.release());
       break;
+    }
     case CONTROLE_FALHA_20:
     case CONTROLE_FALHA_50:
       AlternaBitsEntidadeNotificando(
@@ -832,12 +837,16 @@ bool Tabuleiro::EstadoBotao(IdBotao id) const {
 bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
   if (db.has_visibilidade()) {
     for (const auto& ref : db.visibilidade().referencia()) {
-      bool parcial = EstadoBotao(ref.id());
-      if (ref.tipo() == VIS_INVERSO_DE) {
-        parcial = !parcial;
-      }
-      if (!parcial) {
-        return false;
+      if (ref.tipo() == VIS_CAMERA_PRESA) {
+        if (!camera_presa_) return false;
+      } else {
+        bool parcial = EstadoBotao(ref.id());
+        if (ref.tipo() == VIS_INVERSO_DE) {
+          parcial = !parcial;
+        }
+        if (!parcial) {
+          return false;
+        }
       }
     }
   }
@@ -860,7 +869,6 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
       return rotulo.empty() ? "-" : rotulo;
     }
     default:
-
       ;
   }
   return "";

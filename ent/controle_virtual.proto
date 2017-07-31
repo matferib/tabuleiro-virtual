@@ -154,6 +154,8 @@ enum TipoVisibilidade {
   VIS_IGUAL_A = 0;
   // A visibilidade do botao é inversa ao id de referencia.
   VIS_INVERSO_DE = 1;
+  // Visivel apenas em camera presa.
+  VIS_CAMERA_PRESA = 2;
 }
 
 message Visibilidade {
