@@ -6965,8 +6965,8 @@ void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
 }
 
-void Tabuleiro::BebePocaoNotificando(int indice_pocao) {
-  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao) {
+  Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao < 0 || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);

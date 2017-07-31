@@ -156,6 +156,13 @@ enum TipoVisibilidade {
   VIS_INVERSO_DE = 1;
   // Visivel apenas em camera presa.
   VIS_CAMERA_PRESA = 2;
+  // Visivel apenas em primeira pessoa.
+  VIS_CAMERA_PRIMEIRA_PESSOA = 3;
+  // Visivel apenas com uma entidade selecionada.
+  //VIS_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
+  //VIS_CAMERA_PRESA_OU_SELECIONADA = 5;
+  // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo pocao.
+  VIS_POCAO = 6;
 }
 
 message Visibilidade {

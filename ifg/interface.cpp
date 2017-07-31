@@ -83,13 +83,13 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
       "Escolha a poção", nomes_pocoes,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPocao,
-          this,
+          this, notificacao.entidade().id(),
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(bool ok, int indice) {
+void InterfaceGrafica::VoltaEscolherPocao(unsigned int id_entidade, bool ok, int indice) {
   if (ok) {
-    tabuleiro_->BebePocaoNotificando(indice);
+    tabuleiro_->BebePocaoNotificando(id_entidade, indice);
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }

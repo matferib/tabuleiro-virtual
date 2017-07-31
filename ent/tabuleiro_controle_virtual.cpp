@@ -404,9 +404,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
     case CONTROLE_BEBER_POCAO: {
-      const auto* e = EntidadeCameraPresaOuSelecionada();
+      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
       if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return;
       std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
+      n->mutable_entidade()->set_id(e->Id());
       *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
       central_->AdicionaNotificacao(n.release());
       break;
@@ -839,6 +840,11 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
     for (const auto& ref : db.visibilidade().referencia()) {
       if (ref.tipo() == VIS_CAMERA_PRESA) {
         if (!camera_presa_) return false;
+      } else if (ref.tipo() == VIS_CAMERA_PRIMEIRA_PESSOA) {
+        if (IdCameraPresa() == Entidade::IdInvalido) return false;
+      } else if (ref.tipo() == VIS_POCAO) {
+        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+        if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return false;
       } else {
         bool parcial = EstadoBotao(ref.id());
         if (ref.tipo() == VIS_INVERSO_DE) {
