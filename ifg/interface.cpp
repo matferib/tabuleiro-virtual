@@ -54,6 +54,10 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataEscolherModeloEntidade(notificacao);
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO: {
+      TrataEscolherPocao(notificacao);
+      return true;
+    }
     case ntf::TN_INFO:
     case ntf::TN_ERRO: {
       TrataMostraMensagem(notificacao.tipo() == ntf::TN_ERRO, notificacao.erro());
@@ -63,6 +67,31 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
   }
   return false;
+}
+
+//----------------
+// Escolher Pocao.
+//----------------
+void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
+  std::vector<std::string> nomes_pocoes;
+  for (const auto& pocao : pocoes_entidade) {
+    nomes_pocoes.push_back(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
+  }
+  EscolheItemLista(
+      "Escolha a poção", nomes_pocoes,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherPocao,
+          this,
+          _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherPocao(bool ok, int indice) {
+  if (ok) {
+    tabuleiro_->BebePocaoNotificando(indice);
+  }
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----
