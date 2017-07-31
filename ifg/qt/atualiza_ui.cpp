@@ -353,6 +353,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes };
   for (auto* obj : objs) obj->blockSignals(true);
+  gerador.lista_tesouro->clear();
   gerador.lista_tesouro->appendPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
   const int indice = gerador.lista_pocoes->currentRow();
   gerador.lista_pocoes->clear();
