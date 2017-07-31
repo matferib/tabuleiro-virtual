@@ -1,5 +1,3 @@
-Setas de pocoes na UI e botoes de uso no controle virtual.
-Fazer atualizacao de tamanho ser parcial.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
@@ -9,12 +7,10 @@ UI para aplicacao de efeitos em massa.
 Ataque de multiplos alvos em uma area distribuindo em alvos.
 Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 
-Efeitos automaticos para tamanho e cura.
 Se possivel, separar armas por classe no combo (simples, comum, exoticas).
 Fazer tabela nao copiavel para evitar copia a toa.
 Modificador de ataque para higher ground.
 
-Glitch de icone de rotacao.
 Ao adicionar entidade, incluir nos algemados.
 Lista de cenarios na UI de transicao.
 Objetos inflamaveis (sem ser entidade) e permitir duracao infinita.
