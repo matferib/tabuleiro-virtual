@@ -967,23 +967,42 @@ tabela_efeitos {
 
 tabela_pocoes {
   pocoes {
+    id: 'curar_ferimentos_leves'
+    nome: 'Curar Ferimentos Leves'
+    delta_pontos_vida: '1d8+1'
+    custo_po: 50
+  }
+  pocoes {
+    id: 'curar_ferimentos_moderados'
+    nome: 'Curar Ferimentos Moderados'
+    delta_pontos_vida: '2d8+3'
+    custo_po: 300
+  }
+  pocoes {
+    id: 'curar_ferimentos_serios'
+    nome: 'Curar Ferimentos Sérios'
+    delta_pontos_vida: '3d8+5'
+    custo_po: 750
+  }
+
+  pocoes {
     id: 'forca_touro'
     nome: 'Força do Touro'
-    efeito: EFEITO_FORCA_TOURO
+    id_efeito: EFEITO_FORCA_TOURO
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
-    efeito: EFEITO_AGILIDADE_GATO
+    id_efeito: EFEITO_AGILIDADE_GATO
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'escudo_fe_2'
     nome: 'Escudo da Fé (2)'
-    efeito: EFEITO_ESCUDO_FE
+    id_efeito: EFEITO_ESCUDO_FE
     complemento: 2
     custo_po: 50
     duracao_rodadas: 10
@@ -991,7 +1010,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_3'
     nome: 'Escudo da Fé (3)'
-    efeito: EFEITO_ESCUDO_FE
+    id_efeito: EFEITO_ESCUDO_FE
     complemento: 3
     custo_po: 300
     duracao_rodadas: 60
@@ -999,7 +1018,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_4'
     nome: 'Escudo da Fé (4)'
-    efeito: EFEITO_ESCUDO_FE
+    id_efeito: EFEITO_ESCUDO_FE
     complemento: 4
     custo_po: 600
     duracao_rodadas: 120
@@ -1007,7 +1026,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_5'
     nome: 'Escudo da Fé (5)'
-    efeito: EFEITO_ESCUDO_FE
+    id_efeito: EFEITO_ESCUDO_FE
     complemento: 5
     custo_po: 900
     duracao_rodadas: 180

@@ -6970,15 +6970,19 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao)
   if (entidade == nullptr || indice_pocao < 0 || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
     auto* e_antes = n.mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (e_antes->evento().empty()) {
+    if (pocao.has_id_efeito() && e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
       e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
       e_antes->add_evento()->set_rodadas(-1);
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      e_antes->set_pontos_vida(entidade->PontosVida());
     }
   }
   {
@@ -6989,13 +6993,21 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao)
     if (e_depois->tesouro().pocoes().empty()) {
       e_depois->mutable_tesouro()->add_pocoes();
     }
-    const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
-    *e_depois->mutable_evento() = entidade->Proto().evento();
-    auto* evento = e_depois->add_evento();
-    evento->set_id_efeito(pocao.has_efeito() ? pocao.efeito() : EFEITO_INVALIDO);
-    evento->set_rodadas(pocao.duracao_rodadas());
-    if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
-    evento->set_descricao(pocao.nome());
+    if (pocao.has_id_efeito()) {
+      *e_depois->mutable_evento() = entidade->Proto().evento();
+      auto* evento = e_depois->add_evento();
+      evento->set_id_efeito(pocao.id_efeito());
+      evento->set_rodadas(pocao.duracao_rodadas());
+      if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+      evento->set_descricao(pocao.nome());
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      int total;
+      std::vector<std::pair<int, int>> dados;
+      std::tie(total, dados) = GeraPontosVida(pocao.delta_pontos_vida());
+      e_depois->set_pontos_vida(std::min(entidade->MaximoPontosVida(), entidade->PontosVida() + total));
+      AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
+    }
   }
   TrataNotificacao(n);
   // Desfazer.
