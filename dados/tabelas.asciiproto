@@ -1081,4 +1081,18 @@ tabela_pocoes {
     custo_po: 900
     duracao_rodadas: 180
   }
+  pocoes {
+    id: 'borrar'
+    nome: 'Borrar'
+    id_efeito: EFEITO_BORRAR
+    custo_po: 300
+    duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'armadura_arcana'
+    nome: 'Armadura Arcana'
+    id_efeito: EFEITO_ARMADURA_ARCANA
+    custo_po: 50
+    duracao_rodadas: 600
+  }
 }
