@@ -245,7 +245,7 @@ class AcaoDeltaPontosVida : public Acao {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
     if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-      gl::DesenhaString(string_delta_);
+      gl::DesenhaString(StringSemUtf8(string_delta_));
     }
   }
 

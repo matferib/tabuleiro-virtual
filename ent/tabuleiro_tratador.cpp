@@ -1100,18 +1100,18 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
-  if (tipo_objeto != OBJ_ENTIDADE) {
-    // invalido.
-    LOG(INFO) << "Transicao so funciona em entidades";
-    return;
-  }
   Entidade* entidade_transicao = BuscaEntidade(id);
   if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
-  if (entidade_transicao->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
+  if (entidade_transicao->Tipo() == TE_ENTIDADE || entidade_transicao->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
     LOG(INFO) << "Transicao de tesouro";
+    if (tipo_objeto == OBJ_ENTIDADE && !entidade_transicao->Morta()) {
+      // invalido.
+      LOG(INFO) << "Transicao de tesouro so funciona em entidades mortas";
+      return;
+    }
     auto ids_receber = IdsPrimeiraPessoaIncluindoEntidadesSelecionadas();
     if (ids_receber.size() != 1) {
       LOG(INFO) << "So pode transitar tesouro para uma entidade";
@@ -1133,8 +1133,9 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
       n_perdeu->mutable_entidade()->set_id(id);
       n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
+      n_perdeu->mutable_entidade()->mutable_tesouro()->add_pocoes();
       n_perdeu->mutable_entidade_antes()->set_id(id);
-      n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
+      *n_perdeu->mutable_entidade_antes()->mutable_tesouro()->mutable_pocoes() = entidade_transicao->Proto().tesouro().pocoes();
 
       auto* n_ganhou = n.add_notificacao();
       const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
@@ -1142,8 +1143,12 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
       n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
           tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
+      *n_ganhou->mutable_entidade()->mutable_tesouro()->mutable_pocoes() =
+        receptor->Proto().tesouro().pocoes();
+      n_ganhou->mutable_entidade()->mutable_tesouro()->mutable_pocoes()->MergeFrom(entidade_transicao->Proto().tesouro().pocoes());
       n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
       n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+      *n_ganhou->mutable_entidade_antes()->mutable_tesouro()->mutable_pocoes() = receptor->Proto().tesouro().pocoes();
     }
     {
       // Texto de transicao.
@@ -1151,13 +1156,24 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
       auto* acao = n_texto->mutable_acao();
       acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      acao->set_texto(entidade_transicao->Proto().tesouro().tesouro());
+      std::string texto = entidade_transicao->Proto().tesouro().tesouro();
+      for (const auto& pocao : entidade_transicao->Proto().tesouro().pocoes()) {
+        texto.append("\n");
+        texto.append(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
+      }
+      acao->set_texto(texto);
       acao->add_id_entidade_destino(receptor->Id());
       //*acao->mutable_pos_entidade() = receptor->Pos();
     }
 
     TrataNotificacao(n);
     AdicionaNotificacaoListaEventos(n);
+    return;
+  }
+
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    // invalido.
+    LOG(INFO) << "Transicao de cenario so funciona em entidades";
     return;
   }
   if (!entidade_transicao->Proto().transicao_cenario().has_id_cenario()) {
