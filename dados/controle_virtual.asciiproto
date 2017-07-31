@@ -706,6 +706,17 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
+    coluna: 10
+    rotulo: "Pc"
+    cor_rotulo {}
+    textura: "icon_acid.png"
+    id: CONTROLE_BEBER_POCAO
+    forma: FORMA_RETANGULO
+    dica: "Bebe a poção."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
     coluna: 11
     rotulo: "20"
     cor_rotulo {}
