@@ -11,7 +11,7 @@ fixo {
     id: CONTROLE_BEBER_POCAO
     forma: FORMA_RETANGULO
     dica: "Bebe a poção."
-    visibilidade { referencia { tipo: VIS_CAMERA_PRESA } }
+    visibilidade { referencia { tipo: VIS_POCAO } }
   }
 
   # Salvar e abrir.
