@@ -900,12 +900,16 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     auto& f = vd_.fumaca;
     f.duracao_ms = 0;
   }
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
     // As duracoes -1 serao retiradas ao recomputar dependencias.
     for (auto& evento : *proto_.mutable_evento()) {
       evento.set_rodadas(-1);
     }
+  }
+  if (proto_parcial.tesouro().pocoes_size() > 0) {
+    proto_.mutable_tesouro()->clear_pocoes();
   }
   if (proto_parcial.lista_acoes_size() > 0) {
     // repeated.
@@ -937,6 +941,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {
+    proto_.mutable_tesouro()->clear_pocoes();
+  }
 
   if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();

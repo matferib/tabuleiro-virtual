@@ -403,6 +403,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
+    case CONTROLE_BEBER_POCAO:
+      BebePocaoNotificando(0);
+      break;
     case CONTROLE_FALHA_20:
     case CONTROLE_FALHA_50:
       AlternaBitsEntidadeNotificando(

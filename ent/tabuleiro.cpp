@@ -1579,8 +1579,10 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   if (notificacao.local()) {
     auto* n_remota = new ntf::Notificacao(notificacao);
     central_->AdicionaNotificacaoRemota(n_remota);
+    // TODO: isso aqui parece errado. A atualizacao esta com tipo parcial mas recebendo o proto todo. Ai na hora de desfazer da merda.
+    // Coloquei um if false aqui pra ver onde vai dar zebra, se eh que vai dar.
     // Para desfazer. O if eh so uma otimizacao de performance, pois a funcao AdicionaNotificacaoListaEventos faz o mesmo.
-    if (!processando_grupo_ && !ignorar_lista_eventos_) {
+    if (false && !processando_grupo_ && !ignorar_lista_eventos_) {
       ntf::Notificacao n_desfazer(notificacao);
       n_desfazer.mutable_entidade_antes()->CopyFrom(entidade->Proto());
       AdicionaNotificacaoListaEventos(n_desfazer);
@@ -5595,6 +5597,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
+    AdicionaLogEvento(google::protobuf::StringPrintf("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
     TrataNotificacao(n_inversa);
   } else {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
@@ -5615,6 +5618,7 @@ void Tabuleiro::TrataComandoRefazer() {
   }
   ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
+  AdicionaLogEvento(google::protobuf::StringPrintf("refazendo: %s", ResumoNotificacao(*this, n_original).c_str()));
   TrataNotificacao(n_original);
   ignorar_lista_eventos_ = false;
   ++evento_corrente_;
@@ -6959,6 +6963,43 @@ float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
 
 void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
+}
+
+void Tabuleiro::BebePocaoNotificando(int indice_pocao) {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr || indice_pocao < 0 || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  {
+    auto* e_antes = n.mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    *e_antes->mutable_evento() = entidade->Proto().evento();
+    if (e_antes->evento().empty()) {
+      // dummy pra sinalizar que nao tem nada.
+      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
+      e_antes->add_evento()->set_rodadas(-1);
+    }
+  }
+  {
+    auto* e_depois = n.mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
+    if (e_depois->tesouro().pocoes().empty()) {
+      e_depois->mutable_tesouro()->add_pocoes();
+    }
+    const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
+    *e_depois->mutable_evento() = entidade->Proto().evento();
+    auto* evento = e_depois->add_evento();
+    evento->set_id_efeito(pocao.has_efeito() ? pocao.efeito() : EFEITO_INVALIDO);
+    evento->set_rodadas(pocao.duracao_rodadas());
+    if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+    evento->set_descricao(pocao.nome());
+  }
+  TrataNotificacao(n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(n);
 }
 
 }  // namespace ent
