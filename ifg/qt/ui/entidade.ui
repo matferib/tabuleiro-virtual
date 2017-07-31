@@ -2917,7 +2917,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>500</x>
-       <y>410</y>
+       <y>320</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -2930,39 +2930,13 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>500</x>
-       <y>440</y>
+       <y>350</y>
        <width>31</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
       <string>-</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="botao_pocao_baixo">
-     <property name="geometry">
-      <rect>
-       <x>500</x>
-       <y>300</y>
-       <width>31</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>↓</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="botao_pocao_cima">
-     <property name="geometry">
-      <rect>
-       <x>500</x>
-       <y>270</y>
-       <width>31</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>↑</string>
      </property>
     </widget>
    </widget>

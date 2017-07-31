@@ -72,8 +72,12 @@ class PocaoDelegate : public QItemDelegate {
   }
 
   QComboBox* PreencheConfiguraComboPocoes(QComboBox* combo) const {
+    std::map<std::string, std::string> itens_ordenados;
     for (const auto& pp : tabelas_.todas().tabela_pocoes().pocoes()) {
-      combo->addItem(QString::fromUtf8(pp.nome().c_str()), QString(pp.id().c_str()));
+      itens_ordenados.insert(std::make_pair(pp.nome(), pp.id()));
+    }
+    for (const auto& par : itens_ordenados) {
+      combo->addItem(QString::fromUtf8(par.first.c_str()), QString(par.second.c_str()));
     }
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo] () {
