@@ -265,6 +265,17 @@ enum CombinacaoEfeitos {
   COMB_EXCLUSIVO = 1;
 }
 
+message PreRequisitoTalento {
+}
+
+// Talentos.
+message TalentoProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string complemento = 3;
+  optional PreRequisitoTalento pre_requisito = 4;
+}
+
 message PocaoProto {
   // Chave da pocao na tabela.
   optional string id = 1;

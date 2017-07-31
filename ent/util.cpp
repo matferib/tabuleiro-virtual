@@ -1272,6 +1272,16 @@ int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& b
 }
 
 namespace {
+
+// Atribui o bonus se valor != 0, remove caso contrario.
+void AtribuiOuRemoveBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  if (valor != 0) {
+    AtribuiBonus(valor, tipo, origem, bonus);
+  } else {
+    RemoveBonus(tipo, origem, bonus);
+  }
+}
+
 int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
@@ -1298,6 +1308,27 @@ std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho
     case TM_GRANDE: return dano.grande();
     default: return "";
   }
+}
+
+// Retorna a arma da outra mao.
+const ArmaProto& ArmaOutraMao(
+    const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da_mao, const EntidadeProto& proto) {
+  const EntidadeProto::DadosAtaque* da_outra_mao = &da_mao;
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.tipo_ataque() == da_mao.tipo_ataque() && da.rotulo() == da_mao.rotulo() &&
+        da.empunhadura() != da_mao.empunhadura()) {
+      da_outra_mao = &da;
+    }
+  }
+  if (da_outra_mao == &da_mao) LOG(WARNING)<< "Nao encontrei a arma na outra mao, fallback pro mesmo tipo";
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.tipo_ataque() == da_mao.tipo_ataque() && da.empunhadura() != da_mao.empunhadura()) {
+      da_outra_mao = &da;
+    }
+  }
+  if (da_outra_mao == &da_mao)
+    LOG(ERROR) << "Nao encontrei a arma na outra mao, retornando a mesma";
+  return tabelas.Arma(da_outra_mao->id_arma());
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
@@ -1388,17 +1419,28 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       RemoveBonus(TB_MELHORIA, "arma_magica", bonus_ataque);
       RemoveBonus(TB_MELHORIA, "arma_magica", bonus_dano);
     }
-    if (da->obra_prima()) {
-      AtribuiBonus(1, TB_MELHORIA, "obra_prima", bonus_ataque);
-    } else {
-      RemoveBonus(TB_MELHORIA, "obra_prima", bonus_ataque);
+    AtribuiOuRemoveBonus(da->obra_prima() ? 1 : 0, TB_MELHORIA, "obra_prima", bonus_ataque);
+    // Duas maos.
+    switch (da->empunhadura()) {
+      case EA_MAO_BOA: {
+        // TODO detectar a arma da outra mao.
+        const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
+        int penalidade = PossuiCategoria(CAT_LEVE, arma_outra_mao) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -4 : -6;
+        if (da->lutar_com_duas_armas()) penalidade -= 2;
+        AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
+        break;
+      }
+      case EA_MAO_RUIM: {
+        int penalidade = PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -8 : -10;
+        if (da->lutar_com_duas_armas()) penalidade -= 6;
+        AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
+        break;
+      }
+      default:
+        RemoveBonus(TB_SEM_NOME, "empunhadura", bonus_ataque);
     }
     // Outros ataques.
-    if (da->ordem_ataque() > 0) {
-      AtribuiBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
-    } else {
-      RemoveBonus(TB_SEM_NOME, google::protobuf::StringPrintf("multiplos_ataque"), bonus_ataque);
-    }
+    AtribuiOuRemoveBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
   }
   // Forca no dano.
   if (usar_forca_dano) {
@@ -1800,7 +1842,7 @@ void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da)
     da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
     da->clear_ataque_toque();
-  } 
+  }
   if (acao_proto.has_ataque_distancia()) {
     da->set_ataque_distancia(acao_proto.ataque_distancia());
   } else {
