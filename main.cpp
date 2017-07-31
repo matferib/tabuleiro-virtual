@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(argc, argv, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
-  ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
+  ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
 #if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {
     // Carrega o tabuleiro.
