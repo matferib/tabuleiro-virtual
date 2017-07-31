@@ -876,6 +876,27 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    # TODO: faltando skills. 
+    id: EFEITO_HEROISMO
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+    }
+    consequencia_fim {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+    }
+  }
+
+  efeitos {
     id: EFEITO_ROUPA_ENCANTADA
     consequencia {
       usa_complemento: true
@@ -1172,5 +1193,12 @@ tabela_pocoes {
     duracao_rodadas: 12000
     complemento: 5
     combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'heroismo'
+    nome: 'Heroismo'
+    id_efeito: EFEITO_HEROISMO
+    custo_po: 750
+    duracao_rodadas: 500
   }
 }

@@ -549,7 +549,14 @@ modelo {
   id: 'Gnoll Sargento Bárbaro 3'
   entidade {
     dados_vida: '2d8+3d12+10'
-    tesouro { tesouro: '100 PO\npocao forca touro\nagilidade gato\najuda\nescudo da fé +4\ncurar ferimentos leves x2' }
+    tesouro {
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      tesouro: '100 PO'
+    }
     modificador_iniciativa: 0
     info_textura { id: 'gnoll_barbarian.png' largura: 0.5 translacao_x: 0.25 }
     # Ataques.
@@ -582,7 +589,11 @@ modelo {
     info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
     info_classes { id: 'ranger' nivel: 6 bba: 6 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
 
-    tesouro { tesouro: 'couro batido+1\nespada longa +1, espada curta +1, arco longo composto (4) OP\npocao agilidade gato\nescudo da fe +2' }
+    tesouro {
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'escudo_fe_2' }
+      tesouro: 'couro batido+1\nespada longa +1, espada curta +1, arco longo composto (4) OP'
+    }
 
     # Espadas.
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
