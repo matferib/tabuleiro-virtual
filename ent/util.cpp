@@ -1394,7 +1394,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       RemoveBonus(TB_MELHORIA, "obra_prima", bonus_ataque);
     }
     // Outros ataques.
-    if (da->ordem_ataque() > 1) {
+    if (da->ordem_ataque() > 0) {
       AtribuiBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
     } else {
       RemoveBonus(TB_SEM_NOME, google::protobuf::StringPrintf("multiplos_ataque"), bonus_ataque);
