@@ -876,7 +876,7 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
-    # TODO: faltando skills. 
+    # TODO: faltando skills.
     id: EFEITO_HEROISMO
     consequencia {
       dados_defesa {
@@ -896,6 +896,20 @@ tabela_efeitos {
     }
   }
 
+  efeitos {
+    id: EFEITO_PELE_ARVORE
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'pele_arvore' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 0 origem: 'pele_arvore' } } }
+      }
+    }
+  }
   efeitos {
     id: EFEITO_ROUPA_ENCANTADA
     consequencia {
@@ -1185,8 +1199,8 @@ tabela_pocoes {
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
-    id: 'roupa_encantada'
-    nome: 'Roupa Encantada (1)'
+    id: 'roupa_encantada_5'
+    nome: 'Roupa Encantada (5)'
     id_efeito: EFEITO_ROUPA_ENCANTADA
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 3000
@@ -1200,5 +1214,37 @@ tabela_pocoes {
     id_efeito: EFEITO_HEROISMO
     custo_po: 750
     duracao_rodadas: 500
+  }
+  pocoes {
+    id: 'pele_arvore_2'
+    nome: 'Pele de Árvore (2)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 300
+    duracao_rodadas: 300
+    complemento: 2
+  }
+  pocoes {
+    id: 'pele_arvore_3'
+    nome: 'Pele de Árvore (3)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 600
+    duracao_rodadas: 600
+    complemento: 3
+  }
+  pocoes {
+    id: 'pele_arvore_4'
+    nome: 'Pele de Árvore (4)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 900
+    duracao_rodadas: 900
+    complemento: 4
+  }
+  pocoes {
+    id: 'pele_arvore_5'
+    nome: 'Pele de Árvore (5)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 1200
+    duracao_rodadas: 1200
+    complemento: 5
   }
 }
