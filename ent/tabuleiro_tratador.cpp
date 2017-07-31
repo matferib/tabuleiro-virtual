@@ -161,17 +161,21 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
         continue;
       }
       auto* n = grupo_notificacoes.add_notificacao();
-      n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-      n->mutable_entidade_antes()->CopyFrom(entidade->Proto());
-      auto* e = n->mutable_entidade();
-      e->CopyFrom(entidade->Proto());
+      n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n->mutable_entidade_antes()->set_id(entidade->Id());
+      n->mutable_entidade()->set_id(entidade->Id());
       float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.1f;
-      e->mutable_escala()->set_x(e->escala().x() * fator);
-      e->mutable_escala()->set_y(e->escala().y() * fator);
-      e->mutable_escala()->set_z(e->escala().z() * fator);
-      if (entidade->Tipo() != TE_ENTIDADE) {
-        atualizar_mapa_luzes = true;
+      if (entidade->Tipo() == TE_ENTIDADE) {
+        n->mutable_entidade_antes()->mutable_escala()->set_x(fator > 1.0 ? 0.8f : 1.2f);
+        n->mutable_entidade()->mutable_escala()->set_x(      fator > 1.0 ? 1.2f : 0.8f);
+      } else {
+        *n->mutable_entidade_antes()->mutable_escala() = entidade->Proto().escala();
+        auto* e = n->mutable_entidade();
+        e->mutable_escala()->set_x(e->escala().x() * fator);
+        e->mutable_escala()->set_y(e->escala().y() * fator);
+        e->mutable_escala()->set_z(e->escala().z() * fator);
       }
+      atualizar_mapa_luzes = true;
     }
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.

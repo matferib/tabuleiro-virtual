@@ -942,6 +942,19 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
+  if (proto_.tipo() == TE_ENTIDADE && proto_.has_escala()) {
+    float fator = proto_.escala().x();
+    proto_.clear_escala();
+    int delta = 0;
+    if (fator > 1.1f) {
+      delta = 1;
+    } else if (fator < 0.9f) {
+      delta = -1;
+    }
+    int base_corrente = BonusIndividualTotal(TB_BASE, proto_.bonus_tamanho());
+    if (delta != 0) AtribuiBonus(base_corrente + delta, TB_BASE, "base", proto_.mutable_bonus_tamanho());
+  }
+
   if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {
     proto_.mutable_tesouro()->clear_pocoes();
   }
