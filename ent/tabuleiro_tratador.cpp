@@ -1135,6 +1135,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
       n_perdeu->mutable_entidade()->mutable_tesouro()->add_pocoes();
       n_perdeu->mutable_entidade_antes()->set_id(id);
+      n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
       *n_perdeu->mutable_entidade_antes()->mutable_tesouro()->mutable_pocoes() = entidade_transicao->Proto().tesouro().pocoes();
 
       auto* n_ganhou = n.add_notificacao();
