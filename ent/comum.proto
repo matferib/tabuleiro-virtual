@@ -21,15 +21,17 @@ enum TipoEfeito {
   EFEITO_BORRAR = 3;
   EFEITO_FORCA_TOURO = 4;
   EFEITO_AGILIDADE_GATO = 5;
-  EFEITO_VIGOR_URSO = 14;
+  EFEITO_ACELERAR = 6;
+  EFEITO_AUMENTAR_PESSOA = 7;
+  EFEITO_DIMINUIR_PESSOA = 8;
+  EFEITO_ARMADURA_ARCANA = 9;
+  EFEITO_ESCUDO_FE       = 10;
   EFEITO_SABEDORIA_CORUJA = 11;
   EFEITO_ASTUCIA_RAPOSA = 12;
   EFEITO_ESPLENDOR_AGUIA = 13;
-  EFEITO_ACELERAR = 6;
-  EFEITO_ARMADURA_ARCANA = 9;
-  EFEITO_AUMENTAR_PESSOA = 7;
-  EFEITO_DIMINUIR_PESSOA = 8;
-  EFEITO_ESCUDO_FE       = 10;
+  EFEITO_VIGOR_URSO = 14;
+  EFEITO_ROUPA_ENCANTADA = 15;
+  EFEITO_ESCUDO_ENCANTADO = 16;
 }
 
 
@@ -253,13 +255,21 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia_fim = 3;
 }
 
+// Como os efeitos de uma pocao se combinam.
+enum CombinacaoEfeitos {
+  // Os efeitos se combinam.
+  COMB_MULTIPLOS = 0;
+  // Os efeitos sao exclusivos (um ou outro).
+  COMB_EXCLUSIVO = 1;
+}
+
 message PocaoProto {
   // Chave da pocao na tabela.
   optional string id = 1;
   // Nome da pocao.
   optional string nome = 2;
-  // Tipo do efeito da pocao (se causar algum).
-  optional TipoEfeito id_efeito = 3;
+  // Tipo do efeito da pocao (se causar algum). Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
+  repeated TipoEfeito id_efeito = 3;
   // Duracao do efeito da pocao.
   optional int32 duracao_rodadas = 4;
   // Custo da pocao em PO.
@@ -268,6 +278,7 @@ message PocaoProto {
   optional int32 complemento = 6;
   // Para pocoes de cura.
   optional string delta_pontos_vida = 7;
+  optional CombinacaoEfeitos combinacao_efeitos = 8;
 }
 
 // Alguns estados são mantidos nesta variável.

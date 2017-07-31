@@ -76,7 +76,8 @@ class InterfaceGrafica : public ntf::Receptor {
 
  private:
   void TrataEscolherPocao(const ntf::Notificacao& notificacao);
-  void VoltaEscolherPocao(unsigned int id_entidade, bool ok, int indice);
+  void VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao);
+  void VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito);
 
   void TrataEscolheCor(const ntf::Notificacao& notificacao);
   void VoltaEscolheCor(bool ok, float r, float g, float b, float a);

@@ -109,7 +109,7 @@ class Tabuleiro : public ntf::Receptor {
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Faz a entidade beber a pocao, recebendo seus efeitos. Indice da pocao indica qual pocao a entidade esta bebendo (na ordem do tesouro). */
-  void BebePocaoNotificando(unsigned int id_entidade, int indice_pocao);
+  void BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito = 0);
 
   /** Seleciona todas as entidades do cenario corrente.
   * @param fixas se as entidades fixas devem ser selecionadas.

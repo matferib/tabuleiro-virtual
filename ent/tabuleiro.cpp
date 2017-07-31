@@ -81,9 +81,9 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 const unsigned int TAMANHO_MAXIMO_LISTA = 50;
 
 /** Diferencas menores que essa farao o tabuleiro usar o dado mais preciso. */
-const float PRECISAO_APOIO = 0.3f;
+//const float PRECISAO_APOIO = 0.3f;
 /** Verifica a profundidade ate este maximo de distancia. */
-const float MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO = 10 * TAMANHO_LADO_QUADRADO;
+//const float MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO = 10 * TAMANHO_LADO_QUADRADO;
 
 // Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
@@ -5060,6 +5060,7 @@ Posicao operator-(const Posicao& pos, const Posicao& delta) {
   return ret;
 }
 
+/*
 Posicao operator+(const Posicao& pos, const Posicao& delta) {
   Posicao ret;
   ret.set_x(pos.x() + delta.x());
@@ -5067,6 +5068,7 @@ Posicao operator+(const Posicao& pos, const Posicao& delta) {
   ret.set_z(pos.z() + delta.z());
   return ret;
 }
+*/
 
 Posicao PosicaoMedia(const std::vector<EntidadeProto*>& entidades) {
   float x_m = 0.0f;
@@ -6965,9 +6967,9 @@ void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
 }
 
-void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao) {
+void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
-  if (entidade == nullptr || indice_pocao < 0 || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
+  if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
@@ -6976,7 +6978,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao)
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (pocao.has_id_efeito() && e_antes->evento().empty()) {
+    if (indice_efeito < pocao.id_efeito().size() && e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
       e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
       e_antes->add_evento()->set_rodadas(-1);
@@ -6993,13 +6995,23 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao)
     if (e_depois->tesouro().pocoes().empty()) {
       e_depois->mutable_tesouro()->add_pocoes();
     }
-    if (pocao.has_id_efeito()) {
+    if (indice_efeito < pocao.id_efeito().size()) {
       *e_depois->mutable_evento() = entidade->Proto().evento();
-      auto* evento = e_depois->add_evento();
-      evento->set_id_efeito(pocao.id_efeito());
-      evento->set_rodadas(pocao.duracao_rodadas());
-      if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
-      evento->set_descricao(pocao.nome());
+      std::vector<TipoEfeito> efeitos;
+      if (pocao.combinacao_efeitos() == COMB_EXCLUSIVO) {
+        efeitos.push_back(pocao.id_efeito(indice_efeito));
+      } else {
+        for (auto id_efeito : pocao.id_efeito()) {
+          efeitos.push_back((TipoEfeito)id_efeito);
+        }
+      }
+      for (auto id_efeito : efeitos) {
+        auto* evento = e_depois->add_evento();
+        evento->set_id_efeito(id_efeito);
+        evento->set_rodadas(pocao.duracao_rodadas());
+        if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+        evento->set_descricao(pocao.nome());
+      }
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
       int total;

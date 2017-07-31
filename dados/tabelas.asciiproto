@@ -795,7 +795,7 @@ tabela_armas {
     preco: '50 PO'
     dano { medio: '1d8' }
     dano_secundario { medio: '1d6'}
-    categoria: CAT_CAC 
+    categoria: CAT_CAC
     categoria: CAT_ARMA_DUPLA
     multiplicador_critico: 3
     peso { medio: '11kg' }
@@ -875,6 +875,34 @@ tabela_armas {
 }
 
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_ROUPA_ENCANTADA
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ESCUDO_ENCANTADO
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+      }
+    }
+  }
   efeitos {
     id: EFEITO_ARMADURA_ARCANA
     consequencia {
@@ -1094,5 +1122,55 @@ tabela_pocoes {
     id_efeito: EFEITO_ARMADURA_ARCANA
     custo_po: 50
     duracao_rodadas: 600
+  }
+  pocoes {
+    id: 'roupa_encantada_1'
+    nome: 'Roupa Encantada (1)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 750
+    duracao_rodadas: 3000
+    complemento: 1
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_2'
+    nome: 'Roupa Encantada (2)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 1200
+    duracao_rodadas: 4800
+    complemento: 2
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_3'
+    nome: 'Roupa Encantada (3)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 1800
+    duracao_rodadas: 7200
+    complemento: 3
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_4'
+    nome: 'Roupa Encantada (4)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 2400
+    duracao_rodadas: 9600
+    complemento: 4
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada'
+    nome: 'Roupa Encantada (1)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 3000
+    duracao_rodadas: 12000
+    complemento: 5
+    combinacao_efeitos: COMB_EXCLUSIVO
   }
 }
