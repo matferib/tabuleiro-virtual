@@ -1,3 +1,4 @@
+Gnoll: porque os ataques estao todos com bonus de 12?
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
