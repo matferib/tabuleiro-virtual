@@ -171,6 +171,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       } else {
         *n->mutable_entidade_antes()->mutable_escala() = entidade->Proto().escala();
         auto* e = n->mutable_entidade();
+        *e->mutable_escala() = entidade->Proto().escala();
         e->mutable_escala()->set_x(e->escala().x() * fator);
         e->mutable_escala()->set_y(e->escala().y() * fator);
         e->mutable_escala()->set_z(e->escala().z() * fator);

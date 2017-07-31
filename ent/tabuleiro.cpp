@@ -6728,7 +6728,7 @@ void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
   if (modo == MODO_ROTACAO) {
     // Salva o modo anterior para nao perder por causa de rotacao.
-    modo_clique_anterior_ = modo;
+    modo_clique_anterior_ = modo_clique_;
   }
   if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
     // A rotacao eh diferente pq eh sem clique.
