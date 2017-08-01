@@ -228,7 +228,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const int linha = gerador.lista_ataques->currentRow();
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
-    gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(da).c_str()));
+    gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(tabelas, da).c_str()));
   }
   // Restaura a linha.
   gerador.lista_ataques->setCurrentRow(linha);
@@ -252,6 +252,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     return;
   }
   const auto& da = proto.dados_ataque(linha);
+  gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
   gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();

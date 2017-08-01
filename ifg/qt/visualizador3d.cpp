@@ -925,6 +925,10 @@ void PreencheConfiguraTesouro(
   gerador.lista_pocoes->setItemDelegate(delegado);
   delegado->deleteLater();
 
+  lambda_connect(gerador.lista_tesouro, SIGNAL(textChanged()), [&tabelas, &gerador, proto_retornado] () {
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+  });
   lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
     auto* pocao = proto_retornado->mutable_tesouro()->add_pocoes();
     pocao->set_id("forca_touro");
@@ -1521,7 +1525,6 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
-    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
       proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());

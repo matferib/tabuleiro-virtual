@@ -1477,6 +1477,60 @@ QGroupBox::title {
      </widget>
     </widget>
    </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>Perícias e Talentos</string>
+    </attribute>
+    <widget class="QTableWidget" name="tabela_talentos">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>50</y>
+       <width>256</width>
+       <height>391</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>660</x>
+       <y>20</y>
+       <width>57</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Talentos</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_talento">
+     <property name="geometry">
+      <rect>
+       <x>910</x>
+       <y>80</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_talento">
+     <property name="geometry">
+      <rect>
+       <x>910</x>
+       <y>50</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+   </widget>
    <widget class="QWidget" name="tab_estatisticas">
     <attribute name="title">
      <string>Estatísticas</string>
