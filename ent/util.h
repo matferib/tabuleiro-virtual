@@ -278,7 +278,7 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da);
 
 // Retorna o resumo da arma, para display na UI. Nao inclui modificadores circunstanciais.
 // Algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
-std::string StringResumoArma(const EntidadeProto::DadosAtaque& da);
+std::string StringResumoArma(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da);
 
 // Retorna os detalhes da arma para display na lista de acoes, incluindo alguns modificadores de circunstancia (como caido, por exemplo).
 // Algo como: 'machado: +8+2, 1d8(x3)+2d6, CA 15/15/12'

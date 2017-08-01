@@ -1910,12 +1910,15 @@ std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const Entidad
   return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
 }
 
-std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
+std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
   char string_rotulo[40] = { '\0' };
   if (!da.rotulo().empty()) {
     snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
   }
+  std::string string_nome_arma = da.id_arma().empty()
+      ? ""
+      : google::protobuf::StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
   char string_alcance[40] = { '\0' };
   if (da.has_alcance_m()) {
     char string_incrementos[40] = { '\0' };
@@ -1926,8 +1929,9 @@ std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
   }
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
-      "id: %s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(),
+      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
+      string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(), string_alcance,
+      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
