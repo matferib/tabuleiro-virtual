@@ -621,9 +621,7 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
     info_talentos {
-      gerais {
-        id: 'combater_duas_armas'
-      }
+      gerais { id: 'combater_duas_armas' }
     }
   }
 }

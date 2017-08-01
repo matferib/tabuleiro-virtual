@@ -931,7 +931,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   const int ataque_origem = ea.BonusAtaque();
   const int d20_defesa_agarrar = RolaDado(20);
-  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(CATipoAtaque(*da));
+  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(ea.Id(), CATipoAtaque(*da));
   const std::string str_ca_destino = da->ataque_agarrar()
       ? google::protobuf::StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
       : google::protobuf::StringPrintf("%d", ca_destino);

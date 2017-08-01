@@ -230,7 +230,8 @@ class Entidade {
     CA_TOQUE,
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
-  int CA(TipoCA tipo = CA_NORMAL) const;
+  // Retorna a CA da entidade, contra um atacante e um tipo de CA.
+  int CA(unsigned int id_atacante, TipoCA tipo) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   // A chance de falha ao atacar.

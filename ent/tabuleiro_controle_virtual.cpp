@@ -276,6 +276,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_MODO_TERRENO:
       AlternaModoTerreno();
       break;
+    case CONTROLE_MODO_ESQUIVA:
+      AlternaModoEsquiva();
+      break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       break;
@@ -691,6 +694,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_ROLA_DADO:   return faces_dado_ == 20 ? CONTROLE_ROLAR_D20 : CONTROLE_ROLAR_D100;
     case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
     case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
+    case Tabuleiro::MODO_ESQUIVA:     return CONTROLE_MODO_ESQUIVA;
     default:                          return CONTROLE_AJUDA;
   }
 }
@@ -845,6 +849,9 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
       } else if (ref.tipo() == VIS_POCAO) {
         const auto* e = EntidadePrimeiraPessoaOuSelecionada();
         if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return false;
+      } else if (ref.tipo() == VIS_ESQUIVA) {
+        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+        if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) return false;
       } else {
         bool parcial = EstadoBotao(ref.id());
         if (ref.tipo() == VIS_INVERSO_DE) {
@@ -1083,6 +1090,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 20; } },
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
+    { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_ESQUIVA; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },
     { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) {

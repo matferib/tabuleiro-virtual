@@ -175,6 +175,8 @@ message DadosDefesa {
   optional bool escudo_obra_prima = 11;
   optional int32 bonus_magico_armadura = 12;
   optional int32 bonus_magico_escudo = 13;
+  // Aplicar esquiva contra essa entidade.
+  optional uint32 entidade_esquiva = 14;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

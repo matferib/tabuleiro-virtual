@@ -988,6 +988,36 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   return atraso_s;
 }
 
+void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
+  modo_clique_ = MODO_NORMAL;
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    LOG(INFO) << "Tipo invalido para esquiva";
+    return;
+  }
+  const auto* entidade_atacante = BuscaEntidade(id);
+  if (entidade_atacante == nullptr || entidade_atacante->Tipo() != TE_ENTIDADE) {
+    LOG(INFO) << "Atacante nullptr ou tipo invalido";
+    return;
+  }
+  const auto* entidade_defensora = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade_defensora == nullptr) {
+    LOG(INFO) << "Defesor nullptr";
+    return;
+  }
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
+  n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(entidade_defensora->Proto().dados_defesa().entidade_esquiva());
+  n->mutable_entidade()->set_id(entidade_defensora->Id());
+  n->mutable_entidade()->mutable_dados_defesa()->set_entidade_esquiva(id);
+  AdicionaNotificacaoListaEventos(*n);
+  central_->AdicionaNotificacao(n);
+  AdicionaAcaoTexto(
+      entidade_defensora->Id(),
+      google::protobuf::StringPrintf("esquivando de %s", entidade_atacante->Proto().rotulo().empty()
+                                                         ? net::to_string(id).c_str()
+                                                         : entidade_atacante->Proto().rotulo().c_str()));
+}
+
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
@@ -1416,6 +1446,8 @@ void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, Parametros
       break;
     case Tabuleiro::MODO_AJUDA:
       break;
+    case Tabuleiro::MODO_ESQUIVA:
+      break;
     default:
       ;
   }
@@ -1468,6 +1500,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           return;  // Mantem o MODO_ACAO.
         }
         break;
+      case MODO_ESQUIVA:
+        TrataBotaoEsquivaPressionadoPosPicking(id, tipo_objeto);
+        return;
       case MODO_TERRENO:
         TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
         // Nao quero voltar para o modo normal.

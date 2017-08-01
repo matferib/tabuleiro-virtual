@@ -1477,23 +1477,24 @@ int Entidade::BonusAtaque() const {
   return da->bonus_ataque_final();
 }
 
-int Entidade::CA(TipoCA tipo_ca) const {
+int Entidade::CA(unsigned int id_atacante, TipoCA tipo_ca) const {
+  int bonus_esquiva = PossuiTalento("esquiva", proto_) && id_atacante == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
+      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo) + bonus_esquiva;
     } else {
-      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
+      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_) + bonus_esquiva;
     }
   }
   if (da == nullptr) {
     return AtaqueCaInvalido;
   }
   switch (tipo_ca) {
-    case CA_TOQUE: return da->ca_toque();
+    case CA_TOQUE: return da->ca_toque() + bonus_esquiva;
     case CA_SURPRESO: return da->ca_surpreso();
-    default: return da->ca_normal();
+    default: return da->ca_normal() + bonus_esquiva;
   }
 }
 

@@ -6690,6 +6690,14 @@ void Tabuleiro::AlternaModoAcao() {
   }
 }
 
+void Tabuleiro::AlternaModoEsquiva() {
+  if (modo_clique_ == MODO_ESQUIVA) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_ESQUIVA;
+  }
+}
+
 void Tabuleiro::AlternaModoTransicao() {
   if (modo_clique_ == MODO_TRANSICAO) {
     modo_clique_ = MODO_NORMAL;
