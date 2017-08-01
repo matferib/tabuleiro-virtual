@@ -221,8 +221,6 @@ message EntidadeProto {
     optional int32 bonus_magico = 31;
     // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
     optional int32 ordem_ataque = 32;
-    // Personagem possui lutar com duas armas.
-    optional bool lutar_com_duas_armas = 33;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
@@ -292,9 +290,11 @@ message EntidadeProto {
   // Outras coisas de entidade, apenas para armazenamento.
   optional string notas = 66;
 
-  optional InfoTalentos {
-    repeated Talento talentos = 1;
-    repeated Talento outros = 2;
+  message InfoTalentos {
+    // Gerais respeita os niveis.
+    repeated TalentoProto gerais = 1;
+    // Qualquer coisa que nao se enquadre nas regras.
+    repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
 }

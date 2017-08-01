@@ -104,6 +104,6 @@ message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_escudos = 2;
   optional TabelaArmas tabela_armas = 3;
   optional TabelaEfeitos tabela_efeitos = 4;
-  optional TabelaTalento tabela_talentos = 5;
+  optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPocoes tabela_pocoes = 50;
 }

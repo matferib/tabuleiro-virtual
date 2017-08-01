@@ -1426,13 +1426,13 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
         // TODO detectar a arma da outra mao.
         const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
         int penalidade = PossuiCategoria(CAT_LEVE, arma_outra_mao) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -4 : -6;
-        if (da->lutar_com_duas_armas()) penalidade -= 2;
+        if (PossuiTalento("combater_duas_armas", proto)) penalidade += 2;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
         break;
       }
       case EA_MAO_RUIM: {
         int penalidade = PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -8 : -10;
-        if (da->lutar_com_duas_armas()) penalidade -= 6;
+        if (PossuiTalento("combater_duas_armas", proto)) penalidade += 6;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
         break;
       }
@@ -1993,5 +1993,15 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto) {
   }
 }
 // Fim Formas Alternativas
+
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade) {
+  for (const auto& t : entidade.info_talentos().gerais()) {
+    if (chave_talento == t.id()) return true;
+  }
+  for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id()) return true;
+  }
+  return false;
+}
 
 }  // namespace ent

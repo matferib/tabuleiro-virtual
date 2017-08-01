@@ -268,12 +268,32 @@ enum CombinacaoEfeitos {
 message PreRequisitoTalento {
 }
 
+enum TipoComplementoTalento {
+  // Talento nao requer complemento.
+  TCT_NENHUM = 0;
+  // O talento requer uma arma qualquer como complemento.
+  TCT_ARMA = 1;
+  // Talento requer uma arma exotica.
+  TCT_ARMA_EXOTICA = 2;
+  // Talento requer uma arma comum.
+  TCT_ARMA_COMUM = 3;
+  // Talento requer escola de magia.
+  TCT_ESCOLA_MAGIA = 4;
+  // Talento requer uma pericia.
+  TCT_PERICIA = 5;
+}
+
 // Talentos.
 message TalentoProto {
+  // Chave do talento na tabela.
   optional string id = 1;
+  // Nome do talento.
   optional string nome = 2;
-  optional string complemento = 3;
-  optional PreRequisitoTalento pre_requisito = 4;
+
+  optional TipoComplementoTalento tipo_complemento = 3;
+  optional string complemento = 4;
+  optional string descricao = 5;
+  optional PreRequisitoTalento pre_requisito = 6;
 }
 
 message PocaoProto {

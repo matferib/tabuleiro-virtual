@@ -313,6 +313,9 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
 // Retorna true se uma arma possui a categoria passada.
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
+// Retorna true se o personagem tiver o talento.
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
