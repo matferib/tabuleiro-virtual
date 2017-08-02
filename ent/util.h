@@ -267,8 +267,8 @@ inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 
-// Passa alguns dados de acao proto para dados ataque.
-void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
+void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);

@@ -1315,27 +1315,28 @@ const ArmaProto& ArmaOutraMao(
     const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da_mao, const EntidadeProto& proto) {
   const EntidadeProto::DadosAtaque* da_outra_mao = &da_mao;
   for (const auto& da : proto.dados_ataque()) {
-    if (da.tipo_ataque() == da_mao.tipo_ataque() && da.rotulo() == da_mao.rotulo() &&
-        da.empunhadura() != da_mao.empunhadura()) {
+    if (da.rotulo() == da_mao.rotulo() && da.empunhadura() != da_mao.empunhadura()) {
       da_outra_mao = &da;
+      break;
     }
   }
-  if (da_outra_mao == &da_mao) LOG(WARNING)<< "Nao encontrei a arma na outra mao, fallback pro mesmo tipo";
+  if (da_outra_mao == &da_mao) LOG(WARNING) << "Nao encontrei a arma na outra mao, fallback pro mesmo tipo";
   for (const auto& da : proto.dados_ataque()) {
     if (da.tipo_ataque() == da_mao.tipo_ataque() && da.empunhadura() != da_mao.empunhadura()) {
       da_outra_mao = &da;
+      break;
     }
   }
-  if (da_outra_mao == &da_mao)
-    LOG(ERROR) << "Nao encontrei a arma na outra mao, retornando a mesma";
+  if (da_outra_mao == &da_mao) {
+    LOG(ERROR) << "Nao encontrei a arma na outra mao, retornando a mesma: " << da_mao.id_arma();
+  }
   return tabelas.Arma(da_outra_mao->id_arma());
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
   // Passa alguns campos da acao para o ataque.
-  AcaoParaAtaque(tabelas.Acao(da->tipo_ataque()), da);
-
   const auto& arma = tabelas.Arma(da->id_arma());
+  AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -1836,8 +1837,11 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   });
 }
 
-void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
   da->set_tipo_ataque(acao_proto.id());
+  if (da->tipo_ataque().empty() && da->has_id_arma()) {
+    da->set_tipo_ataque(PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
+  }
   if (acao_proto.has_ataque_toque()) {
     da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
