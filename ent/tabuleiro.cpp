@@ -6978,11 +6978,10 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE));
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
-    auto* e_antes = n.mutable_entidade_antes();
+    auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     *e_antes->mutable_evento() = entidade->Proto().evento();
@@ -6996,7 +6995,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
     }
   }
   {
-    auto* e_depois = n.mutable_entidade();
+    auto* e_depois = n->mutable_entidade();
     e_depois->set_id(entidade->Id());
     *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
@@ -7029,9 +7028,23 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
   }
-  TrataNotificacao(n);
+  TrataNotificacao(*n);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(n);
+  AdicionaNotificacaoListaEventos(*n);
+  central_->AdicionaNotificacaoRemota(n.release());
+  {
+    std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+    *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+    Cor c;
+    c.set_r(0.5f);
+    c.set_g(0.6f);
+    c.set_b(1.0f);
+    c.set_a(0.5f);
+    n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    TrataNotificacao(*n_efeito);
+    central_->AdicionaNotificacaoRemota(n_efeito.release());
+  }
 }
 
 }  // namespace ent
