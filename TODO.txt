@@ -1,4 +1,3 @@
-Gnoll: porque os ataques estao todos com bonus de 12?
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
@@ -38,7 +37,6 @@ Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
-Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 
