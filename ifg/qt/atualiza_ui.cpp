@@ -18,6 +18,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIAtaquesDefesa(tabelas, gerador, proto);
   AtualizaUIIniciativa(tabelas, gerador, proto);
   AtualizaUISalvacoes(gerador, proto);
+  AtualizaUITesouro(tabelas, gerador, proto);
 }
 
 namespace {
@@ -196,44 +197,6 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-int TipoParaIndice(const std::string& tipo_str) {
-  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
-  // Os indices sao na ordem definida pela UI.
-  if (tipo_str == "Ácido") {
-    return 0;
-  } else if (tipo_str == "Ataque Corpo a Corpo") {
-    return 1;
-  } else if (tipo_str == "Ataque a Distância") {
-    return 2;
-  } else if (tipo_str == "Bola de Fogo") {
-    return 3;
-  } else if (tipo_str == "Coluna de Chamas") {
-    return 4;
-  } else if (tipo_str == "Cone de Gelo") {
-    return 5;
-  } else if (tipo_str == "Feitiço de Toque") {
-    return 6;
-  } else if (tipo_str == "Feitiço de Toque a Distância") {
-    return 7;
-  } else if (tipo_str == "Fogo Alquímico") {
-    return 8;
-  } else if (tipo_str == "Mãos Flamejantes") {
-    return 9;
-  } else if (tipo_str == "Míssil Mágico") {
-    return 10;
-  } else if (tipo_str == "Pedrada (gigante)") {
-    return 11;
-  } else if (tipo_str == "Raio") {
-    return 12;
-  } else if (tipo_str == "Relâmpago") {
-    return 13;
-  } else if (tipo_str == "Tempestade Glacial") {
-    return 14;
-  } else {
-    return 1;
-  }
-}
-
 void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,  const std::string& tipo_ataque) {
   bool cac = tipo_ataque == "Ataque Corpo a Corpo";
   std::map<std::string, std::string> name_id_map;
@@ -265,7 +228,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const int linha = gerador.lista_ataques->currentRow();
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
-    gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(da).c_str()));
+    gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(tabelas, da).c_str()));
   }
   // Restaura a linha.
   gerador.lista_ataques->setCurrentRow(linha);
@@ -289,6 +252,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     return;
   }
   const auto& da = proto.dados_ataque(linha);
+  gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
   gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();
@@ -298,9 +262,9 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.spin_alcance_quad->setValue(ent::METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
-  gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));
-  gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.outros_bonus_ataque())));
-  gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.outros_bonus_dano())));
+  gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
+  gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.bonus_ataque())));
+  gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.bonus_dano())));
   gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
   if (proto.dados_ataque().size() > 1) {
     gerador.botao_ataque_cima->setEnabled(true);
@@ -385,6 +349,22 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
   }
   gerador.lista_formas_alternativas->setCurrentRow(indice_antes);
   gerador.lista_formas_alternativas->blockSignals(false);
+}
+
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes };
+  for (auto* obj : objs) obj->blockSignals(true);
+  gerador.lista_tesouro->clear();
+  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
+  const int indice = gerador.lista_pocoes->currentRow();
+  gerador.lista_pocoes->clear();
+  for (const auto& pocao : proto.tesouro().pocoes()) {
+    const auto& pp = tabelas.Pocao(pocao.id());
+    auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_pocoes);
+    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  }
+  gerador.lista_pocoes->setCurrentRow(indice);
+  for (auto* obj : objs) obj->blockSignals(false);
 }
 
 }  // namespace qt

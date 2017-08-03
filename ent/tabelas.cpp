@@ -123,6 +123,10 @@ Tabelas::Tabelas() {
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 75, Arma("arco_curto_composto"));
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 100, Arma("arco_longo_composto"));
 
+  for (const auto& pocao : tabelas_.tabela_pocoes().pocoes()) {
+    pocoes_[pocao.id()] = &pocao;
+  }
+
   for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {
     efeitos_[efeito.id()] = &efeito;
   }
@@ -154,7 +158,7 @@ const ArmaProto& Tabelas::Arma(const std::string& id) const {
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
 }
 
-const EfeitoProto& Tabelas::Efeito(TipoEvento tipo) const {
+const EfeitoProto& Tabelas::Efeito(TipoEfeito tipo) const {
   auto it = efeitos_.find(tipo);
   return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
 }
@@ -162,6 +166,11 @@ const EfeitoProto& Tabelas::Efeito(TipoEvento tipo) const {
 const AcaoProto& Tabelas::Acao(const std::string& id) const {
   auto it = acoes_.find(id);
   return it == acoes_.end() ? AcaoProto::default_instance() : *it->second;
+}
+
+const PocaoProto& Tabelas::Pocao(const std::string& id) const {
+  auto it = pocoes_.find(id);
+  return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
 }
 
 }  // namespace

@@ -7,12 +7,10 @@ UI para aplicacao de efeitos em massa.
 Ataque de multiplos alvos em uma area distribuindo em alvos.
 Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 
-Efeitos automaticos para tamanho e cura.
 Se possivel, separar armas por classe no combo (simples, comum, exoticas).
 Fazer tabela nao copiavel para evitar copia a toa.
 Modificador de ataque para higher ground.
 
-Glitch de icone de rotacao.
 Ao adicionar entidade, incluir nos algemados.
 Lista de cenarios na UI de transicao.
 Objetos inflamaveis (sem ser entidade) e permitir duracao infinita.
@@ -39,7 +37,6 @@ Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
-Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 

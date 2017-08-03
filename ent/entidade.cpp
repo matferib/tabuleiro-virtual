@@ -328,11 +328,14 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (proto_original.tipo() == TE_ENTIDADE) {
     *proto_.mutable_escala() = proto_original.escala();
     float fator = novo_proto.escala().x() / proto_original.escala().x();
+    int delta = 0;
     if (fator > 1.1f) {
-      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::min<int>(TM_COLOSSAL, proto_.tamanho() + 1)));
+      delta = 1;
     } else if (fator < 0.9f) {
-      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::max<int>(TM_MINUSCULO, proto_.tamanho() - 1)));
+      delta = -1;
     }
+    int base_corrente = BonusIndividualTotal(TB_BASE, proto_original.bonus_tamanho());
+    if (delta != 0) AtribuiBonus(base_corrente + delta, TB_BASE, "base", proto_.mutable_bonus_tamanho());
   }
   if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
@@ -360,7 +363,7 @@ void Entidade::AtualizaEfeitos() {
     if (!evento.has_id_efeito() || evento.id_efeito() == EFEITO_INVALIDO) {
       continue;
     }
-    AtualizaEfeito(static_cast<TipoEvento>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
+    AtualizaEfeito(static_cast<TipoEfeito>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
     a_remover.erase(evento.id_efeito());
   }
   for (const auto& id_remocao : a_remover) {
@@ -368,7 +371,7 @@ void Entidade::AtualizaEfeitos() {
   }
 }
 
-void Entidade::AtualizaEfeito(TipoEvento id_efeito, ComplementoEfeito* complemento) {
+void Entidade::AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento) {
   switch (id_efeito) {
     case EFEITO_PISCAR:
       if (++complemento->quantidade >= 40) {
@@ -897,12 +900,16 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     auto& f = vd_.fumaca;
     f.duracao_ms = 0;
   }
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
     // As duracoes -1 serao retiradas ao recomputar dependencias.
     for (auto& evento : *proto_.mutable_evento()) {
       evento.set_rodadas(-1);
     }
+  }
+  if (proto_parcial.tesouro().pocoes_size() > 0) {
+    proto_.mutable_tesouro()->clear_pocoes();
   }
   if (proto_parcial.lista_acoes_size() > 0) {
     // repeated.
@@ -935,10 +942,27 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
-  if (proto_parcial.info_textura().id().empty()) {
+  if (proto_.tipo() == TE_ENTIDADE && proto_.has_escala()) {
+    float fator = proto_.escala().x();
+    proto_.clear_escala();
+    int delta = 0;
+    if (fator > 1.1f) {
+      delta = 1;
+    } else if (fator < 0.9f) {
+      delta = -1;
+    }
+    int base_corrente = BonusIndividualTotal(TB_BASE, proto_.bonus_tamanho());
+    if (delta != 0) AtribuiBonus(base_corrente + delta, TB_BASE, "base", proto_.mutable_bonus_tamanho());
+  }
+
+  if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {
+    proto_.mutable_tesouro()->clear_pocoes();
+  }
+
+  if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();
   }
-  if (proto_parcial.modelo_3d().id().empty()) {
+  if (proto_.modelo_3d().id().empty()) {
     proto_.clear_modelo_3d();
   }
 
@@ -1450,26 +1474,27 @@ int Entidade::BonusAtaque() const {
   if (da == nullptr) {
     return AtaqueCaInvalido;
   }
-  return da->bonus_ataque();
+  return da->bonus_ataque_final();
 }
 
-int Entidade::CA(TipoCA tipo_ca) const {
+int Entidade::CA(unsigned int id_atacante, TipoCA tipo_ca) const {
+  int bonus_esquiva = PossuiTalento("esquiva", proto_) && id_atacante == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
+      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo) + bonus_esquiva;
     } else {
-      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
+      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_) + bonus_esquiva;
     }
   }
   if (da == nullptr) {
     return AtaqueCaInvalido;
   }
   switch (tipo_ca) {
-    case CA_TOQUE: return da->ca_toque();
+    case CA_TOQUE: return da->ca_toque() + bonus_esquiva;
     case CA_SURPRESO: return da->ca_surpreso();
-    default: return da->ca_normal();
+    default: return da->ca_normal() + bonus_esquiva;
   }
 }
 

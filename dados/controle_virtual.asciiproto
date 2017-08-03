@@ -1,5 +1,31 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
 fixo {
+  # Coisas da primeira pessoa.
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 3
+    rotulo: "Pc"
+    cor_rotulo {}
+    textura: "icon_potion.png"
+    id: CONTROLE_BEBER_POCAO
+    forma: FORMA_RETANGULO
+    dica: "Bebe a poção."
+    visibilidade { referencia { tipo: VIS_POCAO } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 3
+    rotulo: "Es"
+    cor_rotulo {}
+    textura: "icon_dodge.png"
+    id: CONTROLE_MODO_ESQUIVA
+    forma: FORMA_RETANGULO
+    dica: "Escolhe uma entidade para se esquivar."
+    visibilidade { referencia { tipo: VIS_ESQUIVA } }
+  }
+
   # Salvar e abrir.
   dados_botoes {
     tamanho: 1

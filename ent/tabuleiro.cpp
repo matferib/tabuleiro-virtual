@@ -81,9 +81,9 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 const unsigned int TAMANHO_MAXIMO_LISTA = 50;
 
 /** Diferencas menores que essa farao o tabuleiro usar o dado mais preciso. */
-const float PRECISAO_APOIO = 0.3f;
+//const float PRECISAO_APOIO = 0.3f;
 /** Verifica a profundidade ate este maximo de distancia. */
-const float MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO = 10 * TAMANHO_LADO_QUADRADO;
+//const float MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO = 10 * TAMANHO_LADO_QUADRADO;
 
 // Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
@@ -1010,7 +1010,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       while (num_ataques-- > 0) {
         auto* nda = modelo->add_dados_ataque();
         *nda = da;
-        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_outros_bonus_ataque());
+        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_bonus_ataque());
         ++ordem_ataque;
       }
     }
@@ -1579,8 +1579,10 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   if (notificacao.local()) {
     auto* n_remota = new ntf::Notificacao(notificacao);
     central_->AdicionaNotificacaoRemota(n_remota);
+    // TODO: isso aqui parece errado. A atualizacao esta com tipo parcial mas recebendo o proto todo. Ai na hora de desfazer da merda.
+    // Coloquei um if false aqui pra ver onde vai dar zebra, se eh que vai dar.
     // Para desfazer. O if eh so uma otimizacao de performance, pois a funcao AdicionaNotificacaoListaEventos faz o mesmo.
-    if (!processando_grupo_ && !ignorar_lista_eventos_) {
+    if (false && !processando_grupo_ && !ignorar_lista_eventos_) {
       ntf::Notificacao n_desfazer(notificacao);
       n_desfazer.mutable_entidade_antes()->CopyFrom(entidade->Proto());
       AdicionaNotificacaoListaEventos(n_desfazer);
@@ -5058,6 +5060,7 @@ Posicao operator-(const Posicao& pos, const Posicao& delta) {
   return ret;
 }
 
+/*
 Posicao operator+(const Posicao& pos, const Posicao& delta) {
   Posicao ret;
   ret.set_x(pos.x() + delta.x());
@@ -5065,6 +5068,7 @@ Posicao operator+(const Posicao& pos, const Posicao& delta) {
   ret.set_z(pos.z() + delta.z());
   return ret;
 }
+*/
 
 Posicao PosicaoMedia(const std::vector<EntidadeProto*>& entidades) {
   float x_m = 0.0f;
@@ -5595,6 +5599,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
+    AdicionaLogEvento(google::protobuf::StringPrintf("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
     TrataNotificacao(n_inversa);
   } else {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
@@ -5615,6 +5620,7 @@ void Tabuleiro::TrataComandoRefazer() {
   }
   ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
+  AdicionaLogEvento(google::protobuf::StringPrintf("refazendo: %s", ResumoNotificacao(*this, n_original).c_str()));
   TrataNotificacao(n_original);
   ignorar_lista_eventos_ = false;
   ++evento_corrente_;
@@ -6684,6 +6690,14 @@ void Tabuleiro::AlternaModoAcao() {
   }
 }
 
+void Tabuleiro::AlternaModoEsquiva() {
+  if (modo_clique_ == MODO_ESQUIVA) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_ESQUIVA;
+  }
+}
+
 void Tabuleiro::AlternaModoTransicao() {
   if (modo_clique_ == MODO_TRANSICAO) {
     modo_clique_ = MODO_NORMAL;
@@ -6724,7 +6738,7 @@ void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
   if (modo == MODO_ROTACAO) {
     // Salva o modo anterior para nao perder por causa de rotacao.
-    modo_clique_anterior_ = modo;
+    modo_clique_anterior_ = modo_clique_;
   }
   if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
     // A rotacao eh diferente pq eh sem clique.
@@ -6959,6 +6973,78 @@ float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
 
 void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
+}
+
+void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
+  Entidade* entidade = BuscaEntidade(id_entidade);
+  if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE));
+  const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    *e_antes->mutable_evento() = entidade->Proto().evento();
+    if (indice_efeito < pocao.id_efeito().size() && e_antes->evento().empty()) {
+      // dummy pra sinalizar que nao tem nada.
+      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
+      e_antes->add_evento()->set_rodadas(-1);
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      e_antes->set_pontos_vida(entidade->PontosVida());
+    }
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
+    if (e_depois->tesouro().pocoes().empty()) {
+      e_depois->mutable_tesouro()->add_pocoes();
+    }
+    if (indice_efeito < pocao.id_efeito().size()) {
+      *e_depois->mutable_evento() = entidade->Proto().evento();
+      std::vector<TipoEfeito> efeitos;
+      if (pocao.combinacao_efeitos() == COMB_EXCLUSIVO) {
+        efeitos.push_back(pocao.id_efeito(indice_efeito));
+      } else {
+        for (auto id_efeito : pocao.id_efeito()) {
+          efeitos.push_back((TipoEfeito)id_efeito);
+        }
+      }
+      for (auto id_efeito : efeitos) {
+        auto* evento = e_depois->add_evento();
+        evento->set_id_efeito(id_efeito);
+        evento->set_rodadas(pocao.duracao_rodadas());
+        if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+        evento->set_descricao(pocao.nome());
+      }
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      int total;
+      std::vector<std::pair<int, int>> dados;
+      std::tie(total, dados) = GeraPontosVida(pocao.delta_pontos_vida());
+      e_depois->set_pontos_vida(std::min(entidade->MaximoPontosVida(), entidade->PontosVida() + total));
+      AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
+    }
+  }
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
+  central_->AdicionaNotificacaoRemota(n.release());
+  {
+    std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+    *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+    Cor c;
+    c.set_r(0.5f);
+    c.set_g(0.6f);
+    c.set_b(1.0f);
+    c.set_a(0.5f);
+    n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    TrataNotificacao(*n_efeito);
+    central_->AdicionaNotificacaoRemota(n_efeito.release());
+  }
 }
 
 }  // namespace ent

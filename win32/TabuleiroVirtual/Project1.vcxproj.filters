@@ -176,6 +176,15 @@
     <ClCompile Include="..\..\ent\tabuleiro_tratador.cpp">
       <Filter>ent</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ent\tabelas.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabelas.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\atualiza_ui.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">

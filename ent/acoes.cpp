@@ -116,6 +116,52 @@ class AcaoSinalizacao : public Acao {
 };
 gl::VboGravado AcaoSinalizacao::vbo_;
 
+// Ação mais básica: uma sinalizacao no tabuleiro.
+class AcaoPocao: public Acao {
+ public:
+  AcaoPocao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
+      Acao(acao_proto, tabuleiro, texturas) {
+    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.15f, 6, 6)));
+    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.1f, 6, 6)));
+    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.2f, 6, 6)));
+    bolhas_[0].Translada(acao_proto_.pos_entidade().x(), acao_proto_.pos_entidade().y(), acao_proto_.pos_entidade().z());
+    bolhas_[1].Translada(acao_proto_.pos_entidade().x() + 0.2f, acao_proto_.pos_entidade().y(), acao_proto_.pos_entidade().z());
+    bolhas_[2].Translada(acao_proto_.pos_entidade().x(), acao_proto_.pos_entidade().y() + 0.3f, acao_proto_.pos_entidade().z());
+    for (auto& b : bolhas_) {
+      b.AtribuiCor(acao_proto_.cor().r(), acao_proto_.cor().g(), acao_proto_.cor().b(), 0.5f);
+    }
+    duracao_ms_ = 0;
+    acao_proto_.mutable_cor()->set_a(0.5f);
+  }
+
+  void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const override {
+    VLOG(3) << "Desenhando acao pocao";
+    gl::DesenhaVbo(bolhas_[0]);
+    if (duracao_ms_ > INTERVALO_MS) gl::DesenhaVbo(bolhas_[1]);
+    if (duracao_ms_ > INTERVALO_MS * 2) gl::DesenhaVbo(bolhas_[2]);
+  }
+
+  void AtualizaAposAtraso(int intervalo_ms) override {
+    VLOG(3) << "Atualizando acao pocao, duracao_ms: " << duracao_ms_;
+    const float delta = (intervalo_ms * VELOCIDADE_BOLHA_M_S) / 1000.0f;
+    bolhas_[0].Translada(0.0f, 0.0f, delta);
+    if (duracao_ms_ > INTERVALO_MS) bolhas_[1].Translada(0.0f, 0.0f, delta);
+    if (duracao_ms_ > INTERVALO_MS * 2) bolhas_[2].Translada(0.0f, 0.0f, delta);
+    duracao_ms_ += intervalo_ms;
+  }
+
+  bool Finalizada() const override {
+    return duracao_ms_ > MAX_DURACAO_MS;
+  }
+
+ private:
+  static constexpr int MAX_DURACAO_MS = 3000;
+  static constexpr float VELOCIDADE_BOLHA_M_S = 0.3f;
+  static constexpr float INTERVALO_MS = 500;
+  int duracao_ms_;
+  std::vector<gl::VboNaoGravado> bolhas_;
+};
+
 class AcaoAgarrar : public Acao {
  public:
   AcaoAgarrar(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
@@ -245,7 +291,7 @@ class AcaoDeltaPontosVida : public Acao {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
     if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-      gl::DesenhaString(string_delta_);
+      gl::DesenhaString(StringSemUtf8(string_delta_));
     }
   }
 
@@ -812,6 +858,10 @@ void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDese
   if (atraso_s_ > 0 || Finalizada()) {
     return;
   }
+  if (IdCenario() != pd->pos_olho().id_cenario()) {
+    VLOG(2) << "Nao desenhando acao pois id cenario eh diferente";
+    return;
+  }
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   GLuint id_textura = acao_proto_.info_textura().id().empty() ? GL_INVALID_VALUE : texturas_->Textura(acao_proto_.info_textura().id());
   if (id_textura != GL_INVALID_VALUE) {
@@ -1268,6 +1318,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
     case ACAO_AGARRAR:
       return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
+    case ACAO_POCAO:
+      return new AcaoPocao(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;

@@ -2,6 +2,7 @@
 #define ENT_TABELAS_H
 
 #include <unordered_map>
+#include "ent/acoes.pb.h"
 #include "ent/tabelas.pb.h"
 
 namespace ent {
@@ -18,8 +19,9 @@ class Tabelas {
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
   const ArmaProto& Arma(const std::string& id) const;
-  const EfeitoProto& Efeito(TipoEvento tipo) const;
+  const EfeitoProto& Efeito(TipoEfeito tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
+  const PocaoProto& Pocao(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
 
  private:
@@ -28,6 +30,7 @@ class Tabelas {
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
   std::unordered_map<std::string, const ArmaProto*> armas_;
   std::unordered_map<int, const EfeitoProto*> efeitos_;
+  std::unordered_map<std::string, const PocaoProto*> pocoes_;
 
   // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
   Acoes tabela_acoes_;

@@ -23,32 +23,6 @@ enum TipoForma {
   TF_TRIANGULO = 8;
 }
 
-enum TamanhoEntidade {
-  TM_MINUSCULO = 0;
-  TM_DIMINUTO = 1;
-  TM_MIUDO = 2;
-  TM_PEQUENO = 3;
-  TM_MEDIO = 4;
-  TM_GRANDE = 5;
-  TM_ENORME = 6;
-  TM_IMENSO = 7;
-  TM_COLOSSAL = 8;
-}
-
-enum TipoEvento {
-  EFEITO_INVALIDO = -1;
-  EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
-  EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
-  EFEITO_PISCAR = 2;
-  EFEITO_BORRAR = 3;
-
-  EFEITO_FORCA_TOURO = 4;
-  EFEITO_AGILIDADE_DO_GATO = 5;
-  EFEITO_ACELERAR = 6;
-  EFEITO_AUMENTAR_PESSOA = 7;
-  EFEITO_DIMINUIR_PESSOA = 8;
-}
-
 // Informacoes sobre a classe de um personagem.
 message InfoClasse {
   optional string id = 1;
@@ -64,44 +38,6 @@ message InfoClasse {
   repeated TipoSalvacao salvacoes_fortes = 7;
 }
 
-// Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
-enum TipoBonus {
-  TB_ALQUIMICO = 0;
-  TB_ARMADURA = 1;
-  TB_ARMADURA_MELHORIA = 2;
-  TB_ARMADURA_NATURAL = 3;
-  TB_ATRIBUTO = 4;
-  TB_BASE = 5;
-  TB_CIRCUNSTANCIA = 6;
-  TB_CLASSE = 7;
-  TB_COMPETENCIA = 8;
-  TB_DEFLEXAO = 9;
-  TB_ESCUDO = 10;
-  TB_ESCUDO_MELHORIA = 11;
-  TB_ESQUIVA = 12;
-  TB_FAMILIAR = 13;
-  TB_INERENTE = 14;
-  TB_INTUICAO = 15;
-  TB_MELHORIA = 16;
-  TB_MORAL = 17;
-  // cumulativo para poder ter valores negativos.
-  TB_NIVEIS_NEGATIVOS = 18;
-  // Bonus de atributos ganhados a cada 4 niveis.
-  TB_NIVEL = 19;
-  TB_PROFANO = 20;
-  // cumulativo para aceitar valores negativos.
-  TB_RACIAL = 21;
-  TB_TEMPLATE = 22;
-  TB_RESISTENCIA = 23;
-  TB_SAGRADO = 24;
-  TB_SINERGIA = 25;
-  TB_SORTE = 26;
-  TB_TALENTO = 27;
-  TB_TAMANHO = 28;
-  // Cumulativo.
-  TB_SEM_NOME = 29;
-}
-
 // Como uma arma esta empunhada.
 // Na UI, deve ter a mesma ordem no combo.
 enum EmpunhaduraArma {
@@ -115,45 +51,6 @@ enum EmpunhaduraArma {
   EA_MAO_RUIM = 3;
   // Arma e escudo.
   EA_ARMA_ESCUDO = 4;
-}
-
-// Um tipo de bonus.
-message BonusIndividual {
-  optional TipoBonus tipo = 1;
-  message PorOrigem {
-    optional int32 valor = 1;
-    optional string origem = 2;
-  }
-  repeated PorOrigem por_origem = 2;
-}
-
-// Diferentes tipos de bonus.
-message Bonus {
-  repeated BonusIndividual bonus_individual = 1;
-}
-
-// Os atributos basicos.
-message Atributos {
-  optional Bonus forca = 1;
-  optional Bonus destreza = 2;
-  optional Bonus constituicao = 3;
-  optional Bonus inteligencia = 4;
-  optional Bonus sabedoria = 5;
-  optional Bonus carisma = 6;
-}
-
-// Dados de defesa global (independe de ataque).
-message DadosDefesa {
-  optional string tipo_defesa = 1 [deprecated=true];
-  optional bool imune_critico = 3;
-  optional int32 ca_deprecated = 2 [deprecated=true];
-  optional Bonus ca = 4;
-  optional Bonus salvacao_fortitude = 5;
-  optional Bonus salvacao_reflexo = 6;
-  optional Bonus salvacao_vontade = 7;
-  // TODO outras salvacoes.
-  optional string id_armadura = 8;
-  optional string id_escudo = 9;
 }
 
 message EntidadeProto {
@@ -177,8 +74,10 @@ message EntidadeProto {
   // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
   // Algumas informacoes serao concatenadas ao valor do campo.
   repeated string rotulo_especial = 30;
-  // Os varios tamanhos de uma entidade no tabuleiro.
+  // O tamanho final da entidade.
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
+  // O tamanho da entidade.
+  optional Bonus bonus_tamanho = 78;
   // Se verdadeiro, objeto sera desenhado de forma achatada.
   optional bool achatado = 17 [default=false];
   // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela
@@ -268,7 +167,7 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
-    optional TipoEvento id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+    optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;
@@ -281,7 +180,7 @@ message EntidadeProto {
     // Deve casar com as strings de id do arquivo de dados das acoes.
     optional string tipo_ataque = 1;
     // Bonus final para ataque.
-    optional int32 bonus_ataque = 2;
+    optional int32 bonus_ataque_final = 2;
     // O dano final da arma: 1d8+5.
     optional string dano = 3;
     optional int32 margem_critico = 6 [default=20];
@@ -293,16 +192,16 @@ message EntidadeProto {
     optional float alcance_m = 10;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
-    // Indica arma obra prima.
+    // Indica arma obra prima. Modifica bonus_ataque.
     optional bool obra_prima = 14;
     optional EmpunhaduraArma empunhadura = 15;
     // Arma permite acuidade.
     optional bool acuidade = 17;
     // Para arcos compostos.
     optional int32 bonus_composto = 20;
-    // Os bonus de ataque e dano. Inclui magicos e outras coisas.
-    optional Bonus outros_bonus_ataque = 21;
-    optional Bonus outros_bonus_dano = 22;
+    // Os bonus de ataque e dano.
+    optional Bonus bonus_ataque = 21;
+    optional Bonus bonus_dano = 22;
     // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
     optional string dano_basico = 23;
     // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
@@ -318,6 +217,10 @@ message EntidadeProto {
     optional bool ataque_distancia = 29;
     // Indica ataque de agarrar.
     optional bool ataque_agarrar = 30;
+    // Bonus magico da arma. Modifica o bonus_ataque e bonus_dano.
+    optional int32 bonus_magico = 31;
+    // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
+    optional int32 ordem_ataque = 32;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
@@ -357,6 +260,7 @@ message EntidadeProto {
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
+    repeated PocaoProto pocoes = 2;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
@@ -385,4 +289,12 @@ message EntidadeProto {
   optional bool desenha_base = 65;
   // Outras coisas de entidade, apenas para armazenamento.
   optional string notas = 66;
+
+  message InfoTalentos {
+    // Gerais respeita os niveis.
+    repeated TalentoProto gerais = 1;
+    // Qualquer coisa que nao se enquadre nas regras.
+    repeated TalentoProto outros = 2;
+  }
+  optional InfoTalentos info_talentos = 79;
 }

@@ -7,6 +7,7 @@
 namespace ent {
 
 class ParametrosDesenho;
+class Tabelas;
 
 // Todo elemento desenhavel da interface herda.
 class ElementoInterface {
@@ -62,8 +63,8 @@ class ElementoInterface {
 class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
  public:
   InterfaceGraficaOpengl(
-      ifg::TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
-      : ifg::InterfaceGrafica(teclado_mouse, tabuleiro, central) {}
+      const Tabelas& tabelas, ifg::TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
+      : ifg::InterfaceGrafica(tabelas, teclado_mouse, tabuleiro, central) {}
 
   ~InterfaceGraficaOpengl() override {}
 
@@ -78,6 +79,11 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
   }
 
  protected:
+  void EscolheItemLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, int)> funcao_volta) override;
+
   void EscolheArquivoAbrirTabuleiro(
       const std::vector<std::string>& tab_estaticos,
       const std::vector<std::string>& tab_dinamicos,

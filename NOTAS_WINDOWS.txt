@@ -29,7 +29,7 @@ Compilando glog:
 
 
 Gerando os proto pb.cc pb.h:
-protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto
+protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
 
 Gerando os moc:
 export MOC=./win32/qt-everywhere-opensource-src-4.8.6/bin/moc.exe

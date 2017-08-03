@@ -1,4 +1,4 @@
-import "ent/entidade.proto";
+import "ent/comum.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -86,25 +86,16 @@ message TabelaArmas {
   repeated ArmaProto armas = 1;
 }
 
-message ConsequenciaEvento {
-  // Afeta todos atributos.
-  optional Atributos atributos = 1;
-  // Afeta os dados de defesa: ca e salvacoes.
-  optional DadosDefesa dados_defesa = 2;
-  // Afeta o bonus das jogadas de ataque.
-  optional Bonus jogada_ataque = 3;
-}
-
-message EfeitoProto {
-  optional TipoEvento id = 1;  // id do efeito.
-  // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
-  // O que ocorre quando o efeito termina.
-  optional ConsequenciaEvento consequencia_fim = 3;
-}
-
 message TabelaEfeitos {
-  repeated EfeitoProto efeitos = 1; 
+  repeated EfeitoProto efeitos = 1;
+}
+
+message TabelaPocoes {
+  repeated PocaoProto pocoes = 1;
+}
+
+message TabelaTalentos {
+  repeated TalentoProto talentos = 1;
 }
 
 // O arquivo tabelas.asciiproto eh desse tipo.
@@ -113,4 +104,6 @@ message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_escudos = 2;
   optional TabelaArmas tabela_armas = 3;
   optional TabelaEfeitos tabela_efeitos = 4;
+  optional TabelaTalentos tabela_talentos = 5;
+  optional TabelaPocoes tabela_pocoes = 50;
 }

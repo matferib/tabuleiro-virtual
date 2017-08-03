@@ -108,6 +108,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Move uma entidade notificando clientes. */
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
+  /** Faz a entidade beber a pocao, recebendo seus efeitos. Indice da pocao indica qual pocao a entidade esta bebendo (na ordem do tesouro). */
+  void BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito = 0);
+
   /** Seleciona todas as entidades do cenario corrente.
   * @param fixas se as entidades fixas devem ser selecionadas.
   */
@@ -288,6 +291,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
 
+  /** Trata o botao de esquiva. */
+  void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
+
   /** Trata o clique duplo do botao esquerdo. */
   void TrataDuploCliqueEsquerdo(int x, int y);
 
@@ -420,6 +426,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
+  /** No modo esquiva, o clique seleciona contra quem a entidade se esquivara. */
+  void AlternaModoEsquiva();
 
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
@@ -438,6 +446,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
+    MODO_ESQUIVA,      // Usado para escolher a entidade de esquiva.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }

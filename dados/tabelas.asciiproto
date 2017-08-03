@@ -1,7 +1,6 @@
 tabela_armaduras {
   armaduras { id: 'nenhuma'          nome: 'Nenhuma' bonus: 0 preco { po:  0  } tipo: TA_LEVE }
   armaduras { id: 'acolchoada'       nome: 'Acolchoada'  bonus: 1  max_bonus_destreza: 8  preco { po:  5  } tipo: TA_LEVE }
-  armaduras { id: 'armadura_arcana'  nome: 'Armadura Arcana'  bonus: 4  preco { po:  0  } tipo: TA_LEVE }
   armaduras { id: 'couro'            nome: 'Couro'  bonus: 2   max_bonus_destreza: 6  preco { po:  10  } tipo: TA_LEVE }
   armaduras { id: 'couro_batido'     nome: 'Couro Batido'  bonus: 3  max_bonus_destreza: 5  preco { po:  25  } tipo: TA_LEVE }
   armaduras { id: 'camisao'          nome: 'Camisão de Cota de Malha'  bonus: 4  max_bonus_destreza: 4  preco { po:  100  } tipo: TA_LEVE }
@@ -9,7 +8,7 @@ tabela_armaduras {
   armaduras { id: 'gibao_peles'      nome: 'Gibão de Peles'  bonus: 3  max_bonus_destreza: 4  preco { po:  15  } tipo: TA_MEDIO }
   armaduras { id: 'brunea'           nome: 'Brunea'  bonus: 4  max_bonus_destreza: 3  preco { po:  50  } tipo: TA_MEDIO }
   armaduras { id: 'cota_malha'       nome: 'Cota de Malha'  bonus: 5  max_bonus_destreza: 2  preco { po:  150  } tipo: TA_MEDIO }
-  armaduras { id: 'peitorial_aco'    nome: 'Peitoral de Aço'  bonus: 5  max_bonus_destreza: 3  preco { po:  200  } tipo: TA_MEDIO }
+  armaduras { id: 'peitoral_de_aco'  nome: 'Peitoral de Aço'  bonus: 5  max_bonus_destreza: 3  preco { po:  200  } tipo: TA_MEDIO }
 
   armaduras { id: 'cota_talas'       nome: 'Cota de Talas'  bonus: 6  max_bonus_destreza: 0  preco { po:  200  } tipo: TA_PESADO }
   armaduras { id: 'loriga'           nome: 'Loriga Segmentada'  bonus: 6  max_bonus_destreza: 1  preco { po:  250  } tipo: TA_PESADO }
@@ -796,7 +795,7 @@ tabela_armas {
     preco: '50 PO'
     dano { medio: '1d8' }
     dano_secundario { medio: '1d6'}
-    categoria: CAT_CAC 
+    categoria: CAT_CAC
     categoria: CAT_ARMA_DUPLA
     multiplicador_critico: 3
     peso { medio: '11kg' }
@@ -877,15 +876,112 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    # TODO: faltando skills.
+    id: EFEITO_HEROISMO
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
+    }
+    consequencia_fim {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_PELE_ARVORE
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'pele_arvore' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 0 origem: 'pele_arvore' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ROUPA_ENCANTADA
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ESCUDO_ENCANTADO
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ARMADURA_ARCANA
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 4 origem: 'armadura_arcana' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 0 origem: 'armadura_arcana' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_FORCA_TOURO
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
     consequencia_fim { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'forca_touro%s' } } } } }
   }
   efeitos {
-    id: EFEITO_AGILIDADE_DO_GATO
+    id: EFEITO_AGILIDADE_GATO
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
     consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
   }
+  efeitos {
+    id: EFEITO_VIGOR_URSO
+    consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso%s' } } } } }
+    consequencia_fim { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'vigor_urso%s' } } } } }
+  }
+  efeitos {
+    id: EFEITO_SABEDORIA_CORUJA
+    consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja%s' } } } } }
+    consequencia_fim { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'sabedoria_coruja%s' } } } } }
+  }
+  efeitos {
+    id: EFEITO_ASTUCIA_RAPOSA
+    consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa%s' } } } } }
+    consequencia_fim { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'astucia_raposa%s' } } } } }
+  }
+  efeitos {
+    id: EFEITO_ESPLENDOR_AGUIA
+    consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia%s' } } } } }
+    consequencia_fim { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'esplendor_aguia%s' } } } } }
+  }
+
   efeitos {
     id: EFEITO_ACELERAR
     consequencia {
@@ -903,5 +999,870 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
     }
   }
+  efeitos {
+    id: EFEITO_ESCUDO_FE
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 2 origem: 'escudo_fe' } } }
+      }
+    }
+    consequencia_fim {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 0 origem: 'escudo_fe' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_AUMENTAR_PESSOA
+    consequencia {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 1 origem: 'aumentar_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'aumentar_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'aumentar_pessoa' } } }
+      }
+    }
+    consequencia_fim {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_DIMINUIR_PESSOA
+    consequencia {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'diminuir_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'diminuir_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'diminuir_pessoa' } } }
+      }
+    }
+    consequencia_fim {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+      }
+    }
+  }
+}
 
+tabela_pocoes {
+  pocoes {
+    id: 'curar_ferimentos_leves'
+    nome: 'Curar Ferimentos Leves'
+    delta_pontos_vida: '1d8+1'
+    custo_po: 50
+  }
+  pocoes {
+    id: 'curar_ferimentos_moderados'
+    nome: 'Curar Ferimentos Moderados'
+    delta_pontos_vida: '2d8+3'
+    custo_po: 300
+  }
+  pocoes {
+    id: 'curar_ferimentos_serios'
+    nome: 'Curar Ferimentos Sérios'
+    delta_pontos_vida: '3d8+5'
+    custo_po: 750
+  }
+
+  pocoes {
+    id: 'forca_touro'
+    nome: 'Força do Touro'
+    id_efeito: EFEITO_FORCA_TOURO
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'agilidade_gato'
+    nome: 'Agilidade do Gato'
+    id_efeito: EFEITO_AGILIDADE_GATO
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'vigor_urso'
+    nome: 'Vigor do Urso'
+    id_efeito: EFEITO_VIGOR_URSO
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'astucia_raposa'
+    nome: 'Astúcia da Raposa'
+    id_efeito: EFEITO_ASTUCIA_RAPOSA
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'sabedoria_coruja'
+    nome: 'Sabedoria da Coruja'
+    id_efeito: EFEITO_SABEDORIA_CORUJA
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+  pocoes {
+    id: 'esplendor_aguia'
+    nome: 'Esplendor da Águia'
+    id_efeito: EFEITO_ESPLENDOR_AGUIA
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+
+  pocoes {
+    id: 'escudo_fe_2'
+    nome: 'Escudo da Fé (2)'
+    id_efeito: EFEITO_ESCUDO_FE
+    complemento: 2
+    custo_po: 50
+    duracao_rodadas: 10
+  }
+  pocoes {
+    id: 'escudo_fe_3'
+    nome: 'Escudo da Fé (3)'
+    id_efeito: EFEITO_ESCUDO_FE
+    complemento: 3
+    custo_po: 300
+    duracao_rodadas: 60
+  }
+  pocoes {
+    id: 'escudo_fe_4'
+    nome: 'Escudo da Fé (4)'
+    id_efeito: EFEITO_ESCUDO_FE
+    complemento: 4
+    custo_po: 600
+    duracao_rodadas: 120
+  }
+  pocoes {
+    id: 'escudo_fe_5'
+    nome: 'Escudo da Fé (5)'
+    id_efeito: EFEITO_ESCUDO_FE
+    complemento: 5
+    custo_po: 900
+    duracao_rodadas: 180
+  }
+  pocoes {
+    id: 'borrar'
+    nome: 'Borrar'
+    id_efeito: EFEITO_BORRAR
+    custo_po: 300
+    duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'armadura_arcana'
+    nome: 'Armadura Arcana'
+    id_efeito: EFEITO_ARMADURA_ARCANA
+    custo_po: 50
+    duracao_rodadas: 600
+  }
+  pocoes {
+    id: 'roupa_encantada_1'
+    nome: 'Roupa Encantada (1)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 750
+    duracao_rodadas: 3000
+    complemento: 1
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_2'
+    nome: 'Roupa Encantada (2)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 1200
+    duracao_rodadas: 4800
+    complemento: 2
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_3'
+    nome: 'Roupa Encantada (3)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 1800
+    duracao_rodadas: 7200
+    complemento: 3
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_4'
+    nome: 'Roupa Encantada (4)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 2400
+    duracao_rodadas: 9600
+    complemento: 4
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'roupa_encantada_5'
+    nome: 'Roupa Encantada (5)'
+    id_efeito: EFEITO_ROUPA_ENCANTADA
+    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    custo_po: 3000
+    duracao_rodadas: 12000
+    complemento: 5
+    combinacao_efeitos: COMB_EXCLUSIVO
+  }
+  pocoes {
+    id: 'heroismo'
+    nome: 'Heroismo'
+    id_efeito: EFEITO_HEROISMO
+    custo_po: 750
+    duracao_rodadas: 500
+  }
+  pocoes {
+    id: 'pele_arvore_2'
+    nome: 'Pele de Árvore (2)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 300
+    duracao_rodadas: 300
+    complemento: 2
+  }
+  pocoes {
+    id: 'pele_arvore_3'
+    nome: 'Pele de Árvore (3)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 600
+    duracao_rodadas: 600
+    complemento: 3
+  }
+  pocoes {
+    id: 'pele_arvore_4'
+    nome: 'Pele de Árvore (4)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 900
+    duracao_rodadas: 900
+    complemento: 4
+  }
+  pocoes {
+    id: 'pele_arvore_5'
+    nome: 'Pele de Árvore (5)'
+    id_efeito: EFEITO_PELE_ARVORE
+    custo_po: 1200
+    duracao_rodadas: 1200
+    complemento: 5
+  }
+}
+tabela_talentos {
+  talentos {
+    id: 'acrobatico'
+    nome: 'Acrobático'
+    # bonus_pericias { saltar: 2, acrobacias: 2 }
+  }
+  talentos {
+    id: 'acuidade_arma'
+    nome: 'Acuidade com Arma'
+    # guerreiro: true
+    # pre_requisitos { bba: 1, proficiencia_arma: true, arma_leve: true }
+    descricao: 'Aplica o modificador de Des (em vez de For) nas jogadas de ataque corporal com armas leves.'
+  }
+  talentos {
+    id: 'afinidade_com_animais'
+    nome: 'Afinidade com Animais'
+    # bonus_pericias { cavalgar: 2, adestrar_animais: 2 }
+  }
+  talentos {
+    id: 'agarrar_aprimorado'
+    nome: 'Agarrar Aprimorado'
+    # guerreiro: true
+    # monge: 1
+    # pre_requisitos { atributos { destreza: 13 } talentos: [ 'ataque_desarmado_aprimorado' ] }
+    descricao: '+4 de bônus nos testes de Agarrar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'agil'
+    nome: 'Ágil'
+    # bonus_pericias { equilibrio: 2, arte_da_fuga: 2 }
+  }
+  talentos {
+    id: 'apanhar_objetos'
+    nome: 'Apanhar Objetos'
+    # pre_requisitos { atributos { destreza: 15 } talentos: ['desviar_objetos', 'ataque_desarmado_aprimorado'] }
+    descricao: 'Apanha uma arma arremessada ou projétil'
+    # guerreiro: true
+  }
+  talentos {
+    id: 'aptidao_magica'
+    nome: 'Aptidão Mágica'
+    # bonus_pericias { identificar_magia: 2, usar_instrumento_magico: 2 }
+  }
+  talentos {
+    id: 'ataque_atordoante'
+    nome: 'Ataque Atordoante'
+    # monge: 1
+    # guerreiro: true
+    descricao: 'Atordoa a vítima com um ataque desarmado.'
+    # pre_requisitos { bba: 8, talentos: [ 'ataque_desarmado_aprimorado' ], atributos { destreza: 13, sabedoria: 13 } }
+  }
+  talentos {
+    id: 'ataque_desarmado_aprimorado'
+    nome: 'Ataque Desarmado Aprimorado'
+    # guerreiro: true
+    descricao: 'Considerado armado quando estiver desarmado'
+  }
+  talentos {
+    id: 'ataque_movimento'
+    nome: 'Ataque em Movimento'
+    descricao: 'Capaz de deslocar antes e depois do ataque'
+    # pre_requisitos { bba: 4, talentos: [ 'mobilidade' ] }
+    # guerreiro: true
+  }
+  talentos {
+    id: 'ataque_poderoso'
+    nome: 'Ataque Poderoso'
+    # pre_requisitos { atributos { forca: 13 } }
+    # guerreiro: true
+    descricao: 'Substitui bônus de ataque por dano (máximo: bônus base de ataque).'
+  }
+  talentos {
+    id: 'atletico'
+    nome: 'Atlético'
+    # bonus_pericias { escalar: 2, natacao: 2 }
+  }
+  talentos {
+    id: 'auto_suficiente'
+    nome: 'Auto-Suficiente'
+    # bonus_pericias { cura: 2, sobrevivencia: 2 }
+  }
+  talentos {
+    id: 'combate_montado'
+    nome: 'Combate Montado'
+    # pre_requisitos { pericias { cavalgar: 1 } }
+    # guerreiro: true
+    descricao: 'Evita os ataques contra a montaria com um teste de Cavalgar'
+  }
+  talentos {
+    id: 'combater_duas_armas'
+    nome: 'Combater com duas armas'
+    # pre_requisitos { atributos { destreza: 15 } }
+    # guerreiro: true
+    # ranger: 2
+    descricao: 'Reduz penalidade ao usar duas maos em 2.'
+  }
+  talentos {
+    id: 'combater_duas_armas_aprimorado'
+    nome: 'Combater com duas armas aprimorado'
+    # pre_requisitos { atributos { destreza: 17 } bba: 6, talentos: [ 'combater_duas_armas'] }
+    # guerreiro: true
+    # ranger: 6
+    descricao: 'Ataque adicional com a segunda mao.'
+  }
+  # TODO regra do terceiro ataque.
+  talentos {
+    id: 'combater_duas_armas_maior'
+    nome: 'Combater com Duas Armas Maior'
+    # guerreiro: true
+    # ranger: 11
+    # pre_requisitos { atributos { destreza: 19 } talentos: ['combater_duas_armas_aprimorado', ], bba: 11 }
+    descricao: 'Adquire um terceiro ataque com a mão inábil'
+  }
+  # TODO teoricamente esse bonus eh so se correr...
+  talentos {
+    id: 'corrida'
+    nome: 'Corrida'
+    # bonus_pericias { saltar: 4 }
+    descricao: 'Percorre 5 vezes o deslocamento padrão +4 de bônus nos testes de Saltar no final de uma corrida.'
+  }
+  talentos {
+    id: 'dedos_lepidos'
+    nome: 'Dedos Lépidos'
+    # bonus_pericias { operar_mecanismos: 2, abrir_fechaduras: 2 }
+  }
+  talentos {
+    id: 'desarme_aprimorado'
+    nome: 'Desarme Aprimorado'
+    # guerreiro: true
+    # monge: 6
+    descricao: '+4 de bônus nas tentativas de desarme e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'desviar_objetos'
+    nome: 'Desviar Objetos'
+    # pre_requisitos { atributos { destreza: 13 } } talentos: [ 'ataque_desarmado_aprimorado' ]
+    # monge: 2
+    # guerreiro: true
+    descricao: 'Desvia um ataque à distância por rodada'
+  }
+  talentos {
+    id: 'diligente'
+    nome: 'Diligente'
+    # bonus_pericias { avaliacao: 2, decifrar_escrita: 2 }
+  }
+  talentos {
+    id: 'duro_de_matar'
+    nome: 'Duro de Matar'
+    # pre_requisitos { talentos: [ 'tolerancia' ] }
+    descricao: 'Permanece consciente entre -1 e -9 PV.'
+  }
+  # Nao da pra modelar automatico porque as dependencias de especiais vem
+  # depois dos talentos. Da mais 4 expulsoes.
+  talentos {
+    id: 'expulsao_adicional'
+    nome: 'Expulsão Adicional'
+  }
+  # Escrever Pergaminho 1° nível de conjurador Criar pergaminhos mágicos
+  talentos {
+    id: 'escrever_pergaminho'
+    nome: 'Escrever Pergaminho'
+    descricao: 'Criar pergaminhos mágicos.'
+    # pre_requisitos { nivel { conjurador: 1 } }
+    # mago: 1
+  }
+  talentos {
+    id: 'especializacao_arma'
+    nome: 'Especialização em Arma'
+    # guerreiro: true
+    tipo_complemento: TCT_ARMA
+    # pre_requisitos { proficiencia_arma: true, talentos: [ 'foco_em_arma'], nivel { # guerreiro: 4 }}
+    descricao: '+2 de bônus no dano com a arma escolhida.'
+  }
+  # TODO implementar/mostrar esse bonus de alguma forma.
+  talentos {
+    id: 'esquiva'
+    nome: 'Esquiva'
+    # pre_requisitos { atributos { destreza: 13 } }
+    descricao: '+1 de bônus de esquiva na CA contra um adversário à sua escolha.'
+    # bonus_ca { esquiva: 1 }
+    # guerreiro: true
+  }
+  talentos {
+    id: 'especializacao_arma_maior'
+    nome: 'Especialização em Arma Maior'
+    # guerreiro: true
+    tipo_complemento: TCT_ARMA
+    # pre_requisitos { talentos: [ 'foco_em_arma_maior', 'especializacao_arma'] nivel { # guerreiro: 12 } }
+    descricao: '+4 de bônus no dano com a arma escolhida (ao invés de 2 da especialização normal).'
+  }
+  talentos {
+    id: 'fintar_aprimorado'
+    nome: 'Fintar Aprimorado'
+    # pre_requisitos { talentos: ['especializacao_em_combate'], atributos { inteligencia: 13 } }
+    # guerreiro: true
+    descricao: 'Fintar em combate se torna uma ação de movimento.'
+  }
+  # TODO fazer funcionar.
+  talentos {
+    id: 'foco_em_pericia'
+    nome: 'Foco em Perícia'
+    tipo_complemento: TCT_PERICIA
+    descricao: '+3 de bônus nos teste da perícia escolhida.'
+  }
+  talentos {
+    id: 'foco_em_arma'
+    nome: 'Foco em arma'
+    tipo_complemento: TCT_ARMA
+    # pre_requisitos { bba: 1, proficiencia_arma: true }
+    # guerreiro: true
+    descricao: '+1 de bônus nas jogadas de ataque com a arma escolhida.'
+  }
+  talentos {
+    id: 'foco_em_arma_maior'
+    nome: 'Foco em arma maior'
+    tipo_complemento: TCT_ARMA
+    # pre_requisitos { talentos: [ 'foco_em_arma'], nivel { # guerreiro: 8 } }
+    # guerreiro: true
+    descricao: '+2 de bônus nas jogadas de ataque com a arma escolhida.'
+  }
+  # TODO aplicar os bonus de CD.
+  talentos {
+    id: 'foco_em_magia'
+    nome: 'Foco em Magia'
+    tipo_complemento: TCT_ESCOLA_MAGIA
+    descricao: '+1 de bônus na CD dos testes de resistência de uma escola de magia específica.'
+  }
+  talentos {
+    id: 'foco_em_magia_maior'
+    nome: 'Foco em Magia Maior'
+    tipo_complemento: TCT_ESCOLA_MAGIA
+    # pre_requisitos { talentos: ['foco_em_magia'] }
+    descricao: '+1 de bônus na CD dos testes de resistência de uma escola de magia específica.'
+  }
+  talentos {
+    id: 'forjar_anel'
+    nome: 'Forjar Anel'
+    # pre_requisitos { nivel { conjurador: 12 } }
+    descricao: 'Criar anéis mágicos.'
+    # mago: 1
+  }
+  talentos {
+    id: 'fortitude_maior'
+    nome: 'Fortitude Maior'
+    # bonus_salvacao { fortitude: 2 }
+    descricao: '+2 de bônus nos teste de resistência de Fortitude.'
+  }
+  talentos {
+    id: 'fraudulento'
+    nome: 'Fraudulento'
+    # bonus_pericias { disfarces: 2, falsificacao: 2 }
+  }
+  talentos {
+    id: 'ignorar_componentes_materiais'
+    nome: 'Ignorar Componentes Materiais'
+    descricao: 'Conjura magias ignorando os componentes materiais.'
+  }
+  talentos {
+    id: 'investida_montada'
+    nome: 'Investida Montada'
+    # guerreiro: true
+    # pre_requisitos { talentos: ['combate_montado'] }
+    descricao: 'Pode se deslocar antes e depois de uma investida montada'
+  }
+  talentos {
+    id: 'derrubar_aprimorado'
+    nome: 'Derrubar Aprimorado (Imobilização Aprimorada)'
+    # pre_requisitos { talentos: ['especializacao_em_combate'] }
+    # guerreiro: true
+    # monge: 6
+    descricao: '+4 de bônus nas tentativas de derrubar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'especializacao_em_combate'
+    nome: 'Especialização em Combate'
+    # guerreiro: true
+    # pre_requisitos { atributos { inteligencia: 13 } }
+    descricao: 'Substitui bônus de ataque por CA (máximo 5 pontos).'
+  }
+  talentos {
+    id: 'iniciativa_aprimorada'
+    nome: 'Iniciativa Aprimorada'
+    # bonus_iniciativa: 4
+    # guerreiro: true
+    descricao: '+4 de bônus nos testes de iniciativa.'
+  }
+  talentos {
+    id: 'investigador'
+    nome: 'Investigador'
+    # bonus_pericias { obter_informacao: 2, procurar: 2 }
+  }
+  talentos {
+    id: 'lideranca'
+    nome: 'Liderança'
+    # pre_requisitos { nivel { total: 6 } }
+    descricao: 'Personagem atrai parceiros e seguidores.'
+  }
+  talentos {
+    id: 'lutar_as_cegas'
+    nome: 'Lutar as Cegas'
+    # guerreiro: true
+    descricao: 'Joga novamente a chance de falha por camuflagem.'
+  }
+  talentos {
+    id: 'dominar_magia'
+    nome: "Dominar Magia"
+    descricao: "Capaz de preparar magias escolhidas (bônus inteligência) sem um grimório."
+    # pre_requisito { nivel { # mago: 1, # mago_necromante: 1 } }
+    # mago: 1
+  }
+  # Habilidade Forma Selvagem Capaz de lançar magias na forma selvagem
+  talentos {
+    id: 'magia_natural'
+    nome: 'Magia Natural'
+    # pre_requisitos { atributos { sabedoria: 13 } }
+  }
+  talentos {
+    id: 'magia_penetrante'
+    nome: 'Magia Penetrante'
+    descricao: '+2 de bônus nos testes de conjurador contra Resistência à Magia.'
+  }
+  # Magia Penetrante TODO +2 de bônus nos testes de conjurador contra Resistência à Magia
+  # (cumulativo com magia penetrante).
+  talentos {
+    id: 'magia_penetrante_maior'
+    nome: 'Magia Penetrante Maior'
+    # pre_requisitos { talentos: [ 'magia_penetrante' ] }
+    descricao: '+2 de bônus nos testes de conjurador contra Resistência à Magia (cumulativo).'
+  }
+  talentos {
+    id: 'magia_combate'
+    nome: 'Magia em Combate'
+    descricao: '+4 de bônus nos teste de Concentração para conjurar na defensiva.'
+  }
+  talentos {
+    id: 'maos_level'
+    nome: 'Mãos Leves'
+    # bonus_pericias { prestidigitacao: 2, usar_cordas: 2 }
+  }
+  talentos {
+    id: 'mobilidade'
+    nome: 'Mobilidade'
+    # pre_requisitos { talentos: [ 'esquiva'] }
+    descricao: '+4 de bônus de esquiva na CA contra ataques de oportunidade.'
+    # bonus_ca { esquiva: 4 }
+    # guerreiro: true
+  }
+  talentos {
+    id: 'negociador'
+    nome: 'Negociador'
+    descricao: '+2 de bônus nos testes de Diplomacia e Sentir Motivação.'
+    # bonus_pericias { diplomacia: 2, sentir_motivacao: 2 }
+  }
+  talentos {
+    id: 'persuasivo'
+    nome: 'Persuasivo'
+    descricao: '+2 de bônus nos testes de blefar e intimidação.'
+    # bonus_pericias { blefar: 2, intimidacao: 2 }
+  }
+  talentos {
+    id: 'prontidao'
+    nome: 'Prontidão'
+    # bonus_pericias { ouvir: 2, observar: 2 }
+    descricao: 'Bonus de +2 em ouvir e observar.' }
+  talentos {
+    id: 'rastrear'
+    nome: 'Rastrear'
+    descricao: 'Utiliza Sobrevivência para rastrear.'
+  }
+  talentos {
+    id: 'reflexos_em_combate'
+    nome: 'Reflexos em Combate'
+    # guerreiro: true
+    # monge: 2
+    descricao: 'Permite número de ataques de oportunidade na rodada igual ao bonus de destreza.'
+  }
+  talentos {
+    id: 'reflexos_rapidos'
+    nome: 'Reflexos Rápidos'
+    # bonus_salvacao { reflexo: 2 }
+    descricao: '+2 de bônus nos testes de resistência de Reflexos.'
+  }
+  talentos {
+    id: 'saque_rapido'
+    nome: 'Saque rápido'
+    # pre_requisitos { bba: 1 }
+    # guerreiro: true
+    descricao: 'Saca uma arma branca como ação livre.'
+  }
+  talentos {
+    id: 'tiro_certeiro'
+    nome: 'Tiro Certeiro'
+    # guerreiro: true
+    descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros.'
+  }
+  talentos {
+    id: 'tiro_multiplo'
+    nome: 'Tiro Múltiplo'
+    # guerreiro: true
+    # ranger: 6
+    # pre_requisitos { atributos { destreza: 17 } talentos: ['tiro_certeiro', 'tiro_rapido'] bba: 6 }
+    descricao: 'Dispara duas ou mais flechas simultaneamente.'
+  }
+  talentos {
+    id: 'tiro_preciso'
+    nome: 'Tiro Preciso'
+    # guerreiro: true
+    # ranger: 11
+    # pre_requisitos { talentos: [ 'tiro_certeiro'] }
+    descricao: 'Anula a penalidade por disparar contra um adversário em combate corporal com um aliado (-4)'
+  }
+  talentos {
+    id: 'tiro_rapido'
+    nome: 'Tiro Rápido'
+    # guerreiro: true
+    # ranger: 2
+    # pre_requisitos { atributos { destreza: 13 } talentos: ['tiro_certeiro'] }
+    descricao: 'Um ataque à distância adicional por rodada.'
+  }
+  talentos {
+    id: 'tolerancia'
+    nome: 'Tolerância'  # Endurance.
+    descricao: '+4 de bônus nos testes para resistir a danos não letais (nadar, correr marcha forçada, respiração, fome e sede, frio, calor e sufocamento. Pode dormir em armadura leve ou média sem fatigar.'
+  }
+  talentos {
+    id: 'trespassar'
+    nome: 'Trespassar'  # Cleave
+    descricao: 'Desfere um ataque corporal extra depois de imobilizar um oponente'
+    # pre_requisitos { talentos: [ 'ataque_poderoso' ] }
+    # guerreiro: true
+  }
+  talentos {
+    id: 'usar_armas_simples'
+    nome: 'Usar armas simples'
+    descricao: 'Não sofre penalidades nos ataques com armas simples.'
+  }
+  talentos {
+    id: 'usar_arma_comum'
+    nome: 'Usar arma comum'
+    tipo_complemento: TCT_ARMA_COMUM
+    descricao: 'Não sofre penalidade nos ataques com uma arma comum específica.'
+  }
+  talentos {
+    id: 'usar_arma_exotica'
+    nome: 'Usar arma exótica'
+    tipo_complemento: TCT_ARMA_EXOTICA
+    # pre_requisitos { bba: 1 }
+    # guerreiro: true
+    descricao: 'Não sofre penalidade nos ataques com uma arma exótica específica.'
+  }
+  talentos {
+    id: 'usar_armadura_leve'
+    nome: 'Usar Armadura (leve)'
+    descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
+  }
+  talentos {
+    id: 'usar_armadura_media'
+    nome: 'Usar Armadura (média)'
+    # pre_requisitos { talentos: ['usar_armadura_leve'] }
+    descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
+  }
+  talentos {
+    id: 'usar_armadura_pesada'
+    nome: 'Usar Armadura (pesada)'
+    # pre_requisitos { talentos: ['usar_armadura_leve', 'usar_armadura_media'] }
+    descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
+  }
+  # TODO implementar efeitos de nao ter o feat.
+  talentos {
+    id: 'usar_escudo'
+    nome: 'Usar Escudo'
+    descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
+  }
+  # TODO A chave certa desse aqui eh ataque_escudo_aprimorado.
+  talentos {
+    id: 'usar_escudo_aprimorado'
+    nome: 'Ataque com Escudo Aprimorado'
+    # guerreiro: true
+    # pre_requisitos { talentos: [ 'usar_escudo', ] }
+    descricao: 'Conserva o bônus do escudo na CA quando ataca com ele.'
+  }
+  # Usar Escudo de Corpo Usar Escudo Não sofre penalidade de armadura nas jogadas de ataque
+  talentos {
+    id: 'usar_escudo_corpo'
+    nome: 'Usar Escudo de Corpo'
+  }
+  # toughness em ingles.
+  talentos {
+    id: 'vitalidade'
+    nome: 'Vitalidade'
+    # bonus_pv: 3
+    # cumulativo: true
+    descricao: '+3 pontos de vida.'
+  }
+  talentos {
+    id: 'vontade_ferro'
+    nome: 'Vontade de Ferro'
+    # bonus_salvacao { vontade: 2 }
+    descricao: '+2 de bônus nos testes de resistência de Vontade.'
+  }
+  talentos {
+    id: 'criar_armaduras_e_armas_magicas'
+    nome: 'Criar Armaduras e Armas Mágicas'
+    # pre_requisitos { nivel { conjurador: 5 } }
+    descricao: 'Permite a criação de armas, armaduras e escudos mágicos.'
+    # mago: 1
+  }
+  talentos {
+    id: 'criar_bastao'
+    nome: 'Criar Bastão'
+    # pre_requisitos { nivel { conjurador: 9 } }
+    descricao: 'Permite a criação de bastões mágicos.'
+    # mago: 1
+  }
+  talentos {
+    id: 'criar_cajado'
+    nome: 'Criar Cajado'
+    # pre_requisitos { nivel { conjurador: 12 } }
+    descricao: 'Permite a criação de cajados mágicos'
+    # mago: 1
+  }
+  talentos {
+    id: 'criar_item_maravilhoso'
+    nome: 'Criar Item Maravilhoso'
+    # pre_requisitos { nivel { conjurador: 3 } }
+    descricao: 'Permite a criação de itens mágicos maravilhosos.'
+    # mago: 1
+  }
+  talentos {
+    id: 'criar_varinha'
+    nome: 'Criar Varinha'
+    # pre_requisitos { nivel { conjurador: 5 } }
+    descricao: 'Permite a criação de varinhas mágicas .'
+    # mago: 1
+  }
+  talentos {
+    id: 'preparar_pocao'
+    nome: 'Preparar Poção'
+    # pre_requisitos { nivel { conjurador: 3 } }
+    descricao: 'Permite a criação de poções mágicas.'
+    # mago: 1
+  }
+  # Sucesso Decisivo Aprimorado¹² Usar a arma, bônus base de ataque +8 Dobra a margem de ameaça da arma
+  talentos {
+    id: 'sucesso_decisivo_aprimorado'
+    nome: 'Sucesso Decisivo Aprimorado'
+    # pre_requisitos { proficiencia_arma: true }
+    tipo_complemento: TCT_ARMA
+    descricao: 'Dobra margem de ameaça da arma.'
+    # guerreiro: true
+  }
+  # Talentos Metamágicos
+  # TODO implementar niveis_adicionais.
+  talentos {
+    id: 'acelerar_magia'
+    nome: 'Acelerar Magia'
+    descricao: 'Permite conjurar magia como ação livre, ao custo de três níveis adicionais.'
+    # niveis_adicionais: 3
+    # mago: 1
+  }
+  talentos {
+    id: 'ampliar_magia'
+    nome: 'Ampliar Magia'
+    descricao: 'Dobra a área da magia, ao custo de três níveis adicionais'
+    # niveis_adicionais: 3
+    # mago: 1
+  }
+  talentos {
+    id: 'aumentar_magia'
+    nome: 'Aumentar Magia'
+    descricao: 'Dobra o alcance da magia, ao custo de um nível adicional'
+    # niveis_adicionais: 1
+    # mago: 1
+  }
+  talentos {
+    id: 'elevar_magia'
+    nome: 'Elevar Magia'
+    descricao: 'Conjura a magia num nível mais elevado, alterando sua classe de dificuldade, nível etc.'
+    # mago: 1
+    # niveis_adicionais: variavel
+  }
+  talentos {
+    id: 'estender_magia'
+    nome: 'Estender Magia'
+    descricao: 'Dobra a duração da magia, ao custo de um nível adicional.'
+    # niveis_adicionais: 1
+    # mago: 1
+  }
+  talentos {
+    id: 'magia_sem_gestos'
+    nome: 'Magia sem Gestos'
+    descricao: 'Ignora os componentes gestuais da magia, ao custo de um nível adicional.'
+    # niveis_adicionais: 1
+    # mago: 1
+  }
+  talentos {
+    id: 'magia_silenciosa'
+    nome: 'Magia Silenciosa'
+    descricao: 'Ignora os componentes verbais da magia, ao custo de um nível adicional'
+    # niveis_adicionais: 1
+    # mago: 1
+    # TODO feiticos de bardo nao podem.
+  }
+  talentos {
+    id: 'maximizar_magia'
+    nome: 'Maximizar Magia'
+    descricao: 'Maximiza todas as variáveis numéricas dos efeitos da magia, ao custo de três níveis adicionais'
+    # niveis_adicionais: 3
+    # mago: 1
+  }
+  talentos {
+    id: 'potencializar_magia'
+    nome: 'Potencializar Magia'
+    descricao: 'Aumenta em 50% todas as variáveis numéricas dos efeitos da magia, ao custo de dois níveis adicionais.'
+    # niveis_adicionais: 2
+    # mago: 1
+  }
 }

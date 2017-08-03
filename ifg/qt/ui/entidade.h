@@ -303,6 +303,12 @@ public:
     QHBoxLayout *horizontalLayout_30;
     QLabel *label_37;
     QPlainTextEdit *lista_tesouro;
+    QWidget *layoutWidget_7;
+    QHBoxLayout *horizontalLayout_36;
+    QLabel *label_74;
+    QListWidget *lista_pocoes;
+    QPushButton *botao_adicionar_pocao;
+    QPushButton *botao_remover_pocao;
     QWidget *tab_2;
     QWidget *layoutWidget_5;
     QHBoxLayout *horizontalLayout_32;
@@ -1751,6 +1757,31 @@ public:
 
         horizontalLayout_30->addWidget(lista_tesouro);
 
+        layoutWidget_7 = new QWidget(tab);
+        layoutWidget_7->setObjectName(QString::fromUtf8("layoutWidget_7"));
+        layoutWidget_7->setGeometry(QRect(10, 250, 481, 221));
+        horizontalLayout_36 = new QHBoxLayout(layoutWidget_7);
+        horizontalLayout_36->setObjectName(QString::fromUtf8("horizontalLayout_36"));
+        horizontalLayout_36->setContentsMargins(0, 0, 0, 0);
+        label_74 = new QLabel(layoutWidget_7);
+        label_74->setObjectName(QString::fromUtf8("label_74"));
+        sizePolicy5.setHeightForWidth(label_74->sizePolicy().hasHeightForWidth());
+        label_74->setSizePolicy(sizePolicy5);
+        label_74->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_36->addWidget(label_74);
+
+        lista_pocoes = new QListWidget(layoutWidget_7);
+        lista_pocoes->setObjectName(QString::fromUtf8("lista_pocoes"));
+
+        horizontalLayout_36->addWidget(lista_pocoes);
+
+        botao_adicionar_pocao = new QPushButton(tab);
+        botao_adicionar_pocao->setObjectName(QString::fromUtf8("botao_adicionar_pocao"));
+        botao_adicionar_pocao->setGeometry(QRect(500, 320, 31, 27));
+        botao_remover_pocao = new QPushButton(tab);
+        botao_remover_pocao->setObjectName(QString::fromUtf8("botao_remover_pocao"));
+        botao_remover_pocao->setGeometry(QRect(500, 350, 31, 27));
         tab_tesouro->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -2194,6 +2225,9 @@ public:
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", 0, QApplication::UnicodeUTF8));
+        botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
+        botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
         label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

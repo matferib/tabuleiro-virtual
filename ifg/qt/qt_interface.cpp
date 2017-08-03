@@ -30,6 +30,36 @@ void InterfaceGraficaQt::MostraMensagem(
   funcao_volta();
 }
 
+void InterfaceGraficaQt::EscolheItemLista(
+    const std::string& titulo,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, int)> funcao_volta) {
+  // Popula.
+  ifg::qt::Ui::ListaPaginada gerador;
+  auto* dialogo = new QDialog(pai_);
+  gerador.setupUi(dialogo);
+  dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
+  for (const auto& item : lista) {
+    new QListWidgetItem(QString::fromUtf8(item.c_str()), gerador.lista);
+  }
+  gerador.lista->setFocus();
+  auto lambda_aceito = [this, &gerador, dialogo, lista, funcao_volta] () {
+    funcao_volta(gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < lista.size(), gerador.lista->currentRow());
+    dialogo->accept();
+  };
+  auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
+    funcao_volta(false, -1);
+    dialogo->reject();
+  };
+
+  lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
+  dialogo->exec();
+  delete dialogo;
+}
+
+
 void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,
     const std::vector<std::string>& tab_dinamicos,
@@ -62,9 +92,13 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
       dialogo->accept();
     }
   };
+  auto lambda_rejeitado = [this, &gerador, dialogo, tab_estaticos, tab_dinamicos, funcao_volta] () {
+    funcao_volta("", arq::TIPO_TABULEIRO);
+    dialogo->reject();
+  };
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
-  QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
   dialogo->exec();
   delete dialogo;
 }

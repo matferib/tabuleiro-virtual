@@ -58,8 +58,6 @@ class Acao {
       const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
-  // Desenho comum. Retorna false se deve encerrar.
-  void DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
   // Funcao auxiliar para atualizar alvo. Deve ser chamada manualmente por cada subclasse.
@@ -101,6 +99,10 @@ class Acao {
   // Para controle de quanto o alvo se moveu.
   float dx_total_ = 0, dy_total_ = 0, dz_total_ = 0;
   estado_alvo_e estado_alvo_ = ALVO_NAO_ATINGIDO;
+
+ private:
+  // Desenho comum.
+  void DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const;
 };
 
 // Cria uma nova acao no tabuleiro.

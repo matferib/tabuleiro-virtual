@@ -721,8 +721,8 @@ void PosicionaRaster2d(int x, int y) {
   gl::PosicaoRasterAbsoluta(x, y);
 }
 
-TipoEvento StringParaEfeito(const std::string& s) {
-  static std::unordered_map<std::string, TipoEvento> mapa = {
+TipoEfeito StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, TipoEfeito> mapa = {
     { "borrar", EFEITO_BORRAR },
     { "reflexos", EFEITO_REFLEXOS },
     { "piscar", EFEITO_PISCAR },
@@ -931,7 +931,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   const int ataque_origem = ea.BonusAtaque();
   const int d20_defesa_agarrar = RolaDado(20);
-  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(CATipoAtaque(*da));
+  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(ea.Id(), CATipoAtaque(*da));
   const std::string str_ca_destino = da->ataque_agarrar()
       ? google::protobuf::StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
       : google::protobuf::StringPrintf("%d", ca_destino);
@@ -1272,6 +1272,16 @@ int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& b
 }
 
 namespace {
+
+// Atribui o bonus se valor != 0, remove caso contrario.
+void AtribuiOuRemoveBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  if (valor != 0) {
+    AtribuiBonus(valor, tipo, origem, bonus);
+  } else {
+    RemoveBonus(tipo, origem, bonus);
+  }
+}
+
 int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
@@ -1282,12 +1292,12 @@ int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
 
 // Retorna o bonus de ataque para uma determinada arma.
 int CalculaBonusBaseParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  return BonusTotal(da.outros_bonus_ataque());
+  return BonusTotal(da.bonus_ataque());
 }
 
 // Retorna a string de dano para uma arma.
 std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  const int mod_final = BonusTotal(da.outros_bonus_dano());
+  const int mod_final = BonusTotal(da.bonus_dano());
   return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
 
@@ -1300,11 +1310,33 @@ std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho
   }
 }
 
+// Retorna a arma da outra mao.
+const ArmaProto& ArmaOutraMao(
+    const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da_mao, const EntidadeProto& proto) {
+  const EntidadeProto::DadosAtaque* da_outra_mao = &da_mao;
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.rotulo() == da_mao.rotulo() && da.empunhadura() != da_mao.empunhadura()) {
+      da_outra_mao = &da;
+      break;
+    }
+  }
+  if (da_outra_mao == &da_mao) LOG(WARNING) << "Nao encontrei a arma na outra mao, fallback pro mesmo tipo";
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.tipo_ataque() == da_mao.tipo_ataque() && da.empunhadura() != da_mao.empunhadura()) {
+      da_outra_mao = &da;
+      break;
+    }
+  }
+  if (da_outra_mao == &da_mao) {
+    LOG(ERROR) << "Nao encontrei a arma na outra mao, retornando a mesma: " << da_mao.id_arma();
+  }
+  return tabelas.Arma(da_outra_mao->id_arma());
+}
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
   // Passa alguns campos da acao para o ataque.
-  AcaoParaAtaque(tabelas.Acao(da->tipo_ataque()), da);
-
   const auto& arma = tabelas.Arma(da->id_arma());
+  AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -1374,7 +1406,44 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else if (da->ataque_toque()) {
     bba = proto.dados_ataque_globais().acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
   }
-  AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
+
+  {
+    auto* bonus_ataque = da->mutable_bonus_ataque();
+    auto* bonus_dano = da->mutable_bonus_dano();
+    // Obra prima e bonus magico.
+    AtribuiBonus(bba, TB_BASE, "base", bonus_ataque);
+    if (da->bonus_magico()) {
+      da->set_obra_prima(true);  // Toda arma magica eh obra prima.
+      AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_ataque);
+      AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_dano);
+    } else {
+      RemoveBonus(TB_MELHORIA, "arma_magica", bonus_ataque);
+      RemoveBonus(TB_MELHORIA, "arma_magica", bonus_dano);
+    }
+    AtribuiOuRemoveBonus(da->obra_prima() ? 1 : 0, TB_MELHORIA, "obra_prima", bonus_ataque);
+    // Duas maos.
+    switch (da->empunhadura()) {
+      case EA_MAO_BOA: {
+        // TODO detectar a arma da outra mao.
+        const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
+        int penalidade = PossuiCategoria(CAT_LEVE, arma_outra_mao) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -4 : -6;
+        if (PossuiTalento("combater_duas_armas", proto)) penalidade += 2;
+        AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
+        break;
+      }
+      case EA_MAO_RUIM: {
+        int penalidade = PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -8 : -10;
+        if (PossuiTalento("combater_duas_armas", proto)) penalidade += 6;
+        AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
+        break;
+      }
+      default:
+        RemoveBonus(TB_SEM_NOME, "empunhadura", bonus_ataque);
+    }
+    // Outros ataques.
+    AtribuiOuRemoveBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
+  }
+  // Forca no dano.
   if (usar_forca_dano) {
     int modificador_forca_dano = arma.has_max_forca() ? std::min(modificador_forca, arma.max_forca()) : modificador_forca;
     int dano_forca = 0;
@@ -1388,48 +1457,79 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     } else {
       dano_forca = modificador_forca_dano;
     }
-    AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
+    AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   } else {
-    RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_outros_bonus_dano());
+    RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   }
   // Estes dois sao os mais importantes, porque eh o que vale.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
-  if (proto.has_bba() || !da->has_bonus_ataque()) da->set_bonus_ataque(CalculaBonusBaseParaAtaque(*da, proto));
+  if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
-
-  VLOG(1) << "Proto apos RecomputaDependencias: " << proto.DebugString();
 }
 
-void AplicaBonus(const Bonus& bonus, Bonus* alvo) {
+// Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
+void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
-      AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
+      if (po.valor() != 0) {
+        AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
+      } else {
+        RemoveBonus(bi.tipo(), po.origem(), alvo);
+      }
     }
   }
 }
 
 void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
-  AplicaBonus(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
-  AplicaBonus(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
-  AplicaBonus(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
-  AplicaBonus(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
-  AplicaBonus(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
-  AplicaBonus(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
-  AplicaBonus(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
-  AplicaBonus(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
+  AplicaBonusOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
+  AplicaBonusOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
+  AplicaBonusOuRemove(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
+  AplicaBonusOuRemove(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
+  AplicaBonusOuRemove(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+  AplicaBonusOuRemove(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
+  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   for (auto& da : *proto->mutable_dados_ataque()) {
-    AplicaBonus(consequencia.jogada_ataque(), da.mutable_outros_bonus_ataque());
+    AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
   }
+  AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
+}
+
+void PreencheValorBonus(int valor, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    for (auto& po : *bi.mutable_por_origem()) {
+      po.set_valor(valor);
+    }
+  }
+}
+
+// Caso a consequencia use complemento, preenchera os valores existentes com ela.
+ConsequenciaEvento PreencheConsequencia(int complemento, const ConsequenciaEvento& consequencia_original) {
+  ConsequenciaEvento c(consequencia_original);
+  if (c.usa_complemento()) {
+    if (c.atributos().has_forca()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_forca());
+    if (c.atributos().has_destreza()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_destreza());
+    if (c.atributos().has_constituicao()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_constituicao());
+    if (c.atributos().has_inteligencia()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_inteligencia());
+    if (c.atributos().has_sabedoria()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_sabedoria());
+    if (c.atributos().has_carisma()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_carisma());
+    if (c.dados_defesa().has_ca()) PreencheValorBonus(complemento, c.mutable_dados_defesa()->mutable_ca());
+    if (c.has_jogada_ataque()) PreencheValorBonus(complemento, c.mutable_jogada_ataque());
+    if (c.has_tamanho()) PreencheValorBonus(complemento, c.mutable_tamanho());
+  }
+  return c;
 }
 
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
   int i = 0;
   // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
-  for (const auto& evento : proto->evento()) {
+  for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      AplicaEfeito(efeito.consequencia_fim(), proto);
+      AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia_fim()), proto);
       eventos_a_remover.insert(i);
     }
     ++i;
@@ -1439,7 +1539,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   for (const auto& evento : proto->evento()) {
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(efeito.consequencia(), proto);
+    AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia()), proto);
   }
 }
 
@@ -1528,6 +1628,16 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   }
 }
 
+void RecomputaDependenciaTamanho(EntidadeProto* proto) {
+  if (!proto->has_bonus_tamanho()) {
+    AtribuiBonus(proto->tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
+  }
+  int total = BonusTotal(proto->bonus_tamanho());
+  if (total > TM_COLOSSAL) { total = TM_COLOSSAL; }
+  else if (total < TM_MINUSCULO) { total = TM_MINUSCULO; }
+  proto->set_tamanho(TamanhoEntidade(total));
+}
+
 }  // namespace
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
@@ -1539,9 +1649,11 @@ bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
 }
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
+  VLOG(1) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasEfeitos(tabelas, proto);
   RecomputaDependenciasDestreza(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
+  RecomputaDependenciaTamanho(proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
@@ -1577,6 +1689,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   for (auto& da : *proto->mutable_dados_ataque()) {
     RecomputaDependenciasArma(tabelas, &da, *proto);
   }
+  VLOG(1) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
 
 int BonusTotal(const Bonus& bonus) {
@@ -1718,19 +1831,22 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
   return 0;
 }
 
-bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade) {
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
   });
 }
 
-void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
   da->set_tipo_ataque(acao_proto.id());
+  if (da->tipo_ataque().empty() && da->has_id_arma()) {
+    da->set_tipo_ataque(PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
+  }
   if (acao_proto.has_ataque_toque()) {
     da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
     da->clear_ataque_toque();
-  } 
+  }
   if (acao_proto.has_ataque_distancia()) {
     da->set_ataque_distancia(acao_proto.ataque_distancia());
   } else {
@@ -1775,7 +1891,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
       "%s%s: %+d%s, %s%s%s, CA: %s",
       da.rotulo().c_str(),
       da.ataque_toque() ? " (T)" : "",
-      da.bonus_ataque(),
+      da.bonus_ataque_final(),
       texto_modificador,
       StringDanoParaAcao(da, proto).c_str(),
       critico.c_str(),
@@ -1798,12 +1914,15 @@ std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const Entidad
   return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
 }
 
-std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
+std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
   char string_rotulo[40] = { '\0' };
   if (!da.rotulo().empty()) {
     snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
   }
+  std::string string_nome_arma = da.id_arma().empty()
+      ? ""
+      : google::protobuf::StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
   char string_alcance[40] = { '\0' };
   if (da.has_alcance_m()) {
     char string_incrementos[40] = { '\0' };
@@ -1814,8 +1933,9 @@ std::string StringResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
   }
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
-      "id: %s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), da.dano().c_str(), StringCritico(da).c_str(),
+      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
+      string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(), string_alcance,
+      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
@@ -1881,5 +2001,15 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto) {
   }
 }
 // Fim Formas Alternativas
+
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade) {
+  for (const auto& t : entidade.info_talentos().gerais()) {
+    if (chave_talento == t.id()) return true;
+  }
+  for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id()) return true;
+  }
+  return false;
+}
 
 }  // namespace ent

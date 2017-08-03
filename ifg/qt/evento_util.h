@@ -77,7 +77,7 @@ class ModeloEvento : public QAbstractTableModel {
     const int column = index.column();
     const auto& evento = eventos_->Get(row);
     switch (column) {
-      case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEvento_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
+      case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
       case 1: return QVariant(evento.complemento());
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
@@ -101,8 +101,8 @@ class ModeloEvento : public QAbstractTableModel {
     auto* evento = eventos_->Mutable(row);
     switch (column) {
       case 0: {
-        if (!ent::TipoEvento_IsValid(value.toInt())) return false;
-        evento->set_id_efeito(ent::TipoEvento(value.toInt()));
+        if (!ent::TipoEfeito_IsValid(value.toInt())) return false;
+        evento->set_id_efeito(ent::TipoEfeito(value.toInt()));
         emit dataChanged(index, index);
         return true;
       }
@@ -134,10 +134,10 @@ class ModeloEvento : public QAbstractTableModel {
 };
 
 // Responsavel por tratar a edicao do tipo de efeito.
-class TipoEventoDelegate : public QItemDelegate {
+class TipoEfeitoDelegate : public QItemDelegate {
  public:
-  TipoEventoDelegate(QTableView* tabela, ModeloEvento* modelo, QObject* parent)
-      : QItemDelegate(), tabela_(tabela), modelo_(modelo) {}
+  TipoEfeitoDelegate(QTableView* tabela, ModeloEvento* modelo, QObject* parent)
+      : QItemDelegate(), modelo_(modelo) {}
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
@@ -152,7 +152,7 @@ class TipoEventoDelegate : public QItemDelegate {
       return;
     }
     const QVariant& data = modelo_->data(index, Qt::EditRole);
-    if (!ent::TipoEvento_IsValid(data.toInt())) return;
+    if (!ent::TipoEfeito_IsValid(data.toInt())) return;
     combo->setCurrentIndex(data.toInt());
   }
 
@@ -161,34 +161,33 @@ class TipoEventoDelegate : public QItemDelegate {
       QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
     auto* combo = qobject_cast<QComboBox*>(editor);
     if (combo == nullptr) {
-      LOG(INFO) << "combo == nullptr em setEditorData";
+      LOG(ERROR) << "combo == nullptr em setEditorData";
       return;
     }
     modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
-    tabela_->reset();
   }
 
- private slots:
-  void commitAndCloseEditor() {
-    QComboBox* combo = qobject_cast<QComboBox*>(sender());
-    setModelData(combo, modelo_, combo->rootModelIndex());
+ private:
+  void commitAndCloseEditor(QComboBox* combo) {
     emit commitData(combo);
     emit closeEditor(combo);
   }
 
- private:
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraComboEvento(QComboBox* combo) const {
     // O min eh -1, invalido. Entao comeca do 0.
-    for (int tipo = 0; tipo <= ent::TipoEvento_MAX; tipo++) {
-      if (!ent::TipoEvento_IsValid(tipo)) continue;
-      combo->addItem(ent::TipoEvento_Name(ent::TipoEvento(tipo)).c_str(), QVariant(tipo));
+    for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
+      if (!ent::TipoEfeito_IsValid(tipo)) continue;
+      combo->addItem(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)).c_str(), QVariant(tipo));
     }
-    connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
+      auto* thiz = const_cast<TipoEfeitoDelegate*>(this);
+      thiz->commitAndCloseEditor(combo);
+    });
     return combo;
   }
 
-  QTableView* tabela_;
   ModeloEvento* modelo_;
 };
 

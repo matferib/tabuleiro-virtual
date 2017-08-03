@@ -149,7 +149,7 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 void PosicionaRaster2d(int x, int y);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
-TipoEvento StringParaEfeito(const std::string& s);
+TipoEfeito StringParaEfeito(const std::string& s);
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {
@@ -265,10 +265,10 @@ inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario()
 inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
-bool PossuiEvento(TipoEvento tipo, const EntidadeProto& entidade);
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 
-// Passa alguns dados de acao proto para dados ataque.
-void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
+void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
@@ -278,7 +278,7 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da);
 
 // Retorna o resumo da arma, para display na UI. Nao inclui modificadores circunstanciais.
 // Algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
-std::string StringResumoArma(const EntidadeProto::DadosAtaque& da);
+std::string StringResumoArma(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da);
 
 // Retorna os detalhes da arma para display na lista de acoes, incluindo alguns modificadores de circunstancia (como caido, por exemplo).
 // Algo como: 'machado: +8+2, 1d8(x3)+2d6, CA 15/15/12'
@@ -312,6 +312,9 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
 
 // Retorna true se uma arma possui a categoria passada.
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
+
+// Retorna true se o personagem tiver o talento.
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
 
 }  // namespace ent
 

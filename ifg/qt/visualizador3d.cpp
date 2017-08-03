@@ -27,6 +27,7 @@
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
@@ -619,9 +620,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_y_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().y());
   gerador.spin_escala_z_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().z());
 
-  if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
-  }
+  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
 
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
@@ -795,12 +794,9 @@ void AdicionaOuAtualizaAtaqueEntidade(
   ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
   da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
 
-  // Bonus magico vale para ataque e dano.
-  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_ataque());
-  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
+  da.set_bonus_magico(gerador.spin_bonus_magico->value());
 
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
-  ent::AtribuiBonus(da.obra_prima() ? 1 : 0, ent::TB_MELHORIA, "arma_obra_prima", da.mutable_outros_bonus_ataque());
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
   if (id == "nenhuma") {
@@ -864,7 +860,7 @@ void PreencheConfiguraEventos(
   gerador.tabela_lista_eventos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
     const int linha = modelo->rowCount();
-    modelo->insertRows(linha, 1, QModelIndex()); 
+    modelo->insertRows(linha, 1, QModelIndex());
     gerador.tabela_lista_eventos->selectRow(linha);
   });
   lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
@@ -876,7 +872,7 @@ void PreencheConfiguraEventos(
       modelo->removeRows(linha, 1, QModelIndex());
     }
   });
-  auto* delegado = new TipoEventoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);
+  auto* delegado = new TipoEfeitoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);
   std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(gerador.tabela_lista_eventos->itemDelegateForColumn(0));
   gerador.tabela_lista_eventos->setItemDelegateForColumn(0, delegado);
   delegado->deleteLater();
@@ -918,6 +914,36 @@ void PreencheConfiguraFormasAlternativas(
     *proto_retornado->mutable_formas_alternativas(row) = ProtoFormaAlternativa(*proto_forma);
     AtualizaUIFormasAlternativas(gerador, *proto_retornado);
   });
+}
+
+void PreencheConfiguraTesouro(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  const auto& tabelas = this_->tabelas();
+
+  std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
+  auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
+  gerador.lista_pocoes->setItemDelegate(delegado);
+  delegado->deleteLater();
+
+  lambda_connect(gerador.lista_tesouro, SIGNAL(textChanged()), [&tabelas, &gerador, proto_retornado] () {
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    auto* pocao = proto_retornado->mutable_tesouro()->add_pocoes();
+    pocao->set_id("forca_touro");
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    gerador.lista_pocoes->setCurrentRow(proto_retornado->tesouro().pocoes_size() - 1);
+  });
+  lambda_connect(gerador.botao_remover_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    const int indice = gerador.lista_pocoes->currentRow();
+    if (indice >= 0 && indice < proto_retornado->tesouro().pocoes_size()) {
+      proto_retornado->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice, 1);
+    }
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    gerador.lista_pocoes->setCurrentRow(indice);
+  });
+  AtualizaUITesouro(tabelas, gerador, proto);
 }
 
 void PreencheConfiguraAtributos(
@@ -1117,14 +1143,14 @@ void PreencheConfiguraDadosAtaque(
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
-    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_ataque());
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_ataque());
     EditaAtualizaUIAtaque();
   });
   lambda_connect(gerador.botao_bonus_dano, SIGNAL(clicked()), [this_, EditaAtualizaUIAtaque, &gerador, proto_retornado] {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
     }
-    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_dano());
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_dano());
     EditaAtualizaUIAtaque();
   });
   // Furtivo
@@ -1310,10 +1336,10 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Tamanho.
-  gerador.slider_tamanho->setSliderPosition(entidade.tamanho());
+  gerador.slider_tamanho->setSliderPosition(ent::BonusIndividualTotal(ent::TB_BASE, entidade.bonus_tamanho()));
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
   lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] () {
-    proto_retornado->set_tamanho(ent::TamanhoEntidade(gerador.slider_tamanho->sliderPosition()));
+    ent::AtribuiBonus(gerador.slider_tamanho->sliderPosition(), ent::TB_BASE, "base", proto_retornado->mutable_bonus_tamanho());
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
     ent::RecomputaDependencias(tabelas(), proto_retornado);
     AtualizaUI(tabelas(), gerador, *proto_retornado);
@@ -1385,9 +1411,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Translacao em Z.
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
-  if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
-  }
+  PreencheConfiguraTesouro(this, gerador, entidade, proto_retornado);
+
   gerador.texto_notas->appendPlainText(QString::fromUtf8(entidade.notas().c_str()));
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
@@ -1500,7 +1525,6 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
-    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
       proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());

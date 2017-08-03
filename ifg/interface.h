@@ -8,6 +8,7 @@
 #include "ntf/notificacao.h"
 
 namespace ent {
+class Tabelas;
 class Tabuleiro;
 }  // namespace ent
 namespace ifg {
@@ -21,8 +22,8 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida);
 class InterfaceGrafica : public ntf::Receptor {
  public:
   InterfaceGrafica(
-      TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
-      : teclado_mouse_(teclado_mouse), tabuleiro_(tabuleiro), central_(central) {
+      const ent::Tabelas& tabelas, TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
+      : tabelas_(tabelas), teclado_mouse_(teclado_mouse), tabuleiro_(tabuleiro), central_(central) {
     central_->RegistraReceptor(this);
   }
 
@@ -35,6 +36,12 @@ class InterfaceGrafica : public ntf::Receptor {
  protected:
   // Mostra um dialogo de erro ou informacao.
   virtual void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) = 0;
+
+  // Funcao generica para retorno da escolha de um item da lista.
+  virtual void EscolheItemLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, int)> funcao_volta) = 0;
 
   // Mostra dialogo para escolher um item entre tab_estaticos e tab_dinamicos, chamando
   // a funcao de volta ao terminar.
@@ -53,7 +60,8 @@ class InterfaceGrafica : public ntf::Receptor {
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
   // Mostra o dialogo de selecao de cor. A funcao de volta recebe se houve selecao de cor e caso positivo,
-  // os componentes rgba.
+  // os componentes rgba. A versao aqui apresentada nao faz nada, pois no android e IOS nao implementei.
+  // No QT ela eh overriden.
   virtual void EscolheCor(
       float r, float g, float b, float a, 
       std::function<void(bool, float, float, float, float)> funcao_volta) {
@@ -61,11 +69,16 @@ class InterfaceGrafica : public ntf::Receptor {
   }
 
  protected:
+  const ent::Tabelas& tabelas_;
   TratadorTecladoMouse* teclado_mouse_ = nullptr;
   ent::Tabuleiro* tabuleiro_ = nullptr;
   ntf::CentralNotificacoes* central_ = nullptr;
 
  private:
+  void TrataEscolherPocao(const ntf::Notificacao& notificacao);
+  void VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao);
+  void VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito);
+
   void TrataEscolheCor(const ntf::Notificacao& notificacao);
   void VoltaEscolheCor(bool ok, float r, float g, float b, float a);
 

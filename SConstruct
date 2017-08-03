@@ -13,6 +13,7 @@ if sistema == 'win32':
   env.Tool('mingw')
 else:
   env.Tool('default')
+  env['CXX'] = 'clang++'
 
 # qt
 env['QT_MOCHSUFFIX'] = '.cpp'
@@ -59,7 +60,7 @@ else:
   # linux.
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 
 if (debug == '1'):

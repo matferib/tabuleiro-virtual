@@ -54,6 +54,10 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataEscolherModeloEntidade(notificacao);
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO: {
+      TrataEscolherPocao(notificacao);
+      return true;
+    }
     case ntf::TN_INFO:
     case ntf::TN_ERRO: {
       TrataMostraMensagem(notificacao.tipo() == ntf::TN_ERRO, notificacao.erro());
@@ -63,6 +67,59 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
   }
   return false;
+}
+
+//----------------
+// Escolher Pocao.
+//----------------
+void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
+  if (pocoes_entidade.size() == 1) {
+    VoltaEscolherPocao(notificacao, true, 0);
+    return;
+  }
+
+  std::vector<std::string> nomes_pocoes;
+  for (const auto& pocao : pocoes_entidade) {
+    nomes_pocoes.push_back(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
+  }
+  EscolheItemLista(
+      "Escolha a poção", nomes_pocoes,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherPocao,
+          this, notificacao,
+          _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao) {
+  const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
+  if (!ok || indice_pocao >= pocoes_entidade.size()) {
+    VoltaEscolherEfeito(notificacao, 0, false, 0);
+    return;
+  }
+  const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao).id());
+  if (pocao.id_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
+    VoltaEscolherEfeito(notificacao, indice_pocao, true, 0);
+    return;
+  }
+  std::vector<std::string> efeitos;
+  for (auto id_efeito : pocao.id_efeito()) {
+    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)id_efeito));
+  }
+  EscolheItemLista(
+      "Escolha o efeito", efeitos,
+      std::bind(
+        &ifg::InterfaceGrafica::VoltaEscolherEfeito,
+        this, notificacao, indice_pocao,
+        _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito) {
+  if (ok) {
+    tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
+  }
+  //tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----

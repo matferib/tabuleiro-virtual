@@ -123,6 +123,10 @@ enum IdBotao {
   CONTROLE_FALHA_20 = 114;
   CONTROLE_FALHA_50 = 115;
 
+  CONTROLE_BEBER_POCAO = 117;
+
+  CONTROLE_MODO_ESQUIVA = 118;
+
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
   CONTROLE_ULTIMA_ACAO_0 = 201;
@@ -152,6 +156,17 @@ enum TipoVisibilidade {
   VIS_IGUAL_A = 0;
   // A visibilidade do botao é inversa ao id de referencia.
   VIS_INVERSO_DE = 1;
+  // Visivel apenas em camera presa.
+  VIS_CAMERA_PRESA = 2;
+  // Visivel apenas em primeira pessoa.
+  VIS_CAMERA_PRIMEIRA_PESSOA = 3;
+  // Visivel apenas com uma entidade selecionada.
+  //VIS_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
+  //VIS_CAMERA_PRESA_OU_SELECIONADA = 5;
+  // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo pocao.
+  VIS_POCAO = 6;
+  // Visivel se a entidade tiver esquiva.
+  VIS_ESQUIVA = 7;
 }
 
 message Visibilidade {
