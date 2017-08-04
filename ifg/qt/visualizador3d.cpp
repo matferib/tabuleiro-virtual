@@ -28,6 +28,7 @@
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
 #include "ifg/qt/pocoes_util.h"
+#include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
@@ -884,6 +885,44 @@ void PreencheConfiguraEventos(
   });
 }
 
+void PreencheConfiguraTalentos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  const ent::Tabelas& tabelas = this_->tabelas();
+  *proto_retornado->mutable_info_talentos() = proto.info_talentos();
+  auto* modelo(new ModeloTalentos(tabelas, proto_retornado->mutable_info_talentos(), gerador.tabela_talentos));
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_talentos->selectionModel());
+  std::map<std::string, std::string> mapa;
+  for (const auto& t : tabelas.todas().tabela_talentos().talentos()) {
+    mapa[t.nome()] = t.id();
+  }
+  auto* delegado = new MapaDelegate(mapa, modelo, gerador.tabela_talentos);
+  std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(gerador.tabela_talentos->itemDelegateForColumn(0));
+  gerador.tabela_talentos->setItemDelegateForColumn(0, delegado);
+  delegado->deleteLater();
+
+  gerador.tabela_talentos->setModel(modelo);
+  lambda_connect(gerador.botao_adicionar_talento, SIGNAL(clicked()), [&gerador, modelo] () {
+    const int linha = modelo->rowCount();
+    modelo->insertRows(linha, 1, QModelIndex());
+    gerador.tabela_talentos->selectRow(linha);
+  });
+  lambda_connect(gerador.botao_remover_talento, SIGNAL(clicked()), [&gerador, modelo] () {
+    std::set<int, std::greater<int>> linhas;
+    for (const QModelIndex& index : gerador.tabela_talentos->selectionModel()->selectedIndexes()) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->removeRows(linha, 1, QModelIndex());
+    }
+  });
+  gerador.tabela_talentos->resizeColumnsToContents();
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                 [proto_retornado, modelo] () {
+    *proto_retornado->mutable_info_talentos() = modelo->Converte();
+  });
+}
+
 void PreencheConfiguraFormasAlternativas(
     Visualizador3d* this_, QDialog* dialogo,
     ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado,
@@ -1324,6 +1363,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Formas alternativas.
   PreencheConfiguraFormasAlternativas(this, dialogo, gerador, entidade, proto_retornado);
+
+  // Talentos.
+  PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);

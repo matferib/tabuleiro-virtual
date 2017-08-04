@@ -180,6 +180,11 @@ public:
     QSpacerItem *horizontalSpacer_9;
     QLabel *label_64;
     QComboBox *combo_salvacoes_fortes;
+    QWidget *tab_3;
+    QLabel *label_9;
+    QPushButton *botao_remover_talento;
+    QPushButton *botao_adicionar_talento;
+    QTableView *tabela_talentos;
     QWidget *tab_estatisticas;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
@@ -1079,6 +1084,21 @@ public:
         horizontalLayout->addWidget(combo_salvacoes_fortes);
 
         tab_tesouro->addTab(tab_nivel, QString());
+        tab_3 = new QWidget();
+        tab_3->setObjectName(QString::fromUtf8("tab_3"));
+        label_9 = new QLabel(tab_3);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+        label_9->setGeometry(QRect(660, 20, 57, 17));
+        botao_remover_talento = new QPushButton(tab_3);
+        botao_remover_talento->setObjectName(QString::fromUtf8("botao_remover_talento"));
+        botao_remover_talento->setGeometry(QRect(910, 80, 31, 27));
+        botao_adicionar_talento = new QPushButton(tab_3);
+        botao_adicionar_talento->setObjectName(QString::fromUtf8("botao_adicionar_talento"));
+        botao_adicionar_talento->setGeometry(QRect(910, 50, 31, 27));
+        tabela_talentos = new QTableView(tab_3);
+        tabela_talentos->setObjectName(QString::fromUtf8("tabela_talentos"));
+        tabela_talentos->setGeometry(QRect(640, 50, 256, 431));
+        tab_tesouro->addTab(tab_3, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
         botao_remover_ataque = new QPushButton(tab_estatisticas);
@@ -2046,6 +2066,10 @@ public:
         label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", 0, QApplication::UnicodeUTF8));
         label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", 0, QApplication::UnicodeUTF8));
+        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
+        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", 0, QApplication::UnicodeUTF8));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", 0, QApplication::UnicodeUTF8));

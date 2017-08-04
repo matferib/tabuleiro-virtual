@@ -1481,16 +1481,6 @@ QGroupBox::title {
     <attribute name="title">
      <string>Perícias e Talentos</string>
     </attribute>
-    <widget class="QTableWidget" name="tabela_talentos">
-     <property name="geometry">
-      <rect>
-       <x>640</x>
-       <y>50</y>
-       <width>256</width>
-       <height>391</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
@@ -1528,6 +1518,16 @@ QGroupBox::title {
      </property>
      <property name="text">
       <string>+</string>
+     </property>
+    </widget>
+    <widget class="QTableView" name="tabela_talentos">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>50</y>
+       <width>256</width>
+       <height>431</height>
+      </rect>
      </property>
     </widget>
    </widget>
