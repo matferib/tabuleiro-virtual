@@ -316,6 +316,13 @@ bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 // Retorna true se o personagem tiver o talento.
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
 
+
+// Hack para android!
+/** Realiza a leitura de uma string de eventos, um por linha, formato:
+* descricao [(complemento)] : rodadas.
+*/
+google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

@@ -2,6 +2,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <algorithm>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <cctype>
 #include <chrono>
@@ -722,13 +723,13 @@ void PosicionaRaster2d(int x, int y) {
 }
 
 TipoEfeito StringParaEfeito(const std::string& s) {
-  static std::unordered_map<std::string, TipoEfeito> mapa = {
-    { "borrar", EFEITO_BORRAR },
-    { "reflexos", EFEITO_REFLEXOS },
-    { "piscar", EFEITO_PISCAR },
-  };
-  const auto& ret = mapa.find(s);
-  return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
+  for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
+    if (!TipoEfeito_IsValid(i)) continue;
+    if (boost::iequals(s, TipoEfeito_Name((TipoEfeito)i).substr(strlen("EFEITO_")))) {
+      return (TipoEfeito)i;
+    }
+  }
+  return EFEITO_INVALIDO;
 }
 
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
@@ -2010,6 +2011,43 @@ bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entida
     if (chave_talento == t.id()) return true;
   }
   return false;
+}
+
+google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
+  google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
+  std::istringstream ss(eventos_str);
+  while (1) {
+    std::string linha;
+    if (!std::getline(ss, linha)) {
+      break;
+    }
+    // Cada linha.
+    size_t pos_dois_pontos = linha.find(':');
+    if (pos_dois_pontos == std::string::npos) {
+      LOG(ERROR) << "Ignorando evento: " << linha;
+      continue;
+    }
+    std::string descricao(linha.substr(0, pos_dois_pontos));
+    std::string complemento;
+    size_t pos_par = descricao.find("(");
+    if (pos_par != std::string::npos) {
+      complemento = descricao.substr(pos_par + 1);
+      descricao = descricao.substr(0, pos_par);
+    }
+    std::string rodadas(linha.substr(pos_dois_pontos + 1));
+    EntidadeProto::Evento evento;
+    evento.set_descricao(ent::trim(descricao));
+    evento.set_rodadas(atoi(rodadas.c_str()));
+    if (!complemento.empty()) {
+      evento.set_complemento(atoi(complemento.c_str()));
+    }
+    auto id_efeito = StringParaEfeito(evento.descricao());
+    if (id_efeito != EFEITO_INVALIDO) {
+      evento.set_id_efeito(id_efeito);
+    }
+    ret.Add()->Swap(&evento);
+  }
+  return ret;
 }
 
 }  // namespace ent
