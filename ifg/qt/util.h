@@ -79,7 +79,6 @@ class MapaDelegate : public QItemDelegate {
 
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraCombo(QComboBox* combo) const {
-    // O min eh -1, invalido. Entao comeca do 0.
     for (const auto& kv : mapa_) {
       combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
     }

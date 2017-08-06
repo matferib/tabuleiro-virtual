@@ -885,6 +885,13 @@ void PreencheConfiguraEventos(
   });
 }
 
+// Troca o delegate da tabela pelo passado. Detem a posse do objeto.
+void TrocaDelegateColuna(unsigned int coluna, QAbstractItemDelegate* delegado, QTableView* tabela) {
+  std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(tabela->itemDelegateForColumn(coluna));
+  tabela->setItemDelegateForColumn(coluna, delegado);
+  delegado->deleteLater();
+}
+
 void PreencheConfiguraTalentos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
@@ -896,10 +903,8 @@ void PreencheConfiguraTalentos(
   for (const auto& t : tabelas.todas().tabela_talentos().talentos()) {
     mapa[t.nome()] = t.id();
   }
-  auto* delegado = new MapaDelegate(mapa, modelo, gerador.tabela_talentos);
-  std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(gerador.tabela_talentos->itemDelegateForColumn(0));
-  gerador.tabela_talentos->setItemDelegateForColumn(0, delegado);
-  delegado->deleteLater();
+  TrocaDelegateColuna(0, new MapaDelegate(mapa, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
+  TrocaDelegateColuna(1, new ComplementoTalentoDelegate(tabelas, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
 
   gerador.tabela_talentos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_talento, SIGNAL(clicked()), [&gerador, modelo] () {
@@ -918,8 +923,11 @@ void PreencheConfiguraTalentos(
   });
   gerador.tabela_talentos->resizeColumnsToContents();
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [proto_retornado, modelo] () {
+                 [&tabelas, &gerador, proto_retornado, modelo] () {
+    // TODO alterar o delegate do complemento.
     *proto_retornado->mutable_info_talentos() = modelo->Converte();
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
