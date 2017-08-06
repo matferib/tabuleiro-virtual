@@ -262,19 +262,19 @@ void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env, 
 
 // Touch.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDoubleClick(JNIEnv* env, jobject thiz, jint x, jint y) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleClick: %d %d", x, y);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleClick: %d %d", x, y);
   // Detalha a entidade.
   g_teclado_mouse->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, 0, x, y);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* env, jobject thiz, jboolean toggle, jint x, jint y) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d", x, y);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d", x, y);
   g_teclado_mouse->TrataBotaoMousePressionado(ifg::Botao_Esquerdo, toggle ? ifg::Modificador_Ctrl : 0, x, y);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDoubleTouchPressed(
     JNIEnv* env, jobject thiz, jint x1, jint y1, jint x2, jint y2) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleTouchPressed: %d %d", x, y);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleTouchPressed: %d %d", x1, y1);
   g_teclado_mouse->TrataInicioPinca(x1, y1, x2, y2);
 }
 
@@ -284,7 +284,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env,
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchReleased(JNIEnv* env, jobject thiz) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
   g_tabuleiro->TrataBotaoLiberado();
 }
 
