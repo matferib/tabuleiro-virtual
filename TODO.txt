@@ -1,3 +1,7 @@
+Entender crash da UI no android.
+ver se o problema de travar no android vem do pular frame.
+Colocar pericias.
+Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.

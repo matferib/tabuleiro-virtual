@@ -722,16 +722,6 @@ void PosicionaRaster2d(int x, int y) {
   gl::PosicaoRasterAbsoluta(x, y);
 }
 
-TipoEfeito StringParaEfeito(const std::string& s) {
-  for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
-    if (!TipoEfeito_IsValid(i)) continue;
-    if (boost::iequals(s, TipoEfeito_Name((TipoEfeito)i).substr(strlen("EFEITO_")))) {
-      return (TipoEfeito)i;
-    }
-  }
-  return EFEITO_INVALIDO;
-}
-
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
 const std::string StringSemUtf8(const std::string& id_acao) {
   std::string ret(id_acao);
@@ -2013,6 +2003,16 @@ bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entida
   return false;
 }
 
+TipoEfeito StringParaEfeito(const std::string& s) {
+  for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
+    if (!TipoEfeito_IsValid(i)) continue;
+    if (boost::iequals(s, TipoEfeito_Name((TipoEfeito)i).substr(strlen("EFEITO_")))) {
+      return (TipoEfeito)i;
+    }
+  }
+  return EFEITO_INVALIDO;
+}
+
 google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
   google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
   std::istringstream ss(eventos_str);
@@ -2029,7 +2029,7 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
     }
     std::string descricao(linha.substr(0, pos_dois_pontos));
     std::string complemento;
-    size_t pos_par = descricao.find("(");
+    size_t pos_par = descricao.find_last_of("(");
     if (pos_par != std::string::npos) {
       complemento = descricao.substr(pos_par + 1);
       descricao = descricao.substr(0, pos_par);
