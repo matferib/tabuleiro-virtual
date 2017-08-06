@@ -592,7 +592,7 @@ class TabuleiroRenderer
 
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
   public void abreDialogoEntidade(final byte[] mensagem) {
-    //Log.d(TAG, "abreDialogoEntidade: ");
+    Log.d(TAG, "abreDialogoEntidade");
     Wire wire = new Wire();
     final EntidadeProto proto;
     try {
