@@ -4,13 +4,18 @@
 #include <jni.h>
 #include "ifg/interface.h"
 
+namespace ent {
+class Tabelas;
+}  // namespace ent
+
 namespace ifg {
 
 class InterfaceGraficaAndroid : public InterfaceGrafica {
  public:
   InterfaceGraficaAndroid(
+      const ent::Tabelas& tabelas,
       TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
-      : InterfaceGrafica(teclado_mouse, tabuleiro, central) {}
+      : InterfaceGrafica(tabelas, teclado_mouse, tabuleiro, central) {}
 
   ~InterfaceGraficaAndroid() override {}
 
@@ -30,6 +35,11 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
   void EscolheModeloEntidade(
       const MenuModelos& modelos,
       std::function<void(const std::string& nome)> funcao_volta) override;
+
+  void EscolheItemLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, int)> funcao_volta) override;
 
  private:
   jmethodID Metodo(const char* nome_metodo, const char* assinatura_metodo);

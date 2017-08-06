@@ -11,6 +11,7 @@
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "ifg/tecladomouse.h"
@@ -102,6 +103,7 @@ const std::string ConverteString(JNIEnv* env, jstring jstr) {
 }
 
 // Contexto nativo.
+std::unique_ptr<ent::Tabelas> g_tabelas;
 std::unique_ptr<ent::OpcoesProto> g_opcoes;
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
@@ -164,10 +166,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
   g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
   SalvaOpcoes();
+  g_tabelas.reset(new ent::Tabelas);
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d(g_central.get()));
-  g_tabuleiro.reset(new ent::Tabuleiro(*g_opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
+  g_tabuleiro.reset(new ent::Tabuleiro(*g_opcoes, *g_tabelas, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
@@ -176,7 +179,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
   g_interface_android.reset(new ifg::InterfaceGraficaAndroid(
-        g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
+        *g_tabelas, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
 
   /*{
     ntf::Notificacao ninfo;

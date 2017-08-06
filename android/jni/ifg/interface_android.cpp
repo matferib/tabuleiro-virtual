@@ -137,5 +137,40 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
   env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
 }
 
+void InterfaceGraficaAndroid::EscolheItemLista(
+    const std::string& titulo,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, int)> funcao_volta) {
+  if (env_ == nullptr) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
+    central_->AdicionaNotificacao(n);
+    return;
+  }
+  jmethodID metodo = Metodo("abreDialogoAbrirTabuleiro", "([Ljava/lang/String;[Ljava/lang/String;J)V");
+  jobjectArray joa = (jobjectArray)env_->NewObjectArray(
+      lista.size(),
+      env_->FindClass("java/lang/String"), env_->NewStringUTF(""));
+  {
+    int i = 0;
+    for (const auto& s : lista) {
+      jstring sj = env_->NewStringUTF(s.c_str());
+      env_->SetObjectArrayElement(joa, i++, sj);
+    }
+  }
+
+  auto adaptador = [funcao_volta, lista] (const std::string& nome, arq::tipo_e tipo) {
+    int indice = 0;
+    for (const auto& n : lista) {
+      if (n == nome) {
+        funcao_volta(true, indice);
+        return;
+      }
+      ++indice;
+    }
+    funcao_volta(false, -1);
+  };
+  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
+}
 
 }  // namespace ifg
