@@ -469,6 +469,56 @@ class TabuleiroRenderer
   }
 
   // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
+  public void abreDialogoItemsLista(
+      final String[] lista, final long dados_volta) {
+    //Log.d(TAG, "abreDialogoItemsLista: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Escolha");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_abrir_tabuleiro, null);
+        final Spinner spinner = (Spinner)view.findViewById(R.id.spinner_abrir);
+        if (spinner == null) {
+          Log.e(TAG, "spinner== null");
+          return;
+        }
+        final ArrayAdapter<String> adapter =
+            new ArrayAdapter<String>(activity_, android.R.layout.simple_spinner_item) {
+        };
+        if (lista != null) {
+          adapter.addAll(lista);
+        }
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              int posicao = spinner.getSelectedItemPosition();
+              if (posicao == spinner.INVALID_POSITION || posicao >= lista) {
+                nativeOpenItemList(dados_volta, "");
+              }
+              nativeOpenItemList(dados_volta, (String)spinner.getSelectedItem());
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              nativeOpenItemList(dados_volta, "");
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+  }
+
+  // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
   public void abreDialogoAbrirTabuleiro(
       final String[] tab_estaticos, final String[] tab_dinamicos, final long dados_volta) {
     //Log.d(TAG, "abreDialogoAbrirTabuleiro: ");
@@ -1071,6 +1121,7 @@ class TabuleiroRenderer
   private static native void nativeMessage(long dados_volta);
   private static native void nativeSaveBoardName(long dados_volta, String nome);
   private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
+  private static native void nativeOpenItemList(long dados_volta, String nome);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;

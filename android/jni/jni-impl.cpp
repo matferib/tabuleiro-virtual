@@ -393,4 +393,16 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
   (*funcao_volta)(nome_arquivo_c, estatico ? arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO);
 }
 
+// Abrir item da lista fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemList(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo) {
+  std::unique_ptr<std::function<void(const std::string&)>> funcao_volta(
+      reinterpret_cast<std::function<void(const std::string&)>*>(dados_volta));
+  std::string nome_item_c = ConverteString(env, nome_arquivo);
+  if (nome_item_c.empty()) {
+    return;
+  }
+  (*funcao_volta)(nome_item_c);
+}
+
 }  // extern "C"

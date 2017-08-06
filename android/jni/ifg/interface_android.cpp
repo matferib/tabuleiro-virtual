@@ -147,7 +147,7 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     central_->AdicionaNotificacao(n);
     return;
   }
-  jmethodID metodo = Metodo("abreDialogoAbrirTabuleiro", "([Ljava/lang/String;[Ljava/lang/String;J)V");
+  jmethodID metodo = Metodo("abreDialogoItemsLista", "([Ljava/lang/String;J)V");
   jobjectArray joa = (jobjectArray)env_->NewObjectArray(
       lista.size(),
       env_->FindClass("java/lang/String"), env_->NewStringUTF(""));
@@ -159,7 +159,7 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     }
   }
 
-  auto adaptador = [funcao_volta, lista] (const std::string& nome, arq::tipo_e tipo) {
+  auto adaptador = [funcao_volta, lista] (const std::string& nome) {
     int indice = 0;
     for (const auto& n : lista) {
       if (n == nome) {
@@ -170,7 +170,7 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     }
     funcao_volta(false, -1);
   };
-  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
+  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&)>(adaptador));
 }
 
 }  // namespace ifg
