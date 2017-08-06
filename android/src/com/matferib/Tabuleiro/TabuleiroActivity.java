@@ -349,6 +349,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
           }
         });
         if ((num_frames_pular_ == 0) || desenha_proxima_) {
+          //Log.d(TAG, "requestRender");
+          //postInvalidate();
           requestRender();
           desenha_proxima_ = false;
         } else {
@@ -792,7 +794,7 @@ class TabuleiroRenderer
     removeEventosDuplicados(Evento.MOVIMENTO, eventos);
     removeEventosDuplicados(Evento.DETALHAMENTO, eventos);
 
-    //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
+    //Log.d(TAG, "Tam Evento Depois: " + eventos.size());
     for (Evento evento :  eventos) {
       //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
