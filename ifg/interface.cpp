@@ -119,7 +119,7 @@ void InterfaceGrafica::VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigne
   if (ok) {
     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
   }
-  //tabuleiro_->ReativaWatchdogSeMestre();
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----
