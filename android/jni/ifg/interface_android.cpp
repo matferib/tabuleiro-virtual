@@ -6,6 +6,7 @@
 
 #include "ifg/interface_android.h"
 #include "ifg/modelos.pb.h"
+#include "log/log.h"
 
 using std::placeholders::_1;
 
@@ -159,18 +160,9 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     }
   }
 
-  auto adaptador = [funcao_volta, lista] (const std::string& nome) {
-    int indice = 0;
-    for (const auto& n : lista) {
-      if (n == nome) {
-        funcao_volta(true, indice);
-        return;
-      }
-      ++indice;
-    }
-    funcao_volta(false, -1);
-  };
-  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&)>(adaptador));
+  // A volta deletera.
+  jlong funcao_volta_ptr = (jlong)new std::function<void(bool, int)>(funcao_volta);
+  env_->CallVoidMethod(thisz_, metodo, joa, funcao_volta_ptr);
 }
 
 }  // namespace ifg

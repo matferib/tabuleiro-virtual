@@ -498,16 +498,17 @@ class TabuleiroRenderer
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
               int posicao = spinner.getSelectedItemPosition();
-              if (posicao == spinner.INVALID_POSITION || posicao >= lista) {
-                nativeOpenItemList(dados_volta, "");
+              if (posicao == spinner.INVALID_POSITION || posicao >= lista.length) {
+                nativeOpenItemList(dados_volta, false, -1);
               }
-              nativeOpenItemList(dados_volta, (String)spinner.getSelectedItem());
+              Log.e(TAG, "aqui: " + (String)spinner.getSelectedItem());
+              nativeOpenItemList(dados_volta, true, posicao);
               dialog.dismiss();
             }
           })
           .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-              nativeOpenItemList(dados_volta, "");
+              nativeOpenItemList(dados_volta, false, -1);
               dialog.dismiss();
             }
           }
@@ -1121,7 +1122,7 @@ class TabuleiroRenderer
   private static native void nativeMessage(long dados_volta);
   private static native void nativeSaveBoardName(long dados_volta, String nome);
   private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
-  private static native void nativeOpenItemList(long dados_volta, String nome);
+  private static native void nativeOpenItemList(long dados_volta, boolean ok, int indice);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;

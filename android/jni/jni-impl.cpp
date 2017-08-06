@@ -388,6 +388,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
       reinterpret_cast<std::function<void(const std::string&, arq::tipo_e tipo)>*>(dados_volta));
   std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
   if (nome_arquivo_c.empty()) {
+    (*funcao_volta)("", arq::TIPO_TABULEIRO_ESTATICO);
     return;
   }
   (*funcao_volta)(nome_arquivo_c, estatico ? arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO);
@@ -395,14 +396,13 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
 
 // Abrir item da lista fechado.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemList(
-    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo) {
-  std::unique_ptr<std::function<void(const std::string&)>> funcao_volta(
-      reinterpret_cast<std::function<void(const std::string&)>*>(dados_volta));
-  std::string nome_item_c = ConverteString(env, nome_arquivo);
-  if (nome_item_c.empty()) {
-    return;
-  }
-  (*funcao_volta)(nome_item_c);
+    JNIEnv* env, jobject thiz, jlong dados_volta, jboolean ok, jint indice) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList %lld %d %d", dados_volta, ok, indice);
+  std::unique_ptr<std::function<void(bool, int)>> funcao_volta(
+      reinterpret_cast<std::function<void(bool, int)>*>(dados_volta));
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList2");
+  (*funcao_volta)(ok, indice);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList3");
 }
 
 }  // extern "C"
