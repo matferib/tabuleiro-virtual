@@ -258,6 +258,7 @@ tabela_armas {
     categoria: CAT_CAC
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_pequeno'
@@ -269,6 +270,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_pequeno_com_cavos'
@@ -280,6 +282,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_curta'
@@ -292,6 +295,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'kukri'
@@ -303,6 +307,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machadinha'
@@ -313,6 +318,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '15kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machado_de_arremesso'
@@ -326,6 +332,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'martelo_leve'
@@ -339,6 +346,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'picareta_leve'
@@ -350,6 +358,7 @@ tabela_armas {
     multiplicador_critico: 4
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'porrete'
@@ -361,6 +370,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   # One-Handed Melee Weapons
   armas {
@@ -373,6 +383,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_grande'
@@ -383,6 +394,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_grande_com_cravos'
@@ -393,6 +405,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_longa'
@@ -404,6 +417,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machado_de_batalha'
@@ -414,6 +428,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '3kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'mangual'
@@ -424,6 +439,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'martelo_de_guerra'
@@ -434,6 +450,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'picareta_pesada'
@@ -444,6 +461,7 @@ tabela_armas {
     multiplicador_critico: 4
     peso { medio: '3kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'sabre'
@@ -455,6 +473,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'tridente'
@@ -467,6 +486,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   # Two-Handed Melee Weapons
   armas {
@@ -480,6 +500,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'clava_grande'
@@ -491,6 +512,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_larga'
@@ -503,6 +525,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'falcione'
@@ -515,6 +538,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'foice_longa'
@@ -527,6 +551,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'glaive'
@@ -538,6 +563,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '10Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'guisarme'
@@ -549,6 +575,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'lanca_montada'
@@ -560,6 +587,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machado_grande'
@@ -571,6 +599,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'mangual_pesado'
@@ -583,6 +612,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'ranseur'
@@ -594,6 +624,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   # Ranged Weapons
   armas {
@@ -618,6 +649,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
     max_forca: 0
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'arco_longo'
@@ -629,6 +661,7 @@ tabela_armas {
     categoria: CAT_ARCO
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'arco_longo_composto'
@@ -641,6 +674,7 @@ tabela_armas {
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
     max_forca: 0
+    categoria_pericia: CATPER_COMUM
   }
   # Fim armas comuns
 
@@ -656,6 +690,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'nunchaku'
@@ -667,6 +702,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'sai'
@@ -680,6 +716,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '0,5kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'siangham'
@@ -690,6 +727,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '0,5kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   # One-Handed Melee Weapons
@@ -702,6 +740,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'espada_bastarda'
@@ -713,6 +752,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '3Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'machado_de_guerra_anao'
@@ -723,6 +763,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '4Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   # Two-Handed Melee Weapons
   armas {
@@ -735,6 +776,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -748,6 +790,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   armas {
@@ -761,6 +804,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '12,5kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'mangual_atroz'
@@ -773,6 +817,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
 
   armas {
@@ -788,6 +833,7 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_CONCUSSAO
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'urgrosh_anao'
@@ -801,6 +847,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   # Ranged Weapons
@@ -815,6 +862,7 @@ tabela_armas {
     alcance_quadrados: 16
     peso { medio: '3Kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'besta_pesada_de_repeticao'
@@ -827,6 +875,7 @@ tabela_armas {
     alcance_quadrados: 24
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'besta_de_mao'
@@ -839,6 +888,7 @@ tabela_armas {
     alcance_quadrados: 6
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'boleadeira'
@@ -850,6 +900,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'rede'
@@ -860,6 +911,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '3kg' }
     tipo_dano: TD_OUTRO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'shuriken'
@@ -871,6 +923,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '0,25kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 }
 
@@ -1249,6 +1302,101 @@ tabela_pocoes {
   }
 }
 tabela_talentos {
+  talentos {
+    id: 'encontrao_aprimorado'
+    nome: 'Encontrão Aprimorado'
+    # guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de encontrão e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'atropelar_aprimorado'
+    nome: 'Atropelar Aprimorado'
+    #guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de atropelar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'separar_aprimorado'
+    nome: 'Separar Aprimorado'
+    #guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de Separar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'arquearia_montada'
+    nome: 'Arquearia Montada'
+    #guerreiro: true Combate Montado
+    descricao: 'Sofre metade das penalidades nos ataques à distância realizados sobre montarias.'
+  }
+  talentos {
+    id: 'investida_implacavel'
+    nome: 'Investida Implacável'
+    #guerreiro: true Combate Montado, Investida Montada
+    descricao: 'Investidas montadas causam dano dobrado.'
+  }
+  talentos {
+    id: 'pisotear'
+    nome: 'Pisotear'
+    #guerreiro: true Combate Montado
+    descricao: 'A vítima não pode evitar um atropelamento montada.'
+  }
+  talentos {
+    id: 'bloqueio_ambidestro'
+    nome: 'Bloqueio Ambidestro'
+    #guerreiro: true Combater com Duas Armas
+    descricao: 'A arma da mão inábil concede +1 de bônus de escudo na CA.'
+  }
+  talentos {
+    id: 'contramagica_aprimorada'
+    nome: 'Contramágica Aprimorada'
+    descricao: 'Contramágica com magias da mesma escola.'
+  }
+  talentos {
+    id: 'ataque_giratorio'
+    nome: 'Ataque Giratório'
+    #guerreiro: true Des 13, Especialização em Combate, Esquiva, Mobilidade, Ataque em Movimento, bônus base de ataque +4
+    descricao: 'Realiza um ataque corporal contra cada oponente dentro do alcance.'
+  }
+  talentos {
+    id: 'expulsao_aprimorada'
+    nome: 'Expulsão Aprimorada'
+    # Habilidade de expulsar ou fascinar criaturas
+    descricao: '+1 nível efetivo para testes de expulsão.'
+  }
+  talentos {
+    id: 'potencializar_invocacao'
+    nome: 'Potencializar Invocação'
+    # Foco em Magia (conjuração)
+    descricao: 'As criaturas invocadas recebem +4 For e +4 Cons.'
+  }
+  talentos {
+    id: 'rapidez_recarga'
+    nome: 'Rapidez de Recarga'
+    #guerreiro: true Usar Arma Simples (besta)
+    descricao: 'Recarrega bestas mais rapidamente.'
+  }
+  talentos {
+    id: 'sorrateiro'
+    nome: 'Sorrateiro'
+    descricao: '+2 nos testes de Esconder-se e Furtividade.'
+  }
+  talentos {
+    id: 'tiro_longo'
+    nome: 'Tiro Longo'
+    #guerreiro: true Tiro Certeiro
+    descricao: 'Aumenta o incremento de distância em 50% ou 100%.'
+  }
+  talentos {
+    id: 'tiro_movimento'
+    nome: 'Tiro em Movimento'
+    #guerreiro: true Des 13, Esquiva, Mobilidade, Tiro Certeiro, bônus base de ataque +4
+    descricao: 'Pode se deslocar antes e depois de um ataque à distância.'
+  }
+  talentos {
+    id: 'tiro_preciso_aprimorado'
+    nome: 'Tiro Preciso Aprimorado'
+    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
+    descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
+  }
+
   talentos {
     id: 'acrobatico'
     nome: 'Acrobático'

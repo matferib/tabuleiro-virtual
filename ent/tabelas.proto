@@ -27,6 +27,14 @@ message ArmaduraOuEscudoProto {
   optional string id = 10;
 }
 
+// Para efeitos de perícia, a arma pode ter apenas uma categoria.
+enum CategoriaPericia {
+  CATPER_SIMPLES = 0;
+  CATPER_COMUM   = 1;
+  CATPER_EXOTICA = 2;
+}
+
+// Uma arma pode ter varias categorias.
 enum CategoriaArma {
   // arma corpo a corpo.
   CAT_CAC        = 0;
@@ -75,6 +83,7 @@ message ArmaProto {
   optional int32 multiplicador_critico_secundario = 13 [default=2];
   // Maximo modificador de forca permitido pela arma (valido para arcos).
   optional int32 max_forca = 14;
+  optional CategoriaPericia categoria_pericia = 15;
 }
 
 message TabelaArmaduraOuEscudo {
