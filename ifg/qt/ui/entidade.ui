@@ -1523,9 +1523,9 @@ QGroupBox::title {
     <widget class="QTableView" name="tabela_talentos">
      <property name="geometry">
       <rect>
-       <x>640</x>
+       <x>465</x>
        <y>50</y>
-       <width>256</width>
+       <width>431</width>
        <height>431</height>
       </rect>
      </property>

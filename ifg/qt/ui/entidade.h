@@ -1097,7 +1097,7 @@ public:
         botao_adicionar_talento->setGeometry(QRect(910, 50, 31, 27));
         tabela_talentos = new QTableView(tab_3);
         tabela_talentos->setObjectName(QString::fromUtf8("tabela_talentos"));
-        tabela_talentos->setGeometry(QRect(640, 50, 256, 431));
+        tabela_talentos->setGeometry(QRect(465, 50, 431, 431));
         tab_tesouro->addTab(tab_3, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
