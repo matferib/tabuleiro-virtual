@@ -1042,7 +1042,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
     PosicionaRaster2d(raster_x, raster_y);
     raster_y -= (altura_fonte + 2);
     MudaCor(COR_BRANCA);
-    const auto* entidade = EntidadeSelecionada();
+    const auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
     std::string valor = "AUTO";
     if (entidade != nullptr) {
       const std::string s = StringSemUtf8(entidade->DetalhesAcao());
