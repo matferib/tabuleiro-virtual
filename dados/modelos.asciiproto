@@ -524,6 +524,7 @@ modelo {
   entidade {
     dados_vida: '2d8+2'
     modificador_iniciativa: 0
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
     info_textura { id: 'gnoll.png' largura: 0.5 translacao_x: 0.25 }
     dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { id_arma: 'arco_curto' }
@@ -543,6 +544,9 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
+    info_talentos {
+      gerais { id: 'ataque_poderoso' }
+    }
   }
 }
 modelo {
@@ -558,6 +562,7 @@ modelo {
       tesouro: '100 PO'
     }
     modificador_iniciativa: 0
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
     info_textura { id: 'gnoll_barbarian.png' largura: 0.5 translacao_x: 0.25 }
     # Ataques.
     dados_ataque { rotulo: 'Machado Grande' obra_prima: true id_arma: 'machado_grande' empunhadura: EA_2_MAOS  }
@@ -578,12 +583,17 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    info_talentos {
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'trespassar' }
+    }
   }
 }
 modelo {
   id: 'Gnoll Lider Ranger 6'
   entidade {
     dados_vida: '2d8+6d8+16'
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
     info_textura { id: 'gnoll_ranger.png' largura: 0.5 translacao_x: 0.25 }
 
     info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
@@ -609,6 +619,7 @@ modelo {
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
         bonus_individual { tipo: TB_MELHORIA         por_origem { origem: 'armadura' valor: 1 } }
+        bonus_individual { tipo: TB_ESCUDO           por_origem { origem: 'bloqueio_ambidestro' valor: 1 } }
       }
     }
     atributos {
@@ -621,7 +632,11 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
     info_talentos {
-      gerais { id: 'combater_duas_armas' }
+      gerais { id: 'esquiva' }
+      gerais { id: 'bloqueio_ambidestro' }
+      gerais { id: 'foco_em_arma' complemento: 'espada_longa' }
+      outros { id: 'combater_duas_armas' }
+      outros { id: 'combater_duas_armas_aprimorado' }
     }
   }
 }
@@ -637,9 +652,26 @@ modelo {
   id: 'Hiena'
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
-    rotulo_especial: ''
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6+3' ca_normal: 14 }
-    modificador_iniciativa: 2
+    rotulo_especial: 'derrubar ação livre ao morder'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' empunhadura: EA_2_MAOS }
+    info_classes { id: 'hiena' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
   }
 }
 modelo {

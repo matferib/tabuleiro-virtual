@@ -1341,7 +1341,7 @@ tabela_talentos {
   talentos {
     id: 'bloqueio_ambidestro'
     nome: 'Bloqueio Ambidestro'
-    #guerreiro: true Combater com Duas Armas
+    #guerreiro: true Combater com Duas Armas des 15
     descricao: 'A arma da mão inábil concede +1 de bônus de escudo na CA.'
   }
   talentos {
