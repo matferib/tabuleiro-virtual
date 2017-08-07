@@ -224,6 +224,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     setFocusableInTouchMode(true);
+    //setDebugFlags(DEBUG_CHECK_GL_ERROR  | DEBUG_LOG_GL_CALLS);
   }
 
   private int OrientacaoPadrao(Context context) {
@@ -344,6 +345,10 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     timer_ = new java.util.Timer();
     timer_.scheduleAtFixedRate(new java.util.TimerTask() {
       public void run() {
+        if (num_frames_pular_ > 0) {
+          --num_frames_pular_;
+          return;
+        }
         queueEvent(new Runnable() {
           public void run() {
             renderer_.ChamaTimer();
@@ -776,6 +781,7 @@ class TabuleiroRenderer
   public void onDrawFrame(GL10 unused) {
     //Log.d(TAG, "===============DrawFrame");
     ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
+    //Log.d(TAG, "===============DrawFrame ended");
   }
 
   /** Deve ser chamado na UI thread. */

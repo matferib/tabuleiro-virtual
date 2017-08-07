@@ -756,7 +756,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
 
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_uma_renderizacao_completa_.start();
 
@@ -844,7 +844,7 @@ int Tabuleiro::Desenha() {
 #endif
 
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_renderizacao_mapas_.start();
   if (MapeamentoOclusao() && !modo_debug_) {
@@ -900,7 +900,7 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_renderizacao_mapas_.stop();
   EnfileiraTempo(timer_renderizacao_mapas_, &tempos_renderizacao_mapas_);
@@ -929,7 +929,7 @@ int Tabuleiro::Desenha() {
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
@@ -1898,7 +1898,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
       auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
 #if DEBUG
-      glFinish();
+      //glFinish();
 #endif
       timer_entre_atualizacoes_.start();
       timer_uma_atualizacao_.start();
@@ -1919,7 +1919,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       AtualizaAcoes(passou_ms);
 #if DEBUG
-      glFinish();
+      //glFinish();
 #endif
       timer_uma_atualizacao_.stop();
       EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -2898,7 +2898,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
       DesenhaEntidadesTranslucidas();
     }
   }
-
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
@@ -2999,12 +2998,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.stop();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
@@ -3025,7 +3024,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     DesenhaLogEventos();
   }
 #if DEBUG
-  glFlush();
+  //glFlush();
 #endif
 }
 
@@ -4219,14 +4218,14 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer;
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
 
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer.resume();
     entidade->Atualiza(intervalo_ms, &timer);
