@@ -1621,7 +1621,8 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
 }
 
 void RecomputaDependenciaTamanho(EntidadeProto* proto) {
-  if (!proto->has_bonus_tamanho()) {
+  // Aplica efeito cria isso, entao melhor ver se tem algum bonus individual.
+  if (!PossuiBonus(TB_BASE, proto->bonus_tamanho())) {
     AtribuiBonus(proto->tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
   }
   int total = BonusTotal(proto->bonus_tamanho());

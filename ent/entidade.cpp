@@ -144,7 +144,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
- 
+
   AtualizaVbo(parametros_desenho_);
   RecomputaDependencias(tabelas_, &proto_);
 }
