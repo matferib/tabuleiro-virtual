@@ -1,5 +1,4 @@
-Entender crash da UI no android.
-ver se o problema de travar no android vem do pular frame.
+Ataque na primeira pessoa nao aparece quando nao ha selecao.
 Colocar pericias.
 Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
