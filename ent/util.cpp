@@ -295,6 +295,7 @@ void LimitesLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 
 void LigaStencil() {
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
+  //glClearStencil(1);
   gl::Limpa(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
   gl::FuncaoStencil(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
   gl::OperacaoStencil(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
