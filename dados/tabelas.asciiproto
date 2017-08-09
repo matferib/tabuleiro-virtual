@@ -1759,7 +1759,8 @@ tabela_talentos {
     id: 'prontidao'
     nome: 'Prontidão'
     # bonus_pericias { ouvir: 2, observar: 2 }
-    descricao: 'Bonus de +2 em ouvir e observar.' }
+    descricao: 'Bonus de +2 em ouvir e observar.'
+  }
   talentos {
     id: 'rastrear'
     nome: 'Rastrear'
@@ -2012,5 +2013,63 @@ tabela_talentos {
     descricao: 'Aumenta em 50% todas as variáveis numéricas dos efeitos da magia, ao custo de dois níveis adicionais.'
     # niveis_adicionais: 2
     # mago: 1
+  }
+}
+tabela_classes {
+  info_classes {
+    id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+  }
+  info_classes {
+    id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+  }
+  info_classes {
+    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+  }
+  info_classes {
+    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_INTELIGENCIA
+  }
+  info_classes {
+    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
+    id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
+    id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
+  }
+  info_classes {
+    id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
   }
 }

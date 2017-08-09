@@ -641,6 +641,52 @@ modelo {
   }
 }
 modelo {
+  id: 'Goblin'
+  entidade {
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.745 g: 0.596 b: 0.388 }
+    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    info_classes { id: 'combatente' nivel: 1 bba: 1 salvacoes_fortes: TS_FORTITUDE }
+    dados_ataque {
+      rotulo: 'maça estrela' id_arma: 'maca_estrela'
+    }
+    dados_ataque {
+      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia'
+    }
+    atributos {
+      # Usa o array nao elite: 13 12 11 10 9 8, porque eh combatente. -2 for car, +2 des.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+  }
+}
+modelo {
+  id: 'Goblin Sargento'
+  entidade {
+    dados_vida: '3d8+3' tamanho: TM_PEQUENO
+    info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
+    cor { r: 0.545 g: 0.396 b: 0.188 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3'
+    tesouro { tesouro: '1d100 PO' }
+    modificador_iniciativa: 1
+    dados_ataque {
+      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 15 ca_toque: 12 ca_surpreso: 16
+    }
+    dados_ataque {
+      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 17 ca_toque: 12 ca_surpreso: 16
+    }
+  }
+}
+
+modelo {
   id: 'Grifo'
   entidade {
     dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
@@ -883,35 +929,6 @@ modelo {
 modelo {
   id: 'Humano Paladino'
   entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
-}
-modelo {
-  id: 'Goblin'
-  entidade {
-    dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.745 g: 0.596 b: 0.388 }
-    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
-    modificador_iniciativa: 1
-    dados_ataque {
-      rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
-    dados_ataque {
-      rotulo: 'azagaia' alcance_m: 9 incrementos: 5 tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
-  }
-}
-modelo {
-  id: 'Goblin Sargento'
-  entidade {
-    dados_vida: '3d8+3' tamanho: TM_PEQUENO
-    info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
-    cor { r: 0.545 g: 0.396 b: 0.188 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3'
-    tesouro { tesouro: '1d100 PO' }
-    modificador_iniciativa: 1
-    dados_ataque {
-      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
-    dados_ataque {
-      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 6 dano: '1d6' margem_critico: 19 ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
-  }
 }
 modelo {
   id: 'Hieracoesfinge'
