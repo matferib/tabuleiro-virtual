@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"

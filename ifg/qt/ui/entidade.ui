@@ -1263,6 +1263,9 @@ QGroupBox::title {
         </widget>
        </item>
        <item>
+        <widget class="QComboBox" name="combo_classe"/>
+       </item>
+       <item>
         <widget class="QLineEdit" name="linha_classe">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

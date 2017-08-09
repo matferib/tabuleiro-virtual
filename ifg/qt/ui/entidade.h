@@ -163,6 +163,7 @@ public:
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
     QLabel *label_40;
+    QComboBox *combo_classe;
     QLineEdit *linha_classe;
     QSpacerItem *horizontalSpacer;
     QLabel *label_41;
@@ -989,6 +990,11 @@ public:
         label_40->setSizePolicy(sizePolicy5);
 
         horizontalLayout->addWidget(label_40);
+
+        combo_classe = new QComboBox(horizontalLayoutWidget);
+        combo_classe->setObjectName(QString::fromUtf8("combo_classe"));
+
+        horizontalLayout->addWidget(combo_classe);
 
         linha_classe = new QLineEdit(horizontalLayoutWidget);
         linha_classe->setObjectName(QString::fromUtf8("linha_classe"));

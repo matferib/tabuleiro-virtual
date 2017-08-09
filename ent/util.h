@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
-#include "ent/tabelas.h"
+#include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.pb.h"
 
@@ -16,12 +16,14 @@
 namespace ent {
 
 class Acao;
+class ArmaProto;
 class Cor;
 class Entidade;
 class EntidadeProto_Evento;
 class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
+class Tabelas;
 
 void IniciaUtil();
 
@@ -261,8 +263,8 @@ int CASurpreso(const EntidadeProto& proto, bool permite_escudo);
 int CAToque(const EntidadeProto& proto);
 int CAToqueSurpreso(const EntidadeProto& proto);
 
-inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
-inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+bool ArmaDupla(const ArmaProto& arma);
+bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);

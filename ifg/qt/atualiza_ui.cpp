@@ -2,6 +2,7 @@
 
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
+#include "ent/tabelas.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
@@ -19,38 +20,6 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIIniciativa(tabelas, gerador, proto);
   AtualizaUISalvacoes(gerador, proto);
   AtualizaUITesouro(tabelas, gerador, proto);
-}
-
-namespace {
-
-QString NumeroSinalizado(int valor) {
-  QString ret = QString::number(valor);
-  if (valor > 0) ret.prepend("+");
-  return ret;
-}
-
-void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
-  gerador.linha_classe->clear();
-  gerador.spin_nivel_classe->clear();
-  gerador.spin_nivel_conjurador->clear();
-  gerador.spin_bba->clear();
-  gerador.label_mod_conjuracao->setText("0");
-  gerador.combo_mod_conjuracao->setCurrentIndex(0);
-  gerador.botao_remover_nivel->setEnabled(false);
-}
-
-std::string StringSalvacoesFortes(const ent::InfoClasse& ic) {
-  std::string salvacoes_fortes;
-  if (ClassePossuiSalvacaoForte(ent::TS_FORTITUDE, ic)) {
-    salvacoes_fortes += "F";
-  }
-  if (ClassePossuiSalvacaoForte(ent::TS_REFLEXO, ic)) {
-    salvacoes_fortes += "R";
-  }
-  if (ClassePossuiSalvacaoForte(ent::TS_VONTADE, ic)) {
-    salvacoes_fortes += "V";
-  }
-  return salvacoes_fortes;
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -72,6 +41,28 @@ int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
   } else {
     return 0;
   }
+}
+
+namespace {
+
+QString NumeroSinalizado(int valor) {
+  QString ret = QString::number(valor);
+  if (valor > 0) ret.prepend("+");
+  return ret;
+}
+
+std::string StringSalvacoesFortes(const ent::InfoClasse& ic) {
+  std::string salvacoes_fortes;
+  if (ClassePossuiSalvacaoForte(ent::TS_FORTITUDE, ic)) {
+    salvacoes_fortes += "F";
+  }
+  if (ClassePossuiSalvacaoForte(ent::TS_REFLEXO, ic)) {
+    salvacoes_fortes += "R";
+  }
+  if (ClassePossuiSalvacaoForte(ent::TS_VONTADE, ic)) {
+    salvacoes_fortes += "V";
+  }
+  return salvacoes_fortes;
 }
 
 // Atualiza a UI com a lista de niveis e os totais.
@@ -108,13 +99,18 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   }
 }
 
+int IdClasseParaIndice(const std::string& id, const QComboBox* combo) {
+  return combo->findData(id.c_str());
+}
+
 }  // namespace
 
-void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+void AtualizaUIClassesNiveis(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // Objetos da UI a serem bloqueados. Passa por copia.
   std::vector<QObject*> objs = {
       gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
-      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -125,21 +121,37 @@ void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEn
 
   BloqueiaSinais();
   AtualizaUINiveis(gerador, proto);
+
   const int indice = gerador.lista_niveis->currentRow();
-  if (indice < 0 || indice >= proto.info_classes_size()) {
-    LimpaCamposClasse(gerador);
-    DesbloqueiaSinais();
-    return;
+  // Se tiver selecao, preenche.
+  if (indice >= 0 && indice < proto.info_classes_size()) {
+    const auto& info_classe = proto.info_classes(indice);
+    gerador.botao_remover_nivel->setEnabled(true);
+    gerador.combo_classe->setCurrentIndex(IdClasseParaIndice(info_classe.id(), gerador.combo_classe));
+    gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
+    gerador.spin_nivel_classe->setValue(info_classe.nivel());
+    gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
+    gerador.spin_bba->setValue(info_classe.bba());
+    gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
+    gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
+    gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(info_classe));
   }
-  const auto& info_classe = proto.info_classes(indice);
-  gerador.botao_remover_nivel->setEnabled(true);
-  gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
-  gerador.spin_nivel_classe->setValue(info_classe.nivel());
-  gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
-  gerador.spin_bba->setValue(info_classe.bba());
-  gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
-  gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
-  gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(info_classe));
+
+  // Override de coisas tabeladas, independente de selecao.
+  const auto& classe_tabelada =
+      tabelas.Classe(gerador.combo_classe->itemData(gerador.combo_classe->currentIndex()).toString().toStdString());
+  bool habilitar = !classe_tabelada.has_nome();
+  gerador.linha_classe->setEnabled(habilitar);
+  gerador.spin_bba->setEnabled(habilitar);
+  gerador.combo_mod_conjuracao->setEnabled(habilitar);
+  gerador.spin_nivel_conjurador->setEnabled(habilitar || classe_tabelada.has_atributo_conjuracao());
+  gerador.combo_salvacoes_fortes->setEnabled(habilitar);
+  if (classe_tabelada.has_nome()) {
+    gerador.linha_classe->setText(QString::fromUtf8(classe_tabelada.id().c_str()));
+    gerador.combo_mod_conjuracao->setCurrentIndex(classe_tabelada.atributo_conjuracao());
+    gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(classe_tabelada));
+  }
+
   DesbloqueiaSinais();
 }
 

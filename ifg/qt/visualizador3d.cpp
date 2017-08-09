@@ -1250,6 +1250,44 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
+void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
+  gerador.combo_classe->setCurrentIndex(-1);
+  gerador.linha_classe->clear();
+  gerador.spin_nivel_classe->clear();
+  gerador.spin_nivel_conjurador->clear();
+  gerador.spin_bba->clear();
+  gerador.label_mod_conjuracao->setText("0");
+  gerador.combo_mod_conjuracao->setCurrentIndex(0);
+  gerador.botao_remover_nivel->setEnabled(false);
+}
+
+void PreencheConfiguraComboClasse(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo = gerador.combo_classe;
+  combo->addItem(combo->tr("Outro"), "outro");
+  for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
+    combo->addItem(QString::fromUtf8(ic.nome().c_str()), ic.id().c_str());
+  }
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+    std::vector<QObject*> objs = {
+      gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
+    };
+    auto BloqueiaSinais = [objs] { for (auto* obj : objs) obj->blockSignals(true); };
+    auto DesbloqueiaSinais = [objs] { for (auto* obj : objs) obj->blockSignals(false); };
+    const auto& classe_tabelada = tabelas.Classe(combo->itemData(combo->currentIndex()).toString().toStdString());
+    if (classe_tabelada.has_nome()) {
+      const int indice = gerador.lista_niveis->currentRow();
+      if (indice >= 0 && indice < proto_retornado->info_classes_size()) {
+        proto_retornado->mutable_info_classes(indice)->set_id(
+          combo->itemData(combo->currentIndex()).toString().toStdString());
+      }
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
   // Ao mudar a selecao, atualiza os controles.
@@ -1262,7 +1300,11 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
     gerador.lista_niveis->setCurrentRow(-1);
     AdicionaOuEditaNivel(tabelas, gerador, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
+    // Deixa deselecionado e zera campos, mais intuitivo.
+    LimpaCamposClasse(gerador);
   });
+
+  PreencheConfiguraComboClasse(tabelas, gerador, proto_retornado);
 
   PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
   lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1287,6 +1329,7 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
     proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
+    LimpaCamposClasse(gerador);
   });
 
   // Responde uma edicao da UI se houver selecao. caso contrario nada sera feito.

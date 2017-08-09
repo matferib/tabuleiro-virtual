@@ -18,6 +18,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "gltab/gl.h"      // TODO remover e passar desenhos para para gl
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
@@ -1186,6 +1187,9 @@ int CAToqueSurpreso(const EntidadeProto& proto) {
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
 }
 
+bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
+bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
     if (bi.tipo() == tipo) {
@@ -1580,8 +1584,21 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   // Para evitar recomputar quando nao tiver base.
   bool recomputa_base = false;
   for (auto& ic : *proto->mutable_info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    if (classe_tabelada.has_nome()) {
+      ic.clear_salvacoes_fortes();
+      ic.MergeFrom(classe_tabelada);
+    }
     if (ic.has_atributo_conjuracao()) {
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
+    }
+    if (ic.has_progressao_bba()) {
+      switch (ic.progressao_bba()) {
+        case PBBA_ZERO: ic.set_bba(0); break;
+        case PBBA_MEIO: ic.set_bba(ic.nivel() / 2); break;
+        case PBBA_TRES_QUARTOS: ic.set_bba((ic.nivel() * 3) / 4); break;
+        case PBBA_UM: ic.set_bba(ic.nivel()); break;
+      }
     }
 
     if (ic.salvacoes_fortes_size() > 0) {

@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QItemDelegate>
+#include "ent/tabelas.h"
 
 namespace ifg {
 namespace qt {

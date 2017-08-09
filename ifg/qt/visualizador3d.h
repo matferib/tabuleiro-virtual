@@ -3,7 +3,6 @@
 
 #include <QGLWidget>
 #include <list>
-#include "ent/tabelas.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -12,6 +11,7 @@ class Notificacao;
 
 namespace ent {
 class EntidadeProto;
+class Tabelas;
 class Tabuleiro;
 class TabuleiroProto;
 }  // namespace ent

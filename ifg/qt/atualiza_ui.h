@@ -11,6 +11,7 @@
 
 namespace ent {
 class EntidadeProto;
+class InfoClasse;
 class Tabelas;
 }  // namespace ent
 
@@ -22,6 +23,9 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
 
 // Atualiza a UI de classes e niveis.
 void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
+// Converte as salvacoes para um id de combo de salvacoes.
+int SalvacoesFortesParaIndice(const ent::InfoClasse& ic);
 
 // Atualiza a UI de atributos.
 void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);

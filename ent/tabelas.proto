@@ -107,6 +107,10 @@ message TabelaTalentos {
   repeated TalentoProto talentos = 1;
 }
 
+message TabelaClasses {
+  repeated InfoClasse info_classes = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -115,4 +119,5 @@ message TodasTabelas {
   optional TabelaEfeitos tabela_efeitos = 4;
   optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPocoes tabela_pocoes = 50;
+  optional TabelaClasses tabela_classes =  51;
 }

@@ -233,6 +233,31 @@ message Bonus {
   repeated BonusIndividual bonus_individual = 1;
 }
 
+enum ProgressaoBba {
+  PBBA_ZERO = 0;
+  PBBA_MEIO = 1;
+  PBBA_TRES_QUARTOS = 2;
+  PBBA_UM = 3;
+}
+
+// Informacoes sobre a classe de um personagem.
+// ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
+// que faz merge com o tabelado.
+message InfoClasse {
+  optional string id = 1;
+  optional string nome = 9;
+  optional int32 nivel = 2;
+  optional int32 nivel_conjurador = 3;
+  // Bonus base de ataque do nivel.
+  optional int32 bba = 4;
+  optional ProgressaoBba progressao_bba = 8;
+  // Exemplo: modificador de sabedoria para clerigos.
+  optional int32 modificador_atributo_conjuracao = 5;
+  // Qual o atributo de conjuracao da classe.
+  optional TipoAtributo atributo_conjuracao = 6;
+  // Quais salvacoes sao fortes para a classe.
+  repeated TipoSalvacao salvacoes_fortes = 7;
+}
 
 message ConsequenciaEvento {
   // Afeta todos atributos.

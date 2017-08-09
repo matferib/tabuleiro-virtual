@@ -23,21 +23,6 @@ enum TipoForma {
   TF_TRIANGULO = 8;
 }
 
-// Informacoes sobre a classe de um personagem.
-message InfoClasse {
-  optional string id = 1;
-  optional int32 nivel = 2;
-  optional int32 nivel_conjurador = 3;
-  // Bonus base de ataque do nivel.
-  optional int32 bba = 4;
-  // Exemplo: modificador de sabedoria para clerigos.
-  optional int32 modificador_atributo_conjuracao = 5;
-  // Qual o atributo de conjuracao da classe.
-  optional TipoAtributo atributo_conjuracao = 6;
-  // Quais salvacoes sao fortes para a classe.
-  repeated TipoSalvacao salvacoes_fortes = 7;
-}
-
 // Como uma arma esta empunhada.
 // Na UI, deve ter a mesma ordem no combo.
 enum EmpunhaduraArma {
