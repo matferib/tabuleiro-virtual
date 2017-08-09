@@ -1307,7 +1307,7 @@ QGroupBox::title {
           <string>Nível da Classe</string>
          </property>
          <property name="minimum">
-          <number>-1</number>
+          <number>1</number>
          </property>
         </widget>
        </item>

@@ -1015,7 +1015,7 @@ public:
 
         spin_nivel_classe = new QSpinBox(horizontalLayoutWidget);
         spin_nivel_classe->setObjectName(QString::fromUtf8("spin_nivel_classe"));
-        spin_nivel_classe->setMinimum(-1);
+        spin_nivel_classe->setMinimum(1);
 
         horizontalLayout->addWidget(spin_nivel_classe);
 

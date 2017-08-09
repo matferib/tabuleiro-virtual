@@ -1253,7 +1253,7 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
 void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.combo_classe->setCurrentIndex(-1);
   gerador.linha_classe->clear();
-  gerador.spin_nivel_classe->clear();
+  gerador.spin_nivel_classe->setValue(1);
   gerador.spin_nivel_conjurador->clear();
   gerador.spin_bba->clear();
   gerador.label_mod_conjuracao->setText("0");
