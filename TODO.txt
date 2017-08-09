@@ -1,3 +1,7 @@
+Implementar progressao automatica de conjurador para as classes tabeladas.
+
+Implementar bloqueio ambidestro.
+Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
 Colocar pericias.
 Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.

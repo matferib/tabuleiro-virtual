@@ -100,7 +100,8 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
 }
 
 int IdClasseParaIndice(const std::string& id, const QComboBox* combo) {
-  return combo->findData(id.c_str());
+  int indice = combo->findData(id.c_str());
+  return indice < 0 ? combo->findData("outro") : indice;
 }
 
 }  // namespace
