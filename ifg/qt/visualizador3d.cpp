@@ -1273,8 +1273,6 @@ void PreencheConfiguraComboClasse(
       gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
     };
-    auto BloqueiaSinais = [objs] { for (auto* obj : objs) obj->blockSignals(true); };
-    auto DesbloqueiaSinais = [objs] { for (auto* obj : objs) obj->blockSignals(false); };
     const auto& classe_tabelada = tabelas.Classe(combo->itemData(combo->currentIndex()).toString().toStdString());
     if (classe_tabelada.has_nome()) {
       const int indice = gerador.lista_niveis->currentRow();
