@@ -9,6 +9,8 @@
 
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
+#include "ent/tabuleiro.h"
 #include "ent/tabuleiro_interface.h"
 //#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
