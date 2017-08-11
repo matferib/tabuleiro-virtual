@@ -2877,28 +2877,6 @@ QGroupBox::title {
       </layout>
      </widget>
     </widget>
-    <widget class="QCheckBox" name="checkbox_possui_acuidade">
-     <property name="geometry">
-      <rect>
-       <x>470</x>
-       <y>460</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Personagem possui acuidade com arma?</string>
-     </property>
-     <property name="text">
-      <string>Acuidade?</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="tab">
     <attribute name="title">

@@ -303,7 +303,6 @@ public:
     QPushButton *botao_bonus_iniciativa;
     QCheckBox *checkbox_iniciativa;
     QSpinBox *spin_iniciativa;
-    QCheckBox *checkbox_possui_acuidade;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -1756,11 +1755,6 @@ public:
 
         horizontalLayout_28->addWidget(spin_iniciativa);
 
-        checkbox_possui_acuidade = new QCheckBox(tab_estatisticas);
-        checkbox_possui_acuidade->setObjectName(QString::fromUtf8("checkbox_possui_acuidade"));
-        checkbox_possui_acuidade->setGeometry(QRect(470, 460, 91, 22));
-        sizePolicy1.setHeightForWidth(checkbox_possui_acuidade->sizePolicy().hasHeightForWidth());
-        checkbox_possui_acuidade->setSizePolicy(sizePolicy1);
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -2246,10 +2240,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        checkbox_possui_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Personagem possui acuidade com arma?", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_possui_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

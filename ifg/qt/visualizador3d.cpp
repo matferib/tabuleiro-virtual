@@ -1132,12 +1132,6 @@ void PreencheConfiguraDadosAtaque(
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
-  lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&tabelas, &gerador, proto_retornado]() {
-    proto_retornado->mutable_dados_ataque_globais()->set_acuidade(gerador.checkbox_possui_acuidade->isChecked());
-    RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
-  });
-
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });

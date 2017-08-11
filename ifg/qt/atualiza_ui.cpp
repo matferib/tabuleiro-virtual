@@ -145,7 +145,7 @@ void AtualizaUIClassesNiveis(
   gerador.linha_classe->setEnabled(habilitar);
   gerador.spin_bba->setEnabled(habilitar);
   gerador.combo_mod_conjuracao->setEnabled(habilitar);
-  gerador.spin_nivel_conjurador->setEnabled(habilitar || classe_tabelada.has_atributo_conjuracao());
+  gerador.spin_nivel_conjurador->setEnabled(habilitar);
   gerador.combo_salvacoes_fortes->setEnabled(habilitar);
   if (classe_tabelada.has_nome()) {
     gerador.linha_classe->setText(QString::fromUtf8(classe_tabelada.id().c_str()));
@@ -229,13 +229,11 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
-      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_possui_acuidade,
+      {gerador.spin_bonus_magico, gerador.checkbox_op,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma };
   for (auto* obj : objs) obj->blockSignals(true);
-
-  gerador.checkbox_possui_acuidade->setCheckState(proto.dados_ataque_globais().acuidade() ? Qt::Checked : Qt::Unchecked);
 
   // Tem que vir antes do clear.
   const int linha = gerador.lista_ataques->currentRow();
