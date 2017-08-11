@@ -235,8 +235,6 @@ message EntidadeProto {
 
     // A chance de falha no ataque, de 0-100.
     optional int32 chance_falha = 25;
-    // Personagem possui acuidade com arma.
-    optional bool acuidade = 26;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 

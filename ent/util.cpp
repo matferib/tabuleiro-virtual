@@ -1336,7 +1336,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
-    if (proto.dados_ataque_globais().acuidade() &&
+    if (PossuiTalento("acuidade_arma", proto) &&
         (PossuiCategoria(CAT_LEVE, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
@@ -1400,7 +1400,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
     usar_forca_dano = true;
   } else if (da->ataque_toque()) {
-    bba = proto.dados_ataque_globais().acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
+    bba = PossuiTalento("acuidade_arma", proto) && bba_distancia > bba_cac ? bba_distancia : bba_cac;
   }
 
   {
@@ -1591,6 +1591,16 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     }
     if (ic.has_atributo_conjuracao()) {
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
+      int nc = 0;
+      switch (ic.progressao_conjurador()) {
+        case PCONJ_UM:
+          nc = ic.nivel(); break;
+        case PCONJ_MEIO_MIN_4:
+          nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
+        default:
+          nc = 0;
+      }
+      ic.set_nivel_conjurador(nc);
     }
     if (ic.has_progressao_bba()) {
       switch (ic.progressao_bba()) {
@@ -1648,6 +1658,13 @@ void RecomputaDependenciaTamanho(EntidadeProto* proto) {
   proto->set_tamanho(TamanhoEntidade(total));
 }
 
+void RecomputaDependenciasIniciativa(int modificador_destreza, EntidadeProto* proto) {
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
+  AtribuiOuRemoveBonus(
+      PossuiTalento("iniciativa_aprimorada", *proto) ? 4 : 0, TB_TALENTO, "talento", proto->mutable_bonus_iniciativa());
+  proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
+}
+
 }  // namespace
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
@@ -1672,8 +1689,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   //const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
 
   // Iniciativa.
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
-  proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
+  RecomputaDependenciasIniciativa(modificador_destreza, proto);
 
   auto* dd = proto->mutable_dados_defesa();
   // Testes de resistencia.

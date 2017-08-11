@@ -240,6 +240,12 @@ enum ProgressaoBba {
   PBBA_UM = 3;
 }
 
+enum ProgressaoConjurador {
+  PCONJ_UM = 0;  // mais comum.
+  PCONJ_ZERO = 1;
+  PCONJ_MEIO_MIN_4 = 2; // ranger, paladino
+}
+
 // Informacoes sobre a classe de um personagem.
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
@@ -257,6 +263,8 @@ message InfoClasse {
   optional TipoAtributo atributo_conjuracao = 6;
   // Quais salvacoes sao fortes para a classe.
   repeated TipoSalvacao salvacoes_fortes = 7;
+  // Como o nivel de conjurador progride.
+  optional ProgressaoConjurador progressao_conjurador = 10;
 }
 
 message ConsequenciaEvento {
