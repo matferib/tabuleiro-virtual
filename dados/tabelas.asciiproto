@@ -2025,22 +2025,23 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
-    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS
+    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+    id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM
+    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS
+    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM
+    id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
@@ -2048,15 +2049,15 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
   }
   info_classes {
-    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS
+    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
-    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO
+    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_INTELIGENCIA
   }
   info_classes {
-    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO
+    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
