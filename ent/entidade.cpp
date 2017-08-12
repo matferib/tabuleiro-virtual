@@ -1755,4 +1755,8 @@ int Entidade::ChanceFalhaAtaque() const {
   return chance;
 }
 
+bool Entidade::IgnoraChanceFalha() const {
+  return proto_.dados_ataque_globais().chance_falha() < 0;
+}
+
 }  // namespace ent

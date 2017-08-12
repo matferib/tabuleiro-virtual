@@ -1358,19 +1358,15 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_antes->set_agarrando(proto_original.agarrando());
       proto_depois->set_agarrando(!proto_original.agarrando());
     }
-    if ((bits & BIT_FALHA_20) > 0) {
+    if ((bits & BIT_FALHA_20) > 0 ||
+        (bits & BIT_FALHA_50) > 0 ||
+        (bits & BIT_FALHA_NEGATIVO) > 0) {
+      int chance = (bits & BIT_FALHA_20) > 0 ? 20 : (bits & BIT_FALHA_50) > 0 ? 50 : -100;
       int chance_antes = proto_original.dados_ataque_globais().chance_falha();
       proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
           chance_antes);
       proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes == 20 ? 0 : 20);
-    }
-    if ((bits & BIT_FALHA_50) > 0) {
-      int chance_antes = proto_original.dados_ataque_globais().chance_falha();
-      proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes);
-      proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes == 50 ? 0 : 50);
+          chance_antes == chance ? 0 : chance);
     }
 
     if ((bits & BIT_ILUMINACAO) > 0) {

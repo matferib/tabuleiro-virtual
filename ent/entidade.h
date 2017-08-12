@@ -238,6 +238,8 @@ class Entidade {
   int ChanceFalhaAtaque() const;
   // A chance de um inimigo falhar um ataque contra esta entidade.
   int ChanceFalhaDefesa() const;
+  // Retorna se a entidade, ao atacar, ignora a chance de falha do oponente.
+  bool IgnoraChanceFalha() const;
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.

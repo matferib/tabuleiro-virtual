@@ -999,7 +999,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     return std::make_tuple(0, texto, true);
   }
   // Chance de falha.
-  {
+  if (!ea.IgnoraChanceFalha()) {
+    LOG(INFO) << "ataque: " << ea.ChanceFalhaAtaque();
+    LOG(INFO) << "defesa: " << ea.ChanceFalhaDefesa();
     const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa());
     if (chance_falha > 0) {
       const int d100 = RolaDado(100);

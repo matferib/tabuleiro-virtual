@@ -233,7 +233,8 @@ message EntidadeProto {
     optional bool dano_mais_16 = 17;
     optional bool dano_mais_32 = 18;
 
-    // A chance de falha no ataque, de 0-100.
+    // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
+    // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
