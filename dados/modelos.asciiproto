@@ -1057,10 +1057,21 @@ modelo {
 modelo {
   id: 'Orc'
   entidade {
-    dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
+    dados_vida: '1d8+1' info_textura { id: 'orc.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '2d4+4' ca_normal: 13 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d6+3' ca_normal: 13 }
+    dados_ataque { rotulo: 'falcione' id_arma: 'falcione' empunhadura: EA_2_MAOS }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia' }
+    dados_defesa { id_armadura: 'couro_batido' }
+    info_classes { id: 'combatente' nivel: 1 }
+    atributos {
+      # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
   }
 }
 modelo {
