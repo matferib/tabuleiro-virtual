@@ -33,6 +33,8 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(3, ModificadorAtributo(proto.atributos().forca()));
   EXPECT_EQ(3, ModificadorAtributo(proto.atributos().constituicao()));
   // 1 de vontade, +3 bonus.
+  EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+  EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_vontade()));
   // CA: 10 + 2 des + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
   EXPECT_EQ(21, BonusTotal(dd->ca()));
