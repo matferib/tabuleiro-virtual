@@ -961,7 +961,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'pele_arvore' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
       }
     }
     consequencia_fim {
@@ -975,7 +975,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
     }
     consequencia_fim {
@@ -989,7 +989,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'roupa_encantada' } } }
       }
     }
     consequencia_fim {
@@ -1064,7 +1064,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 2 origem: 'escudo_fe' } } }
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'escudo_fe' } } }
       }
     }
     consequencia_fim {
@@ -1123,9 +1123,45 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_PROTECAO_CONTRA_CAOS
   }
+  # Fim protecao contra tendencia.
+
+  efeitos {
+    id: EFEITO_FURIA
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
+      }
+    }
+    consequencia_fim {
+      atributos {
+        forca { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+      }
+    }
+  }
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'furia'
+    nome: 'Fúria'
+    id_efeito: EFEITO_FURIA
+    duracao_rodadas: 5
+    custo_po: 50
+    complementos: 2
+    complementos: 1
+  }
+
   pocoes {
     id: 'protecao_contra_mal'
     nome: 'Poteção Contra o Mal'
@@ -1221,7 +1257,7 @@ tabela_pocoes {
     id: 'escudo_fe_2'
     nome: 'Escudo da Fé (2)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 2
+    complementos: 2
     custo_po: 50
     duracao_rodadas: 10
   }
@@ -1229,7 +1265,7 @@ tabela_pocoes {
     id: 'escudo_fe_3'
     nome: 'Escudo da Fé (3)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 3
+    complementos: 3
     custo_po: 300
     duracao_rodadas: 60
   }
@@ -1237,7 +1273,7 @@ tabela_pocoes {
     id: 'escudo_fe_4'
     nome: 'Escudo da Fé (4)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 4
+    complementos: 4
     custo_po: 600
     duracao_rodadas: 120
   }
@@ -1245,7 +1281,7 @@ tabela_pocoes {
     id: 'escudo_fe_5'
     nome: 'Escudo da Fé (5)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 5
+    complementos: 5
     custo_po: 900
     duracao_rodadas: 180
   }
@@ -1270,7 +1306,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 750
     duracao_rodadas: 3000
-    complemento: 1
+    complementos: 1
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1280,7 +1316,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1200
     duracao_rodadas: 4800
-    complemento: 2
+    complementos: 2
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1290,7 +1326,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1800
     duracao_rodadas: 7200
-    complemento: 3
+    complementos: 3
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1300,7 +1336,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 2400
     duracao_rodadas: 9600
-    complemento: 4
+    complementos: 4
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1310,7 +1346,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 3000
     duracao_rodadas: 12000
-    complemento: 5
+    complementos: 5
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1326,7 +1362,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 300
     duracao_rodadas: 300
-    complemento: 2
+    complementos: 2
   }
   pocoes {
     id: 'pele_arvore_3'
@@ -1334,7 +1370,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 600
     duracao_rodadas: 600
-    complemento: 3
+    complementos: 3
   }
   pocoes {
     id: 'pele_arvore_4'
@@ -1342,7 +1378,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 900
     duracao_rodadas: 900
-    complemento: 4
+    complementos: 4
   }
   pocoes {
     id: 'pele_arvore_5'
@@ -1350,7 +1386,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 1200
     duracao_rodadas: 1200
-    complemento: 5
+    complementos: 5
   }
 }
 tabela_talentos {
