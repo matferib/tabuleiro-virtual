@@ -1,3 +1,4 @@
+#include "ent/entidade.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "gtest/gtest.h"
@@ -12,6 +13,21 @@ TEST(TesteDependencias, TesteDependencias) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(3);
+  // Ataques.
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_obra_prima(true);
+    da->set_empunhadura(EA_2_MAOS);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_obra_prima(true);
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+
+  // Eventos.
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_FURIA);
@@ -40,6 +56,22 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_vontade()));
   // CA: 10 + 2 des + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
   EXPECT_EQ(21, BonusTotal(dd->ca()));
+  // Primeiro ataque.
+  EXPECT_EQ("espada longa", proto.dados_ataque(0).rotulo());
+  // Espada longa grande com duas maos.
+  EXPECT_EQ("2d6+4", proto.dados_ataque(0).dano());
+  EXPECT_EQ(19, proto.dados_ataque(0).margem_critico());
+  // 3 base, 3 forca, -1 tamanho, 1 obra prima.
+  EXPECT_EQ(6, proto.dados_ataque(0).bonus_ataque_final());
+  EXPECT_EQ(16, proto.dados_ataque(0).ca_normal());
+  EXPECT_EQ(14, proto.dados_ataque(0).ca_surpreso());
+  EXPECT_EQ(9, proto.dados_ataque(0).ca_toque());
+  // Segundo ataque.
+  // Espada longa grande com uma mao.
+  EXPECT_EQ("2d6+3", proto.dados_ataque(1).dano());
+  EXPECT_EQ(21, proto.dados_ataque(1).ca_normal());
+  EXPECT_EQ(19, proto.dados_ataque(1).ca_surpreso());
+  EXPECT_EQ(9, proto.dados_ataque(1).ca_toque());
 }
 
 // Teste basico gera dados.
