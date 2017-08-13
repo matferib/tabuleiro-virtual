@@ -38,6 +38,11 @@ TEST(TesteDependencias, TesteDependencias) {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_AGILIDADE_GATO);
   }
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_PROTECAO_CONTRA_BEM);
+  }
+
   auto* dd = proto.mutable_dados_defesa();
   dd->set_id_armadura("cota_malha");
   dd->set_bonus_magico_armadura(2);
@@ -72,6 +77,14 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(21, proto.dados_ataque(1).ca_normal());
   EXPECT_EQ(19, proto.dados_ataque(1).ca_surpreso());
   EXPECT_EQ(9, proto.dados_ataque(1).ca_toque());
+
+  proto.mutable_tendencia()->set_eixo_bem_mal(1.0f);
+  auto* ea = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
+  auto* ed = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
+  // 16 normal +2 contra o bem.
+  EXPECT_EQ(18, ed->CA(*ea, Entidade::CA_NORMAL));
+  // 6 normal + 2 contra o bem.
+  EXPECT_EQ(6, ed->Salvacao(*ea, TS_VONTADE));
 }
 
 // Teste basico gera dados.
