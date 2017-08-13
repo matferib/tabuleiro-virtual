@@ -181,6 +181,14 @@ public:
     QSpacerItem *horizontalSpacer_9;
     QLabel *label_64;
     QComboBox *combo_salvacoes_fortes;
+    QWidget *gridLayoutWidget_6;
+    QGridLayout *gridLayout_6;
+    QLabel *label_75;
+    QSlider *slider_ordem_caos;
+    QSlider *slider_bem_mal;
+    QLabel *label_76;
+    QLabel *label_77;
+    QLabel *label_78;
     QWidget *tab_3;
     QLabel *label_9;
     QPushButton *botao_remover_talento;
@@ -976,7 +984,7 @@ public:
 
         groupBox_2 = new QGroupBox(tab_nivel);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(10, 70, 951, 61));
+        groupBox_2->setGeometry(QRect(10, 90, 951, 61));
         horizontalLayoutWidget = new QWidget(groupBox_2);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(9, 20, 941, 41));
@@ -1087,6 +1095,46 @@ public:
         combo_salvacoes_fortes->setObjectName(QString::fromUtf8("combo_salvacoes_fortes"));
 
         horizontalLayout->addWidget(combo_salvacoes_fortes);
+
+        gridLayoutWidget_6 = new QWidget(tab_nivel);
+        gridLayoutWidget_6->setObjectName(QString::fromUtf8("gridLayoutWidget_6"));
+        gridLayoutWidget_6->setGeometry(QRect(420, 10, 211, 71));
+        gridLayout_6 = new QGridLayout(gridLayoutWidget_6);
+        gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        gridLayout_6->setContentsMargins(0, 0, 0, 0);
+        label_75 = new QLabel(gridLayoutWidget_6);
+        label_75->setObjectName(QString::fromUtf8("label_75"));
+
+        gridLayout_6->addWidget(label_75, 0, 0, 1, 1);
+
+        slider_ordem_caos = new QSlider(gridLayoutWidget_6);
+        slider_ordem_caos->setObjectName(QString::fromUtf8("slider_ordem_caos"));
+        slider_ordem_caos->setMaximum(8);
+        slider_ordem_caos->setOrientation(Qt::Horizontal);
+
+        gridLayout_6->addWidget(slider_ordem_caos, 1, 1, 1, 1);
+
+        slider_bem_mal = new QSlider(gridLayoutWidget_6);
+        slider_bem_mal->setObjectName(QString::fromUtf8("slider_bem_mal"));
+        slider_bem_mal->setMaximum(8);
+        slider_bem_mal->setOrientation(Qt::Horizontal);
+
+        gridLayout_6->addWidget(slider_bem_mal, 0, 1, 1, 1);
+
+        label_76 = new QLabel(gridLayoutWidget_6);
+        label_76->setObjectName(QString::fromUtf8("label_76"));
+
+        gridLayout_6->addWidget(label_76, 1, 0, 1, 1);
+
+        label_77 = new QLabel(gridLayoutWidget_6);
+        label_77->setObjectName(QString::fromUtf8("label_77"));
+
+        gridLayout_6->addWidget(label_77, 1, 2, 1, 1);
+
+        label_78 = new QLabel(gridLayoutWidget_6);
+        label_78->setObjectName(QString::fromUtf8("label_78"));
+
+        gridLayout_6->addWidget(label_78, 0, 2, 1, 1);
 
         tab_tesouro->addTab(tab_nivel, QString());
         tab_3 = new QWidget();
@@ -2065,7 +2113,11 @@ public:
         );
         label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", 0, QApplication::UnicodeUTF8));
         label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", 0, QApplication::UnicodeUTF8));
-        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", 0, QApplication::UnicodeUTF8));
+        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", 0, QApplication::UnicodeUTF8));
+        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", 0, QApplication::UnicodeUTF8));
+        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", 0, QApplication::UnicodeUTF8));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", 0, QApplication::UnicodeUTF8));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));

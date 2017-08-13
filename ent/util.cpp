@@ -924,7 +924,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   const int ataque_origem = ea.BonusAtaque();
   const int d20_defesa_agarrar = RolaDado(20);
-  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(ea.Id(), CATipoAtaque(*da));
+  const int ca_destino = da->ataque_agarrar() ? (d20_defesa_agarrar + ed.Proto().bba().agarrar()) : ed.CA(ea, CATipoAtaque(*da));
   const std::string str_ca_destino = da->ataque_agarrar()
       ? google::protobuf::StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
       : google::protobuf::StringPrintf("%d", ca_destino);
@@ -1175,24 +1175,34 @@ std::vector<TipoBonus> ExclusaoEscudo(bool permite_escudo) {
   return exclusao;
 }
 
-int CATotal(const EntidadeProto& proto, bool permite_escudo) {
-  return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo));
+int CATotal(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus) {
+  Bonus ca(outros_bonus);
+  CombinaBonus(proto.dados_defesa().ca(), &ca);
+  return BonusTotalExcluindo(ca, ExclusaoEscudo(permite_escudo));
 }
 
-int CASurpreso(const EntidadeProto& proto, bool permite_escudo) {
+int CASurpreso(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus) {
+  Bonus ca(outros_bonus);
+  CombinaBonus(proto.dados_defesa().ca(), &ca);
+  std::vector<TipoBonus> exclusao = ExclusaoEscudo(permite_escudo);
+  exclusao.push_back(TB_ESQUIVA);
   const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
-  return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
+  return BonusTotalExcluindo(ca, exclusao) - std::max(modificador_destreza, 0);
 }
 
-int CAToque(const EntidadeProto& proto) {
-  return BonusTotalExcluindo(proto.dados_defesa().ca(),
+int CAToque(const EntidadeProto& proto, const Bonus& outros_bonus) {
+  Bonus ca(outros_bonus);
+  CombinaBonus(proto.dados_defesa().ca(), &ca);
+  return BonusTotalExcluindo(ca,
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA });
 }
 
-int CAToqueSurpreso(const EntidadeProto& proto) {
+int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
+  Bonus ca(outros_bonus);
+  CombinaBonus(proto.dados_defesa().ca(), &ca);
   const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
-  return BonusTotalExcluindo(proto.dados_defesa().ca(),
-         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
+  return BonusTotalExcluindo(ca,
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ESQUIVA }) - std::max(modificador_destreza, 0);
 }
 
 bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
@@ -1369,6 +1379,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
       da->set_alcance_minimo_m(0);
     } else {
+      // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
+      // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
       int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
       int alcance_minimo = 0;
       if (arma.haste()) {
@@ -1683,6 +1695,25 @@ void RecomputaDependenciasIniciativa(int modificador_destreza, EntidadeProto* pr
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
 }
 
+void RecomputaDependenciasTendencia(EntidadeProto* proto) {
+  if (proto->tendencia().has_simples()) {
+    float bem_mal = 0.5f;
+    float ordem_caos = 0.5f;
+    switch (proto->tendencia().simples()) {
+      case TD_LEAL_BOM:    bem_mal = ordem_caos = 1.0f;       break;
+      case TD_LEAL_NEUTRO: bem_mal = 0.5f; ordem_caos = 1.0f; break;
+      case TD_LEAL_MAL:    bem_mal = 0.0f; ordem_caos = 1.0f; break;
+      case TD_NEUTRO_BOM:  bem_mal = 1.0f; ordem_caos = 0.5f; break;
+      case TD_NEUTRO:      bem_mal = ordem_caos = 0.5f;       break;
+      case TD_NEUTRO_MAL:  bem_mal = 0.0f; ordem_caos = 0.5f; break;
+      case TD_CAOTICO_BOM:    bem_mal = 1.0f; ordem_caos = 0.0f; break;
+      case TD_CAOTICO_NEUTRO: bem_mal = 0.5f; ordem_caos = 0.0f; break;
+      case TD_CAOTICO_MAL:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
+    }
+    proto->mutable_tendencia()->clear_simples();
+  }
+}
+
 }  // namespace
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
@@ -1695,6 +1726,7 @@ bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(1) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
+  RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
   RecomputaDependenciasDestreza(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
@@ -2122,6 +2154,18 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
     ret.Add()->Swap(&evento);
   }
   return ret;
+}
+
+Bonus BonusContraTendencia(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
+  if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
+      (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
+      (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
+      (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
+    Bonus b;
+    AtribuiBonus(2, TB_DEFLEXAO, "protecao_contra_tendencia", &b);
+    return b;
+  }
+  return Bonus();
 }
 
 }  // namespace ent

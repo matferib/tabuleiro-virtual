@@ -824,6 +824,17 @@ void AdicionaOuAtualizaAtaqueEntidade(
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
+void PreencheConfiguraTendencia(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.slider_bem_mal, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    proto_retornado->mutable_tendencia()->set_eixo_bem_mal(gerador.slider_bem_mal->value() / 8.0f);
+  });
+  lambda_connect(gerador.slider_ordem_caos, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    proto_retornado->mutable_tendencia()->set_eixo_ordem_caos(gerador.slider_ordem_caos->value() / 8.0f);
+  });
+  AtualizaUITendencia(this_->tabelas(), gerador, *proto_retornado);
+}
+
 void PreencheConfiguraComboArmaduraEscudo(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   QComboBox* combo_armadura = gerador.combo_armadura;
@@ -1517,6 +1528,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Iniciativa.
   PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
+
+  // Tendencia.
+  PreencheConfiguraTendencia(this, gerador, proto_retornado);
 
   // Combos dinamicos.
   PreencheConfiguraComboArmaduraEscudo(this, gerador, proto_retornado);

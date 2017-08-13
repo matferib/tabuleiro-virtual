@@ -1485,15 +1485,24 @@ int Entidade::BonusAtaque() const {
   return da->bonus_ataque_final();
 }
 
-int Entidade::CA(unsigned int id_atacante, TipoCA tipo_ca) const {
-  int bonus_esquiva = PossuiTalento("esquiva", proto_) && id_atacante == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
+  Bonus outros_bonus;
+  CombinaBonus(BonusContraTendencia(atacante.Proto(), proto_), &outros_bonus);
+  // Cada tipo de CA sabera compensar a esquiva.
+  const int bonus_esquiva =
+      PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+  AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo) + bonus_esquiva;
+      return proto_.surpreso()
+          ? CASurpreso(proto_, permite_escudo, outros_bonus)
+          : CATotal(proto_, permite_escudo, outros_bonus);
     } else {
-      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_) + bonus_esquiva;
+      return proto_.surpreso()
+          ? CAToqueSurpreso(proto_, outros_bonus)
+          : CAToque(proto_, outros_bonus);
     }
   }
   if (da == nullptr) {

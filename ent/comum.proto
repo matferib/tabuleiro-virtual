@@ -1,6 +1,18 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum TendenciaSimplificada {
+  TD_LEAL_BOM = 0;
+  TD_LEAL_NEUTRO = 1;
+  TD_LEAL_MAL = 2;
+  TD_NEUTRO_BOM = 3;
+  TD_NEUTRO = 4;
+  TD_NEUTRO_MAL = 5;
+  TD_CAOTICO_BOM = 6;
+  TD_CAOTICO_NEUTRO = 7;
+  TD_CAOTICO_MAL = 8;
+}
+
 enum TamanhoEntidade {
   TM_MINUSCULO = 0;
   TM_DIMINUTO = 1;
@@ -34,8 +46,11 @@ enum TipoEfeito {
   EFEITO_ESCUDO_ENCANTADO = 16;
   EFEITO_HEROISMO = 17;
   EFEITO_PELE_ARVORE = 18;
+  EFEITO_PROTECAO_CONTRA_MAL = 19;
+  EFEITO_PROTECAO_CONTRA_BEM = 20;
+  EFEITO_PROTECAO_CONTRA_CAOS = 21;
+  EFEITO_PROTECAO_CONTRA_ORDEM = 22;
 }
-
 
 // Tipo de visao para entidades e camera.
 enum TipoVisao {

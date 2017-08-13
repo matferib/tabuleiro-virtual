@@ -260,10 +260,10 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);
 
 // Funcoes auxiliares de CA.
-int CATotal(const EntidadeProto& proto, bool permite_escudo);
-int CASurpreso(const EntidadeProto& proto, bool permite_escudo);
-int CAToque(const EntidadeProto& proto);
-int CAToqueSurpreso(const EntidadeProto& proto);
+int CATotal(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus = Bonus());
+int CASurpreso(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus = Bonus());
+int CAToque(const EntidadeProto& proto, const Bonus& outros_bonus = Bonus());
+int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus = Bonus());
 
 bool ArmaDupla(const ArmaProto& arma);
 bool ArmaDistancia(const ArmaProto& arma);
@@ -320,6 +320,13 @@ bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 // Retorna true se o personagem tiver o talento.
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
 
+// Funcoes de tendencia.
+inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
+inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
+inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
+inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
+// Retorna o bonus contra tendencia de um atacante. 
+Bonus BonusContraTendencia(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

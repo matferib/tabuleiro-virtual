@@ -232,7 +232,7 @@ class Entidade {
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(unsigned int id_atacante, TipoCA tipo) const;
+  int CA(const ent::Entidade& atacante, TipoCA tipo) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   // A chance de falha ao atacar.
@@ -270,6 +270,12 @@ class Entidade {
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
+
+  // Acesso a tendencia.
+  bool Bom() const { return ent::Bom(proto_); }
+  bool Mal() const { return ent::Mal(proto_); }
+  bool Ordeiro() const { return ent::Ordeiro(proto_); } 
+  bool Caotico() const { return ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao) const;

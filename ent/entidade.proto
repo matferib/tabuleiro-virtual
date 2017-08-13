@@ -282,4 +282,13 @@ message EntidadeProto {
     repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
+
+  // Alinhamento ou tendencia.
+  message TendenciaDetalhada {
+    // Daqui se geram os eixos.
+    optional TendenciaSimplificada simples = 3;
+    optional float eixo_bem_mal = 1 [default = 0.5];
+    optional float eixo_ordem_caos = 2 [default = 0.5];
+  }
+  optional TendenciaDetalhada tendencia = 80;
 }

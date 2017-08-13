@@ -106,6 +106,12 @@ int IdClasseParaIndice(const std::string& id, const QComboBox* combo) {
 
 }  // namespace
 
+void AtualizaUITendencia(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.slider_bem_mal->setValue(proto.tendencia().eixo_bem_mal() * 8);
+  gerador.slider_ordem_caos->setValue(proto.tendencia().eixo_ordem_caos() * 8);
+}
+
 void AtualizaUIClassesNiveis(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // Objetos da UI a serem bloqueados. Passa por copia.

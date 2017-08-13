@@ -1107,9 +1107,54 @@ tabela_efeitos {
       }
     }
   }
+  # Esses efeitos tem regras um pouco diferentes, porque dependem da tendencia do agressor.
+  # +2 deflexao CA e +2 resistencia na salvacao dependendo alinhamento do agressor.
+  # Imune a efeitos de encantamento (independente de alinhamento).
+  # Imune a ataques naturais de criaturas conjuradas de acordo com alinhamento.
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_MAL
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_BEM
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_ORDEM
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_CAOS
+  }
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'protecao_contra_mal'
+    nome: 'Poteção Contra o Mal'
+    id_efeito: EFEITO_PROTECAO_CONTRA_MAL
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_bem'
+    nome: 'Poteção Contra o Bem'
+    id_efeito: EFEITO_PROTECAO_CONTRA_BEM
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_ordem'
+    nome: 'Poteção Contra o Ordem'
+    id_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_caos'
+    nome: 'Poteção Contra o Caos'
+    id_efeito: EFEITO_PROTECAO_CONTRA_CAOS
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+
   pocoes {
     id: 'curar_ferimentos_leves'
     nome: 'Curar Ferimentos Leves'

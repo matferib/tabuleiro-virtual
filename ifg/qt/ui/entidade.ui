@@ -1125,7 +1125,7 @@ QGroupBox::title {
    </widget>
    <widget class="QWidget" name="tab_nivel">
     <attribute name="title">
-     <string>Nível</string>
+     <string>Nível e Tendência</string>
     </attribute>
     <widget class="QWidget" name="horizontalLayoutWidget_5">
      <property name="geometry">
@@ -1231,7 +1231,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>70</y>
+       <y>90</y>
        <width>951</width>
        <height>61</height>
       </rect>
@@ -1478,6 +1478,66 @@ QGroupBox::title {
        </item>
       </layout>
      </widget>
+    </widget>
+    <widget class="QWidget" name="gridLayoutWidget_6">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>10</y>
+       <width>211</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_75">
+        <property name="text">
+         <string>Mal</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSlider" name="slider_ordem_caos">
+        <property name="maximum">
+         <number>8</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSlider" name="slider_bem_mal">
+        <property name="maximum">
+         <number>8</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_76">
+        <property name="text">
+         <string>Caos</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_77">
+        <property name="text">
+         <string>Ordem</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_78">
+        <property name="text">
+         <string>Bem</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
