@@ -7012,7 +7012,9 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
         auto* evento = e_depois->add_evento();
         evento->set_id_efeito(id_efeito);
         evento->set_rodadas(pocao.duracao_rodadas());
-        if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+        if (!pocao.complementos().empty()) {
+          *evento->mutable_complementos() = pocao.complementos();
+        }
         evento->set_descricao(pocao.nome());
       }
     }

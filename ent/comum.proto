@@ -50,6 +50,7 @@ enum TipoEfeito {
   EFEITO_PROTECAO_CONTRA_BEM = 20;
   EFEITO_PROTECAO_CONTRA_CAOS = 21;
   EFEITO_PROTECAO_CONTRA_ORDEM = 22;
+  EFEITO_FURIA = 23;
 }
 
 // Tipo de visao para entidades e camera.
@@ -239,6 +240,8 @@ message BonusIndividual {
   message PorOrigem {
     optional int32 valor = 1;
     optional string origem = 2;
+    // Para preenchimento do valor atraves de complemento.
+    optional int32 indice_complemento = 3;
   }
   repeated PorOrigem por_origem = 2;
 }
@@ -358,7 +361,7 @@ message PocaoProto {
   // Custo da pocao em PO.
   optional int32 custo_po = 5;
   // Para efeitos que usam complemento.
-  optional int32 complemento = 6;
+  repeated int32 complementos = 6;
   // Para pocoes de cura.
   optional string delta_pontos_vida = 7;
   optional CombinacaoEfeitos combinacao_efeitos = 8;

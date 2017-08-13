@@ -1523,27 +1523,37 @@ void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) 
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
 }
 
-void PreencheValorBonus(int valor, Bonus* bonus) {
+void PreencheValorBonus(const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_valor(valor);
+      if (po.has_indice_complemento()) {
+        if (po.indice_complemento() < 0 || po.indice_complemento() >= complementos.size()) {
+          LOG(ERROR) << "indice complemento invalido: " << po.indice_complemento() << ", tamanho: " << complementos.size();
+        } else {
+          po.set_valor(complementos.Get(po.indice_complemento()));
+        }
+      }
     }
   }
 }
 
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
-ConsequenciaEvento PreencheConsequencia(int complemento, const ConsequenciaEvento& consequencia_original) {
+ConsequenciaEvento PreencheConsequencia(
+    const google::protobuf::RepeatedField<int>& complementos, const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
   if (c.usa_complemento()) {
-    if (c.atributos().has_forca()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_forca());
-    if (c.atributos().has_destreza()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_destreza());
-    if (c.atributos().has_constituicao()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_constituicao());
-    if (c.atributos().has_inteligencia()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_inteligencia());
-    if (c.atributos().has_sabedoria()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_sabedoria());
-    if (c.atributos().has_carisma()) PreencheValorBonus(complemento, c.mutable_atributos()->mutable_carisma());
-    if (c.dados_defesa().has_ca()) PreencheValorBonus(complemento, c.mutable_dados_defesa()->mutable_ca());
-    if (c.has_jogada_ataque()) PreencheValorBonus(complemento, c.mutable_jogada_ataque());
-    if (c.has_tamanho()) PreencheValorBonus(complemento, c.mutable_tamanho());
+    if (c.atributos().has_forca())        PreencheValorBonus(complementos, c.mutable_atributos()->mutable_forca());
+    if (c.atributos().has_destreza())     PreencheValorBonus(complementos, c.mutable_atributos()->mutable_destreza());
+    if (c.atributos().has_constituicao()) PreencheValorBonus(complementos, c.mutable_atributos()->mutable_constituicao());
+    if (c.atributos().has_inteligencia()) PreencheValorBonus(complementos, c.mutable_atributos()->mutable_inteligencia());
+    if (c.atributos().has_sabedoria())    PreencheValorBonus(complementos, c.mutable_atributos()->mutable_sabedoria());
+    if (c.atributos().has_carisma())      PreencheValorBonus(complementos, c.mutable_atributos()->mutable_carisma());
+    if (c.dados_defesa().has_ca())        PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_ca());
+    if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+    if (c.dados_defesa().has_salvacao_vontade())   PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+    if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+    if (c.has_jogada_ataque())            PreencheValorBonus(complementos, c.mutable_jogada_ataque());
+    if (c.has_tamanho())                  PreencheValorBonus(complementos, c.mutable_tamanho());
   }
   return c;
 }
@@ -1555,7 +1565,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia_fim()), proto);
+      AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
       eventos_a_remover.insert(i);
     }
     ++i;
@@ -1565,7 +1575,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   for (const auto& evento : proto->evento()) {
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(PreencheConsequencia(evento.complemento(), efeito.consequencia()), proto);
+    AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia()), proto);
   }
 }
 
@@ -1665,9 +1675,13 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
   const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
   ent::AtribuiBonus(10, ent::TB_BASE, "base",  dd->mutable_ca());
-  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
-  ent::AtribuiBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, ent::TB_ARMADURA, "armadura", dd->mutable_ca());
-  ent::AtribuiBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
+  AtribuiOuRemoveBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, ent::TB_ARMADURA, "armadura", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_bonus_magico_armadura()
+      ? dd->bonus_magico_armadura() : 0, ent::TB_ARMADURA_MELHORIA, "armadura_melhoria", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
+      ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
   // CA dos ataques.
   for (auto& da : *proto_retornado->mutable_dados_ataque()) {
     bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
@@ -2140,12 +2154,13 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
       complemento = descricao.substr(pos_par + 1);
       descricao = descricao.substr(0, pos_par);
     }
+    // TODO permitir multiplos complementos.
     std::string rodadas(linha.substr(pos_dois_pontos + 1));
     EntidadeProto::Evento evento;
     evento.set_descricao(ent::trim(descricao));
     evento.set_rodadas(atoi(rodadas.c_str()));
     if (!complemento.empty()) {
-      evento.set_complemento(atoi(complemento.c_str()));
+      evento.add_complementos(atoi(complemento.c_str()));
     }
     auto id_efeito = StringParaEfeito(evento.descricao());
     if (id_efeito != EFEITO_INVALIDO) {

@@ -1,8 +1,37 @@
+#include "ent/tabelas.h"
 #include "ent/util.h"
 #include "gtest/gtest.h"
 #include "log/log.h"
 
 namespace ent {
+
+TEST(TesteDependencias, TesteDependencias) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  proto.set_tamanho(TM_GRANDE);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(3);
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_FURIA);
+  evento->add_complementos(6);
+  evento->add_complementos(3);
+  evento->set_rodadas(10);
+  auto* dd = proto.mutable_dados_defesa();
+  dd->set_id_armadura("cota_malha");
+  dd->set_bonus_magico_armadura(2);
+  dd->set_id_escudo("pesado_madeira");
+  dd->set_bonus_magico_escudo(3);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(3, ic->bba());
+  // 16 da +3 de bonus.
+  EXPECT_EQ(3, ModificadorAtributo(proto.atributos().forca()));
+  EXPECT_EQ(3, ModificadorAtributo(proto.atributos().constituicao()));
+  // 1 de vontade, +3 bonus.
+  EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  // CA: 10 + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
+  EXPECT_EQ(19, BonusTotal(dd->ca()));
+}
 
 // Teste basico gera dados.
 TEST(TesteGeraDados, TesteGeraDados) {
