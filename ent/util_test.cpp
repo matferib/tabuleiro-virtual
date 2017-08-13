@@ -12,11 +12,16 @@ TEST(TesteDependencias, TesteDependencias) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(3);
-  auto* evento = proto.add_evento();
-  evento->set_id_efeito(EFEITO_FURIA);
-  evento->add_complementos(6);
-  evento->add_complementos(3);
-  evento->set_rodadas(10);
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_FURIA);
+    evento->add_complementos(6);
+    evento->add_complementos(3);
+  }
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_AGILIDADE_GATO);
+  }
   auto* dd = proto.mutable_dados_defesa();
   dd->set_id_armadura("cota_malha");
   dd->set_bonus_magico_armadura(2);
@@ -29,8 +34,8 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(3, ModificadorAtributo(proto.atributos().constituicao()));
   // 1 de vontade, +3 bonus.
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_vontade()));
-  // CA: 10 + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
-  EXPECT_EQ(19, BonusTotal(dd->ca()));
+  // CA: 10 + 2 des + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
+  EXPECT_EQ(21, BonusTotal(dd->ca()));
 }
 
 // Teste basico gera dados.
