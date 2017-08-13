@@ -9,6 +9,33 @@
 namespace ifg {
 namespace qt {
 
+namespace {
+
+QString ComplementosParaString(const google::protobuf::RepeatedField<int>& complementos) {
+  QString s;
+  for (int c : complementos) {
+    s.append(" ");
+    s.append(QString::number(c));
+  }
+  if (!s.isEmpty()) {
+    s.remove(0, 1);
+  }
+  return s;
+}
+
+const google::protobuf::RepeatedField<int> StringParaComplementos(const QString& complementos) {
+  google::protobuf::RepeatedField<int> cs;
+  QStringList lista = complementos.split(" ",  QString::SkipEmptyParts);
+  for (const auto& s : lista) {
+    bool ok;
+    int c = s.toInt(&ok);
+    if (ok) cs.Add(c);
+  }
+  return cs;
+}
+
+}  // namespace
+
 // Modelo de evento para ser usado pelos views de tabela.
 class ModeloEvento : public QAbstractTableModel {
  public:
@@ -78,7 +105,7 @@ class ModeloEvento : public QAbstractTableModel {
     const auto& evento = eventos_->Get(row);
     switch (column) {
       case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
-      case 1: return QVariant(evento.complemento());
+      case 1: return QVariant(ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
     }
@@ -107,7 +134,7 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 1: {
-        evento->set_complemento(value.toInt());
+        *evento->mutable_complementos() = StringParaComplementos(value.toString());
         emit dataChanged(index, index);
         return true;
       }
