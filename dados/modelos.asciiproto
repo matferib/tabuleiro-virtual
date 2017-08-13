@@ -547,6 +547,7 @@ modelo {
     info_talentos {
       gerais { id: 'ataque_poderoso' }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -587,6 +588,7 @@ modelo {
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'trespassar' }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -638,6 +640,7 @@ modelo {
       outros { id: 'combater_duas_armas' }
       outros { id: 'combater_duas_armas_aprimorado' }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -665,6 +668,7 @@ modelo {
     info_talentos {
       gerais { id: 'prontidao' }
     }
+    tendencia { simples: TD_NEUTRO_MAL }
   }
 }
 modelo {
@@ -704,6 +708,7 @@ modelo {
       gerais { id: 'prontidao' }
       gerais { id: 'acuidade_arma' }
     }
+    tendencia { simples: TD_NEUTRO_MAL }
   }
 }
 
@@ -1073,6 +1078,7 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -1094,6 +1100,7 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -1121,6 +1128,7 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -1138,7 +1146,8 @@ modelo {
       tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1\n'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'escudo_fe_2' }
-      pocoes { id: 'protecao_contra_tendencia' }
+      pocoes { id: 'protecao_contra_bem' }
+      pocoes { id: 'protecao_contra_mal' }
     }
     atributos {
       # Usa o array elite +4 for, -2 int, -2 sab, -2 car.
@@ -1149,6 +1158,7 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
@@ -1156,6 +1166,7 @@ modelo {
   entidade {
     dados_vida: '7d8+28' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {

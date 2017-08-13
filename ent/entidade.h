@@ -266,7 +266,7 @@ class Entidade {
   ResultadoSalvacao ProximaSalvacao() const { return static_cast<ResultadoSalvacao>(proto_.proxima_salvacao()); }
   bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
   /** Retorna o bonus de salvacao de um tipo para entidade. */
-  int Salvacao(TipoSalvacao tipo) const;
+  int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);

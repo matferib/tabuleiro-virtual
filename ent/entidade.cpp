@@ -1329,14 +1329,17 @@ Matrix4 Entidade::MontaMatrizModelagem(
   return matrix;
 }
 
-int Entidade::Salvacao(TipoSalvacao tipo) const {
+int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
+  Bonus b(BonusContraTendenciaNaSalvacao(atacante.Proto(), proto_));
+  const auto& dd = proto_.dados_defesa();
   switch (tipo) {
-    case TS_FORTITUDE: return BonusTotal(proto_.dados_defesa().salvacao_fortitude());
-    case TS_REFLEXO:   return BonusTotal(proto_.dados_defesa().salvacao_reflexo());
-    case TS_VONTADE:   return BonusTotal(proto_.dados_defesa().salvacao_vontade()); 
+    case TS_FORTITUDE: CombinaBonus(dd.salvacao_fortitude(), &b); break;
+    case TS_REFLEXO: CombinaBonus(dd.salvacao_reflexo(), &b); break;
+    case TS_VONTADE: CombinaBonus(dd.salvacao_vontade(), &b); break;
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
   }
-  LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
-  return 0;
+  return BonusTotal(b);
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
@@ -1487,7 +1490,7 @@ int Entidade::BonusAtaque() const {
 
 int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
-  CombinaBonus(BonusContraTendencia(atacante.Proto(), proto_), &outros_bonus);
+  CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
       PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;

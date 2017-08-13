@@ -215,7 +215,7 @@ int ModificadorDano(const EntidadeProto& ea);
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Rola o dado de ataque contra a salvacao, retornando o dano, texto do resultado.
-std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ed);
+std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -326,7 +326,8 @@ inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_
 inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
 inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
 // Retorna o bonus contra tendencia de um atacante. 
-Bonus BonusContraTendencia(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
+Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
+Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

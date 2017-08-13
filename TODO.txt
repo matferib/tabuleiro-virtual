@@ -1,5 +1,5 @@
-Pocao de protecao contra tendencia.
 Implementar Furia.
+Implementar flanquear.
 Implementar progressao automatica de conjurador para as classes tabeladas.
 Munição
 Implementar bloqueio ambidestro.

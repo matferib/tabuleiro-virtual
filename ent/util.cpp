@@ -1046,16 +1046,16 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   return std::make_tuple(vezes, texto, true);
 }
 
-std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ed) {
+std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
   int delta_pontos_vida = ap.delta_pontos_vida();
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida /= 2;
-      descricao_resultado = google::protobuf::StringPrintf("salvou metade (manual), dano: %d", delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("salvou metade (manual), dano: %d", -delta_pontos_vida);
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
-      descricao_resultado = google::protobuf::StringPrintf("salvou um quarto (manual), dano: %d", delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("salvou um quarto (manual), dano: %d", -delta_pontos_vida);
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
       descricao_resultado = "salvou tudo (manual)";
@@ -1063,7 +1063,7 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
   } else if (ap.has_dificuldade_salvacao()) {
     // TODO evasao e evasao aprimorada.
     int d20 = RolaDado(20);
-    int bonus = ed.Salvacao(ap.tipo_salvacao());
+    int bonus = ed.Salvacao(ea, ap.tipo_salvacao());
     int total = d20 + bonus;
     if (total >= ap.dificuldade_salvacao()) {
       if (ap.resultado_salvacao() == RS_MEIO) {
@@ -1073,12 +1073,12 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
     } else {
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
     }
   } else {
-    descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", delta_pontos_vida);
+    descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, descricao_resultado);
 }
@@ -2156,13 +2156,25 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
   return ret;
 }
 
-Bonus BonusContraTendencia(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
+Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
       (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
       (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
       (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
     Bonus b;
     AtribuiBonus(2, TB_DEFLEXAO, "protecao_contra_tendencia", &b);
+    return b;
+  }
+  return Bonus();
+}
+
+Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
+  if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
+      (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
+      (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
+      (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
+    Bonus b;
+    AtribuiBonus(2, TB_RESISTENCIA, "protecao_contra_tendencia", &b);
     return b;
   }
   return Bonus();

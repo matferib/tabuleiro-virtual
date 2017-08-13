@@ -898,7 +898,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
       int delta_pv_pos_salvacao = delta_pontos_vida;
       if (acao_proto.permite_salvacao()) {
         std::string resultado_salvacao;
-        std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+        std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade, *entidade_destino);
         AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
         atraso_s += 0.5f;
         AdicionaLogEvento(google::protobuf::StringPrintf(
@@ -960,7 +960,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         if (acao_proto.permite_salvacao()) {
           std::string resultado_salvacao;
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade, *entidade_destino);
           AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
           atraso_s += 0.5f;
           AdicionaLogEvento(google::protobuf::StringPrintf(
