@@ -935,6 +935,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
   }
   float alcance_m = ea.AlcanceAtaqueMetros();
+  float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
   if (alcance_m >= 0) {
     Posicao pos_acao_a = ea.PosicaoAcao();
     Posicao pos_acao_d = ed.PosicaoAcao();
@@ -971,6 +972,11 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
         modificador_incrementos = total_incrementos * 2;
         VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
       }
+    } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
+      std::string texto =
+          google::protobuf::StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f",
+                                         alcance_minimo_m, distancia_m);
+      return std::make_tuple(0, texto, false);
     }
     VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
@@ -1000,8 +1006,8 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   }
   // Chance de falha.
   if (!ea.IgnoraChanceFalha()) {
-    LOG(INFO) << "ataque: " << ea.ChanceFalhaAtaque();
-    LOG(INFO) << "defesa: " << ea.ChanceFalhaDefesa();
+    VLOG(1) << "ataque: " << ea.ChanceFalhaAtaque();
+    VLOG(1) << "defesa: " << ea.ChanceFalhaDefesa();
     const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa());
     if (chance_falha > 0) {
       const int d100 = RolaDado(100);
@@ -1361,6 +1367,16 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
 
     if (arma.has_alcance_quadrados()) {
       da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
+      da->set_alcance_minimo_m(0);
+    } else {
+      int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
+      int alcance_minimo = 0;
+      if (arma.haste()) {
+        alcance_minimo = alcance;
+        alcance *= 2;
+      }
+      da->set_alcance_m(alcance * QUADRADOS_PARA_METROS);
+      da->set_alcance_minimo_m(alcance_minimo * QUADRADOS_PARA_METROS);
     }
     if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
       da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
@@ -1859,6 +1875,28 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
   return 0;
 }
 
+int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case TM_MINUSCULO:
+    case TM_DIMINUTO:
+    case TM_MIUDO:
+      return 0;
+    case TM_PEQUENO:
+    case TM_MEDIO:
+      return 1;
+    case TM_GRANDE:
+      return 2;
+    case TM_ENORME:
+      return 3;
+    case TM_IMENSO:
+      return 4;
+    case TM_COLOSSAL:
+      return 5;
+    default:
+      return 1;
+  }
+}
+
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
@@ -1885,7 +1923,6 @@ void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, Entidade
   } else {
     da->clear_ataque_agarrar();
   }
-
 }
 
 std::string StringCritico(const EntidadeProto::DadosAtaque& da) {

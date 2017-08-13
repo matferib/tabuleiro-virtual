@@ -77,6 +77,7 @@ message ArmaProto {
   optional StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
   optional int32 alcance_quadrados = 10;
+  optional int32 alcance_minimo_quadrados = 17;
   optional int32 margem_critico = 7 [default=20];
   optional int32 multiplicador_critico = 11 [default=2];
   optional int32 margem_critico_secundario = 12 [default=20];
@@ -84,6 +85,8 @@ message ArmaProto {
   // Maximo modificador de forca permitido pela arma (valido para arcos).
   optional int32 max_forca = 14;
   optional CategoriaPericia categoria_pericia = 15;
+  // Indica que a arma eh de haste.
+  optional bool haste = 16;
 }
 
 message TabelaArmaduraOuEscudo {

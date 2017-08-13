@@ -175,6 +175,7 @@ message EntidadeProto {
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
+    optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
     // Indica arma obra prima. Modifica bonus_ataque.

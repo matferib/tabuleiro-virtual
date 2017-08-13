@@ -256,6 +256,8 @@ int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
+// Retorna o alcance de acordo com tamanho.
+int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);
 
 // Funcoes auxiliares de CA.
 int CATotal(const EntidadeProto& proto, bool permite_escudo);

@@ -1063,6 +1063,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia' }
     dados_defesa { id_armadura: 'couro_batido' }
     info_classes { id: 'combatente' nivel: 1 }
+    info_talentos { gerais { id: 'prontidao' } }
     atributos {
       # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
@@ -1070,35 +1071,90 @@ modelo {
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
   }
 }
 modelo {
   id: 'Orc Lanceiro'
   entidade {
-    dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância'
+    dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.5 translacao_x: 0.25 } cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'lanca' }
+    dados_ataque { rotulo: 'lanca em cac' id_arma: 'lanca' empunhadura: EA_2_MAOS }
+    dados_defesa { id_armadura: 'couro_batido' }
+    info_classes { id: 'combatente' nivel: 1 }
+    info_talentos { gerais { id: 'prontidao' } }
+    atributos {
+      # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
   id: 'Orc Sargento'
   entidade {
-    dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 }
+    dados_vida: '3d8+3' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.7 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { rotulo: 'falcione' id_arma: 'falcione' obra_prima: true empunhadura: EA_2_MAOS }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
+    dados_defesa { id_armadura: 'peitoral_de_aco' }
+    info_classes { id: 'combatente' nivel: 3 }
+    info_talentos { gerais { id: 'prontidao' }  gerais { id: 'foco_em_arma' complemento: 'falcione' } }
+    tesouro {
+      tesouro: 'falcione OP, besta pesada OP, peitoral de aço\n70 PO'
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'nublar' }
+      pocoes { id: 'escudo_fe_3' }
+    }
+    atributos {
+      # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
   id: 'Orc Tenente'
   entidade {
-    dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 }
+    dados_vida: '5d8+15' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.5 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'Não pode ser flanqueado'
+    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS }
+    dados_ataque { id_arma: 'arco_longo_composto_5' }
+    dados_defesa { id_armadura: 'peitoral_de_aco' bonus_magico_armadura: 1 }
+    info_classes { id: 'barbaro' nivel: 5 }
+    info_talentos { gerais { id: 'ataque_poderoso' }  gerais { id: 'foco_em_arma' complemento: 'machado_grande' } }
+    tesouro {
+      tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1\n'
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'protecao_contra_tendencia' }
+    }
+    atributos {
+      # Usa o array elite +4 for, -2 int, -2 sab, -2 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
   id: 'Orc Capitão'
   entidade {
-    dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 }
+    dados_vida: '7d8+28' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
   }
 }

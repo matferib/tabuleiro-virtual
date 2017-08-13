@@ -175,6 +175,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '45kg' }
     tipo_dano: TD_PERFURANTE
+    haste: true
   }
   armas {
     id: 'bordao'
@@ -564,6 +565,7 @@ tabela_armas {
     peso { medio: '10Kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'guisarme'
@@ -576,6 +578,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'lanca_montada'
@@ -588,6 +591,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'machado_grande'
@@ -625,6 +629,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
+    haste: true
   }
   # Ranged Weapons
   armas {
@@ -741,6 +746,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
+    haste: true
   }
   armas {
     id: 'espada_bastarda'
@@ -777,6 +783,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    haste: true
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -1198,8 +1205,8 @@ tabela_pocoes {
     duracao_rodadas: 180
   }
   pocoes {
-    id: 'borrar'
-    nome: 'Borrar'
+    id: 'nublar'
+    nome: 'Nublar'
     id_efeito: EFEITO_BORRAR
     custo_po: 300
     duracao_rodadas: 30
@@ -2031,6 +2038,10 @@ tabela_classes {
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4

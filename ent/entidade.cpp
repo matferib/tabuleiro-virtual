@@ -1461,6 +1461,14 @@ float Entidade::AlcanceAtaqueMetros() const {
   return da->alcance_m();
 }
 
+float Entidade::AlcanceMinimoAtaqueMetros() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr || !da->has_alcance_minimo_m()) {
+    return 0;
+  }
+  return da->alcance_minimo_m();
+}
+
 int Entidade::IncrementosAtaque() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {

@@ -223,6 +223,7 @@ class Entidade {
   int MultiplicadorCritico() const;
   // Retorna o alcance do ataque em m. Negativo se nao tiver.
   float AlcanceAtaqueMetros() const;
+  float AlcanceMinimoAtaqueMetros() const;
   // Retorna quantos incrementos o ataque permite.
   int IncrementosAtaque() const;
   enum TipoCA {
