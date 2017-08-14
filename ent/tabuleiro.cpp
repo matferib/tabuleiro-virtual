@@ -4374,7 +4374,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
-    LOG(ERROR) << "Entidade invalida: " << id;
+    LOG(ERROR) << "Entidade invalida em Tabuleiro::SelecionaEntidade: " << id;
     throw std::logic_error("Entidade inválida");
   }
   if ((!forcar_fixa && entidade->Fixa()) || (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
