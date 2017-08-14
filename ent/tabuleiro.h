@@ -295,6 +295,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
 
+  /** Alterna a furia da entidade selecionada. */
+  void AlternaFuria();
+
   /** Trata o clique duplo do botao esquerdo. */
   void TrataDuploCliqueEsquerdo(int x, int y);
 

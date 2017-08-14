@@ -329,6 +329,9 @@ inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 
+// Retorna o nivel do id da classe do proto.
+int Nivel(const std::string& id, const EntidadeProto& proto);
+
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
 * descricao [(complemento)] : rodadas.

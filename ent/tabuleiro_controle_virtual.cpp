@@ -279,6 +279,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_MODO_ESQUIVA:
       AlternaModoEsquiva();
       break;
+    case CONTROLE_FURIA:
+      AlternaFuria();
+      break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       break;
@@ -857,6 +860,9 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
       } else if (ref.tipo() == VIS_ESQUIVA) {
         const auto* e = EntidadePrimeiraPessoaOuSelecionada();
         if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) return false;
+      } else if (ref.tipo() == VIS_FURIA) {
+        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+        if (e == nullptr || Nivel("barbaro", e->Proto()) == 0) return false;
       } else {
         bool parcial = EstadoBotao(ref.id());
         if (ref.tipo() == VIS_INVERSO_DE) {
@@ -1096,6 +1102,13 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_ESQUIVA; } },
+    { CONTROLE_FURIA,             [this] (const Entidade* entidade) {
+      if (entidade == nullptr) return false;
+      for (const auto& e : entidade->Proto().evento()) {
+        if (e.id_efeito() == EFEITO_FURIA_BARBARO) return true;
+      }
+      return false;
+    } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },
     { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) {

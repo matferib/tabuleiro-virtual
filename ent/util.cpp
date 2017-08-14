@@ -2133,6 +2133,8 @@ TipoEfeito StringParaEfeito(const std::string& s) {
   return EFEITO_INVALIDO;
 }
 
+// Ta quebrado!!!!! Nao tem o id do efeito.
+// Funcao hack do android.
 google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
   google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
   std::istringstream ss(eventos_str);
@@ -2148,19 +2150,21 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
       continue;
     }
     std::string descricao(linha.substr(0, pos_dois_pontos));
-    std::string complemento;
+    std::string complementos;
     size_t pos_par = descricao.find_last_of("(");
     if (pos_par != std::string::npos) {
-      complemento = descricao.substr(pos_par + 1);
+      complementos = descricao.substr(pos_par + 1);
       descricao = descricao.substr(0, pos_par);
     }
-    // TODO permitir multiplos complementos.
     std::string rodadas(linha.substr(pos_dois_pontos + 1));
     EntidadeProto::Evento evento;
     evento.set_descricao(ent::trim(descricao));
     evento.set_rodadas(atoi(rodadas.c_str()));
-    if (!complemento.empty()) {
-      evento.add_complementos(atoi(complemento.c_str()));
+    boost::char_separator<char> sep(" ");
+    boost::tokenizer<boost::char_separator<char>> tokenizador(complementos, sep); 
+    for (const auto& token : tokenizador) {
+      LOG(INFO) << "token: " << token;
+      evento.add_complementos(atoi(token.c_str()));
     }
     auto id_efeito = StringParaEfeito(evento.descricao());
     if (id_efeito != EFEITO_INVALIDO) {
@@ -2193,6 +2197,13 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
     return b;
   }
   return Bonus();
+}
+
+int Nivel(const std::string& id, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.id() == id) return ic.nivel();
+  }
+  return 0;
 }
 
 }  // namespace ent

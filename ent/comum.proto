@@ -51,6 +51,9 @@ enum TipoEfeito {
   EFEITO_PROTECAO_CONTRA_CAOS = 21;
   EFEITO_PROTECAO_CONTRA_ORDEM = 22;
   EFEITO_FURIA = 23;
+  // A furia do barbaro tem alguns efeitos a mais, como fadiga apos efeito e bonus de vontade contra encantamento.
+  EFEITO_FURIA_BARBARO = 24;
+  EFEITO_FADIGA = 25;
 }
 
 // Tipo de visao para entidades e camera.

@@ -127,6 +127,7 @@ enum IdBotao {
   CONTROLE_BEBER_POCAO = 117;
 
   CONTROLE_MODO_ESQUIVA = 118;
+  CONTROLE_FURIA = 120;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -168,6 +169,8 @@ enum TipoVisibilidade {
   VIS_POCAO = 6;
   // Visivel se a entidade tiver esquiva.
   VIS_ESQUIVA = 7;
+  // Visivel apenas se a entidade possui furia.
+  VIS_FURIA = 8;
 }
 
 message Visibilidade {

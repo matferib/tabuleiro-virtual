@@ -7026,10 +7026,10 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
   }
+  // Vai notificar remoto (atualizacao parcial).
   TrataNotificacao(*n);
   // Desfazer.
   AdicionaNotificacaoListaEventos(*n);
-  central_->AdicionaNotificacaoRemota(n.release());
   {
     std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
     n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
@@ -7043,6 +7043,90 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
     TrataNotificacao(*n_efeito);
     central_->AdicionaNotificacaoRemota(n_efeito.release());
   }
+}
+
+void Tabuleiro::AlternaFuria() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  const int nivel_barbaro = Nivel("barbaro", entidade->Proto());
+  if (nivel_barbaro < 1) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_evento() = entidade->Proto().evento();
+    if (e_antes->evento().empty()) {
+      // dummy pra sinalizar que nao tem nada.
+      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
+      e_antes->add_evento()->set_rodadas(-1);
+    }
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    *e_depois->mutable_evento() = entidade->Proto().evento();
+    int i = 0;
+    for (const auto& e : entidade->Proto().evento()) {
+      if (e.id_efeito() == EFEITO_FURIA_BARBARO) {
+        break;
+      }
+      ++i;
+    }
+
+    if (i < entidade->Proto().evento().size()) {
+      // Sai da furia.
+      e_depois->mutable_evento()->DeleteSubrange(i, 1);
+      if (nivel_barbaro >= 17) {
+        if (e_depois->evento().empty()) {
+          // dummy pra sinalizar que nao tem nada.
+          e_depois->add_evento()->set_id_efeito(EFEITO_INVALIDO);
+          e_depois->add_evento()->set_rodadas(-1);
+        }
+      } else {
+        auto* evento = e_depois->add_evento();
+        evento->set_id_efeito(EFEITO_FADIGA);
+        evento->set_descricao("fadiga_furia_barbaro");
+        // Dura pelo resto do encontro.
+        evento->set_rodadas(100);
+      }
+    } else {
+      // Entra em furia.
+      int complemento;
+      if (nivel_barbaro < 11) {
+        complemento = 4;
+      } else if (nivel_barbaro < 20) {
+        complemento = 6;
+      } else {
+        complemento = 8;
+      }
+      // Para ver novo modificador.
+      auto bc = entidade->Proto().atributos().constituicao();
+      AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
+      auto* evento = e_depois->add_evento();
+      evento->set_id_efeito(EFEITO_FURIA_BARBARO);
+      evento->add_complementos(complemento);
+      evento->add_complementos(complemento / 2);
+      evento->set_descricao("furia_barbaro");
+      evento->set_rodadas(3 + ModificadorAtributo(bc));
+      {
+        std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+        n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+        *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+        Cor c;
+        c.set_r(1.0f);
+        c.set_g(0.2f);
+        c.set_b(0.2f);
+        c.set_a(0.5f);
+        n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+        TrataNotificacao(*n_efeito);
+        central_->AdicionaNotificacaoRemota(n_efeito.release());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
 }
 
 }  // namespace ent

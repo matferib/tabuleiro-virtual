@@ -1126,6 +1126,7 @@ tabela_efeitos {
   # Fim protecao contra tendencia.
 
   efeitos {
+    # Primeiro complemento: forca e con. Segundo: vontade.
     id: EFEITO_FURIA
     consequencia {
       usa_complemento: true
@@ -1146,6 +1147,47 @@ tabela_efeitos {
       dados_defesa {
         ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'furia' } } }
         salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+      }
+    }
+  }
+  efeitos {
+    # É identico a furia, mas tem outros efeitos especificos como fadiga.
+    id: EFEITO_FURIA_BARBARO
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
+      }
+    }
+    consequencia_fim {
+      atributos {
+        forca { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
+      }
+    }
+  }
+  efeitos {
+    # Nao pode correr nem cargar.
+    id: EFEITO_FADIGA
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
+      }
+    }
+    consequencia_fim {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'fadiga' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'fadiga' } } }
       }
     }
   }
