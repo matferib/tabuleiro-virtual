@@ -48,6 +48,7 @@ TEST(TesteDependencias, TesteDependencias) {
   dd->set_bonus_magico_armadura(2);
   dd->set_id_escudo("pesado_madeira");
   dd->set_bonus_magico_escudo(3);
+  proto.mutable_tendencia()->set_simples(TD_LEAL_BOM);
   RecomputaDependencias(tabelas, &proto);
   EXPECT_EQ(3, ic->bba());
   // 16 da +3 de bonus.
@@ -78,7 +79,8 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(19, proto.dados_ataque(1).ca_surpreso());
   EXPECT_EQ(9, proto.dados_ataque(1).ca_toque());
 
-  proto.mutable_tendencia()->set_eixo_bem_mal(1.0f);
+  EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);
+
   auto* ea = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
   auto* ed = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
   // 16 normal +2 contra o bem.

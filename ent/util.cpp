@@ -1761,6 +1761,8 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
       case TD_CAOTICO_MAL:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
     }
     proto->mutable_tendencia()->clear_simples();
+    proto->mutable_tendencia()->set_eixo_bem_mal(bem_mal);
+    proto->mutable_tendencia()->set_eixo_ordem_caos(ordem_caos);
   }
 }
 
