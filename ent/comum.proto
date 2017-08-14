@@ -262,8 +262,8 @@ enum ProgressaoBba {
 }
 
 enum ProgressaoConjurador {
-  PCONJ_UM = 0;  // mais comum.
-  PCONJ_ZERO = 1;
+  PCONJ_ZERO = 0;
+  PCONJ_UM = 1;  // mais comum.
   PCONJ_MEIO_MIN_4 = 2; // ranger, paladino
 }
 
