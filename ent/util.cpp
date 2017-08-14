@@ -1632,13 +1632,17 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     if (ic.has_atributo_conjuracao()) {
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
       int nc = 0;
-      switch (ic.progressao_conjurador()) {
-        case PCONJ_UM:
-          nc = ic.nivel(); break;
-        case PCONJ_MEIO_MIN_4:
-          nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
-        default:
-          nc = 0;
+      if (ic.has_progressao_conjurador()) {
+        switch (ic.progressao_conjurador()) {
+          case PCONJ_UM:
+            nc = ic.nivel(); break;
+          case PCONJ_MEIO_MIN_4:
+            nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
+          default:
+            nc = 0;
+        }
+      } else {
+        nc = ic.nivel_conjurador();
       }
       ic.set_nivel_conjurador(nc);
     }
