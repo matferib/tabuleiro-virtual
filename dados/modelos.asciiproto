@@ -574,7 +574,7 @@ modelo {
       id_armadura: 'peitoral_de_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
     }
     info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
-    info_classes { id: 'bárbaro' nivel: 3 bba: 3 }
+    info_classes { id: 'barbaro' nivel: 3 bba: 3 }
     atributos {
       # Usa o array nao elite 13 12 11 10 9 8 + ajustes.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }

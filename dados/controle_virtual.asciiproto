@@ -17,18 +17,6 @@ fixo {
     tamanho: 1
     linha: 5
     coluna: 3
-    rotulo: "Fu"
-    cor_rotulo {}
-    textura: "icon_rage.png"
-    id: CONTROLE_FURIA
-    forma: FORMA_RETANGULO
-    dica: "Entra em fúria."
-    visibilidade { referencia { tipo: VIS_FURIA } }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 5
-    coluna: 3
     rotulo: "Es"
     cor_rotulo {}
     textura: "icon_dodge.png"
@@ -36,6 +24,18 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Escolhe uma entidade para se esquivar."
     visibilidade { referencia { tipo: VIS_ESQUIVA } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 6
+    coluna: 3
+    rotulo: "Fu"
+    cor_rotulo {}
+    textura: "icon_rage.png"
+    id: CONTROLE_FURIA
+    forma: FORMA_RETANGULO
+    dica: "Entra em fúria."
+    visibilidade { referencia { tipo: VIS_FURIA } }
   }
 
   # Salvar e abrir.
