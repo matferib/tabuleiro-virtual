@@ -868,8 +868,30 @@ modelo {
 modelo {
   id: 'Humano Clérigo'
   entidade {
-    dados_vida: '1d8' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    dados_vida: '10' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 1 }
     cor { r: 0.898 g: 0.663 b: 0.475 }
+    dados_defesa { id_armadura: 'cota_talas' id_escudo: 'pesado_aco' }
+    dados_ataque { id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+    }
+    tesouro {
+      pocoes { id: 'protecao_contra_mal' }
+      pocoes { id: 'protecao_contra_caos' }
+      pocoes { id: 'escudo_fe_2' }
+      tesouro: '150 PO'
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
   }
 }
 modelo {
