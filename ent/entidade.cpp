@@ -1753,8 +1753,10 @@ std::string Entidade::ResumoEventos() const {
     if (evento.rodadas() < 0 || evento.id_efeito() == EFEITO_INVALIDO) continue;
     resumo_eventos += evento.descricao() + ", ";
   }
-  resumo_eventos.pop_back();
-  resumo_eventos.pop_back();
+  if (resumo_eventos.size() > 1) {
+    resumo_eventos.pop_back();
+    resumo_eventos.pop_back();
+  }
   return resumo_eventos;
 }
 
