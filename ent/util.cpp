@@ -1523,7 +1523,8 @@ void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) 
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
 }
 
-void PreencheValorBonus(const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
+// Preenche os bonus de acordo com o complemento.
+void PreencheValorComplemento(const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
       if (po.has_indice_complemento()) {
@@ -1537,24 +1538,51 @@ void PreencheValorBonus(const google::protobuf::RepeatedField<int>& complementos
   }
 }
 
+// Preenche os bonus de acordo com o valor.
+void PreencheValorBonus(int valor, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    for (auto& po : *bi.mutable_por_origem()) {
+      po.set_valor(valor);
+    }
+  }
+}
+
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
 ConsequenciaEvento PreencheConsequencia(
     const google::protobuf::RepeatedField<int>& complementos, const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
   if (c.usa_complemento()) {
-    if (c.atributos().has_forca())        PreencheValorBonus(complementos, c.mutable_atributos()->mutable_forca());
-    if (c.atributos().has_destreza())     PreencheValorBonus(complementos, c.mutable_atributos()->mutable_destreza());
-    if (c.atributos().has_constituicao()) PreencheValorBonus(complementos, c.mutable_atributos()->mutable_constituicao());
-    if (c.atributos().has_inteligencia()) PreencheValorBonus(complementos, c.mutable_atributos()->mutable_inteligencia());
-    if (c.atributos().has_sabedoria())    PreencheValorBonus(complementos, c.mutable_atributos()->mutable_sabedoria());
-    if (c.atributos().has_carisma())      PreencheValorBonus(complementos, c.mutable_atributos()->mutable_carisma());
-    if (c.dados_defesa().has_ca())        PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_ca());
-    if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-    if (c.dados_defesa().has_salvacao_vontade())   PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
-    if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorBonus(complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-    if (c.has_jogada_ataque())            PreencheValorBonus(complementos, c.mutable_jogada_ataque());
-    if (c.has_tamanho())                  PreencheValorBonus(complementos, c.mutable_tamanho());
+    if (c.atributos().has_forca())        PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_forca());
+    if (c.atributos().has_destreza())     PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_destreza());
+    if (c.atributos().has_constituicao()) PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_constituicao());
+    if (c.atributos().has_inteligencia()) PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_inteligencia());
+    if (c.atributos().has_sabedoria())    PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_sabedoria());
+    if (c.atributos().has_carisma())      PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_carisma());
+    if (c.dados_defesa().has_ca())        PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_ca());
+    if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+    if (c.dados_defesa().has_salvacao_vontade())   PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+    if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+    if (c.has_jogada_ataque())            PreencheValorComplemento(complementos, c.mutable_jogada_ataque());
+    if (c.has_tamanho())                  PreencheValorComplemento(complementos, c.mutable_tamanho());
   }
+  return c;
+}
+
+// Caso a consequencia use complemento, preenchera os valores existentes com ela.
+ConsequenciaEvento PreencheConsequenciaFim(const ConsequenciaEvento& consequencia_original) {
+  ConsequenciaEvento c(consequencia_original);
+  if (c.atributos().has_forca())        PreencheValorBonus(0, c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     PreencheValorBonus(0, c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) PreencheValorBonus(0, c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) PreencheValorBonus(0, c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    PreencheValorBonus(0, c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      PreencheValorBonus(0, c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.has_jogada_ataque())            PreencheValorBonus(0, c.mutable_jogada_ataque());
+  if (c.has_tamanho())                  PreencheValorBonus(0, c.mutable_tamanho());
   return c;
 }
 
@@ -1565,7 +1593,11 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
+      if (efeito.has_consequencia_fim()) {
+        AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
+      } else {
+        AplicaEfeito(PreencheConsequenciaFim(efeito.consequencia()), proto);
+      }
       eventos_a_remover.insert(i);
     }
     ++i;

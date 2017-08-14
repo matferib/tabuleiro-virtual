@@ -946,14 +946,6 @@ tabela_efeitos {
       }
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
     }
-    consequencia_fim {
-      dados_defesa {
-        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-      }
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-    }
   }
 
   efeitos {
@@ -962,11 +954,6 @@ tabela_efeitos {
       usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 0 origem: 'pele_arvore' } } }
       }
     }
   }
@@ -978,11 +965,6 @@ tabela_efeitos {
         ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
     }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
-      }
-    }
   }
   efeitos {
     id: EFEITO_ESCUDO_ENCANTADO
@@ -990,11 +972,6 @@ tabela_efeitos {
       usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'roupa_encantada' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
       }
     }
   }
@@ -1005,41 +982,30 @@ tabela_efeitos {
         ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 4 origem: 'armadura_arcana' } } }
       }
     }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 0 origem: 'armadura_arcana' } } }
-      }
-    }
   }
   efeitos {
     id: EFEITO_FORCA_TOURO
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
-    consequencia_fim { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'forca_touro%s' } } } } }
   }
   efeitos {
     id: EFEITO_AGILIDADE_GATO
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
-    consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
   }
   efeitos {
     id: EFEITO_VIGOR_URSO
     consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso%s' } } } } }
-    consequencia_fim { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'vigor_urso%s' } } } } }
   }
   efeitos {
     id: EFEITO_SABEDORIA_CORUJA
     consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja%s' } } } } }
-    consequencia_fim { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'sabedoria_coruja%s' } } } } }
   }
   efeitos {
     id: EFEITO_ASTUCIA_RAPOSA
     consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa%s' } } } } }
-    consequencia_fim { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'astucia_raposa%s' } } } } }
   }
   efeitos {
     id: EFEITO_ESPLENDOR_AGUIA
     consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia%s' } } } } }
-    consequencia_fim { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'esplendor_aguia%s' } } } } }
   }
 
   efeitos {
@@ -1051,13 +1017,6 @@ tabela_efeitos {
       }
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar%s' } } }
     }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
-      }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
-    }
   }
   efeitos {
     id: EFEITO_ESCUDO_FE
@@ -1065,11 +1024,6 @@ tabela_efeitos {
       usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'escudo_fe' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 0 origem: 'escudo_fe' } } }
       }
     }
   }
@@ -1082,13 +1036,6 @@ tabela_efeitos {
         destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'aumentar_pessoa' } } }
       }
     }
-    consequencia_fim {
-      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-      atributos {
-        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-      }
-    }
   }
   efeitos {
     id: EFEITO_DIMINUIR_PESSOA
@@ -1097,13 +1044,6 @@ tabela_efeitos {
       atributos {
         forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'diminuir_pessoa' } } }
         destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'diminuir_pessoa' } } }
-      }
-    }
-    consequencia_fim {
-      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
-      atributos {
-        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
-        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
       }
     }
   }
@@ -1139,16 +1079,6 @@ tabela_efeitos {
         salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
       }
     }
-    consequencia_fim {
-      atributos {
-        forca { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-        constituicao { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-      }
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'furia' } } }
-        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-      }
-    }
   }
   efeitos {
     # É identico a furia, mas tem outros efeitos especificos como fadiga.
@@ -1164,16 +1094,6 @@ tabela_efeitos {
         salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
       }
     }
-    consequencia_fim {
-      atributos {
-        forca { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-        constituicao { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-      }
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'furia' } } }
-        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'furia' } } }
-      }
-    }
   }
   efeitos {
     # Nao pode correr nem cargar.
@@ -1182,12 +1102,6 @@ tabela_efeitos {
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
-      }
-    }
-    consequencia_fim {
-      atributos {
-        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'fadiga' } } }
-        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'fadiga' } } }
       }
     }
   }
