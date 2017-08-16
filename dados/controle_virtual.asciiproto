@@ -1,6 +1,7 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
 fixo {
-  # Coisas da primeira pessoa.
+  # Coisas da primeira pessoa ou selecionada.
+  # Linha 4.
   dados_botoes {
     tamanho: 1
     linha: 4
@@ -13,10 +14,35 @@ fixo {
     dica: "Bebe a poção."
     visibilidade { referencia { tipo: VIS_POCAO } }
   }
+  # Linha 5.
   dados_botoes {
     tamanho: 1
     linha: 5
     coluna: 3
+    rotulo: "DT"
+    cor_rotulo {}
+    textura: "icon_total_defense.png"
+    id: CONTROLE_DEFESA_TOTAL
+    forma: FORMA_RETANGULO
+    dica: "Entra em defesa total."
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 4
+    rotulo: "LD"
+    cor_rotulo {}
+    textura: "icon_fight_defensively.png"
+    id: CONTROLE_LUTA_DEFENSIVA
+    forma: FORMA_RETANGULO
+    dica: "Entra em luta defensiva."
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 5
     rotulo: "Es"
     cor_rotulo {}
     textura: "icon_dodge.png"
@@ -25,6 +51,7 @@ fixo {
     dica: "Escolhe uma entidade para se esquivar."
     visibilidade { referencia { tipo: VIS_ESQUIVA } }
   }
+  # Linha 6.
   dados_botoes {
     tamanho: 1
     linha: 6
