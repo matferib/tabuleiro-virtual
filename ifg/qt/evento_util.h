@@ -1,6 +1,7 @@
 #ifndef IFG_QT_DIALOGO_EVENTO_UTIL_H
 #define IFG_QT_DIALOGO_EVENTO_UTIL_H
 
+#include <algorithm>
 #include <QComboBox>
 #include "ent/entidade.pb.h"
 #include "ifg/qt/util.h"
@@ -180,7 +181,7 @@ class TipoEfeitoDelegate : public QItemDelegate {
     }
     const QVariant& data = modelo_->data(index, Qt::EditRole);
     if (!ent::TipoEfeito_IsValid(data.toInt())) return;
-    combo->setCurrentIndex(data.toInt());
+    combo->setCurrentIndex(combo->findData(data.toInt()));
   }
 
   // Salva o valor do combo no modelo.
@@ -191,7 +192,7 @@ class TipoEfeitoDelegate : public QItemDelegate {
       LOG(ERROR) << "combo == nullptr em setEditorData";
       return;
     }
-    modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
+    modelo_->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
   }
 
  private:
@@ -203,9 +204,13 @@ class TipoEfeitoDelegate : public QItemDelegate {
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraComboEvento(QComboBox* combo) const {
     // O min eh -1, invalido. Entao comeca do 0.
+    std::map<std::string, int> efeitos_ordenados;
     for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
-      combo->addItem(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)).c_str(), QVariant(tipo));
+      efeitos_ordenados.insert(std::make_pair(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)), tipo));
+    }
+    for (const auto& par_str_id : efeitos_ordenados) {
+      combo->addItem(par_str_id.first.c_str(), QVariant(par_str_id.second));
     }
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
