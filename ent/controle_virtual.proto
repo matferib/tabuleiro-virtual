@@ -128,6 +128,8 @@ enum IdBotao {
 
   CONTROLE_MODO_ESQUIVA = 118;
   CONTROLE_FURIA = 120;
+  CONTROLE_DEFESA_TOTAL = 121;
+  CONTROLE_LUTA_DEFENSIVA = 122;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -162,9 +164,8 @@ enum TipoVisibilidade {
   VIS_CAMERA_PRESA = 2;
   // Visivel apenas em primeira pessoa.
   VIS_CAMERA_PRIMEIRA_PESSOA = 3;
-  // Visivel apenas com uma entidade selecionada.
-  //VIS_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
-  //VIS_CAMERA_PRESA_OU_SELECIONADA = 5;
+  // Visivel se estiver na primeira pessoa ou camera entidade selecionada.
+  VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
   // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo pocao.
   VIS_POCAO = 6;
   // Visivel se a entidade tiver esquiva.
