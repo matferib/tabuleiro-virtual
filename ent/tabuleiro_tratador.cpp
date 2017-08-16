@@ -84,13 +84,13 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
 // n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubaOrigem(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
   entidade_depois->set_caida(true);
 
   if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *entidade_depois;
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
@@ -100,13 +100,13 @@ void PreencheNotificacaoDerrubaOrigem(
 
 void PreencheNotificacaoAgarrar(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
   entidade_depois->set_agarrando(true);
 
   if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *entidade_depois;
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
@@ -162,7 +162,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
         continue;
       }
       auto* n = grupo_notificacoes.add_notificacao();
-      n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n->mutable_entidade_antes()->set_id(entidade->Id());
       n->mutable_entidade()->set_id(entidade->Id());
       float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.1f;
@@ -683,7 +683,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
             continue;
           }
           auto* n = grupo_notificacoes.add_notificacao();
-          n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+          n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->set_id(entidade->Id());
           e_antes->set_rotacao_z_graus(proto_antes.rotacao_z_graus());
@@ -1005,7 +1005,7 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
     LOG(INFO) << "Defesor nullptr";
     return;
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
   n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(entidade_defensora->Proto().dados_defesa().entidade_esquiva());
   n->mutable_entidade()->set_id(entidade_defensora->Id());
@@ -1109,7 +1109,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   e->AdicionaAcaoExecutada(acao_executada.id());
   if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
-    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->set_servidor_apenas(true);
     auto* entidade  = n->mutable_entidade();
     entidade->set_id(e->Id());
@@ -1161,7 +1161,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     {
       auto* n_perdeu = n.add_notificacao();
-      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_perdeu->mutable_entidade()->set_id(id);
       n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
       n_perdeu->mutable_entidade()->mutable_tesouro()->add_pocoes();
@@ -1171,7 +1171,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
 
       auto* n_ganhou = n.add_notificacao();
       const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
-      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
       n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
           tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());

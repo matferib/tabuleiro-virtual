@@ -1142,7 +1142,7 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
     int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
 
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     {
       auto* proto_antes = n->mutable_entidade_antes();
       *proto_antes = ProtoFormaAlternativa(proto);
@@ -1324,7 +1324,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
     }
     proto_antes->set_id(id);
     proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
@@ -1516,7 +1516,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
 
     proto_antes->set_id(id);
     proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   }
   if (grupo_notificacoes.notificacao_size() == 0) {
     VLOG(1) << "Não há entidade selecionada.";
@@ -1629,7 +1629,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   }
   // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, &n);
   TrataNotificacao(n);
 
@@ -1651,7 +1651,7 @@ void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
       continue;
     }
     auto* ntf = grupo_notificacoes.add_notificacao();
-    ntf->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ntf->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ntf->mutable_entidade_antes();
     entidade_antes->set_id(entidade->Id());
     entidade_antes->set_proxima_salvacao(entidade->Proto().proxima_salvacao());
@@ -2122,7 +2122,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidadeNotificando(notificacao);
       return true;
     }
-    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
       AtualizaParcialEntidadeNotificando(notificacao);
       return true;
     }
@@ -2246,7 +2246,7 @@ void Tabuleiro::RefrescaMovimentosParciais() {
         continue;
       }
       // Atualiza clientes quando delta passar de algum valor.
-      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       nr->mutable_entidade()->set_id(e->Id());
       nr->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
       *nr->mutable_entidade()->mutable_escala() = e->Proto().escala();
@@ -2297,7 +2297,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
       continue;
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     if (entidade->TemIniciativa()) {
@@ -2346,7 +2346,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
       continue;
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     if (entidade->TemIniciativa()) {
@@ -4060,7 +4060,7 @@ void Tabuleiro::AlteraCorEntidadesSelecionadasNotificando(const Cor& cor) {
       continue;
     }
     auto* ne = grupo_notificacao.add_notificacao();
-    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ne->mutable_entidade_antes();
     entidade_antes->set_id(e->Id());
     entidade_antes->mutable_cor()->CopyFrom(e->CorDesenho());
@@ -4084,7 +4084,7 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
       continue;
     }
     auto* ne = grupo_notificacao.add_notificacao();
-    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ne->mutable_entidade_antes();
     entidade_antes->set_id(e->Id());
     entidade_antes->mutable_info_textura()->CopyFrom(e->Proto().info_textura());
@@ -5556,13 +5556,13 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         *n_inversa.mutable_tabuleiro()->mutable_camera_inicial() = n_original.tabuleiro_antes().camera_inicial();
       }
       break;
-    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
       if (!n_original.has_entidade_antes()) {
-        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE sem o proto novo e o proto anterior: "
+        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
         break;
       }
-      n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
       break;
     case ntf::TN_ATUALIZAR_ENTIDADE:
@@ -6577,7 +6577,7 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
     proto_depois.add_evento()->set_rodadas(rodadas);
 
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->mutable_entidade_antes()->Swap(&proto_antes);
     n->mutable_entidade()->Swap(&proto_depois);
   }
@@ -6623,7 +6623,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
       evento_depois->set_rodadas(rodadas);
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->mutable_entidade_antes()->Swap(&proto_antes);;
     n->mutable_entidade()->Swap(&proto_depois);;
   }
@@ -6671,7 +6671,7 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
   }
 
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n.mutable_entidade_antes()->Swap(&proto_antes);;
   n.mutable_entidade()->Swap(&proto_depois);;
   TrataNotificacao(n);
@@ -6974,7 +6974,7 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE));
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
     auto* e_antes = n->mutable_entidade_antes();
@@ -7050,7 +7050,7 @@ void Tabuleiro::AlternaFuria() {
   if (entidade == nullptr) return;
   const int nivel_barbaro = Nivel("barbaro", entidade->Proto());
   if (nivel_barbaro < 1) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE));
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
@@ -7120,6 +7120,76 @@ void Tabuleiro::AlternaFuria() {
         n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
         TrataNotificacao(*n_efeito);
         central_->AdicionaNotificacaoRemota(n_efeito.release());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
+}
+
+void Tabuleiro::AlternaDefesaTotal() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
+    if (EmDefesaTotal(entidade->Proto())) {
+      // Sai da defesa total.
+      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+    } else {
+      // Entra em defesa total (sai da luta defensiva).
+      AtribuiBonus(4, TB_ESQUIVA, "defesa_total", ca);
+      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
+}
+
+void Tabuleiro::AlternaLutaDefensiva() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
+    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
+    *ca = entidade->Proto().dados_defesa().ca();
+    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+
+    if (EmDefesaTotal(entidade->Proto())) {
+      // Sai da luta defensiva.
+      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+      }
+    } else {
+      // TODO talento especializacao_em_combate: varia o bonus e ganha o mesmo que perde.
+      // Entra em luta defensiva (exclui defesa total).
+      AtribuiBonus(2, TB_ESQUIVA, "luta_defensiva", ca);
+      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(-4, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
       }
     }
   }

@@ -298,6 +298,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna a furia da entidade selecionada. */
   void AlternaFuria();
 
+  /** Altera a defesa total para a entidade selecionada. */
+  void AlternaDefesaTotal();
+  /** Alterna a luta defensiva para a entidade selecionada. */
+  void AlternaLutaDefensiva();
+
   /** Trata o clique duplo do botao esquerdo. */
   void TrataDuploCliqueEsquerdo(int x, int y);
 
