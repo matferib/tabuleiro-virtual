@@ -282,6 +282,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_FURIA:
       AlternaFuria();
       break;
+    case CONTROLE_DEFESA_TOTAL:
+      AlternaDefesaTotal();
+      break;
+    case CONTROLE_LUTA_DEFENSIVA:
+      AlternaLutaDefensiva();
+      break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       break;
@@ -850,26 +856,59 @@ bool Tabuleiro::EstadoBotao(IdBotao id) const {
 bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
   if (db.has_visibilidade()) {
     for (const auto& ref : db.visibilidade().referencia()) {
-      if (ref.tipo() == VIS_CAMERA_PRESA) {
-        if (!camera_presa_) return false;
-      } else if (ref.tipo() == VIS_CAMERA_PRIMEIRA_PESSOA) {
-        if (IdCameraPresa() == Entidade::IdInvalido) return false;
-      } else if (ref.tipo() == VIS_POCAO) {
-        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-        if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return false;
-      } else if (ref.tipo() == VIS_ESQUIVA) {
-        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-        if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) return false;
-      } else if (ref.tipo() == VIS_FURIA) {
-        const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-        if (e == nullptr || Nivel("barbaro", e->Proto()) == 0) return false;
-      } else {
-        bool parcial = EstadoBotao(ref.id());
-        if (ref.tipo() == VIS_INVERSO_DE) {
-          parcial = !parcial;
+      // So retorna os false, por causa do encadeamento que eh AND.
+      switch (ref.tipo()) {
+        case VIS_CAMERA_PRESA: {
+          if (!camera_presa_) return false;
+          break;
         }
-        if (!parcial) {
-          return false;
+        case VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA: {
+          if (EntidadePrimeiraPessoaOuSelecionada() == nullptr) {
+            return false;
+          }
+          break;
+        }
+        case VIS_CAMERA_PRIMEIRA_PESSOA: {
+          if (camera_ != CAMERA_PRIMEIRA_PESSOA || EntidadePrimeiraPessoaOuSelecionada() == nullptr) {
+            return false;
+          }
+          break;
+        }
+        case VIS_POCAO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().tesouro().pocoes().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_ESQUIVA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) {
+            return false;
+          }
+          break;
+        }
+        case VIS_FURIA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || Nivel("barbaro", e->Proto()) == 0) {
+            return false;
+          }
+          break;
+        }
+        case VIS_INVERSO_DE: {
+          if (EstadoBotao(ref.id()) == true) {
+            return false;
+          }
+          break;
+        }
+        case VIS_IGUAL_A: {
+          if (EstadoBotao(ref.id()) == false) {
+            return false;
+          }
+          break;
+        }
+        default: {
+          LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
       }
     }
@@ -1092,7 +1131,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   //const float largura_botao = altura_botao;
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
-  // Mapeia id do botao para a funcao de estado.
+  // Mapeia id do botao para a funcao de estado. A entidade recebida vem da funcao EntidadePrimeiraPessoaOuSelecionada.
   static const std::unordered_map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
@@ -1102,6 +1141,14 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_ESQUIVA; } },
+    { CONTROLE_DEFESA_TOTAL,      [this] (const Entidade* entidade) {
+      if (entidade == nullptr) return false;
+      return EmDefesaTotal(entidade->Proto());
+    } },
+    { CONTROLE_LUTA_DEFENSIVA,      [this] (const Entidade* entidade) {
+      if (entidade == nullptr) return false;
+      return LutandoDefensivamente(entidade->Proto());
+    } },
     { CONTROLE_FURIA,             [this] (const Entidade* entidade) {
       if (entidade == nullptr) return false;
       for (const auto& e : entidade->Proto().evento()) {
@@ -1273,7 +1320,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       if (!BotaoVisivel(db)) continue;
       botoes.push_back(&db);
     }
-    auto* entidade = EntidadeSelecionadaOuPrimeiraPessoa();
+    auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
     for (auto* db : botoes) {
       float ajuste = AtualizaBotaoControleVirtual(db, mapa_botoes, entidade) ? 0.5f : 1.0f;
       float cor[3];
