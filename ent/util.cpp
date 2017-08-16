@@ -2165,6 +2165,16 @@ bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entida
   return false;
 }
 
+const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade) {
+  for (const auto& t : entidade.info_talentos().gerais()) {
+    if (chave_talento == t.id()) return &t;
+  }
+  for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id()) return &t;
+  }
+  return nullptr;
+}
+
 TipoEfeito StringParaEfeito(const std::string& s) {
   for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
     if (!TipoEfeito_IsValid(i)) continue;

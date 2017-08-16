@@ -7186,12 +7186,24 @@ void Tabuleiro::AlternaLutaDefensiva() {
         AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
       }
     } else {
-      // TODO talento especializacao_em_combate: varia o bonus e ganha o mesmo que perde.
+      int bonus_defesa = 2;
+      int penalidade_ataque = -4;
+      auto* t = Talento("especializacao_em_combate", entidade->Proto());
+      if (t != nullptr) {
+        penalidade_ataque = 2;
+        if (t->has_complemento()) {
+          int complemento = atoi(t->complemento().c_str());
+          if (complemento > 0 && complemento <= 5) {
+            bonus_defesa = complemento;
+            penalidade_ataque = -complemento;
+          }
+        }
+      }
       // Entra em luta defensiva (exclui defesa total).
-      AtribuiBonus(2, TB_ESQUIVA, "luta_defensiva", ca);
+      AtribuiBonus(bonus_defesa, TB_ESQUIVA, "luta_defensiva", ca);
       AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
       for (auto& da : *e_depois->mutable_dados_ataque()) {
-        AtribuiBonus(-4, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+        AtribuiBonus(penalidade_ataque, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
       }
     }
   }
