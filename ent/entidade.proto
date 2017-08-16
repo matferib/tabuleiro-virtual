@@ -159,7 +159,8 @@ message EntidadeProto {
 
   optional Atributos atributos = 68;
 
-  // Dados para ataque automatico.
+  // Dados para um ataque especifico.
+  // Como depende de AcaoProto, nao movi para comum.
   message DadosAtaque {
     optional string rotulo = 9;
     // Deve casar com as strings de id do arquivo de dados das acoes.
@@ -209,6 +210,7 @@ message EntidadeProto {
     optional int32 ordem_ataque = 32;
   }
   repeated DadosAtaque dados_ataque = 44;
+
   // Independe de ataque especifico.
   message DadosAtaqueGlobal {
     optional string dano_furtivo = 1;
