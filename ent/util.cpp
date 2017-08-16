@@ -934,6 +934,10 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
             << ", defesa: " << ca_destino;
     return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
   }
+  if (EmDefesaTotal(ea.Proto())) {
+    VLOG(1) << "Ignorando ataque vs defesa por causa de defesa total.";
+    return std::make_tuple(0, "Atacante em defesa total", true);
+  }
   float alcance_m = ea.AlcanceAtaqueMetros();
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
   if (alcance_m >= 0) {
