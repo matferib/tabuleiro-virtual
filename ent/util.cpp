@@ -833,6 +833,7 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+// Pode ser chamado com ed == default para ver alguns modificadores do atacante.
 int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   // ataque.
@@ -841,6 +842,10 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   }
   if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
     modificador += 2;
+  }
+  // Nao aplica contra a entidade default.
+  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && !distancia) {
+    modificador += 1;
   }
 
   if (ea.dados_ataque_globais().ataque_menos_1()) {
