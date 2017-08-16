@@ -1766,6 +1766,7 @@ int Entidade::ChanceFalhaDefesa() const {
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
+  if (PossuiEvento(EFEITO_INVISIBILIDADE, proto_)) chance = 50;
   return chance;
 }
 

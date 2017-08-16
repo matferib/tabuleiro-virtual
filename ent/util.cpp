@@ -839,6 +839,10 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   if (ea.caida() && !distancia) {
     modificador -= 4;
   }
+  if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
+    modificador += 2;
+  }
+
   if (ea.dados_ataque_globais().ataque_menos_1()) {
     modificador -= 1;
   }
@@ -1595,6 +1599,13 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   int i = 0;
   // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
   for (auto& evento : *proto->mutable_evento()) {
+    if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
+      if (evento.rodadas() < 0) {
+        proto->set_visivel(true);
+      } else {
+        proto->set_visivel(false);
+      }
+    }
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       if (efeito.has_consequencia_fim()) {
