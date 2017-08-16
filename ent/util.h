@@ -270,6 +270,8 @@ bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
+// Retorna verdadeiro se a entidade tiver um evento com mesmo id e descricao.
+bool PossuiEvento(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -333,6 +335,8 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 
 // Retorna o nivel do id da classe do proto.
 int Nivel(const std::string& id, const EntidadeProto& proto);
+// Nivel total da entidade.
+int Nivel(const EntidadeProto& proto);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
@@ -343,6 +347,10 @@ google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::st
 // Funcoes que retornam o estado da entidade de acordo com a origem e valor dos bonus de esquiva.
 bool EmDefesaTotal(const EntidadeProto& proto);
 bool LutandoDefensivamente(const EntidadeProto& proto);
+
+// Retorna um rotulo para a entidade. Tenta o rotulo, id e se for null, retorna null.
+std::string RotuloEntidade(const Entidade* entidade);
+std::string RotuloEntidade(const EntidadeProto& proto);
 
 }  // namespace ent
 

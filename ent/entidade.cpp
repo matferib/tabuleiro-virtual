@@ -309,15 +309,36 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
-  // Seta pra -1. faz o merge, no final recomputa remove.
-  for (auto& evento : *proto_original.mutable_evento()) {
-    evento.set_rodadas(-1);
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
+  if (novo_proto.evento_size() > 0) {
+    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
+    std::vector<int> a_remover;
+    int i = 0;
+    for (auto& evento : *proto_original.mutable_evento()) {
+      if (!PossuiEvento(evento, novo_proto)) {
+        evento.set_rodadas(-1);
+      } else {
+        a_remover.push_back(i);
+      }
+      ++i;
+    }
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_original.mutable_evento()->DeleteSubrange(*it, 1);
+    }
   }
-  proto_.CopyFrom(novo_proto);
+  // Aqui atribui
+  proto_ = novo_proto;
+  // Daqui pra baixo, correcoes manuais.
+
+
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
-  proto_.mutable_evento()->MergeFrom(proto_original.evento());
+
+  // Deixa os eventos de duracao -1 no comeco.
+  proto_original.mutable_evento()->MergeFrom(proto_.evento());
+  proto_.mutable_evento()->Swap(proto_original.mutable_evento());
+
   proto_.set_id(proto_original.id());
   proto_.set_tipo(proto_original.tipo());
   proto_.mutable_pos()->Swap(proto_original.mutable_pos());
@@ -903,9 +924,19 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
-    // As duracoes -1 serao retiradas ao recomputar dependencias.
+    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
+    std::vector<int> a_remover;
+    int i = 0;
     for (auto& evento : *proto_.mutable_evento()) {
-      evento.set_rodadas(-1);
+      if (!PossuiEvento(evento, proto_parcial)) {
+        evento.set_rodadas(-1);
+      } else {
+        a_remover.push_back(i);
+      }
+      ++i;
+    }
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }
   }
   if (proto_parcial.tesouro().pocoes_size() > 0) {

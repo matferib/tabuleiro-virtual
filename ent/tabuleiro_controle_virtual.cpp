@@ -1348,7 +1348,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
   // Barra de pontos de vida.
   // aka DesenhaInfoPrimeiraPessoa.
-  if (camera_presa_) {
+  if (EntidadePrimeiraPessoaOuSelecionada()) {
     DesenhaInfoCameraPresa();
   }
 
@@ -1368,7 +1368,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 }
 
 void Tabuleiro::DesenhaInfoCameraPresa() {
-  const auto* entidade = BuscaEntidade(IdCameraPresa());
+  const auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr || entidade->MaximoPontosVida() == 0) {
     return;
   }

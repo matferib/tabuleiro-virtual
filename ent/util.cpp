@@ -1100,13 +1100,24 @@ namespace {
 
 std::string EntidadeNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
   auto* entidade = tabuleiro.BuscaEntidade(n.entidade().id());
-  if (entidade != nullptr && !entidade->Proto().rotulo().empty()) {
-    return entidade->Proto().rotulo() + " ";
-  }
-  return std::string("Entidade ");
+  return RotuloEntidade(entidade);
 }
 
 }  // namespace
+
+std::string RotuloEntidade(const Entidade* entidade) {
+  if (entidade == nullptr) {
+    return "null";
+  }
+  return RotuloEntidade(entidade->Proto());
+}
+
+std::string RotuloEntidade(const EntidadeProto& proto) {
+  if (!proto.rotulo().empty()) {
+    return proto.rotulo();
+  }
+  return net::to_string(proto.id());
+}
 
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
   switch (n.tipo()) {
@@ -1599,19 +1610,61 @@ ConsequenciaEvento PreencheConsequenciaFim(const ConsequenciaEvento& consequenci
   return c;
 }
 
+void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeProto* proto) {
+  if (total_antes == total_depois) return;
+  VLOG(1) << "Recomputando alteracao de constituicao";
+  VLOG(1) << "max original: " << proto->max_pontos_vida();
+  VLOG(1) << "pv original: " << proto->pontos_vida();
+  if (total_depois > total_antes) {
+    // Incremento de constituicao.
+    const int delta_con = total_depois - total_antes;
+    const int delta_pv = Nivel(*proto) * (((total_antes % 2) == 1 && (delta_con % 2) == 1) ? (delta_con / 2) + 1 : delta_con / 2);
+    VLOG(1) << "aumentando CON de: " << total_antes << " para: " << total_depois << ", delta_pv: " << delta_pv;
+    proto->set_max_pontos_vida(proto->max_pontos_vida() + delta_pv);
+    proto->set_pontos_vida(proto->pontos_vida() + delta_pv);
+    if (proto->pontos_vida() >= 0) {
+      proto->set_morta(false);
+    }
+  } else if (total_antes > total_depois) {
+    // Decremento de constituicao.
+    const int delta_con = total_antes - total_depois;
+    const int delta_pv = Nivel(*proto) * (((total_antes % 2) == 0 && (delta_con % 2) == 1) ? (delta_con / 2) + 1 : delta_con / 2);
+    VLOG(1) << "diminuindo CON de: " << total_antes << " para: " << total_depois << ", delta_pv: " << delta_pv;
+    proto->set_max_pontos_vida(proto->max_pontos_vida() - delta_pv);
+    proto->set_pontos_vida(proto->pontos_vida() - delta_pv);
+    if (proto->pontos_vida() < 0) {
+      proto->set_caida(true);
+      proto->set_morta(true);
+    }
+  }
+  VLOG(1) << "max modificado: " << proto->max_pontos_vida();
+  VLOG(1) << "pv modificado: " << proto->pontos_vida();
+}
+
+void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
+  if (Nivel("barbaro", *proto) >= 17) return;
+  auto* evento = proto->add_evento();
+  evento->set_id_efeito(EFEITO_FADIGA);
+  evento->set_descricao("fadiga_furia_barbaro");
+  // Dura pelo resto do encontro.
+  evento->set_rodadas(100);
+}
+
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
   int i = 0;
   // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
+  const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
+  bool fim_furia = false;
   for (auto& evento : *proto->mutable_evento()) {
-    if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
-      if (evento.rodadas() < 0) {
-        proto->set_visivel(true);
-      } else {
-        proto->set_visivel(false);
-      }
-    }
     if (evento.rodadas() < 0) {
+      if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
+        proto->set_visivel(true);
+      }
+      if (evento.id_efeito() == EFEITO_FURIA_BARBARO) {
+        LOG(INFO) << "fim furia: " << evento.DebugString();
+        fim_furia = true;
+      }
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       if (efeito.has_consequencia_fim()) {
         AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
@@ -1625,10 +1678,16 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
   }
+  if (fim_furia) AplicaFimFuriaBarbaro(proto);
   for (const auto& evento : proto->evento()) {
+    if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
+      proto->set_visivel(false);
+    }
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
     AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia()), proto);
   }
+  const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
+  RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
 }
 
 // Recomputa as dependencias de atributos (destreza com armadura).
@@ -2007,6 +2066,24 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   });
 }
 
+namespace {
+bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs) {
+  if (lhs.id_efeito() != rhs.id_efeito() || lhs.descricao() != rhs.descricao() || lhs.complementos_size() != rhs.complementos_size()) {
+    return false;
+  }
+  for (unsigned int i = 0; i < lhs.complementos_size(); ++i) {
+    if (lhs.complementos(i) != rhs.complementos(i)) return false;
+  }
+  return true;
+}
+}  // namespace
+
+bool PossuiEvento(const EntidadeProto::Evento& evento, const EntidadeProto& entidade) {
+  return std::any_of(entidade.evento().begin(), entidade.evento().end(), [evento] (const EntidadeProto::Evento& evento_entidade) {
+    return EventosIguaisIgnorandoDuracao(evento, evento_entidade);
+  });
+}
+
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
   da->set_tipo_ataque(acao_proto.id());
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
@@ -2266,6 +2343,15 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
   }
   return Bonus();
 }
+
+int Nivel(const EntidadeProto& proto) {
+  int total = 0;
+  for (const auto& ic : proto.info_classes()) {
+    total += ic.nivel();
+  }
+  return total;
+}
+
 
 int Nivel(const std::string& id, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {

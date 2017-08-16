@@ -1701,9 +1701,7 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
     std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
     delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
-    AdicionaLogEvento(std::string("entidade ") +
-                      (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) +
-                      ": " + texto_pontos_vida);
+    AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
     int delta_pontos_vida;
@@ -7075,20 +7073,7 @@ void Tabuleiro::AlternaFuria() {
 
     if (i < entidade->Proto().evento().size()) {
       // Sai da furia.
-      e_depois->mutable_evento()->DeleteSubrange(i, 1);
-      if (nivel_barbaro >= 17) {
-        if (e_depois->evento().empty()) {
-          // dummy pra sinalizar que nao tem nada.
-          e_depois->add_evento()->set_id_efeito(EFEITO_INVALIDO);
-          e_depois->add_evento()->set_rodadas(-1);
-        }
-      } else {
-        auto* evento = e_depois->add_evento();
-        evento->set_id_efeito(EFEITO_FADIGA);
-        evento->set_descricao("fadiga_furia_barbaro");
-        // Dura pelo resto do encontro.
-        evento->set_rodadas(100);
-      }
+      e_depois->mutable_evento(i)->set_rodadas(-1);
     } else {
       // Entra em furia.
       int complemento;
