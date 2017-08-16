@@ -7137,10 +7137,12 @@ void Tabuleiro::AlternaDefesaTotal() {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
+    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
   }
   {
     auto* e_depois = n->mutable_entidade();
     e_depois->set_id(entidade->Id());
+    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
     auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
     if (EmDefesaTotal(entidade->Proto())) {
       // Sai da defesa total.
@@ -7177,7 +7179,7 @@ void Tabuleiro::AlternaLutaDefensiva() {
     *ca = entidade->Proto().dados_defesa().ca();
     *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
 
-    if (EmDefesaTotal(entidade->Proto())) {
+    if (LutandoDefensivamente(entidade->Proto())) {
       // Sai da luta defensiva.
       AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
       for (auto& da : *e_depois->mutable_dados_ataque()) {
