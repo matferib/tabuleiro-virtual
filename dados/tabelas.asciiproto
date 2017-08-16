@@ -1105,9 +1105,21 @@ tabela_efeitos {
       }
     }
   }
+  efeitos {
+    # Chance de falha.
+    id: EFEITO_INVISIBILIDADE
+  }
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'invisibilidade'
+    nome: 'Invisilidade'
+    id_efeito: EFEITO_INVISIBILIDADE
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+
   pocoes {
     id: 'furia'
     nome: 'Fúria'
