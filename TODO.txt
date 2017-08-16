@@ -1,4 +1,3 @@
-Crash ao rolar iniciativa no meio do combate.
 Descer iniciativas em 1 para nao baguncar com status.
 Lutar defensivamente e defesa total.
 Implementar ajuda/auxilio (aid).
