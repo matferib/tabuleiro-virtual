@@ -985,37 +985,37 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_FORCA_TOURO
-    consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
+    consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
   }
   efeitos {
     id: EFEITO_AGILIDADE_GATO
-    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
+    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
   }
   efeitos {
     id: EFEITO_VIGOR_URSO
-    consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso%s' } } } } }
+    consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso' } } } } }
   }
   efeitos {
     id: EFEITO_SABEDORIA_CORUJA
-    consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja%s' } } } } }
+    consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja' } } } } }
   }
   efeitos {
     id: EFEITO_ASTUCIA_RAPOSA
-    consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa%s' } } } } }
+    consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa' } } } } }
   }
   efeitos {
     id: EFEITO_ESPLENDOR_AGUIA
-    consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia%s' } } } } }
+    consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia' } } } } }
   }
 
   efeitos {
     id: EFEITO_ACELERAR
     consequencia {
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
+        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
       }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar%s' } } }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar' } } }
     }
   }
   efeitos {
