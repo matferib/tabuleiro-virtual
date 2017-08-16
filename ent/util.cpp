@@ -1110,7 +1110,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
     case ntf::TN_ADICIONAR_ACAO: {
       return "";
     }
-    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
       return EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
     }
     default:
@@ -1121,7 +1121,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
   if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
@@ -1134,7 +1134,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
   entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
 
   if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
     auto* entidade_antes = n_desfazer->mutable_entidade_antes();
     entidade_antes->set_id(entidade.Id());
@@ -2199,7 +2199,7 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
     evento.set_descricao(ent::trim(descricao));
     evento.set_rodadas(atoi(rodadas.c_str()));
     boost::char_separator<char> sep(" ");
-    boost::tokenizer<boost::char_separator<char>> tokenizador(complementos, sep); 
+    boost::tokenizer<boost::char_separator<char>> tokenizador(complementos, sep);
     for (const auto& token : tokenizador) {
       LOG(INFO) << "token: " << token;
       evento.add_complementos(atoi(token.c_str()));
@@ -2243,5 +2243,30 @@ int Nivel(const std::string& id, const EntidadeProto& proto) {
   }
   return 0;
 }
+
+bool EmDefesaTotal(const EntidadeProto& proto) {
+  for (const auto& bi : proto.dados_defesa().ca().bonus_individual()) {
+    if (bi.tipo() == TB_ESQUIVA) {
+      for (const auto& po : bi.por_origem()) {
+        if (po.origem() == "defesa_total" && po.valor() > 0) return true;
+      }
+      return false;
+    }
+  }
+  return false;
+}
+
+bool LutandoDefensivamente(const EntidadeProto& proto) {
+  for (const auto& bi : proto.dados_defesa().ca().bonus_individual()) {
+    if (bi.tipo() == TB_ESQUIVA) {
+      for (const auto& po : bi.por_origem()) {
+        if (po.origem() == "luta_defensiva" && po.valor() > 0) return true;
+      }
+      return false;
+    }
+  }
+  return false;
+}
+
 
 }  // namespace ent

@@ -242,7 +242,7 @@ int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& b
 // Retorna true se tipo estiver presente em bonus.
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
-// Combina os bonus_novos em bonus.
+// Combina os bonus_novos em bonus. Bonus de mesmo tipo e origem serao sobrescritos.
 void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
 // Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).
 void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos);
@@ -337,6 +337,10 @@ int Nivel(const std::string& id, const EntidadeProto& proto);
 * descricao [(complemento)] : rodadas.
 */
 google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
+
+// Funcoes que retornam o estado da entidade de acordo com a origem e valor dos bonus de esquiva.
+bool EmDefesaTotal(const EntidadeProto& proto);
+bool LutandoDefensivamente(const EntidadeProto& proto);
 
 }  // namespace ent
 
