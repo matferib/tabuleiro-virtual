@@ -2105,6 +2105,14 @@ tabela_talentos {
     # niveis_adicionais: 2
     # mago: 1
   }
+  # Talentos de monstros.
+  talentos {
+    id: 'ataques_multiplos'
+    nome: 'Ataques Múltiplos'
+    descricao: 'Diminui a penalidade de ataques secundários de -5 para -2 para monstros com múltiplos ataques naturais.'
+    monstro: true
+    # Pre requisito: 3 ou mais ataques naturais.
+  }
 }
 tabela_classes {
   info_classes {

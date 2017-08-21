@@ -1523,7 +1523,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     // Talentos.
     AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma", bonus_ataque);
     AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma_maior", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma_maior", bonus_ataque);
-    // Duas maos.
+    // Duas maos ou armas naturais.
     switch (da->empunhadura()) {
       case EA_MAO_BOA: {
         // TODO detectar a arma da outra mao.
@@ -1536,6 +1536,11 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       case EA_MAO_RUIM: {
         int penalidade = PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -8 : -10;
         if (PossuiTalento("combater_duas_armas", proto)) penalidade += 6;
+        AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
+        break;
+      }
+      case EA_MONSTRO_ATAQUE_SECUNDARIO: {
+        int penalidade = PossuiTalento("ataques_multiplos", proto) ? -2 : -6;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
         break;
       }
@@ -1554,7 +1559,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       dano_forca = modificador_forca;
     } else if (ea == EA_2_MAOS) {
       dano_forca = floorf(modificador_forca_dano * 1.5f);
-    } else if (ea == EA_MAO_RUIM) {
+    } else if (ea == EA_MAO_RUIM || ea == EA_MONSTRO_ATAQUE_SECUNDARIO) {
       dano_forca = modificador_forca_dano / 2;
     } else {
       dano_forca = modificador_forca_dano;
@@ -1571,6 +1576,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+  LOG(INFO) << "da->dano: " << da->dano();
+  LOG(INFO) << "da->bonus_dano: " << da->bonus_dano().ShortDebugString();
 }
 
 // Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.

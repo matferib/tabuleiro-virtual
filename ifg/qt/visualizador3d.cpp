@@ -922,7 +922,7 @@ void PreencheConfiguraTalentos(
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_talentos->selectionModel());
   std::map<std::string, std::string> mapa;
   for (const auto& t : tabelas.todas().tabela_talentos().talentos()) {
-    mapa[t.nome()] = t.id();
+    if (!t.monstro()) mapa[t.nome()] = t.id();
   }
   TrocaDelegateColuna(0, new MapaDelegate(mapa, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
   TrocaDelegateColuna(1, new ComplementoTalentoDelegate(tabelas, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
@@ -1528,7 +1528,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
     gerador.spin_raio_visao_escuro_quad->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
   });
-  gerador.spin_raio_visao_escuro_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
+  gerador.spin_raio_visao_escuro_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.has_alcance_visao_m() ? entidade.alcance_visao_m() : 18));
   gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Preenche os atributos.
@@ -1629,7 +1629,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
-      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
+      proto_retornado->set_alcance_visao_m(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {

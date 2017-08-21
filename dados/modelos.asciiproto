@@ -154,7 +154,7 @@ modelo {
   id: 'Mantor'
   entidade {
     dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'cloaker' }
-    voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
+    voadora: true tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     modificador_iniciativa: 7
     rotulo_especial: 'dois ataques, agarrar +13/1d4+2\nlamento, engolfar e sombras (reflexos, imagem silenciosa ou camuflagem 20%; 6o nivel)'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 8 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
@@ -164,7 +164,7 @@ modelo {
 modelo {
   id: 'Barghest'
   entidade {
-    dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
+    dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     modificador_iniciativa: 6
     rotulo_especial: 'for 6, ref 7, von 7\nreducao dano 5/magia\nmudar forma\npiscar, levitar, confundir detecao cd 14, furia cd 15: a vontade\nencantar monstro, desespero esmagador, porta dimensional cd 16 1/dia'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+3' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
@@ -230,7 +230,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
     dados_defesa { imune_critico: true }
-    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
   }
 }
 modelo {
@@ -238,7 +238,7 @@ modelo {
   entidade {
     dados_vida: '12d8+12' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
     ultima_acao: 'Ataque Corpo a Corpo'
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     modificador_iniciativa: 2
     rotulo_especial: 'agarrar: +15\nveneno fort 14, 1d6 des/1d6 des'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '2d6+4' ca_normal: 16 ca_toque: 11 ca_surpreso: 12 }
@@ -249,7 +249,7 @@ modelo {
   entidade {
     dados_vida: '12d8+12' tamanho: TM_IMENSO info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
     ultima_acao: 'Ataque Corpo a Corpo'
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     modificador_iniciativa: 2
     rotulo_especial: 'agarrar: +27\nveneno fort 17, 1d8 des/1d8 des'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 11 dano: '2d8+9' ca_normal: 18 ca_toque: 10 ca_surpreso: 14 }
@@ -268,7 +268,7 @@ modelo {
   entidade {
     dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
     modificador_iniciativa: 2
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'ini +2\nat +15/+15/+13/+13/+13\ndano: 2d6+6/2d6+6/1d8+3/1d6+3/1d6+3\nreducao 10/bem, rm 17, imunidades e resistencias'
   }
 }
@@ -286,7 +286,7 @@ modelo {
   entidade {
     dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
     modificador_iniciativa: 1
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'ini +1\nat +12/+12/+7\ndano: 1d6+6/1d6+5/1d6+2\nreducao 10/ferro frio, furtivo 2d6, rm 14, imunidades e resistencias'
   }
 }
@@ -294,7 +294,7 @@ modelo {
   id: 'Demônio Dretch'
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'ini 0\nat +4 dano 1d6+1\nreducao 5/ferro frio, resistencias, imunidades'
   }
 }
@@ -524,7 +524,7 @@ modelo {
   entidade {
     dados_vida: '2d8+2'
     modificador_iniciativa: 0
-    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     info_textura { id: 'gnoll.png' largura: 0.5 translacao_x: 0.25 }
     dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { id_arma: 'arco_curto' }
@@ -563,7 +563,7 @@ modelo {
       tesouro: '100 PO'
     }
     modificador_iniciativa: 0
-    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     info_textura { id: 'gnoll_barbarian.png' largura: 0.5 translacao_x: 0.25 }
     # Ataques.
     dados_ataque { rotulo: 'Machado Grande' obra_prima: true id_arma: 'machado_grande' empunhadura: EA_2_MAOS  }
@@ -595,7 +595,7 @@ modelo {
   id: 'Gnoll Lider Ranger 6'
   entidade {
     dados_vida: '2d8+6d8+16'
-    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     info_textura { id: 'gnoll_ranger.png' largura: 0.5 translacao_x: 0.25 }
 
     info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
@@ -648,7 +648,7 @@ modelo {
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.745 g: 0.596 b: 0.388 }
     info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
       rotulo: 'maça estrela' id_arma: 'maca_estrela'
     }
@@ -679,7 +679,7 @@ modelo {
     dados_vida: '3d8+3' tamanho: TM_PEQUENO
     info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     cor { r: 0.545 g: 0.396 b: 0.188 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: ''
     tesouro {
       # 1d100 po
@@ -715,9 +715,43 @@ modelo {
 modelo {
   id: 'Grifo'
   entidade {
-    dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    rotulo_especial: 'ini: +2\nat: +11/+8/+8\ndano: 2d6+4/1d4+2/1d4+2\nca: 17'
+    dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' altura: 0.6 translacao_y: 0.2 } cor { r: 0.6 g: 0.45 b: 0.2 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    rotulo_especial: 'agarrar: 15\npounce: carga e ataque total incluindo rake'
     modificador_iniciativa: 2
+    info_classes { id: 'grifo' nivel: 7 bba: 7 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } }
+      }
+    }
+    # Os monstros seguem um padrao diferente. O ataque principal eh como se fosse com duas maos.
+    # Os secundarios recebem penalidade de -5, ou -2 com Ataques Multiplos.
+    dados_ataque {
+      rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'patas' valor: 4 } } }
+    }
+    info_talentos {
+      gerais { id: 'ataques_multiplos' }
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+      gerais { id: 'vontade_ferro' }
+    }
+
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 5 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
@@ -761,7 +795,7 @@ modelo {
   id: 'Hobgoblin'
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d8+1' margem_critico: 19 ca_normal: 15 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 }
     modificador_iniciativa: 1
@@ -771,7 +805,7 @@ modelo {
   id: 'Hobgoblin Sargento'
   entidade {
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d8+2' margem_critico: 19 ca_normal: 21 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d6+3' ca_normal: 20 }
     modificador_iniciativa: 2
@@ -781,7 +815,7 @@ modelo {
   id: 'Hobgoblin Tenente 5'
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 10 dano: '1d10+6' margem_critico: 19 ca_normal: 20 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
@@ -1120,7 +1154,7 @@ modelo {
   id: 'Orc'
   entidade {
     dados_vida: '1d8+1' info_textura { id: 'orc.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { rotulo: 'falcione' id_arma: 'falcione' empunhadura: EA_2_MAOS }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia' }
     dados_defesa { id_armadura: 'couro_batido' }
@@ -1142,7 +1176,7 @@ modelo {
   id: 'Orc Lanceiro'
   entidade {
     dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.5 translacao_x: 0.25 } cor { g: 1.0 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'lanca' }
     dados_ataque { rotulo: 'lanca em cac' id_arma: 'lanca' empunhadura: EA_2_MAOS }
     dados_defesa { id_armadura: 'couro_batido' }
@@ -1164,7 +1198,7 @@ modelo {
   id: 'Orc Sargento'
   entidade {
     dados_vida: '3d8+3' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.7 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { rotulo: 'falcione' id_arma: 'falcione' obra_prima: true empunhadura: EA_2_MAOS }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
     dados_defesa { id_armadura: 'peitoral_de_aco' }
@@ -1192,7 +1226,7 @@ modelo {
   id: 'Orc Tenente'
   entidade {
     dados_vida: '5d8+15' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.5 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'Não pode ser flanqueado'
     dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS }
     dados_ataque { id_arma: 'arco_longo_composto_5' }
@@ -1222,7 +1256,7 @@ modelo {
   id: 'Orc Capitão'
   entidade {
     dados_vida: '7d8+28' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     tendencia { simples: TD_CAOTICO_MAL }
   }
 }
@@ -1230,7 +1264,7 @@ modelo {
   id: 'Otyugh'
   entidade {
     dados_vida: '6d8+9' modelo_3d { id: 'otyugh' }
-    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     tamanho: TM_GRANDE
     rotulo_especial: 'agarrar aprimorado: +8 livre tentáculo\nfor +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
@@ -1264,7 +1298,7 @@ modelo {
   id: 'Demônio Súcubo'
   entidade {
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
   }
 }
 modelo {

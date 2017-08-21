@@ -28,7 +28,7 @@ enum TipoForma {
 enum EmpunhaduraArma {
   // Apenas arma e mais nada.
   EA_ARMA_APENAS = 0;
-  // Emphada em duas maos.
+  // Empunhada em duas maos.
   EA_2_MAOS = 1;
   // 2 armas: empunhada na mao boa.
   EA_MAO_BOA = 2;
@@ -36,6 +36,9 @@ enum EmpunhaduraArma {
   EA_MAO_RUIM = 3;
   // Arma e escudo.
   EA_ARMA_ESCUDO = 4;
+  // Monstros.
+  EA_MONSTRO_ATAQUE_PRIMARIO = 5;
+  EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
 }
 
 message EntidadeProto {
@@ -122,7 +125,7 @@ message EntidadeProto {
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
   // Alcance da visao no escuro em metros.
-  optional float alcance_visao = 37;
+  optional float alcance_visao_m = 37;
   // Entidade causa colisao.
   optional bool causa_colisao = 48;
   // Indica que a entidade esta apoiada.

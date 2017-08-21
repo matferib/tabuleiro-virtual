@@ -5950,8 +5950,8 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    float alcance_visao = entidade_referencia->Proto().has_alcance_visao() ? entidade_referencia->Proto().alcance_visao() : 18.0f;
-    ConfiguraNevoa(alcance_visao, alcance_visao + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
+    float alcance_visao_m = entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
+    ConfiguraNevoa(alcance_visao_m, alcance_visao_m + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
     return;

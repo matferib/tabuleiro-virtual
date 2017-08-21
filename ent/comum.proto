@@ -355,6 +355,8 @@ message TalentoProto {
   optional string complemento = 4;
   optional string descricao = 5;
   optional PreRequisitoTalento pre_requisito = 6;
+  // Talentos de monstro.
+  optional bool monstro = 7;
 }
 
 message PocaoProto {
