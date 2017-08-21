@@ -1,12 +1,10 @@
+Colocar pericias.
+Nivel negativo.
 Descer iniciativas em 1 para nao baguncar com status.
-Lutar defensivamente e defesa total.
-Implementar ajuda/auxilio (aid).
-Pontos de vida de furia.
 Implementar flanquear.
 Munição
 Implementar bloqueio ambidestro.
 Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
-Colocar pericias.
 Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
