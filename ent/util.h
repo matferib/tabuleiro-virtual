@@ -372,6 +372,9 @@ inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUni
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente.
 EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto);
 
+// Retorna todos os talentos da entidade em um vector, para facilitar.
+std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

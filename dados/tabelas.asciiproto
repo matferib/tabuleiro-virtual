@@ -1731,7 +1731,6 @@ tabela_talentos {
   talentos {
     id: 'fortitude_maior'
     nome: 'Fortitude Maior'
-    # bonus_salvacao { fortitude: 2 }
     descricao: '+2 de bônus nos teste de resistência de Fortitude.'
   }
   talentos {
@@ -1867,7 +1866,6 @@ tabela_talentos {
   talentos {
     id: 'reflexos_rapidos'
     nome: 'Reflexos Rápidos'
-    # bonus_salvacao { reflexo: 2 }
     descricao: '+2 de bônus nos testes de resistência de Reflexos.'
   }
   talentos {
@@ -1985,7 +1983,6 @@ tabela_talentos {
   talentos {
     id: 'vontade_ferro'
     nome: 'Vontade de Ferro'
-    # bonus_salvacao { vontade: 2 }
     descricao: '+2 de bônus nos testes de resistência de Vontade.'
   }
   talentos {

@@ -89,6 +89,77 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(6, ed->Salvacao(*ea, TS_VONTADE));
 }
 
+TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(3);
+
+  {
+    auto* bi = proto.mutable_atributos()->mutable_constituicao()->add_bonus_individual();
+    bi->set_tipo(TB_BASE);
+    auto* po = bi->add_por_origem();
+    po->set_origem("base");
+    po->set_valor(18);  // +4.
+  }
+  {
+    auto* bi = proto.mutable_atributos()->mutable_destreza()->add_bonus_individual();
+    bi->set_tipo(TB_BASE);
+    auto* po = bi->add_por_origem();
+    po->set_origem("base");
+    po->set_valor(16);  // +3.
+  }
+  {
+    auto* bi = proto.mutable_atributos()->mutable_sabedoria()->add_bonus_individual();
+    bi->set_tipo(TB_BASE);
+    auto* po = bi->add_por_origem();
+    po->set_origem("base");
+    po->set_valor(14);  // +2.
+  }
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("fortitude_maior");
+
+  RecomputaDependencias(tabelas, &proto);
+  // 3 + 4 con + 2 fortitude maior;
+  EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+  // 1 + 3 destreza.
+  EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+  // 1 de vontade, +2 bonus.
+  EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+
+  // Adiciona reflexos rapidos.
+  proto.mutable_info_talentos()->add_gerais()->set_id("reflexos_rapidos");
+  RecomputaDependencias(tabelas, &proto);
+  // 3 + 3 con + 2 fortitude maior;
+  EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+  // 1 + 3 destreza + 2 reflexos rapidos.
+  EXPECT_EQ(6, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+  // 1 de vontade, +2 bonus.
+  EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+
+  // Adiciona vontade de ferro.
+  proto.mutable_info_talentos()->add_gerais()->set_id("vontade_ferro");
+  RecomputaDependencias(tabelas, &proto);
+  // 3 + 3 con + 2 fortitude maior;
+  EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+  // 1 + 3 destreza + 2 reflexos rapidos.
+  EXPECT_EQ(6, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+  // 1 de vontade, +2 bonus + 2 vontade ferro.
+  EXPECT_EQ(5, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  // Adiciona de novo (sem efeito).
+  proto.mutable_info_talentos()->add_gerais()->set_id("vontade_ferro");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+
+  // Remove reflexos rapidos.
+  proto.mutable_info_talentos()->mutable_gerais()->DeleteSubrange(1, 1);
+  RecomputaDependencias(tabelas, &proto);
+  // 1 + 3 destreza.
+  EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+}
+
+
 TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas;
   EntidadeProto proto;

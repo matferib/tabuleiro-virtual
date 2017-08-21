@@ -1911,6 +1911,23 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   }
 }
 
+void RecomputaDependenciasSalvacoes(
+    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+  auto* dd = proto_retornado->mutable_dados_defesa();
+
+  // Testes de resistencia.
+  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
+  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
+
+  // Talentos: tem que ser dessa forma (manual por talento), porque se nao ao retirar um talento do personagem tem que descobrir o que
+  // foi tirado para remover os bonus. E isso eh bem mais complicado.
+  // OBS: nao sao cumulativos.
+  AtribuiOuRemoveBonus(PossuiTalento("fortitude_maior", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "fortitude_maior", dd->mutable_salvacao_fortitude());
+  AtribuiOuRemoveBonus(PossuiTalento("reflexos_rapidos", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "reflexos_rapidos", dd->mutable_salvacao_reflexo());
+  AtribuiOuRemoveBonus(PossuiTalento("vontade_ferro", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "vontade_ferro", dd->mutable_salvacao_vontade());
+}
+
 void RecomputaDependenciaTamanho(EntidadeProto* proto) {
   // Aplica efeito cria isso, entao melhor ver se tem algum bonus individual.
   if (!PossuiBonus(TB_BASE, proto->bonus_tamanho())) {
@@ -2012,14 +2029,10 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
 
-  auto* dd = proto->mutable_dados_defesa();
-  // Testes de resistencia.
-  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
-  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
-
   // CA.
   RecomputaDependenciasCA(tabelas, proto);
+  // Salvacoes.
+  RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);
 
   // BBA: tenta atualizar por classe, se nao houver, pelo bba base, senao nao faz nada.
   if (proto->info_classes_size() > 0 ||  proto->bba().has_base()) {
@@ -2602,6 +2615,17 @@ EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, Entidad
   e->set_rodadas(rodadas);
   e->set_id_unico(AchaIdUnicoEvento(*proto));
   return e;
+}
+
+std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto) {
+  std::vector<const TalentoProto*> todos_talentos;
+  for (const auto& t : proto.info_talentos().gerais()) {
+    todos_talentos.push_back(&t);
+  }
+  for (const auto& t : proto.info_talentos().outros()) {
+    todos_talentos.push_back(&t);
+  }
+  return todos_talentos;
 }
 
 }  // namespace ent
