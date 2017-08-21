@@ -968,6 +968,8 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       evento->set_descricao("duração");
       evento->set_id_efeito(EFEITO_OUTRO);
       evento->set_rodadas(duracao_rodadas);
+      // Acha o id para a referencia, ja que o modelo nao tem nada.
+      evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto()));
     }
   }
   if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
@@ -6552,6 +6554,7 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
+#if 0
 void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
   if (rodadas < 0) {
     LOG(ERROR) << "Adicionando rodadas < 0";
@@ -6585,6 +6588,7 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
+#endif
 
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
@@ -6608,17 +6612,19 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     }
     // Desfazer.
     proto_antes.set_id(id_entidade.first);
-    proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+    *proto_antes.mutable_evento() = entidade->Proto().evento();
+    if (proto_antes.evento().empty()) {
+      auto* e = proto_antes.add_evento();
+      e->set_id_efeito(EFEITO_INVALIDO);
+      e->set_rodadas(-1);
+    }
     // Novo proto.
     proto_depois.set_id(id_entidade.first);
-    for (const auto& evento_antes : entidade->Proto().evento()) {
-      int rodadas = evento_antes.rodadas();
-      if (rodadas > 0) {
-        --rodadas;
+    *proto_depois.mutable_evento() = entidade->Proto().evento();
+    for (auto& e : *proto_depois.mutable_evento()) {
+      if (e.rodadas() > 0) {
+        e.set_rodadas(e.rodadas() - 1);
       }
-      auto* evento_depois = proto_depois.add_evento();
-      *evento_depois = evento_antes;
-      evento_depois->set_rodadas(rodadas);
     }
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
@@ -7007,9 +7013,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
         }
       }
       for (auto id_efeito : efeitos) {
-        auto* evento = e_depois->add_evento();
-        evento->set_id_efeito(id_efeito);
-        evento->set_rodadas(pocao.duracao_rodadas());
+        auto* evento = AdicionaEvento(id_efeito, pocao.duracao_rodadas(), e_depois);
         if (!pocao.complementos().empty()) {
           *evento->mutable_complementos() = pocao.complementos();
         }
@@ -7087,8 +7091,7 @@ void Tabuleiro::AlternaFuria() {
       // Para ver novo modificador.
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-      auto* evento = e_depois->add_evento();
-      evento->set_id_efeito(EFEITO_FURIA_BARBARO);
+      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");

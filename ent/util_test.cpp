@@ -89,6 +89,54 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(6, ed->Salvacao(*ea, TS_VONTADE));
 }
 
+TEST(TesteDependencias, TesteAjuda) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
+  ev->add_complementos(3);
+  RecomputaDependencias(tabelas, &proto);
+  // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
+  auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_GT(proto.pontos_vida_temporarios(), 3);
+  const int valor = po->valor();
+
+  // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
+  po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), valor);
+
+  // Termina o efeito.
+  ev->set_rodadas(-1);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
+}
+
+TEST(TesteDependencias, TesteAjuda2) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
+  ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
+  uint32_t id_segundo_evento = ev->id_unico();
+  RecomputaDependencias(tabelas, &proto);
+  // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
+  EXPECT_EQ("ajuda", proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem(0).origem());
+
+  // Forcar o temporario a vir do segundo evento (porque sao aleatorios os valores).
+  auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  po->set_id_unico(id_segundo_evento);
+  ev->set_rodadas(-1);
+
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
+}
+
 // Teste basico gera dados.
 TEST(TesteGeraDados, TesteGeraDados) {
   int pv = GeraMaxPontosVida("\t4 d   6 - 5  ");

@@ -20,6 +20,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIIniciativa(tabelas, gerador, proto);
   AtualizaUISalvacoes(gerador, proto);
   AtualizaUITesouro(tabelas, gerador, proto);
+  AtualizaUIPontosVida(gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -382,6 +383,12 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   }
   gerador.lista_pocoes->setCurrentRow(indice);
   for (auto* obj : objs) obj->blockSignals(false);
+}
+
+void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.spin_pontos_vida->setValue(proto.pontos_vida());
+  gerador.botao_bonus_pv_temporario->setText(QString::number(BonusTotal(proto.pontos_vida_temporarios_por_fonte())));
+  gerador.spin_max_pontos_vida->setValue(proto.max_pontos_vida());
 }
 
 }  // namespace qt

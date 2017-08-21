@@ -215,7 +215,7 @@ QGroupBox::title {
       <rect>
        <x>10</x>
        <y>210</y>
-       <width>365</width>
+       <width>369</width>
        <height>41</height>
       </rect>
      </property>
@@ -297,15 +297,30 @@ QGroupBox::title {
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spin_pontos_vida_temporarios">
+         <widget class="QPushButton" name="botao_bonus_pv_temporario">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="toolTip">
-           <string>Pontos de vida para entidade.</string>
+           <string>Pontos de Vida temporários.</string>
           </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>999</number>
+          <property name="text">
+           <string>0</string>
           </property>
          </widget>
         </item>
@@ -3083,7 +3098,6 @@ QGroupBox::title {
   <tabstop>slider_tamanho</tabstop>
   <tabstop>spin_pontos_vida</tabstop>
   <tabstop>spin_max_pontos_vida</tabstop>
-  <tabstop>spin_pontos_vida_temporarios</tabstop>
   <tabstop>checkbox_selecionavel</tabstop>
   <tabstop>checkbox_voadora</tabstop>
   <tabstop>checkbox_visibilidade</tabstop>

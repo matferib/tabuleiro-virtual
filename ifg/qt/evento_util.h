@@ -59,7 +59,8 @@ class ModeloEvento : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    eventos_->Add();
+    auto* e = eventos_->Add();
+    e->set_id_unico(AchaIdUnicoEvento(*eventos_));
     endInsertRows();
     return true;
   }

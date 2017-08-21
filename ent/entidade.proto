@@ -48,8 +48,10 @@ message EntidadeProto {
   optional uint32 id = 2;
   // Pontos de vida da entidade.
   optional int32 pontos_vida = 11;
-  // Pontos de vida temporarios.
+  // Pontos de vida temporarios, computados a partir do bonus.
   optional int32 pontos_vida_temporarios = 59;
+  // A fonte de cada ponto de vida temporario. Fontes iguais so a maior se aplica. Fontes diferentes acumular (do FAQ).
+  optional Bonus pontos_vida_temporarios_por_fonte = 81;
   // Maximo de pontos de vida da entidade.
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
@@ -154,6 +156,9 @@ message EntidadeProto {
     optional string descricao = 2;
     optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     repeated int32 complementos = 3;  // Alguns efeitos tem complementos.
+    optional bool processado = 5;  // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+    // Identificador unico para o efeito. Util para desfazer fim de efeitos.
+    optional uint32 id_unico = 6;
   }
   repeated Evento evento = 31;
 

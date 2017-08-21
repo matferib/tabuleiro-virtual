@@ -936,6 +936,17 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_AJUDA
+    consequencia {
+      # Complemento usado para adicionar aos PV (1d8+complemento).
+      usa_complemento: true
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
+      # TODO +1 moral contra salvacao de medo.
+      # TODO: faltando skills.
+    }
+  }
+
+  efeitos {
     # TODO: faltando skills.
     id: EFEITO_HEROISMO
     consequencia {
@@ -1112,6 +1123,15 @@ tabela_efeitos {
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'ajuda'
+    nome: 'Ajuda'
+    id_efeito: EFEITO_AJUDA
+    duracao_rodadas: 30
+    custo_po: 300
+    complementos: 3  # 1d8+3.
+  }
+
   pocoes {
     id: 'invisibilidade'
     nome: 'Invisilidade'

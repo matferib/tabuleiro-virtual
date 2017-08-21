@@ -68,7 +68,7 @@ public:
     QLabel *label_6;
     QSpinBox *spin_max_pontos_vida;
     QLabel *label_26;
-    QSpinBox *spin_pontos_vida_temporarios;
+    QPushButton *botao_bonus_pv_temporario;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_5;
@@ -444,7 +444,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(tab_geral);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 365, 41));
+        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 369, 41));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -488,12 +488,14 @@ public:
 
         horizontalLayout_12->addWidget(label_26);
 
-        spin_pontos_vida_temporarios = new QSpinBox(horizontalLayoutWidget_8);
-        spin_pontos_vida_temporarios->setObjectName(QString::fromUtf8("spin_pontos_vida_temporarios"));
-        spin_pontos_vida_temporarios->setMinimum(-100);
-        spin_pontos_vida_temporarios->setMaximum(999);
+        botao_bonus_pv_temporario = new QPushButton(horizontalLayoutWidget_8);
+        botao_bonus_pv_temporario->setObjectName(QString::fromUtf8("botao_bonus_pv_temporario"));
+        sizePolicy1.setHeightForWidth(botao_bonus_pv_temporario->sizePolicy().hasHeightForWidth());
+        botao_bonus_pv_temporario->setSizePolicy(sizePolicy1);
+        botao_bonus_pv_temporario->setMinimumSize(QSize(0, 0));
+        botao_bonus_pv_temporario->setMaximumSize(QSize(40, 16777215));
 
-        horizontalLayout_12->addWidget(spin_pontos_vida_temporarios);
+        horizontalLayout_12->addWidget(botao_bonus_pv_temporario);
 
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
@@ -1877,8 +1879,7 @@ public:
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
-        QWidget::setTabOrder(spin_max_pontos_vida, spin_pontos_vida_temporarios);
-        QWidget::setTabOrder(spin_pontos_vida_temporarios, checkbox_selecionavel);
+        QWidget::setTabOrder(spin_max_pontos_vida, checkbox_selecionavel);
         QWidget::setTabOrder(checkbox_selecionavel, checkbox_voadora);
         QWidget::setTabOrder(checkbox_voadora, checkbox_visibilidade);
         QWidget::setTabOrder(checkbox_visibilidade, checkbox_caida);
@@ -1975,8 +1976,9 @@ public:
 #endif // QT_NO_TOOLTIP
         label_26->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Temp", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_pontos_vida_temporarios->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
+        botao_bonus_pv_temporario->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida tempor\303\241rios.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        botao_bonus_pv_temporario->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

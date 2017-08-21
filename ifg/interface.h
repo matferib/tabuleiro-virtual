@@ -63,7 +63,7 @@ class InterfaceGrafica : public ntf::Receptor {
   // os componentes rgba. A versao aqui apresentada nao faz nada, pois no android e IOS nao implementei.
   // No QT ela eh overriden.
   virtual void EscolheCor(
-      float r, float g, float b, float a, 
+      float r, float g, float b, float a,
       std::function<void(bool, float, float, float, float)> funcao_volta) {
     funcao_volta(true, r, g, b, a);
   }

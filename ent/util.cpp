@@ -50,7 +50,8 @@ const std::map<std::string, std::string> g_mapa_utf8 = {
     { "Ó", "O" },
     { "Ú", "U" },
     { "ú", "u" },
-  };
+};
+
 }  // namespace
 
 void MudaCor(const float* cor) {
@@ -1148,12 +1149,26 @@ void PreencheNotificacaoAtualizaoPontosVida(
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
+
+  // Tira dos temporarios.
   if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
-    int temp = entidade.PontosVidaTemporarios();
-    int minpv = std::min(std::abs(delta_pontos_vida), temp);
-    delta_pontos_vida += minpv;
-    temp -= minpv;
-    entidade_depois->set_pontos_vida_temporarios(temp);
+    *entidade_depois->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
+    auto* bpv = entidade_depois->mutable_pontos_vida_temporarios_por_fonte();
+    auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
+    if (bi != nullptr) {
+      for (int i_origem = 0; delta_pontos_vida < 0 && i_origem < bi->por_origem_size(); ++i_origem)  {
+        auto* po = bi->mutable_por_origem(i_origem);
+        if (po->valor() < 0) {
+          LOG(WARNING) << "Valor de pv temporario invalido: " << po->valor();
+        } else if (po->valor() >= abs(delta_pontos_vida)) {
+          delta_pontos_vida = 0;
+          po->set_valor(po->valor() - abs(delta_pontos_vida));
+        } else {
+          delta_pontos_vida += po->valor();
+          po->set_valor(0);
+        }
+      }
+    }
   }
   entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
 
@@ -1162,12 +1177,13 @@ void PreencheNotificacaoAtualizaoPontosVida(
     n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
     auto* entidade_antes = n_desfazer->mutable_entidade_antes();
     entidade_antes->set_id(entidade.Id());
+    *entidade_antes->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
     entidade_antes->set_pontos_vida(entidade.PontosVida());
     entidade_antes->set_morta(entidade.Proto().morta());
     entidade_antes->set_caida(entidade.Proto().caida());
     entidade_antes->set_voadora(entidade.Proto().voadora());
     entidade_antes->set_aura(entidade.Proto().aura());
-    entidade_antes->mutable_pos()->CopyFrom(entidade.Pos());
+    *entidade_antes->mutable_pos() = entidade.Pos();
     entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
   }
 }
@@ -1290,6 +1306,30 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
   }
   return 0;
 }
+
+// Acesso.
+BonusIndividual* BonusIndividualSePresente(TipoBonus tipo, Bonus* bonus) {
+  if (bonus == nullptr) return nullptr;
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    if (bi.tipo() == tipo) {
+      return &bi;
+    }
+  }
+  return nullptr;
+}
+
+BonusIndividual::PorOrigem* OrigemSePresente(const std::string& origem, BonusIndividual* bonus_individual) {
+  if (bonus_individual == nullptr) return nullptr;
+  for (auto& po : *bonus_individual->mutable_por_origem()) {
+    if (po.origem() == origem) return &po;
+  }
+  return nullptr;
+}
+
+BonusIndividual::PorOrigem* OrigemSePresente(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  return OrigemSePresente(origem, BonusIndividualSePresente(tipo, bonus));
+}
+// Fim acesso.
 
 int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
@@ -1530,7 +1570,8 @@ void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   }
 }
 
-void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+// Aplica o efeito. Alguns especificos serao feitos aqui. Alguns efeitos sao aplicados apenas uma vez e usam processado como controle.
+void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
   AplicaBonusOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
   AplicaBonusOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
@@ -1545,6 +1586,67 @@ void AplicaEfeito(const ConsequenciaEvento& consequencia, EntidadeProto* proto) 
     AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
   }
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
+}
+
+void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  AplicaEfeitoComum(consequencia, proto);
+  switch (evento.id_efeito()) {
+    case EFEITO_INVISIBILIDADE:
+      proto->set_visivel(false);
+      break;
+    case EFEITO_AJUDA:
+      if (!evento.processado()) {
+        // Gera os pontos de vida temporarios.
+        int complemento = evento.complementos().empty() ? 3 : evento.complementos(0);
+        if (complemento < 3) complemento = 3;
+        else if (complemento > 10) complemento = 10;
+        const int tmp = RolaDado(8) + complemento;
+        auto* po = AtribuiBonus(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
+        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+      }
+      break;
+    default: ;
+  }
+}
+
+void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
+  if (Nivel("barbaro", *proto) >= 17) return;
+  auto* evento = proto->add_evento();
+  evento->set_id_efeito(EFEITO_FADIGA);
+  evento->set_descricao("fadiga_furia_barbaro");
+  // Dura pelo resto do encontro.
+  evento->set_rodadas(100);
+}
+
+void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  AplicaEfeitoComum(consequencia, proto);
+  switch (evento.id_efeito()) {
+    case EFEITO_INVISIBILIDADE:
+      proto->set_visivel(true);
+      break;
+    case EFEITO_AJUDA: {
+      auto* bi = BonusIndividualSePresente(TB_SEM_NOME, proto->mutable_pontos_vida_temporarios_por_fonte());
+      auto* po = OrigemSePresente("ajuda", bi);
+      if (po == nullptr) {
+        break;
+      }
+      if (evento.has_id_unico()) {
+        // Se tiver id unico, respeita o id.
+        RemoveSe<BonusIndividual::PorOrigem>([&evento] (const BonusIndividual::PorOrigem& ipo) {
+          return ipo.id_unico() == evento.id_unico();
+        }, bi->mutable_por_origem());
+      } else {
+        // Nao tem id, remove a ajuda por completo. Pode dar merda.
+        LOG(WARNING) << "Removendo ajuda sem id unico.";
+        RemoveBonus(TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
+      }
+    }
+    break;
+    case EFEITO_FURIA_BARBARO:
+      AplicaFimFuriaBarbaro(proto);
+    break;
+    default: ;
+  }
 }
 
 // Preenche os bonus de acordo com o complemento.
@@ -1641,35 +1743,18 @@ void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeP
   VLOG(1) << "pv modificado: " << proto->pontos_vida();
 }
 
-void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
-  if (Nivel("barbaro", *proto) >= 17) return;
-  auto* evento = proto->add_evento();
-  evento->set_id_efeito(EFEITO_FADIGA);
-  evento->set_descricao("fadiga_furia_barbaro");
-  // Dura pelo resto do encontro.
-  evento->set_rodadas(100);
-}
-
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
   int i = 0;
-  // Primeiro desfaz o que tem para depois sobrescrever com os ativos.
+  // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
-  bool fim_furia = false;
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
-      if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
-        proto->set_visivel(true);
-      }
-      if (evento.id_efeito() == EFEITO_FURIA_BARBARO) {
-        LOG(INFO) << "fim furia: " << evento.DebugString();
-        fim_furia = true;
-      }
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       if (efeito.has_consequencia_fim()) {
-        AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
+        AplicaFimEfeito(evento, PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
       } else {
-        AplicaEfeito(PreencheConsequenciaFim(efeito.consequencia()), proto);
+        AplicaFimEfeito(evento, PreencheConsequenciaFim(efeito.consequencia()), proto);
       }
       eventos_a_remover.insert(i);
     }
@@ -1678,13 +1763,10 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
   }
-  if (fim_furia) AplicaFimFuriaBarbaro(proto);
-  for (const auto& evento : proto->evento()) {
-    if (evento.id_efeito() == EFEITO_INVISIBILIDADE) {
-      proto->set_visivel(false);
-    }
+  for (auto& evento : *proto->mutable_evento()) {
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(PreencheConsequencia(evento.complementos(), efeito.consequencia()), proto);
+    AplicaEfeito(evento, PreencheConsequencia(evento.complementos(), efeito.consequencia()), proto);
+    evento.set_processado(true);
   }
   const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
@@ -1855,6 +1937,40 @@ bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
   return std::any_of(ic.salvacoes_fortes().begin(), ic.salvacoes_fortes().end(), [ts] (int icts) { return icts == ts; });
 }
 
+void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
+  auto* bpv = proto->mutable_pontos_vida_temporarios_por_fonte();
+  // Remove todos que nao sao sem nome.
+  RemoveSe<BonusIndividual>([] (const BonusIndividual& bi) {
+    return bi.tipo() != TB_SEM_NOME;
+  }, bpv->mutable_bonus_individual());
+  if (!bpv->bonus_individual().empty()) {
+    // Mantem apenas o maximo de cada um.
+    auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
+    if (bi != nullptr) {
+      struct Info {
+        int max = -1;
+        const BonusIndividual::PorOrigem* ptr = nullptr;
+      };
+      std::unordered_map<std::string, Info> infos;
+      for (int i = 0; i < bi->por_origem().size(); ++i) {
+        const auto& po = bi->por_origem(i);
+        auto& info = infos[po.origem()];
+        if (info.ptr == nullptr || po.valor() > info.max) {
+          info.max = po.valor();
+          info.ptr = &po;
+        }
+      }
+      // Remove os que nao sao maximo.
+      RemoveSe<BonusIndividual::PorOrigem>([&infos](const BonusIndividual::PorOrigem& po) {
+        return po.valor() == 0 || &po != infos[po.origem()].ptr;
+      }, bi->mutable_por_origem());
+    }
+  }
+  // So pode haver um de cada tipo. Todos tem TB_SEM_NOME, difere eh a origem.
+  // Apenas o maior de cada origem eh mantido.
+  proto->set_pontos_vida_temporarios(BonusTotal(*bpv));
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(1) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
@@ -1862,6 +1978,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasDestreza(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
   RecomputaDependenciaTamanho(proto);
+  RecomputaDependenciasPontosVidaTemporarios(proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
@@ -1937,10 +2054,25 @@ void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
 }
 
 // Se origem existir, ira sobrescrever.
-void AtribuiBonusIndividual(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
+BonusIndividual::PorOrigem* AtribuiBonusIndividual(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
   for (auto& por_origem : *bonus_individual->mutable_por_origem()) {
     if (por_origem.origem() == origem) {
       por_origem.set_valor(valor);
+      return &por_origem;
+    }
+  }
+  auto* po = bonus_individual->add_por_origem();
+  po->set_valor(valor);
+  po->set_origem(origem);
+  return po;
+}
+
+void AtribuiBonusIndividualSeMaior(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
+  for (auto& por_origem : *bonus_individual->mutable_por_origem()) {
+    if (por_origem.origem() == origem) {
+      if (valor > por_origem.valor()) {
+        por_origem.set_valor(valor);
+      }
       return;
     }
   }
@@ -1949,11 +2081,23 @@ void AtribuiBonusIndividual(int valor, const std::string& origem, BonusIndividua
   po->set_origem(origem);
 }
 
+
 // Atribui um tipo de bonus individual a bonus.
-void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     if (bi.tipo() == tipo) {
-      AtribuiBonusIndividual(valor, origem, &bi);
+      return AtribuiBonusIndividual(valor, origem, &bi);
+    }
+  }
+  auto* bi = bonus->add_bonus_individual();
+  bi->set_tipo(tipo);
+  return AtribuiBonusIndividual(valor, origem, bi);
+}
+
+void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    if (bi.tipo() == tipo) {
+      AtribuiBonusIndividualSeMaior(valor, origem, &bi);
       return;
     }
   }
@@ -1961,6 +2105,7 @@ void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* b
   bi->set_tipo(tipo);
   AtribuiBonusIndividual(valor, origem, bi);
 }
+
 
 int ModificadorAtributo(int atributo) {
   return (atributo / 2) - 5;
@@ -2067,8 +2212,10 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
 }
 
 namespace {
+// Usado para comparar eventos sem id unico.
 bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs) {
-  if (lhs.id_efeito() != rhs.id_efeito() || lhs.descricao() != rhs.descricao() || lhs.complementos_size() != rhs.complementos_size()) {
+  if (lhs.id_efeito() != rhs.id_efeito() || lhs.descricao() != rhs.descricao() ||
+      lhs.complementos_size() != rhs.complementos_size()) {
     return false;
   }
   for (unsigned int i = 0; i < lhs.complementos_size(); ++i) {
@@ -2078,8 +2225,11 @@ bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const Entid
 }
 }  // namespace
 
-bool PossuiEvento(const EntidadeProto::Evento& evento, const EntidadeProto& entidade) {
+bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [evento] (const EntidadeProto::Evento& evento_entidade) {
+    if (evento.has_id_unico()) {
+      return evento.id_unico() == evento_entidade.id_unico();
+    }
     return EventosIguaisIgnorandoDuracao(evento, evento_entidade);
   });
 }
@@ -2384,5 +2534,43 @@ bool LutandoDefensivamente(const EntidadeProto& proto) {
   return false;
 }
 
+template <class T>
+void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c) {
+  for (int i = c->size() - 1; i >= 0; --i) {
+    if (predicado(c->Get(i))) c->DeleteSubrange(i, 1);
+  }
+}
+
+uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
+  uint32_t i = 0;
+  for (const auto& e : eventos) {
+    i = std::max(i, e.id_unico());
+  }
+  ++i;
+  // Se chegou aqui com i == 0, tem que voltar com os ids.
+  bool achou = (i != 0);
+  while (!achou) {
+    // Deveria ser info, mas vamos precaver caso algo bizarro aconteca.
+    LOG(WARNING) << "chegou ao maximo de ids, voltando";
+    i = 1;
+    achou = true;
+    for (const auto& e : eventos) {
+      if (e.id_unico() == i) {
+        ++i;
+        achou = false;
+        break;
+      }
+    }
+  }
+  return i;
+}
+
+EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto) {
+  auto* e = proto->add_evento();
+  e->set_id_efeito(id_efeito);
+  e->set_rodadas(rodadas);
+  e->set_id_unico(AchaIdUnicoEvento(*proto));
+  return e;
+}
 
 }  // namespace ent

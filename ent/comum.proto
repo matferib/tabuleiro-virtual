@@ -54,8 +54,9 @@ enum TipoEfeito {
   // A furia do barbaro tem alguns efeitos a mais, como fadiga apos efeito e bonus de vontade contra encantamento.
   EFEITO_FURIA_BARBARO = 24;
   EFEITO_FADIGA = 25;
-
+  // fim furia.
   EFEITO_INVISIBILIDADE = 26;
+  EFEITO_AJUDA = 27;
 }
 
 // Tipo de visao para entidades e camera.
@@ -247,6 +248,8 @@ message BonusIndividual {
     optional string origem = 2;
     // Para preenchimento do valor atraves de complemento.
     optional int32 indice_complemento = 3;
+    // Para associar com eventos.
+    optional uint32 id_unico = 4;
   }
   repeated PorOrigem por_origem = 2;
 }
@@ -301,7 +304,7 @@ message ConsequenciaEvento {
   optional Bonus tamanho = 4;
 
   // Uma string de cura (tipo 1d8+1).
-  optional string cura = 5;
+  //optional string cura = 5;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;

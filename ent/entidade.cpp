@@ -315,7 +315,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_original.mutable_evento()) {
-      if (!PossuiEvento(evento, novo_proto)) {
+      if (!PossuiEventoEspecifico(evento, novo_proto)) {
         evento.set_rodadas(-1);
       } else {
         a_remover.push_back(i);
@@ -808,18 +808,6 @@ const Posicao& Entidade::PosTransicao() const {
   return proto_.transicao_cenario();
 }
 
-int Entidade::PontosVida() const {
-  return proto_.pontos_vida();
-}
-
-int Entidade::MaximoPontosVida() const {
-  return proto_.max_pontos_vida();
-}
-
-int Entidade::PontosVidaTemporarios() const {
-  return proto_.pontos_vida_temporarios();
-}
-
 int Entidade::NivelPersonagem() const {
   int total = 0;
   for (const auto& info_classe : proto_.info_classes()) {
@@ -928,7 +916,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_.mutable_evento()) {
-      if (!PossuiEvento(evento, proto_parcial)) {
+      if (!PossuiEventoEspecifico(evento, proto_parcial)) {
         evento.set_rodadas(-1);
       } else {
         a_remover.push_back(i);
@@ -968,6 +956,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   auto dados_ataque_antes = proto_parcial.dados_ataque();
   if (!proto_parcial.dados_ataque().empty()) {
     proto_.clear_dados_ataque();
+  }
+
+  if (proto_parcial.has_pontos_vida_temporarios_por_fonte()) {
+    proto_.clear_pontos_vida_temporarios_por_fonte();
   }
 
   // ATUALIZACAO.

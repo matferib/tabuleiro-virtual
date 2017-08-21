@@ -824,6 +824,16 @@ void AdicionaOuAtualizaAtaqueEntidade(
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
+void PreencheConfiguraPontosVida(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.botao_bonus_pv_temporario, SIGNAL(clicked()), [this_, &gerador, proto_retornado] () {
+    AbreDialogoBonus(this_, proto_retornado->mutable_pontos_vida_temporarios_por_fonte());
+    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+    AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
+  });
+  AtualizaUIPontosVida(gerador, proto);
+}
+
 void PreencheConfiguraTendencia(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   lambda_connect(gerador.slider_bem_mal, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
@@ -1493,9 +1503,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Modelo 3d.
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
-  gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
-  gerador.spin_pontos_vida_temporarios->setValue(entidade.pontos_vida_temporarios());
-  gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
+  PreencheConfiguraPontosVida(this, gerador, entidade, proto_retornado);
   // Aura.
   gerador.spin_aura_quad->setValue(entidade.aura_m() * ent::METROS_PARA_QUADRADOS);
   // Voo.
@@ -1598,7 +1606,6 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toUtf8().constData());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
-    proto_retornado->set_pontos_vida_temporarios(gerador.spin_pontos_vida_temporarios->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     float aura_m = gerador.spin_aura_quad->value() * ent::QUADRADOS_PARA_METROS;
     if (aura_m > 0) {

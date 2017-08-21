@@ -231,14 +231,21 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
-void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
+// Acesso a bonus individual e origem. nullptr se nao achar.
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus);
 int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual);
+
+// Acessa um bonus especifico se existir.
+BonusIndividual* BonusIndividualSePresente(TipoBonus tipo, Bonus* bonus);
+BonusIndividual::PorOrigem* OrigemSePresente(const std::string& origem, BonusIndividual* bonus_individual);
+BonusIndividual::PorOrigem* OrigemSePresente(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 // Retorna true se tipo estiver presente em bonus.
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
@@ -271,7 +278,7 @@ bool ArmaDistancia(const ArmaProto& arma);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id e descricao.
-bool PossuiEvento(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
+bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -351,6 +358,17 @@ bool LutandoDefensivamente(const EntidadeProto& proto);
 // Retorna um rotulo para a entidade. Tenta o rotulo, id e se for null, retorna null.
 std::string RotuloEntidade(const Entidade* entidade);
 std::string RotuloEntidade(const EntidadeProto& proto);
+
+// Remove os campos para os quais predicado retornar true.
+template <class T>
+void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
+
+// Acha um id unico de evento para o proto passado.
+uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
+inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUnicoEvento(proto.evento()); }
+
+// Adiciona um evento ao proto, gerando o id do efeito automaticamente.
+EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto);
 
 }  // namespace ent
 

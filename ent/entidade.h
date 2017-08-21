@@ -107,10 +107,9 @@ class Entidade {
 
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
-  /** @return o HP da unidade. */
-  int PontosVida() const;
-  int MaximoPontosVida() const;
-  int PontosVidaTemporarios() const;
+  int PontosVida() const { return proto_.pontos_vida(); }
+  int MaximoPontosVida() const { return proto_.max_pontos_vida(); }
+  int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
 
   bool Morta() const { return proto_.morta(); }
   
