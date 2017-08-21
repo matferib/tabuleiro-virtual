@@ -112,6 +112,7 @@ sub_menu {
   modelo { id: 'Humano Druida' }
   modelo { id: 'Humana Guerreira' }
   modelo { id: 'Humano Guerreiro' }
+  modelo { id: 'Humano Guerreiro 5' }
   sub_menu {
     id: 'Ladinos'
     modelo { id: 'Humano Ladino' }

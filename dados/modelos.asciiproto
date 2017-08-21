@@ -903,6 +903,32 @@ modelo {
   entidade { dados_vida: '1d10' info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
+  id: 'Humano Guerreiro 5'
+  entidade {
+    # Elite.
+    dados_vida: '4d10+10+10'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'protecao_contra_mal' }
+      tesouro: '50 PO'
+    }
+    dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_defesa { id_armadura: 'armadura_batalha' }
+
+    info_talentos {
+      gerais { id: 'trespassar' }
+      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_bastarda' }
+      gerais { id: 'usar_arma_exotica' complemento: 'espada_bastarda' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
+      outros { id: 'ataque_poderoso' }
+    }
+  }
+}
+modelo {
   id: 'Humana Guerreira'
   entidade { dados_vida: '1d10' info_textura { id: 'fighter_female.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }

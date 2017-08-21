@@ -328,8 +328,10 @@ bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
 // Retorna true se o personagem tiver o talento.
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
+bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& entidade);
 // Retorna o talento do personagem, ou nullptr se nao tiver.
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade);
+const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade);
 
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }

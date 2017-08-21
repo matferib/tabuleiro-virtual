@@ -52,6 +52,12 @@ const std::map<std::string, std::string> g_mapa_utf8 = {
     { "ú", "u" },
 };
 
+void DobraMargemCritico(EntidadeProto::DadosAtaque* da) {
+  int margem = 21 - da->margem_critico();
+  margem *= 2;
+  da->set_margem_critico(21 - margem);
+}
+
 }  // namespace
 
 void MudaCor(const float* cor) {
@@ -1463,6 +1469,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
+    if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto)) {
+      DobraMargemCritico(da);
+    }
     if (PossuiCategoria(CAT_ARREMESSO, arma)) {
       da->set_incrementos(5);
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
@@ -2399,13 +2408,11 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto) {
 // Fim Formas Alternativas
 
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade) {
-  for (const auto& t : entidade.info_talentos().gerais()) {
-    if (chave_talento == t.id()) return true;
-  }
-  for (const auto& t : entidade.info_talentos().outros()) {
-    if (chave_talento == t.id()) return true;
-  }
-  return false;
+  return Talento(chave_talento, entidade) != nullptr;
+}
+
+bool PossuiTalento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade) {
+  return Talento(chave_talento, complemento, entidade) != nullptr;
 }
 
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade) {
@@ -2414,6 +2421,16 @@ const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProt
   }
   for (const auto& t : entidade.info_talentos().outros()) {
     if (chave_talento == t.id()) return &t;
+  }
+  return nullptr;
+}
+
+const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade) {
+  for (const auto& t : entidade.info_talentos().gerais()) {
+    if (chave_talento == t.id() && complemento == t.complemento()) return &t;
+  }
+  for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id() && complemento == t.complemento()) return &t;
   }
   return nullptr;
 }
