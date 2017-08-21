@@ -1049,7 +1049,7 @@ tabela_efeitos {
     }
   }
   efeitos {
-    id: EFEITO_DIMINUIR_PESSOA
+    id: EFEITO_REDUZIR_PESSOA
     consequencia {
       tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'diminuir_pessoa' } } }
       atributos {
@@ -1123,6 +1123,21 @@ tabela_efeitos {
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'aumentar_pessoa'
+    nome: 'Aumentar Pessoa'
+    id_efeito: EFEITO_AUMENTAR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+  pocoes {
+    id: 'reduzir_pessoa'
+    nome: 'Reduzir Pessoa'
+    id_efeito: EFEITO_REDUZIR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+
   pocoes {
     id: 'ajuda'
     nome: 'Ajuda'
