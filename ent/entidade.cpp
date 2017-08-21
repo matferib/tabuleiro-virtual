@@ -310,7 +310,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
-  if (novo_proto.evento_size() > 0) {
+  {
     // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
     std::vector<int> a_remover;
     int i = 0;
@@ -318,6 +318,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
       if (!PossuiEventoEspecifico(evento, novo_proto)) {
         evento.set_rodadas(-1);
       } else {
+        // Remove porque estas virao do proto novo.
         a_remover.push_back(i);
       }
       ++i;
