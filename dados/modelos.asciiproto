@@ -734,10 +734,7 @@ modelo {
     dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
     dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
     dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
-    dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6'
-      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'patas' valor: 4 } } }
-    }
+    dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6' }
     info_talentos {
       gerais { id: 'ataques_multiplos' }
       gerais { id: 'foco_em_arma' complemento: 'mordida' }
