@@ -1520,6 +1520,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
       RemoveBonus(TB_MELHORIA, "arma_magica", bonus_dano);
     }
     AtribuiOuRemoveBonus(da->obra_prima() ? 1 : 0, TB_MELHORIA, "obra_prima", bonus_ataque);
+    // Talentos.
+    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma", bonus_ataque);
+    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma_maior", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma_maior", bonus_ataque);
     // Duas maos.
     switch (da->empunhadura()) {
       case EA_MAO_BOA: {
@@ -1560,6 +1563,10 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else {
     RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   }
+  AtribuiOuRemoveBonus(
+      PossuiTalento("especializacao_arma", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
+  AtribuiOuRemoveBonus(
+      PossuiTalento("especializacao_arma_maior", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
   // Estes dois sao os mais importantes, porque eh o que vale.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));

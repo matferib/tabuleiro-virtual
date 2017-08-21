@@ -911,8 +911,8 @@ modelo {
     info_classes { id: 'guerreiro' nivel: 5 }
     tesouro {
       pocoes { id: 'escudo_fe_2' }
-      pocoes { id: 'protecao_contra_mal' }
-      tesouro: '50 PO'
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro: 'espada bastarda +1, arco longo composto (3) OP\narmadura batalha'
     }
     dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
@@ -925,6 +925,15 @@ modelo {
       outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
       outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
       outros { id: 'ataque_poderoso' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
   }
 }
