@@ -197,6 +197,12 @@ QGroupBox::title {
      <layout class="QHBoxLayout" name="horizontalLayout_24">
       <item>
        <widget class="QLabel" name="label_15">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Textura</string>
         </property>
@@ -1166,7 +1172,7 @@ QGroupBox::title {
       <item>
        <widget class="QSpinBox" name="spin_dano_nao_letal">
         <property name="toolTip">
-         <string>Máximo de pontos de vida para entidade.</string>
+         <string>Quantidade de dano não letal.</string>
         </property>
         <property name="minimum">
          <number>0</number>

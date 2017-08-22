@@ -437,6 +437,8 @@ public:
         horizontalLayout_24->setContentsMargins(0, 0, 0, 0);
         label_15 = new QLabel(layoutWidget);
         label_15->setObjectName(QString::fromUtf8("label_15"));
+        sizePolicy1.setHeightForWidth(label_15->sizePolicy().hasHeightForWidth());
+        label_15->setSizePolicy(sizePolicy1);
         label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_24->addWidget(label_15);
@@ -2102,7 +2104,7 @@ public:
         botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         label_79->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano n\303\243o letal", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_dano_nao_letal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
+        spin_dano_nao_letal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de dano n\303\243o letal.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
         label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
