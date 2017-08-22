@@ -215,7 +215,7 @@ QGroupBox::title {
       <rect>
        <x>10</x>
        <y>210</y>
-       <width>369</width>
+       <width>361</width>
        <height>41</height>
       </rect>
      </property>
@@ -512,7 +512,7 @@ QGroupBox::title {
       <rect>
        <x>10</x>
        <y>340</y>
-       <width>387</width>
+       <width>361</width>
        <height>35</height>
       </rect>
      </property>
@@ -520,7 +520,7 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="label_13">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1136,6 +1136,47 @@ QGroupBox::title {
      <property name="text">
       <string>-</string>
      </property>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_13">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>450</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_17">
+      <item>
+       <widget class="QLabel" name="label_79">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Dano não letal</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spin_dano_nao_letal">
+        <property name="toolTip">
+         <string>Máximo de pontos de vida para entidade.</string>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_nivel">

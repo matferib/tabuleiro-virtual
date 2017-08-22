@@ -387,6 +387,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
 
 void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   gerador.spin_pontos_vida->setValue(proto.pontos_vida());
+  gerador.spin_dano_nao_letal->setValue(proto.dano_nao_letal());
   gerador.botao_bonus_pv_temporario->setText(QString::number(BonusTotal(proto.pontos_vida_temporarios_por_fonte())));
   gerador.spin_max_pontos_vida->setValue(proto.max_pontos_vida());
 }

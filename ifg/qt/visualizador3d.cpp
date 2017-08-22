@@ -1606,6 +1606,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toUtf8().constData());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
+    proto_retornado->set_dano_nao_letal(gerador.spin_dano_nao_letal->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     float aura_m = gerador.spin_aura_quad->value() * ent::QUADRADOS_PARA_METROS;
     if (aura_m > 0) {
