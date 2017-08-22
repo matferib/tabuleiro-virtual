@@ -217,6 +217,9 @@ class Entidade {
   const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
+  // Retorna modificadores para ataques de toque.
+  int BonusAtaqueToque() const;
+  int BonusAtaqueToqueDistancia() const;
   std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;

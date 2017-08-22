@@ -263,6 +263,9 @@ int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
+// Dano da entidade por tamanho.
+std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho);
+
 // Retorna o alcance de acordo com tamanho.
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);
 

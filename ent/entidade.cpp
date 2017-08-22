@@ -1512,6 +1512,21 @@ int Entidade::BonusAtaque() const {
   return da->bonus_ataque_final();
 }
 
+int Entidade::BonusAtaqueToque() const {
+  if (PossuiTalento("acuidade_arma", proto_)) {
+    if (!proto_.bba().has_cac() || !proto_.bba().has_distancia()) return AtaqueCaInvalido;
+    return std::max(proto_.bba().cac(), proto_.bba().distancia());
+  } else {
+    if (!proto_.bba().has_cac()) return AtaqueCaInvalido;
+    return proto_.bba().cac();
+  }
+}
+
+int Entidade::BonusAtaqueToqueDistancia() const {
+  if (!proto_.bba().has_distancia()) return AtaqueCaInvalido;
+  return proto_.bba().distancia();
+}
+
 int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);

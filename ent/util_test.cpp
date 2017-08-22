@@ -159,6 +159,32 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
 }
 
+TEST(TesteDependencias, TesteAgarrar) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(3);
+
+  {
+    auto* bi = proto.mutable_atributos()->mutable_forca()->add_bonus_individual();
+    bi->set_tipo(TB_BASE);
+    auto* po = bi->add_por_origem();
+    po->set_origem("base");
+    po->set_valor(14);  // +2.
+  }
+
+  proto.set_tamanho(TM_GRANDE);
+
+
+  RecomputaDependencias(tabelas, &proto);
+  // 3 + 2 forca + 4 tamanho.
+  EXPECT_EQ(9, proto.bba().agarrar());
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(13, proto.bba().agarrar());
+}
 
 TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas;
