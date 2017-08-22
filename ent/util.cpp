@@ -1063,7 +1063,8 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
 
 // Retorna o resultado do ataque de toque o se acertou ou nao.
 std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const Entidade& ea, const Entidade& ed) {
-  if (PossuiTalento("agarrar_aprimorado", ea.Proto())) {
+  // TODO: aqui to hackeando pra pular o toque se ambos estiverem agarrando.
+  if (PossuiTalento("agarrar_aprimorado", ea.Proto()) || (ea.Proto().agarrando() && ed.Proto().agarrando())) {
     return std::make_tuple("", true);
   }
   const int d20_toque = RolaDado(20);

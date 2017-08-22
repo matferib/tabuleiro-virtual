@@ -1,4 +1,4 @@
-Dano nao letal.
+Agarrar nao precisa de toque se agarrando.
 Fazer uma corrente representando agarrar entre entidades.
 Modificadores de grapple: 4 patas e outros.
 Colocar pericias.
