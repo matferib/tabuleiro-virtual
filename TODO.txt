@@ -1,3 +1,6 @@
+Dano nao letal.
+Fazer uma corrente representando agarrar entre entidades.
+Modificadores de grapple: 4 patas e outros.
 Colocar pericias.
 Nivel negativo.
 Descer iniciativas em 1 para nao baguncar com status.

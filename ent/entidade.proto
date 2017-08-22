@@ -55,6 +55,9 @@ message EntidadeProto {
   optional int32 pontos_vida_temporarios = 59;
   // A fonte de cada ponto de vida temporario. Fontes iguais so a maior se aplica. Fontes diferentes acumular (do FAQ).
   optional Bonus pontos_vida_temporarios_por_fonte = 81;
+  // Quantidade de dano nao letal.
+  optional int32 dano_nao_letal = 82;
+
   // Maximo de pontos de vida da entidade.
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
