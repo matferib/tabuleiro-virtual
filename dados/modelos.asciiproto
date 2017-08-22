@@ -583,7 +583,8 @@ modelo {
 modelo {
   id: 'Gnoll Lider Ranger 6'
   entidade {
-    dados_vida: '2d8+6d8+16'
+    # Como é elite, o primeiro HD é cheio.
+    dados_vida: '2d8+5d8+8+24'
     info_textura { id: 'gnoll_ranger.png' largura: 0.5 translacao_x: 0.25 }
 
     info_classes { id: 'gnoll' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE }
