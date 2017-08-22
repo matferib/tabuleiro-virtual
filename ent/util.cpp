@@ -1569,6 +1569,10 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
       da->set_incrementos(10);
     }
+  } else if (da->ataque_agarrar()) {
+    if (!da->has_dano_basico()) {
+      da->set_dano_basico(DanoDesarmadoPorTamanho(proto.tamanho()));
+    }
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
@@ -2327,6 +2331,19 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
     case TM_COLOSSAL: return 16;
   }
   return 0;
+}
+
+std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case TM_MIUDO: return "1";
+    case TM_PEQUENO: return "1d2";
+    case TM_MEDIO: return "1d3";
+    case TM_GRANDE: return "1d4";
+    case TM_ENORME: return "1d6";
+    case TM_IMENSO: return "1d8";
+    case TM_COLOSSAL: return "2d6";
+    default: return "0";
+  }
 }
 
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
