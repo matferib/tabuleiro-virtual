@@ -144,7 +144,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
- 
+
   AtualizaVbo(parametros_desenho_);
   RecomputaDependencias(tabelas_, &proto_);
 }
@@ -309,15 +309,37 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
-  // Seta pra -1. faz o merge, no final recomputa remove.
-  for (auto& evento : *proto_original.mutable_evento()) {
-    evento.set_rodadas(-1);
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
+  {
+    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
+    std::vector<int> a_remover;
+    int i = 0;
+    for (auto& evento : *proto_original.mutable_evento()) {
+      if (!PossuiEventoEspecifico(evento, novo_proto)) {
+        evento.set_rodadas(-1);
+      } else {
+        // Remove porque estas virao do proto novo.
+        a_remover.push_back(i);
+      }
+      ++i;
+    }
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_original.mutable_evento()->DeleteSubrange(*it, 1);
+    }
   }
-  proto_.CopyFrom(novo_proto);
+  // Aqui atribui
+  proto_ = novo_proto;
+  // Daqui pra baixo, correcoes manuais.
+
+
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
-  proto_.mutable_evento()->MergeFrom(proto_original.evento());
+
+  // Deixa os eventos de duracao -1 no comeco.
+  proto_original.mutable_evento()->MergeFrom(proto_.evento());
+  proto_.mutable_evento()->Swap(proto_original.mutable_evento());
+
   proto_.set_id(proto_original.id());
   proto_.set_tipo(proto_original.tipo());
   proto_.mutable_pos()->Swap(proto_original.mutable_pos());
@@ -787,18 +809,6 @@ const Posicao& Entidade::PosTransicao() const {
   return proto_.transicao_cenario();
 }
 
-int Entidade::PontosVida() const {
-  return proto_.pontos_vida();
-}
-
-int Entidade::MaximoPontosVida() const {
-  return proto_.max_pontos_vida();
-}
-
-int Entidade::PontosVidaTemporarios() const {
-  return proto_.pontos_vida_temporarios();
-}
-
 int Entidade::NivelPersonagem() const {
   int total = 0;
   for (const auto& info_classe : proto_.info_classes()) {
@@ -867,26 +877,30 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
-void Entidade::AtualizaPontosVida(int pontos_vida) {
+void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
   if (proto_.max_pontos_vida() == 0) {
     // Entidades sem pontos de vida nao sao afetadas.
     return;
   }
-  if (proto_.pontos_vida() >= 0 && pontos_vida < 0) {
+  bool vivo_antes = proto_.pontos_vida() >= proto_.dano_nao_letal();
+  bool vivo_depois = pontos_vida > dano_nao_letal;
+  if (vivo_antes && !vivo_depois) {
     proto_.set_morta(true);
     proto_.set_caida(true);
     proto_.set_voadora(false);
     proto_.set_aura_m(0.0f);
-  } else if (proto_.pontos_vida() < 0 && pontos_vida >= 0) {
+  } else if (vivo_depois && !vivo_antes) {
     proto_.set_morta(false);
   }
   proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
+  proto_.set_dano_nao_letal(dano_nao_letal);
 }
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
   int pontos_vida_antes = PontosVida();
+  int dano_nao_letal_antes = DanoNaoLetal();
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();
@@ -903,9 +917,19 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
-    // As duracoes -1 serao retiradas ao recomputar dependencias.
+    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
+    std::vector<int> a_remover;
+    int i = 0;
     for (auto& evento : *proto_.mutable_evento()) {
-      evento.set_rodadas(-1);
+      if (!PossuiEventoEspecifico(evento, proto_parcial)) {
+        evento.set_rodadas(-1);
+      } else {
+        a_remover.push_back(i);
+      }
+      ++i;
+    }
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }
   }
   if (proto_parcial.tesouro().pocoes_size() > 0) {
@@ -937,6 +961,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   auto dados_ataque_antes = proto_parcial.dados_ataque();
   if (!proto_parcial.dados_ataque().empty()) {
     proto_.clear_dados_ataque();
+  }
+
+  if (proto_parcial.has_pontos_vida_temporarios_por_fonte()) {
+    proto_.clear_pontos_vida_temporarios_por_fonte();
   }
 
   // ATUALIZACAO.
@@ -1014,7 +1042,8 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.has_pontos_vida()) {
     // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
     proto_.set_pontos_vida(pontos_vida_antes);
-    AtualizaPontosVida(proto_parcial.pontos_vida());
+    proto_.set_dano_nao_letal(dano_nao_letal_antes);
+    AtualizaPontosVida(proto_parcial.pontos_vida(), proto_parcial.dano_nao_letal());
   }
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
@@ -1329,14 +1358,17 @@ Matrix4 Entidade::MontaMatrizModelagem(
   return matrix;
 }
 
-int Entidade::Salvacao(TipoSalvacao tipo) const {
+int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
+  Bonus b(BonusContraTendenciaNaSalvacao(atacante.Proto(), proto_));
+  const auto& dd = proto_.dados_defesa();
   switch (tipo) {
-    case TS_FORTITUDE: return BonusTotal(proto_.dados_defesa().salvacao_fortitude());
-    case TS_REFLEXO:   return BonusTotal(proto_.dados_defesa().salvacao_reflexo());
-    case TS_VONTADE:   return BonusTotal(proto_.dados_defesa().salvacao_vontade()); 
+    case TS_FORTITUDE: CombinaBonus(dd.salvacao_fortitude(), &b); break;
+    case TS_REFLEXO: CombinaBonus(dd.salvacao_reflexo(), &b); break;
+    case TS_VONTADE: CombinaBonus(dd.salvacao_vontade(), &b); break;
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
   }
-  LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
-  return 0;
+  return BonusTotal(b);
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
@@ -1461,6 +1493,14 @@ float Entidade::AlcanceAtaqueMetros() const {
   return da->alcance_m();
 }
 
+float Entidade::AlcanceMinimoAtaqueMetros() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr || !da->has_alcance_minimo_m()) {
+    return 0;
+  }
+  return da->alcance_minimo_m();
+}
+
 int Entidade::IncrementosAtaque() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
@@ -1477,15 +1517,39 @@ int Entidade::BonusAtaque() const {
   return da->bonus_ataque_final();
 }
 
-int Entidade::CA(unsigned int id_atacante, TipoCA tipo_ca) const {
-  int bonus_esquiva = PossuiTalento("esquiva", proto_) && id_atacante == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+int Entidade::BonusAtaqueToque() const {
+  if (PossuiTalento("acuidade_arma", proto_)) {
+    if (!proto_.bba().has_cac() || !proto_.bba().has_distancia()) return AtaqueCaInvalido;
+    return std::max(proto_.bba().cac(), proto_.bba().distancia());
+  } else {
+    if (!proto_.bba().has_cac()) return AtaqueCaInvalido;
+    return proto_.bba().cac();
+  }
+}
+
+int Entidade::BonusAtaqueToqueDistancia() const {
+  if (!proto_.bba().has_distancia()) return AtaqueCaInvalido;
+  return proto_.bba().distancia();
+}
+
+int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
+  Bonus outros_bonus;
+  CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
+  // Cada tipo de CA sabera compensar a esquiva.
+  const int bonus_esquiva =
+      PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+  AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo) + bonus_esquiva;
+      return proto_.surpreso()
+          ? CASurpreso(proto_, permite_escudo, outros_bonus)
+          : CATotal(proto_, permite_escudo, outros_bonus);
     } else {
-      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_) + bonus_esquiva;
+      return proto_.surpreso()
+          ? CAToqueSurpreso(proto_, outros_bonus)
+          : CAToque(proto_, outros_bonus);
     }
   }
   if (da == nullptr) {
@@ -1733,8 +1797,10 @@ std::string Entidade::ResumoEventos() const {
     if (evento.rodadas() < 0 || evento.id_efeito() == EFEITO_INVALIDO) continue;
     resumo_eventos += evento.descricao() + ", ";
   }
-  resumo_eventos.pop_back();
-  resumo_eventos.pop_back();
+  if (resumo_eventos.size() > 1) {
+    resumo_eventos.pop_back();
+    resumo_eventos.pop_back();
+  }
   return resumo_eventos;
 }
 
@@ -1744,6 +1810,7 @@ int Entidade::ChanceFalhaDefesa() const {
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
+  if (PossuiEvento(EFEITO_INVISIBILIDADE, proto_)) chance = 50;
   return chance;
 }
 
@@ -1753,6 +1820,10 @@ int Entidade::ChanceFalhaAtaque() const {
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
   chance = std::max(chance, proto_.dados_ataque_globais().chance_falha());
   return chance;
+}
+
+bool Entidade::IgnoraChanceFalha() const {
+  return proto_.dados_ataque_globais().chance_falha() < 0;
 }
 
 }  // namespace ent

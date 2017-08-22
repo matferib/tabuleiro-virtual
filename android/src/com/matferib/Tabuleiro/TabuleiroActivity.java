@@ -180,6 +180,7 @@ class TabvirtConfigChooser implements GLSurfaceView.EGLConfigChooser {
       EGL10.EGL_BLUE_SIZE, 8,
       EGL10.EGL_ALPHA_SIZE, 8,
       EGL10.EGL_DEPTH_SIZE, 24,
+      EGL10.EGL_STENCIL_SIZE, 1,
       // multisampling.
       //EGL10.EGL_SAMPLE_BUFFERS, 1,
       //EGL10.EGL_SAMPLES, 4,  // This is for 4x MSAA.
@@ -223,6 +224,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     setFocusableInTouchMode(true);
+    //setDebugFlags(DEBUG_CHECK_GL_ERROR  | DEBUG_LOG_GL_CALLS);
   }
 
   private int OrientacaoPadrao(Context context) {
@@ -343,12 +345,18 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     timer_ = new java.util.Timer();
     timer_.scheduleAtFixedRate(new java.util.TimerTask() {
       public void run() {
+        if (num_frames_pular_ > 0) {
+          --num_frames_pular_;
+          return;
+        }
         queueEvent(new Runnable() {
           public void run() {
             renderer_.ChamaTimer();
           }
         });
         if ((num_frames_pular_ == 0) || desenha_proxima_) {
+          //Log.d(TAG, "requestRender");
+          //postInvalidate();
           requestRender();
           desenha_proxima_ = false;
         } else {
@@ -469,6 +477,57 @@ class TabuleiroRenderer
   }
 
   // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
+  public void abreDialogoItemsLista(
+      final String[] lista, final long dados_volta) {
+    //Log.d(TAG, "abreDialogoItemsLista: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Escolha");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_abrir_tabuleiro, null);
+        final Spinner spinner = (Spinner)view.findViewById(R.id.spinner_abrir);
+        if (spinner == null) {
+          Log.e(TAG, "spinner== null");
+          return;
+        }
+        final ArrayAdapter<String> adapter =
+            new ArrayAdapter<String>(activity_, android.R.layout.simple_spinner_item) {
+        };
+        if (lista != null) {
+          adapter.addAll(lista);
+        }
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              int posicao = spinner.getSelectedItemPosition();
+              if (posicao == spinner.INVALID_POSITION || posicao >= lista.length) {
+                nativeOpenItemList(dados_volta, false, -1);
+              }
+              Log.e(TAG, "aqui: " + (String)spinner.getSelectedItem());
+              nativeOpenItemList(dados_volta, true, posicao);
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              nativeOpenItemList(dados_volta, false, -1);
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+  }
+
+  // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
   public void abreDialogoAbrirTabuleiro(
       final String[] tab_estaticos, final String[] tab_dinamicos, final long dados_volta) {
     //Log.d(TAG, "abreDialogoAbrirTabuleiro: ");
@@ -541,7 +600,7 @@ class TabuleiroRenderer
 
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
   public void abreDialogoEntidade(final byte[] mensagem) {
-    //Log.d(TAG, "abreDialogoEntidade: ");
+    Log.d(TAG, "abreDialogoEntidade");
     Wire wire = new Wire();
     final EntidadeProto proto;
     try {
@@ -722,6 +781,7 @@ class TabuleiroRenderer
   public void onDrawFrame(GL10 unused) {
     //Log.d(TAG, "===============DrawFrame");
     ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
+    //Log.d(TAG, "===============DrawFrame ended");
   }
 
   /** Deve ser chamado na UI thread. */
@@ -741,7 +801,7 @@ class TabuleiroRenderer
     removeEventosDuplicados(Evento.MOVIMENTO, eventos);
     removeEventosDuplicados(Evento.DETALHAMENTO, eventos);
 
-    //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
+    //Log.d(TAG, "Tam Evento Depois: " + eventos.size());
     for (Evento evento :  eventos) {
       //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
@@ -1071,6 +1131,7 @@ class TabuleiroRenderer
   private static native void nativeMessage(long dados_volta);
   private static native void nativeSaveBoardName(long dados_volta, String nome);
   private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
+  private static native void nativeOpenItemList(long dados_volta, boolean ok, int indice);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;

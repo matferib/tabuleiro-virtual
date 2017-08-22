@@ -1,6 +1,18 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum TendenciaSimplificada {
+  TD_LEAL_BOM = 0;
+  TD_LEAL_NEUTRO = 1;
+  TD_LEAL_MAL = 2;
+  TD_NEUTRO_BOM = 3;
+  TD_NEUTRO = 4;
+  TD_NEUTRO_MAL = 5;
+  TD_CAOTICO_BOM = 6;
+  TD_CAOTICO_NEUTRO = 7;
+  TD_CAOTICO_MAL = 8;
+}
+
 enum TamanhoEntidade {
   TM_MINUSCULO = 0;
   TM_DIMINUTO = 1;
@@ -23,7 +35,7 @@ enum TipoEfeito {
   EFEITO_AGILIDADE_GATO = 5;
   EFEITO_ACELERAR = 6;
   EFEITO_AUMENTAR_PESSOA = 7;
-  EFEITO_DIMINUIR_PESSOA = 8;
+  EFEITO_REDUZIR_PESSOA = 8;
   EFEITO_ARMADURA_ARCANA = 9;
   EFEITO_ESCUDO_FE       = 10;
   EFEITO_SABEDORIA_CORUJA = 11;
@@ -34,8 +46,18 @@ enum TipoEfeito {
   EFEITO_ESCUDO_ENCANTADO = 16;
   EFEITO_HEROISMO = 17;
   EFEITO_PELE_ARVORE = 18;
+  EFEITO_PROTECAO_CONTRA_MAL = 19;
+  EFEITO_PROTECAO_CONTRA_BEM = 20;
+  EFEITO_PROTECAO_CONTRA_CAOS = 21;
+  EFEITO_PROTECAO_CONTRA_ORDEM = 22;
+  EFEITO_FURIA = 23;
+  // A furia do barbaro tem alguns efeitos a mais, como fadiga apos efeito e bonus de vontade contra encantamento.
+  EFEITO_FURIA_BARBARO = 24;
+  EFEITO_FADIGA = 25;
+  // fim furia.
+  EFEITO_INVISIBILIDADE = 26;
+  EFEITO_AJUDA = 27;
 }
-
 
 // Tipo de visao para entidades e camera.
 enum TipoVisao {
@@ -224,6 +246,10 @@ message BonusIndividual {
   message PorOrigem {
     optional int32 valor = 1;
     optional string origem = 2;
+    // Para preenchimento do valor atraves de complemento.
+    optional int32 indice_complemento = 3;
+    // Para associar com eventos.
+    optional uint32 id_unico = 4;
   }
   repeated PorOrigem por_origem = 2;
 }
@@ -233,6 +259,39 @@ message Bonus {
   repeated BonusIndividual bonus_individual = 1;
 }
 
+enum ProgressaoBba {
+  PBBA_ZERO = 0;
+  PBBA_MEIO = 1;
+  PBBA_TRES_QUARTOS = 2;
+  PBBA_UM = 3;
+}
+
+enum ProgressaoConjurador {
+  PCONJ_ZERO = 0;
+  PCONJ_UM = 1;  // mais comum.
+  PCONJ_MEIO_MIN_4 = 2; // ranger, paladino
+}
+
+// Informacoes sobre a classe de um personagem.
+// ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
+// que faz merge com o tabelado.
+message InfoClasse {
+  optional string id = 1;
+  optional string nome = 9;
+  optional int32 nivel = 2;
+  optional int32 nivel_conjurador = 3;
+  // Bonus base de ataque do nivel.
+  optional int32 bba = 4;
+  optional ProgressaoBba progressao_bba = 8;
+  // Exemplo: modificador de sabedoria para clerigos.
+  optional int32 modificador_atributo_conjuracao = 5;
+  // Qual o atributo de conjuracao da classe.
+  optional TipoAtributo atributo_conjuracao = 6;
+  // Quais salvacoes sao fortes para a classe.
+  repeated TipoSalvacao salvacoes_fortes = 7;
+  // Como o nivel de conjurador progride.
+  optional ProgressaoConjurador progressao_conjurador = 10;
+}
 
 message ConsequenciaEvento {
   // Afeta todos atributos.
@@ -245,7 +304,7 @@ message ConsequenciaEvento {
   optional Bonus tamanho = 4;
 
   // Uma string de cura (tipo 1d8+1).
-  optional string cura = 5;
+  //optional string cura = 5;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;
@@ -296,6 +355,8 @@ message TalentoProto {
   optional string complemento = 4;
   optional string descricao = 5;
   optional PreRequisitoTalento pre_requisito = 6;
+  // Talentos de monstro.
+  optional bool monstro = 7;
 }
 
 message PocaoProto {
@@ -310,7 +371,7 @@ message PocaoProto {
   // Custo da pocao em PO.
   optional int32 custo_po = 5;
   // Para efeitos que usam complemento.
-  optional int32 complemento = 6;
+  repeated int32 complementos = 6;
   // Para pocoes de cura.
   optional string delta_pontos_vida = 7;
   optional CombinacaoEfeitos combinacao_efeitos = 8;

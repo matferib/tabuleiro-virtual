@@ -22,6 +22,7 @@ Necessary for lupdate.
 #include <boost/asio/ip/host_name.hpp>
 
 #include "arq/arquivo.h"
+#include "ent/tabuleiro.h"
 #include "ifg/interface.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"

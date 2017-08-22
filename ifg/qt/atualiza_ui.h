@@ -11,6 +11,7 @@
 
 namespace ent {
 class EntidadeProto;
+class InfoClasse;
 class Tabelas;
 }  // namespace ent
 
@@ -20,8 +21,14 @@ namespace qt {
 // Chama todas atualizacoes de UI.
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Atualiza sliders de tendencia.
+void AtualizaUITendencia(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
 // Atualiza a UI de classes e niveis.
 void AtualizaUIClassesNiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
+// Converte as salvacoes para um id de combo de salvacoes.
+int SalvacoesFortesParaIndice(const ent::InfoClasse& ic);
 
 // Atualiza a UI de atributos.
 void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
@@ -44,6 +51,9 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 
 // Atualiza a UI de tesouros: pocoes e lista.
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
+// Pontos de vida, max e temporarios.
+void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
 }  // namespace qt
 }  // namespace ifg

@@ -23,27 +23,12 @@ enum TipoForma {
   TF_TRIANGULO = 8;
 }
 
-// Informacoes sobre a classe de um personagem.
-message InfoClasse {
-  optional string id = 1;
-  optional int32 nivel = 2;
-  optional int32 nivel_conjurador = 3;
-  // Bonus base de ataque do nivel.
-  optional int32 bba = 4;
-  // Exemplo: modificador de sabedoria para clerigos.
-  optional int32 modificador_atributo_conjuracao = 5;
-  // Qual o atributo de conjuracao da classe.
-  optional TipoAtributo atributo_conjuracao = 6;
-  // Quais salvacoes sao fortes para a classe.
-  repeated TipoSalvacao salvacoes_fortes = 7;
-}
-
 // Como uma arma esta empunhada.
 // Na UI, deve ter a mesma ordem no combo.
 enum EmpunhaduraArma {
   // Apenas arma e mais nada.
   EA_ARMA_APENAS = 0;
-  // Emphada em duas maos.
+  // Empunhada em duas maos.
   EA_2_MAOS = 1;
   // 2 armas: empunhada na mao boa.
   EA_MAO_BOA = 2;
@@ -51,6 +36,9 @@ enum EmpunhaduraArma {
   EA_MAO_RUIM = 3;
   // Arma e escudo.
   EA_ARMA_ESCUDO = 4;
+  // Monstros.
+  EA_MONSTRO_ATAQUE_PRIMARIO = 5;
+  EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
 }
 
 message EntidadeProto {
@@ -63,8 +51,13 @@ message EntidadeProto {
   optional uint32 id = 2;
   // Pontos de vida da entidade.
   optional int32 pontos_vida = 11;
-  // Pontos de vida temporarios.
+  // Pontos de vida temporarios, computados a partir do bonus.
   optional int32 pontos_vida_temporarios = 59;
+  // A fonte de cada ponto de vida temporario. Fontes iguais so a maior se aplica. Fontes diferentes acumular (do FAQ).
+  optional Bonus pontos_vida_temporarios_por_fonte = 81;
+  // Quantidade de dano nao letal.
+  optional int32 dano_nao_letal = 82;
+
   // Maximo de pontos de vida da entidade.
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
@@ -135,7 +128,7 @@ message EntidadeProto {
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
   // Alcance da visao no escuro em metros.
-  optional float alcance_visao = 37;
+  optional float alcance_visao_m = 37;
   // Entidade causa colisao.
   optional bool causa_colisao = 48;
   // Indica que a entidade esta apoiada.
@@ -168,13 +161,17 @@ message EntidadeProto {
     optional int32 rodadas = 1;
     optional string descricao = 2;
     optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
-    optional int32 complemento = 3;  // Alguns efeitos tem complementos.
+    repeated int32 complementos = 3;  // Alguns efeitos tem complementos.
+    optional bool processado = 5;  // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+    // Identificador unico para o efeito. Util para desfazer fim de efeitos.
+    optional uint32 id_unico = 6;
   }
   repeated Evento evento = 31;
 
   optional Atributos atributos = 68;
 
-  // Dados para ataque automatico.
+  // Dados para um ataque especifico.
+  // Como depende de AcaoProto, nao movi para comum.
   message DadosAtaque {
     optional string rotulo = 9;
     // Deve casar com as strings de id do arquivo de dados das acoes.
@@ -190,6 +187,7 @@ message EntidadeProto {
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
+    optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
     // Indica arma obra prima. Modifica bonus_ataque.
@@ -221,8 +219,11 @@ message EntidadeProto {
     optional int32 bonus_magico = 31;
     // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
     optional int32 ordem_ataque = 32;
+    // Ataque da dano nao letal.
+    optional bool nao_letal = 34;
   }
   repeated DadosAtaque dados_ataque = 44;
+
   // Independe de ataque especifico.
   message DadosAtaqueGlobal {
     optional string dano_furtivo = 1;
@@ -248,10 +249,9 @@ message EntidadeProto {
     optional bool dano_mais_16 = 17;
     optional bool dano_mais_32 = 18;
 
-    // A chance de falha no ataque, de 0-100.
+    // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
+    // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
-    // Personagem possui acuidade com arma.
-    optional bool acuidade = 26;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
@@ -297,4 +297,13 @@ message EntidadeProto {
     repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
+
+  // Alinhamento ou tendencia.
+  message TendenciaDetalhada {
+    // Daqui se geram os eixos.
+    optional TendenciaSimplificada simples = 3;
+    optional float eixo_bem_mal = 1 [default = 0.5];
+    optional float eixo_ordem_caos = 2 [default = 0.5];
+  }
+  optional TendenciaDetalhada tendencia = 80;
 }

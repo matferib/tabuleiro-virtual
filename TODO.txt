@@ -1,4 +1,14 @@
-Gnoll: porque os ataques estao todos com bonus de 12?
+Agarrar nao precisa de toque se agarrando.
+Fazer uma corrente representando agarrar entre entidades.
+Modificadores de grapple: 4 patas e outros.
+Colocar pericias.
+Nivel negativo.
+Descer iniciativas em 1 para nao baguncar com status.
+Implementar flanquear.
+Munição
+Implementar bloqueio ambidestro.
+Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
+Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
@@ -38,7 +48,6 @@ Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
-Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 

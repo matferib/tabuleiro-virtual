@@ -126,9 +126,16 @@ Tabelas::Tabelas() {
   for (const auto& pocao : tabelas_.tabela_pocoes().pocoes()) {
     pocoes_[pocao.id()] = &pocao;
   }
+  for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
+    talentos_[talento.id()] = &talento;
+  }
 
   for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {
     efeitos_[efeito.id()] = &efeito;
+  }
+
+  for (const auto& classe : tabelas_.tabela_classes().info_classes()) {
+    classes_[classe.id()] = &classe;
   }
 
   try {
@@ -171,6 +178,16 @@ const AcaoProto& Tabelas::Acao(const std::string& id) const {
 const PocaoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
   return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
+}
+
+const TalentoProto& Tabelas::Talento(const std::string& id) const {
+  auto it = talentos_.find(id);
+  return it == talentos_.end() ? TalentoProto::default_instance() : *it->second;
+}
+
+const InfoClasse& Tabelas::Classe(const std::string& id) const {
+  auto it = classes_.find(id);
+  return it == classes_.end() ? InfoClasse::default_instance() : *it->second;
 }
 
 }  // namespace

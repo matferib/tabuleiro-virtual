@@ -107,10 +107,10 @@ class Entidade {
 
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
-  /** @return o HP da unidade. */
-  int PontosVida() const;
-  int MaximoPontosVida() const;
-  int PontosVidaTemporarios() const;
+  int PontosVida() const { return proto_.pontos_vida(); }
+  int MaximoPontosVida() const { return proto_.max_pontos_vida(); }
+  int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
+  int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
 
   bool Morta() const { return proto_.morta(); }
   
@@ -160,8 +160,8 @@ class Entidade {
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
 
-  /** Atualiza os pontos de vida da entidade para a quantidade passada. */
-  void AtualizaPontosVida(int pontos_vida);
+  /** Atualiza os pontos de vida da entidade para a quantidade passada, assim como dano nao letal. */
+  void AtualizaPontosVida(int pontos_vida, int dano_nao_letal);
 
   /** Atualiza apenas os campos presentes no proto para a entidade. */
   void AtualizaParcial(const EntidadeProto& proto_parcial);
@@ -218,11 +218,15 @@ class Entidade {
   const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
+  // Retorna modificadores para ataques de toque.
+  int BonusAtaqueToque() const;
+  int BonusAtaqueToqueDistancia() const;
   std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;
   // Retorna o alcance do ataque em m. Negativo se nao tiver.
   float AlcanceAtaqueMetros() const;
+  float AlcanceMinimoAtaqueMetros() const;
   // Retorna quantos incrementos o ataque permite.
   int IncrementosAtaque() const;
   enum TipoCA {
@@ -231,13 +235,15 @@ class Entidade {
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(unsigned int id_atacante, TipoCA tipo) const;
+  int CA(const ent::Entidade& atacante, TipoCA tipo) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   // A chance de falha ao atacar.
   int ChanceFalhaAtaque() const;
   // A chance de um inimigo falhar um ataque contra esta entidade.
   int ChanceFalhaDefesa() const;
+  // Retorna se a entidade, ao atacar, ignora a chance de falha do oponente.
+  bool IgnoraChanceFalha() const;
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
@@ -263,10 +269,16 @@ class Entidade {
   ResultadoSalvacao ProximaSalvacao() const { return static_cast<ResultadoSalvacao>(proto_.proxima_salvacao()); }
   bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
   /** Retorna o bonus de salvacao de um tipo para entidade. */
-  int Salvacao(TipoSalvacao tipo) const;
+  int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
+
+  // Acesso a tendencia.
+  bool Bom() const { return ent::Bom(proto_); }
+  bool Mal() const { return ent::Mal(proto_); }
+  bool Ordeiro() const { return ent::Ordeiro(proto_); } 
+  bool Caotico() const { return ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao) const;

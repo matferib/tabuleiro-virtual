@@ -410,7 +410,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz;
       // TODO colocar o numero certo por complemento.
-      const int num_imagens = efeito_proto.has_complemento() ? efeito_proto.complemento() : 3;
+      const int num_imagens = !efeito_proto.complementos().empty() ? efeito_proto.complementos(0) : 3;
       const float inc_angulo_graus = 360.0 / num_imagens;
       for (int i = 0; i < num_imagens; ++i) {
         pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);

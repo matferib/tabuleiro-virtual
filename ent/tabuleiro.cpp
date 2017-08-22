@@ -28,6 +28,7 @@
 #include "ent/constantes.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/tabuleiro_interface.h"
@@ -756,7 +757,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
 
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_uma_renderizacao_completa_.start();
 
@@ -844,7 +845,7 @@ int Tabuleiro::Desenha() {
 #endif
 
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_renderizacao_mapas_.start();
   if (MapeamentoOclusao() && !modo_debug_) {
@@ -900,7 +901,7 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_renderizacao_mapas_.stop();
   EnfileiraTempo(timer_renderizacao_mapas_, &tempos_renderizacao_mapas_);
@@ -929,7 +930,7 @@ int Tabuleiro::Desenha() {
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
@@ -967,6 +968,8 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       evento->set_descricao("duração");
       evento->set_id_efeito(EFEITO_OUTRO);
       evento->set_rodadas(duracao_rodadas);
+      // Acha o id para a referencia, ja que o modelo nao tem nada.
+      evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto()));
     }
   }
   if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
@@ -1141,7 +1144,7 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
     int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
 
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     {
       auto* proto_antes = n->mutable_entidade_antes();
       *proto_antes = ProtoFormaAlternativa(proto);
@@ -1323,7 +1326,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
     }
     proto_antes->set_id(id);
     proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
@@ -1357,19 +1360,15 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_antes->set_agarrando(proto_original.agarrando());
       proto_depois->set_agarrando(!proto_original.agarrando());
     }
-    if ((bits & BIT_FALHA_20) > 0) {
+    if ((bits & BIT_FALHA_20) > 0 ||
+        (bits & BIT_FALHA_50) > 0 ||
+        (bits & BIT_FALHA_NEGATIVO) > 0) {
+      int chance = (bits & BIT_FALHA_20) > 0 ? 20 : (bits & BIT_FALHA_50) > 0 ? 50 : -100;
       int chance_antes = proto_original.dados_ataque_globais().chance_falha();
       proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
           chance_antes);
       proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes == 20 ? 0 : 20);
-    }
-    if ((bits & BIT_FALHA_50) > 0) {
-      int chance_antes = proto_original.dados_ataque_globais().chance_falha();
-      proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes);
-      proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
-          chance_antes == 50 ? 0 : 50);
+          chance_antes == chance ? 0 : chance);
     }
 
     if ((bits & BIT_ILUMINACAO) > 0) {
@@ -1519,7 +1518,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
 
     proto_antes->set_id(id);
     proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   }
   if (grupo_notificacoes.notificacao_size() == 0) {
     VLOG(1) << "Não há entidade selecionada.";
@@ -1551,6 +1550,7 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     // Atualizacao.
     PreencheNotificacaoAtualizaoPontosVida(*entidade_selecionada,
                                            delta_pontos_vida,
+                                           false,
                                            grupo_notificacoes.add_notificacao(),
                                            grupo_desfazer.add_notificacao());
     // Acao.
@@ -1632,8 +1632,8 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   }
   // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, &n);
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal(), &n);
   TrataNotificacao(n);
 
   float atraso_s = 0;
@@ -1654,7 +1654,7 @@ void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
       continue;
     }
     auto* ntf = grupo_notificacoes.add_notificacao();
-    ntf->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ntf->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ntf->mutable_entidade_antes();
     entidade_antes->set_id(entidade->Id());
     entidade_antes->set_proxima_salvacao(entidade->Proto().proxima_salvacao());
@@ -1704,9 +1704,7 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
     std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
     delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
-    AdicionaLogEvento(std::string("entidade ") +
-                      (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) +
-                      ": " + texto_pontos_vida);
+    AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
     int delta_pontos_vida;
@@ -1898,7 +1896,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
       auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
 #if DEBUG
-      glFinish();
+      //glFinish();
 #endif
       timer_entre_atualizacoes_.start();
       timer_uma_atualizacao_.start();
@@ -1919,7 +1917,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       AtualizaAcoes(passou_ms);
 #if DEBUG
-      glFinish();
+      //glFinish();
 #endif
       timer_uma_atualizacao_.stop();
       EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -2125,7 +2123,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidadeNotificando(notificacao);
       return true;
     }
-    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
       AtualizaParcialEntidadeNotificando(notificacao);
       return true;
     }
@@ -2249,7 +2247,7 @@ void Tabuleiro::RefrescaMovimentosParciais() {
         continue;
       }
       // Atualiza clientes quando delta passar de algum valor.
-      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       nr->mutable_entidade()->set_id(e->Id());
       nr->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
       *nr->mutable_entidade()->mutable_escala() = e->Proto().escala();
@@ -2300,7 +2298,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
       continue;
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     if (entidade->TemIniciativa()) {
@@ -2349,7 +2347,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
       continue;
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     if (entidade->TemIniciativa()) {
@@ -2898,7 +2896,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
       DesenhaEntidadesTranslucidas();
     }
   }
-
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
@@ -2999,12 +2996,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.stop();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
@@ -3025,7 +3022,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     DesenhaLogEventos();
   }
 #if DEBUG
-  glFlush();
+  //glFlush();
 #endif
 }
 
@@ -4064,7 +4061,7 @@ void Tabuleiro::AlteraCorEntidadesSelecionadasNotificando(const Cor& cor) {
       continue;
     }
     auto* ne = grupo_notificacao.add_notificacao();
-    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ne->mutable_entidade_antes();
     entidade_antes->set_id(e->Id());
     entidade_antes->mutable_cor()->CopyFrom(e->CorDesenho());
@@ -4088,7 +4085,7 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
       continue;
     }
     auto* ne = grupo_notificacao.add_notificacao();
-    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ne->mutable_entidade_antes();
     entidade_antes->set_id(e->Id());
     entidade_antes->mutable_info_textura()->CopyFrom(e->Proto().info_textura());
@@ -4219,14 +4216,14 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer;
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
 
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
 #if DEBUG
-    glFinish();
+    //glFinish();
 #endif
     timer.resume();
     entidade->Atualiza(intervalo_ms, &timer);
@@ -4378,7 +4375,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
-    LOG(ERROR) << "Entidade invalida: " << id;
+    LOG(ERROR) << "Entidade invalida em Tabuleiro::SelecionaEntidade: " << id;
     throw std::logic_error("Entidade inválida");
   }
   if ((!forcar_fixa && entidade->Fixa()) || (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
@@ -5560,13 +5557,13 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         *n_inversa.mutable_tabuleiro()->mutable_camera_inicial() = n_original.tabuleiro_antes().camera_inicial();
       }
       break;
-    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
       if (!n_original.has_entidade_antes()) {
-        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE sem o proto novo e o proto anterior: "
+        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
         break;
       }
-      n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
       break;
     case ntf::TN_ATUALIZAR_ENTIDADE:
@@ -5954,8 +5951,8 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    float alcance_visao = entidade_referencia->Proto().has_alcance_visao() ? entidade_referencia->Proto().alcance_visao() : 18.0f;
-    ConfiguraNevoa(alcance_visao, alcance_visao + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
+    float alcance_visao_m = entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
+    ConfiguraNevoa(alcance_visao_m, alcance_visao_m + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
     return;
@@ -6558,6 +6555,7 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
+#if 0
 void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
   if (rodadas < 0) {
     LOG(ERROR) << "Adicionando rodadas < 0";
@@ -6581,7 +6579,7 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
     proto_depois.add_evento()->set_rodadas(rodadas);
 
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->mutable_entidade_antes()->Swap(&proto_antes);
     n->mutable_entidade()->Swap(&proto_depois);
   }
@@ -6591,6 +6589,7 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
+#endif
 
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
@@ -6614,20 +6613,22 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     }
     // Desfazer.
     proto_antes.set_id(id_entidade.first);
-    proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+    *proto_antes.mutable_evento() = entidade->Proto().evento();
+    if (proto_antes.evento().empty()) {
+      auto* e = proto_antes.add_evento();
+      e->set_id_efeito(EFEITO_INVALIDO);
+      e->set_rodadas(-1);
+    }
     // Novo proto.
     proto_depois.set_id(id_entidade.first);
-    for (const auto& evento_antes : entidade->Proto().evento()) {
-      int rodadas = evento_antes.rodadas();
-      if (rodadas > 0) {
-        --rodadas;
+    *proto_depois.mutable_evento() = entidade->Proto().evento();
+    for (auto& e : *proto_depois.mutable_evento()) {
+      if (e.rodadas() > 0) {
+        e.set_rodadas(e.rodadas() - 1);
       }
-      auto* evento_depois = proto_depois.add_evento();
-      *evento_depois = evento_antes;
-      evento_depois->set_rodadas(rodadas);
     }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->mutable_entidade_antes()->Swap(&proto_antes);;
     n->mutable_entidade()->Swap(&proto_depois);;
   }
@@ -6675,7 +6676,7 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
   }
 
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n.mutable_entidade_antes()->Swap(&proto_antes);;
   n.mutable_entidade()->Swap(&proto_depois);;
   TrataNotificacao(n);
@@ -6978,11 +6979,10 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
-    auto* e_antes = n.mutable_entidade_antes();
+    auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     *e_antes->mutable_evento() = entidade->Proto().evento();
@@ -6996,7 +6996,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
     }
   }
   {
-    auto* e_depois = n.mutable_entidade();
+    auto* e_depois = n->mutable_entidade();
     e_depois->set_id(entidade->Id());
     *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
@@ -7014,10 +7014,10 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
         }
       }
       for (auto id_efeito : efeitos) {
-        auto* evento = e_depois->add_evento();
-        evento->set_id_efeito(id_efeito);
-        evento->set_rodadas(pocao.duracao_rodadas());
-        if (pocao.has_complemento()) evento->set_complemento(pocao.complemento());
+        auto* evento = AdicionaEvento(id_efeito, pocao.duracao_rodadas(), e_depois);
+        if (!pocao.complementos().empty()) {
+          *evento->mutable_complementos() = pocao.complementos();
+        }
         evento->set_descricao(pocao.nome());
       }
     }
@@ -7029,9 +7029,177 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
   }
-  TrataNotificacao(n);
+  // Vai notificar remoto (atualizacao parcial).
+  TrataNotificacao(*n);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(n);
+  AdicionaNotificacaoListaEventos(*n);
+  {
+    std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+    *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+    Cor c;
+    c.set_r(0.5f);
+    c.set_g(0.6f);
+    c.set_b(1.0f);
+    c.set_a(0.5f);
+    n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    TrataNotificacao(*n_efeito);
+    central_->AdicionaNotificacaoRemota(n_efeito.release());
+  }
+}
+
+void Tabuleiro::AlternaFuria() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  const int nivel_barbaro = Nivel("barbaro", entidade->Proto());
+  if (nivel_barbaro < 1) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_evento() = entidade->Proto().evento();
+    if (e_antes->evento().empty()) {
+      // dummy pra sinalizar que nao tem nada.
+      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
+      e_antes->add_evento()->set_rodadas(-1);
+    }
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    *e_depois->mutable_evento() = entidade->Proto().evento();
+    int i = 0;
+    for (const auto& e : entidade->Proto().evento()) {
+      if (e.id_efeito() == EFEITO_FURIA_BARBARO) {
+        break;
+      }
+      ++i;
+    }
+
+    if (i < entidade->Proto().evento().size()) {
+      // Sai da furia.
+      e_depois->mutable_evento(i)->set_rodadas(-1);
+    } else {
+      // Entra em furia.
+      int complemento;
+      if (nivel_barbaro < 11) {
+        complemento = 4;
+      } else if (nivel_barbaro < 20) {
+        complemento = 6;
+      } else {
+        complemento = 8;
+      }
+      // Para ver novo modificador.
+      auto bc = entidade->Proto().atributos().constituicao();
+      AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
+      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), e_depois);
+      evento->add_complementos(complemento);
+      evento->add_complementos(complemento / 2);
+      evento->set_descricao("furia_barbaro");
+      evento->set_rodadas(3 + ModificadorAtributo(bc));
+      {
+        std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+        n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+        *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+        Cor c;
+        c.set_r(1.0f);
+        c.set_g(0.2f);
+        c.set_b(0.2f);
+        c.set_a(0.5f);
+        n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+        TrataNotificacao(*n_efeito);
+        central_->AdicionaNotificacaoRemota(n_efeito.release());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
+}
+
+void Tabuleiro::AlternaDefesaTotal() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
+    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
+    if (EmDefesaTotal(entidade->Proto())) {
+      // Sai da defesa total.
+      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+    } else {
+      // Entra em defesa total (sai da luta defensiva).
+      AtribuiBonus(4, TB_ESQUIVA, "defesa_total", ca);
+      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
+}
+
+void Tabuleiro::AlternaLutaDefensiva() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr) return;
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
+    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+  }
+  {
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
+    *ca = entidade->Proto().dados_defesa().ca();
+    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+
+    if (LutandoDefensivamente(entidade->Proto())) {
+      // Sai da luta defensiva.
+      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+      }
+    } else {
+      int bonus_defesa = 2;
+      int penalidade_ataque = -4;
+      auto* t = Talento("especializacao_em_combate", entidade->Proto());
+      if (t != nullptr) {
+        penalidade_ataque = 2;
+        if (t->has_complemento()) {
+          int complemento = atoi(t->complemento().c_str());
+          if (complemento > 0 && complemento <= 5) {
+            bonus_defesa = complemento;
+            penalidade_ataque = -complemento;
+          }
+        }
+      }
+      // Entra em luta defensiva (exclui defesa total).
+      AtribuiBonus(bonus_defesa, TB_ESQUIVA, "luta_defensiva", ca);
+      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+      for (auto& da : *e_depois->mutable_dados_ataque()) {
+        AtribuiBonus(penalidade_ataque, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+      }
+    }
+  }
+  // Vai notificar remoto.
+  TrataNotificacao(*n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*n);
 }
 
 }  // namespace ent

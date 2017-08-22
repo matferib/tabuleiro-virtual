@@ -1,0 +1,246 @@
+#ifndef IFG_QT_DIALOGO_TALENTOS_UTIL_H
+#define IFG_QT_DIALOGO_TALENTOS_UTIL_H
+
+#include <QComboBox>
+#include "ent/entidade.pb.h"
+#include "ifg/qt/util.h"
+#include "log/log.h"
+
+namespace ifg {
+namespace qt {
+
+// Modelo de talento para ser usado pelos views de tabela.
+class ModeloTalentos : public QAbstractTableModel {
+ public:
+  using InfoTalentos = ent::EntidadeProto::InfoTalentos;
+
+  ModeloTalentos(const ent::Tabelas& tabelas, InfoTalentos* talentos, QTableView* tabela)
+      : QAbstractTableModel(tabela), tabelas_(tabelas) {
+    for (const auto& tg : talentos->gerais()) {
+      modelo_.emplace_back(tg.id(), tg.complemento(), true);
+    }
+    for (const auto& to : talentos->outros()) {
+      modelo_.emplace_back(to.id(), to.complemento(), false);
+    }
+  }
+
+  // Numero de linhas da tabela.
+  int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
+    return modelo_.size();
+  }
+
+  // 0: id talento. 1. complemento. 2. geral.
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override {
+    return 3;
+  }
+
+  bool insertRows(int row, int count, const QModelIndex& parent) override {
+    if (count != 1) return false;
+    beginInsertRows(parent, 0, 0);
+    modelo_.insert(modelo_.begin() + row, count, IdComplementoGeral("", "", true));
+    endInsertRows();
+    return true;
+  }
+
+  bool removeRows(int row, int count, const QModelIndex& parent) override {
+    beginRemoveRows(parent, row, row + count - 1);
+    modelo_.erase(modelo_.begin() + row, modelo_.begin() + row + count);
+    endRemoveRows();
+    return true;
+  }
+
+  // Os cabeçalhos.
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
+    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole && section == 0) {
+      // Hack pra aumentar o tamanho da primeira coluna.
+      QSize qs;
+      qs.setWidth(100);
+      return QVariant(qs);
+    }
+    if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
+      return QVariant();
+    }
+    switch (section) {
+      case 0: return QVariant(QString::fromUtf8("Talento"));
+      case 1: return QVariant(QString::fromUtf8("Complemento"));
+      case 2: return QVariant(QString::fromUtf8("Geral"));
+    }
+    return QVariant("Desconhecido");
+  }
+
+  // Dado de cada celula.
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+      return QVariant();
+    }
+
+    const int row = index.row();
+    if (row < 0 || row >= modelo_.size()) return QVariant();
+    const int column = index.column();
+    switch (column) {
+      case 0:
+        if (role == Qt::DisplayRole) {
+          return QVariant(QString::fromUtf8(tabelas_.Talento(modelo_[row].id).nome().c_str()));
+        } else if (role == Qt::EditRole) {
+          return QVariant(modelo_[row].id.c_str());
+        }
+      case 1: return QVariant(QString::fromUtf8(modelo_[row].complemento.c_str()));
+      case 2: return QVariant(modelo_[row].geral);
+    }
+    // Nunca deveria chegar aqui.
+    LOG(INFO) << "Coluna invalida: " << column;
+    return QVariant();
+  }
+
+  bool setData(const QModelIndex& index, const QVariant& value, int role) override {
+    if (role != Qt::EditRole) {
+      return false;
+    }
+
+    const int row = index.row();
+    if (row < 0 || row >= modelo_.size()) {
+      LOG(INFO) << "Linha invalida " << row;
+      return false;
+    }
+    const int column = index.column();
+    switch (column) {
+      case 0: {
+        modelo_[row].id = value.toString().toUtf8().constData();
+        emit dataChanged(index, index);
+        return true;
+      }
+      case 1: {
+        modelo_[row].complemento = value.toString().toUtf8().constData();
+        emit dataChanged(index, index);
+        return true;
+      }
+      case 2: {
+        modelo_[row].geral = value.toBool();
+        emit dataChanged(index, index);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Qt::ItemFlags flags(const QModelIndex & index) const override {
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+  }
+
+  InfoTalentos Converte() const {
+    InfoTalentos ret;
+    for (const auto& icg : modelo_) {
+      auto* t = icg.geral ? ret.add_gerais() : ret.add_outros();
+      t->set_id(icg.id);
+      t->set_complemento(icg.complemento);
+    }
+    return ret;
+  }
+
+ private:
+  const ent::Tabelas& tabelas_;
+  // Esse eh o modelo verdadeiro. Id do talento, origem, geral.
+  struct IdComplementoGeral {
+    IdComplementoGeral(const std::string& id, const std::string& complemento, bool geral)
+        : id(id), complemento(complemento), geral(geral) {}
+    std::string id;
+    std::string complemento;
+    bool geral;
+  };
+  std::vector<IdComplementoGeral> modelo_;
+};
+
+class ComplementoTalentoDelegate : public QItemDelegate {
+ public:
+  ComplementoTalentoDelegate(const ent::Tabelas& tabelas, QAbstractTableModel* modelo, QObject* parent)
+      : QItemDelegate(), tabelas_(tabelas), modelo_(modelo) {}
+
+  QWidget* createEditor(
+      QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+    QVariant valor = modelo_->data(index.child(index.row(), 0), Qt::EditRole);
+    const auto& talento = tabelas_.Talento(valor.toString().toStdString());
+    switch (talento.tipo_complemento()) {
+      case ent::TCT_ARMA_COMUM:
+      case ent::TCT_ARMA_EXOTICA:
+      case ent::TCT_ARMA: {
+        std::map<std::string, std::string> mapa;
+        for (const auto& a : tabelas_.todas().tabela_armas().armas()) {
+          if ((talento.tipo_complemento() == ent::TCT_ARMA_COMUM && a.categoria_pericia() != ent::CATPER_COMUM) ||
+              (talento.tipo_complemento() == ent::TCT_ARMA_EXOTICA && a.categoria_pericia() != ent::CATPER_EXOTICA)) {
+            continue;
+          }
+          mapa.insert(std::make_pair(a.nome(), a.id()));
+        }
+        return PreencheConfiguraCombo(mapa, new QComboBox(parent));
+      }
+      case ent::TCT_ESCOLA_MAGIA: {
+        std::map<std::string, std::string> mapa = {
+          {"Abjuração", "abjuracao"},
+          {"Adivinhação", "adivinhacao"},
+          {"Conjuração", "conjuracao"},
+          {"Encantamento", "encantamento"},
+          {"Evocação", "evocacao"},
+          {"Ilusão", "ilusao"},
+          {"Necromancia", "necromancia"},
+          {"Transmutação", "transmutacao"},
+        };
+        return PreencheConfiguraCombo(mapa, new QComboBox(parent));
+      }
+      case ent::TCT_PERICIA:
+        // TODO
+      case ent::TCT_NENHUM:
+      default:
+        return QItemDelegate::createEditor(parent, option, index);
+    }
+  }
+
+  // Escreve o valor do combo.
+  void setEditorData(QWidget* editor, const QModelIndex& index) const override {
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+      QItemDelegate::setEditorData(editor, index);
+      return;
+    }
+    const QVariant& data = modelo_->data(index, Qt::EditRole);
+    combo->setCurrentIndex(combo->findData(data));
+  }
+
+  // Salva o valor do combo no modelo.
+  void setModelData(
+      QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+      QItemDelegate::setModelData(editor, model, index);
+      return;
+    }
+    modelo_->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
+  }
+
+ private:
+  void commitAndCloseEditor(QComboBox* combo) {
+    emit commitData(combo);
+    emit closeEditor(combo);
+  }
+
+  // Preenche o combo box de bonus.
+  QComboBox* PreencheConfiguraCombo(const std::map<std::string, std::string>& mapa, QComboBox* combo) const {
+    for (const auto& kv : mapa) {
+      combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
+    }
+
+    //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
+      auto* thiz = const_cast<ComplementoTalentoDelegate*>(this);
+      thiz->commitAndCloseEditor(combo);
+    });
+    return combo;
+  }
+
+  const ent::Tabelas& tabelas_;
+  QAbstractTableModel* modelo_;
+};
+
+}  // namespace qt
+}  // namespace ifg
+
+#endif

@@ -28,6 +28,7 @@
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
 #include "ifg/qt/pocoes_util.h"
+#include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
@@ -823,6 +824,27 @@ void AdicionaOuAtualizaAtaqueEntidade(
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
+void PreencheConfiguraPontosVida(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.botao_bonus_pv_temporario, SIGNAL(clicked()), [this_, &gerador, proto_retornado] () {
+    AbreDialogoBonus(this_, proto_retornado->mutable_pontos_vida_temporarios_por_fonte());
+    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+    AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
+  });
+  AtualizaUIPontosVida(gerador, proto);
+}
+
+void PreencheConfiguraTendencia(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.slider_bem_mal, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    proto_retornado->mutable_tendencia()->set_eixo_bem_mal(gerador.slider_bem_mal->value() / 8.0f);
+  });
+  lambda_connect(gerador.slider_ordem_caos, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    proto_retornado->mutable_tendencia()->set_eixo_ordem_caos(gerador.slider_ordem_caos->value() / 8.0f);
+  });
+  AtualizaUITendencia(this_->tabelas(), gerador, *proto_retornado);
+}
+
 void PreencheConfiguraComboArmaduraEscudo(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   QComboBox* combo_armadura = gerador.combo_armadura;
@@ -881,6 +903,52 @@ void PreencheConfiguraEventos(
                  [this_, proto_retornado, &gerador] () {
     RecomputaDependencias(this_->tabelas(), proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
+  });
+}
+
+// Troca o delegate da tabela pelo passado. Detem a posse do objeto.
+void TrocaDelegateColuna(unsigned int coluna, QAbstractItemDelegate* delegado, QTableView* tabela) {
+  std::unique_ptr<QAbstractItemDelegate> delete_old_delegate(tabela->itemDelegateForColumn(coluna));
+  tabela->setItemDelegateForColumn(coluna, delegado);
+  delegado->deleteLater();
+}
+
+void PreencheConfiguraTalentos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  const ent::Tabelas& tabelas = this_->tabelas();
+  *proto_retornado->mutable_info_talentos() = proto.info_talentos();
+  auto* modelo(new ModeloTalentos(tabelas, proto_retornado->mutable_info_talentos(), gerador.tabela_talentos));
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_talentos->selectionModel());
+  std::map<std::string, std::string> mapa;
+  for (const auto& t : tabelas.todas().tabela_talentos().talentos()) {
+    if (!t.monstro()) mapa[t.nome()] = t.id();
+  }
+  TrocaDelegateColuna(0, new MapaDelegate(mapa, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
+  TrocaDelegateColuna(1, new ComplementoTalentoDelegate(tabelas, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
+
+  gerador.tabela_talentos->setModel(modelo);
+  lambda_connect(gerador.botao_adicionar_talento, SIGNAL(clicked()), [&gerador, modelo] () {
+    const int linha = modelo->rowCount();
+    modelo->insertRows(linha, 1, QModelIndex());
+    gerador.tabela_talentos->selectRow(linha);
+  });
+  lambda_connect(gerador.botao_remover_talento, SIGNAL(clicked()), [&gerador, modelo] () {
+    std::set<int, std::greater<int>> linhas;
+    for (const QModelIndex& index : gerador.tabela_talentos->selectionModel()->selectedIndexes()) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->removeRows(linha, 1, QModelIndex());
+    }
+  });
+  gerador.tabela_talentos->resizeColumnsToContents();
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                 [&tabelas, &gerador, proto_retornado, modelo] () {
+    // TODO alterar o delegate do complemento.
+    *proto_retornado->mutable_info_talentos() = modelo->Converte();
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
@@ -1085,12 +1153,6 @@ void PreencheConfiguraDadosAtaque(
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
-  lambda_connect(gerador.checkbox_possui_acuidade, SIGNAL(stateChanged(int)), [&tabelas, &gerador, proto_retornado]() {
-    proto_retornado->mutable_dados_ataque_globais()->set_acuidade(gerador.checkbox_possui_acuidade->isChecked());
-    RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
-  });
-
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });
@@ -1203,6 +1265,42 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
+void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
+  gerador.combo_classe->setCurrentIndex(-1);
+  gerador.linha_classe->clear();
+  gerador.spin_nivel_classe->setValue(1);
+  gerador.spin_nivel_conjurador->clear();
+  gerador.spin_bba->clear();
+  gerador.label_mod_conjuracao->setText("0");
+  gerador.combo_mod_conjuracao->setCurrentIndex(0);
+  gerador.botao_remover_nivel->setEnabled(false);
+}
+
+void PreencheConfiguraComboClasse(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo = gerador.combo_classe;
+  combo->addItem(combo->tr("Outro"), "outro");
+  for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
+    combo->addItem(QString::fromUtf8(ic.nome().c_str()), ic.id().c_str());
+  }
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+    std::vector<QObject*> objs = {
+      gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
+    };
+    const auto& classe_tabelada = tabelas.Classe(combo->itemData(combo->currentIndex()).toString().toStdString());
+    if (classe_tabelada.has_nome()) {
+      const int indice = gerador.lista_niveis->currentRow();
+      if (indice >= 0 && indice < proto_retornado->info_classes_size()) {
+        proto_retornado->mutable_info_classes(indice)->set_id(
+          combo->itemData(combo->currentIndex()).toString().toStdString());
+      }
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
   // Ao mudar a selecao, atualiza os controles.
@@ -1215,7 +1313,11 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
     gerador.lista_niveis->setCurrentRow(-1);
     AdicionaOuEditaNivel(tabelas, gerador, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
+    // Deixa deselecionado e zera campos, mais intuitivo.
+    LimpaCamposClasse(gerador);
   });
+
+  PreencheConfiguraComboClasse(tabelas, gerador, proto_retornado);
 
   PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
   lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1240,6 +1342,7 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
     proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
+    LimpaCamposClasse(gerador);
   });
 
   // Responde uma edicao da UI se houver selecao. caso contrario nada sera feito.
@@ -1325,6 +1428,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Formas alternativas.
   PreencheConfiguraFormasAlternativas(this, dialogo, gerador, entidade, proto_retornado);
 
+  // Talentos.
+  PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
+
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -1397,9 +1503,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Modelo 3d.
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
-  gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
-  gerador.spin_pontos_vida_temporarios->setValue(entidade.pontos_vida_temporarios());
-  gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
+  PreencheConfiguraPontosVida(this, gerador, entidade, proto_retornado);
   // Aura.
   gerador.spin_aura_quad->setValue(entidade.aura_m() * ent::METROS_PARA_QUADRADOS);
   // Voo.
@@ -1424,7 +1528,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
     gerador.spin_raio_visao_escuro_quad->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
   });
-  gerador.spin_raio_visao_escuro_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
+  gerador.spin_raio_visao_escuro_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.has_alcance_visao_m() ? entidade.alcance_visao_m() : 18));
   gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Preenche os atributos.
@@ -1432,6 +1536,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Iniciativa.
   PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
+
+  // Tendencia.
+  PreencheConfiguraTendencia(this, gerador, proto_retornado);
 
   // Combos dinamicos.
   PreencheConfiguraComboArmaduraEscudo(this, gerador, proto_retornado);
@@ -1499,7 +1606,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toUtf8().constData());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
-    proto_retornado->set_pontos_vida_temporarios(gerador.spin_pontos_vida_temporarios->value());
+    proto_retornado->set_dano_nao_letal(gerador.spin_dano_nao_letal->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     float aura_m = gerador.spin_aura_quad->value() * ent::QUADRADOS_PARA_METROS;
     if (aura_m > 0) {
@@ -1523,7 +1630,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
-      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
+      proto_retornado->set_alcance_visao_m(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {

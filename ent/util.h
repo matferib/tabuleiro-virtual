@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
-#include "ent/tabelas.h"
+#include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.pb.h"
 
@@ -16,12 +16,14 @@
 namespace ent {
 
 class Acao;
+class ArmaProto;
 class Cor;
 class Entidade;
 class EntidadeProto_Evento;
 class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
+class Tabelas;
 
 void IniciaUtil();
 
@@ -213,7 +215,7 @@ int ModificadorDano(const EntidadeProto& ea);
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Rola o dado de ataque contra a salvacao, retornando o dano, texto do resultado.
-std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ed);
+std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -221,7 +223,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
 
 void PreencheNotificacaoAtualizaoPontosVida(
-    const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
+    const Entidade& entidade, int delta_pontos_vida, bool nao_letal, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
@@ -229,18 +231,25 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
-void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
+// Acesso a bonus individual e origem. nullptr se nao achar.
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus);
 int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual);
+
+// Acessa um bonus especifico se existir.
+BonusIndividual* BonusIndividualSePresente(TipoBonus tipo, Bonus* bonus);
+BonusIndividual::PorOrigem* OrigemSePresente(const std::string& origem, BonusIndividual* bonus_individual);
+BonusIndividual::PorOrigem* OrigemSePresente(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 // Retorna true se tipo estiver presente em bonus.
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
-// Combina os bonus_novos em bonus.
+// Combina os bonus_novos em bonus. Bonus de mesmo tipo e origem serao sobrescritos.
 void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
 // Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).
 void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos);
@@ -254,21 +263,28 @@ int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
+// Dano da entidade por tamanho.
+std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho);
+
+// Retorna o alcance de acordo com tamanho.
+int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);
 
 // Funcoes auxiliares de CA.
-int CATotal(const EntidadeProto& proto, bool permite_escudo);
-int CASurpreso(const EntidadeProto& proto, bool permite_escudo);
-int CAToque(const EntidadeProto& proto);
-int CAToqueSurpreso(const EntidadeProto& proto);
+int CATotal(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus = Bonus());
+int CASurpreso(const EntidadeProto& proto, bool permite_escudo, const Bonus& outros_bonus = Bonus());
+int CAToque(const EntidadeProto& proto, const Bonus& outros_bonus = Bonus());
+int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus = Bonus());
 
-inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
-inline bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+bool ArmaDupla(const ArmaProto& arma);
+bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
+// Retorna verdadeiro se a entidade tiver um evento com mesmo id e descricao.
+bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
 
-// Passa alguns dados de acao proto para dados ataque.
-void AcaoParaAtaque(const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
+void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
@@ -315,6 +331,52 @@ bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
 // Retorna true se o personagem tiver o talento.
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
+bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& entidade);
+// Retorna o talento do personagem, ou nullptr se nao tiver.
+const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade);
+const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade);
+
+// Funcoes de tendencia.
+inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
+inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
+inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
+inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
+// Retorna o bonus contra tendencia de um atacante. 
+Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
+Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
+
+// Retorna o nivel do id da classe do proto.
+int Nivel(const std::string& id, const EntidadeProto& proto);
+// Nivel total da entidade.
+int Nivel(const EntidadeProto& proto);
+
+// Hack para android!
+/** Realiza a leitura de uma string de eventos, um por linha, formato:
+* descricao [(complemento)] : rodadas.
+*/
+google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
+
+// Funcoes que retornam o estado da entidade de acordo com a origem e valor dos bonus de esquiva.
+bool EmDefesaTotal(const EntidadeProto& proto);
+bool LutandoDefensivamente(const EntidadeProto& proto);
+
+// Retorna um rotulo para a entidade. Tenta o rotulo, id e se for null, retorna null.
+std::string RotuloEntidade(const Entidade* entidade);
+std::string RotuloEntidade(const EntidadeProto& proto);
+
+// Remove os campos para os quais predicado retornar true.
+template <class T>
+void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
+
+// Acha um id unico de evento para o proto passado.
+uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
+inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUnicoEvento(proto.evento()); }
+
+// Adiciona um evento ao proto, gerando o id do efeito automaticamente.
+EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto);
+
+// Retorna todos os talentos da entidade em um vector, para facilitar.
+std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 
 }  // namespace ent
 
