@@ -950,12 +950,15 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
         TrataNotificacao(n_texto);
       } else {
+        // Aplica critico.
         for (int i = 0; i < vezes; ++i) {
           delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
         }
         if (vezes > 0) {
           delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
         }
+        auto* da = entidade->DadoCorrente();
+        bool nao_letal = da != nullptr && da->nao_letal();
         entidade->ProximoAtaque();
         if (acao_proto.permite_salvacao()) {
           std::string resultado_salvacao;
@@ -971,12 +974,14 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
         acao_proto.set_delta_pontos_vida(delta_pontos_vida);
         acao_proto.set_afeta_pontos_vida(true);
-        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
+        acao_proto.set_nao_letal(nao_letal);
+        // Apenas para desfazer.
+        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal, nd, nd);
       }
     }
     if (realiza_acao) {
       // Se agarrou, desfaz aqui.
-      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida()) {
+      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida() && entidade_destino != nullptr) {
         auto* no = grupo_desfazer->add_notificacao();
         PreencheNotificacaoAgarrar(*entidade, no, no);
         PreencheNotificacaoAgarrar(*entidade_destino, nd, nd);

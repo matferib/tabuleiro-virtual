@@ -219,6 +219,8 @@ message EntidadeProto {
     optional int32 bonus_magico = 31;
     // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
     optional int32 ordem_ataque = 32;
+    // Ataque da dano nao letal.
+    optional bool nao_letal = 34;
   }
   repeated DadosAtaque dados_ataque = 44;
 

@@ -122,6 +122,8 @@ message AcaoProto {
   optional bool ataque_agarrar = 38;
   // Indica que a acao foi bem sucedida.
   optional bool bem_sucedida = 39;
+  // Indica dano nao letal.
+  optional bool nao_letal = 40;
 }
 
 // O arquivo de acoes é serializado desta forma.

@@ -877,26 +877,30 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
-void Entidade::AtualizaPontosVida(int pontos_vida) {
+void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
   if (proto_.max_pontos_vida() == 0) {
     // Entidades sem pontos de vida nao sao afetadas.
     return;
   }
-  if (proto_.pontos_vida() >= 0 && pontos_vida < 0) {
+  bool vivo_antes = proto_.pontos_vida() >= proto_.dano_nao_letal();
+  bool vivo_depois = pontos_vida > dano_nao_letal;
+  if (vivo_antes && !vivo_depois) {
     proto_.set_morta(true);
     proto_.set_caida(true);
     proto_.set_voadora(false);
     proto_.set_aura_m(0.0f);
-  } else if (proto_.pontos_vida() < 0 && pontos_vida >= 0) {
+  } else if (vivo_depois && !vivo_antes) {
     proto_.set_morta(false);
   }
   proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
+  proto_.set_dano_nao_letal(dano_nao_letal);
 }
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
   int pontos_vida_antes = PontosVida();
+  int dano_nao_letal_antes = DanoNaoLetal();
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();
@@ -1038,7 +1042,8 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.has_pontos_vida()) {
     // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
     proto_.set_pontos_vida(pontos_vida_antes);
-    AtualizaPontosVida(proto_parcial.pontos_vida());
+    proto_.set_dano_nao_letal(dano_nao_letal_antes);
+    AtualizaPontosVida(proto_parcial.pontos_vida(), proto_parcial.dano_nao_letal());
   }
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);

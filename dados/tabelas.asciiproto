@@ -372,6 +372,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
+    nao_letal: true
   }
   # One-Handed Melee Weapons
   armas {

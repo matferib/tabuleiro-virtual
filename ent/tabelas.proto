@@ -87,6 +87,7 @@ message ArmaProto {
   optional CategoriaPericia categoria_pericia = 15;
   // Indica que a arma eh de haste.
   optional bool haste = 16;
+  optional bool nao_letal = 18;
 }
 
 message TabelaArmaduraOuEscudo {

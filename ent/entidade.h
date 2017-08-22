@@ -110,6 +110,7 @@ class Entidade {
   int PontosVida() const { return proto_.pontos_vida(); }
   int MaximoPontosVida() const { return proto_.max_pontos_vida(); }
   int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
+  int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
 
   bool Morta() const { return proto_.morta(); }
   
@@ -159,8 +160,8 @@ class Entidade {
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
 
-  /** Atualiza os pontos de vida da entidade para a quantidade passada. */
-  void AtualizaPontosVida(int pontos_vida);
+  /** Atualiza os pontos de vida da entidade para a quantidade passada, assim como dano nao letal. */
+  void AtualizaPontosVida(int pontos_vida, int dano_nao_letal);
 
   /** Atualiza apenas os campos presentes no proto para a entidade. */
   void AtualizaParcial(const EntidadeProto& proto_parcial);

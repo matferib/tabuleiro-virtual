@@ -1258,13 +1258,22 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizaoPontosVida(
-    const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    const Entidade& entidade, int delta_pontos_vida, bool nao_letal, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
 
-  // Tira dos temporarios.
-  if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
+  if (delta_pontos_vida > 0) {
+    if (delta_pontos_vida >= entidade_depois->dano_nao_letal()) {
+      entidade_depois->set_dano_nao_letal(0);
+    } else {
+      entidade_depois->set_dano_nao_letal(entidade_depois->dano_nao_letal() - delta_pontos_vida);
+    }
+  } else if (delta_pontos_vida < 0 && nao_letal) {
+    entidade_depois->set_dano_nao_letal(entidade.DanoNaoLetal() - delta_pontos_vida);
+    entidade_depois->set_pontos_vida(entidade.PontosVida());
+  } else if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
+    // Tira dos temporarios.
     *entidade_depois->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
     auto* bpv = entidade_depois->mutable_pontos_vida_temporarios_por_fonte();
     auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
@@ -1283,7 +1292,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
       }
     }
   }
-  entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
+  entidade_depois->set_pontos_vida(entidade.PontosVida() + (nao_letal ? 0 : delta_pontos_vida));
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
@@ -1292,6 +1301,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
     entidade_antes->set_id(entidade.Id());
     *entidade_antes->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
     entidade_antes->set_pontos_vida(entidade.PontosVida());
+    entidade_antes->set_dano_nao_letal(entidade.DanoNaoLetal());
     entidade_antes->set_morta(entidade.Proto().morta());
     entidade_antes->set_caida(entidade.Proto().caida());
     entidade_antes->set_voadora(entidade.Proto().voadora());
@@ -1531,6 +1541,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
+    da->set_nao_letal(arma.nao_letal());
     if (PossuiTalento("acuidade_arma", proto) &&
         (PossuiCategoria(CAT_LEVE, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {

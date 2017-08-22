@@ -223,7 +223,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
 
 void PreencheNotificacaoAtualizaoPontosVida(
-    const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
+    const Entidade& entidade, int delta_pontos_vida, bool nao_letal, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
