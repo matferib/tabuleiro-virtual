@@ -2043,6 +2043,16 @@ QGroupBox::title {
              <string>Arma e Escudo</string>
             </property>
            </item>
+           <item>
+            <property name="text">
+             <string>Monstro: Ataque Principal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Monstro: Ataque Secundário</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>

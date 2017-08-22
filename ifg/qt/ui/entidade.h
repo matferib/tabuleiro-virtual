@@ -2175,6 +2175,8 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", 0, QApplication::UnicodeUTF8)
         );
         label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
