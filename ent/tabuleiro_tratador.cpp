@@ -886,7 +886,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
         continue;
       }
-      if (entidade_destino->MaximoPontosVida() <= 0) {
+      if (!entidade_destino->Proto().has_max_pontos_vida()) {
         VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
         continue;
       }

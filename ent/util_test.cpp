@@ -6,6 +6,36 @@
 
 namespace ent {
 
+TEST(TesteDependencias, TesteNiveisNegativos) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  proto.set_max_pontos_vida(10);
+  proto.set_pontos_vida(10);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(3);
+  // Ataques.
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_empunhadura(EA_2_MAOS);
+  }
+  proto.set_niveis_negativos(1);
+
+  RecomputaDependencias(tabelas, &proto);
+  // Clerigo tem 2 de bonus.
+  EXPECT_EQ(2, ic->bba());
+  // Mas o ataque recebe -1 do nivel negativo.
+  EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
+  // 3 1 3 vira 2 0 2;
+  EXPECT_EQ(2, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+  EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+  EXPECT_EQ(2, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  // Perde 5 pontos vida.
+  EXPECT_EQ(5, proto.pontos_vida());
+  // TODO: penalidade de pericias e feiticos.
+}
+
 TEST(TesteDependencias, TesteDependencias) {
   Tabelas tabelas;
   EntidadeProto proto;

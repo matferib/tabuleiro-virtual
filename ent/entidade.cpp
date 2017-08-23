@@ -814,7 +814,7 @@ int Entidade::NivelPersonagem() const {
   for (const auto& info_classe : proto_.info_classes()) {
     total += info_classe.nivel();
   }
-  return total;
+  return total - proto_.niveis_negativos();
 }
 
 int Entidade::NivelConjurador() const {

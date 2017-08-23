@@ -108,7 +108,7 @@ class Entidade {
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
   int PontosVida() const { return proto_.pontos_vida(); }
-  int MaximoPontosVida() const { return proto_.max_pontos_vida(); }
+  int MaximoPontosVida() const { return proto_.max_pontos_vida() - proto_.niveis_negativos() * 5; }
   int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
   int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
 

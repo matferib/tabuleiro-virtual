@@ -2059,6 +2059,11 @@ void RecomputaDependenciasSalvacoes(
   AtribuiOuRemoveBonus(PossuiTalento("fortitude_maior", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "fortitude_maior", dd->mutable_salvacao_fortitude());
   AtribuiOuRemoveBonus(PossuiTalento("reflexos_rapidos", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "reflexos_rapidos", dd->mutable_salvacao_reflexo());
   AtribuiOuRemoveBonus(PossuiTalento("vontade_ferro", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "vontade_ferro", dd->mutable_salvacao_vontade());
+
+  const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
+  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
+  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_reflexo());
+  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
 }
 
 void RecomputaDependenciaTamanho(EntidadeProto* proto) {
@@ -2144,6 +2149,13 @@ void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
   proto->set_pontos_vida_temporarios(BonusTotal(*bpv));
 }
 
+void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
+  const int max_pontos_vida = proto->max_pontos_vida() - proto->niveis_negativos() * 5;
+  if (proto->pontos_vida() > max_pontos_vida) {
+    proto->set_pontos_vida(max_pontos_vida);
+  }
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
@@ -2152,6 +2164,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasClasses(tabelas, proto);
   RecomputaDependenciaTamanho(proto);
   RecomputaDependenciasPontosVidaTemporarios(proto);
+  RecomputaDependenciasPontosVida(proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
@@ -2172,10 +2185,11 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
     const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
     const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
     const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
+    const int niveis_negativos = proto->niveis_negativos();
     proto->mutable_bba()->set_base(bba);
-    proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba);
-    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba);
-    int total_agarrar = modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba;
+    proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba - niveis_negativos);
+    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba - niveis_negativos());
+    int total_agarrar = modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba - niveis_negativos;
     if (PossuiTalento("agarrar_aprimorado", *proto)) {
       total_agarrar += 4;
     }
