@@ -1,6 +1,7 @@
 #ifndef IFG_QT_DIALOGO_EVENTO_UTIL_H
 #define IFG_QT_DIALOGO_EVENTO_UTIL_H
 
+#include <algorithm>
 #include <QComboBox>
 #include "ent/entidade.pb.h"
 #include "ifg/qt/util.h"
@@ -8,6 +9,33 @@
 
 namespace ifg {
 namespace qt {
+
+namespace {
+
+QString ComplementosParaString(const google::protobuf::RepeatedField<int>& complementos) {
+  QString s;
+  for (int c : complementos) {
+    s.append(" ");
+    s.append(QString::number(c));
+  }
+  if (!s.isEmpty()) {
+    s.remove(0, 1);
+  }
+  return s;
+}
+
+const google::protobuf::RepeatedField<int> StringParaComplementos(const QString& complementos) {
+  google::protobuf::RepeatedField<int> cs;
+  QStringList lista = complementos.split(" ",  QString::SkipEmptyParts);
+  for (const auto& s : lista) {
+    bool ok;
+    int c = s.toInt(&ok);
+    if (ok) cs.Add(c);
+  }
+  return cs;
+}
+
+}  // namespace
 
 // Modelo de evento para ser usado pelos views de tabela.
 class ModeloEvento : public QAbstractTableModel {
@@ -31,7 +59,8 @@ class ModeloEvento : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    eventos_->Add();
+    auto* e = eventos_->Add();
+    e->set_id_unico(AchaIdUnicoEvento(*eventos_));
     endInsertRows();
     return true;
   }
@@ -78,7 +107,7 @@ class ModeloEvento : public QAbstractTableModel {
     const auto& evento = eventos_->Get(row);
     switch (column) {
       case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
-      case 1: return QVariant(evento.complemento());
+      case 1: return QVariant(ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
     }
@@ -107,7 +136,7 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 1: {
-        evento->set_complemento(value.toInt());
+        *evento->mutable_complementos() = StringParaComplementos(value.toString());
         emit dataChanged(index, index);
         return true;
       }
@@ -153,7 +182,7 @@ class TipoEfeitoDelegate : public QItemDelegate {
     }
     const QVariant& data = modelo_->data(index, Qt::EditRole);
     if (!ent::TipoEfeito_IsValid(data.toInt())) return;
-    combo->setCurrentIndex(data.toInt());
+    combo->setCurrentIndex(combo->findData(data.toInt()));
   }
 
   // Salva o valor do combo no modelo.
@@ -164,7 +193,7 @@ class TipoEfeitoDelegate : public QItemDelegate {
       LOG(ERROR) << "combo == nullptr em setEditorData";
       return;
     }
-    modelo_->setData(index, combo->currentIndex(), Qt::EditRole);
+    modelo_->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
   }
 
  private:
@@ -176,9 +205,13 @@ class TipoEfeitoDelegate : public QItemDelegate {
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraComboEvento(QComboBox* combo) const {
     // O min eh -1, invalido. Entao comeca do 0.
+    std::map<std::string, int> efeitos_ordenados;
     for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
-      combo->addItem(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)).c_str(), QVariant(tipo));
+      efeitos_ordenados.insert(std::make_pair(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)), tipo));
+    }
+    for (const auto& par_str_id : efeitos_ordenados) {
+      combo->addItem(par_str_id.first.c_str(), QVariant(par_str_id.second));
     }
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {

@@ -175,6 +175,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '45kg' }
     tipo_dano: TD_PERFURANTE
+    haste: true
   }
   armas {
     id: 'bordao'
@@ -258,6 +259,7 @@ tabela_armas {
     categoria: CAT_CAC
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_pequeno'
@@ -269,6 +271,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_pequeno_com_cavos'
@@ -280,6 +283,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_curta'
@@ -292,6 +296,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'kukri'
@@ -303,6 +308,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machadinha'
@@ -313,6 +319,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '15kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machado_de_arremesso'
@@ -326,6 +333,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'martelo_leve'
@@ -339,6 +347,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'picareta_leve'
@@ -350,6 +359,7 @@ tabela_armas {
     multiplicador_critico: 4
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'porrete'
@@ -361,6 +371,8 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
+    nao_letal: true
   }
   # One-Handed Melee Weapons
   armas {
@@ -373,6 +385,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_grande'
@@ -383,6 +396,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'escudo_grande_com_cravos'
@@ -393,6 +407,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: 'especial' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_longa'
@@ -404,6 +419,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'machado_de_batalha'
@@ -414,6 +430,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '3kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'mangual'
@@ -424,6 +441,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'martelo_de_guerra'
@@ -434,6 +452,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'picareta_pesada'
@@ -444,6 +463,7 @@ tabela_armas {
     multiplicador_critico: 4
     peso { medio: '3kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'sabre'
@@ -455,6 +475,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'tridente'
@@ -467,6 +488,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   # Two-Handed Melee Weapons
   armas {
@@ -480,6 +502,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'clava_grande'
@@ -491,6 +514,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'espada_larga'
@@ -503,6 +527,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'falcione'
@@ -515,6 +540,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'foice_longa'
@@ -527,6 +553,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'glaive'
@@ -538,6 +565,8 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '10Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'guisarme'
@@ -549,6 +578,8 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'lanca_montada'
@@ -560,6 +591,8 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
+    haste: true
   }
   armas {
     id: 'machado_grande'
@@ -571,6 +604,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'mangual_pesado'
@@ -583,6 +617,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'ranseur'
@@ -594,6 +629,8 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
+    haste: true
   }
   # Ranged Weapons
   armas {
@@ -618,6 +655,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
     max_forca: 0
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'arco_longo'
@@ -629,6 +667,7 @@ tabela_armas {
     categoria: CAT_ARCO
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_COMUM
   }
   armas {
     id: 'arco_longo_composto'
@@ -641,6 +680,7 @@ tabela_armas {
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
     max_forca: 0
+    categoria_pericia: CATPER_COMUM
   }
   # Fim armas comuns
 
@@ -656,6 +696,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'nunchaku'
@@ -667,6 +708,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'sai'
@@ -680,6 +722,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '0,5kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'siangham'
@@ -690,6 +733,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '0,5kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   # One-Handed Melee Weapons
@@ -702,6 +746,8 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
+    haste: true
   }
   armas {
     id: 'espada_bastarda'
@@ -713,6 +759,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '3Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'machado_de_guerra_anao'
@@ -723,6 +770,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '4Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   # Two-Handed Melee Weapons
   armas {
@@ -735,6 +783,8 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
+    haste: true
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -748,6 +798,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10Kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   armas {
@@ -761,6 +812,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '12,5kg' }
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'mangual_atroz'
@@ -773,6 +825,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
 
   armas {
@@ -788,6 +841,7 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_CONCUSSAO
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'urgrosh_anao'
@@ -801,6 +855,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
     tipo_dano: TD_CORTANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 
   # Ranged Weapons
@@ -815,6 +870,7 @@ tabela_armas {
     alcance_quadrados: 16
     peso { medio: '3Kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'besta_pesada_de_repeticao'
@@ -827,6 +883,7 @@ tabela_armas {
     alcance_quadrados: 24
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'besta_de_mao'
@@ -839,6 +896,7 @@ tabela_armas {
     alcance_quadrados: 6
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'boleadeira'
@@ -850,6 +908,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'rede'
@@ -860,6 +919,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '3kg' }
     tipo_dano: TD_OUTRO
+    categoria_pericia: CATPER_EXOTICA
   }
   armas {
     id: 'shuriken'
@@ -871,10 +931,22 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '0,25kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
   }
 }
 
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_AJUDA
+    consequencia {
+      # Complemento usado para adicionar aos PV (1d8+complemento).
+      usa_complemento: true
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
+      # TODO +1 moral contra salvacao de medo.
+      # TODO: faltando skills.
+    }
+  }
+
   efeitos {
     # TODO: faltando skills.
     id: EFEITO_HEROISMO
@@ -886,14 +958,6 @@ tabela_efeitos {
       }
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
     }
-    consequencia_fim {
-      dados_defesa {
-        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-      }
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 0 origem: 'heroismo' } } }
-    }
   }
 
   efeitos {
@@ -901,12 +965,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'pele_arvore' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 0 origem: 'pele_arvore' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
       }
     }
   }
@@ -915,12 +974,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
     }
   }
@@ -929,12 +983,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 1 origem: 'roupa_encantada' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { valor: 0 origem: 'roupa_encantada' } } }
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'roupa_encantada' } } }
       }
     }
   }
@@ -945,58 +994,40 @@ tabela_efeitos {
         ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 4 origem: 'armadura_arcana' } } }
       }
     }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 0 origem: 'armadura_arcana' } } }
-      }
-    }
   }
   efeitos {
     id: EFEITO_FORCA_TOURO
-    consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro%s' } } } } }
-    consequencia_fim { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'forca_touro%s' } } } } }
+    consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
   }
   efeitos {
     id: EFEITO_AGILIDADE_GATO
-    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato%s' } } } } }
-    consequencia_fim { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'agilidade_gato%s' } } } } }
+    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
   }
   efeitos {
     id: EFEITO_VIGOR_URSO
-    consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso%s' } } } } }
-    consequencia_fim { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'vigor_urso%s' } } } } }
+    consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso' } } } } }
   }
   efeitos {
     id: EFEITO_SABEDORIA_CORUJA
-    consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja%s' } } } } }
-    consequencia_fim { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'sabedoria_coruja%s' } } } } }
+    consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja' } } } } }
   }
   efeitos {
     id: EFEITO_ASTUCIA_RAPOSA
-    consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa%s' } } } } }
-    consequencia_fim { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'astucia_raposa%s' } } } } }
+    consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa' } } } } }
   }
   efeitos {
     id: EFEITO_ESPLENDOR_AGUIA
-    consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia%s' } } } } }
-    consequencia_fim { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 0 origem: 'esplendor_aguia%s' } } } } }
+    consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia' } } } } }
   }
 
   efeitos {
     id: EFEITO_ACELERAR
     consequencia {
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar%s' } } }
+        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
       }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar%s' } } }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 0 origem: 'acelerar%s' } } }
-      }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 0 origem: 'acelerar%s' } } }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar' } } }
     }
   }
   efeitos {
@@ -1004,12 +1035,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 2 origem: 'escudo_fe' } } }
-      }
-    }
-    consequencia_fim {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 0 origem: 'escudo_fe' } } }
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'escudo_fe' } } }
       }
     }
   }
@@ -1022,16 +1048,9 @@ tabela_efeitos {
         destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'aumentar_pessoa' } } }
       }
     }
-    consequencia_fim {
-      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-      atributos {
-        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'aumentar_pessoa' } } }
-      }
-    }
   }
   efeitos {
-    id: EFEITO_DIMINUIR_PESSOA
+    id: EFEITO_REDUZIR_PESSOA
     consequencia {
       tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'diminuir_pessoa' } } }
       atributos {
@@ -1039,17 +1058,143 @@ tabela_efeitos {
         destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'diminuir_pessoa' } } }
       }
     }
-    consequencia_fim {
-      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+  }
+  # Esses efeitos tem regras um pouco diferentes, porque dependem da tendencia do agressor.
+  # +2 deflexao CA e +2 resistencia na salvacao dependendo alinhamento do agressor.
+  # Imune a efeitos de encantamento (independente de alinhamento).
+  # Imune a ataques naturais de criaturas conjuradas de acordo com alinhamento.
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_MAL
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_BEM
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_ORDEM
+  }
+  efeitos {
+    id: EFEITO_PROTECAO_CONTRA_CAOS
+  }
+  # Fim protecao contra tendencia.
+
+  efeitos {
+    # Primeiro complemento: forca e con. Segundo: vontade.
+    id: EFEITO_FURIA
+    consequencia {
+      usa_complemento: true
       atributos {
-        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
-        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 0 origem: 'diminuir_pessoa' } } }
+        forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
       }
     }
+  }
+  efeitos {
+    # É identico a furia, mas tem outros efeitos especificos como fadiga.
+    id: EFEITO_FURIA_BARBARO
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+        constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
+      }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'furia' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 1 origem: 'furia' } } }
+      }
+    }
+  }
+  efeitos {
+    # Nao pode correr nem cargar.
+    id: EFEITO_FADIGA
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
+      }
+    }
+  }
+  efeitos {
+    # Chance de falha.
+    id: EFEITO_INVISIBILIDADE
   }
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'aumentar_pessoa'
+    nome: 'Aumentar Pessoa'
+    id_efeito: EFEITO_AUMENTAR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+  pocoes {
+    id: 'reduzir_pessoa'
+    nome: 'Reduzir Pessoa'
+    id_efeito: EFEITO_REDUZIR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+
+  pocoes {
+    id: 'ajuda'
+    nome: 'Ajuda'
+    id_efeito: EFEITO_AJUDA
+    duracao_rodadas: 30
+    custo_po: 300
+    complementos: 3  # 1d8+3.
+  }
+
+  pocoes {
+    id: 'invisibilidade'
+    nome: 'Invisilidade'
+    id_efeito: EFEITO_INVISIBILIDADE
+    duracao_rodadas: 30
+    custo_po: 300
+  }
+
+  pocoes {
+    id: 'furia'
+    nome: 'Fúria'
+    id_efeito: EFEITO_FURIA
+    duracao_rodadas: 5
+    custo_po: 50
+    complementos: 2
+    complementos: 1
+  }
+
+  pocoes {
+    id: 'protecao_contra_mal'
+    nome: 'Poteção Contra o Mal'
+    id_efeito: EFEITO_PROTECAO_CONTRA_MAL
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_bem'
+    nome: 'Poteção Contra o Bem'
+    id_efeito: EFEITO_PROTECAO_CONTRA_BEM
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_ordem'
+    nome: 'Poteção Contra o Ordem'
+    id_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+  pocoes {
+    id: 'protecao_contra_caos'
+    nome: 'Poteção Contra o Caos'
+    id_efeito: EFEITO_PROTECAO_CONTRA_CAOS
+    duracao_rodadas: 10
+    custo_po: 50
+  }
+
   pocoes {
     id: 'curar_ferimentos_leves'
     nome: 'Curar Ferimentos Leves'
@@ -1116,7 +1261,7 @@ tabela_pocoes {
     id: 'escudo_fe_2'
     nome: 'Escudo da Fé (2)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 2
+    complementos: 2
     custo_po: 50
     duracao_rodadas: 10
   }
@@ -1124,7 +1269,7 @@ tabela_pocoes {
     id: 'escudo_fe_3'
     nome: 'Escudo da Fé (3)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 3
+    complementos: 3
     custo_po: 300
     duracao_rodadas: 60
   }
@@ -1132,7 +1277,7 @@ tabela_pocoes {
     id: 'escudo_fe_4'
     nome: 'Escudo da Fé (4)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 4
+    complementos: 4
     custo_po: 600
     duracao_rodadas: 120
   }
@@ -1140,13 +1285,13 @@ tabela_pocoes {
     id: 'escudo_fe_5'
     nome: 'Escudo da Fé (5)'
     id_efeito: EFEITO_ESCUDO_FE
-    complemento: 5
+    complementos: 5
     custo_po: 900
     duracao_rodadas: 180
   }
   pocoes {
-    id: 'borrar'
-    nome: 'Borrar'
+    id: 'nublar'
+    nome: 'Nublar'
     id_efeito: EFEITO_BORRAR
     custo_po: 300
     duracao_rodadas: 30
@@ -1165,7 +1310,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 750
     duracao_rodadas: 3000
-    complemento: 1
+    complementos: 1
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1175,7 +1320,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1200
     duracao_rodadas: 4800
-    complemento: 2
+    complementos: 2
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1185,7 +1330,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1800
     duracao_rodadas: 7200
-    complemento: 3
+    complementos: 3
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1195,7 +1340,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 2400
     duracao_rodadas: 9600
-    complemento: 4
+    complementos: 4
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1205,7 +1350,7 @@ tabela_pocoes {
     id_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 3000
     duracao_rodadas: 12000
-    complemento: 5
+    complementos: 5
     combinacao_efeitos: COMB_EXCLUSIVO
   }
   pocoes {
@@ -1221,7 +1366,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 300
     duracao_rodadas: 300
-    complemento: 2
+    complementos: 2
   }
   pocoes {
     id: 'pele_arvore_3'
@@ -1229,7 +1374,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 600
     duracao_rodadas: 600
-    complemento: 3
+    complementos: 3
   }
   pocoes {
     id: 'pele_arvore_4'
@@ -1237,7 +1382,7 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 900
     duracao_rodadas: 900
-    complemento: 4
+    complementos: 4
   }
   pocoes {
     id: 'pele_arvore_5'
@@ -1245,10 +1390,105 @@ tabela_pocoes {
     id_efeito: EFEITO_PELE_ARVORE
     custo_po: 1200
     duracao_rodadas: 1200
-    complemento: 5
+    complementos: 5
   }
 }
 tabela_talentos {
+  talentos {
+    id: 'encontrao_aprimorado'
+    nome: 'Encontrão Aprimorado'
+    # guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de encontrão e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'atropelar_aprimorado'
+    nome: 'Atropelar Aprimorado'
+    #guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de atropelar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'separar_aprimorado'
+    nome: 'Separar Aprimorado'
+    #guerreiro: true Ataque Poderoso
+    descricao: '+4 de bônus nas tentativas de Separar e não provoca ataques de oportunidade.'
+  }
+  talentos {
+    id: 'arquearia_montada'
+    nome: 'Arquearia Montada'
+    #guerreiro: true Combate Montado
+    descricao: 'Sofre metade das penalidades nos ataques à distância realizados sobre montarias.'
+  }
+  talentos {
+    id: 'investida_implacavel'
+    nome: 'Investida Implacável'
+    #guerreiro: true Combate Montado, Investida Montada
+    descricao: 'Investidas montadas causam dano dobrado.'
+  }
+  talentos {
+    id: 'pisotear'
+    nome: 'Pisotear'
+    #guerreiro: true Combate Montado
+    descricao: 'A vítima não pode evitar um atropelamento montada.'
+  }
+  talentos {
+    id: 'bloqueio_ambidestro'
+    nome: 'Bloqueio Ambidestro'
+    #guerreiro: true Combater com Duas Armas des 15
+    descricao: 'A arma da mão inábil concede +1 de bônus de escudo na CA.'
+  }
+  talentos {
+    id: 'contramagica_aprimorada'
+    nome: 'Contramágica Aprimorada'
+    descricao: 'Contramágica com magias da mesma escola.'
+  }
+  talentos {
+    id: 'ataque_giratorio'
+    nome: 'Ataque Giratório'
+    #guerreiro: true Des 13, Especialização em Combate, Esquiva, Mobilidade, Ataque em Movimento, bônus base de ataque +4
+    descricao: 'Realiza um ataque corporal contra cada oponente dentro do alcance.'
+  }
+  talentos {
+    id: 'expulsao_aprimorada'
+    nome: 'Expulsão Aprimorada'
+    # Habilidade de expulsar ou fascinar criaturas
+    descricao: '+1 nível efetivo para testes de expulsão.'
+  }
+  talentos {
+    id: 'potencializar_invocacao'
+    nome: 'Potencializar Invocação'
+    # Foco em Magia (conjuração)
+    descricao: 'As criaturas invocadas recebem +4 For e +4 Cons.'
+  }
+  talentos {
+    id: 'rapidez_recarga'
+    nome: 'Rapidez de Recarga'
+    #guerreiro: true Usar Arma Simples (besta)
+    descricao: 'Recarrega bestas mais rapidamente.'
+  }
+  talentos {
+    id: 'sorrateiro'
+    nome: 'Sorrateiro'
+    descricao: '+2 nos testes de Esconder-se e Furtividade.'
+  }
+  talentos {
+    id: 'tiro_longo'
+    nome: 'Tiro Longo'
+    #guerreiro: true Tiro Certeiro
+    descricao: 'Aumenta o incremento de distância em 50% ou 100%.'
+  }
+  talentos {
+    id: 'tiro_movimento'
+    nome: 'Tiro em Movimento'
+    #guerreiro: true Des 13, Esquiva, Mobilidade, Tiro Certeiro, bônus base de ataque +4
+    descricao: 'Pode se deslocar antes e depois de um ataque à distância.'
+  }
+  talentos {
+    id: 'tiro_preciso_aprimorado'
+    nome: 'Tiro Preciso Aprimorado'
+    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
+    descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
+  }
+
   talentos {
     id: 'acrobatico'
     nome: 'Acrobático'
@@ -1492,7 +1732,6 @@ tabela_talentos {
   talentos {
     id: 'fortitude_maior'
     nome: 'Fortitude Maior'
-    # bonus_salvacao { fortitude: 2 }
     descricao: '+2 de bônus nos teste de resistência de Fortitude.'
   }
   talentos {
@@ -1611,7 +1850,8 @@ tabela_talentos {
     id: 'prontidao'
     nome: 'Prontidão'
     # bonus_pericias { ouvir: 2, observar: 2 }
-    descricao: 'Bonus de +2 em ouvir e observar.' }
+    descricao: 'Bonus de +2 em ouvir e observar.'
+  }
   talentos {
     id: 'rastrear'
     nome: 'Rastrear'
@@ -1627,7 +1867,6 @@ tabela_talentos {
   talentos {
     id: 'reflexos_rapidos'
     nome: 'Reflexos Rápidos'
-    # bonus_salvacao { reflexo: 2 }
     descricao: '+2 de bônus nos testes de resistência de Reflexos.'
   }
   talentos {
@@ -1677,6 +1916,13 @@ tabela_talentos {
     nome: 'Trespassar'  # Cleave
     descricao: 'Desfere um ataque corporal extra depois de imobilizar um oponente'
     # pre_requisitos { talentos: [ 'ataque_poderoso' ] }
+    # guerreiro: true
+  }
+  talentos {
+    id: 'trespassar_aprimorado'
+    nome: 'Trespassar Aprimorado'  # Great Cleave
+    descricao: 'Igual a trespassar, sem limites de vezes'
+    # pre_requisitos { bba: 4, talentos: [ 'trespassar' ] }
     # guerreiro: true
   }
   talentos {
@@ -1745,7 +1991,6 @@ tabela_talentos {
   talentos {
     id: 'vontade_ferro'
     nome: 'Vontade de Ferro'
-    # bonus_salvacao { vontade: 2 }
     descricao: '+2 de bônus nos testes de resistência de Vontade.'
   }
   talentos {
@@ -1865,4 +2110,428 @@ tabela_talentos {
     # niveis_adicionais: 2
     # mago: 1
   }
+  # Talentos de monstros.
+  talentos {
+    id: 'ataques_multiplos'
+    nome: 'Ataques Múltiplos'
+    descricao: 'Diminui a penalidade de ataques secundários de -5 para -2 para monstros com múltiplos ataques naturais.'
+    monstro: true
+    # Pre requisito: 3 ou mais ataques naturais.
+  }
 }
+tabela_classes {
+  info_classes {
+    id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+  }
+  info_classes {
+    id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+  }
+  info_classes {
+    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+  }
+  info_classes {
+    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+  }
+  info_classes {
+    id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+  }
+  info_classes {
+    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_INTELIGENCIA
+  }
+  info_classes {
+    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
+  }
+  info_classes {
+    id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
+    id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
+    id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
+  }
+  info_classes {
+    id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+  }
+}
+
+tabela_pericias {
+  pericias {
+    id: 'abrir_fechaduras'
+    nome: 'Abrir Fechaduras'
+    # classes: [ 'ladino'  ]
+    sem_treinamento: false
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'acrobacias'
+    nome: 'Acrobacias'
+    # classes: [ 'bardo'  'monge'  'ladino' ]
+    sem_treinamento: false
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'adestrar_animais'
+    nome: 'Adestrar Animais'
+    # classes: [ 'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
+    sem_treinamento: false
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'arte_da_fuga'
+    nome: 'Arte da Fuga'
+    # classes: [ 'bardo'  'monge'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'atuacao'
+    nome: 'Atuação'
+    # classes: [ 'bardo'  'monge'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'avaliacao'
+    nome: 'Avaliação'
+    # classes: [ 'bardo'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'blefar'
+    nome: 'Blefar'
+    # classes: [  'bardo'  'ladino'  'feiticeiro'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'cavalgar'
+    nome: 'Cavalgar'
+    # classes: [  'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'concentracao'
+    nome: 'Concentração'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ranger'  'feiticeiro'  'mago' ]
+    sem_treinamento: true
+    atributo: TA_CONSTITUICAO
+  }
+  pericias {
+    id: 'conhecimento_arcano'
+    nome: 'Conhecimento (arcano)'
+    # classes: [  'bardo'  'clerigo'  'monge'  'feiticeiro'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_arquitetura_e_engenharia'
+    nome: 'Conhecimento (arquitetura e engenharia)'
+    # classes: [  'bardo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_geografia'
+    nome: 'Conhecimento (geografia)'
+    # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_historia'
+    nome: 'Conhecimento (história)'
+    # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_local'
+    nome: 'Conhecimento (local)'
+    # classes: [  'bardo'  'ladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_masmorras'
+    nome: 'Conhecimento (masmorras)'
+    # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_natureza'
+    nome: 'Conhecimento (natureza)'
+    # classes: [  'bardo'  'druida'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_nobreza_e_realeza'
+    nome: 'Conhecimento (nobreza e realeza)'
+    # classes: [  'bardo'  'paladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_planos'
+    nome: 'Conhecimento (planos)'
+    # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_religiao'
+    nome: 'Conhecimento (religião)'
+    # classes: [  'bardo'  'clerigo'  'monge'  'paladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'cura'
+    nome: 'Cura'
+    # classes: [  'clerigo'  'druida'  'paladino'  'ranger' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'decifrar_escrita'
+    nome: 'Decifrar Escrita'
+    # classes: [  'bardo'  'ladino'  'mago' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'diplomacia'
+    nome: 'Diplomacia'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'disfarces'
+    nome: 'Disfarces'
+    # classes: [  'bardo'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'equilibrio'
+    nome: 'Equilíbrio'
+    # classes: [  'bardo'  'monge'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'escalar'
+    nome: 'Escalar'
+    # classes: [  'barbaro'  'bardo'  'guerreiro'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'esconderse'
+    nome: 'Esconder-se'
+    # classes: [  'bardo'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'falar_idioma'
+    nome: 'Falar Idioma'
+    # classes: [ 'bardo'  'aristocrata' ]
+      atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'falsificacao'
+    nome: 'Falsificação'
+    # classes: [  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'furtividade'
+    nome: 'Furtividade'
+    # classes: [  'bardo'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'identificar_magia'
+    nome: 'Identificar magia'
+    # classes: [  'bardo'  'clerigo'  'druida'  'feiticeiro'  'mago']
+      atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'intimidacao'
+    nome: 'Intimidação'
+    # classes: [  'barbaro'  'guerreiro'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'natacao'
+    nome: 'Natação'
+    # classes: [  'barbaro'  'bardo'  'druida'  'guerreiro'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true  # especial
+  }
+  pericias {
+    id: 'observar'
+    nome: 'Observar'
+    # classes: [  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'obter_informacao'
+    nome: 'Obter Informação'
+    # classes: [  'bardo'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'oficios'
+    nome: 'Ofícios (outros)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_alquimia'
+    nome: 'Ofícios (alquimia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #               'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armoraria'
+    nome: 'Ofícios (armoraria)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_arquearia'
+    nome: 'Ofícios (arquearia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armeiro'
+    nome: 'Ofícios (armeiro)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armadilharia'
+    nome: 'Ofícios (armadilharia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'operar_mecanismo'
+    nome: 'Operar Mecanismo'
+    # classes: [  'ladino']
+      atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'ouvir'
+    nome: 'Ouvir'
+    # classes: [  'barbaro'  'bardo'  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'prestidigitacao'
+    nome: 'Prestidigitação'
+    # classes: [  'bardo'  'ladino']
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'procurar'
+    nome: 'Procurar'
+    # classes: [  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'profissao'
+    nome: 'Profissão'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ranger'
+    #              'ladino'  'feiticeiro'  'mago']
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'saltar'
+    nome: 'Saltar'
+    # classes: [  'barbaro'  'bardo'  'guerreiro'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'sentir_motivacao'
+    nome: 'Sentir Motivação'
+    # classes: [  'bardo'  'monge'  'paladino'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'sobrevivencia'
+    nome: 'Sobrevivência'
+    # classes: [  'barbaro'  'druida'  'ranger'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'usar_cordas'
+    nome: 'Usar Cordas'
+    # classes: [  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'usar_instrumento_magico'
+    nome: 'Usar Instrumento Mágico'
+    # classes: [  'bardo'  'ladino' ]
+    atributo: TA_CARISMA
+  }
+}
+

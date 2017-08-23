@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"
@@ -119,7 +120,7 @@ void InterfaceGrafica::VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigne
   if (ok) {
     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
   }
-  //tabuleiro_->ReativaWatchdogSeMestre();
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----

@@ -1,3 +1,14 @@
+Agarrar nao precisa de toque se agarrando.
+Fazer uma corrente representando agarrar entre entidades.
+Modificadores de grapple: 4 patas e outros.
+Colocar pericias.
+Nivel negativo.
+Descer iniciativas em 1 para nao baguncar com status.
+Implementar flanquear.
+Munição
+Implementar bloqueio ambidestro.
+Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
+Pre requisitos de talentos.
 Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.

@@ -99,16 +99,6 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
           }
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
-      } else if (teclas_[1] == Tecla_E) {
-        if (teclas_.size() < 2) {
-          break;
-        }
-        std::vector<std::pair<int, std::string>> lista_rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
-        for (const auto& rs : lista_rodadas) {
-          int rodadas;
-          std::tie(rodadas, std::ignore) = ent::GeraPontosVida(rs.second);
-          tabuleiro_->AdicionaEventoEntidadesSelecionadasNotificando(rodadas);
-        }
       }
     }
     break;

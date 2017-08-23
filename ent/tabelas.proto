@@ -27,6 +27,14 @@ message ArmaduraOuEscudoProto {
   optional string id = 10;
 }
 
+// Para efeitos de perícia, a arma pode ter apenas uma categoria.
+enum CategoriaPericia {
+  CATPER_SIMPLES = 0;
+  CATPER_COMUM   = 1;
+  CATPER_EXOTICA = 2;
+}
+
+// Uma arma pode ter varias categorias.
 enum CategoriaArma {
   // arma corpo a corpo.
   CAT_CAC        = 0;
@@ -69,12 +77,17 @@ message ArmaProto {
   optional StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
   optional int32 alcance_quadrados = 10;
+  optional int32 alcance_minimo_quadrados = 17;
   optional int32 margem_critico = 7 [default=20];
   optional int32 multiplicador_critico = 11 [default=2];
   optional int32 margem_critico_secundario = 12 [default=20];
   optional int32 multiplicador_critico_secundario = 13 [default=2];
   // Maximo modificador de forca permitido pela arma (valido para arcos).
   optional int32 max_forca = 14;
+  optional CategoriaPericia categoria_pericia = 15;
+  // Indica que a arma eh de haste.
+  optional bool haste = 16;
+  optional bool nao_letal = 18;
 }
 
 message TabelaArmaduraOuEscudo {
@@ -98,6 +111,14 @@ message TabelaTalentos {
   repeated TalentoProto talentos = 1;
 }
 
+message TabelaClasses {
+  repeated InfoClasse info_classes = 1;
+}
+
+message TabelaPericias {
+  repeated PericiaProto pericias = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -105,5 +126,7 @@ message TodasTabelas {
   optional TabelaArmas tabela_armas = 3;
   optional TabelaEfeitos tabela_efeitos = 4;
   optional TabelaTalentos tabela_talentos = 5;
+  optional TabelaPericias tabela_pericias =  6;
   optional TabelaPocoes tabela_pocoes = 50;
+  optional TabelaClasses tabela_classes =  51;
 }

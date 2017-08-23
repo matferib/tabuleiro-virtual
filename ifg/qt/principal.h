@@ -3,14 +3,14 @@
 
 #include <QApplication>
 #include <QWidget>
-#include "ent/tabelas.h"
-#include "ent/tabuleiro.h"
 #include "ifg/qt/texturas.h"
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
 
 namespace ent {
+class Tabelas;
+class Tabuleiro;
 class Texturas;
 }  // namespace tex
 

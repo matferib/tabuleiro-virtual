@@ -22,6 +22,7 @@
 #include "ent/constantes.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/tabuleiro_interface.h"
@@ -83,13 +84,13 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
 // n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubaOrigem(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
   entidade_depois->set_caida(true);
 
   if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *entidade_depois;
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
@@ -99,13 +100,13 @@ void PreencheNotificacaoDerrubaOrigem(
 
 void PreencheNotificacaoAgarrar(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
   entidade_depois->set_agarrando(true);
 
   if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *entidade_depois;
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
@@ -161,7 +162,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
         continue;
       }
       auto* n = grupo_notificacoes.add_notificacao();
-      n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n->mutable_entidade_antes()->set_id(entidade->Id());
       n->mutable_entidade()->set_id(entidade->Id());
       float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.1f;
@@ -682,7 +683,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
             continue;
           }
           auto* n = grupo_notificacoes.add_notificacao();
-          n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+          n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->set_id(entidade->Id());
           e_antes->set_rotacao_z_graus(proto_antes.rotacao_z_graus());
@@ -885,7 +886,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
         continue;
       }
-      if (entidade_destino->MaximoPontosVida() <= 0) {
+      if (!entidade_destino->Proto().has_max_pontos_vida()) {
         VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
         continue;
       }
@@ -897,7 +898,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
       int delta_pv_pos_salvacao = delta_pontos_vida;
       if (acao_proto.permite_salvacao()) {
         std::string resultado_salvacao;
-        std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+        std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade, *entidade_destino);
         AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
         atraso_s += 0.5f;
         AdicionaLogEvento(google::protobuf::StringPrintf(
@@ -949,17 +950,20 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
         TrataNotificacao(n_texto);
       } else {
+        // Aplica critico.
         for (int i = 0; i < vezes; ++i) {
           delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
         }
         if (vezes > 0) {
           delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
         }
+        auto* da = entidade->DadoCorrente();
+        bool nao_letal = da != nullptr && da->nao_letal();
         entidade->ProximoAtaque();
         if (acao_proto.permite_salvacao()) {
           std::string resultado_salvacao;
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade_destino);
+          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade, *entidade_destino);
           AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
           atraso_s += 0.5f;
           AdicionaLogEvento(google::protobuf::StringPrintf(
@@ -970,12 +974,14 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
         acao_proto.set_delta_pontos_vida(delta_pontos_vida);
         acao_proto.set_afeta_pontos_vida(true);
-        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
+        acao_proto.set_nao_letal(nao_letal);
+        // Apenas para desfazer.
+        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal, nd, nd);
       }
     }
     if (realiza_acao) {
       // Se agarrou, desfaz aqui.
-      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida()) {
+      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida() && entidade_destino != nullptr) {
         auto* no = grupo_desfazer->add_notificacao();
         PreencheNotificacaoAgarrar(*entidade, no, no);
         PreencheNotificacaoAgarrar(*entidade_destino, nd, nd);
@@ -1004,7 +1010,7 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
     LOG(INFO) << "Defesor nullptr";
     return;
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
   n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(entidade_defensora->Proto().dados_defesa().entidade_esquiva());
   n->mutable_entidade()->set_id(entidade_defensora->Id());
@@ -1108,7 +1114,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   e->AdicionaAcaoExecutada(acao_executada.id());
   if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
-    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->set_servidor_apenas(true);
     auto* entidade  = n->mutable_entidade();
     entidade->set_id(e->Id());
@@ -1160,7 +1166,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     {
       auto* n_perdeu = n.add_notificacao();
-      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_perdeu->mutable_entidade()->set_id(id);
       n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
       n_perdeu->mutable_entidade()->mutable_tesouro()->add_pocoes();
@@ -1170,7 +1176,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
 
       auto* n_ganhou = n.add_notificacao();
       const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
-      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
       n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
           tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());

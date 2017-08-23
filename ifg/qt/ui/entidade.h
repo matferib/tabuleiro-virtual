@@ -68,7 +68,7 @@ public:
     QLabel *label_6;
     QSpinBox *spin_max_pontos_vida;
     QLabel *label_26;
-    QSpinBox *spin_pontos_vida_temporarios;
+    QPushButton *botao_bonus_pv_temporario;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_5;
@@ -147,6 +147,10 @@ public:
     QListWidget *lista_formas_alternativas;
     QPushButton *botao_adicionar_forma_alternativa;
     QPushButton *botao_remover_forma_alternativa;
+    QWidget *horizontalLayoutWidget_13;
+    QHBoxLayout *horizontalLayout_17;
+    QLabel *label_79;
+    QSpinBox *spin_dano_nao_letal;
     QWidget *tab_nivel;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_31;
@@ -163,6 +167,7 @@ public:
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
     QLabel *label_40;
+    QComboBox *combo_classe;
     QLineEdit *linha_classe;
     QSpacerItem *horizontalSpacer;
     QLabel *label_41;
@@ -180,6 +185,23 @@ public:
     QSpacerItem *horizontalSpacer_9;
     QLabel *label_64;
     QComboBox *combo_salvacoes_fortes;
+    QWidget *gridLayoutWidget_6;
+    QGridLayout *gridLayout_6;
+    QLabel *label_75;
+    QSlider *slider_ordem_caos;
+    QSlider *slider_bem_mal;
+    QLabel *label_76;
+    QLabel *label_77;
+    QLabel *label_78;
+    QWidget *horizontalLayoutWidget_14;
+    QHBoxLayout *horizontalLayout_37;
+    QLabel *label_80;
+    QSpinBox *spin_niveis_negativos;
+    QWidget *tab_3;
+    QLabel *label_9;
+    QPushButton *botao_remover_talento;
+    QPushButton *botao_adicionar_talento;
+    QTableView *tabela_talentos;
     QWidget *tab_estatisticas;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
@@ -297,7 +319,6 @@ public:
     QPushButton *botao_bonus_iniciativa;
     QCheckBox *checkbox_iniciativa;
     QSpinBox *spin_iniciativa;
-    QCheckBox *checkbox_possui_acuidade;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -420,6 +441,8 @@ public:
         horizontalLayout_24->setContentsMargins(0, 0, 0, 0);
         label_15 = new QLabel(layoutWidget);
         label_15->setObjectName(QString::fromUtf8("label_15"));
+        sizePolicy1.setHeightForWidth(label_15->sizePolicy().hasHeightForWidth());
+        label_15->setSizePolicy(sizePolicy1);
         label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_24->addWidget(label_15);
@@ -431,7 +454,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(tab_geral);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 365, 41));
+        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 361, 41));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -475,12 +498,14 @@ public:
 
         horizontalLayout_12->addWidget(label_26);
 
-        spin_pontos_vida_temporarios = new QSpinBox(horizontalLayoutWidget_8);
-        spin_pontos_vida_temporarios->setObjectName(QString::fromUtf8("spin_pontos_vida_temporarios"));
-        spin_pontos_vida_temporarios->setMinimum(-100);
-        spin_pontos_vida_temporarios->setMaximum(999);
+        botao_bonus_pv_temporario = new QPushButton(horizontalLayoutWidget_8);
+        botao_bonus_pv_temporario->setObjectName(QString::fromUtf8("botao_bonus_pv_temporario"));
+        sizePolicy1.setHeightForWidth(botao_bonus_pv_temporario->sizePolicy().hasHeightForWidth());
+        botao_bonus_pv_temporario->setSizePolicy(sizePolicy1);
+        botao_bonus_pv_temporario->setMinimumSize(QSize(0, 0));
+        botao_bonus_pv_temporario->setMaximumSize(QSize(40, 16777215));
 
-        horizontalLayout_12->addWidget(spin_pontos_vida_temporarios);
+        horizontalLayout_12->addWidget(botao_bonus_pv_temporario);
 
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
@@ -582,14 +607,14 @@ public:
 
         horizontalLayoutWidget_11 = new QWidget(tab_geral);
         horizontalLayoutWidget_11->setObjectName(QString::fromUtf8("horizontalLayoutWidget_11"));
-        horizontalLayoutWidget_11->setGeometry(QRect(10, 340, 387, 35));
+        horizontalLayoutWidget_11->setGeometry(QRect(10, 340, 361, 35));
         horizontalLayout_20 = new QHBoxLayout(horizontalLayoutWidget_11);
         horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
         horizontalLayout_20->setContentsMargins(0, 0, 0, 0);
         label_13 = new QLabel(horizontalLayoutWidget_11);
         label_13->setObjectName(QString::fromUtf8("label_13"));
-        sizePolicy3.setHeightForWidth(label_13->sizePolicy().hasHeightForWidth());
-        label_13->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(label_13->sizePolicy().hasHeightForWidth());
+        label_13->setSizePolicy(sizePolicy5);
         label_13->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_20->addWidget(label_13);
@@ -921,6 +946,27 @@ public:
         botao_remover_forma_alternativa = new QPushButton(tab_geral);
         botao_remover_forma_alternativa->setObjectName(QString::fromUtf8("botao_remover_forma_alternativa"));
         botao_remover_forma_alternativa->setGeometry(QRect(850, 420, 31, 27));
+        horizontalLayoutWidget_13 = new QWidget(tab_geral);
+        horizontalLayoutWidget_13->setObjectName(QString::fromUtf8("horizontalLayoutWidget_13"));
+        horizontalLayoutWidget_13->setGeometry(QRect(10, 450, 151, 41));
+        horizontalLayout_17 = new QHBoxLayout(horizontalLayoutWidget_13);
+        horizontalLayout_17->setObjectName(QString::fromUtf8("horizontalLayout_17"));
+        horizontalLayout_17->setContentsMargins(0, 0, 0, 0);
+        label_79 = new QLabel(horizontalLayoutWidget_13);
+        label_79->setObjectName(QString::fromUtf8("label_79"));
+        sizePolicy.setHeightForWidth(label_79->sizePolicy().hasHeightForWidth());
+        label_79->setSizePolicy(sizePolicy);
+        label_79->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_17->addWidget(label_79);
+
+        spin_dano_nao_letal = new QSpinBox(horizontalLayoutWidget_13);
+        spin_dano_nao_letal->setObjectName(QString::fromUtf8("spin_dano_nao_letal"));
+        spin_dano_nao_letal->setMinimum(0);
+        spin_dano_nao_letal->setMaximum(999);
+
+        horizontalLayout_17->addWidget(spin_dano_nao_letal);
+
         tab_tesouro->addTab(tab_geral, QString());
         tab_nivel = new QWidget();
         tab_nivel->setObjectName(QString::fromUtf8("tab_nivel"));
@@ -971,7 +1017,7 @@ public:
 
         groupBox_2 = new QGroupBox(tab_nivel);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(10, 70, 951, 61));
+        groupBox_2->setGeometry(QRect(10, 90, 951, 61));
         horizontalLayoutWidget = new QWidget(groupBox_2);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(9, 20, 941, 41));
@@ -984,6 +1030,11 @@ public:
         label_40->setSizePolicy(sizePolicy5);
 
         horizontalLayout->addWidget(label_40);
+
+        combo_classe = new QComboBox(horizontalLayoutWidget);
+        combo_classe->setObjectName(QString::fromUtf8("combo_classe"));
+
+        horizontalLayout->addWidget(combo_classe);
 
         linha_classe = new QLineEdit(horizontalLayoutWidget);
         linha_classe->setObjectName(QString::fromUtf8("linha_classe"));
@@ -1004,7 +1055,7 @@ public:
 
         spin_nivel_classe = new QSpinBox(horizontalLayoutWidget);
         spin_nivel_classe->setObjectName(QString::fromUtf8("spin_nivel_classe"));
-        spin_nivel_classe->setMinimum(-1);
+        spin_nivel_classe->setMinimum(1);
 
         horizontalLayout->addWidget(spin_nivel_classe);
 
@@ -1078,7 +1129,81 @@ public:
 
         horizontalLayout->addWidget(combo_salvacoes_fortes);
 
+        gridLayoutWidget_6 = new QWidget(tab_nivel);
+        gridLayoutWidget_6->setObjectName(QString::fromUtf8("gridLayoutWidget_6"));
+        gridLayoutWidget_6->setGeometry(QRect(420, 10, 211, 71));
+        gridLayout_6 = new QGridLayout(gridLayoutWidget_6);
+        gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        gridLayout_6->setContentsMargins(0, 0, 0, 0);
+        label_75 = new QLabel(gridLayoutWidget_6);
+        label_75->setObjectName(QString::fromUtf8("label_75"));
+
+        gridLayout_6->addWidget(label_75, 0, 0, 1, 1);
+
+        slider_ordem_caos = new QSlider(gridLayoutWidget_6);
+        slider_ordem_caos->setObjectName(QString::fromUtf8("slider_ordem_caos"));
+        slider_ordem_caos->setMaximum(8);
+        slider_ordem_caos->setOrientation(Qt::Horizontal);
+
+        gridLayout_6->addWidget(slider_ordem_caos, 1, 1, 1, 1);
+
+        slider_bem_mal = new QSlider(gridLayoutWidget_6);
+        slider_bem_mal->setObjectName(QString::fromUtf8("slider_bem_mal"));
+        slider_bem_mal->setMaximum(8);
+        slider_bem_mal->setOrientation(Qt::Horizontal);
+
+        gridLayout_6->addWidget(slider_bem_mal, 0, 1, 1, 1);
+
+        label_76 = new QLabel(gridLayoutWidget_6);
+        label_76->setObjectName(QString::fromUtf8("label_76"));
+
+        gridLayout_6->addWidget(label_76, 1, 0, 1, 1);
+
+        label_77 = new QLabel(gridLayoutWidget_6);
+        label_77->setObjectName(QString::fromUtf8("label_77"));
+
+        gridLayout_6->addWidget(label_77, 1, 2, 1, 1);
+
+        label_78 = new QLabel(gridLayoutWidget_6);
+        label_78->setObjectName(QString::fromUtf8("label_78"));
+
+        gridLayout_6->addWidget(label_78, 0, 2, 1, 1);
+
+        horizontalLayoutWidget_14 = new QWidget(tab_nivel);
+        horizontalLayoutWidget_14->setObjectName(QString::fromUtf8("horizontalLayoutWidget_14"));
+        horizontalLayoutWidget_14->setGeometry(QRect(650, 10, 261, 31));
+        horizontalLayout_37 = new QHBoxLayout(horizontalLayoutWidget_14);
+        horizontalLayout_37->setObjectName(QString::fromUtf8("horizontalLayout_37"));
+        horizontalLayout_37->setContentsMargins(0, 0, 0, 0);
+        label_80 = new QLabel(horizontalLayoutWidget_14);
+        label_80->setObjectName(QString::fromUtf8("label_80"));
+        label_80->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_37->addWidget(label_80);
+
+        spin_niveis_negativos = new QSpinBox(horizontalLayoutWidget_14);
+        spin_niveis_negativos->setObjectName(QString::fromUtf8("spin_niveis_negativos"));
+        spin_niveis_negativos->setMinimum(0);
+        spin_niveis_negativos->setValue(0);
+
+        horizontalLayout_37->addWidget(spin_niveis_negativos);
+
         tab_tesouro->addTab(tab_nivel, QString());
+        tab_3 = new QWidget();
+        tab_3->setObjectName(QString::fromUtf8("tab_3"));
+        label_9 = new QLabel(tab_3);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+        label_9->setGeometry(QRect(660, 20, 57, 17));
+        botao_remover_talento = new QPushButton(tab_3);
+        botao_remover_talento->setObjectName(QString::fromUtf8("botao_remover_talento"));
+        botao_remover_talento->setGeometry(QRect(910, 80, 31, 27));
+        botao_adicionar_talento = new QPushButton(tab_3);
+        botao_adicionar_talento->setObjectName(QString::fromUtf8("botao_adicionar_talento"));
+        botao_adicionar_talento->setGeometry(QRect(910, 50, 31, 27));
+        tabela_talentos = new QTableView(tab_3);
+        tabela_talentos->setObjectName(QString::fromUtf8("tabela_talentos"));
+        tabela_talentos->setGeometry(QRect(465, 50, 431, 431));
+        tab_tesouro->addTab(tab_3, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
         botao_remover_ataque = new QPushButton(tab_estatisticas);
@@ -1730,11 +1855,6 @@ public:
 
         horizontalLayout_28->addWidget(spin_iniciativa);
 
-        checkbox_possui_acuidade = new QCheckBox(tab_estatisticas);
-        checkbox_possui_acuidade->setObjectName(QString::fromUtf8("checkbox_possui_acuidade"));
-        checkbox_possui_acuidade->setGeometry(QRect(470, 460, 91, 22));
-        sizePolicy1.setHeightForWidth(checkbox_possui_acuidade->sizePolicy().hasHeightForWidth());
-        checkbox_possui_acuidade->setSizePolicy(sizePolicy1);
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -1809,8 +1929,7 @@ public:
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
-        QWidget::setTabOrder(spin_max_pontos_vida, spin_pontos_vida_temporarios);
-        QWidget::setTabOrder(spin_pontos_vida_temporarios, checkbox_selecionavel);
+        QWidget::setTabOrder(spin_max_pontos_vida, checkbox_selecionavel);
         QWidget::setTabOrder(checkbox_selecionavel, checkbox_voadora);
         QWidget::setTabOrder(checkbox_voadora, checkbox_visibilidade);
         QWidget::setTabOrder(checkbox_visibilidade, checkbox_caida);
@@ -1907,8 +2026,9 @@ public:
 #endif // QT_NO_TOOLTIP
         label_26->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Temp", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_pontos_vida_temporarios->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
+        botao_bonus_pv_temporario->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida tempor\303\241rios.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        botao_bonus_pv_temporario->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -2005,6 +2125,10 @@ public:
         botao_remover_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Remove a forma alternativa selecionada", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
+        label_79->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano n\303\243o letal", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_dano_nao_letal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de dano n\303\243o letal.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
         label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -2045,7 +2169,19 @@ public:
         );
         label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", 0, QApplication::UnicodeUTF8));
         label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", 0, QApplication::UnicodeUTF8));
-        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", 0, QApplication::UnicodeUTF8));
+        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", 0, QApplication::UnicodeUTF8));
+        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", 0, QApplication::UnicodeUTF8));
+        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", 0, QApplication::UnicodeUTF8));
+        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", 0, QApplication::UnicodeUTF8));
+        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
+        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", 0, QApplication::UnicodeUTF8));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", 0, QApplication::UnicodeUTF8));
@@ -2097,6 +2233,8 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", 0, QApplication::UnicodeUTF8)
         );
         label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -2216,10 +2354,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        checkbox_possui_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Personagem possui acuidade com arma?", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_possui_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

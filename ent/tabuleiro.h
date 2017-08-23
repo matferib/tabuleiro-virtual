@@ -158,6 +158,7 @@ class Tabuleiro : public ntf::Receptor {
     BIT_DANO_MENOS_8         = 0x8000000,
     BIT_FALHA_20             = 0x10000000,
     BIT_FALHA_50             = 0x20000000,
+    BIT_FALHA_NEGATIVO       = 0x40000000,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
@@ -293,6 +294,14 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
+
+  /** Alterna a furia da entidade selecionada. */
+  void AlternaFuria();
+
+  /** Altera a defesa total para a entidade selecionada. */
+  void AlternaDefesaTotal();
+  /** Alterna a luta defensiva para a entidade selecionada. */
+  void AlternaLutaDefensiva();
 
   /** Trata o clique duplo do botao esquerdo. */
   void TrataDuploCliqueEsquerdo(int x, int y);
