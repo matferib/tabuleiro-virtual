@@ -355,7 +355,7 @@ modelo {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
     }
     dados_ataque {
-      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true }
+      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true ignora_ataque_toque: true }
     }
     evento { rodadas: 7 descricao: 'duração' }
   }
