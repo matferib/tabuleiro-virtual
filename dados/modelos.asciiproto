@@ -951,12 +951,12 @@ modelo {
     dados_defesa { id_armadura: 'armadura_batalha' }
 
     info_talentos {
+      gerais { id: 'reflexos_combate' }
+      gerais { id: 'ataque_poderoso' }
       gerais { id: 'trespassar' }
-      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_bastarda' }
-      gerais { id: 'usar_arma_exotica' complemento: 'espada_bastarda' }
       outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
       outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
-      outros { id: 'ataque_poderoso' }
+      outros { id: 'trespassar_aprimorado' }
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.

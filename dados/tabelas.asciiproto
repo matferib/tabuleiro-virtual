@@ -1919,6 +1919,13 @@ tabela_talentos {
     # guerreiro: true
   }
   talentos {
+    id: 'trespassar_aprimorado'
+    nome: 'Trespassar Aprimorado'  # Great Cleave
+    descricao: 'Igual a trespassar, sem limites de vezes'
+    # pre_requisitos { bba: 4, talentos: [ 'trespassar' ] }
+    # guerreiro: true
+  }
+  talentos {
     id: 'usar_armas_simples'
     nome: 'Usar armas simples'
     descricao: 'Não sofre penalidades nos ataques com armas simples.'
