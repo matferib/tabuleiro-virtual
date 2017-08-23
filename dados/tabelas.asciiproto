@@ -2182,3 +2182,356 @@ tabela_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
   }
 }
+
+tabela_pericias {
+  pericias {
+    id: 'abrir_fechaduras'
+    nome: 'Abrir Fechaduras'
+    # classes: [ 'ladino'  ]
+    sem_treinamento: false
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'acrobacias'
+    nome: 'Acrobacias'
+    # classes: [ 'bardo'  'monge'  'ladino' ]
+    sem_treinamento: false
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'adestrar_animais'
+    nome: 'Adestrar Animais'
+    # classes: [ 'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
+    sem_treinamento: false
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'arte_da_fuga'
+    nome: 'Arte da Fuga'
+    # classes: [ 'bardo'  'monge'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'atuacao'
+    nome: 'Atuação'
+    # classes: [ 'bardo'  'monge'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'avaliacao'
+    nome: 'Avaliação'
+    # classes: [ 'bardo'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'blefar'
+    nome: 'Blefar'
+    # classes: [  'bardo'  'ladino'  'feiticeiro'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'cavalgar'
+    nome: 'Cavalgar'
+    # classes: [  'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'concentracao'
+    nome: 'Concentração'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ranger'  'feiticeiro'  'mago' ]
+    sem_treinamento: true
+    atributo: TA_CONSTITUICAO
+  }
+  pericias {
+    id: 'conhecimento_arcano'
+    nome: 'Conhecimento (arcano)'
+    # classes: [  'bardo'  'clerigo'  'monge'  'feiticeiro'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_arquitetura_e_engenharia'
+    nome: 'Conhecimento (arquitetura e engenharia)'
+    # classes: [  'bardo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_geografia'
+    nome: 'Conhecimento (geografia)'
+    # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_historia'
+    nome: 'Conhecimento (história)'
+    # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_local'
+    nome: 'Conhecimento (local)'
+    # classes: [  'bardo'  'ladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_masmorras'
+    nome: 'Conhecimento (masmorras)'
+    # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_natureza'
+    nome: 'Conhecimento (natureza)'
+    # classes: [  'bardo'  'druida'  'ranger'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_nobreza_e_realeza'
+    nome: 'Conhecimento (nobreza e realeza)'
+    # classes: [  'bardo'  'paladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_planos'
+    nome: 'Conhecimento (planos)'
+    # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'conhecimento_religiao'
+    nome: 'Conhecimento (religião)'
+    # classes: [  'bardo'  'clerigo'  'monge'  'paladino'  'mago'  'aristocrata' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'cura'
+    nome: 'Cura'
+    # classes: [  'clerigo'  'druida'  'paladino'  'ranger' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'decifrar_escrita'
+    nome: 'Decifrar Escrita'
+    # classes: [  'bardo'  'ladino'  'mago' ]
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'diplomacia'
+    nome: 'Diplomacia'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'disfarces'
+    nome: 'Disfarces'
+    # classes: [  'bardo'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'equilibrio'
+    nome: 'Equilíbrio'
+    # classes: [  'bardo'  'monge'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'escalar'
+    nome: 'Escalar'
+    # classes: [  'barbaro'  'bardo'  'guerreiro'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'esconderse'
+    nome: 'Esconder-se'
+    # classes: [  'bardo'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'falar_idioma'
+    nome: 'Falar Idioma'
+    # classes: [ 'bardo'  'aristocrata' ]
+      atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'falsificacao'
+    nome: 'Falsificação'
+    # classes: [  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'furtividade'
+    nome: 'Furtividade'
+    # classes: [  'bardo'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'identificar_magia'
+    nome: 'Identificar magia'
+    # classes: [  'bardo'  'clerigo'  'druida'  'feiticeiro'  'mago']
+      atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'intimidacao'
+    nome: 'Intimidação'
+    # classes: [  'barbaro'  'guerreiro'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'natacao'
+    nome: 'Natação'
+    # classes: [  'barbaro'  'bardo'  'druida'  'guerreiro'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true  # especial
+  }
+  pericias {
+    id: 'observar'
+    nome: 'Observar'
+    # classes: [  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'obter_informacao'
+    nome: 'Obter Informação'
+    # classes: [  'bardo'  'ladino'  'aristocrata'  ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+  }
+  pericias {
+    id: 'oficios'
+    nome: 'Ofícios (outros)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_alquimia'
+    nome: 'Ofícios (alquimia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #               'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armoraria'
+    nome: 'Ofícios (armoraria)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_arquearia'
+    nome: 'Ofícios (arquearia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armeiro'
+    nome: 'Ofícios (armeiro)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'oficios_armadilharia'
+    nome: 'Ofícios (armadilharia)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'operar_mecanismo'
+    nome: 'Operar Mecanismo'
+    # classes: [  'ladino']
+      atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'ouvir'
+    nome: 'Ouvir'
+    # classes: [  'barbaro'  'bardo'  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'prestidigitacao'
+    nome: 'Prestidigitação'
+    # classes: [  'bardo'  'ladino']
+    atributo: TA_DESTREZA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'procurar'
+    nome: 'Procurar'
+    # classes: [  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+  }
+  pericias {
+    id: 'profissao'
+    nome: 'Profissão'
+    # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ranger'
+    #              'ladino'  'feiticeiro'  'mago']
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'saltar'
+    nome: 'Saltar'
+    # classes: [  'barbaro'  'bardo'  'guerreiro'  'monge'  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_FORCA
+    penalidade_armadura: true
+  }
+  pericias {
+    id: 'sentir_motivacao'
+    nome: 'Sentir Motivação'
+    # classes: [  'bardo'  'monge'  'paladino'  'ladino'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'sobrevivencia'
+    nome: 'Sobrevivência'
+    # classes: [  'barbaro'  'druida'  'ranger'  'aristocrata' ]
+    sem_treinamento: true
+    atributo: TA_SABEDORIA
+  }
+  pericias {
+    id: 'usar_cordas'
+    nome: 'Usar Cordas'
+    # classes: [  'ranger'  'ladino'  ]
+    sem_treinamento: true
+    atributo: TA_DESTREZA
+  }
+  pericias {
+    id: 'usar_instrumento_magico'
+    nome: 'Usar Instrumento Mágico'
+    # classes: [  'bardo'  'ladino' ]
+    atributo: TA_CARISMA
+  }
+}
+
