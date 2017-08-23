@@ -115,6 +115,10 @@ message TabelaClasses {
   repeated InfoClasse info_classes = 1;
 }
 
+message TabelaPericias {
+  repeated PericiaProto pericias = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -122,6 +126,7 @@ message TodasTabelas {
   optional TabelaArmas tabela_armas = 3;
   optional TabelaEfeitos tabela_efeitos = 4;
   optional TabelaTalentos tabela_talentos = 5;
+  optional TabelaPericias tabela_pericias =  6;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
 }

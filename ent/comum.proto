@@ -326,6 +326,17 @@ enum CombinacaoEfeitos {
   COMB_EXCLUSIVO = 1;
 }
 
+// Pericias.
+message PericiaProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional bool sem_treinamento = 3;
+  optional TipoAtributo atributo = 4;
+  optional bool penalidade_armadura = 5;
+  optional string complemento = 6;
+}
+
+// Talentos.
 message PreRequisitoTalento {
 }
 
@@ -344,7 +355,6 @@ enum TipoComplementoTalento {
   TCT_PERICIA = 5;
 }
 
-// Talentos.
 message TalentoProto {
   // Chave do talento na tabela.
   optional string id = 1;

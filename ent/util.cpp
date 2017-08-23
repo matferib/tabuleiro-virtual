@@ -2188,7 +2188,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
     const int niveis_negativos = proto->niveis_negativos();
     proto->mutable_bba()->set_base(bba);
     proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba - niveis_negativos);
-    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba - niveis_negativos());
+    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba - niveis_negativos);
     int total_agarrar = modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba - niveis_negativos;
     if (PossuiTalento("agarrar_aprimorado", *proto)) {
       total_agarrar += 4;
