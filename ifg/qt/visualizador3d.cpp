@@ -1308,6 +1308,15 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
     AtualizaUIClassesNiveis(tabelas, gerador, *proto_retornado);
   });
 
+  lambda_connect(gerador.spin_niveis_negativos, SIGNAL(valueChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+    if (gerador.spin_niveis_negativos->value() > 0) {
+      proto_retornado->set_niveis_negativos(gerador.spin_niveis_negativos->value());
+    } else {
+      proto_retornado->clear_niveis_negativos();
+    }
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+
   // Adiciona um nivel ao personagem ao clicar no botao de adicionar.
   lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
     gerador.lista_niveis->setCurrentRow(-1);

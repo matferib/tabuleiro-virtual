@@ -193,6 +193,10 @@ public:
     QLabel *label_76;
     QLabel *label_77;
     QLabel *label_78;
+    QWidget *horizontalLayoutWidget_14;
+    QHBoxLayout *horizontalLayout_37;
+    QLabel *label_80;
+    QSpinBox *spin_niveis_negativos;
     QWidget *tab_3;
     QLabel *label_9;
     QPushButton *botao_remover_talento;
@@ -1164,6 +1168,25 @@ public:
         label_78->setObjectName(QString::fromUtf8("label_78"));
 
         gridLayout_6->addWidget(label_78, 0, 2, 1, 1);
+
+        horizontalLayoutWidget_14 = new QWidget(tab_nivel);
+        horizontalLayoutWidget_14->setObjectName(QString::fromUtf8("horizontalLayoutWidget_14"));
+        horizontalLayoutWidget_14->setGeometry(QRect(650, 10, 261, 31));
+        horizontalLayout_37 = new QHBoxLayout(horizontalLayoutWidget_14);
+        horizontalLayout_37->setObjectName(QString::fromUtf8("horizontalLayout_37"));
+        horizontalLayout_37->setContentsMargins(0, 0, 0, 0);
+        label_80 = new QLabel(horizontalLayoutWidget_14);
+        label_80->setObjectName(QString::fromUtf8("label_80"));
+        label_80->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_37->addWidget(label_80);
+
+        spin_niveis_negativos = new QSpinBox(horizontalLayoutWidget_14);
+        spin_niveis_negativos->setObjectName(QString::fromUtf8("spin_niveis_negativos"));
+        spin_niveis_negativos->setMinimum(0);
+        spin_niveis_negativos->setValue(0);
+
+        horizontalLayout_37->addWidget(spin_niveis_negativos);
 
         tab_tesouro->addTab(tab_nivel, QString());
         tab_3 = new QWidget();
@@ -2150,6 +2173,10 @@ public:
         label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", 0, QApplication::UnicodeUTF8));
         label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", 0, QApplication::UnicodeUTF8));
         label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", 0, QApplication::UnicodeUTF8));
+        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", 0, QApplication::UnicodeUTF8));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));

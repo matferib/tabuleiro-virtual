@@ -117,7 +117,7 @@ void AtualizaUIClassesNiveis(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // Objetos da UI a serem bloqueados. Passa por copia.
   std::vector<QObject*> objs = {
-      gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+      gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
   };
   auto BloqueiaSinais = [objs] {
@@ -129,6 +129,7 @@ void AtualizaUIClassesNiveis(
 
   BloqueiaSinais();
   AtualizaUINiveis(gerador, proto);
+  gerador.spin_niveis_negativos->setValue(proto.niveis_negativos());
 
   const int indice = gerador.lista_niveis->currentRow();
   // Se tiver selecao, preenche.
