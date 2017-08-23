@@ -1046,7 +1046,7 @@ std::tuple<int, std::string> ComputaCritico(
 
 // Retorna -1 para falha critica, 0, para falha e total para sucesso.
 std::tuple<int, std::string, bool> ComputaAcertoOuErro(
-    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar) {
+    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar, const EntidadeProto& pea, const EntidadeProto& ped) {
   assert(modificador_incrementos <= 0);
   int total = d20 + ataque_origem + modificador_incrementos + outros_modificadores;
   if (d20 == 1) {
@@ -1057,14 +1057,20 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
         "falhou: %d%+d%s%s= %d vs %d", d20, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, ca_destino);
     return std::make_tuple(0, texto, false);
+  } else if (agarrar && total == ca_destino) {
+    // Maior modificador ganha.
+    if (pea.bba().agarrar() < ped.bba().agarrar()) {
+      // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem do ataque.
+      return std::make_tuple(0, google::protobuf::StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
+    }
   }
   return std::make_tuple(total, "", true);
 }
 
 // Retorna o resultado do ataque de toque o se acertou ou nao.
-std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const Entidade& ea, const Entidade& ed) {
+std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   // TODO: aqui to hackeando pra pular o toque se ambos estiverem agarrando.
-  if (PossuiTalento("agarrar_aprimorado", ea.Proto()) || (ea.Proto().agarrando() && ed.Proto().agarrando())) {
+  if (da->ignora_ataque_toque() || (ea.Proto().agarrando() && ed.Proto().agarrando())) {
     return std::make_tuple("", true);
   }
   const int d20_toque = RolaDado(20);
@@ -1072,7 +1078,7 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   const int ataque_toque = ea.BonusAtaqueToque();
   std::string texto_erro;
   bool acertou;
-  std::tie(std::ignore, texto_erro, acertou) = ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, ca_destino_toque, false);
+  std::tie(std::ignore, texto_erro, acertou) = ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, ca_destino_toque, false, ea.Proto(), ed.Proto());
   if (!acertou) {
     std::string texto_falha_toque = google::protobuf::StringPrintf("Ataque de toque falhou: %s", texto_erro.c_str());
     return std::make_tuple(texto_falha_toque, false);
@@ -1122,7 +1128,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   std::string texto_toque_agarrar;
   if (da->ataque_agarrar()) {
     bool acertou;
-    std::tie(texto_toque_agarrar, acertou) = AtaqueToquePreAgarrar(outros_modificadores, ea, ed);
+    std::tie(texto_toque_agarrar, acertou) = AtaqueToquePreAgarrar(outros_modificadores, da, ea, ed);
     if (!acertou) {
       return std::make_tuple(0, texto_toque_agarrar, true);
     }
@@ -1137,7 +1143,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     std::string texto_erro;
     bool acertou;
     std::tie(total, texto_erro, acertou) =
-        ComputaAcertoOuErro(d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar());
+        ComputaAcertoOuErro(d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(), ea.Proto(), ed.Proto());
     if (!acertou) {
       return std::make_tuple(total, texto_erro, total == -1 ? false : true);
     }
@@ -1584,6 +1590,11 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaqu
   } else if (da->ataque_agarrar()) {
     if (!da->has_dano_basico()) {
       da->set_dano_basico(DanoDesarmadoPorTamanho(proto.tamanho()));
+    }
+    if (PossuiTalento("agarrar_aprimorado", proto) || da->acao().ignora_ataque_toque()) {
+      da->set_ignora_ataque_toque(true);
+    } else {
+      da->clear_ignora_ataque_toque();
     }
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.

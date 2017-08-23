@@ -96,6 +96,8 @@ message AcaoProto {
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
   // ira considerar sempre um acerto e pular esta etapa.
   optional bool permite_ataque_vs_defesa = 27;
+  // Para agarrar, ignora o ataque de toque.
+  optional bool ignora_ataque_toque = 41;
   // A textura que representa a acao (icone).
   optional string icone = 25;
   // A acao deve ser feita apenas localmente.

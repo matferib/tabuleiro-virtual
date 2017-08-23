@@ -221,6 +221,8 @@ message EntidadeProto {
     optional int32 ordem_ataque = 32;
     // Ataque da dano nao letal.
     optional bool nao_letal = 34;
+    // Para agarrar.
+    optional bool ignora_ataque_toque = 35;
   }
   repeated DadosAtaque dados_ataque = 44;
 
