@@ -19,24 +19,26 @@ fixo {
     tamanho: 1
     linha: 5
     coluna: 3
-    rotulo: "DT"
+    rotulo: "Mf"
     cor_rotulo {}
-    textura: "icon_total_defense.png"
-    id: CONTROLE_DEFESA_TOTAL
+    textura: "icon_shapechange.png"
+    id: CONTROLE_ALTERAR_FORMA
     forma: FORMA_RETANGULO
-    dica: "Entra em defesa total."
+    mestre_apenas: false
+    dica: "Mudar forma."
     visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
   }
   dados_botoes {
     tamanho: 1
     linha: 5
     coluna: 4
-    rotulo: "LD"
+    rotulo: "F"
     cor_rotulo {}
-    textura: "icon_fight_defensively.png"
-    id: CONTROLE_LUTA_DEFENSIVA
+    textura: "icon_sneak.png"
+    id: CONTROLE_FURTIVO
     forma: FORMA_RETANGULO
-    dica: "Entra em luta defensiva."
+    mestre_apenas: false
+    dica: "Ataque furtivo."
     visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
   }
   dados_botoes {
@@ -733,19 +735,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 12
-    rotulo: "F"
-    cor_rotulo {}
-    textura: "icon_sneak.png"
-    id: CONTROLE_FURTIVO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Ataque furtivo."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
+    linha: 2
     coluna: 13
     rotulo: "S"
     cor_rotulo {}
@@ -757,17 +747,26 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
-    coluna: 13
-    rotulo: "Mf"
+    linha: 1
+    coluna: 12
+    rotulo: "LD"
     cor_rotulo {}
-    textura: "icon_shapechange.png"
-    id: CONTROLE_ALTERAR_FORMA
+    textura: "icon_fight_defensively.png"
+    id: CONTROLE_LUTA_DEFENSIVA
     forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Mudar forma."
+    dica: "Entra em luta defensiva."
   }
-
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 13
+    rotulo: "DT"
+    cor_rotulo {}
+    textura: "icon_total_defense.png"
+    id: CONTROLE_DEFESA_TOTAL
+    forma: FORMA_RETANGULO
+    dica: "Entra em defesa total."
+  }
   dados_botoes {
     tamanho: 1
     linha: 2
