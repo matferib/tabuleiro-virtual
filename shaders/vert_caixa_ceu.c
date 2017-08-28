@@ -29,7 +29,11 @@ attribute lowp vec4 gltab_cor;
 
 void main() {
   v_Color = gltab_cor;
-  v_Pos_model = gltab_vertice;
+  // Esta parte eh complicada. O OpenGL monta o cubo de uma maneira bem especifica, mas o sistema de coordenadas difere
+  // do meu (ele usa x->direita, y->cima, z->atras, o meu eh x->direita, y->frente, z->cima). Aqui eu converto apenas a coordenada
+  // para o mapeamento de cubo, mantendo a posicao original em gl_Position.
+  v_Pos_model = mat4(vec4(1, 0, 0, 0), vec4(0, 0, -1, 0), vec4(0, 1, 0, 0), vec4(0, 0, 0, 1)) * gltab_vertice;
+  //v_Pos_model = gltab_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
   // Esta linha joga o skybox la pro fundo da cena. Fazendo o z == w, o valor

@@ -32,7 +32,7 @@ void main() {
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   } else if (gltab_textura_cubo > 0.0) {
-    cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.yzx);
+    cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.xyz);
   }
   gl_FragColor = cor_final;
 }
