@@ -1,3 +1,4 @@
+#include <cstring>
 #include <unordered_set>
 
 #include <boost/filesystem.hpp>
@@ -75,7 +76,8 @@ void LeImagem(arq::tipo_e tipo, const std::string& nome, std::vector<unsigned ch
 
 /** Decodifica os dados crus de info_textura, devolvendo altura, largura e os bits decodificados. */
 void DecodificaImagem(
-    const std::string& dados_entrada, unsigned int* plargura, unsigned int* paltura, std::vector<unsigned char>* bits) {
+    const std::string& dados_entrada, unsigned int* plargura, unsigned int* paltura, std::vector<unsigned char>* bits,
+    bool inverte_y = false, bool inverte_x = false) {
   std::vector<unsigned char> dados_crus(dados_entrada.begin(), dados_entrada.end());
   std::vector<unsigned char> dados;
   lodepng::State estado;
@@ -100,6 +102,30 @@ void DecodificaImagem(
     VLOG(2) << "Color key g: " << color.key_g;
     VLOG(2) << "Color key b: " << color.key_b;
   }
+  if (inverte_y) {
+    const int bytes_per_pixel = 4;  // RGBA
+    int largura_linha_bytes = largura * bytes_per_pixel;
+    std::vector<unsigned char> t(largura_linha_bytes);
+    //LOG(ERROR) << "bytes per pixel: " << bytes_per_pixel << ", largura linha bytes: " << largura_linha_bytes;
+    for (int linha = 0; linha < altura / 2; ++linha) {
+      memcpy(&t[0], &dados[linha * largura_linha_bytes], largura_linha_bytes);
+      memcpy(&dados[linha * largura_linha_bytes], &dados[(altura - linha - 1) * largura_linha_bytes], largura_linha_bytes);
+      memcpy(&dados[(altura - linha - 1) * largura_linha_bytes], &t[0], largura_linha_bytes);
+    }
+  }
+  if (inverte_x) {
+    const int bytes_per_pixel = 4;  // RGBA
+    int largura_linha_bytes = largura * bytes_per_pixel;
+    std::vector<unsigned char> t(4);
+    for (int linha = 0; linha < altura; ++linha) {
+      for (int coluna = 0; coluna < largura / 2; ++coluna) {
+        memcpy(&t[0], &dados[linha * largura_linha_bytes + coluna * 4], 4);
+        memcpy(&dados[linha * largura_linha_bytes + coluna * 4], &dados[linha * largura_linha_bytes + (largura - coluna - 1) * 4], 4);
+        memcpy(&dados[linha * largura_linha_bytes + (largura - coluna - 1) * 4], &t[0], 4);
+      }
+    }
+  }
+
   bits->clear();
   bits->insert(bits->begin(), dados.begin(), dados.end());
 }
@@ -236,8 +262,8 @@ class Texturas::InfoTexturaInterna {
 
   void CriaTexturaOpenGlCubo() {
     // So cria se a textura tiver bits.
-    if (bits_posx_.empty() || bits_posy_.empty() || bits_posz_.empty() ||
-        bits_negx_.empty() || bits_negy_.empty() || bits_negz_.empty()) {
+    if (bits_direita_.empty() || bits_frente_.empty() || bits_cima_.empty() ||
+        bits_esquerda_.empty() || bits_atras_.empty() || bits_baixo_.empty()) {
       return;
     }
     gl::GeraTexturas(1, &id_);
@@ -254,13 +280,14 @@ class Texturas::InfoTexturaInterna {
       GLenum alvo;
       std::vector<unsigned char>* bits;
     };
+    // Seguindo a convencao do OpenGL que Y pra cima e -Z eh pra frente. Isso sera feito no shader de caixa de ceu.
     std::vector<DadosTextura> dados_texturas = {
-      { GL_TEXTURE_CUBE_MAP_POSITIVE_X, &bits_posx_ },
-      { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, &bits_posy_ },
-      { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, &bits_posz_ },
-      { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, &bits_negx_ },
-      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, &bits_negy_ },
-      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, &bits_negz_ },
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_X, &bits_direita_},
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, &bits_cima_},
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, &bits_atras_},
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, &bits_esquerda_ },
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, &bits_baixo_ },
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, &bits_frente_ },
     };
     for (const auto& dado_textura : dados_texturas) {
       gl::ImagemTextura2d(
@@ -275,6 +302,10 @@ class Texturas::InfoTexturaInterna {
     // TODO wrapper para outros...
     gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
 #endif
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
     gl::DesabilitaMipmapAniso(GL_TEXTURE_CUBE_MAP);
     V_ERRO("CriaTexturaOpenGlCubo");
@@ -287,16 +318,16 @@ class Texturas::InfoTexturaInterna {
       tex::DecodificaImagem(info_textura.bits_crus(), &largura_, &altura_, &bits_);
     } else {
       unsigned int largura, altura;
-      tex::DecodificaImagem(info_textura.bits_crus_posx(), &largura_, &altura_, &bits_posx_);
-      tex::DecodificaImagem(info_textura.bits_crus_posy(), &largura, &altura, &bits_posy_);
+      tex::DecodificaImagem(info_textura.bits_crus_direita(), &largura_, &altura_, &bits_direita_, false, false);
+      tex::DecodificaImagem(info_textura.bits_crus_frente(), &largura, &altura, &bits_frente_, false, false);
       if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
-      tex::DecodificaImagem(info_textura.bits_crus_posz(), &largura, &altura, &bits_posz_);
+      tex::DecodificaImagem(info_textura.bits_crus_cima(), &largura, &altura, &bits_cima_, true, true);
       if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
-      tex::DecodificaImagem(info_textura.bits_crus_negx(), &largura, &altura, &bits_negx_);
+      tex::DecodificaImagem(info_textura.bits_crus_esquerda(), &largura, &altura, &bits_esquerda_, false, false);
       if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
-      tex::DecodificaImagem(info_textura.bits_crus_negy(), &largura, &altura, &bits_negy_);
+      tex::DecodificaImagem(info_textura.bits_crus_atras(), &largura, &altura, &bits_atras_, false, false);
       if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
-      tex::DecodificaImagem(info_textura.bits_crus_negz(), &largura, &altura, &bits_negz_);
+      tex::DecodificaImagem(info_textura.bits_crus_baixo(), &largura, &altura, &bits_baixo_, true, true);
       if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
     }
   }
@@ -312,12 +343,12 @@ class Texturas::InfoTexturaInterna {
   unsigned int altura_;
   int formato_;
   std::vector<unsigned char> bits_;
-  std::vector<unsigned char> bits_posx_;
-  std::vector<unsigned char> bits_posy_;
-  std::vector<unsigned char> bits_posz_;
-  std::vector<unsigned char> bits_negx_;
-  std::vector<unsigned char> bits_negy_;
-  std::vector<unsigned char> bits_negz_;
+  std::vector<unsigned char> bits_direita_;
+  std::vector<unsigned char> bits_esquerda_;
+  std::vector<unsigned char> bits_frente_;
+  std::vector<unsigned char> bits_atras_;
+  std::vector<unsigned char> bits_cima_;
+  std::vector<unsigned char> bits_baixo_;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -529,12 +560,12 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura_const) {
       };
       ent::InfoTextura info_lido;
       const std::vector<DadosTextura> dados_texturas = {
-        { "negx.png", info_lido.mutable_bits_crus_negx() },
-        { "negy.png", info_lido.mutable_bits_crus_negy() },
-        { "negz.png", info_lido.mutable_bits_crus_negz() },
-        { "posx.png", info_lido.mutable_bits_crus_posx() },
-        { "posy.png", info_lido.mutable_bits_crus_posy() },
-        { "posz.png", info_lido.mutable_bits_crus_posz() }
+        { "esquerda.png", info_lido.mutable_bits_crus_esquerda() },
+        { "atras.png", info_lido.mutable_bits_crus_atras() },
+        { "baixo.png", info_lido.mutable_bits_crus_baixo() },
+        { "direita.png", info_lido.mutable_bits_crus_direita() },
+        { "frente.png", info_lido.mutable_bits_crus_frente() },
+        { "cima.png", info_lido.mutable_bits_crus_cima() }
       };
       try {
         std::string prefixo = info_textura.id();
