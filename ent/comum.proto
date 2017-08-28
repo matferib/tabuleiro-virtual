@@ -132,12 +132,12 @@ message InfoTextura {
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
   // dentro de tabuleiros.
   optional bytes bits_crus = 6;
-  optional bytes bits_crus_posx = 7;
-  optional bytes bits_crus_posy = 8;
-  optional bytes bits_crus_posz = 9;
-  optional bytes bits_crus_negx = 10;
-  optional bytes bits_crus_negy = 11;
-  optional bytes bits_crus_negz = 12;
+  optional bytes bits_crus_direita = 7;
+  optional bytes bits_crus_frente = 8;
+  optional bytes bits_crus_cima = 9;
+  optional bytes bits_crus_esquerda = 10;
+  optional bytes bits_crus_atras = 11;
+  optional bytes bits_crus_baixo = 12;
   // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
   optional int32 modo_textura = 17;
 }
