@@ -1,8 +1,8 @@
-Agarrar nao precisa de toque se agarrando.
+Colocar pericias.
+Passar forma alternativa e ataque furtivo para quem tiver.
+Passar defesa total para menu de baixo.
 Fazer uma corrente representando agarrar entre entidades.
 Modificadores de grapple: 4 patas e outros.
-Colocar pericias.
-Nivel negativo.
 Descer iniciativas em 1 para nao baguncar com status.
 Implementar flanquear.
 Munição

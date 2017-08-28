@@ -896,7 +896,8 @@ class Tabuleiro : public ntf::Receptor {
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding,
       float largura_botao, float altura_botao, const Entidade* entidade);
   void DesenhaDicaBotaoControleVirtual(
-      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao,
+      const Entidade* entidade);
   /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
   unsigned int TexturaBotao(const DadosBotao& db, const Entidade* entidade) const;
   /** Funcao para retornar o id de botao que melhor representa o estado do clique com a forma selecionada. */

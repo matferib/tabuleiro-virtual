@@ -24,6 +24,7 @@
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"
@@ -937,8 +938,23 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   return "";
 }
 
+std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
+  switch (db.id()) {
+    case CONTROLE_BEBER_POCAO: {
+      if (entidade == nullptr || entidade->Proto().tesouro().pocoes().empty()) break;
+      const auto& pocoes = entidade->Proto().tesouro().pocoes();
+      if (pocoes.size() > 1) return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), "escolher");
+      return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), pocoes.Get(0).id().c_str());
+    }
+    default:
+      ;
+  }
+  return db.dica();
+}
+
 void Tabuleiro::DesenhaDicaBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura,
+    const Entidade* entidade) {
   if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
     return;
   }
@@ -950,7 +966,7 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
-  std::string dica = StringSemUtf8(db.dica());
+  std::string dica = StringSemUtf8(DicaBotao(db, entidade));
   const float tam_dica_2_px = (dica.size() * fonte_x) / 2.0f;
   float delta_x = 0;
   if ((x_meio - tam_dica_2_px) < 0.0f) {
@@ -1340,7 +1356,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Dicas.
     if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
       for (const auto* db : botoes) {
-        DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+        DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
       }
     }
   }
