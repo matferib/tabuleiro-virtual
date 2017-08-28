@@ -183,19 +183,19 @@ void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QCo
     return nome_arquivo.find("skybox") != 0;
   };
   auto EhCuboSecundario = [] (const std::string& nome_arquivo) {
-    return nome_arquivo.find("negx.png") != std::string::npos ||
-           nome_arquivo.find("posy.png") != std::string::npos ||
-           nome_arquivo.find("negy.png") != std::string::npos ||
-           nome_arquivo.find("posz.png") != std::string::npos ||
-           nome_arquivo.find("negz.png") != std::string::npos;
+    return nome_arquivo.find("esquerda.png") != std::string::npos ||
+           nome_arquivo.find("frente.png") != std::string::npos ||
+           nome_arquivo.find("atras.png") != std::string::npos ||
+           nome_arquivo.find("cima.png") != std::string::npos ||
+           nome_arquivo.find("baixo.png") != std::string::npos;
   };
   auto FiltraOrdena = [NaoEhSkybox, EhCuboSecundario] (std::vector<std::string> texturas) -> std::vector<std::string> {
     texturas.erase(std::remove_if(texturas.begin(), texturas.end(), NaoEhSkybox), texturas.end());
     texturas.erase(std::remove_if(texturas.begin(), texturas.end(), EhCuboSecundario), texturas.end());
     for (std::string& textura : texturas) {
-      std::size_t pos = textura.find("posx.png");
+      std::size_t pos = textura.find("direita.png");
       if (pos != std::string::npos) {
-        textura.replace(pos, 8, ".cube");
+        textura.replace(pos, 11, ".cube");
       }
     }
     std::sort(texturas.begin(), texturas.end());

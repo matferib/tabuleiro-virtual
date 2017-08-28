@@ -1650,7 +1650,7 @@ QGroupBox::title {
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>660</x>
+       <x>750</x>
        <y>20</y>
        <width>57</width>
        <height>17</height>
@@ -1663,7 +1663,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_remover_talento">
      <property name="geometry">
       <rect>
-       <x>910</x>
+       <x>990</x>
        <y>80</y>
        <width>31</width>
        <height>27</height>
@@ -1676,7 +1676,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_adicionar_talento">
      <property name="geometry">
       <rect>
-       <x>910</x>
+       <x>990</x>
        <y>50</y>
        <width>31</width>
        <height>27</height>
@@ -1689,7 +1689,30 @@ QGroupBox::title {
     <widget class="QTableView" name="tabela_talentos">
      <property name="geometry">
       <rect>
-       <x>465</x>
+       <x>550</x>
+       <y>50</y>
+       <width>431</width>
+       <height>431</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_81">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>20</y>
+       <width>57</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Perícias</string>
+     </property>
+    </widget>
+    <widget class="QTableView" name="tabela_pericias">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
        <y>50</y>
        <width>431</width>
        <height>431</height>
