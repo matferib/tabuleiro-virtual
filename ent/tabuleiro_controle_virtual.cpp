@@ -955,9 +955,6 @@ std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
 void Tabuleiro::DesenhaDicaBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura,
     const Entidade* entidade) {
-  if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
-    return;
-  }
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
@@ -1320,13 +1317,13 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::Le(GL_VIEWPORT, viewport);
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
 
+  // Todos botoes, mapeados por id.
+  std::vector<DadosBotao*> botoes;
   {
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
-    // Todos botoes, mapeados por id.
-    std::vector<DadosBotao*> botoes;
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {
       if (!BotaoVisivel(db)) continue;
@@ -1353,12 +1350,6 @@ void Tabuleiro::DesenhaControleVirtual() {
     for (const auto* db : botoes) {
       DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
     }
-    // Dicas.
-    if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
-      for (const auto* db : botoes) {
-        DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
-      }
-    }
   }
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
@@ -1374,6 +1365,19 @@ void Tabuleiro::DesenhaControleVirtual() {
   if (parametros_desenho_.desenha_iniciativas()) {
     DesenhaIniciativas();
   }
+
+  // Desenha dicas por ultimo.
+  if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
+    auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+    // Dicas.
+    for (const auto* db : botoes) {
+      if (id_entidade_detalhada_ != db->id() || db->dica().empty()) {
+        continue;
+      }
+      DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
+    }
+  }
+
   V_ERRO("desenhando lista pontos de vida");
 
   // So volta a luz se havia iluminacao antes.

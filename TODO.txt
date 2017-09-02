@@ -1,5 +1,6 @@
+Visibilidade para ataque furtivo e forma alternativa.
 Colocar pericias.
-Passar forma alternativa e ataque furtivo para quem tiver.
+Passar botoes forma alternativa e ataque furtivo para quem tiver (lado esquerdo).
 Passar defesa total para menu de baixo.
 Fazer uma corrente representando agarrar entre entidades.
 Modificadores de grapple: 4 patas e outros.
