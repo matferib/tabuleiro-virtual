@@ -122,6 +122,8 @@ cAtualizaUI = env.Object('ifg/qt/atualiza_ui.cpp')
 
 cQtInterface = env.Object('ifg/qt/qt_interface.cpp')
 
+cQtPericiasUtil = env.Moc('ifg/qt/pericias_util.h')
+
 # Implementacao das texturas.
 #cTexturas = env.Object('ifg/qt/texturas.cpp')
 cTexturasLode = env.Object('tex/lodepng.cpp')
@@ -186,7 +188,7 @@ objetos = [
     # interface.
     cTecladoMouse, cInterface, ifg_proto[0],
     # interface QT
-    cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cQtInterface, cAtualizaUI,
+    cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cQtInterface, cQtPericiasUtil, cAtualizaUI,
     # Texturas
     cTexturas, cTexturasLode,
     # Modelos3d.
