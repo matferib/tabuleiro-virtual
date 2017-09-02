@@ -27,6 +27,7 @@
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/pericias_util.h"
 #include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/entidade.h"
@@ -913,6 +914,22 @@ void TrocaDelegateColuna(unsigned int coluna, QAbstractItemDelegate* delegado, Q
   delegado->deleteLater();
 }
 
+void PreencheConfiguraPericias(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  const ent::Tabelas& tabelas = this_->tabelas();
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_pericias->selectionModel());
+  auto* modelo(new ModeloPericias(tabelas, proto_retornado->mutable_info_pericias(), gerador.tabela_pericias));
+  gerador.tabela_pericias->setModel(modelo);
+  gerador.tabela_pericias->resizeColumnsToContents();
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                 [&tabelas, &gerador, proto_retornado, modelo] () {
+    *proto_retornado->mutable_info_pericias() = modelo->Converte();
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraTalentos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
@@ -1216,7 +1233,7 @@ void PreencheConfiguraDadosAtaque(
     EditaAtualizaUIAtaque();
   });
   // Furtivo
-  gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
+  gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_global().dano_furtivo().c_str()));
 }
 
 void PreencheComboSalvacoesFortes(QComboBox* combo) {
@@ -1437,7 +1454,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Formas alternativas.
   PreencheConfiguraFormasAlternativas(this, dialogo, gerador, entidade, proto_retornado);
 
-  // Talentos.
+  // Pericias e Talentos.
+  PreencheConfiguraPericias(this, gerador, entidade, proto_retornado);
   PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
 
   // Visibilidade.
@@ -1637,7 +1655,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     }
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
-    proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
+    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao_m(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
