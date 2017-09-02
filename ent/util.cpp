@@ -855,28 +855,28 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
     modificador += 1;
   }
 
-  if (ea.dados_ataque_globais().ataque_menos_1()) {
+  if (ea.dados_ataque_global().ataque_menos_1()) {
     modificador -= 1;
   }
-  if (ea.dados_ataque_globais().ataque_menos_2()) {
+  if (ea.dados_ataque_global().ataque_menos_2()) {
     modificador -= 2;
   }
-  if (ea.dados_ataque_globais().ataque_menos_4()) {
+  if (ea.dados_ataque_global().ataque_menos_4()) {
     modificador -= 4;
   }
-  if (ea.dados_ataque_globais().ataque_menos_8()) {
+  if (ea.dados_ataque_global().ataque_menos_8()) {
     modificador -= 8;
   }
-  if (ea.dados_ataque_globais().ataque_mais_1()) {
+  if (ea.dados_ataque_global().ataque_mais_1()) {
     modificador += 1;
   }
-  if (ea.dados_ataque_globais().ataque_mais_2()) {
+  if (ea.dados_ataque_global().ataque_mais_2()) {
     modificador += 2;
   }
-  if (ea.dados_ataque_globais().ataque_mais_4()) {
+  if (ea.dados_ataque_global().ataque_mais_4()) {
     modificador += 4;
   }
-  if (ea.dados_ataque_globais().ataque_mais_8()) {
+  if (ea.dados_ataque_global().ataque_mais_8()) {
     modificador += 8;
   }
 
@@ -890,34 +890,34 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
 
 int ModificadorDano(const EntidadeProto& ea) {
   int modificador = 0;
-  if (ea.dados_ataque_globais().dano_menos_1()) {
+  if (ea.dados_ataque_global().dano_menos_1()) {
     modificador -= 1;
   }
-  if (ea.dados_ataque_globais().dano_menos_2()) {
+  if (ea.dados_ataque_global().dano_menos_2()) {
     modificador -= 2;
   }
-  if (ea.dados_ataque_globais().dano_menos_4()) {
+  if (ea.dados_ataque_global().dano_menos_4()) {
     modificador -= 4;
   }
-  if (ea.dados_ataque_globais().dano_menos_8()) {
+  if (ea.dados_ataque_global().dano_menos_8()) {
     modificador -= 8;
   }
-  if (ea.dados_ataque_globais().dano_mais_1()) {
+  if (ea.dados_ataque_global().dano_mais_1()) {
     modificador += 1;
   }
-  if (ea.dados_ataque_globais().dano_mais_2()) {
+  if (ea.dados_ataque_global().dano_mais_2()) {
     modificador += 2;
   }
-  if (ea.dados_ataque_globais().dano_mais_4()) {
+  if (ea.dados_ataque_global().dano_mais_4()) {
     modificador += 4;
   }
-  if (ea.dados_ataque_globais().dano_mais_8()) {
+  if (ea.dados_ataque_global().dano_mais_8()) {
     modificador += 8;
   }
-  if (ea.dados_ataque_globais().dano_mais_16()) {
+  if (ea.dados_ataque_global().dano_mais_16()) {
     modificador += 16;
   }
-  if (ea.dados_ataque_globais().dano_mais_32()) {
+  if (ea.dados_ataque_global().dano_mais_32()) {
     modificador += 32;
   }
   return modificador;
@@ -2478,8 +2478,8 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
   if (modificador != 0) snprintf(texto_modificador, 99, "%+d", modificador);
 
   char texto_furtivo[100] = { '\0' };
-  if (proto.furtivo() && !proto.dados_ataque_globais().dano_furtivo().empty()) {
-    snprintf(texto_furtivo, 99, "+%s", proto.dados_ataque_globais().dano_furtivo().c_str());
+  if (proto.furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
+    snprintf(texto_furtivo, 99, "+%s", proto.dados_ataque_global().dano_furtivo().c_str());
   }
 
   std::string critico = StringCritico(da);

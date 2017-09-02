@@ -1,4 +1,3 @@
-Visibilidade para ataque furtivo e forma alternativa.
 Colocar pericias.
 Passar botoes forma alternativa e ataque furtivo para quem tiver (lado esquerdo).
 Passar defesa total para menu de baixo.

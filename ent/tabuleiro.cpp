@@ -1252,77 +1252,77 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_depois->set_furtivo(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_1(proto_original.dados_ataque_globais().ataque_mais_1());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_1(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_1(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_2(proto_original.dados_ataque_globais().ataque_mais_2());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_2(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_2(proto_original.dados_ataque_global().ataque_mais_2());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_2(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_4(proto_original.dados_ataque_globais().ataque_mais_4());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_4(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_4(proto_original.dados_ataque_global().ataque_mais_4());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_4(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_8(proto_original.dados_ataque_globais().ataque_mais_8());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_8(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_1(proto_original.dados_ataque_globais().ataque_menos_1());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_1(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_1(proto_original.dados_ataque_global().ataque_menos_1());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_1(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_2(proto_original.dados_ataque_globais().ataque_menos_2());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_2(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_2(proto_original.dados_ataque_global().ataque_menos_2());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_2(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_4(proto_original.dados_ataque_globais().ataque_menos_4());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_4(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_4(proto_original.dados_ataque_global().ataque_menos_4());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_4(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_8(proto_original.dados_ataque_globais().ataque_menos_8());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_8(valor);
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_8(proto_original.dados_ataque_global().ataque_menos_8());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_8(valor);
     }
 
     if (bits & BIT_DANO_MAIS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_1(proto_original.dados_ataque_globais().dano_mais_1());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_1(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_1(proto_original.dados_ataque_global().dano_mais_1());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_1(valor);
     }
     if (bits & BIT_DANO_MAIS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_2(proto_original.dados_ataque_globais().dano_mais_2());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_2(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_2(proto_original.dados_ataque_global().dano_mais_2());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_2(valor);
     }
     if (bits & BIT_DANO_MAIS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_4(proto_original.dados_ataque_globais().dano_mais_4());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_4(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_4(proto_original.dados_ataque_global().dano_mais_4());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_4(valor);
     }
     if (bits & BIT_DANO_MAIS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_8(proto_original.dados_ataque_globais().dano_mais_8());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_8(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_8(proto_original.dados_ataque_global().dano_mais_8());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_8(valor);
     }
     if (bits & BIT_DANO_MAIS_16) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_16(proto_original.dados_ataque_globais().dano_mais_16());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_16(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_16(proto_original.dados_ataque_global().dano_mais_16());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_16(valor);
     }
     if (bits & BIT_DANO_MAIS_32) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_32(proto_original.dados_ataque_globais().dano_mais_32());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_32(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_32(proto_original.dados_ataque_global().dano_mais_32());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_32(valor);
     }
     if (bits & BIT_DANO_MENOS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_1(proto_original.dados_ataque_globais().dano_menos_1());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_1(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_1(proto_original.dados_ataque_global().dano_menos_1());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_1(valor);
     }
     if (bits & BIT_DANO_MENOS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_2(proto_original.dados_ataque_globais().dano_menos_2());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_2(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_2(proto_original.dados_ataque_global().dano_menos_2());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_2(valor);
     }
     if (bits & BIT_DANO_MENOS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_4(proto_original.dados_ataque_globais().dano_menos_4());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_4(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_4(proto_original.dados_ataque_global().dano_menos_4());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_4(valor);
     }
     if (bits & BIT_DANO_MENOS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_8(proto_original.dados_ataque_globais().dano_menos_8());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_8(valor);
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_8(proto_original.dados_ataque_global().dano_menos_8());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_8(valor);
     }
     proto_antes->set_id(id);
     proto_depois->set_id(id);
@@ -1364,10 +1364,10 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
         (bits & BIT_FALHA_50) > 0 ||
         (bits & BIT_FALHA_NEGATIVO) > 0) {
       int chance = (bits & BIT_FALHA_20) > 0 ? 20 : (bits & BIT_FALHA_50) > 0 ? 50 : -100;
-      int chance_antes = proto_original.dados_ataque_globais().chance_falha();
-      proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
+      int chance_antes = proto_original.dados_ataque_global().chance_falha();
+      proto_antes->mutable_dados_ataque_global()->set_chance_falha(
           chance_antes);
-      proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
+      proto_depois->mutable_dados_ataque_global()->set_chance_falha(
           chance_antes == chance ? 0 : chance);
     }
 
@@ -1441,79 +1441,79 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_depois->set_furtivo(!proto_original.furtivo());
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_1(proto_original.dados_ataque_globais().ataque_mais_1());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_1(!proto_original.dados_ataque_globais().ataque_mais_1());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_1(!proto_original.dados_ataque_global().ataque_mais_1());
     }
     if (bits & BIT_ATAQUE_MAIS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_2(proto_original.dados_ataque_globais().ataque_mais_2());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_2(!proto_original.dados_ataque_globais().ataque_mais_2());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_2(proto_original.dados_ataque_global().ataque_mais_2());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_2(!proto_original.dados_ataque_global().ataque_mais_2());
     }
     if (bits & BIT_ATAQUE_MAIS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_4(proto_original.dados_ataque_globais().ataque_mais_4());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_4(!proto_original.dados_ataque_globais().ataque_mais_4());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_4(proto_original.dados_ataque_global().ataque_mais_4());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_4(!proto_original.dados_ataque_global().ataque_mais_4());
     }
     if (bits & BIT_ATAQUE_MAIS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_8(proto_original.dados_ataque_globais().ataque_mais_8());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_8(!proto_original.dados_ataque_globais().ataque_mais_8());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(!proto_original.dados_ataque_global().ataque_mais_8());
     }
 
     if (bits & BIT_ATAQUE_MENOS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_1(proto_original.dados_ataque_globais().ataque_menos_1());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_1(!proto_original.dados_ataque_globais().ataque_menos_1());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_1(proto_original.dados_ataque_global().ataque_menos_1());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_1(!proto_original.dados_ataque_global().ataque_menos_1());
     }
     if (bits & BIT_ATAQUE_MENOS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_2(proto_original.dados_ataque_globais().ataque_menos_2());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_2(!proto_original.dados_ataque_globais().ataque_menos_2());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_2(proto_original.dados_ataque_global().ataque_menos_2());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_2(!proto_original.dados_ataque_global().ataque_menos_2());
     }
     if (bits & BIT_ATAQUE_MENOS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_4(proto_original.dados_ataque_globais().ataque_menos_4());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_4(!proto_original.dados_ataque_globais().ataque_menos_4());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_4(proto_original.dados_ataque_global().ataque_menos_4());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_4(!proto_original.dados_ataque_global().ataque_menos_4());
     }
     if (bits & BIT_ATAQUE_MENOS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_8(proto_original.dados_ataque_globais().ataque_menos_8());
-      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_8(!proto_original.dados_ataque_globais().ataque_menos_8());
+      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_8(proto_original.dados_ataque_global().ataque_menos_8());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_8(!proto_original.dados_ataque_global().ataque_menos_8());
     }
 
     if (bits & BIT_DANO_MAIS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_1(proto_original.dados_ataque_globais().dano_mais_1());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_1(!proto_original.dados_ataque_globais().dano_mais_1());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_1(proto_original.dados_ataque_global().dano_mais_1());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_1(!proto_original.dados_ataque_global().dano_mais_1());
     }
     if (bits & BIT_DANO_MAIS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_2(proto_original.dados_ataque_globais().dano_mais_2());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_2(!proto_original.dados_ataque_globais().dano_mais_2());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_2(proto_original.dados_ataque_global().dano_mais_2());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_2(!proto_original.dados_ataque_global().dano_mais_2());
     }
     if (bits & BIT_DANO_MAIS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_4(proto_original.dados_ataque_globais().dano_mais_4());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_4(!proto_original.dados_ataque_globais().dano_mais_4());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_4(proto_original.dados_ataque_global().dano_mais_4());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_4(!proto_original.dados_ataque_global().dano_mais_4());
     }
     if (bits & BIT_DANO_MAIS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_8(proto_original.dados_ataque_globais().dano_mais_8());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_8(!proto_original.dados_ataque_globais().dano_mais_8());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_8(proto_original.dados_ataque_global().dano_mais_8());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_8(!proto_original.dados_ataque_global().dano_mais_8());
     }
     if (bits & BIT_DANO_MAIS_16) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_16(proto_original.dados_ataque_globais().dano_mais_16());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_16(!proto_original.dados_ataque_globais().dano_mais_16());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_16(proto_original.dados_ataque_global().dano_mais_16());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_16(!proto_original.dados_ataque_global().dano_mais_16());
     }
     if (bits & BIT_DANO_MAIS_32) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_32(proto_original.dados_ataque_globais().dano_mais_32());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_32(!proto_original.dados_ataque_globais().dano_mais_32());
+      proto_antes->mutable_dados_ataque_global()->set_dano_mais_32(proto_original.dados_ataque_global().dano_mais_32());
+      proto_depois->mutable_dados_ataque_global()->set_dano_mais_32(!proto_original.dados_ataque_global().dano_mais_32());
     }
 
     if (bits & BIT_DANO_MENOS_1) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_1(proto_original.dados_ataque_globais().dano_menos_1());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_1(!proto_original.dados_ataque_globais().dano_menos_1());
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_1(proto_original.dados_ataque_global().dano_menos_1());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_1(!proto_original.dados_ataque_global().dano_menos_1());
     }
     if (bits & BIT_DANO_MENOS_2) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_2(proto_original.dados_ataque_globais().dano_menos_2());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_2(!proto_original.dados_ataque_globais().dano_menos_2());
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_2(proto_original.dados_ataque_global().dano_menos_2());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_2(!proto_original.dados_ataque_global().dano_menos_2());
     }
     if (bits & BIT_DANO_MENOS_4) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_4(proto_original.dados_ataque_globais().dano_menos_4());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_4(!proto_original.dados_ataque_globais().dano_menos_4());
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_4(proto_original.dados_ataque_global().dano_menos_4());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_4(!proto_original.dados_ataque_global().dano_menos_4());
     }
     if (bits & BIT_DANO_MENOS_8) {
-      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_8(proto_original.dados_ataque_globais().dano_menos_8());
-      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_8(!proto_original.dados_ataque_globais().dano_menos_8());
+      proto_antes->mutable_dados_ataque_global()->set_dano_menos_8(proto_original.dados_ataque_global().dano_menos_8());
+      proto_depois->mutable_dados_ataque_global()->set_dano_menos_8(!proto_original.dados_ataque_global().dano_menos_8());
     }
 
     proto_antes->set_id(id);
@@ -1726,12 +1726,12 @@ int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
       LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_globais().dano_furtivo().empty()) {
+    if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_global().dano_furtivo().empty()) {
       return 0;
     }
     int total;
     std::vector<std::pair<int, int>> dados;
-    std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+    std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_global().dano_furtivo());
     total = -total;
     std::string texto_dados;
     for (const auto& fv : dados) {

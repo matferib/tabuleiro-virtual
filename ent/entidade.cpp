@@ -1818,12 +1818,12 @@ int Entidade::ChanceFalhaAtaque() const {
   // Chance de ficar etereo ao atacar.
   int chance = 0;
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
-  chance = std::max(chance, proto_.dados_ataque_globais().chance_falha());
+  chance = std::max(chance, proto_.dados_ataque_global().chance_falha());
   return chance;
 }
 
 bool Entidade::IgnoraChanceFalha() const {
-  return proto_.dados_ataque_globais().chance_falha() < 0;
+  return proto_.dados_ataque_global().chance_falha() < 0;
 }
 
 }  // namespace ent

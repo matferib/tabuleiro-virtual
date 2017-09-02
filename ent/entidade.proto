@@ -142,6 +142,7 @@ message EntidadeProto {
 
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
+  // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
   optional bool furtivo = 62;
   optional bool fumegando = 67;
   optional bool agarrando = 71;
@@ -255,7 +256,7 @@ message EntidadeProto {
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
   }
-  optional DadosAtaqueGlobal dados_ataque_globais = 73;
+  optional DadosAtaqueGlobal dados_ataque_global = 73;
 
   optional DadosDefesa dados_defesa = 45;
 

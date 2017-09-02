@@ -882,6 +882,20 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
+        case VIS_ATAQUE_FURTIVO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().dados_ataque_global().dano_furtivo().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_FORMA_ALTERNATIVA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().formas_alternativas_size() <= 1) {
+            return false;
+          }
+          break;
+        }
         case VIS_ESQUIVA: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) {
@@ -1199,75 +1213,75 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     // Ataque.
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_1();
     } },
     { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_2();
     } },
     { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_4();
     } },
     { CONTROLE_ATAQUE_MAIS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_8();
     } },
 
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_1();
     } },
     { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_2();
     } },
     { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_4();
     } },
     { CONTROLE_ATAQUE_MENOS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_8();
     } },
 
     // Dano.
     { CONTROLE_DANO_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_1();
     } },
     { CONTROLE_DANO_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_2();
     } },
     { CONTROLE_DANO_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_4();
     } },
     { CONTROLE_DANO_MAIS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_8();
     } },
     { CONTROLE_DANO_MAIS_16,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_16();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_16();
     } },
     { CONTROLE_DANO_MAIS_32,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_32();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_32();
     } },
 
     { CONTROLE_DANO_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_1();
     } },
     { CONTROLE_DANO_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_2();
     } },
     { CONTROLE_DANO_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_4();
     } },
     { CONTROLE_DANO_MENOS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_8();
     } },
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().voadora();
     } },
     { CONTROLE_FALHA_20,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 20;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() == 20;
     } },
     { CONTROLE_FALHA_50,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 50;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() == 50;
     } },
     { CONTROLE_FALHA_NEGATIVO, [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() < 0;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() < 0;
     } },
     { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
       return entidade != nullptr && !entidade->Proto().visivel();
