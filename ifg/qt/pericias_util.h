@@ -34,6 +34,13 @@ class ModeloPericias : public QAbstractTableModel {
 
   // Os cabeçalhos.
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
+    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole && section == 0) {
+      // Hack pra diminuir o tamanho da primeira coluna.
+      QSize qs = QAbstractTableModel::headerData(0, Qt::Horizontal, Qt::SizeHintRole).toSize();
+      qs.setWidth(qs.width() / 2);
+      return QVariant(qs);
+    }
+
     if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
       return QVariant();
     }
