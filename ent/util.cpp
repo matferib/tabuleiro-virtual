@@ -1541,7 +1541,7 @@ const ArmaProto& ArmaOutraMao(
   return tabelas.Arma(da_outra_mao->id_arma());
 }
 
-void RecomputaDependenciasArma(const Tabelas& tabelas, EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.Arma(da->id_arma());
   AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
@@ -2156,6 +2156,29 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
   }
 }
 
+void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Mapa do proto.
+  std::unordered_map<std::string, EntidadeProto::InfoPericia*> mapa_pericias_proto;
+  for (auto& ip : *proto->mutable_info_pericias()) {
+    mapa_pericias_proto[ip.id()] = &ip;
+  }
+  // Preenche o modelo.
+  for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
+    // Acha a pericia no personagem se houver.
+    auto it = mapa_pericias_proto.find(pt.id());
+    auto* pericia_proto = it != mapa_pericias_proto.end() ? it->second : proto->add_info_pericias();
+    if (pericia_proto->id().empty()) {
+      pericia_proto->set_id(pt.id());
+    }
+    // Atributo.
+    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
+    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto->pontos() : pericia_proto->pontos() / 2;
+    AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto->mutable_bonus());
+    //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
+  }
+  // TODO sinergia e talentos.
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
@@ -2198,8 +2221,10 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasArma(tabelas, &da, *proto);
+    RecomputaDependenciasArma(tabelas, *proto, &da);
   }
+
+  RecomputaDependenciasPericias(tabelas, proto);
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
 
@@ -2626,6 +2651,17 @@ const TalentoProto* Talento(const std::string& chave_talento, const std::string&
   return nullptr;
 }
 
+bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    const auto& ct = tabelas.Classe(ic.id()); 
+    if (std::any_of(ct.pericias().begin(), ct.pericias().end(),
+          [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
+      return true;
+    }
+  }
+  return false;
+}
+
 TipoEfeito StringParaEfeito(const std::string& s) {
   for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
     if (!TipoEfeito_IsValid(i)) continue;
@@ -2666,7 +2702,6 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char>> tokenizador(complementos, sep);
     for (const auto& token : tokenizador) {
-      LOG(INFO) << "token: " << token;
       evento.add_complementos(atoi(token.c_str()));
     }
     auto id_efeito = StringParaEfeito(evento.descricao());

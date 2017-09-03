@@ -291,6 +291,8 @@ message InfoClasse {
   repeated TipoSalvacao salvacoes_fortes = 7;
   // Como o nivel de conjurador progride.
   optional ProgressaoConjurador progressao_conjurador = 10;
+  // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
+  repeated string pericias = 11;
 }
 
 message ConsequenciaEvento {

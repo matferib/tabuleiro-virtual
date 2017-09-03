@@ -6,6 +6,7 @@
 #include "ent/util.h"
 #include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
+#include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 #include "net/util.h"
@@ -21,6 +22,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUISalvacoes(gerador, proto);
   AtualizaUITesouro(tabelas, gerador, proto);
   AtualizaUIPontosVida(gerador, proto);
+  AtualizaUIPericias(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -391,6 +393,17 @@ void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Enti
   gerador.spin_dano_nao_letal->setValue(proto.dano_nao_letal());
   gerador.botao_bonus_pv_temporario->setText(QString::number(BonusTotal(proto.pontos_vida_temporarios_por_fonte())));
   gerador.spin_max_pontos_vida->setValue(proto.max_pontos_vida());
+}
+
+void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  // Se no windows nao tiver Moc vai dar erro de linker. Ai, transformar isso em reinterpret_cast.
+  auto* modelo = qobject_cast<ModeloPericias*>(gerador.tabela_pericias->model());
+  if (modelo != nullptr) {
+    modelo->Recomputa();
+  } else {
+    LOG(ERROR) << "modelo eh nullptr";
+  }
+  gerador.tabela_pericias->update();
 }
 
 }  // namespace qt
