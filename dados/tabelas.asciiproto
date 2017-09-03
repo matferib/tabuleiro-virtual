@@ -2119,67 +2119,503 @@ tabela_talentos {
     # Pre requisito: 3 ou mais ataques naturais.
   }
 }
+
+# Lista de pericias na ordem em ingles para faciliar.
+    #pericias: 'avaliacao'
+    #pericias: 'equilibrio'
+    #pericias: 'blefar'
+    #pericias: 'escalar'
+    #pericias: 'concentracao'
+    #pericias: 'oficios'
+    #pericias: 'oficios_alquimia'
+    #pericias: 'oficios_armoraria'
+    #pericias: 'oficios_arquearia'
+    #pericias: 'oficios_armeiro'
+    #pericias: 'oficios_armadilharia'
+    #pericias: 'decifrar_escrita'
+    #pericias: 'diplomacia'
+    #pericias: 'operar_mecanismo'
+    #pericias: 'disfarces'
+    #pericias: 'arte_da_fuga'
+    #pericias: 'falsificacao'
+    #pericias: 'obter_informacao'
+    #pericias: 'adestrar_animais'
+    #pericias: 'cura'
+    #pericias: 'esconderse'
+    #pericias: 'intimidacao'
+    #pericias: 'saltar'
+    #pericias: 'conhecimento_arcano'
+    #pericias: 'conhecimento_arquitetura_e_engenharia'
+    #pericias: 'conhecimento_masmorras'
+    #pericias: 'conhecimento_geografia'
+    #pericias: 'conhecimento_historia'
+    #pericias: 'conhecimento_local'
+    #pericias: 'conhecimento_natureza'
+    #pericias: 'conhecimento_nobreza_e_realeza'
+    #pericias: 'conhecimento_planos'
+    #pericias: 'conhecimento_religiao'
+    #pericias: 'ouvir'
+    #pericias: 'furtividade'
+    #pericias: 'abrir_fechaduras'
+    #pericias: 'atuacao'
+    #pericias: 'profissao'
+    #pericias: 'cavalgar'
+    #pericias: 'procurar'
+    #pericias: 'sentir_motivacao'
+    #pericias: 'prestidigitacao'
+    #pericias: 'falar_idioma'
+    #pericias: 'identificar_magia'
+    #pericias: 'observar'
+    #pericias: 'sobrevivencia'
+    #pericias: 'natacao'
+    #pericias: 'acrobacias'
+    #pericias: 'usar_instrumento_magico'
+    #pericias: 'usar_cordas'
+
 tabela_classes {
   info_classes {
     id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    pericias: 'escalar'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'adestrar_animais'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'cavalgar'
+    pericias: 'natacao'
+
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
     id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
+
+    pericias: 'escalar'
+    pericias: 'adestrar_animais'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'cavalgar'
+    pericias: 'natacao'
+
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'cura'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'adestrar_animais'
+    pericias: 'cura'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+    pericias: 'sobrevivencia'
+
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+
+    pericias: 'escalar'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'adestrar_animais'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'ouvir'
+    pericias: 'cavalgar'
+    pericias: 'sobrevivencia'
+    pericias: 'natacao'
+
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+
+    pericias: 'escalar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'adestrar_animais'
+    pericias: 'cura'
+    pericias: 'esconderse'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_natureza'
+    pericias: 'ouvir'
+    pericias: 'furtividade'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'cavalgar'
+    pericias: 'procurar'
+    pericias: 'observar'
+    pericias: 'sobrevivencia'
+    pericias: 'natacao'
+    pericias: 'usar_cordas'
+
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'adestrar_animais'
+    pericias: 'cura'
+    pericias: 'conhecimento_natureza'
+    pericias: 'ouvir'
+    pericias: 'profissao'
+    pericias: 'cavalgar'
+    pericias: 'identificar_magia'
+    pericias: 'observar'
+    pericias: 'sobrevivencia'
+    pericias: 'natacao'
+
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'adestrar_animais'
+    pericias: 'cura'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'profissao'
+    pericias: 'cavalgar'
+    pericias: 'sentir_motivacao'
+
     salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+
+    pericias: 'avaliacao'
+    pericias: 'equilibrio'
+    pericias: 'blefar'
+    pericias: 'escalar'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'decifrar_escrita'
+    pericias: 'diplomacia'
+    pericias: 'operar_mecanismo'
+    pericias: 'disfarces'
+    pericias: 'arte_da_fuga'
+    pericias: 'falsificacao'
+    pericias: 'obter_informacao'
+    pericias: 'esconderse'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'conhecimento_local'
+    pericias: 'ouvir'
+    pericias: 'furtividade'
+    pericias: 'abrir_fechaduras'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'procurar'
+    pericias: 'sentir_motivacao'
+    pericias: 'prestidigitacao'
+    pericias: 'observar'
+    pericias: 'natacao'
+    pericias: 'acrobacias'
+    pericias: 'usar_instrumento_magico'
+    pericias: 'usar_cordas'
+
     salvacoes_fortes: TS_REFLEXO
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+
+    pericias: 'avaliacao'
+    pericias: 'equilibrio'
+    pericias: 'blefar'
+    pericias: 'escalar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'decifrar_escrita'
+    pericias: 'diplomacia'
+    pericias: 'disfarces'
+    pericias: 'arte_da_fuga'
+    pericias: 'obter_informacao'
+    pericias: 'esconderse'
+    pericias: 'saltar'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_planos'
+    pericias: 'conhecimento_religiao'
+    pericias: 'ouvir'
+    pericias: 'furtividade'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'sentir_motivacao'
+    pericias: 'prestidigitacao'
+    pericias: 'falar_idioma'
+    pericias: 'identificar_magia'
+    pericias: 'natacao'
+    pericias: 'acrobacias'
+    pericias: 'usar_instrumento_magico'
+
     salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'decifrar_escrita'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_planos'
+    pericias: 'conhecimento_religiao'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_INTELIGENCIA
   }
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+
+    pericias: 'blefar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'conhecimento_arcano'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
     id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
+
+    pericias: 'equilibrio'
+    pericias: 'escalar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'arte_da_fuga'
+    pericias: 'esconderse'
+    pericias: 'saltar'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_religiao'
+    pericias: 'ouvir'
+    pericias: 'furtividade'
+    pericias: 'abrir_fechaduras'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'sentir_motivacao'
+    pericias: 'observar'
+    pericias: 'natacao'
+    pericias: 'acrobacias'
+
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
   }
   info_classes {
-    id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
+
+    pericias: 'avaliacao'
+    pericias: 'blefar'
+    pericias: 'diplomacia'
+    pericias: 'disfarces'
+    pericias: 'falsificacao'
+    pericias: 'obter_informacao'
+    pericias: 'adestrar_animais'
+    pericias: 'intimidacao'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_planos'
+    pericias: 'conhecimento_religiao'
+    pericias: 'ouvir'
+    pericias: 'atuacao'
+    pericias: 'cavalgar'
+    pericias: 'sentir_motivacao'
+    pericias: 'falar_idioma'
+    pericias: 'observar'
+    pericias: 'sobrevivencia'
+    pericias: 'natacao'
+    pericias: 'usar_cordas'
+
+    salvacoes_fortes: TS_VONTADE
   }
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
+
+    pericias: 'escalar'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'adestrar_animais'
+    pericias: 'saltar'
+    pericias: 'ouvir'
+    pericias: 'profissao'
+    pericias: 'cavalgar'
+    pericias: 'observar'
+    pericias: 'natacao'
+    pericias: 'usar_cordas'
+
+    # Nao tem salvacao forte.
   }
   info_classes {
-    id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
+
+    # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
+    pericias: 'avaliacao'
+    pericias: 'equilibrio'
+    pericias: 'blefar'
+    pericias: 'escalar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'decifrar_escrita'
+    pericias: 'diplomacia'
+    pericias: 'operar_mecanismo'
+    pericias: 'disfarces'
+    pericias: 'arte_da_fuga'
+    pericias: 'falsificacao'
+    pericias: 'obter_informacao'
+    pericias: 'adestrar_animais'
+    pericias: 'cura'
+    pericias: 'esconderse'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_planos'
+    pericias: 'conhecimento_religiao'
+    pericias: 'ouvir'
+    pericias: 'furtividade'
+    pericias: 'abrir_fechaduras'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'cavalgar'
+    pericias: 'procurar'
+    pericias: 'sentir_motivacao'
+    pericias: 'prestidigitacao'
+    pericias: 'falar_idioma'
+    pericias: 'identificar_magia'
+    pericias: 'observar'
+    pericias: 'sobrevivencia'
+    pericias: 'natacao'
+    pericias: 'acrobacias'
+    pericias: 'usar_instrumento_magico'
+    pericias: 'usar_cordas'
+
+    salvacoes_fortes: TS_VONTADE
   }
 }
 

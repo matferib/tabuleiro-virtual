@@ -26,7 +26,7 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Mudar forma."
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    visibilidade { referencia { tipo: VIS_FORMA_ALTERNATIVA } }
   }
   dados_botoes {
     tamanho: 1
@@ -39,7 +39,7 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Ataque furtivo."
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    visibilidade { referencia { tipo: VIS_ATAQUE_FURTIVO } }
   }
   dados_botoes {
     tamanho: 1
