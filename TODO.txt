@@ -1,6 +1,5 @@
-Colocar pericias.
-Passar botoes forma alternativa e ataque furtivo para quem tiver (lado esquerdo).
-Passar defesa total para menu de baixo.
+Sinergia de pericias.
+Talentos de pericias.
 Fazer uma corrente representando agarrar entre entidades.
 Modificadores de grapple: 4 patas e outros.
 Descer iniciativas em 1 para nao baguncar com status.

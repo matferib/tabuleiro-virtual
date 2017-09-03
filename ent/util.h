@@ -336,6 +336,9 @@ bool PossuiTalento(const std::string& chave_talento, const std::string& chave_co
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade);
 const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade);
 
+// Retorna se a pericia eh considerada de classe para o proto.
+bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto);
+
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
 inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }

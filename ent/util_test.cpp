@@ -6,6 +6,16 @@
 
 namespace ent {
 
+TEST(TesteDependencias, TestePericias) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("ladino");
+  ic->set_nivel(1);
+  EXPECT_TRUE(PericiaDeClasse(tabelas, "observar", proto));
+  EXPECT_FALSE(PericiaDeClasse(tabelas, "adestrar_animais", proto));
+}
+
 TEST(TesteDependencias, TesteNiveisNegativos) {
   Tabelas tabelas;
   EntidadeProto proto;

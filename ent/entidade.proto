@@ -306,7 +306,6 @@ message EntidadeProto {
   message InfoPericia {
     optional string id = 1;
     optional int32 pontos = 2;
-    optional bool de_classe = 3;  // automatico.
     // Complemento da pericia.
     optional string complemento = 4;
     // Valor final da pericia.
