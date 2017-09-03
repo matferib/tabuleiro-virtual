@@ -24,7 +24,7 @@ class ModeloPericias : public QAbstractTableModel {
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
-    return modelo_.size();
+    return (int)modelo_.size();
   }
 
   // 0: id pericia. 1. Atributo. 2. Ranks. 3. De classe. 4. Complemento. 5. Bonus.

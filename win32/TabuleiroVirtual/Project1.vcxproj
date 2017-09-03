@@ -83,6 +83,7 @@
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\menuprincipal.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_menuprincipal.cpp" />
+    <ClCompile Include="..\..\ifg\qt\moc_pericias_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_principal.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\principal.cpp" />
