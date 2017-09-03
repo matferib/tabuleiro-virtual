@@ -24,6 +24,7 @@
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"
@@ -881,6 +882,20 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
+        case VIS_ATAQUE_FURTIVO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().dados_ataque_global().dano_furtivo().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_FORMA_ALTERNATIVA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().formas_alternativas_size() <= 1) {
+            return false;
+          }
+          break;
+        }
         case VIS_ESQUIVA: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr || !PossuiTalento("esquiva", e->Proto())) {
@@ -937,11 +952,23 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   return "";
 }
 
-void Tabuleiro::DesenhaDicaBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
-  if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
-    return;
+std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
+  switch (db.id()) {
+    case CONTROLE_BEBER_POCAO: {
+      if (entidade == nullptr || entidade->Proto().tesouro().pocoes().empty()) break;
+      const auto& pocoes = entidade->Proto().tesouro().pocoes();
+      if (pocoes.size() > 1) return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), "escolher");
+      return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), pocoes.Get(0).id().c_str());
+    }
+    default:
+      ;
   }
+  return db.dica();
+}
+
+void Tabuleiro::DesenhaDicaBotaoControleVirtual(
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura,
+    const Entidade* entidade) {
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
@@ -950,7 +977,7 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
-  std::string dica = StringSemUtf8(db.dica());
+  std::string dica = StringSemUtf8(DicaBotao(db, entidade));
   const float tam_dica_2_px = (dica.size() * fonte_x) / 2.0f;
   float delta_x = 0;
   if ((x_meio - tam_dica_2_px) < 0.0f) {
@@ -1186,75 +1213,75 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     // Ataque.
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_1();
     } },
     { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_2();
     } },
     { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_4();
     } },
     { CONTROLE_ATAQUE_MAIS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_8();
     } },
 
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_1();
     } },
     { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_2();
     } },
     { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_4();
     } },
     { CONTROLE_ATAQUE_MENOS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_8();
     } },
 
     // Dano.
     { CONTROLE_DANO_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_1();
     } },
     { CONTROLE_DANO_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_2();
     } },
     { CONTROLE_DANO_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_4();
     } },
     { CONTROLE_DANO_MAIS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_8();
     } },
     { CONTROLE_DANO_MAIS_16,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_16();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_16();
     } },
     { CONTROLE_DANO_MAIS_32,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_32();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_mais_32();
     } },
 
     { CONTROLE_DANO_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_1();
     } },
     { CONTROLE_DANO_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_2();
     } },
     { CONTROLE_DANO_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_4();
     } },
     { CONTROLE_DANO_MENOS_8,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_8();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().dano_menos_8();
     } },
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().voadora();
     } },
     { CONTROLE_FALHA_20,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 20;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() == 20;
     } },
     { CONTROLE_FALHA_50,     [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 50;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() == 50;
     } },
     { CONTROLE_FALHA_NEGATIVO, [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() < 0;
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().chance_falha() < 0;
     } },
     { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
       return entidade != nullptr && !entidade->Proto().visivel();
@@ -1304,13 +1331,13 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::Le(GL_VIEWPORT, viewport);
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
 
+  // Todos botoes, mapeados por id.
+  std::vector<DadosBotao*> botoes;
   {
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
-    // Todos botoes, mapeados por id.
-    std::vector<DadosBotao*> botoes;
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {
       if (!BotaoVisivel(db)) continue;
@@ -1337,12 +1364,6 @@ void Tabuleiro::DesenhaControleVirtual() {
     for (const auto* db : botoes) {
       DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
     }
-    // Dicas.
-    if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
-      for (const auto* db : botoes) {
-        DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
-      }
-    }
   }
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
@@ -1358,6 +1379,19 @@ void Tabuleiro::DesenhaControleVirtual() {
   if (parametros_desenho_.desenha_iniciativas()) {
     DesenhaIniciativas();
   }
+
+  // Desenha dicas por ultimo.
+  if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
+    auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+    // Dicas.
+    for (const auto* db : botoes) {
+      if (id_entidade_detalhada_ != db->id() || db->dica().empty()) {
+        continue;
+      }
+      DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
+    }
+  }
+
   V_ERRO("desenhando lista pontos de vida");
 
   // So volta a luz se havia iluminacao antes.

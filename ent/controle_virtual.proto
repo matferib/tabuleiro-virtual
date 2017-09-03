@@ -172,6 +172,10 @@ enum TipoVisibilidade {
   VIS_ESQUIVA = 7;
   // Visivel apenas se a entidade possui furia.
   VIS_FURIA = 8;
+  // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo ataque furtivo.
+  VIS_ATAQUE_FURTIVO = 9;
+  // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo forma alternativa.
+  VIS_FORMA_ALTERNATIVA = 10;
 }
 
 message Visibilidade {

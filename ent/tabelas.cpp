@@ -138,6 +138,10 @@ Tabelas::Tabelas() {
     classes_[classe.id()] = &classe;
   }
 
+  for (const auto& pericia : tabelas_.tabela_pericias().pericias()) {
+    pericias_[pericia.id()] = &pericia;
+  }
+
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
   } catch (...) {
@@ -146,8 +150,6 @@ Tabelas::Tabelas() {
   for (const auto& acao : tabela_acoes_.acao()) {
     acoes_[acao.id()] = &acao;
   }
-
-
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -188,6 +190,11 @@ const TalentoProto& Tabelas::Talento(const std::string& id) const {
 const InfoClasse& Tabelas::Classe(const std::string& id) const {
   auto it = classes_.find(id);
   return it == classes_.end() ? InfoClasse::default_instance() : *it->second;
+}
+
+const PericiaProto& Tabelas::Pericia(const std::string& id) const {
+  auto it = pericias_.find(id);
+  return it == pericias_.end() ? PericiaProto::default_instance() : *it->second;
 }
 
 }  // namespace

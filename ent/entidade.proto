@@ -142,6 +142,7 @@ message EntidadeProto {
 
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
+  // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
   optional bool furtivo = 62;
   optional bool fumegando = 67;
   optional bool agarrando = 71;
@@ -255,7 +256,7 @@ message EntidadeProto {
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
   }
-  optional DadosAtaqueGlobal dados_ataque_globais = 73;
+  optional DadosAtaqueGlobal dados_ataque_global = 73;
 
   optional DadosDefesa dados_defesa = 45;
 
@@ -300,6 +301,18 @@ message EntidadeProto {
     repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
+
+  // Cada pericia tem a chave e os pontos gastos e um indicador se eh de classe ou nao.
+  message InfoPericia {
+    optional string id = 1;
+    optional int32 pontos = 2;
+    optional bool de_classe = 3;  // automatico.
+    // Complemento da pericia.
+    optional string complemento = 4;
+    // Valor final da pericia.
+    optional Bonus bonus = 5;
+  }
+  repeated InfoPericia info_pericias = 85;
 
   // Alinhamento ou tendencia.
   message TendenciaDetalhada {

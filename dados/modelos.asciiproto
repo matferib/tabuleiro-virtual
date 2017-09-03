@@ -986,7 +986,7 @@ modelo {
     modificador_iniciativa: 6
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 }
-    dados_ataque_globais { dano_furtivo: '2d6' }
+    dados_ataque_global { dano_furtivo: '2d6' }
   }
 }
 modelo {
@@ -998,7 +998,7 @@ modelo {
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
-    dados_ataque_globais { dano_furtivo: '2d6' }
+    dados_ataque_global { dano_furtivo: '2d6' }
   }
 }
 modelo {
@@ -1010,7 +1010,7 @@ modelo {
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
-    dados_ataque_globais { dano_furtivo: '3d6' }
+    dados_ataque_global { dano_furtivo: '3d6' }
   }
 }
 modelo {
@@ -1022,7 +1022,7 @@ modelo {
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d4+1' ca_normal: 18 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d6+1' ca_normal: 17 }
-    dados_ataque_globais { dano_furtivo: '4d6' }
+    dados_ataque_global { dano_furtivo: '4d6' }
   }
 }
 modelo {

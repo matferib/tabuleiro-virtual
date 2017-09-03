@@ -72,7 +72,7 @@ QGroupBox::title {
     <widget class="QWidget" name="horizontalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>160</y>
        <width>421</width>
        <height>41</height>
@@ -145,7 +145,7 @@ QGroupBox::title {
       <rect>
        <x>10</x>
        <y>250</y>
-       <width>361</width>
+       <width>471</width>
        <height>41</height>
       </rect>
      </property>
@@ -183,12 +183,32 @@ QGroupBox::title {
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkbox_caida">
+        <property name="toolTip">
+         <string>Se marcado, entidade cairá.</string>
+        </property>
+        <property name="text">
+         <string>Caída</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkbox_morta">
+        <property name="toolTip">
+         <string>Se marcado, a entidade estará morta.</string>
+        </property>
+        <property name="text">
+         <string>Morta</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>240</y>
        <width>153</width>
        <height>78</height>
@@ -216,130 +236,12 @@ QGroupBox::title {
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_8">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>210</y>
-       <width>361</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_11">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Pontos de Vida:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spin_pontos_vida">
-          <property name="toolTip">
-           <string>Pontos de vida para entidade.</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>999</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Max</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spin_max_pontos_vida">
-          <property name="toolTip">
-           <string>Máximo de pontos de vida para entidade.</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>999</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_26">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Temp</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="botao_bonus_pv_temporario">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Pontos de Vida temporários.</string>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_4">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>170</y>
-       <width>361</width>
+       <width>471</width>
        <height>41</height>
       </rect>
      </property>
@@ -411,7 +313,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>410</y>
+       <y>440</y>
        <width>361</width>
        <height>35</height>
       </rect>
@@ -456,69 +358,12 @@ QGroupBox::title {
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_6">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>380</y>
-       <width>361</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_13">
-      <item>
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Deslocamento Vertical</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="spin_translacao_quad">
-        <property name="toolTip">
-         <string>Para colocar a entidade acima do plano do tabuleiro.</string>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>-100.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_34">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>quadrados</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_11">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>340</y>
-       <width>361</width>
+       <y>330</y>
+       <width>471</width>
        <height>35</height>
       </rect>
      </property>
@@ -611,7 +456,7 @@ QGroupBox::title {
     <widget class="QWidget" name="gridLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>560</x>
+       <x>710</x>
        <y>240</y>
        <width>281</width>
        <height>81</height>
@@ -753,9 +598,9 @@ QGroupBox::title {
     <widget class="QWidget" name="layoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>10</y>
-       <width>541</width>
+       <width>421</width>
        <height>141</height>
       </rect>
      </property>
@@ -784,7 +629,7 @@ QGroupBox::title {
     <widget class="QWidget" name="horizontalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>200</y>
        <width>421</width>
        <height>41</height>
@@ -849,7 +694,7 @@ QGroupBox::title {
     <widget class="QWidget" name="horizontalLayoutWidget_9">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>320</y>
        <width>421</width>
        <height>41</height>
@@ -871,87 +716,12 @@ QGroupBox::title {
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>290</y>
-       <width>361</width>
-       <height>39</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
-       <widget class="QCheckBox" name="checkbox_caida">
-        <property name="toolTip">
-         <string>Se marcado, entidade cairá.</string>
-        </property>
-        <property name="text">
-         <string>Caída</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="checkbox_morta">
-        <property name="toolTip">
-         <string>Se marcado, a entidade estará morta.</string>
-        </property>
-        <property name="text">
-         <string>Morta</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Aura:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="spin_aura_quad">
-          <property name="toolTip">
-           <string>Aura da entidade.</string>
-          </property>
-          <property name="decimals">
-           <number>1</number>
-          </property>
-          <property name="singleStep">
-           <double>1.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_35">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>quadrados</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>361</width>
+       <width>471</width>
        <height>161</height>
       </rect>
      </property>
@@ -1026,7 +796,7 @@ QGroupBox::title {
         <item>
          <widget class="QLabel" name="label_10">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1053,7 +823,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_adicionar_evento">
      <property name="geometry">
       <rect>
-       <x>970</x>
+       <x>1000</x>
        <y>40</y>
        <width>31</width>
        <height>27</height>
@@ -1066,7 +836,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_remover_evento">
      <property name="geometry">
       <rect>
-       <x>970</x>
+       <x>1000</x>
        <y>70</y>
        <width>31</width>
        <height>27</height>
@@ -1079,7 +849,7 @@ QGroupBox::title {
     <widget class="QWidget" name="layoutWidget_6">
      <property name="geometry">
       <rect>
-       <x>420</x>
+       <x>570</x>
        <y>360</y>
        <width>421</width>
        <height>121</height>
@@ -1114,7 +884,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_adicionar_forma_alternativa">
      <property name="geometry">
       <rect>
-       <x>850</x>
+       <x>1000</x>
        <y>390</y>
        <width>31</width>
        <height>27</height>
@@ -1130,7 +900,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_remover_forma_alternativa">
      <property name="geometry">
       <rect>
-       <x>850</x>
+       <x>1000</x>
        <y>420</y>
        <width>31</width>
        <height>27</height>
@@ -1143,16 +913,228 @@ QGroupBox::title {
       <string>-</string>
      </property>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_13">
+    <widget class="QWidget" name="horizontalLayoutWidget_15">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>450</y>
-       <width>151</width>
+       <y>290</y>
+       <width>471</width>
        <height>41</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_17">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Aura:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="spin_aura_quad">
+          <property name="toolTip">
+           <string>Aura da entidade.</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="singleStep">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_35">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>quadrados</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Deslocamento Vertical</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="spin_translacao_quad">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Para colocar a entidade acima do plano do tabuleiro.</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_34">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>quadrados</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>210</y>
+       <width>471</width>
+       <height>29</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_12">
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>PV</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spin_pontos_vida">
+        <property name="toolTip">
+         <string>Pontos de vida para entidade.</string>
+        </property>
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Max</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spin_max_pontos_vida">
+        <property name="toolTip">
+         <string>Máximo de pontos de vida para entidade.</string>
+        </property>
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_26">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Temp</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="botao_bonus_pv_temporario">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Pontos de Vida temporários.</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLabel" name="label_79">
         <property name="sizePolicy">
@@ -1162,7 +1144,7 @@ QGroupBox::title {
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Dano não letal</string>
+         <string>Não letal</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1171,6 +1153,12 @@ QGroupBox::title {
       </item>
       <item>
        <widget class="QSpinBox" name="spin_dano_nao_letal">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>Quantidade de dano não letal.</string>
         </property>
@@ -1650,7 +1638,7 @@ QGroupBox::title {
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>660</x>
+       <x>750</x>
        <y>20</y>
        <width>57</width>
        <height>17</height>
@@ -1663,7 +1651,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_remover_talento">
      <property name="geometry">
       <rect>
-       <x>910</x>
+       <x>990</x>
        <y>80</y>
        <width>31</width>
        <height>27</height>
@@ -1676,7 +1664,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="botao_adicionar_talento">
      <property name="geometry">
       <rect>
-       <x>910</x>
+       <x>990</x>
        <y>50</y>
        <width>31</width>
        <height>27</height>
@@ -1689,7 +1677,30 @@ QGroupBox::title {
     <widget class="QTableView" name="tabela_talentos">
      <property name="geometry">
       <rect>
-       <x>465</x>
+       <x>550</x>
+       <y>50</y>
+       <width>431</width>
+       <height>431</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_81">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>20</y>
+       <width>57</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Perícias</string>
+     </property>
+    </widget>
+    <widget class="QTableView" name="tabela_pericias">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
        <y>50</y>
        <width>431</width>
        <height>431</height>
@@ -3199,8 +3210,6 @@ QGroupBox::title {
   <tabstop>checkbox_selecionavel</tabstop>
   <tabstop>checkbox_voadora</tabstop>
   <tabstop>checkbox_visibilidade</tabstop>
-  <tabstop>checkbox_caida</tabstop>
-  <tabstop>checkbox_morta</tabstop>
   <tabstop>spin_aura_quad</tabstop>
   <tabstop>combo_visao</tabstop>
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
