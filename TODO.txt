@@ -1,3 +1,11 @@
+Agarrar: desagarrar e identificar os agarrados.
+Pericias: desabilitar as sem treinamento.
+Colocar anel de protecao e manto de resistencia.
+Campos de texto: cursor na posicao final e ao deletar nao ir para o final.
+Pocao de endure elements e santuario, oleo de arma magica.
+No mac, as poções estao falhando ao alterar no menu do personagem.
+Ctrl + Z apagando campos de texto.
+
 Sinergia de pericias.
 Talentos de pericias.
 Fazer uma corrente representando agarrar entre entidades.
