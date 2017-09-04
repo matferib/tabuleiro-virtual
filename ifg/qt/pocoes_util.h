@@ -37,7 +37,8 @@ class PocaoDelegate : public QItemDelegate {
       LOG(ERROR) << "indice invalido em setEditorData: " << indice_proto;
       return;
     }
-    proto_->mutable_tesouro()->mutable_pocoes(indice_proto)->set_id(IdPocaoCorrenteDoCombo(qobject_cast<QComboBox*>(editor)));
+    const std::string id_pocao = IdPocaoCorrenteDoCombo(qobject_cast<QComboBox*>(editor));
+    proto_->mutable_tesouro()->mutable_pocoes(indice_proto)->set_id(id_pocao);
   }
 
   // O tamanho padrao da linha nao cabe o combo de edicao.
@@ -49,7 +50,7 @@ class PocaoDelegate : public QItemDelegate {
 
  private:
   // Retorna o id da pocao corrente do combo.
-  const char* IdPocaoCorrenteDoCombo(QComboBox* combo) const {
+  std::string IdPocaoCorrenteDoCombo(QComboBox* combo) const {
     if (combo == nullptr) {
       LOG(ERROR) << "combo == nullptr";
       return "";
@@ -72,18 +73,23 @@ class PocaoDelegate : public QItemDelegate {
     return tabelas_.Pocao(IdPocaoCorrenteDoProto()).nome().c_str();
   }
 
+  // Retorna o proprio combo por conveniencia. Preenche com as pocoes da tabela, ordenado por nome.
+  // O dado de cada linha sera o id da pocao. Configura o combo para fechar e submeter os dados quando
+  // alterado o item corrente.
   QComboBox* PreencheConfiguraComboPocoes(QComboBox* combo) const {
-    std::map<std::string, std::string> itens_ordenados;
+    std::map<QString, std::string> itens_ordenados;
     for (const auto& pp : tabelas_.todas().tabela_pocoes().pocoes()) {
-      itens_ordenados.insert(std::make_pair(pp.nome(), pp.id()));
+      QString nome_traduzido = tr(pp.nome().c_str());
+      itens_ordenados.insert(std::make_pair(nome_traduzido, pp.id()));
     }
     for (const auto& par : itens_ordenados) {
-      combo->addItem(QString::fromUtf8(par.first.c_str()), QString(par.second.c_str()));
+      combo->addItem(par.first, QString(par.second.c_str()));
     }
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo] () {
       // Tem que tirar o const aqui, pois quando for executado, o this nao sera const.
       auto* thiz = const_cast<PocaoDelegate*>(this);
+      // Aqui chama o setModelData do modelo.
       emit thiz->commitData(combo);
       emit thiz->closeEditor(combo);
       // Aqui eh so para trigar o itemChanged.
