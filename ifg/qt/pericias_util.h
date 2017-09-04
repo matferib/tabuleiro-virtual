@@ -57,7 +57,7 @@ class ModeloPericias : public QAbstractTableModel {
 
   // Dado de cada celula.
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::BackgroundRole) {
       return QVariant();
     }
 
@@ -65,13 +65,21 @@ class ModeloPericias : public QAbstractTableModel {
     if (row < 0 || row >= modelo_.size()) return QVariant();
     const int column = index.column();
     switch (column) {
-      case 0:
+      case 0: {
+        const auto& pt = tabelas_.Pericia(modelo_[row].id());
         if (role == Qt::DisplayRole) {
-          return QVariant(QString::fromUtf8(tabelas_.Pericia(modelo_[row].id()).nome().c_str()));
+          return QVariant(QString::fromUtf8(pt.nome().c_str()));
+        } else if (role == Qt::BackgroundRole) {
+          bool pode_usar = pt.sem_treinamento();
+          if (modelo_[row].pontos() > 0) {
+            pode_usar = true;
+          }
+          return pode_usar ? QVariant() : QVariant(QBrush(Qt::red));
         } else {
           // Nao editavel.
           return QVariant();
         }
+      }
       case 1: return QVariant(ent::TipoAtributo_Name(tabelas_.Pericia(modelo_[row].id()).atributo()).substr(3, 3).c_str());
       case 2: return QVariant(modelo_[row].pontos());
       case 3: {
@@ -91,6 +99,10 @@ class ModeloPericias : public QAbstractTableModel {
           return QVariant();
         }
       }
+      default:
+        if (role == Qt::BackgroundRole) {
+          return QVariant();
+        }
     }
     // Nunca deveria chegar aqui.
     LOG(INFO) << "Coluna invalida: " << column;
