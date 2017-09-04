@@ -729,12 +729,12 @@ modelo {
     # Os monstros seguem um padrao diferente. O ataque principal eh como se fosse com duas maos.
     # Os secundarios recebem penalidade de -5, ou -2 com Ataques Multiplos.
     dados_ataque {
-      rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
-    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
-    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
-    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
-    dados_ataque { rotulo: 'mordida_garra_rake' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' nao_letal: true }
     info_talentos {
       gerais { id: 'ataques_multiplos' }
@@ -1356,13 +1356,50 @@ modelo {
 modelo {
   id: 'Troll'
   entidade {
-    dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
+    info_classes {
+      id: 'gigante' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
+      pericias: 'ouvir' pericias: 'observar'
+    }
+    dados_vida: '6d8+36' tamanho: TM_GRANDE
+    info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
-    modificador_iniciativa: 2
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6+3' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
-    rotulo_especial: 'rend: acertar os dois da 2d6+9 automaticamente\nfort: 11 ref: 4 von: 3'
+    dados_ataque {
+      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      rotulo: 'dilacerar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_2_MAOS
+    }
+
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+
+    rotulo_especial: 'dilacerar: acertar as duas garras, dano automatico\nfaro'
+    atributos {
+      # Usa o array padrao: 11 10 11 10 11 10. +12 for, +4 des, +12 con, -4 int, -2 sab, -4 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 23 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 23 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'rastrear' }
+    }
+    info_pericias { id: 'ouvir' pontos: 6 }
+    info_pericias { id: 'observar' pontos: 7 }
+    tendencia { simples: TD_CAOTICO_MAL }
   }
 }
 modelo {
