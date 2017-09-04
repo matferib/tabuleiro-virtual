@@ -57,6 +57,9 @@ enum TipoEfeito {
   // fim furia.
   EFEITO_INVISIBILIDADE = 26;
   EFEITO_AJUDA = 27;
+  EFEITO_SUPORTAR_ELEMENTOS = 28;     // TODO
+  EFEITO_RESISTENCIA_ELEMENTOS = 29;  // TODO
+  EFEITO_SANTUARIO = 30;              // TODO
 }
 
 // Tipo de visao para entidades e camera.
