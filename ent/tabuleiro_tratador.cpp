@@ -919,21 +919,35 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     // Efeito individual.
     Entidade* entidade_destino =
        id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
+    // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
     bool realiza_acao = true;
     auto* nd = grupo_desfazer->add_notificacao();
     acao_proto.set_bem_sucedida(true);
     if (HaValorListaPontosVida() && entidade_destino != nullptr) {
       int vezes = 1;
+      // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
+      auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao();
+      // Verifica alcance.
+      {
+        bool tem_alcance;
+        std::string texto_falha_alcance;
+        std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcance(*entidade, *entidade_destino, pos_alvo);
+        if (!tem_alcance) {
+          AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
+          acao_proto.set_texto(texto_falha_alcance);
+          vezes = 0;
+          realiza_acao = false;
+        }
+      }
+
       std::string texto;
-      if (modo_dano_automatico_ && acao_proto.permite_ataque_vs_defesa()) {
+      if (vezes > 0 && modo_dano_automatico_ && acao_proto.permite_ataque_vs_defesa()) {
         VLOG(1) << "--------------------------";
         VLOG(1) << "iniciando ataque vs defesa";
         std::tie(vezes, texto, realiza_acao) =
-            AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+            AtaqueVsDefesa(*entidade, *entidade_destino, pos_alvo);
         VLOG(1) << "--------------------------";
-        AdicionaLogEvento(std::string("entidade ") +
-            (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
-            texto);
+        AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
         acao_proto.set_texto(texto);
       }
       int delta_pontos_vida = 0;

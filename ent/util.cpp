@@ -923,16 +923,9 @@ int ModificadorDano(const EntidadeProto& ea) {
   return modificador;
 }
 
-namespace {
-
-Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  return da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
-}
-
-// Retorna o modificador de incrementos (-inf, 0], string de erro e se tem alcance.
 std::tuple<int, std::string, bool> ModificadorAlcance(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   int modificador_incrementos = 0;
-  float alcance_m = ea.AlcanceAtaqueMetros();
+  const float alcance_m = ea.AlcanceAtaqueMetros();
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
   if (alcance_m >= 0) {
     Posicao pos_acao_a = ea.PosicaoAcao();
@@ -980,6 +973,14 @@ std::tuple<int, std::string, bool> ModificadorAlcance(const Entidade& ea, const 
   }
   assert(modificador_incrementos <= 0);
   return std::make_tuple(modificador_incrementos, "", true);
+}
+
+
+
+namespace {
+
+Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
+  return da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
 }
 
 // Retorna true se o ataque for bem sucedido, false com string caso contrario.

@@ -381,6 +381,9 @@ EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, Entidad
 // Retorna todos os talentos da entidade em um vector, para facilitar.
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 
+// Retorna o modificador de incrementos (-inf, 0], string de erro e se tem alcance.
+std::tuple<int, std::string, bool> ModificadorAlcance(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
