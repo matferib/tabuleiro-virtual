@@ -1392,6 +1392,45 @@ tabela_pocoes {
     duracao_rodadas: 1200
     complementos: 5
   }
+  pocoes {
+    id: 'santuario'
+    nome: 'Santuário'
+    id_efeito: EFEITO_SANTUARIO
+    custo_po: 50
+    duracao_rodadas: 1
+  }
+  pocoes {
+    id: 'suportar_elementos'
+    nome: 'Suportar Elementos'
+    id_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    custo_po: 50
+    duracao_rodadas: 14400 # 24 horas.
+  }
+  pocoes {
+    id: 'resistencia_elementos_10'
+    nome: 'Resistência a Elementos (10)'
+    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    custo_po: 300
+    duracao_rodadas: 300
+    complementos: 10
+  }
+  pocoes {
+    id: 'resistencia_elementos_20'
+    nome: 'Resistência a Elementos (20)'
+    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    custo_po: 700
+    duracao_rodadas: 700
+    complementos: 20
+  }
+  pocoes {
+    id: 'resistencia_elementos_30'
+    nome: 'Resistência a Elementos (30)'
+    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    custo_po: 1100
+    duracao_rodadas: 1100
+    complementos: 30
+  }
+
 }
 tabela_talentos {
   talentos {
