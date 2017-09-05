@@ -375,8 +375,12 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes };
   for (auto* obj : objs) obj->blockSignals(true);
-  gerador.lista_tesouro->clear();
-  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
+
+  // Nao atualiza o campo de texto, faz isso so no final.
+  //auto cursor = gerador.lista_tesouro->cursor();
+  //gerador.lista_tesouro->setPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
+  //gerador.lista_tesouro->setCursor(cursor);
+
   const int indice = gerador.lista_pocoes->currentRow();
   gerador.lista_pocoes->clear();
   for (const auto& pocao : proto.tesouro().pocoes()) {
