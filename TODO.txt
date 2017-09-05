@@ -1,4 +1,3 @@
-Pocao de endure elements e santuario, oleo de arma magica.
 Campos de texto: cursor na posicao final e ao deletar nao ir para o final.
 Agarrar: desagarrar e identificar os agarrados.
 Colocar anel de protecao e manto de resistencia.
