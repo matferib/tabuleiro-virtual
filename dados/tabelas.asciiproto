@@ -1400,6 +1400,14 @@ tabela_pocoes {
     duracao_rodadas: 1
   }
   pocoes {
+    id: 'arma_magica'
+    nome: 'Arma Mágica'
+    id_efeito: EFEITO_OUTRO
+    custo_po: 50
+    duracao_rodadas: 10
+    descricao: 'Arma Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
     id: 'suportar_elementos'
     nome: 'Suportar Elementos'
     id_efeito: EFEITO_SUPORTAR_ELEMENTOS

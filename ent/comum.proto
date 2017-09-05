@@ -390,6 +390,8 @@ message PocaoProto {
   // Para pocoes de cura.
   optional string delta_pontos_vida = 7;
   optional CombinacaoEfeitos combinacao_efeitos = 8;
+  // Se presente, alterara a descricao do efeito no personagem.
+  optional string descricao = 9;
 }
 
 // Alguns estados são mantidos nesta variável.

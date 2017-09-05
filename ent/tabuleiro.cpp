@@ -7019,7 +7019,11 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
         if (!pocao.complementos().empty()) {
           *evento->mutable_complementos() = pocao.complementos();
         }
-        evento->set_descricao(pocao.nome());
+        if (pocao.descricao().empty()) {
+          evento->set_descricao(pocao.nome());
+        } else {
+          evento->set_descricao(pocao.descricao());
+        }
       }
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
