@@ -18,6 +18,8 @@ struct Modelo3d {
   bool Valido() const { return !vbos_nao_gravados.Vazio(); }
 };
 
+// Para carregar um modelo 3d, mande uma mensagem TN_CARREGAR_MODELO_3D. Para descarregar, TN_DESCARREGAR_MODELO_3D. 
+// O modelo deve estar em notificacao.entidade().modelo_3d().id().
 class Modelos3d : public ntf::Receptor {
  public:
   Modelos3d(ntf::CentralNotificacoes* central);
@@ -26,6 +28,7 @@ class Modelos3d : public ntf::Receptor {
   /** Trata as notificacoes do tipo de carregamento descarregamento de textura. */
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
+  /** O id eh o nome do arquivo sem o binproto. */
   const Modelo3d* Modelo(const std::string& id) const;
 
   // Recarrega os modelos 3d em caso de perda do contexto opengl.
