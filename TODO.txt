@@ -1,6 +1,5 @@
 Agarrar: desagarrar e identificar os agarrados.
 Colocar anel de protecao e manto de resistencia.
-Ctrl + Z apagando campos de texto.
 
 Sinergia de pericias.
 Talentos de pericias.
