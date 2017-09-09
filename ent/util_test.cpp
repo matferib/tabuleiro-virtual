@@ -6,6 +6,49 @@
 
 namespace ent {
 
+TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  AtribuiBaseAtributo(14, TA_FORCA, &proto);
+  AtribuiBaseAtributo(16, TA_DESTREZA, &proto);
+  AtribuiBaseAtributo(18, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
+  AtribuiBaseAtributo(22, TA_SABEDORIA, &proto);
+  AtribuiBaseAtributo(24, TA_CARISMA, &proto);
+
+  EntidadeProto forma;
+  AtribuiBaseAtributo(4, TA_FORCA, &forma);
+  AtribuiBaseAtributo(6, TA_DESTREZA, &forma);
+  AtribuiBaseAtributo(8, TA_CONSTITUICAO, &forma);
+  AtribuiBaseAtributo(10, TA_INTELIGENCIA, &forma);
+  AtribuiBaseAtributo(12, TA_SABEDORIA, &forma);
+  AtribuiBaseAtributo(14, TA_CARISMA, &forma);
+
+  EntidadeProto forma_filtrada = ProtoFormaAlternativa(forma);
+
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  {
+    e->AtualizaParcial(forma_filtrada);
+    const auto& proto_pos_forma = e->Proto();
+    EXPECT_EQ(4, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
+    EXPECT_EQ(6, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
+    EXPECT_EQ(8, BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_pos_forma)));
+    EXPECT_EQ(10, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
+    EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
+    EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
+  }
+  {
+    e->AtualizaParcial(proto);
+    const auto& proto_pos_forma = e->Proto();
+    EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
+    EXPECT_EQ(16, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
+    EXPECT_EQ(18, BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_pos_forma)));
+    EXPECT_EQ(20, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
+    EXPECT_EQ(22, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
+    EXPECT_EQ(24, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
+  }
+}
+
 TEST(TesteDependencias, TestePericias) {
   Tabelas tabelas;
   EntidadeProto proto;
