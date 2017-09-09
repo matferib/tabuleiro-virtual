@@ -967,6 +967,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_pontos_vida_temporarios_por_fonte();
   }
 
+  auto bonus_tamanho_antes = proto_parcial.bonus_tamanho();
+  if (proto_parcial.has_bonus_tamanho()) {
+    proto_.clear_bonus_tamanho();
+  }
+
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
@@ -981,6 +986,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     }
     int base_corrente = BonusIndividualTotal(TB_BASE, proto_.bonus_tamanho());
     if (delta != 0) AtribuiBonus(base_corrente + delta, TB_BASE, "base", proto_.mutable_bonus_tamanho());
+  }
+  if (proto_.tipo() == TE_ENTIDADE && proto_parcial.has_bonus_tamanho()) {
+    *proto_.mutable_bonus_tamanho() = bonus_tamanho_antes;
+    CombinaBonus(proto_parcial.bonus_tamanho(), proto_.mutable_bonus_tamanho());
   }
 
   if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {

@@ -2332,7 +2332,11 @@ int ModificadorAtributo(const Bonus& atributo) {
   return ModificadorAtributo(total_atributo);
 }
 
-namespace {
+void AtribuiBaseAtributo(int valor, TipoAtributo ta, EntidadeProto* proto) {
+  auto* bonus = BonusAtributo(ta, proto);
+  AtribuiBonus(valor, TB_BASE, "base", bonus);
+}
+
 Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto) {
   switch (ta) {
     case TA_FORCA: return proto->mutable_atributos()->mutable_forca();
@@ -2346,6 +2350,7 @@ Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto) {
   }
   return proto->mutable_atributos()->mutable_forca();
 }
+
 const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto) {
   switch (ta) {
     case TA_FORCA: return proto.atributos().forca();
@@ -2359,8 +2364,6 @@ const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto) {
   }
   return proto.atributos().forca();
 }
-
-}  // namespace
 
 int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
   return ModificadorAtributo(BonusAtributo(ta, proto));
@@ -2581,7 +2584,7 @@ std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da
 // Formas Alternativas
 //--------------------
 
-// Gera um proto de forma alternativa a partir de proto. Apenas alguns campos sao usados.
+// Gera um proto de forma alternativa a partir da forma alternativa. Apenas alguns campos sao usados.
 EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   EntidadeProto ret;
   ret.set_rotulo(proto.rotulo());
@@ -2599,11 +2602,19 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     // Cria uma entrada dummy.
     ret.add_dados_ataque()->set_tipo_ataque("");
   }
-  ret.set_tamanho(proto.tamanho());
+  // Tamanho.
+  const int tam_base = BonusIndividualPorOrigem(TB_BASE, "base", proto.bonus_tamanho());
+  AtribuiBonus(tam_base, TB_BASE, "base", ret.mutable_bonus_tamanho());
+  // Visao.
+  // A forma alternativa nao ganha qualidades especiais (visao, faro).
+
+  // CA.
   const int ca_natural = BonusIndividualPorOrigem(TB_ARMADURA_NATURAL, "racial", proto.dados_defesa().ca());
   AtribuiBonus(ca_natural, TB_ARMADURA_NATURAL, "racial", ret.mutable_dados_defesa()->mutable_ca());
   ret.mutable_dados_defesa()->set_id_armadura(proto.dados_defesa().id_armadura());
+  ret.mutable_dados_defesa()->set_bonus_magico_armadura(proto.dados_defesa().bonus_magico_armadura());
   ret.mutable_dados_defesa()->set_id_escudo(proto.dados_defesa().id_escudo());
+  ret.mutable_dados_defesa()->set_bonus_magico_escudo(proto.dados_defesa().bonus_magico_escudo());
   return ret;
 }
 

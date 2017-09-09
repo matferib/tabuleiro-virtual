@@ -7,14 +7,20 @@
 namespace ent {
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
+  // TODO ignorar INT SAB CAR.
   Tabelas tabelas;
   EntidadeProto proto;
   AtribuiBaseAtributo(14, TA_FORCA, &proto);
-  AtribuiBaseAtributo(16, TA_DESTREZA, &proto);
+  AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
   AtribuiBaseAtributo(18, TA_CONSTITUICAO, &proto);
   AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
   AtribuiBaseAtributo(22, TA_SABEDORIA, &proto);
   AtribuiBaseAtributo(24, TA_CARISMA, &proto);
+  AtribuiBonus(TM_PEQUENO, TB_BASE, "base", proto.mutable_bonus_tamanho());
+  proto.mutable_dados_defesa()->set_id_armadura("couro");
+  proto.mutable_dados_defesa()->set_bonus_magico_armadura(2);
+  proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
+  proto.mutable_dados_defesa()->set_bonus_magico_escudo(1);
 
   EntidadeProto forma;
   AtribuiBaseAtributo(4, TA_FORCA, &forma);
@@ -23,10 +29,13 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   AtribuiBaseAtributo(10, TA_INTELIGENCIA, &forma);
   AtribuiBaseAtributo(12, TA_SABEDORIA, &forma);
   AtribuiBaseAtributo(14, TA_CARISMA, &forma);
+  AtribuiBonus(TM_GRANDE, TB_BASE, "base", forma.mutable_bonus_tamanho());
+  forma.set_tipo_visao(VISAO_BAIXA_LUMINOSIDADE);
 
   EntidadeProto forma_filtrada = ProtoFormaAlternativa(forma);
 
   std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  EXPECT_EQ(TM_PEQUENO, e->Proto().tamanho());
   {
     e->AtualizaParcial(forma_filtrada);
     const auto& proto_pos_forma = e->Proto();
@@ -36,16 +45,24 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
     EXPECT_EQ(10, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
     EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
     EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
+    EXPECT_EQ(TM_GRANDE, proto_pos_forma.tamanho());
+    // -1 tam, -2 des.
+    EXPECT_EQ(7, BonusTotal(proto_pos_forma.dados_defesa().ca()));
+    // Nao ganha qualidades.
+    forma.set_tipo_visao(VISAO_NORMAL);
   }
   {
     e->AtualizaParcial(proto);
     const auto& proto_pos_forma = e->Proto();
     EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
-    EXPECT_EQ(16, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
+    EXPECT_EQ(10, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
     EXPECT_EQ(18, BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_pos_forma)));
     EXPECT_EQ(20, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
     EXPECT_EQ(22, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
     EXPECT_EQ(24, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
+    EXPECT_EQ(TM_PEQUENO, proto_pos_forma.tamanho());
+    // +1 tam, 0 des, +2 escudo, +4 armadura.
+    EXPECT_EQ(17, BonusTotal(proto_pos_forma.dados_defesa().ca()));
   }
 }
 

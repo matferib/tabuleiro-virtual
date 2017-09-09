@@ -259,6 +259,11 @@ int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
 int ModificadorAtributo(const Bonus& atributo);
 int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
+// Retorna bonus por TipoAtributo.
+const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto);
+Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto);
+// Util para colocar um bonus base no atributo do proto.
+void AtribuiBaseAtributo(int valor, TipoAtributo ta, EntidadeProto* proto);
 
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
