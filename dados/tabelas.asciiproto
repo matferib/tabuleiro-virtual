@@ -1125,6 +1125,14 @@ tabela_efeitos {
 
 tabela_pocoes {
   pocoes {
+    id: 'abencoar_arma'
+    nome: 'Abençoar Arma'
+    duracao_rodadas: 2
+    id_efeito: EFEITO_OUTRO
+    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
+    custo_po: 50
+  }
+  pocoes {
     id: 'aumentar_pessoa'
     nome: 'Aumentar Pessoa'
     id_efeito: EFEITO_AUMENTAR_PESSOA
@@ -1165,7 +1173,14 @@ tabela_pocoes {
     complementos: 2
     complementos: 1
   }
-
+  pocoes {
+    id: 'pedra_encantada'
+    nome: 'Pedra Encantada'
+    duracao_rodadas: 300
+    id_efeito: EFEITO_PEDRA_ENCANTADA
+    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
+    custo_po: 50
+  }
   pocoes {
     id: 'protecao_contra_mal'
     nome: 'Poteção Contra o Mal'

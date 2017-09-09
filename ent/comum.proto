@@ -60,6 +60,9 @@ enum TipoEfeito {
   EFEITO_SUPORTAR_ELEMENTOS = 28;     // TODO
   EFEITO_RESISTENCIA_ELEMENTOS = 29;  // TODO
   EFEITO_SANTUARIO = 30;              // TODO
+  EFEITO_ABENCOAR_ARMA = 31;          // TODO
+
+  EFEITO_PEDRA_ENCANTADA = 32;
 }
 
 // Tipo de visao para entidades e camera.

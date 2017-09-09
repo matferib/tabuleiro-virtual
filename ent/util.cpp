@@ -961,7 +961,8 @@ std::tuple<int, std::string, bool> ModificadorAlcance(const Entidade& ea, const 
         return std::make_tuple(-100, texto, false);
       } else {
         modificador_incrementos = total_incrementos * -2;
-        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
+        VLOG(1) << "distancia_m: " << distancia_m << ", alcance_m: " << alcance_m << ", "
+                << "modificador_incrementos: " << modificador_incrementos;
       }
     } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
       std::string texto =
@@ -1598,11 +1599,14 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       da->clear_ignora_ataque_toque();
     }
   }
+  if (da->has_dano_basico_fixo()) {
+    da->set_dano_basico(da->dano_basico_fixo());
+  }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
     da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
     da->set_alcance_minimo_m(0);
-  } else {
+  } else if (da->tipo_ataque() == "Ataque Corpo a Corpo") {
     // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
     // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
     int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
@@ -1745,6 +1749,30 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
 }
 
+// Retorna o dado de ataque que contem a arma, ou nullptr;
+const EntidadeProto::DadosAtaque* DadosAtaque(const std::string& id_arma, const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.id_arma() == id_arma) return &da;
+  }
+  return nullptr;
+}
+
+bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
+  return std::any_of(proto.dados_ataque().begin(), proto.dados_ataque().end(), [&id_arma] (
+        const EntidadeProto::DadosAtaque& da) {
+      return da.id_arma() == id_arma;
+  });
+}
+
+// Poe e na primeira posicao de rf, movendo todos uma posicao para tras. Parametro 'e' fica invalido.
+template <class T>
+void InsereInicio(T* e, google::protobuf::RepeatedPtrField<T>* rf) {
+  rf->Add()->Swap(e);
+  for (int i = static_cast<int>(rf->size()) - 1; i > 0; --i) {
+    rf->SwapElements(i, i-1);
+  }
+}
+
 void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
@@ -1762,6 +1790,24 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
       }
       break;
+    case EFEITO_PEDRA_ENCANTADA:
+      if (!evento.processado()) {
+        const auto& funda = DadosAtaque("funda", *proto);
+        EntidadeProto::DadosAtaque da;
+        da.set_id_unico_efeito(evento.id_unico());
+        da.set_bonus_magico(1);
+        da.set_dano_basico_fixo("1d6");
+        if (funda != nullptr) {
+          da.set_id_arma("funda");
+          da.set_empunhadura(funda->empunhadura());
+        } else {
+          da.set_empunhadura(EA_ARMA_ESCUDO);
+        }
+        da.set_rotulo(funda != nullptr ? "pedra encantada com funda" : "pedra encantada");
+        da.set_tipo_ataque("Ataque a Distância");
+        InsereInicio(&da, proto->mutable_dados_ataque());
+      }
+      break;
     default: ;
   }
 }
@@ -1773,6 +1819,17 @@ void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
   evento->set_descricao("fadiga_furia_barbaro");
   // Dura pelo resto do encontro.
   evento->set_rodadas(100);
+}
+
+void AplicaFimPedraEncantada(unsigned int id_unico, EntidadeProto* proto) {
+  // Encontra o dado de ataque.
+  int i = 0;
+  for (const auto& da : proto->dados_ataque()) {
+    if (da.id_unico_efeito() == id_unico) {
+      proto->mutable_dados_ataque()->DeleteSubrange(i, 1);
+      return;
+    }
+  }
 }
 
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
@@ -1801,6 +1858,9 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     break;
     case EFEITO_FURIA_BARBARO:
       AplicaFimFuriaBarbaro(proto);
+    break;
+    case EFEITO_PEDRA_ENCANTADA:
+      AplicaFimPedraEncantada(evento.id_unico(), proto);
     break;
     default: ;
   }

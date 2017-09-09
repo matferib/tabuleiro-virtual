@@ -203,6 +203,8 @@ message EntidadeProto {
     optional Bonus bonus_dano = 22;
     // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
     optional string dano_basico = 23;
+    // Gera o dano basico independente de tamanho ou qualquer outra coisa.
+    optional string dano_basico_fixo = 37;
     // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
     optional string id_arma = 24;
     // A arma pode ter tamanho diferente.
@@ -224,6 +226,8 @@ message EntidadeProto {
     optional bool nao_letal = 34;
     // Para agarrar.
     optional bool ignora_ataque_toque = 35;
+    // Para efeitos que criam dados ataque.
+    optional uint32 id_unico_efeito  = 36;
   }
   repeated DadosAtaque dados_ataque = 44;
 
