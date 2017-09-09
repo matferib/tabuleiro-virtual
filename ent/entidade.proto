@@ -228,6 +228,8 @@ message EntidadeProto {
     optional bool ignora_ataque_toque = 35;
     // Para efeitos que criam dados ataque.
     optional uint32 id_unico_efeito  = 36;
+    // Municao para a arma.
+    optional uint32 municao = 38;
   }
   repeated DadosAtaque dados_ataque = 44;
 
@@ -268,6 +270,8 @@ message EntidadeProto {
   message DadosTesouro {
     optional string tesouro = 1;
     repeated PocaoProto pocoes = 2;
+    repeated AnelProto aneis = 3;
+    repeated MantoProto mantos = 4;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.

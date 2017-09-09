@@ -397,6 +397,12 @@ message PocaoProto {
   optional string descricao = 9;
 }
 
+message AnelProto {
+}
+
+message MantoProto {
+}
+
 // Alguns estados são mantidos nesta variável.
 message ParametrosDesenho {
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.

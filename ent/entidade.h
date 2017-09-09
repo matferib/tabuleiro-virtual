@@ -215,6 +215,7 @@ class Entidade {
   int Iniciativa() const { return proto_.iniciativa(); }
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
+  // Retorna nullptr caso nao haja.
   const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;

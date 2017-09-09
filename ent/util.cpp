@@ -923,7 +923,15 @@ int ModificadorDano(const EntidadeProto& ea) {
   return modificador;
 }
 
-std::tuple<int, std::string, bool> ModificadorAlcance(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+
+std::tuple<int, std::string, bool> ModificadorAlcanceMunicao(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  const auto* da = ea.DadoCorrente();
+  if (da != nullptr && da->tipo_ataque() == "Ataque a Distância" && da->has_municao() && da->municao() == 0) {
+    VLOG(1) << "Nao ha municao para ataque";
+    LOG(INFO) << "da: " << da->ShortDebugString();
+    return std::make_tuple(-100, "Sem munição", false);
+  }
+
   int modificador_incrementos = 0;
   const float alcance_m = ea.AlcanceAtaqueMetros();
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
@@ -1118,7 +1126,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   {
     bool tem_alcance;
     std::string texto_falha_alcance;
-    std::tie(modificador_incrementos, texto_falha_alcance, tem_alcance) = ModificadorAlcance(ea, ed, pos_alvo);
+    std::tie(modificador_incrementos, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(ea, ed, pos_alvo);
     if (!tem_alcance) {
       return std::make_tuple(0, texto_falha_alcance, false);
     }
@@ -1602,6 +1610,15 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da->has_dano_basico_fixo()) {
     da->set_dano_basico(da->dano_basico_fixo());
   }
+  if (da->has_municao()) {
+    // Tenta achar o primeiro da lista com mesmo rotulo.
+    for (const auto& dda : proto.dados_ataque()) {
+      if (dda.rotulo() == da->rotulo()) {
+        if (da != &dda) da->set_municao(dda.municao());
+        break;
+      }
+    }
+  }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
     da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
@@ -1805,6 +1822,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         }
         da.set_rotulo(funda != nullptr ? "pedra encantada com funda" : "pedra encantada");
         da.set_tipo_ataque("Ataque a Distância");
+        da.set_municao(3);
         InsereInicio(&da, proto->mutable_dados_ataque());
       }
       break;

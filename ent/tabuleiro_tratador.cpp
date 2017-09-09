@@ -931,7 +931,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
       {
         bool tem_alcance;
         std::string texto_falha_alcance;
-        std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcance(*entidade, *entidade_destino, pos_alvo);
+        std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(*entidade, *entidade_destino, pos_alvo);
         if (!tem_alcance) {
           AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
           acao_proto.set_texto(texto_falha_alcance);
@@ -939,7 +939,6 @@ float Tabuleiro::TrataAcaoUmaEntidade(
           realiza_acao = false;
         }
       }
-
       std::string texto;
       if (vezes > 0 && modo_dano_automatico_ && acao_proto.permite_ataque_vs_defesa()) {
         VLOG(1) << "--------------------------";
@@ -964,16 +963,35 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
         TrataNotificacao(n_texto);
       } else {
-        // Aplica critico.
+        // Aplica dano e critico.
         for (int i = 0; i < vezes; ++i) {
           delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
         }
         if (vezes > 0) {
           delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
         }
-        auto* da = entidade->DadoCorrente();
+        const auto* da = entidade->DadoCorrente();
         bool nao_letal = da != nullptr && da->nao_letal();
+        // Notificacao para atualizar a entidade atacante.
+        if (vezes > 0 && da != nullptr && da->has_municao()) {
+          auto* ne = grupo_desfazer->add_notificacao();
+          ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          auto* e_antes = ne->mutable_entidade_antes();
+          e_antes->set_id(entidade->Id());
+          *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+          auto* e_depois = ne->mutable_entidade();
+          e_depois->set_id(entidade->Id());
+          *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+          for (auto& dda : *e_depois->mutable_dados_ataque()) {
+            if (dda.rotulo() == da->rotulo()) {
+              dda.set_municao(std::max((int)(da->municao() - 1), 0));
+            }
+          }
+          ntf::Notificacao copia(*ne);
+          TrataNotificacao(copia);
+        }
         entidade->ProximoAtaque();
+
         if (acao_proto.permite_salvacao()) {
           std::string resultado_salvacao;
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
