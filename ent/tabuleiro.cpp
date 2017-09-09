@@ -1156,8 +1156,8 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
       *proto_depois = ProtoFormaAlternativa(proto.formas_alternativas(proximo_indice));
       proto_depois->set_forma_alternativa_corrente(proximo_indice);
       proto_depois->set_id(id);
-      LOG(INFO) << "Alterando para forma " << proximo_indice
-                << ", entidade " << id << ", proto: " << proto_depois->DebugString();
+      VLOG(1) << "Alterando para forma " << proximo_indice
+              << ", entidade " << id << ", proto: " << proto_depois->DebugString();
     }
   }
   TrataNotificacao(grupo_notificacoes);
