@@ -1178,7 +1178,7 @@ tabela_pocoes {
     nome: 'Pedra Encantada'
     duracao_rodadas: 300
     id_efeito: EFEITO_PEDRA_ENCANTADA
-    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
+    descricao: 'Pedra encantada +1, dano 1d6, 2d6 contra mortos vivos.'
     custo_po: 50
   }
   pocoes {
