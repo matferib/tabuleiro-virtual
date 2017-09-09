@@ -2157,6 +2157,11 @@ tabela_talentos {
     # niveis_adicionais: 2
     # mago: 1
   }
+  talentos {
+    id: 'outros'
+    nome: 'Outros'
+    descricao: 'Para outros talentos.'
+  }
   # Talentos de monstros.
   talentos {
     id: 'ataques_multiplos'
