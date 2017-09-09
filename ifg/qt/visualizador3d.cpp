@@ -797,6 +797,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
 
   da.set_bonus_magico(gerador.spin_bonus_magico->value());
+  da.set_municao(gerador.spin_municao->value());
 
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
@@ -1212,6 +1213,7 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_municao, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );

@@ -216,6 +216,7 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_bonus_ataque->setText("0");
   gerador.botao_bonus_dano->setText("0");
   gerador.spin_bonus_magico->setValue(0);
+  gerador.spin_municao->setValue(0);
   gerador.linha_dano->clear();
   gerador.spin_alcance_quad->setValue(0);
 }
@@ -239,7 +240,7 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
-      {gerador.spin_bonus_magico, gerador.checkbox_op,
+      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma };
@@ -284,6 +285,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
+  gerador.spin_municao->setValue(da.municao());
+
   gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.bonus_ataque())));
   gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.bonus_dano())));
   gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
