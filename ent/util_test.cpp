@@ -31,6 +31,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   AtribuiBaseAtributo(14, TA_CARISMA, &forma);
   AtribuiBonus(TM_GRANDE, TB_BASE, "base", forma.mutable_bonus_tamanho());
   forma.set_tipo_visao(VISAO_BAIXA_LUMINOSIDADE);
+  forma.mutable_info_talentos()->add_gerais()->set_id("vigor");
 
   EntidadeProto forma_filtrada = ProtoFormaAlternativa(forma);
 
@@ -50,6 +51,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
     EXPECT_EQ(7, BonusTotal(proto_pos_forma.dados_defesa().ca()));
     // Nao ganha qualidades.
     forma.set_tipo_visao(VISAO_NORMAL);
+    EXPECT_TRUE(proto_pos_forma.info_talentos().gerais().empty());
   }
   {
     e->AtualizaParcial(proto);

@@ -2607,6 +2607,8 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   AtribuiBonus(tam_base, TB_BASE, "base", ret.mutable_bonus_tamanho());
   // Visao.
   // A forma alternativa nao ganha qualidades especiais (visao, faro).
+  // Talento.
+  // idem.
 
   // CA.
   const int ca_natural = BonusIndividualPorOrigem(TB_ARMADURA_NATURAL, "racial", proto.dados_defesa().ca());
