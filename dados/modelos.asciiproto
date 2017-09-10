@@ -1173,7 +1173,7 @@ modelo {
 modelo {
   id: 'Orc Lanceiro'
   entidade {
-    dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.5 translacao_x: 0.25 } cor { g: 1.0 }
+    dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'lanca' }
     dados_ataque { rotulo: 'lanca em cac' id_arma: 'lanca' empunhadura: EA_2_MAOS }
