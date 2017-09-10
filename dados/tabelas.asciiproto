@@ -1554,7 +1554,8 @@ tabela_talentos {
   talentos {
     id: 'acrobatico'
     nome: 'Acrobático'
-    # bonus_pericias { saltar: 2, acrobacias: 2 }
+    bonus_pericias { id: 'saltar' valor: 2 }
+    bonus_pericias { id: 'acrobacias' valor: 2 }
   }
   talentos {
     id: 'acuidade_arma'
@@ -1566,7 +1567,8 @@ tabela_talentos {
   talentos {
     id: 'afinidade_com_animais'
     nome: 'Afinidade com Animais'
-    # bonus_pericias { cavalgar: 2, adestrar_animais: 2 }
+    bonus_pericias { id: 'cavalgar' valor: 2 }
+    bonus_pericias { id: 'adestrar_animais' valor: 2 }
   }
   talentos {
     id: 'agarrar_aprimorado'
@@ -1579,7 +1581,8 @@ tabela_talentos {
   talentos {
     id: 'agil'
     nome: 'Ágil'
-    # bonus_pericias { equilibrio: 2, arte_da_fuga: 2 }
+    bonus_pericias { id: 'equilibrio' valor: 2 }
+    bonus_pericias { id: 'arte_da_fuga' valor: 2 }
   }
   talentos {
     id: 'apanhar_objetos'
@@ -1591,7 +1594,8 @@ tabela_talentos {
   talentos {
     id: 'aptidao_magica'
     nome: 'Aptidão Mágica'
-    # bonus_pericias { identificar_magia: 2, usar_instrumento_magico: 2 }
+    bonus_pericias { id: 'identificar_magia' valor: 2 }
+    bonus_pericias { id: 'usar_instrumento_magico' valor: 2 }
   }
   talentos {
     id: 'ataque_atordoante'
@@ -1624,12 +1628,14 @@ tabela_talentos {
   talentos {
     id: 'atletico'
     nome: 'Atlético'
-    # bonus_pericias { escalar: 2, natacao: 2 }
+    bonus_pericias { id: 'escalar' valor: 2 }
+    bonus_pericias { id: 'natacao' valor: 2 }
   }
   talentos {
     id: 'auto_suficiente'
     nome: 'Auto-Suficiente'
-    # bonus_pericias { cura: 2, sobrevivencia: 2 }
+    bonus_pericias { id: 'cura' valor: 2 }
+    bonus_pericias { id: 'sobrevivencia' valor: 2 }
   }
   talentos {
     id: 'combate_montado'
@@ -1667,13 +1673,14 @@ tabela_talentos {
   talentos {
     id: 'corrida'
     nome: 'Corrida'
-    # bonus_pericias { saltar: 4 }
+    bonus_pericias { id: 'saltar' valor: 4 }
     descricao: 'Percorre 5 vezes o deslocamento padrão +4 de bônus nos testes de Saltar no final de uma corrida.'
   }
   talentos {
     id: 'dedos_lepidos'
     nome: 'Dedos Lépidos'
-    # bonus_pericias { operar_mecanismos: 2, abrir_fechaduras: 2 }
+    bonus_pericias { id: 'operar_mecanismos' valor: 2 }
+    bonus_pericias { id: 'abrir_fechaduras' valor: 2 }
   }
   talentos {
     id: 'desarme_aprimorado'
@@ -1693,7 +1700,8 @@ tabela_talentos {
   talentos {
     id: 'diligente'
     nome: 'Diligente'
-    # bonus_pericias { avaliacao: 2, decifrar_escrita: 2 }
+    bonus_pericias { id: 'avaliacao' valor: 2 }
+    bonus_pericias { id: 'decifrar_escrita' valor: 2 }
   }
   talentos {
     id: 'duro_de_matar'
@@ -1799,7 +1807,8 @@ tabela_talentos {
   talentos {
     id: 'fraudulento'
     nome: 'Fraudulento'
-    # bonus_pericias { disfarces: 2, falsificacao: 2 }
+    bonus_pericias { id: 'disfarces' valor: 2 }
+    bonus_pericias { id: 'falsificacao' valor: 2 }
   }
   talentos {
     id: 'ignorar_componentes_materiais'
@@ -1838,7 +1847,8 @@ tabela_talentos {
   talentos {
     id: 'investigador'
     nome: 'Investigador'
-    # bonus_pericias { obter_informacao: 2, procurar: 2 }
+    bonus_pericias { id: 'obter_informacao' valor: 2 }
+    bonus_pericias { id: 'procurar' valor: 2 }
   }
   talentos {
     id: 'lideranca'
@@ -1884,9 +1894,10 @@ tabela_talentos {
     descricao: '+4 de bônus nos teste de Concentração para conjurar na defensiva.'
   }
   talentos {
-    id: 'maos_level'
+    id: 'maos_leves'
     nome: 'Mãos Leves'
-    # bonus_pericias { prestidigitacao: 2, usar_cordas: 2 }
+    bonus_pericias { id: 'prestidigitacao' valor: 2 }
+    bonus_pericias { id: 'usar_cordas' valor: 2 }
   }
   talentos {
     id: 'mobilidade'
@@ -1900,18 +1911,21 @@ tabela_talentos {
     id: 'negociador'
     nome: 'Negociador'
     descricao: '+2 de bônus nos testes de Diplomacia e Sentir Motivação.'
-    # bonus_pericias { diplomacia: 2, sentir_motivacao: 2 }
+    bonus_pericias { id: 'diplomacia' valor: 2 }
+    bonus_pericias { id: 'sentir_motivacao' valor: 2 }
   }
   talentos {
     id: 'persuasivo'
     nome: 'Persuasivo'
     descricao: '+2 de bônus nos testes de blefar e intimidação.'
-    # bonus_pericias { blefar: 2, intimidacao: 2 }
+    bonus_pericias { id: 'blefar' valor: 2 }
+    bonus_pericias { id: 'intimidacao' valor: 2 }
   }
   talentos {
     id: 'prontidao'
     nome: 'Prontidão'
-    # bonus_pericias { ouvir: 2, observar: 2 }
+    bonus_pericias { id: 'ouvir' valor: 2 }
+    bonus_pericias { id: 'observar' valor: 2 }
     descricao: 'Bonus de +2 em ouvir e observar.'
   }
   talentos {
