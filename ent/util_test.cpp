@@ -6,6 +6,27 @@
 
 namespace ent {
 
+TEST(TesteTalentoPericias, TesteTalentoPericias) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("ladino");
+  ic->set_nivel(1);
+  AtribuiBaseAtributo(14, TA_DESTREZA, &proto);
+  proto.mutable_info_talentos()->add_gerais()->set_id("maos_leves");
+  auto* p = PericiaCriando("usar_cordas", &proto);
+  p->set_pontos(3);
+  RecomputaDependencias(tabelas, &proto);
+
+  // 2 des, 2 talento, 3 pontos de classe.
+  EXPECT_EQ(7, BonusTotal(p->bonus()));
+
+  // Pericia deixa de ser de classe.
+  ic->set_id("guerreiro");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(5, BonusTotal(p->bonus()));
+}
+
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   // TODO ignorar INT SAB CAR.
   Tabelas tabelas;
@@ -26,9 +47,10 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   AtribuiBaseAtributo(4, TA_FORCA, &forma);
   AtribuiBaseAtributo(6, TA_DESTREZA, &forma);
   AtribuiBaseAtributo(8, TA_CONSTITUICAO, &forma);
-  AtribuiBaseAtributo(10, TA_INTELIGENCIA, &forma);
-  AtribuiBaseAtributo(12, TA_SABEDORIA, &forma);
-  AtribuiBaseAtributo(14, TA_CARISMA, &forma);
+  // Ignorados
+  AtribuiBaseAtributo(30, TA_INTELIGENCIA, &forma);
+  AtribuiBaseAtributo(30, TA_SABEDORIA, &forma);
+  AtribuiBaseAtributo(30, TA_CARISMA, &forma);
   AtribuiBonus(TM_GRANDE, TB_BASE, "base", forma.mutable_bonus_tamanho());
   forma.set_tipo_visao(VISAO_BAIXA_LUMINOSIDADE);
   forma.mutable_info_talentos()->add_gerais()->set_id("vigor");
@@ -43,9 +65,9 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
     EXPECT_EQ(4, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
     EXPECT_EQ(6, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
     EXPECT_EQ(8, BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_pos_forma)));
-    EXPECT_EQ(10, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
-    EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
-    EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
+    EXPECT_EQ(20, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
+    EXPECT_EQ(22, BonusTotal(BonusAtributo(TA_SABEDORIA, proto_pos_forma)));
+    EXPECT_EQ(24, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
     EXPECT_EQ(TM_GRANDE, proto_pos_forma.tamanho());
     // -1 tam, -2 des.
     EXPECT_EQ(7, BonusTotal(proto_pos_forma.dados_defesa().ca()));

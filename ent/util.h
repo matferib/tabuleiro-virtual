@@ -389,6 +389,12 @@ std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 // Retorna o modificador de incrementos (-inf, 0], string de erro e se tem alcance.
 std::tuple<int, std::string, bool> ModificadorAlcanceMunicao(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
+// Acesso a pericias do proto.
+EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
+EntidadeProto::InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto);
+// Retorna default caso nao encontre.
+const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

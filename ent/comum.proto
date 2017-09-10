@@ -375,6 +375,13 @@ message TalentoProto {
   optional PreRequisitoTalento pre_requisito = 6;
   // Talentos de monstro.
   optional bool monstro = 7;
+
+  // Para talentos que afetam pericias.
+  message BonusPericia {
+    optional string id = 1;
+    optional int32 valor = 2;
+  }
+  repeated BonusPericia bonus_pericias = 8;
 }
 
 message PocaoProto {

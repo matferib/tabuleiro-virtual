@@ -2235,7 +2235,22 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
   }
 }
 
+// Retorna o bonus do talento para a pericia ou zero caso nao haja.
+int BonusTalento(const std::string& id_pericia, const TalentoProto& talento) {
+  for (const auto& bp : talento.bonus_pericias()) {
+    if (bp.id() == id_pericia) return bp.valor();
+  }
+  return 0;
+}
+
 void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Pericias afetadas por talentos.
+  std::unordered_map<std::string, std::vector<const TalentoProto*>> talentos_por_pericia;
+  for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
+    for (const auto& bp : talento.bonus_pericias()) {
+      talentos_por_pericia[bp.id()].push_back(&talento);
+    }
+  }
   // Mapa do proto.
   std::unordered_map<std::string, EntidadeProto::InfoPericia*> mapa_pericias_proto;
   for (auto& ip : *proto->mutable_info_pericias()) {
@@ -2253,6 +2268,15 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
     int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto->pontos() : pericia_proto->pontos() / 2;
     AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto->mutable_bonus());
+    // Talento.
+    auto par_pericia_talentos = talentos_por_pericia.find(pt.id());
+    if (par_pericia_talentos != talentos_por_pericia.end()) {
+      for (const auto* talento : par_pericia_talentos->second) {
+        const int bonus_talento = PossuiTalento(talento->id(), *proto) ? BonusTalento(pt.id(), *talento) : 0;
+        AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
+      }
+    }
+
     //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
   }
   // TODO sinergia e talentos.
@@ -2666,7 +2690,8 @@ std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da
 EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   EntidadeProto ret;
   ret.set_rotulo(proto.rotulo());
-  std::vector<TipoAtributo> av = { TA_FORCA, TA_DESTREZA, TA_CONSTITUICAO, TA_INTELIGENCIA, TA_SABEDORIA, TA_CARISMA };
+  // Forma alternativa afeta apena forca destreza e constituicao.
+  std::vector<TipoAtributo> av = { TA_FORCA, TA_DESTREZA, TA_CONSTITUICAO /*, TA_INTELIGENCIA, TA_SABEDORIA, TA_CARISMA */};
   for (TipoAtributo ta : av) {
     const auto& bonus = BonusAtributo(ta, proto);
     const int base = PossuiBonus(TB_BASE, bonus) ? BonusIndividualTotal(TB_BASE, bonus) : 10;
@@ -2917,6 +2942,29 @@ std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto) {
     todos_talentos.push_back(&t);
   }
   return todos_talentos;
+}
+
+EntidadeProto::InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto) {
+  for (auto& pericia : *proto->mutable_info_pericias()) {
+    if (pericia.id() == id) return &pericia;
+  }
+  return nullptr;
+}
+
+EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto) {
+  for (auto& pericia : *proto->mutable_info_pericias()) {
+    if (pericia.id() == id) return &pericia;
+  }
+  auto* pericia = proto->add_info_pericias();
+  pericia->set_id(id);
+  return pericia;
+}
+
+const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto) {
+  for (auto& pericia : proto.info_pericias()) {
+    if (pericia.id() == id) return pericia;
+  }
+  return EntidadeProto::InfoPericia::default_instance();
 }
 
 }  // namespace ent
