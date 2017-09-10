@@ -2715,6 +2715,8 @@ tabela_pericias {
     sem_treinamento: false
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    sinergias { id: 'equilibrio' }
+    sinergias { id: 'saltar' }
   }
   pericias {
     id: 'adestrar_animais'
@@ -2722,6 +2724,8 @@ tabela_pericias {
     # classes: [ 'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
     sem_treinamento: false
     atributo: TA_CARISMA
+    sinergias { id: 'cavalgar' }
+    # TODO testes de empatia com animais.
   }
   pericias {
     id: 'arte_da_fuga'
@@ -2730,6 +2734,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    sinergias { id: 'usar_cordas' restricao: 'nós' }
   }
   pericias {
     id: 'atuacao'
@@ -2751,6 +2756,10 @@ tabela_pericias {
     # classes: [  'bardo'  'ladino'  'feiticeiro'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_CARISMA
+    sinergias { id: 'diplomacia' }
+    sinergias { id: 'disfarces' }
+    sinergias { id: 'intimidacao' }
+    sinergias { id: 'prestidigitacao' }
   }
   pericias {
     id: 'cavalgar'
@@ -2771,60 +2780,70 @@ tabela_pericias {
     nome: 'Conhecimento (arcano)'
     # classes: [  'bardo'  'clerigo'  'monge'  'feiticeiro'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'identificar_magia' }
   }
   pericias {
     id: 'conhecimento_arquitetura_e_engenharia'
     nome: 'Conhecimento (arquitetura e engenharia)'
     # classes: [  'bardo'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'procurar' restricao: 'portas secretas e afins' }
   }
   pericias {
     id: 'conhecimento_geografia'
     nome: 'Conhecimento (geografia)'
     # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'sobrevivencia' restricao: 'contra desorientação ou perigos' }
   }
   pericias {
     id: 'conhecimento_historia'
     nome: 'Conhecimento (história)'
     # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    # TODO sinergia em testes de conhecimento de bardo.
   }
   pericias {
     id: 'conhecimento_local'
     nome: 'Conhecimento (local)'
     # classes: [  'bardo'  'ladino'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'obter_informacao' }
   }
   pericias {
     id: 'conhecimento_masmorras'
     nome: 'Conhecimento (masmorras)'
     # classes: [  'bardo'  'ranger'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'sobrevivencia' restricao: 'em masmorras' }
   }
   pericias {
     id: 'conhecimento_natureza'
     nome: 'Conhecimento (natureza)'
     # classes: [  'bardo'  'druida'  'ranger'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'sobrevivencia' restricao: 'na natureza' }
   }
   pericias {
     id: 'conhecimento_nobreza_e_realeza'
     nome: 'Conhecimento (nobreza e realeza)'
     # classes: [  'bardo'  'paladino'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'diplomacia' }
   }
   pericias {
     id: 'conhecimento_planos'
     nome: 'Conhecimento (planos)'
     # classes: [  'bardo'  'clerigo'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'sobrevivencia' restricao: 'outros planos' }
   }
   pericias {
     id: 'conhecimento_religiao'
     nome: 'Conhecimento (religião)'
     # classes: [  'bardo'  'clerigo'  'monge'  'paladino'  'mago'  'aristocrata' ]
     atributo: TA_INTELIGENCIA
+    # TODO testes de espantar ou comandar mortos vivos.
   }
   pericias {
     id: 'cura'
@@ -2838,6 +2857,7 @@ tabela_pericias {
     nome: 'Decifrar Escrita'
     # classes: [  'bardo'  'ladino'  'mago' ]
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'usar_instrumento_magico' restricao: 'pergaminhos' }
   }
   pericias {
     id: 'diplomacia'
@@ -2902,7 +2922,8 @@ tabela_pericias {
     id: 'identificar_magia'
     nome: 'Identificar magia'
     # classes: [  'bardo'  'clerigo'  'druida'  'feiticeiro'  'mago']
-      atributo: TA_INTELIGENCIA
+    atributo: TA_INTELIGENCIA
+    sinergias { id: 'usar_instrumento_magico' restricao: 'pergaminhos' }
   }
   pericias {
     id: 'intimidacao'
@@ -2940,6 +2961,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'ao oficio' }
   }
   pericias {
     id: 'oficios_alquimia'
@@ -2948,6 +2970,7 @@ tabela_pericias {
     #               'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'alquimia' }
   }
   pericias {
     id: 'oficios_armoraria'
@@ -2956,6 +2979,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'armaduras' }
   }
   pericias {
     id: 'oficios_arquearia'
@@ -2964,6 +2988,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'arcos' }
   }
   pericias {
     id: 'oficios_armeiro'
@@ -2972,6 +2997,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'armas' }
   }
   pericias {
     id: 'oficios_armadilharia'
@@ -2980,6 +3006,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao' restricao: 'armadilhas' }
   }
   pericias {
     id: 'operar_mecanismo'
@@ -3007,6 +3034,7 @@ tabela_pericias {
     # classes: [  'ranger'  'ladino'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    sinergias { id: 'sobrevivencia' restricao: 'rastrear' }
   }
   pericias {
     id: 'profissao'
@@ -3022,6 +3050,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_FORCA
     penalidade_armadura: true
+    sinergias { id: 'acrobacias' }
   }
   pericias {
     id: 'sentir_motivacao'
@@ -3029,6 +3058,7 @@ tabela_pericias {
     # classes: [  'bardo'  'monge'  'paladino'  'ladino'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    sinergias { id: 'diplomacia' }
   }
   pericias {
     id: 'sobrevivencia'
@@ -3036,6 +3066,7 @@ tabela_pericias {
     # classes: [  'barbaro'  'druida'  'ranger'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    sinergias { id: 'conhecimento_natureza' }
   }
   pericias {
     id: 'usar_cordas'
@@ -3043,12 +3074,15 @@ tabela_pericias {
     # classes: [  'ranger'  'ladino'  ]
     sem_treinamento: true
     atributo: TA_DESTREZA
+    sinergias { id: 'escalar' restricao: 'cordas' }
+    sinergias { id: 'arte_da_fuga' restricao: 'cordas' }
   }
   pericias {
     id: 'usar_instrumento_magico'
     nome: 'Usar Instrumento Mágico'
     # classes: [  'bardo'  'ladino' ]
     atributo: TA_CARISMA
+    sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
 

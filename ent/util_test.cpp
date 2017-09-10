@@ -12,19 +12,24 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
   auto* ic = proto.add_info_classes();
   ic->set_id("ladino");
   ic->set_nivel(1);
+  AtribuiBaseAtributo(12, TA_FORCA, &proto);
   AtribuiBaseAtributo(14, TA_DESTREZA, &proto);
   proto.mutable_info_talentos()->add_gerais()->set_id("maos_leves");
   auto* p = PericiaCriando("usar_cordas", &proto);
-  p->set_pontos(3);
+  p->set_pontos(5);
   RecomputaDependencias(tabelas, &proto);
 
-  // 2 des, 2 talento, 3 pontos de classe.
-  EXPECT_EQ(7, BonusTotal(p->bonus()));
+  // 2 des, 2 talento, 5 pontos de classe.
+  EXPECT_EQ(9, BonusTotal(p->bonus()));
+  // 1 forca, 2 sinergia.
+  EXPECT_EQ(3, BonusTotal(Pericia("escalar", proto).bonus()));
 
   // Pericia deixa de ser de classe.
   ic->set_id("guerreiro");
   RecomputaDependencias(tabelas, &proto);
-  EXPECT_EQ(5, BonusTotal(p->bonus()));
+  EXPECT_EQ(6, BonusTotal(p->bonus()));
+  // Sem sinergia.
+  EXPECT_EQ(1, BonusTotal(Pericia("escalar", proto).bonus()));
 }
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {

@@ -342,6 +342,12 @@ message PericiaProto {
   optional TipoAtributo atributo = 4;
   optional bool penalidade_armadura = 5;
   optional string complemento = 6;
+  message InfoSinergia {
+    optional string id = 1;
+    // Uma string descrevendo a restricao. Ausente se nao houver.
+    optional string restricao = 2;
+  }
+  repeated InfoSinergia sinergias = 7;
 }
 
 // Talentos.

@@ -1341,6 +1341,7 @@ bool BonusCumulativo(TipoBonus tipo) {
     case TB_TEMPLATE:
     case TB_TALENTO:
     case TB_SEM_NOME:
+    case TB_SINERGIA:
       return true;
     default: return false;
   }
@@ -2251,23 +2252,45 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
       talentos_por_pericia[bp.id()].push_back(&talento);
     }
   }
-  // Mapa do proto.
+
+  // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
   std::unordered_map<std::string, EntidadeProto::InfoPericia*> mapa_pericias_proto;
   for (auto& ip : *proto->mutable_info_pericias()) {
     mapa_pericias_proto[ip.id()] = &ip;
   }
-  // Preenche o modelo.
+
+  // Cria todas as pericias do personagem.
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
-    // Acha a pericia no personagem se houver.
+    // Acha a pericia no personagem se houver para pegar os pontos e calcular a graduacao.
     auto it = mapa_pericias_proto.find(pt.id());
-    auto* pericia_proto = it != mapa_pericias_proto.end() ? it->second : proto->add_info_pericias();
-    if (pericia_proto->id().empty()) {
+    if (it == mapa_pericias_proto.end()) {
+      auto* pericia_proto = proto->add_info_pericias();
       pericia_proto->set_id(pt.id());
+      mapa_pericias_proto[pt.id()] = pericia_proto;
+    } else {
+      it->second->mutable_restricoes_sinergia()->Clear();
     }
-    // Atributo.
-    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
+  }
+
+  // Iteracao.
+  for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
+    // Graduacoes.
+    auto* pericia_proto = mapa_pericias_proto[pt.id()];
     int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto->pontos() : pericia_proto->pontos() / 2;
     AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto->mutable_bonus());
+
+    // Sinergia.
+    for (const auto& s : pt.sinergias()) {
+      auto* pericia_alvo = mapa_pericias_proto[s.id()];
+      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, google::protobuf::StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo->mutable_bonus());
+      if (!s.restricao().empty()) {
+        pericia_alvo->add_restricoes_sinergia(s.restricao());
+      }
+    }
+
+    // Atributo.
+    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
+
     // Talento.
     auto par_pericia_talentos = talentos_por_pericia.find(pt.id());
     if (par_pericia_talentos != talentos_por_pericia.end()) {
@@ -2276,7 +2299,6 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
         AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
       }
     }
-
     //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
   }
   // TODO sinergia e talentos.

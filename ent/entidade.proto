@@ -318,6 +318,8 @@ message EntidadeProto {
     optional string complemento = 4;
     // Valor final da pericia.
     optional Bonus bonus = 5;
+    // As restricoes de sinergia da pericia.
+    repeated string restricoes_sinergia = 6;
   }
   repeated InfoPericia info_pericias = 85;
 
