@@ -14,6 +14,10 @@ namespace qt {
 
 void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus);
 
+std::string NomeBonus(ent::TipoBonus tb) {
+  return ent::TipoBonus_Name(tb).substr(3);
+}
+
 // Modelo de bonus para ser usado pelos views de tabela.
 class ModeloBonus : public QAbstractTableModel {
  public:
@@ -70,7 +74,7 @@ class ModeloBonus : public QAbstractTableModel {
     std::tie(tipo, origem, valor) = DadosEm(index);
     const int column = index.column();
     switch (column) {
-      case 0: return role == Qt::EditRole ? QVariant() : QVariant(ent::TipoBonus_Name(tipo).c_str());
+      case 0: return role == Qt::EditRole ? QVariant() : QVariant(NomeBonus(tipo).c_str());
       case 1: return QVariant(QString::fromUtf8(origem.c_str()));
       case 2: return QVariant(valor);
     }
@@ -216,7 +220,7 @@ class TipoBonusDelegate : public QItemDelegate {
   QComboBox* PreencheConfiguraComboBonus(QComboBox* combo) const {
     for (int tipo = ent::TipoBonus_MIN; tipo <= ent::TipoBonus_MAX; tipo++) {
       if (!ent::TipoBonus_IsValid(tipo)) continue;
-      combo->addItem(ent::TipoBonus_Name(ent::TipoBonus(tipo)).c_str(), QVariant(tipo));
+      combo->addItem(NomeBonus(static_cast<ent::TipoBonus>(tipo)).c_str(), QVariant(tipo));
     }
     combo->setCurrentIndex(0);
     connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commiAndCloseEditor()));
