@@ -2627,12 +2627,12 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
 
 std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
   int modificador = ModificadorAtaque(da.tipo_ataque() != "Ataque Corpo a Corpo", proto, EntidadeProto());
-  char texto_modificador[100] = { '\0' };
-  if (modificador != 0) snprintf(texto_modificador, 99, "%+d", modificador);
+  std::string texto_modificador;
+  if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
 
-  char texto_furtivo[100] = { '\0' };
+  std::string texto_furtivo;
   if (proto.furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
-    snprintf(texto_furtivo, 99, "+%s", proto.dados_ataque_global().dano_furtivo().c_str());
+    texto_furtivo = google::protobuf::StringPrintf("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
   }
 
   std::string critico = StringCritico(da);
@@ -2641,10 +2641,10 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
       da.rotulo().c_str(),
       da.ataque_toque() ? " (T)" : "",
       da.bonus_ataque_final(),
-      texto_modificador,
+      texto_modificador.c_str(),
       StringDanoParaAcao(da, proto).c_str(),
       critico.c_str(),
-      texto_furtivo,
+      texto_furtivo.c_str(),
       StringCAParaAcao(da, proto).c_str());
 }
 
@@ -2680,11 +2680,15 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
     }
     snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
   }
+
+  std::string texto_municao;
+  if (da.has_municao()) texto_municao = google::protobuf::StringPrintf(", municao: %d", da.municao());
+
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
-      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(), string_alcance,
-      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(),
+      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(), texto_municao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
