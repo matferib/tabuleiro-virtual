@@ -1,6 +1,8 @@
 #ifndef IFG_QT_DIALOGO_PERICIAS_UTIL_H
 #define IFG_QT_DIALOGO_PERICIAS_UTIL_H
 
+#include <QHeaderView>
+#include <QScrollBar>
 #include <QTableView>
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
@@ -32,31 +34,64 @@ class ModeloPericias : public QAbstractTableModel {
     return 6;
   }
 
+  int LarguraColuna(int coluna) const {
+    auto* pai = qobject_cast<QTableView*>(QObject::parent());
+    if (pai == nullptr) return 0;
+
+    const int w = pai->viewport()->size().width() - pai->verticalScrollBar()->sizeHint().width();
+    switch (coluna) {
+      case 0: return w * 0.3;
+      case 1: return w * 0.1;
+      case 2: return w * 0.1;
+      case 3: return w * 0.1;
+      case 4: return w * 0.3;
+      case 5: return w * 0.1;
+      default: return 0;
+    }
+  }
+
+  QSize TamanhoCelula(int coluna) const {
+    const auto* pai = qobject_cast<QTableView*>(QObject::parent());
+    if (pai == nullptr) return QSize();
+    QSize qs;
+    qs.setHeight(pai->verticalHeader()->defaultSectionSize());
+    qs.setWidth(LarguraColuna(coluna));
+    return qs;
+  }
+
   // Os cabeçalhos.
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
-    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole && section == 0) {
-      // Hack pra diminuir o tamanho da primeira coluna.
-      QSize qs = QAbstractTableModel::headerData(0, Qt::Horizontal, Qt::SizeHintRole).toSize();
-      qs.setWidth(qs.width() / 2);
-      return QVariant(qs);
-    }
-
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
+    if (orientation == Qt::Vertical) {
       return QVariant();
     }
-    switch (section) {
-      case 0: return QVariant(QString::fromUtf8("Perícia"));
-      case 1: return QVariant(QString::fromUtf8("Atr"));
-      case 2: return QVariant(QString::fromUtf8("Pts"));
-      case 3: return QVariant(QString::fromUtf8("De Classe"));
-      case 4: return QVariant(QString::fromUtf8("Complemento"));
-      case 5: return QVariant(QString::fromUtf8("Total"));
-      default: return QVariant("Desconhecido");
+    if (role == Qt::SizeHintRole) {
+      return QVariant(TamanhoCelula(section));
     }
+    if (role == Qt::DisplayRole) {
+      switch (section) {
+        case 0: return QVariant(QString::fromUtf8("Perícia"));
+        case 1: return QVariant(QString::fromUtf8("Atr"));
+        case 2: return QVariant(QString::fromUtf8("Pts"));
+        case 3: return QVariant(QString::fromUtf8("De Classe"));
+        case 4: return QVariant(QString::fromUtf8("Complemento"));
+        case 5: return QVariant(QString::fromUtf8("Total"));
+        default: ;
+      }
+    }
+    return QVariant();
   }
 
   // Dado de cada celula.
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+    if (role == Qt::SizeHintRole) {
+      auto* pai = qobject_cast<QTableView*>(QObject::parent());
+      if (pai == nullptr) return QVariant();
+      QSize qs;
+      qs.setHeight(pai->verticalHeader()->defaultSectionSize());
+      qs.setWidth(LarguraColuna(index.column()));
+      return QVariant(qs);
+    }
+
     if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::BackgroundRole) {
       return QVariant();
     }

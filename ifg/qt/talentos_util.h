@@ -1,6 +1,7 @@
 #ifndef IFG_QT_DIALOGO_TALENTOS_UTIL_H
 #define IFG_QT_DIALOGO_TALENTOS_UTIL_H
 
+#include <QHeaderView>
 #include <QComboBox>
 #include "ent/entidade.pb.h"
 #include "ifg/qt/util.h"
@@ -49,27 +50,73 @@ class ModeloTalentos : public QAbstractTableModel {
     return true;
   }
 
+  int LarguraColuna(int coluna) const {
+    auto* pai = qobject_cast<QTableView*>(QObject::parent());
+    if (pai == nullptr) return 0;
+
+    const int w = pai->viewport()->size().width() - pai->verticalScrollBar()->sizeHint().width();
+    switch (coluna) {
+      case 0: return w * 0.45;
+      case 1: return w * 0.45;
+      case 2: return w * 0.10;
+      default: return 0;
+    }
+  }
+
+  QSize TamanhoCelula(int coluna) const {
+    const auto* pai = qobject_cast<QTableView*>(QObject::parent());
+    if (pai == nullptr) return QSize();
+    QSize qs;
+    qs.setHeight(pai->verticalHeader()->defaultSectionSize());
+    qs.setWidth(LarguraColuna(coluna));
+    return qs;
+  }
+
   // Os cabeçalhos.
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override {
-    if (orientation == Qt::Horizontal && role == Qt::SizeHintRole && section == 0) {
-      // Hack pra aumentar o tamanho da primeira coluna.
-      QSize qs;
-      qs.setWidth(100);
-      return QVariant(qs);
-    }
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
+    if (orientation == Qt::Vertical) {
       return QVariant();
     }
-    switch (section) {
-      case 0: return QVariant(QString::fromUtf8("Talento"));
-      case 1: return QVariant(QString::fromUtf8("Complemento"));
-      case 2: return QVariant(QString::fromUtf8("Geral"));
+    if (role == Qt::SizeHintRole) {
+      return QVariant(TamanhoCelula(section));
     }
-    return QVariant("Desconhecido");
+    if (role == Qt::SizeHintRole) {
+      auto* pai = qobject_cast<QTableView*>(QObject::parent());
+      if (pai == nullptr) return QVariant();
+      const int w = pai->width();
+      QSize qs = QAbstractTableModel::headerData(section, orientation, role).toSize();
+      qs.setHeight(pai->verticalHeader()->defaultSectionSize());
+      switch (section) {
+        case 0:
+          qs.setWidth(w * 0.45);
+          return QVariant(qs);
+        case 1:
+          qs.setWidth(w * 0.45);
+          return QVariant(qs);
+        case 2:
+          qs.setWidth(w * 0.1);
+          return QVariant(qs);
+        default: ;
+      }
+      return QVariant();
+    }
+    if (role == Qt::DisplayRole) {
+      switch (section) {
+        case 0: return QVariant(QString::fromUtf8("Talento"));
+        case 1: return QVariant(QString::fromUtf8("Complemento"));
+        case 2: return QVariant(QString::fromUtf8("Geral"));
+        default: ;
+      }
+    }
+    return QVariant();
   }
 
   // Dado de cada celula.
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+    if (role == Qt::SizeHintRole) {
+      return QVariant(TamanhoCelula(index.column()));
+    }
+
     if (role != Qt::DisplayRole && role != Qt::EditRole) {
       return QVariant();
     }

@@ -919,10 +919,10 @@ void PreencheConfiguraPericias(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
-  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_pericias->selectionModel());
   auto* modelo(new ModeloPericias(tabelas, *proto_retornado, gerador.tabela_pericias));
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_pericias->selectionModel());
   gerador.tabela_pericias->setModel(modelo);
-  gerador.tabela_pericias->setCornerButtonEnabled(false);
+  gerador.tabela_pericias->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   gerador.tabela_pericias->resizeColumnsToContents();
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
