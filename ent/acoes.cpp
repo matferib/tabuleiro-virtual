@@ -1032,7 +1032,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       VLOG(1) << "Finalizando alvo, origem ou destino não existe.";
       return false;
     }
-    if (entidade_destino->Proto().agarrando()) {
+    if (AgarradoA(entidade_origem->Id(), entidade_destino->Proto())) {
       VLOG(1) << "Finalizando alvo, esta agarrando.";
       return false;
     }
@@ -1041,10 +1041,18 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       if (disco_alvo_rad_ > 0.0f) {
         VLOG(1) << "Finalizando alvo apos movimento.";
         if (acao_proto_.bem_sucedida()) {
-          EntidadeProto parcial;
-          parcial.set_agarrando(true);
-          entidade_origem->AtualizaParcial(parcial);
-          entidade_destino->AtualizaParcial(parcial);
+          {
+            EntidadeProto parcial;
+            *parcial.mutable_agarrado_a() = entidade_origem->Proto().agarrado_a();
+            parcial.add_agarrado_a(entidade_destino->Id());
+            entidade_origem->AtualizaParcial(parcial);
+          }
+          {
+            EntidadeProto parcial;
+            *parcial.mutable_agarrado_a() = entidade_destino->Proto().agarrado_a();
+            parcial.add_agarrado_a(entidade_origem->Id());
+            entidade_destino->AtualizaParcial(parcial);
+          }
         }
         return false;
       } else {

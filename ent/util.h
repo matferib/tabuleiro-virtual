@@ -395,6 +395,9 @@ EntidadeProto::InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProt
 // Retorna default caso nao encontre.
 const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
 
+// Retorna se o proto esta agarrado ao id.
+bool AgarradoA(unsigned int id, const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

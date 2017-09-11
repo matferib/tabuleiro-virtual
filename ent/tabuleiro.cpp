@@ -1189,10 +1189,6 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
         atualizar_mapa_luzes = true;
       }
     }
-    if ((bits & BIT_AGARRANDO) > 0) {
-      proto_antes->set_agarrando(proto_original.agarrando());
-      proto_depois->set_agarrando(valor);
-    }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
       if (proto_original.has_luz()) {
@@ -1355,10 +1351,6 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       if (proto_original.tipo() != TE_ENTIDADE) {
         atualizar_mapa_luzes = true;
       }
-    }
-    if ((bits & BIT_AGARRANDO) > 0) {
-      proto_antes->set_agarrando(proto_original.agarrando());
-      proto_depois->set_agarrando(!proto_original.agarrando());
     }
     if ((bits & BIT_FALHA_20) > 0 ||
         (bits & BIT_FALHA_50) > 0 ||

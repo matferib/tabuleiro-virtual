@@ -99,21 +99,45 @@ void PreencheNotificacaoDerrubaOrigem(
 }
 
 void PreencheNotificacaoAgarrar(
-    const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+    unsigned int id, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
-  entidade_depois->set_agarrando(true);
+  *entidade_depois->mutable_agarrado_a() = entidade.Proto().agarrado_a();
+  entidade_depois->add_agarrado_a(id);
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *entidade_depois;
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
-    e_antes->set_agarrando(entidade.Proto().agarrando());
+    *e_antes->mutable_agarrado_a() = entidade.Proto().agarrado_a();
+    if (e_antes->agarrado_a().empty()) {
+      e_antes->add_agarrado_a(Entidade::IdInvalido);
+    }
   }
 }
 
+void PreencheNotificacaoDesagarrar(
+    unsigned int id, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  for (unsigned int aid : entidade.Proto().agarrado_a()) {
+    if (id != aid) entidade_depois->add_agarrado_a(aid);
+  }
+  if (entidade_depois->agarrado_a().empty()) {
+    entidade_depois->add_agarrado_a(Entidade::IdInvalido);
+  }
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    *n_desfazer->mutable_entidade() = *entidade_depois;
+    auto* e_antes = n_desfazer->mutable_entidade_antes();
+    e_antes->set_id(entidade.Id());
+    *e_antes->mutable_agarrado_a() = entidade.Proto().agarrado_a();
+  }
+}
 
 }  // namespace
 
@@ -1015,8 +1039,8 @@ float Tabuleiro::TrataAcaoUmaEntidade(
       // Se agarrou, desfaz aqui.
       if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida() && entidade_destino != nullptr) {
         auto* no = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAgarrar(*entidade, no, no);
-        PreencheNotificacaoAgarrar(*entidade_destino, nd, nd);
+        PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+        PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
       }
       VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
       n.mutable_acao()->CopyFrom(acao_proto);
@@ -2023,5 +2047,29 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
   }
 }
 
+void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
+  VLOG(1) << "desgarrando";
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    std::unique_ptr<ntf::Notificacao> grupo(ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES));
+    ntf::Notificacao grupo_desfazer;
+    grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    for (const auto& id_alvo : e->Proto().agarrado_a()) {
+      PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
+      VLOG(1) << "desgarrando " << e->Id() << " de " << id_alvo;
+      auto* ealvo = BuscaEntidade(id_alvo);
+      if (ealvo == nullptr) continue;
+      PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
+      VLOG(1) << "desgarrando " << ealvo->Id() << " de " << e->Id();
+    }
+
+    if (!grupo->notificacao().empty()) {
+      TrataNotificacao(*grupo);
+      central_->AdicionaNotificacaoRemota(grupo.release());
+      AdicionaNotificacaoListaEventos(grupo_desfazer);
+    }
+  }
+}
 
 }  // namespace ent

@@ -145,7 +145,8 @@ message EntidadeProto {
   // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
   optional bool furtivo = 62;
   optional bool fumegando = 67;
-  optional bool agarrando = 71;
+  // Ids das entidades agarradas.
+  repeated uint32 agarrado_a = 71;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;

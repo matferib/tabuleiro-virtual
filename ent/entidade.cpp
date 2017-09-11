@@ -972,8 +972,22 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_bonus_tamanho();
   }
 
+  const bool zerar_agarrado_a = proto_parcial.agarrado_a().size() == 1 && proto_parcial.agarrado_a(0) == IdInvalido;
+  const bool tem_agarrado_a = !proto_parcial.agarrado_a().empty();
+  if (tem_agarrado_a || zerar_agarrado_a) {
+    // Merge sera automatico.
+    proto_.clear_agarrado_a();
+    //EntidadeProto p;
+    //*p.mutable_agarrado_a() = proto_.agarrado_a();
+    //LOG(INFO) << "antes: " << p.ShortDebugString() << ", novo agarrar: " << proto_parcial.ShortDebugString();
+  }
+
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (zerar_agarrado_a) {
+    proto_.clear_agarrado_a();
+  }
 
   if (proto_.tipo() == TE_ENTIDADE && proto_.has_escala()) {
     float fator = proto_.escala().x();

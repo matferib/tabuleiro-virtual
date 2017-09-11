@@ -137,7 +137,6 @@ class Tabuleiro : public ntf::Receptor {
     BIT_FIXA                 = 0x40,
     BIT_FURTIVO              = 0x80,
     BIT_SURPRESO             = 0x100,
-    BIT_AGARRANDO            = 0x200,
     BIT_ATAQUE_MAIS_1        = 0x400,
     BIT_ATAQUE_MAIS_2        = 0x800,
     BIT_ATAQUE_MAIS_4        = 0x1000,
@@ -166,6 +165,9 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaBitsEntidadeNotificando(int bits);
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
+
+  /** Desagarra as entidades selecionadas. */
+  void DesagarraEntidadesSelecionadasNotificando();
 
   /** Altera a forma da entidade selecionada, notificando. */
   void AlteraFormaEntidadeNotificando();
