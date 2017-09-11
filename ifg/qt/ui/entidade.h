@@ -1204,7 +1204,7 @@ public:
         label_81->setGeometry(QRect(225, 20, 57, 17));
         tabela_pericias = new QTableView(tab_3);
         tabela_pericias->setObjectName(QString::fromUtf8("tabela_pericias"));
-        tabela_pericias->setGeometry(QRect(30, 50, 431, 431));
+        tabela_pericias->setGeometry(QRect(30, 50, 501, 431));
         tab_tesouro->addTab(tab_3, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
