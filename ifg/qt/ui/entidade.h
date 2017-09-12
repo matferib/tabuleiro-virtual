@@ -229,6 +229,8 @@ public:
     QLabel *label_82;
     QSpinBox *spin_municao;
     QSpacerItem *horizontalSpacer_2;
+    QLabel *label_83;
+    QSpinBox *spin_ordem_ataque;
     QLabel *label_55;
     QPushButton *botao_bonus_ataque;
     QHBoxLayout *horizontalLayout_34;
@@ -1364,6 +1366,23 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_2);
 
+        label_83 = new QLabel(verticalLayoutWidget_2);
+        label_83->setObjectName(QString::fromUtf8("label_83"));
+        sizePolicy5.setHeightForWidth(label_83->sizePolicy().hasHeightForWidth());
+        label_83->setSizePolicy(sizePolicy5);
+        label_83->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_6->addWidget(label_83);
+
+        spin_ordem_ataque = new QSpinBox(verticalLayoutWidget_2);
+        spin_ordem_ataque->setObjectName(QString::fromUtf8("spin_ordem_ataque"));
+        sizePolicy1.setHeightForWidth(spin_ordem_ataque->sizePolicy().hasHeightForWidth());
+        spin_ordem_ataque->setSizePolicy(sizePolicy1);
+        spin_ordem_ataque->setMinimum(1);
+        spin_ordem_ataque->setMaximum(9);
+
+        horizontalLayout_6->addWidget(spin_ordem_ataque);
+
         label_55 = new QLabel(verticalLayoutWidget_2);
         label_55->setObjectName(QString::fromUtf8("label_55"));
         sizePolicy5.setHeightForWidth(label_55->sizePolicy().hasHeightForWidth());
@@ -2236,6 +2255,10 @@ public:
         label_82->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Muni\303\247\303\243o", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_municao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_83->setText(QApplication::translate("ifg::qt::DialogoEntidade", "#", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_ordem_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem do ataque (1 para primeiro, 2 para segundo etc)", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (ataque)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
