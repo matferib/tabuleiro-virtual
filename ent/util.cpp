@@ -1593,7 +1593,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto)) {
       DobraMargemCritico(da);
     }
-    if (PossuiCategoria(CAT_ARREMESSO, arma)) {
+    if (PossuiCategoria(CAT_ARREMESSO, arma) || PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
       da->set_incrementos(5);
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
       da->set_incrementos(10);
@@ -2588,6 +2588,11 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
 }
 
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+  if (arma.has_acao()) {
+    *da->mutable_acao() = arma.acao();
+  } else {
+    da->clear_acao();
+  }
   da->set_tipo_ataque(acao_proto.id());
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
     da->set_tipo_ataque(PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");

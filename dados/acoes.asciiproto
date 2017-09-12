@@ -3,10 +3,22 @@ acao {
   id: 'Ácido'
   tipo: ACAO_DISPERSAO
   cor { r: 0.0 g: 0.5 b: 0.0 }
-  raio_quadrados: 1.5  # quadrados.
+  raio_quadrados: 1  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
   icone: "icon_acid.png"
+  duracao_s: 0.350
+  ataque_toque: true
+  ataque_distancia: true
+}
+acao {
+  id: 'Água Benta'
+  tipo: ACAO_DISPERSAO
+  cor { r: 0.8 g: 0.8 b: 1.0 }
+  raio_quadrados: 1  # quadrados.
+  geometria: ACAO_GEO_ESFERA
+  efeito_area: true
+  icone: 'icon_holy_water.png'
   duracao_s: 0.350
   ataque_toque: true
   ataque_distancia: true
@@ -119,7 +131,7 @@ acao {
   id: 'Fogo Alquímico'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
-  raio_quadrados: 1.5  # quadrados.
+  raio_quadrados: 1  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
   icone: 'icon_alchemist_fire.png'

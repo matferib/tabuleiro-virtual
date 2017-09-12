@@ -51,6 +51,16 @@ void DesenhaGeometriaAcao(int geometria) {
   }
 }
 
+// Verifica se a coordenada passou do ponto de destino.
+bool Passou(float antes, float depois, float destino) {
+  return (antes < destino) ? depois > destino : depois < destino;
+}
+
+// Retorna depois se a coordenada nao passou de destino, caso contrario retorna destino.
+float ArrumaSePassou(float antes, float depois, float destino) {
+  return Passou(antes, depois, destino) ? destino : depois;
+}
+
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
@@ -406,6 +416,180 @@ class AcaoDispersao : public Acao {
   float efeito_;
 };
 
+// Acao de dispersao, estilo bola de fogo.
+class AcaoProjetilArea: public Acao {
+ public:
+  AcaoProjetilArea(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+    auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    if (entidade_origem == nullptr) {
+      VLOG(1) << "Finalizando projetil area, precisa de entidade origem.";
+      estagio_ = FIM;
+      return;
+    }
+    if (acao_proto_.id_entidade_destino_size() == 0) {
+      VLOG(1) << "Finalizando projetil area, nao ha entidade destino.";
+      estagio_ = FIM;
+      return;
+    }
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
+      VLOG(1) << "Finalizando projetil area, entidade origem == destino.";
+      estagio_ = FIM;
+      return;
+    }
+    pos_ = entidade_origem->PosicaoAcao();
+    efeito_ = 0;
+    efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
+        acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    estagio_ = INICIAL;
+  }
+
+  ~AcaoProjetilArea() {
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+    MudaCorProtoAlfa(acao_proto_.cor());
+    gl::MatrizEscopo salva_matriz;
+
+    switch (estagio_) {
+      case INICIAL: {
+      }
+      break;
+      case VOO: {
+        gl::MatrizEscopo salva_matriz;
+        MudaCorProto(acao_proto_.cor());
+        gl::Translada(pos_.x(), pos_.y(), pos_.z());
+        gl::Escala(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
+        DesenhaGeometriaAcao(ACAO_GEO_ESFERA);
+      }
+      break;
+      case ATINGIU_ALVO: {
+        const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
+        const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
+        gl::Translada(pos.x(), pos.y(), pos.z());
+        gl::Escala(efeito_, efeito_, efeito_);
+        gl::DesabilitaEscopo luz(GL_LIGHTING);
+        DesenhaGeometriaAcao(ACAO_GEO_ESFERA);
+      }
+      break;
+      default: ;
+    }
+  }
+
+  void AtualizaAposAtraso(int intervalo_ms) override {
+    switch (estagio_) {
+      case INICIAL:
+        estagio_ = VOO;
+        AtualizaVoo(intervalo_ms);
+        break;
+      case VOO:
+        AtualizaVoo(intervalo_ms);
+        break;
+      case ATINGIU_ALVO: {
+        AtualizaDispersao(intervalo_ms);
+        break;
+      }
+      default: ;
+
+    }
+  }
+
+  bool Finalizada() const override {
+    return estagio_ == FIM;
+  }
+
+ private:
+  void AtualizaDispersao(int intervalo_ms) {
+    if (efeito_ == 0.0f) {
+      Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+      const auto& pos_origem = (entidade_origem != nullptr) && (acao_proto_.geometria() == ACAO_GEO_CONE)
+        ? entidade_origem->Pos() : acao_proto_.pos_tabuleiro();
+      const Posicao& pos = acao_proto_.pos_tabuleiro();
+      for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
+        auto* ed = tabuleiro_->BuscaEntidade(id_destino);
+        if (ed == nullptr) {
+          continue;
+        }
+        Vector3 v;
+        v.x = ed->Pos().x() - pos_origem.x();
+        v.y = ed->Pos().y() - pos_origem.y();
+        v.z = ed->Pos().z() - pos_origem.z();
+        if (fabs(v.length()) > 0.001f) {
+          v.normalize() /= 10.0f;
+          dx_ = v.x;
+          dy_ = v.y;
+          dz_ = v.z;
+          AtualizaDirecaoQuedaAlvo(ed);
+        }
+      }
+      if (entidade_origem != nullptr) {
+        Vector3 v;
+        v.x = pos.x() - entidade_origem->X();
+        v.y = pos.y() - entidade_origem->Y();
+        v.z = pos.z() - entidade_origem->Z();
+        if (fabs(v.length()) > 0.001f) {
+          v.normalize() /= 10.0f;
+          dx_ = v.x;
+          dy_ = v.y;
+          dz_ = v.z;
+          AtualizaRotacaoZFonte(entidade_origem);
+        }
+      }
+    }
+    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
+    if (efeito_ > efeito_maximo_) estagio_ = FIM;
+  }
+
+  void AtualizaVoo(int intervalo_ms) {
+    Entidade* entidade_destino = nullptr;
+    if ((entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
+      VLOG(1) << "Finalizando projetil, destino não existe.";
+      estagio_ = FIM;
+      return;
+    }
+    const auto& pos_destino = entidade_destino->PosicaoAcao();
+    // Recalcula vetor.
+    dx_ = pos_destino.x() - pos_.x();
+    dy_ = pos_destino.y() - pos_.y();
+    dz_ = pos_destino.z() - pos_.z();
+    AtualizaVelocidade(intervalo_ms);
+    VLOG(1) << "Velocidade: " << velocidade_m_ms_;
+    Vector3 v(dx_, dy_, dz_);
+    Vector3 vn(v.normalize());
+    v *= (velocidade_m_ms_ * intervalo_ms);
+    // Posicao antes.
+    float xa = pos_.x();
+    float ya = pos_.y();
+    float za = pos_.z();
+    // Antes, depois, destino.
+    pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino.x()));
+    pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
+    pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
+    // Deslocamento do alvo.
+    vn /= 2.0f;  // meio metro de deslocamento.
+    dx_ = vn.x;
+    dy_ = vn.y;
+    dz_ = vn.z;
+    if (pos_.x() == pos_destino.x() &&
+        pos_.y() == pos_destino.y() &&
+        pos_.z() == pos_destino.z()) {
+      VLOG(1) << "Projetil atingiu alvo.";
+      estagio_ = ATINGIU_ALVO;
+      return;
+    }
+  }
+
+  enum estagio_e {
+    INICIAL = 0,
+    VOO,
+    ATINGIU_ALVO,
+    FIM
+  } estagio_;
+  Posicao pos_;
+
+  float efeito_maximo_;
+  float efeito_;
+};
+
 // Uma acao de projetil, tipo flecha ou missil magico.
 class AcaoProjetil : public Acao {
  public:
@@ -502,16 +686,6 @@ class AcaoProjetil : public Acao {
       estagio_ = ATINGIU_ALVO;
       return;
     }
-  }
-
-  // Verifica se a coordenada passou do ponto de destino.
-  static bool Passou(float antes, float depois, float destino) {
-    return (antes < destino) ? depois > destino : depois < destino;
-  }
-
-  // Retorna depois se a coordenada nao passou de destino, caso contrario retorna destino.
-  static float ArrumaSePassou(float antes, float depois, float destino) {
-    return Passou(antes, depois, destino) ? destino : depois;
   }
 
   enum estagio_e {
@@ -1328,6 +1502,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
     case ACAO_POCAO:
       return new AcaoPocao(acao_proto, tabuleiro, texturas);
+    case ACAO_PROJETIL_AREA:
+      return new AcaoProjetilArea(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;

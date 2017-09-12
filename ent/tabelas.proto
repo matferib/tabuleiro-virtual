@@ -1,4 +1,5 @@
 import "ent/comum.proto";
+import "ent/acoes.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -92,6 +93,8 @@ message ArmaProto {
   optional bool nao_letal = 18;
   // Para projeteis de area.
   optional string dano_dispersao = 19;
+  // Para outros efeitos.
+  optional AcaoProto acao = 20;
 }
 
 message TabelaArmaduraOuEscudo {
