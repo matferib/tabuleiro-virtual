@@ -1,3 +1,5 @@
+Forma alternativa: excluir bonus de nivel nos atributos.
+
 Atualizacao de tabela remota e tabela nao srd.
 
 Colocar arte da fuga no agarrar.
