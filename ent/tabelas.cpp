@@ -4,6 +4,7 @@
 #include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
+#include "ent/util.h"
 #include "goog/stringprintf.h"
 #include "log/log.h"
 
@@ -12,6 +13,12 @@ namespace ent {
 namespace {
 
 void ConverteDano(ArmaProto* arma) {
+  if (PossuiCategoria(CAT_PROJETIL_AREA, *arma)) {
+    arma->mutable_dano()->set_pequeno(arma->dano().medio());
+    arma->mutable_dano()->set_grande(arma->dano().medio());
+    return;
+  }
+
   // Chaveado por dano medio.
   const static std::unordered_map<std::string, std::unordered_map<int, std::string>> mapa_danos {
     { "1d2", {

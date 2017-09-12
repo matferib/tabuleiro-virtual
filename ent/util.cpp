@@ -2592,7 +2592,9 @@ void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, Entidade
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
     da->set_tipo_ataque(PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
   }
-  if (acao_proto.has_ataque_toque()) {
+  if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+    da->set_ataque_toque(true);
+  } else if (acao_proto.has_ataque_toque()) {
     da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
     da->clear_ataque_toque();
