@@ -1306,11 +1306,13 @@ void PreencheConfiguraComboClasse(
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
     };
     const auto& classe_tabelada = tabelas.Classe(combo->itemData(combo->currentIndex()).toString().toStdString());
-    if (classe_tabelada.has_nome()) {
-      const int indice = gerador.lista_niveis->currentRow();
-      if (indice >= 0 && indice < proto_retornado->info_classes_size()) {
+    const int indice = gerador.lista_niveis->currentRow();
+    if (indice >= 0 && indice < proto_retornado->info_classes_size()) {
+      if (classe_tabelada.has_nome()) {
         proto_retornado->mutable_info_classes(indice)->set_id(
           combo->itemData(combo->currentIndex()).toString().toStdString());
+      } else {
+        proto_retornado->mutable_info_classes(indice)->clear_id();
       }
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
