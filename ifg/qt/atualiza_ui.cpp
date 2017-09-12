@@ -223,15 +223,15 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 
 void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,  const std::string& tipo_ataque) {
   bool cac = tipo_ataque == "Ataque Corpo a Corpo";
-  std::map<std::string, std::string> name_id_map;
+  std::map<std::string, std::string> nome_id_map;
   for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
     if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) || (!cac && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
-      name_id_map[arma.nome()] = arma.id();
+      nome_id_map[arma.nome()] = arma.id();
     }
   }
   gerador.combo_arma->clear();
   gerador.combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
-  for (const auto& name_id : name_id_map) {
+  for (const auto& name_id : nome_id_map) {
     gerador.combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
   }
 }
@@ -243,7 +243,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
-       gerador.combo_arma };
+       gerador.combo_arma, gerador.spin_ordem_ataque };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Tem que vir antes do clear.
@@ -286,6 +286,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_municao->setValue(da.municao());
+  // A ordem eh indexada em 0, mas usuarios entendem primeiro como 1.
+  gerador.spin_ordem_ataque->setValue(da.ordem_ataque() + 1);
 
   gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.bonus_ataque())));
   gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.bonus_dano())));

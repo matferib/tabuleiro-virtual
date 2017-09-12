@@ -219,6 +219,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
     if (controle_menu == ME_ACOES) {
       static const char* strings_acoes[] = {
         QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ácido"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Água Benta"),
         QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ataque Corpo a Corpo"),
         QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ataque a Distância"),
         QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Bola de Fogo"),
