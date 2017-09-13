@@ -2729,6 +2729,10 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     const auto& bonus = BonusAtributo(ta, proto);
     const int base = PossuiBonus(TB_BASE, bonus) ? BonusIndividualTotal(TB_BASE, bonus) : 10;
     AtribuiBonus(base, TB_BASE, "base", BonusAtributo(ta, &ret));
+    const int nivel = PossuiBonus(TB_NIVEL, bonus) ? BonusIndividualTotal(TB_NIVEL, bonus) : 0;
+    // Tem que por o valor zero para sobrescrever.
+    AtribuiBonus(nivel, TB_NIVEL, "nivel", BonusAtributo(ta, &ret));
+    LOG(INFO) << "bonus nivel: " << nivel;
   }
   *ret.mutable_info_textura() = proto.info_textura();
   *ret.mutable_modelo_3d() = proto.modelo_3d();

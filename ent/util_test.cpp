@@ -37,6 +37,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   Tabelas tabelas;
   EntidadeProto proto;
   AtribuiBaseAtributo(14, TA_FORCA, &proto);
+  AtribuiBonus(2, TB_NIVEL, "nivel", BonusAtributo(TA_FORCA, &proto));
   AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
   AtribuiBaseAtributo(18, TA_CONSTITUICAO, &proto);
   AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
@@ -83,7 +84,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   {
     e->AtualizaParcial(proto);
     const auto& proto_pos_forma = e->Proto();
-    EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
+    EXPECT_EQ(16, BonusTotal(BonusAtributo(TA_FORCA, proto_pos_forma)));
     EXPECT_EQ(10, BonusTotal(BonusAtributo(TA_DESTREZA, proto_pos_forma)));
     EXPECT_EQ(18, BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_pos_forma)));
     EXPECT_EQ(20, BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto_pos_forma)));
