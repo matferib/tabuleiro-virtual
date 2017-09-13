@@ -1503,7 +1503,14 @@ tabela_pocoes {
     duracao_rodadas: 1100
     complementos: 30
   }
-
+  pocoes {
+    id: 'voo'
+    nome: 'Vôo'
+    duracao_rodadas: 50
+    id_efeito: EFEITO_OUTRO
+    descricao: 'Alvo pode voar com velocidade 12 quadrados (8 em armadura média ou pesada).'
+    custo_po: 750
+  }
 }
 tabela_talentos {
   talentos {
