@@ -654,6 +654,9 @@ class Tabuleiro : public ntf::Receptor {
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer);
+  float TrataAcaoEfeitoArea(
+      float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+      ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
 
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */

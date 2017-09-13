@@ -1275,7 +1275,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizaoPontosVida(
-    const Entidade& entidade, int delta_pontos_vida, bool nao_letal, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
@@ -1286,7 +1286,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
     } else {
       entidade_depois->set_dano_nao_letal(entidade_depois->dano_nao_letal() - delta_pontos_vida);
     }
-  } else if (delta_pontos_vida < 0 && nao_letal) {
+  } else if (delta_pontos_vida < 0 && td == TD_NAO_LETAL) {
     entidade_depois->set_dano_nao_letal(entidade.DanoNaoLetal() - delta_pontos_vida);
     entidade_depois->set_pontos_vida(entidade.PontosVida());
   } else if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
@@ -1309,7 +1309,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
       }
     }
   }
-  entidade_depois->set_pontos_vida(entidade.PontosVida() + (nao_letal ? 0 : delta_pontos_vida));
+  entidade_depois->set_pontos_vida(entidade.PontosVida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida));
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);

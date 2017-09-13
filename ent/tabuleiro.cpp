@@ -1542,7 +1542,7 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     // Atualizacao.
     PreencheNotificacaoAtualizaoPontosVida(*entidade_selecionada,
                                            delta_pontos_vida,
-                                           false,
+                                           TD_LETAL,
                                            grupo_notificacoes.add_notificacao(),
                                            grupo_desfazer.add_notificacao());
     // Acao.
@@ -1625,7 +1625,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal(), &n);
+  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
   TrataNotificacao(n);
 
   float atraso_s = 0;

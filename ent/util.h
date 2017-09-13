@@ -222,8 +222,13 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
 
+// Preenche uma notificacao de dano letal ou nao letal, incluindo desfazer. n_desfazer nao eh obrigatorio.
+enum tipo_dano_e {
+  TD_LETAL = 0,
+  TD_NAO_LETAL = 1
+};
 void PreencheNotificacaoAtualizaoPontosVida(
-    const Entidade& entidade, int delta_pontos_vida, bool nao_letal, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
+    const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
