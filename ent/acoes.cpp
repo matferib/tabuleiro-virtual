@@ -152,6 +152,11 @@ class AcaoPocao: public Acao {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
+    if (duracao_ms_ == 0) {
+      // Priemeiro frame.
+      ++duracao_ms_;
+      return;
+    }
     VLOG(3) << "Atualizando acao pocao, duracao_ms: " << duracao_ms_;
     const float delta = (intervalo_ms * VELOCIDADE_BOLHA_M_S) / 1000.0f;
     bolhas_[0].Translada(0.0f, 0.0f, delta);
@@ -285,8 +290,13 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
-    pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / DURACAO_MS);
-    faltam_ms_ -= intervalo_ms;
+    if (faltam_ms_ == DURACAO_MS) {
+      // Primeiro frame. Apenas posiciona na posicao inicial. Importante pos UI para nao pular o efeito.
+      --faltam_ms_;
+    } else {
+      pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / DURACAO_MS);
+      faltam_ms_ -= intervalo_ms;
+    }
     if (faltam_ms_ <= 0) {
       VLOG(1) << "Finalizando delta_pontos_vida, MAX_ATUALIZACOES alcancado.";
     }

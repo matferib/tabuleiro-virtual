@@ -1,11 +1,10 @@
-Fix de municao: nao esta decrementando ao errar.
-Recarga de bestas.
 projeteis de area (dano splash).
-Dominio da conhecimento como de classe.
 Fazer: fogo grego, acido e agua benta.
+
+Recarga de bestas.
+Dominio da conhecimento como de classe.
 Fazer: dominios.
 
-Forma alternativa: excluir bonus de nivel nos atributos.
 
 Atualizacao de tabela remota e tabela nao srd.
 
