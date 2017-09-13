@@ -139,6 +139,22 @@ void PreencheNotificacaoDesagarrar(
   }
 }
 
+void PreencheNotificacaoConsumirMunicao(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto* e_antes = n->mutable_entidade_antes();
+  e_antes->set_id(entidade.Id());
+  *e_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  auto* e_depois = n->mutable_entidade();
+  e_depois->set_id(entidade.Id());
+  *e_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  for (auto& dda : *e_depois->mutable_dados_ataque()) {
+    if (dda.rotulo() == da.rotulo()) {
+      dda.set_municao(std::max((int)(da.municao() - 1), 0));
+    }
+  }
+}
+
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
@@ -996,23 +1012,12 @@ float Tabuleiro::TrataAcaoUmaEntidade(
         }
         const auto* da = entidade->DadoCorrente();
         bool nao_letal = da != nullptr && da->nao_letal();
-        // Notificacao para atualizar a entidade atacante.
-        if (vezes > 0 && da != nullptr && da->has_municao()) {
-          auto* ne = grupo_desfazer->add_notificacao();
-          ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-          auto* e_antes = ne->mutable_entidade_antes();
-          e_antes->set_id(entidade->Id());
-          *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-          auto* e_depois = ne->mutable_entidade();
-          e_depois->set_id(entidade->Id());
-          *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-          for (auto& dda : *e_depois->mutable_dados_ataque()) {
-            if (dda.rotulo() == da->rotulo()) {
-              dda.set_municao(std::max((int)(da->municao() - 1), 0));
-            }
-          }
-          ntf::Notificacao copia(*ne);
-          TrataNotificacao(copia);
+        // Consome municao.
+        if (vezes >= 0 && da != nullptr && da->has_municao()) {
+          ntf::Notificacao n;
+          PreencheNotificacaoConsumirMunicao(*entidade, *da, &n);
+          *grupo_desfazer->add_notificacao() = n;
+          TrataNotificacao(n);
         }
         entidade->ProximoAtaque();
 
