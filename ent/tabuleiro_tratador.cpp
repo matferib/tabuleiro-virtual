@@ -1085,6 +1085,26 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
                                                          : entidade_atacante->Proto().rotulo().c_str()));
 }
 
+void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro) {
+  auto it = mapa_acoes_.find("Sinalização");
+  AcaoProto acao_proto;
+  if (it == mapa_acoes_.end()) {
+    acao_proto.set_tipo(ACAO_SINALIZACAO);
+  } else {
+    acao_proto = *it->second;
+  }
+  // Sem entidade selecionada, realiza sinalizacao.
+  VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
+  if (id_entidade_destino != Entidade::IdInvalido) {
+    acao_proto.add_id_entidade_destino(id_entidade_destino);
+  }
+  acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  n.mutable_acao()->Swap(&acao_proto);
+  TrataNotificacao(n);
+}
+
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
@@ -1129,23 +1149,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   std::vector<unsigned int> ids_origem;
   ids_origem = IdsPrimeiraPessoaOuEntidadesSelecionadas();
   if (acao_padrao || ids_origem.size() == 0) {
-    auto it = mapa_acoes_.find("Sinalização");
-    AcaoProto acao_proto;
-    if (it == mapa_acoes_.end()) {
-      acao_proto.set_tipo(ACAO_SINALIZACAO);
-    } else {
-      acao_proto = *it->second;
-    }
-    // Sem entidade selecionada, realiza sinalizacao.
-    VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
-    if (id_entidade_destino != Entidade::IdInvalido) {
-      acao_proto.add_id_entidade_destino(id_entidade_destino);
-    }
-    acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-    n.mutable_acao()->Swap(&acao_proto);
-    TrataNotificacao(n);
+    TrataAcaoSinalizacao(id_entidade_destino, pos_tabuleiro);
   } else {
     // Realiza a acao de cada entidade contra o alvo ou local.
     // Usa modelo selecionado.
@@ -1163,6 +1167,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     }
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
+
   // Atualiza as acoes executadas da entidade se houver apenas uma. A sinalizacao nao eh adicionada a entidade porque ela possui forma propria.
   auto* e = EntidadeSelecionada();
   if (e == nullptr) {

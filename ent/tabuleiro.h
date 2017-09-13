@@ -648,6 +648,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
+  void TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro);
+
   /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
