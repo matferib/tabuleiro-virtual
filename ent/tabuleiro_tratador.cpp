@@ -942,6 +942,106 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   return atraso_s;
 }
 
+float Tabuleiro::TrataAcaoIndividual(
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  // Efeito individual.
+  Entidade* entidade_destino =
+     id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
+  // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
+  bool realiza_acao = true;
+  auto* nd = grupo_desfazer->add_notificacao();
+  acao_proto->set_bem_sucedida(true);
+  if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+    int vezes = 1;
+    // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
+    auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao();
+    // Verifica alcance.
+    {
+      bool tem_alcance;
+      std::string texto_falha_alcance;
+      std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(*entidade, *entidade_destino, pos_alvo);
+      if (!tem_alcance) {
+        AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
+        acao_proto->set_texto(texto_falha_alcance);
+        vezes = 0;
+        realiza_acao = false;
+      }
+    }
+    std::string texto;
+    if (vezes > 0 && modo_dano_automatico_ && acao_proto->permite_ataque_vs_defesa()) {
+      VLOG(1) << "--------------------------";
+      VLOG(1) << "iniciando ataque vs defesa";
+      std::tie(vezes, texto, realiza_acao) =
+          AtaqueVsDefesa(*entidade, *entidade_destino, pos_alvo);
+      VLOG(1) << "--------------------------";
+      AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
+      acao_proto->set_texto(texto);
+    }
+    int delta_pontos_vida = 0;
+    acao_proto->set_bem_sucedida(vezes >= 1);
+    if (vezes < 0 || !realiza_acao) {
+      if (vezes < 0) {
+        PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
+      }
+      ntf::Notificacao n_texto;
+      n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
+      auto* acao_texto = n_texto.mutable_acao();
+      acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+      acao_texto->set_texto(acao_proto->texto());
+      acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
+      TrataNotificacao(n_texto);
+    } else {
+      // Aplica dano e critico.
+      for (int i = 0; i < vezes; ++i) {
+        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+      }
+      if (vezes > 0) {
+        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      }
+      const auto* da = entidade->DadoCorrente();
+      bool nao_letal = da != nullptr && da->nao_letal();
+      // Consome municao.
+      if (vezes >= 0 && da != nullptr && da->has_municao()) {
+        ntf::Notificacao n;
+        PreencheNotificacaoConsumirMunicao(*entidade, *da, &n);
+        *grupo_desfazer->add_notificacao() = n;
+        TrataNotificacao(n);
+      }
+      entidade->ProximoAtaque();
+
+      if (acao_proto->permite_salvacao()) {
+        std::string resultado_salvacao;
+        acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+        std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+        AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
+        atraso_s += 0.5f;
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+              "entidade %s: %s",
+              (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
+              resultado_salvacao.c_str()));
+      }
+      VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
+      acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+      acao_proto->set_afeta_pontos_vida(true);
+      acao_proto->set_nao_letal(nao_letal);
+      // Apenas para desfazer.
+      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+    }
+  }
+  if (realiza_acao) {
+    // Se agarrou, desfaz aqui.
+    if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+      auto* no = grupo_desfazer->add_notificacao();
+      PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+      PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
+    }
+    VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
+    *n->mutable_acao() = *acao_proto;
+  }
+  return atraso_s;
+}
+
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
@@ -962,100 +1062,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   if (acao_proto.efeito_area()) {
     atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
   } else {
-    // Efeito individual.
-    Entidade* entidade_destino =
-       id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
-    // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
-    bool realiza_acao = true;
-    auto* nd = grupo_desfazer->add_notificacao();
-    acao_proto.set_bem_sucedida(true);
-    if (HaValorListaPontosVida() && entidade_destino != nullptr) {
-      int vezes = 1;
-      // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-      auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao();
-      // Verifica alcance.
-      {
-        bool tem_alcance;
-        std::string texto_falha_alcance;
-        std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(*entidade, *entidade_destino, pos_alvo);
-        if (!tem_alcance) {
-          AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
-          acao_proto.set_texto(texto_falha_alcance);
-          vezes = 0;
-          realiza_acao = false;
-        }
-      }
-      std::string texto;
-      if (vezes > 0 && modo_dano_automatico_ && acao_proto.permite_ataque_vs_defesa()) {
-        VLOG(1) << "--------------------------";
-        VLOG(1) << "iniciando ataque vs defesa";
-        std::tie(vezes, texto, realiza_acao) =
-            AtaqueVsDefesa(*entidade, *entidade_destino, pos_alvo);
-        VLOG(1) << "--------------------------";
-        AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
-        acao_proto.set_texto(texto);
-      }
-      int delta_pontos_vida = 0;
-      acao_proto.set_bem_sucedida(vezes >= 1);
-      if (vezes < 0 || !realiza_acao) {
-        if (vezes < 0) {
-          PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
-        }
-        ntf::Notificacao n_texto;
-        n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
-        auto* acao_texto = n_texto.mutable_acao();
-        acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-        acao_texto->set_texto(acao_proto.texto());
-        acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
-        TrataNotificacao(n_texto);
-      } else {
-        // Aplica dano e critico.
-        for (int i = 0; i < vezes; ++i) {
-          delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
-        }
-        if (vezes > 0) {
-          delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
-        }
-        const auto* da = entidade->DadoCorrente();
-        bool nao_letal = da != nullptr && da->nao_letal();
-        // Consome municao.
-        if (vezes >= 0 && da != nullptr && da->has_municao()) {
-          ntf::Notificacao n;
-          PreencheNotificacaoConsumirMunicao(*entidade, *da, &n);
-          *grupo_desfazer->add_notificacao() = n;
-          TrataNotificacao(n);
-        }
-        entidade->ProximoAtaque();
-
-        if (acao_proto.permite_salvacao()) {
-          std::string resultado_salvacao;
-          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-          std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(acao_proto, *entidade, *entidade_destino);
-          AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
-          atraso_s += 0.5f;
-          AdicionaLogEvento(google::protobuf::StringPrintf(
-                "entidade %s: %s",
-                (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
-                resultado_salvacao.c_str()));
-        }
-        VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
-        acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-        acao_proto.set_afeta_pontos_vida(true);
-        acao_proto.set_nao_letal(nao_letal);
-        // Apenas para desfazer.
-        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
-      }
-    }
-    if (realiza_acao) {
-      // Se agarrou, desfaz aqui.
-      if (acao_proto.tipo() == ACAO_AGARRAR && acao_proto.bem_sucedida() && entidade_destino != nullptr) {
-        auto* no = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
-        PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
-      }
-      VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
-      n.mutable_acao()->CopyFrom(acao_proto);
-    }
+    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
   }
   TrataNotificacao(n);
   return atraso_s;

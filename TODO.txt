@@ -1,3 +1,4 @@
+Efeito de area esta falhando.
 projeteis de area (dano splash).
 Fazer: fogo grego, acido e agua benta.
 
