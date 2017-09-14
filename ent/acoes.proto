@@ -90,6 +90,8 @@ message AcaoProto {
   optional float atraso_s = 21;
   // Acao tem efeito de area. Isso implica que os alvos serao calculados dinamicamente.
   optional bool efeito_area = 22;
+  // Acao tem dano direto e de area.
+  optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
   optional ResultadoSalvacao resultado_salvacao = 32;
   optional int32 dificuldade_salvacao = 33;
@@ -115,6 +117,7 @@ message AcaoProto {
   message DeltaPontosVidaPorEntidade {
     optional uint32 id = 1;
     optional int32 delta = 2;
+    optional bool omite_texto = 3;
   }
   repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
   // Indica ataque de toque.

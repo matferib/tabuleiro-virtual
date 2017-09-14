@@ -885,6 +885,45 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
+float Tabuleiro::TrataAcaoProjetilArea(
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  atraso_s += TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, acao_proto, n, grupo_desfazer);
+
+  bool acertou_direto = acao_proto->afeta_pontos_vida();
+  std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  for (auto id : ids_afetados) {
+    const Entidade* entidade_destino = BuscaEntidade(id);
+    if (entidade_destino == nullptr) {
+      // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
+      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+      continue;
+    }
+    if (!entidade_destino->Proto().has_max_pontos_vida()) {
+      VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
+      continue;
+    }
+    if (id == id_entidade_destino && acertou_direto) continue;
+
+    acao_proto->set_afeta_pontos_vida(true);
+    acao_proto->add_id_entidade_destino(id);
+    const int delta_pv = -1;
+    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
+    delta_por_entidade->set_omite_texto(id != id_entidade_destino);
+    delta_por_entidade->set_id(id);
+    delta_por_entidade->set_delta(delta_pv);
+
+
+    // Para desfazer.
+    // Notificacao de desfazer.
+    auto* nd = grupo_desfazer->add_notificacao();
+    PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
+  }
+  VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
+  *n->mutable_acao() = *acao_proto;
+  return atraso_s;
+}
+
 float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
@@ -1008,6 +1047,7 @@ float Tabuleiro::TrataAcaoIndividual(
         *grupo_desfazer->add_notificacao() = n;
         TrataNotificacao(n);
       }
+
       entidade->ProximoAtaque();
 
       if (acao_proto->permite_salvacao()) {
@@ -1023,12 +1063,15 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
-      acao_proto->set_afeta_pontos_vida(true);
       acao_proto->set_nao_letal(nao_letal);
-      // Apenas para desfazer.
-      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+      if (delta_pontos_vida != 0) {
+        acao_proto->set_afeta_pontos_vida(true);
+        // Apenas para desfazer.
+        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+      }
     }
   }
+
   if (realiza_acao) {
     // Se agarrou, desfaz aqui.
     if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
@@ -1059,7 +1102,9 @@ float Tabuleiro::TrataAcaoUmaEntidade(
 
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-  if (acao_proto.efeito_area()) {
+  if (acao_proto.efeito_projetil_area()) {
+    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
+  } else if (acao_proto.efeito_area()) {
     atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
   } else {
     atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);

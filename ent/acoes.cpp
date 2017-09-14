@@ -436,20 +436,10 @@ class AcaoProjetilArea: public Acao {
       estagio_ = FIM;
       return;
     }
-    if (acao_proto_.id_entidade_destino_size() == 0) {
-      VLOG(1) << "Finalizando projetil area, nao ha entidade destino.";
-      estagio_ = FIM;
-      return;
-    }
-    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
-      VLOG(1) << "Finalizando projetil area, entidade origem == destino.";
-      estagio_ = FIM;
-      return;
-    }
     pos_ = entidade_origem->PosicaoAcao();
-    efeito_ = 0;
-    efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
-        acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    pos_impacto_ = acao_proto.pos_tabuleiro();
+    efeito_q_ = 0;
+    efeito_maximo_q_ = TAMANHO_LADO_QUADRADO * acao_proto_.raio_quadrados();
     estagio_ = INICIAL;
   }
 
@@ -476,7 +466,7 @@ class AcaoProjetilArea: public Acao {
         const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
         const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
         gl::Translada(pos.x(), pos.y(), pos.z());
-        gl::Escala(efeito_, efeito_, efeito_);
+        gl::Escala(efeito_q_, efeito_q_, efeito_q_);
         gl::DesabilitaEscopo luz(GL_LIGHTING);
         DesenhaGeometriaAcao(ACAO_GEO_ESFERA);
       }
@@ -488,8 +478,7 @@ class AcaoProjetilArea: public Acao {
   void AtualizaAposAtraso(int intervalo_ms) override {
     switch (estagio_) {
       case INICIAL:
-        estagio_ = VOO;
-        AtualizaVoo(intervalo_ms);
+        AtualizaInicial(intervalo_ms);
         break;
       case VOO:
         AtualizaVoo(intervalo_ms);
@@ -508,59 +497,55 @@ class AcaoProjetilArea: public Acao {
   }
 
  private:
-  void AtualizaDispersao(int intervalo_ms) {
-    if (efeito_ == 0.0f) {
-      Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
-      const auto& pos_origem = (entidade_origem != nullptr) && (acao_proto_.geometria() == ACAO_GEO_CONE)
-        ? entidade_origem->Pos() : acao_proto_.pos_tabuleiro();
-      const Posicao& pos = acao_proto_.pos_tabuleiro();
-      for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
-        auto* ed = tabuleiro_->BuscaEntidade(id_destino);
-        if (ed == nullptr) {
-          continue;
-        }
-        Vector3 v;
-        v.x = ed->Pos().x() - pos_origem.x();
-        v.y = ed->Pos().y() - pos_origem.y();
-        v.z = ed->Pos().z() - pos_origem.z();
-        if (fabs(v.length()) > 0.001f) {
-          v.normalize() /= 10.0f;
-          dx_ = v.x;
-          dy_ = v.y;
-          dz_ = v.z;
-          AtualizaDirecaoQuedaAlvo(ed);
-        }
+  void AtualizaInicial(int intervalo_ms) {
+    VLOG(1) << "Atualizando inicial";
+    Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    const auto& pos_origem = acao_proto_.pos_tabuleiro();
+    for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
+      auto* ed = tabuleiro_->BuscaEntidade(id_destino);
+      if (ed == nullptr) {
+        continue;
       }
-      if (entidade_origem != nullptr) {
-        Vector3 v;
-        v.x = pos.x() - entidade_origem->X();
-        v.y = pos.y() - entidade_origem->Y();
-        v.z = pos.z() - entidade_origem->Z();
-        if (fabs(v.length()) > 0.001f) {
-          v.normalize() /= 10.0f;
-          dx_ = v.x;
-          dy_ = v.y;
-          dz_ = v.z;
-          AtualizaRotacaoZFonte(entidade_origem);
-        }
+      Vector3 v;
+      v.x = ed->Pos().x() - pos_origem.x();
+      v.y = ed->Pos().y() - pos_origem.y();
+      v.z = ed->Pos().z() - pos_origem.z();
+      if (fabs(v.length()) > 0.001f) {
+        v.normalize() /= 10.0f;
+        dx_ = v.x;
+        dy_ = v.y;
+        dz_ = v.z;
+        AtualizaDirecaoQuedaAlvo(ed);
       }
     }
-    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
-    if (efeito_ > efeito_maximo_) estagio_ = FIM;
+    if (entidade_origem != nullptr) {
+      Vector3 v;
+      v.x = pos_impacto_.x() - entidade_origem->X();
+      v.y = pos_impacto_.y() - entidade_origem->Y();
+      v.z = pos_impacto_.z() - entidade_origem->Z();
+      if (fabs(v.length()) > 0.001f) {
+        v.normalize() /= 10.0f;
+        dx_ = v.x;
+        dy_ = v.y;
+        dz_ = v.z;
+        AtualizaRotacaoZFonte(entidade_origem);
+      }
+    }
+    estagio_ = VOO;
+  }
+
+  void AtualizaDispersao(int intervalo_ms) {
+    efeito_q_ += std::max(0.1f, efeito_maximo_q_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000));
+    if (efeito_q_ > efeito_maximo_q_) estagio_ = FIM;
+    VLOG(1) << "Atualizando dispersao: efeito_q: " << efeito_q_ << ", maximo: " << efeito_maximo_q_;
   }
 
   void AtualizaVoo(int intervalo_ms) {
-    Entidade* entidade_destino = nullptr;
-    if ((entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
-      VLOG(1) << "Finalizando projetil, destino não existe.";
-      estagio_ = FIM;
-      return;
-    }
-    const auto& pos_destino = entidade_destino->PosicaoAcao();
+    VLOG(1) << "Atualizando voo";
     // Recalcula vetor.
-    dx_ = pos_destino.x() - pos_.x();
-    dy_ = pos_destino.y() - pos_.y();
-    dz_ = pos_destino.z() - pos_.z();
+    dx_ = pos_impacto_.x() - pos_.x();
+    dy_ = pos_impacto_.y() - pos_.y();
+    dz_ = pos_impacto_.z() - pos_.z();
     AtualizaVelocidade(intervalo_ms);
     VLOG(1) << "Velocidade: " << velocidade_m_ms_;
     Vector3 v(dx_, dy_, dz_);
@@ -571,17 +556,17 @@ class AcaoProjetilArea: public Acao {
     float ya = pos_.y();
     float za = pos_.z();
     // Antes, depois, destino.
-    pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino.x()));
-    pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
-    pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
+    pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_impacto_.x()));
+    pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_impacto_.y()));
+    pos_.set_z(ArrumaSePassou(za, za + v.z, pos_impacto_.z()));
     // Deslocamento do alvo.
     vn /= 2.0f;  // meio metro de deslocamento.
     dx_ = vn.x;
     dy_ = vn.y;
     dz_ = vn.z;
-    if (pos_.x() == pos_destino.x() &&
-        pos_.y() == pos_destino.y() &&
-        pos_.z() == pos_destino.z()) {
+    if (pos_.x() == pos_impacto_.x() &&
+        pos_.y() == pos_impacto_.y() &&
+        pos_.z() == pos_impacto_.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
       return;
@@ -594,10 +579,13 @@ class AcaoProjetilArea: public Acao {
     ATINGIU_ALVO,
     FIM
   } estagio_;
-  Posicao pos_;
 
-  float efeito_maximo_;
-  float efeito_;
+  Posicao pos_;
+  Posicao pos_impacto_;
+
+  // Tamanho do efeito em quadrados.
+  float efeito_maximo_q_;
+  float efeito_q_;
 };
 
 // Uma acao de projetil, tipo flecha ou missil magico.
@@ -1392,6 +1380,14 @@ Entidade* Acao::EntidadeDestino() {
 // static
 bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto, bool ponto_eh_origem) {
   switch (acao_proto.tipo()) {
+    case ACAO_PROJETIL_AREA: {
+      const float dq =
+        DistanciaQuadrado(
+            pos_ponto, acao_proto.pos_tabuleiro());
+      const float distancia_maxima = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+      VLOG(1) << "Distancia quadrado: " << dq << ", maximo: " << distancia_maxima;
+      return dq <= distancia_maxima;
+    }
     case ACAO_DISPERSAO:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA: {
@@ -1488,6 +1484,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
     default:
       return false;
   }
+
   return false;
 }
 

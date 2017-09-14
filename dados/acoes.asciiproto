@@ -1,11 +1,17 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes (repeated de AcaoProto).
 acao {
   id: 'Ácido'
-  tipo: ACAO_DISPERSAO
+  tipo: ACAO_PROJETIL_AREA
   cor { r: 0.0 g: 0.5 b: 0.0 }
+  escala { x: 0.2 y: 0.2 z: 0.2 }
+  velocidade {
+    inicial_m_s: 50
+    tipo_aceleracao: ACAO_ACEL_ZERO
+  }
   raio_quadrados: 1  # quadrados.
   geometria: ACAO_GEO_ESFERA
-  efeito_area: true
+  efeito_projetil_area: true
+  permite_ataque_vs_defesa: true
   icone: "icon_acid.png"
   duracao_s: 0.350
   ataque_toque: true
@@ -13,11 +19,17 @@ acao {
 }
 acao {
   id: 'Água Benta'
-  tipo: ACAO_DISPERSAO
+  tipo: ACAO_PROJETIL_AREA
   cor { r: 0.8 g: 0.8 b: 1.0 }
+  escala { x: 0.2 y: 0.2 z: 0.2 }
+  velocidade {
+    inicial_m_s: 50
+    tipo_aceleracao: ACAO_ACEL_ZERO
+  }
   raio_quadrados: 1  # quadrados.
   geometria: ACAO_GEO_ESFERA
-  efeito_area: true
+  efeito_projetil_area: true
+  permite_ataque_vs_defesa: true
   icone: 'icon_holy_water.png'
   duracao_s: 0.350
   ataque_toque: true
@@ -129,11 +141,17 @@ acao {
 }
 acao {
   id: 'Fogo Alquímico'
-  tipo: ACAO_DISPERSAO
+  tipo: ACAO_PROJETIL_AREA
   cor { r: 1.0 g: 1.0 b: 0 }
+  escala { x: 0.2 y: 0.2 z: 0.2 }
+  velocidade {
+    inicial_m_s: 50
+    tipo_aceleracao: ACAO_ACEL_ZERO
+  }
   raio_quadrados: 1  # quadrados.
   geometria: ACAO_GEO_ESFERA
-  efeito_area: true
+  efeito_projetil_area: true
+  permite_ataque_vs_defesa: true
   icone: 'icon_alchemist_fire.png'
   duracao_s: 0.350
   consequencia: TC_INFLAMA_ALVO

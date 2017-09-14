@@ -1616,9 +1616,11 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
 
   const auto& ap = acao.Proto();
   int delta_pontos_vida = ap.delta_pontos_vida();
+  bool omite_texto = false;
   for (const auto& delta_por_entidade : ap.delta_por_entidade()) {
     if (delta_por_entidade.id() == id_entidade) {
       delta_pontos_vida = delta_por_entidade.delta();
+      omite_texto = delta_por_entidade.omite_texto();
       break;
     }
   }
@@ -1630,7 +1632,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
 
   float atraso_s = 0;
   // Acao de pontos de vida sem efeito.
-  if (!acao.Proto().texto().empty()) {
+  if (!acao.Proto().texto().empty() && !omite_texto) {
     AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s);
     atraso_s += 0.5f;
   }
