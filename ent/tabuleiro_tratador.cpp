@@ -1070,8 +1070,8 @@ float Tabuleiro::TrataAcaoIndividual(
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_nao_letal(nao_letal);
+      acao_proto->set_afeta_pontos_vida(true);  // por enquanto, para aparecer a mensagem de falha.
       if (delta_pontos_vida != 0) {
-        acao_proto->set_afeta_pontos_vida(true);
         // Apenas para desfazer.
         PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
       }

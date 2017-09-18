@@ -18,6 +18,7 @@
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/tabuleiro_interface.h"
@@ -136,6 +137,12 @@ void Tabuleiro::CarregaControleVirtual() {
       n->add_info_textura()->set_id(par_id_acao.second->icone());
     }
   }
+  for (const auto& arma : tabelas_.todas().tabela_armas().armas()) {
+    if (arma.acao().has_icone()) {
+      n->add_info_textura()->set_id(arma.acao().icone());
+    }
+  }
+
   central_->AdicionaNotificacao(n);
 
   texturas_entidades_.insert(ROTULO_PADRAO);
@@ -167,6 +174,11 @@ void Tabuleiro::LiberaControleVirtual() {
   for (const auto& par_id_acao : mapa_acoes_) {
     if (!par_id_acao.second->icone().empty()) {
       n->add_info_textura()->set_id(par_id_acao.second->icone());
+    }
+  }
+  for (const auto& arma : tabelas_.todas().tabela_armas().armas()) {
+    if (arma.acao().has_icone()) {
+      n->add_info_textura()->set_id(arma.acao().icone());
     }
   }
   central_->AdicionaNotificacao(n);
