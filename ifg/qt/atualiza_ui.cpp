@@ -221,11 +221,16 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,  const std::string& tipo_ataque) {
+void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque) {
   bool cac = tipo_ataque == "Ataque Corpo a Corpo";
+  bool projetil_area = tipo_ataque == "Projétil de Área";
+  bool distancia = tipo_ataque == "Ataque a Distância";
   std::map<std::string, std::string> nome_id_map;
   for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
-    if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) || (!cac && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
+    const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma);
+    if ((cac && ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma)) ||
+        (projetil_area && arma_projetil_area) ||
+        (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
       nome_id_map[arma.nome()] = arma.id();
     }
   }
@@ -266,7 +271,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
-  gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+  gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área");
   PreencheComboArma(tabelas, gerador, tipo_ataque);
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
