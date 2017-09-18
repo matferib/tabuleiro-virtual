@@ -39,7 +39,23 @@ tabela_armas {
     multiplicador_critico: 2
     alcance_quadrados: 2
     tipo_dano: TD_OUTRO
-    acao { cor { r: 0.8 g: 0.8 b: 1.0 } icone: 'icon_holy_water.png' }
+    acao {
+      tipo: ACAO_PROJETIL_AREA
+      cor { r: 0.8 g: 0.8 b: 1.0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      velocidade {
+        inicial_m_s: 50
+        tipo_aceleracao: ACAO_ACEL_ZERO
+      }
+      raio_quadrados: 1  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_projetil_area: true
+      permite_ataque_vs_defesa: true
+      icone: 'icon_holy_water.png'
+      duracao_s: 0.350
+      ataque_toque: true
+      ataque_distancia: true
+    }
   }
   armas {
     id: 'acido'
