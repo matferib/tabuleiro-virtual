@@ -888,12 +888,15 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
+  const bool ha_valor = HaValorListaPontosVida();
   atraso_s += TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
     // Nao realizou a acao. Nem continuar.
     VLOG(2) << "Acao de projetil de area nao realizada";
     return atraso_s;
   }
+  if (!ha_valor) return atraso_s;
 
   bool acertou_direto = acao_proto->afeta_pontos_vida();
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
@@ -917,7 +920,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
     delta_por_entidade->set_omite_texto(id != id_entidade_destino);
     delta_por_entidade->set_id(id);
     delta_por_entidade->set_delta(delta_pv);
-
 
     // Para desfazer.
     // Notificacao de desfazer.

@@ -962,7 +962,7 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
   float distancia_m = 0.0f;
   if (alcance_m >= 0) {
-    float distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
+    distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
     if (distancia_m > alcance_m) {
       int total_incrementos = distancia_m / alcance_m;
       if (total_incrementos > ea.IncrementosAtaque()) {
@@ -992,6 +992,7 @@ int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& e
   if (alcance_m >= 0) {
     int total_incrementos = distancia_m / alcance_m;
     modificador_incrementos = -2 * total_incrementos;
+    VLOG(1) << "Modificador de incremento: " << modificador_incrementos << ", distancia_m: " << distancia_m << ", alcance_m: " << alcance_m;
   }
   assert(modificador_incrementos <= 0);
   return modificador_incrementos;
@@ -1570,6 +1571,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     }
 
     // tipo certo de ataque.
+    bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
     bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
     bool cac = PossuiCategoria(CAT_CAC, arma);
     if (distancia && cac) {
@@ -1579,6 +1581,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       }
     } else if (cac) {
       da->set_tipo_ataque("Ataque Corpo a Corpo");
+    } else if (projetil_area) {
+      da->set_tipo_ataque("Projétil de Área");
     } else {
       da->set_tipo_ataque("Ataque a Distância");
     }
