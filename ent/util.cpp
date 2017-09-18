@@ -923,68 +923,79 @@ int ModificadorDano(const EntidadeProto& ea) {
   return modificador;
 }
 
+float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  Posicao pos_acao_a = ea.PosicaoAcao();
+  Posicao pos_acao_d = ed.PosicaoAcao();
+  // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
+  float mult_tamanho = ea.MultiplicadorTamanho();
+  float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
+  VLOG(1) << "raio_a: " << raio_a;
 
-std::tuple<int, std::string, bool> ModificadorAlcanceMunicao(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+  Vector3 vd;
+  float distancia_m = - raio_a;
+  if (pos_alvo.has_x()) {
+    vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
+    const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
+    distancia_m -= MARGEM_ERRO;
+    VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
+  } else {
+    vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+    distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+    VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+  }
+  distancia_m += (va - vd).length();
+  VLOG(1) << "distancia_m: " << distancia_m;
+  return distancia_m;
+}
+
+std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
-  if (da != nullptr && da->tipo_ataque() == "Ataque a Distância" && da->has_municao() && da->municao() == 0) {
+  if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
+      da!= nullptr && da->has_municao() && da->municao() == 0) {
     VLOG(1) << "Nao ha municao para ataque";
     LOG(INFO) << "da: " << da->ShortDebugString();
-    return std::make_tuple(-100, "Sem munição", false);
+    return std::make_tuple("Sem munição", false, 0.0f);
   }
 
-  int modificador_incrementos = 0;
   const float alcance_m = ea.AlcanceAtaqueMetros();
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
+  float distancia_m = 0.0f;
   if (alcance_m >= 0) {
-    Posicao pos_acao_a = ea.PosicaoAcao();
-    Posicao pos_acao_d = ed.PosicaoAcao();
-
-    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
-    float mult_tamanho = ea.MultiplicadorTamanho();
-    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "raio_a: " << raio_a;
-
-    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
-    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-    Vector3 vd;
-    float distancia_m = - raio_a;
-    if (pos_alvo.has_x()) {
-      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
-      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
-      distancia_m -= MARGEM_ERRO;
-      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
-    } else {
-      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
-      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
-    }
-    distancia_m += (va - vd).length();
-    VLOG(1) << "distancia_m: " << distancia_m;
-
+    float distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
     if (distancia_m > alcance_m) {
       int total_incrementos = distancia_m / alcance_m;
       if (total_incrementos > ea.IncrementosAtaque()) {
-        char texto[50] = {'\0'};
-        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
-        return std::make_tuple(-100, texto, false);
-      } else {
-        modificador_incrementos = total_incrementos * -2;
-        VLOG(1) << "distancia_m: " << distancia_m << ", alcance_m: " << alcance_m << ", "
-                << "modificador_incrementos: " << modificador_incrementos;
+        return std::make_tuple(
+            google::protobuf::StringPrintf(
+                "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque()),
+            false, distancia_m);
       }
     } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
       std::string texto =
           google::protobuf::StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f",
                                          alcance_minimo_m, distancia_m);
-      return std::make_tuple(-100, texto, false);
+      return std::make_tuple(texto, false, distancia_m);
     }
     VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
-  assert(modificador_incrementos <= 0);
-  return std::make_tuple(modificador_incrementos, "", true);
+  return std::make_tuple("", true, distancia_m);
 }
 
+int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea) {
+  if (ap.tipo() != ACAO_PROJETIL && ap.tipo() != ACAO_PROJETIL_AREA) {
+    return 0;
+  }
 
+  int modificador_incrementos = 0;
+  const float alcance_m = ea.AlcanceAtaqueMetros();
+  if (alcance_m >= 0) {
+    int total_incrementos = distancia_m / alcance_m;
+    modificador_incrementos = -2 * total_incrementos;
+  }
+  assert(modificador_incrementos <= 0);
+  return modificador_incrementos;
+}
 
 namespace {
 
@@ -1103,7 +1114,8 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+std::tuple<int, std::string, bool> AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   const int ataque_origem = ea.BonusAtaque();
@@ -1122,16 +1134,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     VLOG(1) << "Ignorando ataque vs defesa por causa de defesa total.";
     return std::make_tuple(0, "Atacante em defesa total", true);
   }
-  int modificador_incrementos;
-  {
-    bool tem_alcance;
-    std::string texto_falha_alcance;
-    std::tie(modificador_incrementos, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(ea, ed, pos_alvo);
-    if (!tem_alcance) {
-      return std::make_tuple(0, texto_falha_alcance, false);
-    }
-  }
-
+  int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(da->ataque_distancia(), ea.Proto(), ed.Proto());
 
   // Realiza um ataque de toque.

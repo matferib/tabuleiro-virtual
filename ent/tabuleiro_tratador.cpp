@@ -889,6 +889,11 @@ float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   atraso_s += TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, acao_proto, n, grupo_desfazer);
+  if (!n->has_acao()) {
+    // Nao realizou a acao. Nem continuar.
+    VLOG(2) << "Acao de projetil de area nao realizada";
+    return atraso_s;
+  }
 
   bool acertou_direto = acao_proto->afeta_pontos_vida();
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
@@ -900,7 +905,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
       continue;
     }
     if (!entidade_destino->Proto().has_max_pontos_vida()) {
-      VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
+      VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area em projetil de area";
       continue;
     }
     if (id == id_entidade_destino && acertou_direto) continue;
@@ -919,7 +924,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
   }
-  VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
+  VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
   return atraso_s;
 }
@@ -995,16 +1000,15 @@ float Tabuleiro::TrataAcaoIndividual(
     int vezes = 1;
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao();
+    float distancia_m = 0.0f;
     // Verifica alcance.
     {
-      bool tem_alcance;
       std::string texto_falha_alcance;
-      std::tie(std::ignore, texto_falha_alcance, tem_alcance) = ModificadorAlcanceMunicao(*entidade, *entidade_destino, pos_alvo);
-      if (!tem_alcance) {
+      std::tie(texto_falha_alcance, realiza_acao, distancia_m) = VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
+      if (!realiza_acao) {
         AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
         acao_proto->set_texto(texto_falha_alcance);
         vezes = 0;
-        realiza_acao = false;
       }
     }
     std::string texto;
@@ -1012,7 +1016,7 @@ float Tabuleiro::TrataAcaoIndividual(
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
       std::tie(vezes, texto, realiza_acao) =
-          AtaqueVsDefesa(*entidade, *entidade_destino, pos_alvo);
+          AtaqueVsDefesa(distancia_m, *acao_proto, *entidade, *entidade_destino, pos_alvo);
       VLOG(1) << "--------------------------";
       AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
       acao_proto->set_texto(texto);
@@ -1080,6 +1084,7 @@ float Tabuleiro::TrataAcaoIndividual(
       PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
     }
     VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
+    // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
     *n->mutable_acao() = *acao_proto;
   }
   return atraso_s;

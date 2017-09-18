@@ -212,7 +212,7 @@ int ModificadorDano(const EntidadeProto& ea);
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+std::tuple<int, std::string, bool> AtaqueVsDefesa(float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Rola o dado de ataque contra a salvacao, retornando o dano, texto do resultado.
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
@@ -391,8 +391,11 @@ EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, Entidad
 // Retorna todos os talentos da entidade em um vector, para facilitar.
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 
-// Retorna o modificador de incrementos (-inf, 0], string de erro e se tem alcance.
-std::tuple<int, std::string, bool> ModificadorAlcanceMunicao(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+// Retorna false se nao houver alcance ou municao, com texto descritivo. O valor float eh a distancia computada.
+std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+
+// Retorna o modificador de incrementos. Assume alcance e municao.
+int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
 
 // Acesso a pericias do proto.
 EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
