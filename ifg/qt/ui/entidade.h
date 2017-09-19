@@ -193,6 +193,10 @@ public:
     QHBoxLayout *horizontalLayout_37;
     QLabel *label_80;
     QSpinBox *spin_niveis_negativos;
+    QWidget *horizontalLayoutWidget_6;
+    QHBoxLayout *horizontalLayout_38;
+    QLabel *label_84;
+    QSpinBox *spin_xp;
     QWidget *tab_3;
     QLabel *label_9;
     QPushButton *botao_remover_talento;
@@ -1185,6 +1189,24 @@ public:
         spin_niveis_negativos->setValue(0);
 
         horizontalLayout_37->addWidget(spin_niveis_negativos);
+
+        horizontalLayoutWidget_6 = new QWidget(tab_nivel);
+        horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
+        horizontalLayoutWidget_6->setGeometry(QRect(10, 50, 181, 41));
+        horizontalLayout_38 = new QHBoxLayout(horizontalLayoutWidget_6);
+        horizontalLayout_38->setObjectName(QString::fromUtf8("horizontalLayout_38"));
+        horizontalLayout_38->setContentsMargins(0, 0, 0, 0);
+        label_84 = new QLabel(horizontalLayoutWidget_6);
+        label_84->setObjectName(QString::fromUtf8("label_84"));
+
+        horizontalLayout_38->addWidget(label_84, 0, Qt::AlignRight);
+
+        spin_xp = new QSpinBox(horizontalLayoutWidget_6);
+        spin_xp->setObjectName(QString::fromUtf8("spin_xp"));
+        spin_xp->setMinimum(0);
+        spin_xp->setMaximum(1000000);
+
+        horizontalLayout_38->addWidget(spin_xp);
 
         tab_tesouro->addTab(tab_nivel, QString());
         tab_3 = new QWidget();
@@ -2211,6 +2233,10 @@ public:
         label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_84->setText(QApplication::translate("ifg::qt::DialogoEntidade", "XP", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_xp->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Experi\303\252ncia do personagem.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", 0, QApplication::UnicodeUTF8));

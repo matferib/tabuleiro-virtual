@@ -1598,6 +1598,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_desenha_base(entidade.desenha_base());
   }
 
+  gerador.spin_xp->setValue(entidade.experiencia());
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, &entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, forma_primaria] () {
@@ -1690,6 +1692,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     // Campos de texto eh melhor atualizar so no final, porque os eventos sao complicados de lidar.
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    proto_retornado->set_experiencia(gerador.spin_xp->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

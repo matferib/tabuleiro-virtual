@@ -332,4 +332,6 @@ message EntidadeProto {
     optional float eixo_ordem_caos = 2 [default = 0.5];
   }
   optional TendenciaDetalhada tendencia = 80;
+  // XP do personagem.
+  optional int32 experiencia = 84;
 }

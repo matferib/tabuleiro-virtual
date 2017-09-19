@@ -1608,7 +1608,6 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta,
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade) {
-  LOG(INFO) << "acao: " << acao.Proto().ShortDebugString();
   auto* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr) {
     LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;

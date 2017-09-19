@@ -1653,13 +1653,16 @@ QGroupBox::title {
         </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignLeft">
-       <widget class="QLineEdit" name="linha_xp">
+      <item>
+       <widget class="QSpinBox" name="spin_xp">
         <property name="toolTip">
-         <string>Experiência do personagem</string>
+         <string>Experiência do personagem.</string>
         </property>
-        <property name="readOnly">
-         <bool>true</bool>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>1000000</number>
         </property>
        </widget>
       </item>
