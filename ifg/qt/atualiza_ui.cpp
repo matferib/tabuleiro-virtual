@@ -206,7 +206,6 @@ void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
 namespace {
 
 void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
-  gerador.botao_remover_ataque->setEnabled(false);
   gerador.botao_ataque_cima->setEnabled(false);
   gerador.botao_ataque_baixo->setEnabled(false);
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
@@ -275,6 +274,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   PreencheComboArma(tabelas, gerador, tipo_ataque);
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
+    gerador.botao_remover_ataque->setEnabled(!proto.dados_ataque().empty());
     for (auto* obj : objs) obj->blockSignals(false);
     return;
   }
