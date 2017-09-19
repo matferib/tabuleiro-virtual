@@ -1,11 +1,10 @@
-Efeito de area esta falhando.
-projeteis de area (dano splash).
-Fazer: fogo grego, acido e agua benta.
+Icone nao esta aparecendo para os projeteis de area na lista de acoes feitas.
+
+Restricao de dano (apenas mortos vivos).
 
 Recarga de bestas.
 Dominio da conhecimento como de classe.
 Fazer: dominios.
-
 
 Atualizacao de tabela remota e tabela nao srd.
 
@@ -68,13 +67,10 @@ Arrumar a funcao MousePara3dParaleloZero para montar as matrizes baseado na came
 Versao 2.6.0
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
-- Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).
-- Colocar na lateral os stats do personagem.
 - Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
 - Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.
 - Opcao de override de fixa. Ajuda na modelagem.
-- Mais botoes de cores.
 - Texturas modo tile.
 - Refazer a extracao de VBOs para mapas de oclusao e sombras.
 - Zfight ipad e mapa oclusao.

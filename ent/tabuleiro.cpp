@@ -3220,7 +3220,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
     return;
   }
   VLOG(2) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
-  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
+  Terreno terreno(TamanhoX(), TamanhoY(),
                   Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
   terreno.Preenche(&indices_tabuleiro,
                    &coordenadas_tabuleiro,
@@ -3733,7 +3733,23 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Desabilita(GL_TEXTURE_2D);
   }
   V_ERRO("textura");
-  vbos_tabuleiro_.Desenha();
+  {
+    if (proto_corrente_->ladrilho()) {
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::Escala(proto_corrente_->largura(), proto_corrente_->altura(), 1.0f);
+      gl::AtualizaMatrizes();
+    }
+    vbos_tabuleiro_.Desenha();
+    if (proto_corrente_->ladrilho()) {
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::AtualizaMatrizes();
+    }
+  }
+
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
