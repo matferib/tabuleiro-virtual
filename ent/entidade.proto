@@ -177,7 +177,8 @@ message EntidadeProto {
   message DadosAtaque {
     optional string rotulo = 9;
     // Deve casar com as strings de id do arquivo de dados das acoes.
-    optional string tipo_ataque = 1;
+    optional string tipo_ataque = 1 [deprecated=true];
+    optional TipoAcao tipo_acao = 39;
     // Bonus final para ataque.
     optional int32 bonus_ataque_final = 2;
     // O dano final da arma: 1d8+5.

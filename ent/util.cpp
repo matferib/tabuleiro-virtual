@@ -1578,13 +1578,17 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
       if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
         da->set_tipo_ataque("Ataque a Distância");
+        da->set_tipo_acao(ACAO_PROJETIL);
       }
     } else if (cac) {
       da->set_tipo_ataque("Ataque Corpo a Corpo");
+      da->set_tipo_acao(ACAO_CORPO_A_CORPO);
     } else if (projetil_area) {
       da->set_tipo_ataque("Projétil de Área");
+      da->set_tipo_acao(ACAO_PROJETIL_AREA);
     } else {
       da->set_tipo_ataque("Ataque a Distância");
+      da->set_tipo_acao(ACAO_PROJETIL);
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
@@ -1830,6 +1834,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         }
         da.set_rotulo(funda != nullptr ? "pedra encantada com funda" : "pedra encantada");
         da.set_tipo_ataque("Ataque a Distância");
+        da.set_tipo_acao(ACAO_PROJETIL);
         da.set_municao(3);
         InsereInicio(&da, proto->mutable_dados_ataque());
       }
@@ -2601,8 +2606,14 @@ void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, Entidade
     da->clear_acao();
   }
   da->set_tipo_ataque(acao_proto.id());
+  da->set_tipo_acao(acao_proto.tipo());
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
-    da->set_tipo_ataque(PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
+    da->set_tipo_ataque(PossuiCategoria(CAT_PROJETIL_AREA, arma)
+        ? "Projétil de Área"
+        : PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
+    da->set_tipo_acao(PossuiCategoria(CAT_PROJETIL_AREA, arma)
+        ? ACAO_PROJETIL_AREA
+        : PossuiCategoria(CAT_DISTANCIA, arma) ? ACAO_PROJETIL : ACAO_CORPO_A_CORPO);
   }
   if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
     da->set_ataque_toque(true);
