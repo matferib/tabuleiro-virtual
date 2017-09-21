@@ -9,15 +9,15 @@
 #ifndef OPCOES_H
 #define OPCOES_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHeaderView>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QHeaderView>
 
 namespace ifg {
 namespace qt {
@@ -95,19 +95,21 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoOpcoes)
     {
-        ifg__qt__DialogoOpcoes->setWindowTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "Dialog", 0, QApplication::UnicodeUTF8));
-        checkbox_mostrar_fps->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mostrar Tempo de Desenho da cena", 0, QApplication::UnicodeUTF8));
-        checkbox_texturas_sempre_de_frente->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Texturas de Entidades Sempre de frente para c\303\242mera", 0, QApplication::UnicodeUTF8));
-        checkbox_iluminacao_mestre->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o do mestre igual \303\240 dos jogadores", 0, QApplication::UnicodeUTF8));
-        checkbox_rosa_dos_ventos->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenha rosa dos ventos", 0, QApplication::UnicodeUTF8));
-        checkbox_anti_aliasing->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Anti Serrilhamento", 0, QApplication::UnicodeUTF8));
-        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0, QApplication::UnicodeUTF8));
-        checkbox_controle->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Controle Virtual", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "requer reinicializa\303\247\303\243o", 0, QApplication::UnicodeUTF8));
-        checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0, QApplication::UnicodeUTF8));
-        checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", 0, QApplication::UnicodeUTF8));
-        checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
-        checkbox_ataque_vs_defesa_posicao_real->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ataque vs Defesa posi\303\247\303\243o Real", 0, QApplication::UnicodeUTF8));
+        ifg__qt__DialogoOpcoes->setWindowTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "Dialog", 0));
+        checkbox_mostrar_fps->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mostrar Tempo de Desenho da cena", 0));
+        checkbox_texturas_sempre_de_frente->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Texturas de Entidades Sempre de frente para c\303\242mera", 0));
+        checkbox_iluminacao_mestre->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o do mestre igual \303\240 dos jogadores", 0));
+        checkbox_rosa_dos_ventos->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenha rosa dos ventos", 0));
+        checkbox_anti_aliasing->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Anti Serrilhamento", 0));
+        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0));
+        checkbox_controle->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Controle Virtual", 0));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "requer reinicializa\303\247\303\243o", 0));
+        checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0));
+        checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", 0));
+        checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0));
+        checkbox_ataque_vs_defesa_posicao_real->setText(QApplication::translate(
+            "ifg::qt::DialogoOpcoes",
+            "Ataque vs Defesa posi\303\247\303\243o Real", 0));
     } // retranslateUi
 
 };

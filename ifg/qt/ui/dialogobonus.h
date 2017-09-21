@@ -9,15 +9,15 @@
 #ifndef DIALOGOBONUS_H
 #define DIALOGOBONUS_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QPushButton>
-#include <QtGui/QTableView>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QTableView>
+#include <QVariant>
 
 namespace ifg {
 namespace qt {
@@ -63,9 +63,10 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoBonus)
     {
-        ifg__qt__DialogoBonus->setWindowTitle(QApplication::translate("ifg::qt::DialogoBonus", "Dialog", 0, QApplication::UnicodeUTF8));
-        botao_adicionar_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "+", 0, QApplication::UnicodeUTF8));
-        botao_remover_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "-", 0, QApplication::UnicodeUTF8));
+        ifg__qt__DialogoBonus->setWindowTitle(QApplication::translate("ifg::qt::DialogoBonus", "Dialog", 0));
+        botao_adicionar_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "+", 0));
+        botao_remover_bonus->setText(
+            QApplication::translate("ifg::qt::DialogoBonus", "-", 0));
     } // retranslateUi
 
 };

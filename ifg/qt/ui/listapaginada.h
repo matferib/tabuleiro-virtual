@@ -9,14 +9,14 @@
 #ifndef LISTAPAGINADA_H
 #define LISTAPAGINADA_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QListWidget>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHeaderView>
+#include <QListWidget>
+#include <QVariant>
 
 namespace ifg {
 namespace qt {

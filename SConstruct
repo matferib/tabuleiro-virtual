@@ -30,7 +30,7 @@ else:
   print 'QTCPPPATH: ' + env['QTDIR']
   env['QTDIR'] = '/usr'
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
-  env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'QtCore']
+  env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets']
   env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 
 # protobuffer.
@@ -60,7 +60,7 @@ else:
   # linux.
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 
 if (debug == '1'):

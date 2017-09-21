@@ -9,27 +9,27 @@
 #ifndef FORMA_H
 #define FORMA_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QDial>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QSlider>
-#include <QtGui/QSpinBox>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDial>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDoubleSpinBox>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QSlider>
+#include <QSpinBox>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace ifg {
 namespace qt {
@@ -673,78 +673,79 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoForma)
     {
-        ifg__qt__DialogoForma->setWindowTitle(QApplication::translate("ifg::qt::DialogoForma", "Dialog", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("ifg::qt::DialogoForma", "Id", 0, QApplication::UnicodeUTF8));
-        label_3->setText(QApplication::translate("ifg::qt::DialogoForma", "Cor:", 0, QApplication::UnicodeUTF8));
+        ifg__qt__DialogoForma->setWindowTitle(QApplication::translate("ifg::qt::DialogoForma", "Dialog", 0));
+        label->setText(QApplication::translate("ifg::qt::DialogoForma", "Id", 0));
+        label_3->setText(QApplication::translate("ifg::qt::DialogoForma", "Cor:", 0));
         checkbox_cor->setText(QString());
-        botao_cor->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dimens\303\265es (quadrados)", 0, QApplication::UnicodeUTF8));
-        label_7->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam X", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam Y", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("ifg::qt::DialogoForma", "Altura", 0, QApplication::UnicodeUTF8));
-        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o e Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
+        botao_cor->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor", 0));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dimens\303\265es (quadrados)", 0));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam X", 0));
+        label_5->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam Y", 0));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoForma", "Altura", 0));
+        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o e Transla\303\247\303\243o em Z", 0));
 #ifndef QT_NO_TOOLTIP
-        dial_rotacao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
+        dial_rotacao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0));
 #endif // QT_NO_TOOLTIP
-        label_2->setText(QApplication::translate("ifg::qt::DialogoForma", " Transla\303\247\303\243o", 0, QApplication::UnicodeUTF8));
-        label_15->setText(QApplication::translate("ifg::qt::DialogoForma", "quad", 0, QApplication::UnicodeUTF8));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0, QApplication::UnicodeUTF8));
-        label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
-        label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));
-        checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Luz", 0, QApplication::UnicodeUTF8));
-        botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
-        groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Y", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("ifg::qt::DialogoForma", " Transla\303\247\303\243o", 0));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoForma", "quad", 0));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0));
+        label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0));
+        checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Luz", 0));
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0));
+        groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Y", 0));
 #ifndef QT_NO_TOOLTIP
-        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
+        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-        label_4->setText(QApplication::translate("ifg::qt::DialogoForma", "Textura", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("ifg::qt::DialogoForma", "Textura", 0));
 #ifndef QT_NO_TOOLTIP
-        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0));
 #endif // QT_NO_TOOLTIP
-        checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoForma", "ladrilho", 0, QApplication::UnicodeUTF8));
+        checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoForma", "ladrilho", 0));
 #ifndef QT_NO_TOOLTIP
-        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0));
 #endif // QT_NO_TOOLTIP
-        checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", 0, QApplication::UnicodeUTF8));
-        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
-        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+        checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", 0));
+        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0));
+        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0));
 #ifndef QT_NO_TOOLTIP
-        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0));
 #endif // QT_NO_TOOLTIP
-        checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", 0, QApplication::UnicodeUTF8));
-        label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
+        checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", 0));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especial", 0));
 #ifndef QT_NO_TOOLTIP
-        lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+        lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0));
 #endif // QT_NO_TOOLTIP
-        groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em X", 0, QApplication::UnicodeUTF8));
+        groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em X", 0));
 #ifndef QT_NO_TOOLTIP
-        dial_rotacao_x->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
+        dial_rotacao_x->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Transi\303\247\303\243o de Cen\303\241rio", 0, QApplication::UnicodeUTF8));
+        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Transi\303\247\303\243o de Cen\303\241rio", 0));
         combo_transicao->clear();
         combo_transicao->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoForma", "Sem Transi\303\247\303\243o", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoForma", "Cen\303\241rio", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoForma", "Sem Transi\303\247\303\243o", 0)
+         << QApplication::translate("ifg::qt::DialogoForma", "Cen\303\241rio", 0)
+         << QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0)
         );
-        linha_transicao_cenario->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Id do cen\303\241rio", 0, QApplication::UnicodeUTF8));
-        checkbox_transicao_posicao->setText(QApplication::translate("ifg::qt::DialogoForma", "Posi\303\247\303\243o?", 0, QApplication::UnicodeUTF8));
-        botao_transicao_mapa->setText(QApplication::translate("ifg::qt::DialogoForma", "Clicar", 0, QApplication::UnicodeUTF8));
-        label_12->setText(QApplication::translate("ifg::qt::DialogoForma", "X", 0, QApplication::UnicodeUTF8));
-        label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", 0, QApplication::UnicodeUTF8));
-        label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", 0, QApplication::UnicodeUTF8));
+        linha_transicao_cenario->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Id do cen\303\241rio", 0));
+        checkbox_transicao_posicao->setText(QApplication::translate("ifg::qt::DialogoForma", "Posi\303\247\303\243o?", 0));
+        botao_transicao_mapa->setText(QApplication::translate("ifg::qt::DialogoForma", "Clicar", 0));
+        label_12->setText(QApplication::translate("ifg::qt::DialogoForma", "X", 0));
+        label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", 0));
+        label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", 0));
 #ifndef QT_NO_TOOLTIP
-        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0));
 #endif // QT_NO_TOOLTIP
-        checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", 0, QApplication::UnicodeUTF8));
-        label_16->setText(QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0, QApplication::UnicodeUTF8));
+        checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", 0));
+        label_16->setText(QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0));
 #ifndef QT_NO_TOOLTIP
-        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        checkbox_dois_lados->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nos dois lados da primitiva ser\303\243o desenhados.", 0, QApplication::UnicodeUTF8));
+        checkbox_dois_lados->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nos dois lados da primitiva ser\303\243o desenhados.", 0));
 #endif // QT_NO_TOOLTIP
-        checkbox_dois_lados->setText(QApplication::translate("ifg::qt::DialogoForma", "Dois Lados", 0, QApplication::UnicodeUTF8));
+        checkbox_dois_lados->setText(
+            QApplication::translate("ifg::qt::DialogoForma", "Dois Lados", 0));
     } // retranslateUi
 
 };
