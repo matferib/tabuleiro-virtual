@@ -32,7 +32,7 @@ class Principal : public QWidget, ntf::Receptor {
   /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
   * instanciar o objeto.
   */
-  static Principal* Cria(int& argc, char** argv,
+  static Principal* Cria(QApplication* qapp,
                          const ent::Tabelas& tabelas,
                          ent::Tabuleiro* tabuleiro,
                          ent::Texturas* texturas,
@@ -62,7 +62,7 @@ class Principal : public QWidget, ntf::Receptor {
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;
-  /** a aplicacao QT. */
+  /** a aplicacao QT. Nao eh dono. */
   QApplication* q_app_;
   /** Temporizador. */
   QTimer* q_timer_;

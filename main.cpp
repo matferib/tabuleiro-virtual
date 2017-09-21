@@ -7,6 +7,7 @@
 #include <gflags/gflags.h>
 #endif
 
+#include <QApplication>
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
@@ -74,8 +75,9 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+  QApplication q_app(argc, argv);
   std::unique_ptr<ifg::qt::Principal> p(
-      ifg::qt::Principal::Cria(argc, argv, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
+      ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
 #if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {

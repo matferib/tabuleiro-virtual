@@ -35,11 +35,10 @@ using namespace std;
 /////////////
 
 Principal* Principal::Cria(
-    int& argc, char** argv,
+    QApplication* q_app,
     const ent::Tabelas& tabelas,
     ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ifg::TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central) {
-  auto* q_app = new QApplication(argc, argv);
   static QTranslator* tradutor_qt = new QTranslator();
   bool carregou = tradutor_qt->load("qt_" + QLocale::system().name(),
                                     QLibraryInfo::location(QLibraryInfo::TranslationsPath));
@@ -51,7 +50,9 @@ Principal* Principal::Cria(
   LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toUtf8().constData();
   q_app->installTranslator(tradutor_meu);
 
+#if !USAR_QT5
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+#endif
   return new Principal(tabelas, tabuleiro, texturas, teclado_mouse, central, q_app);
 }
 
@@ -70,6 +71,8 @@ Principal::Principal(const ent::Tabelas& tabelas,
 
 Principal::~Principal() {
   central_->DesregistraReceptor(this);
+  delete v3d_;
+  v3d_ = nullptr;
 }
 
 void Principal::Executa() {
