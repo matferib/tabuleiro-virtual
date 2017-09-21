@@ -67,7 +67,7 @@ class DesativadorWatchdogEscopo {
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
   QString estilo = estilo_fmt.arg(cor.red()).arg(cor.green()).arg(cor.blue());
-  VLOG(3) << "Retornando estilo: " << estilo.toUtf8().constData();
+  VLOG(3) << "Retornando estilo: " << estilo.toStdString();
   return estilo;
 }
 
@@ -262,7 +262,7 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
 void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
                                    ent::InfoTextura* info_textura) {
   if (combo_textura->currentIndex() != 0) {
-    if (combo_textura->currentText().toUtf8().constData() == info_antes.id()) {
+    if (combo_textura->currentText().toStdString() == info_antes.id()) {
       // Textura igual a anterior.
       VLOG(2) << "Textura igual a anterior.";
       info_textura->set_id(info_antes.id());
@@ -272,11 +272,11 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
       QVariant dados(combo_textura->itemData(combo_textura->currentIndex()));
       if (dados.toInt() == arq::TIPO_TEXTURA_LOCAL) {
         VLOG(2) << "Textura local, recarregando.";
-        info_textura->set_id(nome.toUtf8().constData());
-        PreencheInfoTextura(nome.split(":")[1].toUtf8().constData(),
+        info_textura->set_id(nome.toStdString());
+        PreencheInfoTextura(nome.split(":")[1].toStdString(),
             arq::TIPO_TEXTURA_LOCAL, info_textura);
       } else {
-        info_textura->set_id(nome.toUtf8().constData());
+        info_textura->set_id(nome.toStdString());
       }
     }
     VLOG(2) << "Id textura: " << info_textura->id();
@@ -352,7 +352,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.tabuleiro().manter_entidades()) {
         n->mutable_tabuleiro()->set_manter_entidades(true);
       }
-      n->set_endereco(file_str.toUtf8().constData());
+      n->set_endereco(file_str.toStdString());
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -369,7 +369,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-      n->set_endereco(file_str.toUtf8().constData());
+      n->set_endereco(file_str.toStdString());
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -522,7 +522,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
     rotulos_especiais += rotulo_especial + "\n";
   }
-  gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
+  gerador.lista_rotulos->appendPlainText((rotulos_especiais.c_str()));
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
@@ -622,7 +622,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_y_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().y());
   gerador.spin_escala_z_quad->setValue(ent::METROS_PARA_QUADRADOS * entidade.escala().z());
 
-  gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
+  gerador.lista_tesouro->appendPlainText((entidade.tesouro().tesouro().c_str()));
 
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
@@ -687,7 +687,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
     proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
-      proto_retornado->add_rotulo_especial(rotulo.toUtf8().constData());
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
@@ -719,12 +719,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
     proto_retornado->mutable_escala()->set_y(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
     proto_retornado->mutable_escala()->set_z(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
-    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toStdString());
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       bool ok = false;
       int val = gerador.linha_transicao_cenario->text().toInt(&ok);
       if (!ok || (val < CENARIO_PRINCIPAL)) {
-        LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toUtf8().constData();
+        LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
       }
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(ok ? val : CENARIO_INVALIDO);
       if (ok) {
@@ -808,14 +808,14 @@ void AdicionaOuAtualizaAtaqueEntidade(
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
   if (id == "nenhuma") {
-    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toStdString());
     da.set_dano_basico(dano_arma.dano);
     da.set_multiplicador_critico(dano_arma.multiplicador);
     da.set_margem_critico(dano_arma.margem_critico);
   } else {
     da.set_id_arma(id);
   }
-  da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
+  da.set_rotulo(gerador.linha_rotulo_ataque->text().toStdString());
   da.set_incrementos(gerador.spin_incrementos->value());
   if (gerador.spin_alcance_quad->value() > 0) {
     da.set_alcance_m(gerador.spin_alcance_quad->value() * ent::QUADRADOS_PARA_METROS);
@@ -858,10 +858,10 @@ void PreencheConfiguraComboArmaduraEscudo(
   QComboBox* combo_escudo = gerador.combo_escudo;
   const ent::Tabelas& tabelas = this_->tabelas();
   for (const auto& armadura : tabelas.todas().tabela_armaduras().armaduras()) {
-    combo_armadura->addItem(QString::fromUtf8(armadura.nome().c_str()), QVariant(armadura.id().c_str()));
+    combo_armadura->addItem((armadura.nome().c_str()), QVariant(armadura.id().c_str()));
   }
   for (const auto& escudo : tabelas.todas().tabela_escudos().escudos()) {
-    combo_escudo->addItem(QString::fromUtf8(escudo.nome().c_str()), QVariant(escudo.id().c_str()));
+    combo_escudo->addItem((escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
     QVariant id = combo_armadura->itemData(combo_armadura->currentIndex());
@@ -1032,7 +1032,7 @@ void PreencheConfiguraTesouro(
     gerador.lista_pocoes->setCurrentRow(indice);
   });
   AtualizaUITesouro(tabelas, gerador, proto);
-  gerador.lista_tesouro->setPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
+  gerador.lista_tesouro->setPlainText((proto.tesouro().tesouro().c_str()));
 }
 
 void PreencheConfiguraAtributos(
@@ -1136,7 +1136,7 @@ void PreencheConfiguraComboTipoAtaque(
     tipos_acoes.insert(acao.id());
   }
   for (const auto& id : tipos_acoes) {
-    gerador.combo_tipo_ataque->addItem(QString::fromUtf8(id.c_str()), QVariant(id.c_str()));
+    gerador.combo_tipo_ataque->addItem((id.c_str()), QVariant(id.c_str()));
   }
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
       [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
@@ -1239,7 +1239,7 @@ void PreencheConfiguraDadosAtaque(
     EditaAtualizaUIAtaque();
   });
   // Furtivo
-  gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_global().dano_furtivo().c_str()));
+  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
 }
 
 void PreencheComboSalvacoesFortes(QComboBox* combo) {
@@ -1275,7 +1275,7 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
   }
   ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
       ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
-  ic->set_id(gerador.linha_classe->text().toUtf8().constData());
+  ic->set_id(gerador.linha_classe->text().toStdString());
   ic->set_nivel(gerador.spin_nivel_classe->value());
   ic->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
   ic->set_bba(gerador.spin_bba->value());
@@ -1304,7 +1304,7 @@ void PreencheConfiguraComboClasse(
   auto* combo = gerador.combo_classe;
   combo->addItem(combo->tr("Outro"), "outro");
   for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
-    combo->addItem(QString::fromUtf8(ic.nome().c_str()), ic.id().c_str());
+    combo->addItem((ic.nome().c_str()), ic.id().c_str());
   }
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
     std::vector<QObject*> objs = {
@@ -1448,13 +1448,13 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.campo_id->setText(id_str.setNum(entidade.id()));
   // Rotulo.
   QString rotulo_str;
-  gerador.campo_rotulo->setText(QString::fromUtf8(entidade.rotulo().c_str()));
+  gerador.campo_rotulo->setText((entidade.rotulo().c_str()));
   // Rotulos especiais.
   std::string rotulos_especiais;
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
     rotulos_especiais += rotulo_especial + "\n";
   }
-  gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
+  gerador.lista_rotulos->appendPlainText((rotulos_especiais.c_str()));
 
   // Eventos.
   PreencheConfiguraEventos(this, gerador, entidade, proto_retornado);
@@ -1552,7 +1552,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   PreencheConfiguraTesouro(this, gerador, entidade, proto_retornado);
 
-  gerador.texto_notas->appendPlainText(QString::fromUtf8(entidade.notas().c_str()));
+  gerador.texto_notas->appendPlainText((entidade.notas().c_str()));
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.checkbox_salvacao->setCheckState(entidade.has_proxima_salvacao() ? Qt::Checked : Qt::Unchecked);
@@ -1607,12 +1607,12 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
     } else {
-      proto_retornado->set_rotulo(gerador.campo_rotulo->text().toUtf8().constData());
+      proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
     proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
-      proto_retornado->add_rotulo_especial(rotulo.toUtf8().constData());
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
@@ -1640,7 +1640,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     if (gerador.combo_modelos_3d->currentIndex() == 0) {
       proto_retornado->clear_modelo_3d();
     } else {
-      proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toUtf8().constData());
+      proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toStdString());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_dano_nao_letal(gerador.spin_dano_nao_letal->value());
@@ -1665,7 +1665,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     }
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
-    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
+    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo(gerador.linha_furtivo->text().toStdString());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao_m(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
@@ -1690,8 +1690,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
           ProtoFormaAlternativa(*proto_retornado);
     }
     // Campos de texto eh melhor atualizar so no final, porque os eventos sao complicados de lidar.
-    proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
-    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    proto_retornado->set_notas(gerador.texto_notas->toPlainText().toStdString());
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toStdString());
     proto_retornado->set_experiencia(gerador.spin_xp->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
@@ -1843,13 +1843,13 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       int d_min = gerador.linha_nevoa_min->text().toInt(&ok);
       if (!ok) {
         LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa minima invalida: "
-                     << gerador.linha_nevoa_min->text().toUtf8().constData();
+                     << gerador.linha_nevoa_min->text().toStdString();
         return;
       }
       int d_max = gerador.linha_nevoa_max->text().toInt(&ok);
       if (!ok || d_min >= d_max) {
         LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa maxima invalida: "
-                     << gerador.linha_nevoa_max->text().toUtf8().constData();
+                     << gerador.linha_nevoa_max->text().toStdString();
         return;
       }
       proto_retornado->mutable_nevoa()->set_minimo(d_min);
@@ -1858,7 +1858,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       proto_retornado->clear_nevoa();
     }
     // Descricao.
-    proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toUtf8().constData());
+    proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Textura.
     if (gerador.combo_fundo->currentIndex() == 0) {
       proto_retornado->clear_info_textura();
@@ -1887,9 +1887,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       unsigned int largura = 0, altura = 0;
       std::string nome;
       if (tipo == arq::TIPO_TEXTURA_LOCAL) {
-        nome = gerador.combo_fundo->itemText(indice).split(":")[1].toUtf8().constData();
+        nome = gerador.combo_fundo->itemText(indice).split(":")[1].toStdString();
       } else {
-        nome = gerador.combo_fundo->itemText(indice).toUtf8().constData();
+        nome = gerador.combo_fundo->itemText(indice).toStdString();
       }
       PreencheInfoTextura(nome, tipo, &textura, &largura, &altura);
       proto_retornado->set_largura(largura / 8);
@@ -1900,13 +1900,13 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       int largura = gerador.linha_largura->text().toInt(&ok);
       if (!ok) {
         LOG(WARNING) << "Descartando alteracoes tabuleiro, largura invalido: "
-                     << gerador.linha_altura->text().toUtf8().constData();
+                     << gerador.linha_altura->text().toStdString();
         return;
       }
       int altura = gerador.linha_altura->text().toInt(&ok);
       if (!ok) {
         LOG(WARNING) << "Descartando alteracoes tabuleiro, altura invalido: "
-                     << gerador.linha_largura->text().toUtf8().constData();
+                     << gerador.linha_largura->text().toStdString();
         return;
       }
       proto_retornado->set_largura(largura);
