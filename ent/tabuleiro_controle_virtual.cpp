@@ -756,7 +756,11 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
       if (entidade == nullptr) {
         return texturas_->Textura(AcaoPadrao(indice_acao).icone());
       }
-      return texturas_->Textura(AcaoDoMapa(entidade->AcaoExecutada(indice_acao, AcoesPadroes())).icone());
+      auto par_tipo_icone = entidade->TipoAcaoComIcone(indice_acao, AcoesPadroes(), mapa_acoes_);
+      if (!par_tipo_icone.second.empty()) {
+        return texturas_->Textura(par_tipo_icone.second);
+      }
+      return texturas_->Textura(AcaoDoMapa(par_tipo_icone.first).icone());
     }
     default:
       ;

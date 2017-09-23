@@ -1121,7 +1121,7 @@ AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
       if (!proto_.ultima_acao().empty()) {
         return proto_.ultima_acao();
       }
-      return AcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
+      return TipoAcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
     }
     return da->tipo_ataque();
   };
@@ -1182,7 +1182,7 @@ void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
   VLOG(1) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
 }
 
-std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const {
+std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const {
   if (indice_acao < 0 || static_cast<unsigned int>(indice_acao) >= MaxNumAcoes) {
     return "";
   }
@@ -1200,6 +1200,38 @@ std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::stri
     }
   }
   return acoes[indice_acao];
+}
+
+std::pair<TipoAcao, std::string> Entidade::TipoAcaoComIcone(
+    int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const {
+  if (indice_acao < 0 || static_cast<unsigned int>(indice_acao) >= MaxNumAcoes) {
+    return std::make_pair(ACAO_INVALIDA, "");
+  }
+  if (indice_acao < proto_.lista_acoes_size()) {
+    for (const auto& da : proto_.dados_ataque()) {
+      if (da.tipo_ataque() == proto_.lista_acoes(indice_acao)) {
+        return std::make_pair(da.tipo_acao(), da.acao().icone());
+      }
+    }
+    auto it = mapa_acoes.find(proto_.lista_acoes(indice_acao));
+    return it == mapa_acoes.end()
+        ? std::make_pair(ACAO_INVALIDA, "")
+        : std::make_pair(it->second->tipo(), it->second->icone());
+  }
+  // Junta as acoes da entidade com as padroes.
+  std::vector<std::string> acoes(proto_.lista_acoes().begin(), proto_.lista_acoes().end());
+  for (const std::string& acao_padrao : acoes_padroes) {
+    if (std::find(acoes.begin(), acoes.end(), acao_padrao) == acoes.end()) {
+      acoes.push_back(acao_padrao);
+    }
+    if (acoes.size() == MaxNumAcoes) {
+      break;
+    }
+  }
+  auto it = mapa_acoes.find(acoes[indice_acao]);
+  return it == mapa_acoes.end()
+      ? std::make_pair(ACAO_INVALIDA, "")
+      : std::make_pair(it->second->tipo(), it->second->icone());
 }
 
 const Posicao Entidade::PosicaoAltura(float fator) const {

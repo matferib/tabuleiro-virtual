@@ -190,7 +190,9 @@ Tabuleiro::Tabuleiro(
   }
   for (const auto& a : acoes.acao()) {
     auto* nova_acao = new AcaoProto(a);
+    if (nova_acao == nullptr) continue;
     mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
+    mapa_acoes_por_tipo_.insert(std::make_pair(a.tipo(), std::unique_ptr<AcaoProto>(new AcaoProto(*nova_acao))));
     id_acoes_.push_back(a.id());
   }
   // Controle virtual.
@@ -2613,7 +2615,7 @@ void Tabuleiro::SelecionaAcaoExecutada(int indice) {
     LOG(INFO) << "Nao selecionando acao pois ha 0 ou mais de uma entidade selecionada.";
     return;
   }
-  std::string id_acao = e->AcaoExecutada(indice, AcoesPadroes());
+  std::string id_acao = e->TipoAcaoExecutada(indice, AcoesPadroes());
   if (id_acao.empty()) {
     VLOG(1) << "Selecionando acao padrao pois id eh invalido para a entidade.";
     id_acao = AcaoPadrao(indice).id();
@@ -2641,6 +2643,14 @@ const AcaoProto& Tabuleiro::AcaoPadrao(int indice) const {
 const AcaoProto& Tabuleiro::AcaoDoMapa(const std::string& id_acao) const {
   const auto it = mapa_acoes_.find(id_acao);
   if (it == mapa_acoes_.end()) {
+    return AcaoProto::default_instance();
+  }
+  return *it->second;
+}
+
+const AcaoProto& Tabuleiro::AcaoDoMapa(TipoAcao id_acao) const {
+  const auto it = mapa_acoes_por_tipo_.find(id_acao);
+  if (it == mapa_acoes_por_tipo_.end()) {
     return AcaoProto::default_instance();
   }
   return *it->second;

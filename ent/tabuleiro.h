@@ -352,9 +352,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna o modo de dano automatico. */
   void AlternaDanoAutomatico();
 
-  /** Acesso ao mapa de modelos. */
+  /** Acesso ao mapa de modelos. O inteiro eh um TipoAcao. */
+  typedef std::unordered_map<int, std::unique_ptr<AcaoProto>> MapaTipoAcao;
   typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
   const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
+  const MapaTipoAcao& MapaTipoAcoes() const { return mapa_acoes_por_tipo_; }
 
   /** Seleciona uma das formas de desenho como padrao. */
   void SelecionaFormaDesenho(TipoForma fd);
@@ -981,6 +983,7 @@ class Tabuleiro : public ntf::Receptor {
   const std::vector<std::string>& AcoesPadroes() const;
   /** Retorna a acao ou vazio se nao houver indice. */
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
+  const AcaoProto& AcaoDoMapa(TipoAcao id_acao) const;
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
@@ -1095,6 +1098,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Ação selecionada (por id). */
   MapaIdAcao mapa_acoes_;
+  MapaTipoAcao mapa_acoes_por_tipo_;
   std::vector<std::string> id_acoes_;
 
   tex::Texturas* texturas_;

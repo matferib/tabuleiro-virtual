@@ -178,7 +178,11 @@ class Entidade {
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);
   /** Retorna a acao executada pela entidade ou uma acao padrao caso a entidade nao possua a acao. */
-  std::string AcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
+  std::string TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
+
+  // Retorna o tipo da acao e o icone, se houver.
+  std::pair<TipoAcao, std::string> TipoAcaoComIcone(
+      int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const;
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;

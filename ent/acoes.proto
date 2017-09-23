@@ -5,6 +5,7 @@ package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
 enum TipoAcao {
+  ACAO_INVALIDA = 0;
   ACAO_PROJETIL = 1;
   ACAO_DISPERSAO = 2;
   ACAO_RAIO = 3;
