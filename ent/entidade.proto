@@ -177,7 +177,7 @@ message EntidadeProto {
   message DadosAtaque {
     optional string rotulo = 9;
     // Deve casar com as strings de id do arquivo de dados das acoes.
-    optional string tipo_ataque = 1 [deprecated=true];
+    optional string tipo_ataque = 1;
     optional TipoAcao tipo_acao = 39;
     // Bonus final para ataque.
     optional int32 bonus_ataque_final = 2;
@@ -232,6 +232,8 @@ message EntidadeProto {
     optional uint32 id_unico_efeito  = 36;
     // Municao para a arma.
     optional uint32 municao = 38;
+    // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
+    optional string grupo = 40;
   }
   repeated DadosAtaque dados_ataque = 44;
 
