@@ -221,6 +221,10 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
+inline Posicao Vector3ParaPosicao(const Vector3& v) {
+  Posicao p; p.set_x(v.x); p.set_y(v.y); p.set_z(v.z);
+  return p;
+}
 
 // Preenche uma notificacao de dano letal ou nao letal, incluindo desfazer. n_desfazer nao eh obrigatorio.
 enum tipo_dano_e {
@@ -396,6 +400,8 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
 
 // Retorna o modificador de incrementos. Assume alcance e municao.
 int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
+// Distancia da acao da ea para a ed. Pos alvo indica a posicao exata no alvo.
+float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Acesso a pericias do proto.
 EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);

@@ -886,11 +886,13 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 }
 
 float Tabuleiro::TrataAcaoProjetilArea(
-    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
+    Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
   const bool ha_valor = HaValorListaPontosVida();
-  atraso_s += TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, acao_proto, n, grupo_desfazer);
+  atraso_s += TrataAcaoIndividual(
+      id_entidade_destino, atraso_s, pos_entidade_destino, entidade, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
     // Nao realizou a acao. Nem continuar.
     VLOG(2) << "Acao de projetil de area nao realizada";
@@ -898,7 +900,25 @@ float Tabuleiro::TrataAcaoProjetilArea(
   }
   if (!ha_valor) return atraso_s;
 
+  const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
   bool acertou_direto = acao_proto->delta_pontos_vida() != 0;
+  if (!acertou_direto && entidade_destino != nullptr) {
+    // Escolhe direcao aleatoria e soma um quadrado por incremento.
+    const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
+    const int total_incrementos = distancia_m / entidade->AlcanceAtaqueMetros();
+    if (total_incrementos > 0) {
+      const int direcao = RolaDado(8);
+      Matrix4 rm;
+      rm.rotateZ(RolaDado(360.0f));
+      Vector3 v(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f); 
+      v = rm * v;
+      v += PosParaVector3(pos_entidade_destino);
+      v.z = ZChao(v.x, v.y);
+      acao_proto->clear_pos_entidade();
+      *acao_proto->mutable_pos_tabuleiro() = Vector3ParaPosicao(v);
+    }
+  }
+
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
   for (auto id : ids_afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
@@ -932,13 +952,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
 }
 
 float Tabuleiro::TrataAcaoEfeitoArea(
-    float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (acao_proto->permite_salvacao()) {
     acao_proto->set_dificuldade_salvacao(acao_proto->dificuldade_salvacao() + entidade->ModificadorAtributoConjuracao());
   }
-  if (pos_entidade.has_x()) {
-    acao_proto->mutable_pos_entidade()->CopyFrom(pos_entidade);
+  if (pos_entidade_destino.has_x()) {
+    acao_proto->mutable_pos_entidade()->CopyFrom(pos_entidade_destino);
   }
   int delta_pontos_vida = 0;
   if (HaValorListaPontosVida()) {
@@ -989,7 +1009,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 }
 
 float Tabuleiro::TrataAcaoIndividual(
-    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Efeito individual.
   Entidade* entidade_destino =
@@ -1001,7 +1021,7 @@ float Tabuleiro::TrataAcaoIndividual(
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
     int vezes = 1;
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-    auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao();
+    auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
     float distancia_m = 0.0f;
     // Verifica alcance.
     {

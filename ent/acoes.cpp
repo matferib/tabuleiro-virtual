@@ -1381,12 +1381,13 @@ Entidade* Acao::EntidadeDestino() {
 bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto, bool ponto_eh_origem) {
   switch (acao_proto.tipo()) {
     case ACAO_PROJETIL_AREA: {
-      const float dq =
+      const float dq_m2 =
         DistanciaQuadrado(
             pos_ponto, acao_proto.pos_tabuleiro());
-      const float distancia_maxima = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
-      VLOG(1) << "Distancia quadrado: " << dq << ", maximo: " << distancia_maxima;
-      return dq <= distancia_maxima;
+      // Admite uma certa tolerancia, porque o raio normalmente eh pequeno.
+      const float distancia_maxima_m2 = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO * 1.10f, 2);
+      VLOG(1) << "Distancia ao quadrado: " << dq_m2 << ", maximo: " << distancia_maxima_m2;
+      return dq_m2 <= distancia_maxima_m2;
     }
     case ACAO_DISPERSAO:
       switch (acao_proto.geometria()) {
