@@ -5127,7 +5127,7 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
     ref_camera = true;
   }
 #if USAR_QT
-  std::string str_entidades(QApplication::clipboard()->text().toUtf8().constData());
+  std::string str_entidades(QApplication::clipboard()->text().toStdString());
   if (str_entidades.empty()) {
     VLOG(1) << "Ignorando colar, não há entidades selecionadas";
     return;
@@ -5175,7 +5175,6 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
       LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
-
 }
 
 void Tabuleiro::AgrupaEntidadesSelecionadas() {

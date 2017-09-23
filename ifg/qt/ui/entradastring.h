@@ -9,15 +9,15 @@
 #ifndef ENTRADASTRING_H
 #define ENTRADASTRING_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QVariant>
 
 namespace ifg {
 namespace qt {
@@ -56,8 +56,9 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__EntradaString)
     {
-        ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", 0, QApplication::UnicodeUTF8));
-        label_titulo->setText(QApplication::translate("ifg::qt::EntradaString", "TextLabel", 0, QApplication::UnicodeUTF8));
+        ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", 0));
+        label_titulo->setText(
+            QApplication::translate("ifg::qt::EntradaString", "TextLabel", 0));
     } // retranslateUi
 
 };
