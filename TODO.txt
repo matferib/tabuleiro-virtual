@@ -1,5 +1,3 @@
-Projetil de area: se errar, pegar no alvo como area.
-
 Restricao de dano (apenas mortos vivos).
 
 Recarga de bestas.
