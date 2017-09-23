@@ -1,5 +1,3 @@
-Restricao de dano (apenas mortos vivos).
-
 Recarga de bestas.
 Dominio da conhecimento como de classe.
 Fazer: dominios.
