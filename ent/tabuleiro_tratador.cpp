@@ -898,7 +898,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   }
   if (!ha_valor) return atraso_s;
 
-  bool acertou_direto = acao_proto->afeta_pontos_vida();
+  bool acertou_direto = acao_proto->delta_pontos_vida() != 0;
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
   for (auto id : ids_afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
@@ -1070,10 +1070,12 @@ float Tabuleiro::TrataAcaoIndividual(
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_nao_letal(nao_letal);
-      acao_proto->set_afeta_pontos_vida(true);  // por enquanto, para aparecer a mensagem de falha.
+      acao_proto->set_gera_outras_acoes(true);  // para os textos.
       if (delta_pontos_vida != 0) {
+        acao_proto->set_afeta_pontos_vida(true);  // por enquanto, para aparecer a mensagem de falha.
         // Apenas para desfazer.
-        PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+        PreencheNotificacaoAtualizaoPontosVida(
+            *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
       }
     }
   }

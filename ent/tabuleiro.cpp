@@ -4368,12 +4368,16 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
     if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
-      if (ap.id_entidade_destino_size() > 0 && ap.afeta_pontos_vida()) {
+      if (ap.id_entidade_destino_size() > 0 && (ap.afeta_pontos_vida() || ap.gera_outras_acoes())) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
         for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino);
+          if (ap.afeta_pontos_vida()) {
+            AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino);
+          } else if (ap.has_texto()) {
+            AdicionaAcaoTexto(id_entidade_destino, ap.texto());
+          }
         }
       }
     }

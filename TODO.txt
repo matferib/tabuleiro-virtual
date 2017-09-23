@@ -1,4 +1,4 @@
-Icone nao esta aparecendo para os projeteis de area na lista de acoes feitas.
+Projetil de area: se errar, pegar no alvo como area.
 
 Restricao de dano (apenas mortos vivos).
 

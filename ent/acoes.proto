@@ -81,7 +81,8 @@ message AcaoProto {
   optional int32 delta_pontos_vida = 14;  // quanto de vida. Se afeta_pontos_vida, afetara de verdade.
   optional string texto = 24;  // tambem cosmetico, usado para regua.
   // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
-  optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
+  optional bool afeta_pontos_vida = 15;  // Se verdadeiro, a entidade sofre o dano de verdade.
+  optional bool gera_outras_acoes = 43;  // Se verdadeiro, gerara outras acoes, como de texto ao termino.
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;
   optional Velocidade velocidade = 19;
