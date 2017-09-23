@@ -954,7 +954,6 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da!= nullptr && da->has_municao() && da->municao() == 0) {
     VLOG(1) << "Nao ha municao para ataque";
-    LOG(INFO) << "da: " << da->ShortDebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
 

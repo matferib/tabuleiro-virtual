@@ -94,6 +94,15 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
+enum TipoDnD {
+  TIPO_HUMANOIDE = 0;
+  TIPO_MORTO_VIVO = 1;
+  TIPO_GOBLINOIDE = 2;
+  TIPO_ANIMAL = 3;
+  TIPO_PLANTA = 4;
+  // TODO outros.
+}
+
 // Tambem usado como vetor.
 message Posicao {
   optional float x = 3;

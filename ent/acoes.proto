@@ -132,6 +132,8 @@ message AcaoProto {
   optional bool bem_sucedida = 39;
   // Indica dano nao letal.
   optional bool nao_letal = 40;
+  // Algumas acoes afetam apenas alguns tipos de entidades.
+  optional TipoDnD afeta_apenas = 44;
 }
 
 // O arquivo de acoes é serializado desta forma.

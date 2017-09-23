@@ -901,16 +901,16 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!ha_valor) return atraso_s;
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  bool acertou_direto = acao_proto->delta_pontos_vida() != 0;
+  bool acertou_direto = acao_proto->has_delta_pontos_vida();
   if (!acertou_direto && entidade_destino != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
     const int total_incrementos = distancia_m / entidade->AlcanceAtaqueMetros();
     if (total_incrementos > 0) {
-      const int direcao = RolaDado(8);
+      // TODO colisao com ponto para nao atravessar paredes.
       Matrix4 rm;
       rm.rotateZ(RolaDado(360.0f));
-      Vector3 v(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f); 
+      Vector3 v(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f);
       v = rm * v;
       v += PosParaVector3(pos_entidade_destino);
       v.z = ZChao(v.x, v.y);
@@ -935,7 +935,10 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
     acao_proto->set_afeta_pontos_vida(true);
     acao_proto->add_id_entidade_destino(id);
-    const int delta_pv = -1;
+    int delta_pv = -1;
+    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+      delta_pv = 0;
+    }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_omite_texto(id != id_entidade_destino);
     delta_por_entidade->set_id(id);
@@ -980,6 +983,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
+    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+      VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
+      continue;
+    }
+
     acao_proto->add_id_entidade_destino(id);
     // Para desfazer.
     if (delta_pontos_vida == 0) {
@@ -1057,12 +1065,20 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
       TrataNotificacao(n_texto);
     } else {
-      // Aplica dano e critico.
-      for (int i = 0; i < vezes; ++i) {
-        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
-      }
-      if (vezes > 0) {
-        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      if (vezes > 0 && acao_proto->has_afeta_apenas() &&
+          !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+        // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
+        acao_proto->set_texto("Imune");
+        acao_proto->set_delta_pontos_vida(0);
+        vezes = 0;
+      } else {
+        // Aplica dano e critico.
+        for (int i = 0; i < vezes; ++i) {
+          delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+        }
+        if (vezes > 0) {
+          delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+        }
       }
       const auto* da = entidade->DadoCorrente();
       bool nao_letal = da != nullptr && da->nao_letal();
@@ -1088,11 +1104,11 @@ float Tabuleiro::TrataAcaoIndividual(
               resultado_salvacao.c_str()));
       }
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
-      acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_nao_letal(nao_letal);
       acao_proto->set_gera_outras_acoes(true);  // para os textos.
       if (delta_pontos_vida != 0) {
-        acao_proto->set_afeta_pontos_vida(true);  // por enquanto, para aparecer a mensagem de falha.
+        acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+        acao_proto->set_afeta_pontos_vida(true);
         // Apenas para desfazer.
         PreencheNotificacaoAtualizaoPontosVida(
             *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);

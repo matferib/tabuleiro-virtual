@@ -11,7 +11,10 @@ modelo {
 modelo {
   id: 'Allip'
   entidade {
-    dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '4d12'
+    info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    ultima_acao: 'Ataque Corpo a Corpo'
     modificador_iniciativa: 5
     rotulo_especial: 'ini: +5\nat: +3 toque\ndano: 1d4 sab\nca: 15'
   }
@@ -210,6 +213,7 @@ modelo {
 modelo {
   id: 'Carniçal'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12' info_textura { id: 'ghoul.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
     cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 2
@@ -222,6 +226,7 @@ modelo {
 modelo {
   id: 'Carneçal'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '4d12' info_textura { id: 'ghast.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modificador_iniciativa: 3
@@ -417,6 +422,7 @@ modelo {
 modelo {
   id: 'Esqueleto (Humano Combatente)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '1d12' info_textura { id: 'skeleton.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.1 g: 0.1 b: 0.1}
     modificador_iniciativa: 5
@@ -428,6 +434,7 @@ modelo {
 modelo {
   id: 'Esqueleto (Lobo)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 7
     rotulo_especial: 'mordida +2 1d6+1\nca 15/13/12\nreducao 5/estourante'
@@ -435,7 +442,11 @@ modelo {
 }
 modelo {
   id: 'Esqueleto (Troll)'
-  entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+  entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '6d12' tamanho: TM_GRANDE
+    info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1}
+  }
 }
 modelo {
   id: 'Formiga Gigante'
@@ -1462,6 +1473,7 @@ modelo {
 modelo {
   id: 'Zumbi (humano)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12+3' info_textura { id: 'zombie.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: -1
     rotulo_especial: 'reducao 5/cortante, acoes parciais apenas'
@@ -1473,14 +1485,17 @@ modelo {
 modelo {
   id: 'Zumbi (kobold)'
   entidade {
-    dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '2d12+3' tamanho: TM_PEQUENO
+    info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: 0
   }
 }
 modelo {
   id: 'Worg'
   entidade {
-    dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
+    dados_vida: '4d10+8' tamanho: TM_MEDIO
+    info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
     rotulo_especial: 'derrubar como ação livre se acertar mordida'
     dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
