@@ -1,3 +1,7 @@
+Reducao de dano.
+
+Segunda rodada de dano do fogo quimico.
+
 Recarga de bestas.
 Dominio da conhecimento como de classe.
 Fazer: dominios.
@@ -8,7 +12,6 @@ Colocar arte da fuga no agarrar.
 
 Colocar anel de protecao e manto de resistencia.
 
-Fazer uma corrente representando agarrar entre entidades.
 Modificadores de grapple: 4 patas e outros.
 Descer iniciativas em 1 para nao baguncar com status.
 Implementar flanquear.
