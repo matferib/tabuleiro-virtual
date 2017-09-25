@@ -4,13 +4,13 @@ option java_package = "com.matferib.Tabuleiro.ent";
 enum TendenciaSimplificada {
   TD_LEAL_BOM = 0;
   TD_LEAL_NEUTRO = 1;
-  TD_LEAL_MAL = 2;
+  TD_LEAL_MAU = 2;
   TD_NEUTRO_BOM = 3;
   TD_NEUTRO = 4;
-  TD_NEUTRO_MAL = 5;
+  TD_NEUTRO_MAU = 5;
   TD_CAOTICO_BOM = 6;
   TD_CAOTICO_NEUTRO = 7;
-  TD_CAOTICO_MAL = 8;
+  TD_CAOTICO_MAU = 8;
 }
 
 enum TamanhoEntidade {
@@ -100,6 +100,7 @@ enum TipoDnD {
   TIPO_GOBLINOIDE = 2;
   TIPO_ANIMAL = 3;
   TIPO_PLANTA = 4;
+  TIPO_BESTA_MAGICA = 5; // d10 fortitude, reflexo, bba guerreiro, visao escuro 12q, visao na penumbra.
   // TODO outros.
 }
 
