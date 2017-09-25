@@ -590,6 +590,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.set_desenha_ligacao_agarrar(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
   gl::UsaShader(gl::TSH_PONTUAL);
@@ -659,6 +660,7 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.set_desenha_ligacao_agarrar(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
   gl::UsaShader(gl::TSH_PONTUAL);
@@ -3876,17 +3878,12 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
-    if (entidade->Pos().id_cenario() != cenario_corrente_) {
-      continue;
-    }
-    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) {
-      continue;
-    }
+    if (entidade->Pos().id_cenario() != cenario_corrente_) continue;
+    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) continue;
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_presa_ &&  entidade->Id() == IdCameraPresa() && !parametros_desenho_.desenha_mapa_sombras()) {
-      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-        continue;
-      }
+    if (camera_presa_ &&  entidade->Id() == IdCameraPresa() &&
+        !parametros_desenho_.desenha_mapa_sombras()) {
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) continue;
       if (parametros_desenho_.has_desenha_mapa_oclusao() || parametros_desenho_.has_desenha_mapa_luzes()) {
         continue;
       }
@@ -3894,8 +3891,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_iniciativa_corrente(indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
-                                                iniciativas_[indice_iniciativa_].id == entidade->Id());
+    parametros_desenho_.set_iniciativa_corrente(
+        indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
+        iniciativas_[indice_iniciativa_].id == entidade->Id());
     bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() ||
                            parametros_desenho_.has_desenha_mapa_oclusao() ||
                            parametros_desenho_.has_desenha_mapa_luzes()) &&
@@ -3918,6 +3916,36 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
+
+  if (parametros_desenho_.desenha_ligacao_agarrar()) {
+    // Este par sempre tem o id menor primeiro para evitar duplicacao.
+    std::vector<std::pair<unsigned int, unsigned int>> agarrados;
+    for (auto& it : entidades_) {
+      auto* entidade = it.second.get();
+      if (entidade->Pos().id_cenario() != cenario_corrente_) continue;
+      for (auto id_agarrado : entidade->Proto().agarrado_a()) {
+        if (id_agarrado < entidade->Id()) {
+          agarrados.push_back(std::make_pair(id_agarrado, entidade->Id()));
+        }
+      }
+      for (const auto& par : agarrados) {
+        const auto* e1 = BuscaEntidade(par.first);
+        const auto* e2 = BuscaEntidade(par.second);
+        if (e1 == nullptr || e2 == nullptr) continue;
+        Vector3 v1 = PosParaVector3(e1->PosicaoAcao());
+        Vector3 v2 = PosParaVector3(e2->PosicaoAcao());
+        Vector3 v2v1 = v2 - v1;
+        Matrix4 mr = MatrizRotacao(v2v1);
+        gl::VboNaoGravado cubo = gl::VboCuboSolido(1.0f);
+        cubo.Translada(0.5f, 0.0f, 0.0f);
+        cubo.Escala(v2v1.length(), 0.1f, 0.1f);
+        cubo.Multiplica(mr);
+        cubo.Translada(v1.x, v1.y, v1.z);
+        MudaCor(COR_PRETA);
+        gl::DesenhaVbo(cubo);
+      }
+    }
+  }
 }
 
 void Tabuleiro::ColetaVbosEntidades() {

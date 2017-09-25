@@ -540,4 +540,7 @@ message ParametrosDesenho {
 
   // Valor indica qual face esta sendo desenhada. Ausencia indica para nao desenhar.
   optional int32 desenha_mapa_luzes = 56;
+
+  // Se verdadeiro, desenhara a ligacao de agarrar das entidades.
+  optional bool desenha_ligacao_agarrar = 60 [default=true];
 }
