@@ -130,6 +130,7 @@ acao {
   }
   icone: 'icon_magic_missile.png'
   ignora_luz: true
+  ignora_municao: true
 }
 acao {
   id: 'Pedrada (gigante)'
