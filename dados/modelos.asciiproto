@@ -51,6 +51,7 @@ modelo {
 modelo {
   id: 'Águia'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
     modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nat: +3 1d4\nca: 14'
@@ -185,9 +186,44 @@ modelo {
 modelo {
   id: 'Bulette'
   entidade {
-    dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
-    modificador_iniciativa: 2
-    rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '9d10+45' tamanho: TM_ENORME
+    info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
+    info_classes { id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano: '2d8' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    # Defesa.
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 12 } } }
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+      gerais { id: 'prontidao' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'rastrar' }
+    }
+    # Sera: 4 + 8 = 12 pontos. Como?
+    info_pericias { id: 'saltar' pontos: 2 de_classe: true }
+    info_pericias { id: 'ouvir' pontos: 8 de_classe: true }
+    info_pericias { id: 'observar' pontos: 2 de_classe: true }
+
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
