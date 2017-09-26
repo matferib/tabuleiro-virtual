@@ -902,20 +902,27 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
   bool acertou_direto = acao_proto->has_delta_pontos_vida();
-  if (!acertou_direto && entidade_destino != nullptr) {
+  if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
     const int total_incrementos = distancia_m / entidade->AlcanceAtaqueMetros();
     if (total_incrementos > 0) {
-      // TODO colisao com ponto para nao atravessar paredes.
       Matrix4 rm;
       rm.rotateZ(RolaDado(360.0f));
-      Vector3 v(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f);
-      v = rm * v;
-      v += PosParaVector3(pos_entidade_destino);
-      v.z = ZChao(v.x, v.y);
+      Vector3 v_d_impacto(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f);
+      v_d_impacto = rm * v_d_impacto;
+      Vector3 pos_impacto = v_d_impacto + PosParaVector3(pos_entidade_destino);
+      pos_impacto.z = entidade_destino->Z();
+      Vector3 v_e = PosParaVector3(entidade->PosicaoAcao());
+      Vector3 v_e_impacto = pos_impacto - v_e;
+      auto res = DetectaColisao(*entidade, v_e_impacto);
+      if (res.colisao) {
+        v_e_impacto.normalize();
+        v_e_impacto *= res.profundidade;
+        pos_impacto = v_e + v_e_impacto;
+      }
       acao_proto->clear_pos_entidade();
-      *acao_proto->mutable_pos_tabuleiro() = Vector3ParaPosicao(v);
+      *acao_proto->mutable_pos_tabuleiro() = Vector3ParaPosicao(pos_impacto);
     }
   }
 
