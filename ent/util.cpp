@@ -1708,7 +1708,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         break;
       }
       case EA_MONSTRO_ATAQUE_SECUNDARIO: {
-        int penalidade = PossuiTalento("ataques_multiplos", proto) ? -2 : -6;
+        int penalidade = PossuiTalento("ataques_multiplos", proto) ? -2 : -5;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
         break;
       }
