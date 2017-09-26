@@ -43,7 +43,10 @@ enum EmpunhaduraArma {
 
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
+  // Isso aqui eh o tipo do jogo e nao das regras de D&D.
   optional TipoEntidade tipo = 1;
+  // O tipo da entidade segundo as regras de dnd.
+  repeated TipoDnD tipo_dnd = 86;
   optional TipoForma sub_tipo = 18;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em

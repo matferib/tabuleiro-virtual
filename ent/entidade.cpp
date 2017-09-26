@@ -82,6 +82,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 
 }  // namespace
 
+bool Entidade::TemTipoDnD(TipoDnD tipo) const {
+  return std::any_of(proto_.tipo_dnd().begin(), proto_.tipo_dnd().end(),
+      [tipo] (const int t) { return t == tipo; });
+}
+
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
   Matrix4 m;
   m.translate(-proto.pos().x(), -proto.pos().y(), -proto.pos().z());

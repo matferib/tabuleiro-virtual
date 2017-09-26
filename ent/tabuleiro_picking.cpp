@@ -90,6 +90,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
   parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_ligacao_agarrar(false);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());

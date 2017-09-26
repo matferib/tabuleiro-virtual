@@ -954,7 +954,6 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da!= nullptr && da->has_municao() && da->municao() == 0) {
     VLOG(1) << "Nao ha municao para ataque";
-    LOG(INFO) << "da: " << da->ShortDebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
 
@@ -2184,13 +2183,13 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
     switch (proto->tendencia().simples()) {
       case TD_LEAL_BOM:    bem_mal = ordem_caos = 1.0f;       break;
       case TD_LEAL_NEUTRO: bem_mal = 0.5f; ordem_caos = 1.0f; break;
-      case TD_LEAL_MAL:    bem_mal = 0.0f; ordem_caos = 1.0f; break;
+      case TD_LEAL_MAU:    bem_mal = 0.0f; ordem_caos = 1.0f; break;
       case TD_NEUTRO_BOM:  bem_mal = 1.0f; ordem_caos = 0.5f; break;
       case TD_NEUTRO:      bem_mal = ordem_caos = 0.5f;       break;
-      case TD_NEUTRO_MAL:  bem_mal = 0.0f; ordem_caos = 0.5f; break;
+      case TD_NEUTRO_MAU:  bem_mal = 0.0f; ordem_caos = 0.5f; break;
       case TD_CAOTICO_BOM:    bem_mal = 1.0f; ordem_caos = 0.0f; break;
       case TD_CAOTICO_NEUTRO: bem_mal = 0.5f; ordem_caos = 0.0f; break;
-      case TD_CAOTICO_MAL:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
+      case TD_CAOTICO_MAU:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
     }
     proto->mutable_tendencia()->clear_simples();
     proto->mutable_tendencia()->set_eixo_bem_mal(bem_mal);
@@ -2605,6 +2604,14 @@ void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, Entidade
     *da->mutable_acao() = arma.acao();
   } else {
     da->clear_acao();
+  }
+  if (acao_proto.ignora_municao()) {
+    da->clear_municao();
+  }
+  // Hack de missil magico.
+  if (da->tipo_ataque() == "Míssil Mágico") {
+    if (!da->has_dano()) da->set_dano("1d4+1");
+    if (da->alcance_m() < 33) da->set_alcance_m(33);
   }
   da->set_tipo_ataque(acao_proto.id());
   da->set_tipo_acao(acao_proto.tipo());

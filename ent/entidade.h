@@ -61,6 +61,8 @@ class Entidade {
 
   /** Retorna o tipo das entidade: TE_ENTIDADE, TE_FORMA, TE_COMPOSTA. */
   TipoEntidade Tipo() const { return proto_.tipo(); }
+  // Retorna true se qualquer um dos tipo DND da entidade bater com tipo.
+  bool TemTipoDnD(TipoDnD tipo) const;
 
   bool Achatar() const {
     return Achatar(proto_, parametros_desenho_);
