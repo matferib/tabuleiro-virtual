@@ -188,7 +188,7 @@ modelo {
   entidade {
     tipo_dnd: TIPO_BESTA_MAGICA
     dados_vida: '9d10+45' tamanho: TM_ENORME
-    info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    modelo_3d { id: 'bulette' } info_textura { id: 'terrain_rocky.png' } cor { r: 1 g: 1 b: 1 }
     rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
     info_classes { id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM }
     dados_ataque {
