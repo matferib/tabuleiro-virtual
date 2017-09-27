@@ -215,6 +215,8 @@ message DadosDefesa {
   optional int32 bonus_magico_escudo = 13;
   // Aplicar esquiva contra essa entidade.
   optional uint32 entidade_esquiva = 14;
+  // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
+  optional int32 reducao_dano_barbaro = 15;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

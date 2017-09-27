@@ -1269,7 +1269,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
       return "";
     }
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
-      return EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+      return std::string("entidade ") + EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
     }
     default:
       return "";
@@ -2057,6 +2057,15 @@ Bonus* BonusSalvacao(TipoSalvacao ts, EntidadeProto* proto) {
   }
 }
 
+int ReducaoDanoBarbaro(int nivel) {
+  if (nivel < 6) return 0;
+  else if (nivel < 10) return 1;
+  else if (nivel < 13) return 2;
+  else if (nivel < 16) return 3;
+  else if (nivel < 19) return 4;
+  return 5;
+}
+
 // Recomputa os modificadores de conjuracao.
 void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
   int salvacao_fortitude = 0;
@@ -2064,6 +2073,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   int salvacao_vontade = 0;
   // Para evitar recomputar quando nao tiver base.
   bool recomputa_base = false;
+  proto->mutable_dados_defesa()->clear_reducao_dano_barbaro();
   for (auto& ic : *proto->mutable_info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.has_nome()) {
@@ -2101,6 +2111,9 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
       salvacao_fortitude += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_FORTITUDE, ic), ic.nivel());
       salvacao_reflexo += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_REFLEXO, ic), ic.nivel());
       salvacao_vontade += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_VONTADE, ic), ic.nivel());
+    }
+    if (ic.id() == "barbaro") {
+      proto->mutable_dados_defesa()->set_reducao_dano_barbaro(ReducaoDanoBarbaro(ic.nivel()));
     }
   }
   if (recomputa_base) {

@@ -1107,13 +1107,28 @@ float Tabuleiro::TrataAcaoIndividual(
         atraso_s += 0.5f;
         AdicionaLogEvento(google::protobuf::StringPrintf(
               "entidade %s: %s",
-              (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
+              RotuloEntidade(entidade_destino).c_str(),
               resultado_salvacao.c_str()));
       }
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
       acao_proto->set_nao_letal(nao_letal);
       acao_proto->set_gera_outras_acoes(true);  // para os textos.
+      if (delta_pontos_vida < 0 &&
+          !acao_proto->ignora_reducao_dano_barbaro() && entidade_destino != nullptr &&
+          entidade_destino->Proto().dados_defesa().reducao_dano_barbaro() > 0) {
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+            "aplicando reducao de dano de barbaro: %d",
+            entidade_destino->Proto().dados_defesa().reducao_dano_barbaro()));
+        // o delta eh negativo.
+        delta_pontos_vida = std::min(0, delta_pontos_vida + entidade_destino->Proto().dados_defesa().reducao_dano_barbaro());
+      }
       if (delta_pontos_vida != 0) {
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+              "entidade %s %s %d em entidade %s",
+              RotuloEntidade(entidade).c_str(),
+              delta_pontos_vida < 0 ? "causou dano" : "curou",
+              delta_pontos_vida,
+              RotuloEntidade(entidade_destino).c_str()));
         acao_proto->set_delta_pontos_vida(delta_pontos_vida);
         acao_proto->set_afeta_pontos_vida(true);
         // Apenas para desfazer.
