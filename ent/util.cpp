@@ -1196,6 +1196,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
   int delta_pontos_vida = ap.delta_pontos_vida();
+
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida /= 2;
@@ -1228,6 +1229,22 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
     descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, descricao_resultado);
+}
+
+std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+  const int rm = ed.Proto().dados_defesa().resistencia_magia();
+  if (rm == 0) {
+    return std::make_tuple(true, "sem RM");;
+  }
+  const int d20 = RolaDado(20);
+  const int nivel_conjurador = ea.NivelConjurador();
+  const int total = d20 + nivel_conjurador;
+
+  if (d20 + nivel_conjurador < rm) {
+    return std::make_tuple(false, google::protobuf::StringPrintf("(d20+nivel) %d < %d (RM)", total, rm));
+  }
+  return std::make_tuple(
+      true, google::protobuf::StringPrintf("(d20+nivel) %d >= %d (RM)", total, rm));
 }
 
 namespace {

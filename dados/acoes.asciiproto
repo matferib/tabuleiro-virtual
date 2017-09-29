@@ -6,6 +6,7 @@ acao {
   ataque_agarrar: true
   permite_ataque_vs_defesa: true
   consequencia: TC_AGARRA_ALVO
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Ataque Corpo a Corpo'
@@ -13,6 +14,7 @@ acao {
   icone: 'icon_sword.png'
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Ataque a Distância'
@@ -28,6 +30,7 @@ acao {
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
   ataque_distancia: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Bola de Fogo'
@@ -151,6 +154,7 @@ acao {
   }
   icone: 'icon_stone.png'
   ataque_distancia: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Projétil de Área'
@@ -169,6 +173,7 @@ acao {
   ataque_toque: true
   ataque_distancia: true
   ignora_reducao_dano_barbaro: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Raio'
