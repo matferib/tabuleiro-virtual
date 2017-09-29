@@ -1000,6 +1000,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (delta_pontos_vida == 0) {
       continue;
     }
+    int delta_pv_pos_salvacao = delta_pontos_vida;
     bool passou_rm = true;
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
@@ -1008,9 +1009,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       AdicionaAcaoTexto(id, resultado_rm, atraso_s);
       AdicionaLogEvento(google::protobuf::StringPrintf(
           "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_rm.c_str()));
-      delta_pontos_vida = 0;
+      delta_pv_pos_salvacao = 0;
     }
-    int delta_pv_pos_salvacao = delta_pontos_vida;
     if (passou_rm && acao_proto->permite_salvacao()) {
       std::string resultado_salvacao;
       std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
@@ -1018,9 +1018,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       atraso_s += 0.5f + acao_proto->duracao_s();
       AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
       AdicionaLogEvento(google::protobuf::StringPrintf(
-            "entidade %s: %s",
-            (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
-            resultado_salvacao.c_str()));
+            "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_salvacao.c_str()));
     }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_id(id);
