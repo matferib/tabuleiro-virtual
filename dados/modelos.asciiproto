@@ -576,6 +576,7 @@ modelo {
     dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { id_arma: 'arco_curto' }
     dados_ataque { rotulo: 'Machado com 2 mãos' id_arma: 'machado_de_batalha' empunhadura: EA_2_MAOS }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
     dados_defesa {
       id_armadura: 'couro' id_escudo: 'pesado_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
     }
@@ -615,6 +616,7 @@ modelo {
     # Ataques.
     dados_ataque { rotulo: 'Machado Grande' obra_prima: true id_arma: 'machado_grande' empunhadura: EA_2_MAOS  }
     dados_ataque { rotulo: 'Arco Longo Composto' id_arma: 'arco_longo_composto_3' }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
     # Defesa.
     dados_defesa {
       # TODO A armadura eh obra prima.
@@ -660,6 +662,7 @@ modelo {
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
     # Arco.
     dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
     dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true ordem_ataque: 1 }
