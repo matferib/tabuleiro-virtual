@@ -902,6 +902,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
   bool acertou_direto = acao_proto->has_delta_pontos_vida();
+  acao_proto->set_bem_sucedida(acertou_direto);
   if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
@@ -940,6 +941,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     }
     if (id == id_entidade_destino && acertou_direto) continue;
 
+    acao_proto->set_bem_sucedida(true);
     acao_proto->set_afeta_pontos_vida(true);
     acao_proto->add_id_entidade_destino(id);
     int delta_pv = -1;
@@ -1000,6 +1002,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (delta_pontos_vida == 0) {
       continue;
     }
+    acao_proto->set_bem_sucedida(true);
     int delta_pv_pos_salvacao = delta_pontos_vida;
     bool passou_rm = true;
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
