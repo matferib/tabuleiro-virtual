@@ -326,11 +326,6 @@ void Visualizador3d::initializeGL() {
       gl::IniciaGl(luz_por_pixel_, scale_);
     }
     tabuleiro_->IniciaGL();
-    std::cerr << "aqui" << std::endl;
-    std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
-    std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
-    std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
-    std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
