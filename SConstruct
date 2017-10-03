@@ -23,8 +23,13 @@ if sistema == 'win32':
   env['QT_LIBPATH'] = 'd:/Qt/lib'
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore']
 elif sistema == 'apple':
-  env['FRAMEWORKPATH'] = ['/usr/local/lib/']
-  env['FRAMEWORKS'] = ['QtOpenGL', 'QtGui', 'QtCore', 'OpenGL']
+  env['QTDIR'] = '/usr/local/Cellar/qt5/5.9.1/'
+  env['FRAMEWORKPATH'] = ['/usr/local/Cellar/qt5/5.9.1/lib']
+  frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'OpenGL']
+  env['FRAMEWORKS'] = frameworks
+  env['QT_CPPPATH'] = (map(lambda x: '/usr/local/Cellar/qt5/5.9.1/lib/' + x + '.framework/Headers/', frameworks) +
+                       map(lambda x: '/usr/local/Cellar/qt5/5.9.1/include/' + x + '/', frameworks) +
+                       ['/usr/local/Cellar/qt5/5.9.1/include/'])
   env['QT_LIB'] = []
 else:
   print 'QTCPPPATH: ' + env['QTDIR']
@@ -48,13 +53,11 @@ if sistema == 'win32':
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
-  env['CPPPATH'] += ['./',
-                     '/usr/local/lib/QtGui.framework/Headers',
-                     '/usr/local/lib/QtOpenGL.framework/Headers',
-                     '/usr/local/lib/QtCore.framework/Headers']
+  env['CPPPATH'] += ['./', '/usr/local/include'],
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0 }
-#env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-mmacosx-version-min=10.10.5']
-  env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations']
+  #env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-mmacosx-version-min=10.10.5']
+  env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wfatal-errors']
+  env['LIBPATH'] += [ '/usr/local/lib' ]
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 else:
   # linux.
@@ -91,6 +94,7 @@ else:
 
 env['CPPDEFINES']['GL_GLEXT_PROTOTYPES'] = 1
 env['CPPDEFINES']['USAR_QT'] = 1
+env['CPPDEFINES']['USAR_QT5'] = 1
 
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')

@@ -5,6 +5,7 @@
 
 #include <QBoxLayout>
 #include <QColorDialog>
+#include <QDesktopWidget>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -12,6 +13,7 @@
 #include <QItemDelegate>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QScreen>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QString>
@@ -300,6 +302,15 @@ Visualizador3d::Visualizador3d(
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
+
+  //std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
+  //std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
+  //std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
+  //std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
+  //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
+
+  scale_ = QApplication::desktop()->devicePixelRatio();
+  std::cerr << "scale: " << scale_ << std::endl;
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -312,9 +323,14 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      gl::IniciaGl(luz_por_pixel_);
+      gl::IniciaGl(luz_por_pixel_, scale_);
     }
     tabuleiro_->IniciaGL();
+    std::cerr << "aqui" << std::endl;
+    std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
+    std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
+    std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
+    std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
@@ -325,6 +341,13 @@ void Visualizador3d::initializeGL() {
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
+  std::cerr << "width: " << width << endl;
+  std::cerr << "ali" << std::endl;
+  std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
+  std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
+  std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
+  std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
+
   tabuleiro_->TrataRedimensionaJanela(width, height);
 }
 
@@ -461,8 +484,8 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-       event->x(),
-       height() - event->y());
+       event->x() * scale_,
+       (height() - event->y()) * scale_);
   event->accept();
 }
 
@@ -483,14 +506,14 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-      event->x(), height() - event->y());
+      event->x() * scale_, (height() - event->y()) * scale_);
   event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   int x = event->globalX();
   int y = event->globalY();
-  if (teclado_mouse_->TrataMovimentoMouse(event->x(), height() - event->y())) {
+  if (teclado_mouse_->TrataMovimentoMouse(event->x() * scale_, (height() - event->y()) * scale_)) {
     QCursor::setPos(x_antes_, y_antes_);
   } else {
     x_antes_ = x;
@@ -1070,6 +1093,14 @@ void PreencheConfiguraDadosDefesa(
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_rm->setValue(proto.dados_defesa().resistencia_magia());
+  lambda_connect(gerador.spin_rm, SIGNAL(valueChanged(int)), [&gerador, proto_retornado]() {
+    if (gerador.spin_rm->value() > 0) {
+      proto_retornado->mutable_dados_defesa()->set_resistencia_magia(gerador.spin_rm->value());
+    } else {
+      proto_retornado->mutable_dados_defesa()->clear_resistencia_magia();
+    }
+  });
 
   auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
   const ent::Tabelas& tabelas = this_->tabelas();
