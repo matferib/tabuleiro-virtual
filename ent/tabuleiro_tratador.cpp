@@ -1053,7 +1053,8 @@ float Tabuleiro::TrataAcaoIndividual(
     // Verifica alcance.
     {
       std::string texto_falha_alcance;
-      std::tie(texto_falha_alcance, realiza_acao, distancia_m) = VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
+      std::tie(texto_falha_alcance, realiza_acao, distancia_m) =
+          VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
       if (!realiza_acao) {
         AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
         acao_proto->set_texto(texto_falha_alcance);
