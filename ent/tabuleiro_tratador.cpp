@@ -1181,6 +1181,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
+  LOG(INFO) << "acao: " << acao_proto.ShortDebugString();
   if (!acao_proto.has_tipo()) {
     LOG(ERROR) << "Acao invalida da entidade";
     return atraso_s;

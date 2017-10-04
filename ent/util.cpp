@@ -2632,8 +2632,10 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
   if (arma.has_acao()) {
     *da->mutable_acao() = arma.acao();
-  } else {
-    da->clear_acao();
+  //} else {
+    // Nao eh uma boa limpar a acao aqui por causa dos templates e criaturas que ja vem com acao
+    // para o ataque.
+    //da->clear_acao();
   }
   if (acao_proto.ignora_municao()) {
     da->clear_municao();

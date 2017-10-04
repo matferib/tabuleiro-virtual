@@ -1,3 +1,8 @@
+Ao criar pocao nao colocar forca do touro.
+Manobra de desagarrar.
+Missil magico nao esta atualizando alvo.
+Alcance bola de fogo travado.
+
 Reducao de dano.
 
 Segunda rodada de dano do fogo quimico.
