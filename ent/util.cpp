@@ -2661,13 +2661,14 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
 }
 
 void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+  da->clear_acao();
   if (arma.has_acao()) {
     *da->mutable_acao() = arma.acao();
-  //} else {
-    // Nao eh uma boa limpar a acao aqui por causa dos templates e criaturas que ja vem com acao
-    // para o ataque.
-    //da->clear_acao();
   }
+  if (da->has_acao_fixa()) {
+    da->mutable_acao()->MergeFrom(da->acao_fixa());
+  }
+
   if (acao_proto.ignora_municao()) {
     da->clear_municao();
   }
@@ -2821,7 +2822,6 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     const int nivel = PossuiBonus(TB_NIVEL, bonus) ? BonusIndividualTotal(TB_NIVEL, bonus) : 0;
     // Tem que por o valor zero para sobrescrever.
     AtribuiBonus(nivel, TB_NIVEL, "nivel", BonusAtributo(ta, &ret));
-    LOG(INFO) << "bonus nivel: " << nivel;
   }
   *ret.mutable_info_textura() = proto.info_textura();
   *ret.mutable_modelo_3d() = proto.modelo_3d();
