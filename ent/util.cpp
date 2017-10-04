@@ -1764,6 +1764,39 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 }
 
+void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Preenche os tipos de ataque automaticamente a partir do tipo_acao.
+  // Remover isso quando nao existir mais tipo_ataque.
+  // Apenas para as correspondencias 1x1.
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.has_tipo_ataque()) continue;
+    switch (da.tipo_acao()) {
+      case ACAO_AGARRAR: da.set_tipo_ataque("Agarrar"); break;
+      case ACAO_CORPO_A_CORPO: da.set_tipo_ataque("Ataque Corpo a Corpo"); break;
+      case ACAO_PROJETIL: da.set_tipo_ataque("Ataque a Distância"); break;
+      case ACAO_FEITICO_TOQUE: da.set_tipo_ataque("Feitiço de Toque"); break;
+      case ACAO_PROJETIL_AREA: da.set_tipo_ataque("Projétil de Área"); break;
+      case ACAO_RAIO: da.set_tipo_ataque("Raio"); break;
+      default:
+        ;
+    }
+  }
+
+  // Se nao tiver agarrar, cria um.
+  if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
+        [] (const EntidadeProto::DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" || da.tipo_acao() == ACAO_AGARRAR; })) {
+    auto* da = proto->mutable_dados_ataque()->Add();
+    da->set_tipo_acao(ACAO_AGARRAR);
+    da->set_tipo_ataque("Agarrar");
+    da->set_rotulo("agarrar");
+  }
+ 
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    RecomputaDependenciasArma(tabelas, *proto, &da);
+  }
+}
+
+
 // Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
 void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   for (const auto& bi : bonus.bonus_individual()) {
@@ -2387,9 +2420,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   }
 
   // Atualiza os bonus de ataques.
-  for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasArma(tabelas, *proto, &da);
-  }
+  RecomputaDependenciasDadosAtaque(tabelas, proto);
 
   RecomputaDependenciasPericias(tabelas, proto);
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
