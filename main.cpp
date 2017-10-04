@@ -7,6 +7,8 @@
 #include <gflags/gflags.h>
 #endif
 
+#include <QLocale>
+#include <Qt>
 #include <QApplication>
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
@@ -75,6 +77,7 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QApplication q_app(argc, argv);
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));

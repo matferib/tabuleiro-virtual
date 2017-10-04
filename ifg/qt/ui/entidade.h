@@ -2445,6 +2445,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0));
 #endif // QT_NO_TOOLTIP
+        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0));
         label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "RM", 0));
 #ifndef QT_NO_TOOLTIP
         spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", 0));
