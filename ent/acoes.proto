@@ -136,6 +136,13 @@ message AcaoProto {
   optional TipoDnD afeta_apenas = 44;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
+  // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
+  // e ataques naturais.
+  optional bool ignora_reducao_dano_barbaro = 46;
+  // Para acoes que vem de conjuracao, indicar a classe: mago, clerigo etc.
+  optional string classe_conjuracao = 47;
+  // True se a acao ignorar resistencia a magia.
+  optional bool ignora_resistencia_magia = 48;
 }
 
 // O arquivo de acoes é serializado desta forma.

@@ -25,7 +25,8 @@ namespace qt {
 /** Widget responsavel por desenhar a area 3D. Recebe eventos de redimensionamento,
 * mouse e repassa ao contexto 3D.
 */
-class Visualizador3d : public QGLWidget, ntf::Receptor {
+class Visualizador3d :
+  public QGLWidget, ntf::Receptor {
  public:
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
@@ -84,6 +85,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
+  float scale_ = 1.0f;
 };
 
 }  // namespace qt

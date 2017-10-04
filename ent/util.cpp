@@ -1196,6 +1196,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
   int delta_pontos_vida = ap.delta_pontos_vida();
+
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida /= 2;
@@ -1228,6 +1229,22 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
     descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, descricao_resultado);
+}
+
+std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+  const int rm = ed.Proto().dados_defesa().resistencia_magia();
+  if (rm == 0) {
+    return std::make_tuple(true, "sem RM");;
+  }
+  const int d20 = RolaDado(20);
+  const int nivel_conjurador = ea.NivelConjurador();
+  const int total = d20 + nivel_conjurador;
+
+  if (d20 + nivel_conjurador < rm) {
+    return std::make_tuple(false, google::protobuf::StringPrintf("(d20+nivel) %d < %d (RM)", total, rm));
+  }
+  return std::make_tuple(
+      true, google::protobuf::StringPrintf("(d20+nivel) %d >= %d (RM)", total, rm));
 }
 
 namespace {
@@ -1269,7 +1286,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
       return "";
     }
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
-      return EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+      return std::string("entidade ") + EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
     }
     default:
       return "";
@@ -1708,7 +1725,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         break;
       }
       case EA_MONSTRO_ATAQUE_SECUNDARIO: {
-        int penalidade = PossuiTalento("ataques_multiplos", proto) ? -2 : -6;
+        int penalidade = PossuiTalento("ataques_multiplos", proto) ? -2 : -5;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);
         break;
       }
@@ -2057,6 +2074,15 @@ Bonus* BonusSalvacao(TipoSalvacao ts, EntidadeProto* proto) {
   }
 }
 
+int ReducaoDanoBarbaro(int nivel) {
+  if (nivel < 6) return 0;
+  else if (nivel < 10) return 1;
+  else if (nivel < 13) return 2;
+  else if (nivel < 16) return 3;
+  else if (nivel < 19) return 4;
+  return 5;
+}
+
 // Recomputa os modificadores de conjuracao.
 void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
   int salvacao_fortitude = 0;
@@ -2064,6 +2090,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   int salvacao_vontade = 0;
   // Para evitar recomputar quando nao tiver base.
   bool recomputa_base = false;
+  proto->mutable_dados_defesa()->clear_reducao_dano_barbaro();
   for (auto& ic : *proto->mutable_info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.has_nome()) {
@@ -2101,6 +2128,9 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
       salvacao_fortitude += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_FORTITUDE, ic), ic.nivel());
       salvacao_reflexo += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_REFLEXO, ic), ic.nivel());
       salvacao_vontade += CalculaBaseSalvacao(ClassePossuiSalvacaoForte(TS_VONTADE, ic), ic.nivel());
+    }
+    if (ic.id() == "barbaro") {
+      proto->mutable_dados_defesa()->set_reducao_dano_barbaro(ReducaoDanoBarbaro(ic.nivel()));
     }
   }
   if (recomputa_base) {

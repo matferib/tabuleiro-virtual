@@ -136,6 +136,31 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
   // TODO: penalidade de pericias e feiticos.
 }
 
+TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(3);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(0, proto.dados_defesa().reducao_dano_barbaro());
+  ic->set_nivel(7);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(1, proto.dados_defesa().reducao_dano_barbaro());
+  ic->set_nivel(10);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(2, proto.dados_defesa().reducao_dano_barbaro());
+  ic->set_nivel(13);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(3, proto.dados_defesa().reducao_dano_barbaro());
+  ic->set_nivel(16);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(4, proto.dados_defesa().reducao_dano_barbaro());
+  ic->set_nivel(19);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(5, proto.dados_defesa().reducao_dano_barbaro());
+}
+
 TEST(TesteDependencias, TesteDependencias) {
   Tabelas tabelas;
   EntidadeProto proto;

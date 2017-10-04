@@ -73,9 +73,10 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]);
 // Contexto comum.
 class Contexto {
  public:
-  explicit Contexto(ContextoDependente* cd) : shaders(TSH_NUM), interno(cd) {}
+  explicit Contexto(float escala, ContextoDependente* cd) : escala(escala), shaders(TSH_NUM), interno(cd) {}
   ~Contexto() {}
 
+  float escala;
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   float raster_x = 0.0f;
   float raster_y = 0.0f;
@@ -147,7 +148,7 @@ void UniformeSeValido(GLint location, GLint v0);
 void UniformeSeValido(GLint location, GLfloat v0);
 void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
-void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
+void IniciaComum(bool luz_por_vertice, float escala, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);

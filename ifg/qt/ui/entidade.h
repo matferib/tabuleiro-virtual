@@ -325,6 +325,10 @@ public:
     QPushButton *botao_bonus_iniciativa;
     QCheckBox *checkbox_iniciativa;
     QSpinBox *spin_iniciativa;
+    QWidget *horizontalLayoutWidget_8;
+    QHBoxLayout *horizontalLayout_11;
+    QLabel *label_85;
+    QSpinBox *spin_rm;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -1914,6 +1918,23 @@ public:
 
         horizontalLayout_28->addWidget(spin_iniciativa);
 
+        horizontalLayoutWidget_8 = new QWidget(tab_estatisticas);
+        horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
+        horizontalLayoutWidget_8->setGeometry(QRect(10, 420, 161, 31));
+        horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
+        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
+        horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
+        label_85 = new QLabel(horizontalLayoutWidget_8);
+        label_85->setObjectName(QString::fromUtf8("label_85"));
+        label_85->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_11->addWidget(label_85);
+
+        spin_rm = new QSpinBox(horizontalLayoutWidget_8);
+        spin_rm->setObjectName(QString::fromUtf8("spin_rm"));
+
+        horizontalLayout_11->addWidget(spin_rm);
+
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -2424,7 +2445,11 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0));
 #endif // QT_NO_TOOLTIP
-        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0));
+        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0));
+        label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "RM", 0));
+#ifndef QT_NO_TOOLTIP
+        spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", 0));
+#endif // QT_NO_TOOLTIP
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0));
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0));

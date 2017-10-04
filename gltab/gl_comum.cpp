@@ -484,7 +484,7 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 }  // namespace
 
-void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
+void IniciaComum(bool luz_por_pixel, float escala, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_model.push(Matrix4());
   contexto->pilha_view.push(Matrix4());
@@ -1334,6 +1334,12 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
   unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   *escala = std::max(media_tela / 500, 1U);
+#elif __APPLE__
+
+  *escala = interno::BuscaContexto()->escala;
+  *largura_fonte = 8;
+  *altura = 13;
+  return;
 #else
   *escala = 1;
   *largura_fonte = 8;
