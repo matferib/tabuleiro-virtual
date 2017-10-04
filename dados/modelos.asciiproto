@@ -11,7 +11,10 @@ modelo {
 modelo {
   id: 'Allip'
   entidade {
-    dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '4d12'
+    info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    ultima_acao: 'Ataque Corpo a Corpo'
     modificador_iniciativa: 5
     rotulo_especial: 'ini: +5\nat: +3 toque\ndano: 1d4 sab\nca: 15'
   }
@@ -48,6 +51,7 @@ modelo {
 modelo {
   id: 'Águia'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
     modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nat: +3 1d4\nca: 14'
@@ -182,9 +186,44 @@ modelo {
 modelo {
   id: 'Bulette'
   entidade {
-    dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
-    modificador_iniciativa: 2
-    rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '9d10+45' tamanho: TM_ENORME
+    modelo_3d { id: 'bulette' } info_textura { id: 'terrain_rocky.png' } cor { r: 1 g: 1 b: 1 }
+    rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
+    info_classes { id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano: '2d8' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    # Defesa.
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 12 } } }
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+      gerais { id: 'prontidao' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'rastrar' }
+    }
+    # Sera: 4 + 8 = 12 pontos. Como?
+    info_pericias { id: 'saltar' pontos: 2 de_classe: true }
+    info_pericias { id: 'ouvir' pontos: 8 de_classe: true }
+    info_pericias { id: 'observar' pontos: 2 de_classe: true }
+
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
   }
 }
 modelo {
@@ -210,6 +249,7 @@ modelo {
 modelo {
   id: 'Carniçal'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12' info_textura { id: 'ghoul.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
     cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 2
@@ -222,6 +262,7 @@ modelo {
 modelo {
   id: 'Carneçal'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '4d12' info_textura { id: 'ghast.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modificador_iniciativa: 3
@@ -417,6 +458,7 @@ modelo {
 modelo {
   id: 'Esqueleto (Humano Combatente)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '1d12' info_textura { id: 'skeleton.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.1 g: 0.1 b: 0.1}
     modificador_iniciativa: 5
@@ -428,6 +470,7 @@ modelo {
 modelo {
   id: 'Esqueleto (Lobo)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 7
     rotulo_especial: 'mordida +2 1d6+1\nca 15/13/12\nreducao 5/estourante'
@@ -435,7 +478,11 @@ modelo {
 }
 modelo {
   id: 'Esqueleto (Troll)'
-  entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+  entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '6d12' tamanho: TM_GRANDE
+    info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1}
+  }
 }
 modelo {
   id: 'Formiga Gigante'
@@ -529,6 +576,7 @@ modelo {
     dados_ataque { id_arma: 'machado_de_batalha' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { id_arma: 'arco_curto' }
     dados_ataque { rotulo: 'Machado com 2 mãos' id_arma: 'machado_de_batalha' empunhadura: EA_2_MAOS }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
     dados_defesa {
       id_armadura: 'couro' id_escudo: 'pesado_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
     }
@@ -547,7 +595,7 @@ modelo {
     info_talentos {
       gerais { id: 'ataque_poderoso' }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -568,6 +616,7 @@ modelo {
     # Ataques.
     dados_ataque { rotulo: 'Machado Grande' obra_prima: true id_arma: 'machado_grande' empunhadura: EA_2_MAOS  }
     dados_ataque { rotulo: 'Arco Longo Composto' id_arma: 'arco_longo_composto_3' }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
     # Defesa.
     dados_defesa {
       # TODO A armadura eh obra prima.
@@ -588,7 +637,7 @@ modelo {
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'trespassar' }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -613,6 +662,7 @@ modelo {
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
     dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
     # Arco.
     dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
     dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true ordem_ataque: 1 }
@@ -641,7 +691,7 @@ modelo {
       outros { id: 'combater_duas_armas' }
       outros { id: 'combater_duas_armas_aprimorado' }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -669,7 +719,7 @@ modelo {
     info_talentos {
       gerais { id: 'prontidao' }
     }
-    tendencia { simples: TD_NEUTRO_MAL }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
@@ -709,7 +759,7 @@ modelo {
       gerais { id: 'prontidao' }
       gerais { id: 'acuidade_arma' }
     }
-    tendencia { simples: TD_NEUTRO_MAL }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 
@@ -1151,6 +1201,7 @@ modelo {
 modelo {
   id: 'Orc'
   entidade {
+    tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '1d8+1' info_textura { id: 'orc.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { rotulo: 'falcione' id_arma: 'falcione' empunhadura: EA_2_MAOS }
@@ -1167,12 +1218,17 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      tesouro: '5 PO'
+    }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
   id: 'Orc Lanceiro'
   entidade {
+    tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.6 translacao_x: 0.2 } cor { g: 0.7 b: 0.4 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'lanca' municao: 10 }
@@ -1189,21 +1245,24 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
   id: 'Orc Sargento'
   entidade {
+    tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '3d8+3' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.7 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { rotulo: 'falcione' id_arma: 'falcione' obra_prima: true empunhadura: EA_2_MAOS }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'fogo_alquimico' municao: 1 }
     dados_defesa { id_armadura: 'peitoral_de_aco' }
     info_classes { id: 'combatente' nivel: 3 }
     info_talentos { gerais { id: 'prontidao' }  gerais { id: 'foco_em_arma' complemento: 'falcione' } }
     tesouro {
-      tesouro: 'falcione OP, besta pesada OP, peitoral de aço\n70 PO'
+      tesouro: 'falcione OP, besta pesada OP, peitoral de aço\n40 PO'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'nublar' }
       pocoes { id: 'escudo_fe_3' }
@@ -1217,22 +1276,25 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
   id: 'Orc Tenente'
   entidade {
-    dados_vida: '5d8+15' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.5 }
+    tipo_dnd: TIPO_HUMANOIDE
+    dados_vida: '5d12+5' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.5 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'Não pode ser flanqueado'
-    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS }
-    dados_ataque { id_arma: 'arco_longo_composto_5' }
+    dados_ataque { id_arma: 'machado_grande' obra_prima: 1 empunhadura: EA_2_MAOS }
+    dados_ataque { id_arma: 'arco_longo_composto_5' municao: 20 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'fogo_alquimico' municao: 1 }
     dados_defesa { id_armadura: 'peitoral_de_aco' bonus_magico_armadura: 1 }
     info_classes { id: 'barbaro' nivel: 5 }
     info_talentos { gerais { id: 'ataque_poderoso' }  gerais { id: 'foco_em_arma' complemento: 'machado_grande' } }
     tesouro {
-      tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1\n'
+      tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1\n20PO'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'protecao_contra_bem' }
@@ -1247,15 +1309,56 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
   id: 'Orc Capitão'
   entidade {
-    dados_vida: '7d8+28' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
+    tipo_dnd: TIPO_HUMANOIDE
+    dados_vida: '7d12+7'
+    info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    tendencia { simples: TD_CAOTICO_MAL }
+    rotulo_especial: 'Não pode ser flanqueado\nreducao de dano 1/- armas e ataques naturais'
+    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS }
+    dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'fogo_alquimico' municao: 3 }
+
+    dados_defesa {
+      id_armadura: 'peitoral_de_aco' bonus_magico_armadura: 1
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'amuleto' valor: 5 } }
+      }
+    }
+    info_classes { id: 'barbaro' nivel: 7 }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'foco_em_arma' complemento: 'machado_grande' }
+      gerais { id: 'ataque_poderoso' }
+    }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'sobrevivencia' pontos: 7 }
+    info_pericias { id: 'intimidacao' pontos: 7 }
+    info_pericias { id: 'escalar' pontos: 5 }
+    info_pericias { id: 'saltar' pontos: 4 }
+    tesouro {
+      tesouro: 'Machado Grande +1, Arco Longo Composto (5) OP, peitoral de aço+1\nAmuleto armadura natural+1\n50PO'
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'escudo_fe_3' }
+      pocoes { id: 'protecao_contra_bem' }
+      pocoes { id: 'protecao_contra_mal' }
+    }
+    atributos {
+      # Usa o array elite +4 for, -2 int, -2 sab, -2 car.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -1399,7 +1502,7 @@ modelo {
     }
     info_pericias { id: 'ouvir' pontos: 6 }
     info_pericias { id: 'observar' pontos: 7 }
-    tendencia { simples: TD_CAOTICO_MAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -1462,6 +1565,7 @@ modelo {
 modelo {
   id: 'Zumbi (humano)'
   entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '2d12+3' info_textura { id: 'zombie.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: -1
     rotulo_especial: 'reducao 5/cortante, acoes parciais apenas'
@@ -1473,17 +1577,35 @@ modelo {
 modelo {
   id: 'Zumbi (kobold)'
   entidade {
-    dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '2d12+3' tamanho: TM_PEQUENO
+    info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: 0
   }
 }
 modelo {
   id: 'Worg'
   entidade {
-    dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
-    modificador_iniciativa: 2
-    rotulo_especial: 'derrubar como ação livre se acertar mordida'
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '4d10+8' tamanho: TM_MEDIO
+    info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
+    info_classes {
+      id: 'besta magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO bba: 3
+    }
+    rotulo_especial: 'derrubar como ação livre se acertar mordida +3 mod'
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {

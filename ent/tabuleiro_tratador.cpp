@@ -901,21 +901,29 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!ha_valor) return atraso_s;
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  bool acertou_direto = acao_proto->delta_pontos_vida() != 0;
-  if (!acertou_direto && entidade_destino != nullptr) {
+  bool acertou_direto = acao_proto->has_delta_pontos_vida();
+  acao_proto->set_bem_sucedida(acertou_direto);
+  if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
     const int total_incrementos = distancia_m / entidade->AlcanceAtaqueMetros();
     if (total_incrementos > 0) {
-      const int direcao = RolaDado(8);
       Matrix4 rm;
       rm.rotateZ(RolaDado(360.0f));
-      Vector3 v(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f); 
-      v = rm * v;
-      v += PosParaVector3(pos_entidade_destino);
-      v.z = ZChao(v.x, v.y);
+      Vector3 v_d_impacto(TAMANHO_LADO_QUADRADO * total_incrementos, 0.0f, 0.0f);
+      v_d_impacto = rm * v_d_impacto;
+      Vector3 pos_impacto = v_d_impacto + PosParaVector3(pos_entidade_destino);
+      pos_impacto.z = entidade_destino->Z();
+      Vector3 v_e = PosParaVector3(entidade->PosicaoAcao());
+      Vector3 v_e_impacto = pos_impacto - v_e;
+      auto res = DetectaColisao(*entidade, v_e_impacto);
+      if (res.colisao) {
+        v_e_impacto.normalize();
+        v_e_impacto *= res.profundidade;
+        pos_impacto = v_e + v_e_impacto;
+      }
       acao_proto->clear_pos_entidade();
-      *acao_proto->mutable_pos_tabuleiro() = Vector3ParaPosicao(v);
+      *acao_proto->mutable_pos_tabuleiro() = Vector3ParaPosicao(pos_impacto);
     }
   }
 
@@ -933,9 +941,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
     }
     if (id == id_entidade_destino && acertou_direto) continue;
 
+    acao_proto->set_bem_sucedida(true);
     acao_proto->set_afeta_pontos_vida(true);
     acao_proto->add_id_entidade_destino(id);
-    const int delta_pv = -1;
+    int delta_pv = -1;
+    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+      delta_pv = 0;
+    }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_omite_texto(id != id_entidade_destino);
     delta_por_entidade->set_id(id);
@@ -980,21 +992,36 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
+    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+      VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
+      continue;
+    }
+
     acao_proto->add_id_entidade_destino(id);
     // Para desfazer.
     if (delta_pontos_vida == 0) {
       continue;
     }
+    acao_proto->set_bem_sucedida(true);
     int delta_pv_pos_salvacao = delta_pontos_vida;
-    if (acao_proto->permite_salvacao()) {
-      std::string resultado_salvacao;
-      std::tie(delta_pv_pos_salvacao, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-      AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
-      atraso_s += 0.5f;
+    bool passou_rm = true;
+    if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
+      std::string resultado_rm;
+      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
+      atraso_s += 0.5f + acao_proto->duracao_s();
+      AdicionaAcaoTexto(id, resultado_rm, atraso_s);
       AdicionaLogEvento(google::protobuf::StringPrintf(
-            "entidade %s: %s",
-            (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
-            resultado_salvacao.c_str()));
+          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_rm.c_str()));
+      delta_pv_pos_salvacao = 0;
+    }
+    if (passou_rm && acao_proto->permite_salvacao()) {
+      std::string resultado_salvacao;
+      std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
+          AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      atraso_s += 0.5f + acao_proto->duracao_s();
+      AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
+      AdicionaLogEvento(google::protobuf::StringPrintf(
+            "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_salvacao.c_str()));
     }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_id(id);
@@ -1057,12 +1084,20 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
       TrataNotificacao(n_texto);
     } else {
-      // Aplica dano e critico.
-      for (int i = 0; i < vezes; ++i) {
-        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
-      }
-      if (vezes > 0) {
-        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      if (vezes > 0 && acao_proto->has_afeta_apenas() &&
+          !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+        // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
+        acao_proto->set_texto("Imune");
+        acao_proto->set_delta_pontos_vida(0);
+        vezes = 0;
+      } else {
+        // Aplica dano e critico.
+        for (int i = 0; i < vezes; ++i) {
+          delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+        }
+        if (vezes > 0) {
+          delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+        }
       }
       const auto* da = entidade->DadoCorrente();
       bool nao_letal = da != nullptr && da->nao_letal();
@@ -1076,23 +1111,50 @@ float Tabuleiro::TrataAcaoIndividual(
 
       entidade->ProximoAtaque();
 
-      if (acao_proto->permite_salvacao()) {
+      bool passou_rm = true;
+      if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
+        std::string resultado_rm;
+        std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
+        atraso_s += 0.5f + acao_proto->duracao_s();
+        AdicionaAcaoTexto(entidade_destino->Id(), resultado_rm, atraso_s);
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+              "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_rm.c_str()));
+        delta_pontos_vida = 0;
+      }
+
+      if (passou_rm && acao_proto->permite_salvacao()) {
         std::string resultado_salvacao;
         acao_proto->set_delta_pontos_vida(delta_pontos_vida);
-        std::tie(delta_pontos_vida, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+        std::tie(delta_pontos_vida, resultado_salvacao) =
+            AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
         AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
-        atraso_s += 0.5f;
+        atraso_s += 0.5f + acao_proto->duracao_s();
         AdicionaLogEvento(google::protobuf::StringPrintf(
               "entidade %s: %s",
-              (entidade_destino->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()).c_str(),
+              RotuloEntidade(entidade_destino).c_str(),
               resultado_salvacao.c_str()));
       }
       VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
-      acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_nao_letal(nao_letal);
       acao_proto->set_gera_outras_acoes(true);  // para os textos.
+      if (delta_pontos_vida < 0 &&
+          !acao_proto->ignora_reducao_dano_barbaro() && entidade_destino != nullptr &&
+          entidade_destino->Proto().dados_defesa().reducao_dano_barbaro() > 0) {
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+            "aplicando reducao de dano de barbaro: %d",
+            entidade_destino->Proto().dados_defesa().reducao_dano_barbaro()));
+        // o delta eh negativo.
+        delta_pontos_vida = std::min(0, delta_pontos_vida + entidade_destino->Proto().dados_defesa().reducao_dano_barbaro());
+      }
       if (delta_pontos_vida != 0) {
-        acao_proto->set_afeta_pontos_vida(true);  // por enquanto, para aparecer a mensagem de falha.
+        AdicionaLogEvento(google::protobuf::StringPrintf(
+              "entidade %s %s %d em entidade %s",
+              RotuloEntidade(entidade).c_str(),
+              delta_pontos_vida < 0 ? "causou dano" : "curou",
+              std::abs(delta_pontos_vida),
+              RotuloEntidade(entidade_destino).c_str()));
+        acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+        acao_proto->set_afeta_pontos_vida(true);
         // Apenas para desfazer.
         PreencheNotificacaoAtualizaoPontosVida(
             *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
@@ -1126,7 +1188,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     acao_proto.add_id_entidade_destino(id_entidade_destino);
   }
   acao_proto.set_atraso_s(atraso_s);
-  acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
+  *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
   acao_proto.set_id_entidade_origem(entidade->Id());
 
   ntf::Notificacao n;

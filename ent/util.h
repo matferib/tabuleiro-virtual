@@ -214,8 +214,10 @@ int ModificadorDano(const EntidadeProto& ea);
 // Posicao ataque eh para calculo de distancia.
 std::tuple<int, std::string, bool> AtaqueVsDefesa(float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
-// Rola o dado de ataque contra a salvacao, retornando o dano, texto do resultado.
+// Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, texto do resultado.
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+// Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
+std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);

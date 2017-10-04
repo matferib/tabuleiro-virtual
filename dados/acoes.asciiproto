@@ -6,6 +6,7 @@ acao {
   ataque_agarrar: true
   permite_ataque_vs_defesa: true
   consequencia: TC_AGARRA_ALVO
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Ataque Corpo a Corpo'
@@ -13,6 +14,7 @@ acao {
   icone: 'icon_sword.png'
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Ataque a Distância'
@@ -28,6 +30,7 @@ acao {
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
   ataque_distancia: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Bola de Fogo'
@@ -46,6 +49,7 @@ acao {
   dificuldade_salvacao: 13
   resultado_salvacao: RS_MEIO
   tipo_salvacao: TS_REFLEXO
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Coluna de Chamas'
@@ -63,6 +67,7 @@ acao {
   dificuldade_salvacao: 15
   resultado_salvacao: RS_MEIO
   tipo_salvacao: TS_REFLEXO
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Cone de Gelo'
@@ -79,6 +84,7 @@ acao {
   dificuldade_salvacao: 15
   resultado_salvacao: RS_MEIO
   tipo_salvacao: TS_REFLEXO
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Feitiço de Toque'
@@ -90,6 +96,7 @@ acao {
   permite_ataque_vs_defesa: true
   icone: 'icon_touch.png'
   ataque_toque: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Feitiço de Toque a Distância'
@@ -102,6 +109,7 @@ acao {
   icone: 'icon_ranged_touch.png'
   ataque_toque: true
   ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -117,6 +125,7 @@ acao {
   resultado_salvacao: RS_MEIO
   dificuldade_salvacao: 11
   tipo_salvacao: TS_REFLEXO
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Míssil Mágico'
@@ -130,6 +139,8 @@ acao {
   }
   icone: 'icon_magic_missile.png'
   ignora_luz: true
+  ignora_municao: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -143,6 +154,7 @@ acao {
   }
   icone: 'icon_stone.png'
   ataque_distancia: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Projétil de Área'
@@ -160,6 +172,8 @@ acao {
   duracao_s: 0.350
   ataque_toque: true
   ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
+  ignora_resistencia_magia: true
 }
 acao {
   id: 'Raio'
@@ -172,6 +186,7 @@ acao {
   consequencia: TC_INFLAMA_ALVO
   ataque_toque: true
   ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Relâmpago'
@@ -187,6 +202,7 @@ acao {
   dificuldade_salvacao: 13
   resultado_salvacao: RS_MEIO
   tipo_salvacao: TS_REFLEXO
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Tempestade Glacial'
@@ -200,6 +216,7 @@ acao {
   info_textura { id: 'ice.png' }
   duracao_s: 0.350
   dois_lados: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Sinalização'

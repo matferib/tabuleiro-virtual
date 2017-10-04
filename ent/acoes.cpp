@@ -131,9 +131,9 @@ class AcaoPocao: public Acao {
  public:
   AcaoPocao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
       Acao(acao_proto, tabuleiro, texturas) {
-    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.15f, 6, 6)));
-    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.1f, 6, 6)));
-    bolhas_.push_back(std::move(gl::VboEsferaSolida(0.2f, 6, 6)));
+    bolhas_.emplace_back(gl::VboEsferaSolida(0.15f, 6, 6));
+    bolhas_.emplace_back(gl::VboEsferaSolida(0.1f, 6, 6));
+    bolhas_.emplace_back(gl::VboEsferaSolida(0.2f, 6, 6));
     bolhas_[0].Translada(acao_proto_.pos_entidade().x(), acao_proto_.pos_entidade().y(), acao_proto_.pos_entidade().z());
     bolhas_[1].Translada(acao_proto_.pos_entidade().x() + 0.2f, acao_proto_.pos_entidade().y(), acao_proto_.pos_entidade().z());
     bolhas_[2].Translada(acao_proto_.pos_entidade().x(), acao_proto_.pos_entidade().y() + 0.3f, acao_proto_.pos_entidade().z());
