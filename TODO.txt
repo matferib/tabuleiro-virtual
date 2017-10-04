@@ -1,3 +1,6 @@
+Manobra de desagarrar.
+Alcance bola de fogo travado.
+
 Reducao de dano.
 
 Segunda rodada de dano do fogo quimico.

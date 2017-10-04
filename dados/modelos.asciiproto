@@ -44,7 +44,7 @@ modelo {
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
       rotulo: 'jato (1 vez so)' tipo_ataque: 'Relâmpago' dano_basico: '4d4'
-      acao { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
+      acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
     }
   }
 }
@@ -373,7 +373,7 @@ modelo {
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
-      acao {
+      acao_fixa {
         cor { r: 1.0 g: 1.0  b: 0.0 } permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         dificuldade_salvacao: 12
@@ -396,7 +396,8 @@ modelo {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
     }
     dados_ataque {
-      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico: '1d6' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true ignora_ataque_toque: true }
+      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' dano_basico: '1d6'
+      acao_fixa { cor { r: 0.0 g: 0.0  b: 0.0 } permite_ataque_vs_defesa: true ignora_ataque_toque: true }
     }
     evento { rodadas: 7 descricao: 'duração' }
   }
@@ -1440,7 +1441,8 @@ modelo {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
     cor { r: 1 g: 1 b: 1 a: 0.5 }
     dados_ataque {
-      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d6+3d6' acao { permite_ataque_vs_defesa: false }
+      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d6+3d6'
+      acao_fixa { permite_ataque_vs_defesa: false }
     }
     dados_ataque {
       rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano_basico: '2d6+3d6'
