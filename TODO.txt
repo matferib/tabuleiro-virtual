@@ -1,8 +1,5 @@
-Mensagem duplicada de novo.
-
 Agarrar sem afetar alvo quando falha.
 Manobra de desagarrar.
-Alcance bola de fogo travado.
 
 Reducao de dano.
 
