@@ -152,6 +152,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 
   AtualizaVbo(parametros_desenho_);
   RecomputaDependencias(tabelas_, &proto_);
+  proto_.clear_proxima_salvacao();
 }
 
 // static

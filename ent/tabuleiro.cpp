@@ -1575,19 +1575,11 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   if (notificacao.local()) {
     auto* n_remota = new ntf::Notificacao(notificacao);
     central_->AdicionaNotificacaoRemota(n_remota);
-    // TODO: isso aqui parece errado. A atualizacao esta com tipo parcial mas recebendo o proto todo. Ai na hora de desfazer da merda.
-    // Coloquei um if false aqui pra ver onde vai dar zebra, se eh que vai dar.
-    // Para desfazer. O if eh so uma otimizacao de performance, pois a funcao AdicionaNotificacaoListaEventos faz o mesmo.
-    if (false && !processando_grupo_ && !ignorar_lista_eventos_) {
-      ntf::Notificacao n_desfazer(notificacao);
-      n_desfazer.mutable_entidade_antes()->CopyFrom(entidade->Proto());
-      AdicionaNotificacaoListaEventos(n_desfazer);
-    }
   }
   entidade->AtualizaParcial(notificacao.entidade());
 }
 
-void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s) {
+void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
@@ -1595,11 +1587,12 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   a->add_id_entidade_destino(id);
   a->set_afeta_pontos_vida(false);
   a->set_texto(texto);
+  a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
 }
 
-void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s) {
+void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
@@ -1607,15 +1600,16 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta,
   a->add_id_entidade_destino(id);
   a->set_afeta_pontos_vida(false);
   a->set_delta_pontos_vida(delta);
+  a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
 }
 
-void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade) {
+float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s) {
   auto* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr) {
     LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
-    return;
+    return atraso_s;
   }
 
   const auto& ap = acao.Proto();
@@ -1628,19 +1622,26 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
       break;
     }
   }
-  // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
-  TrataNotificacao(n);
 
-  float atraso_s = 0;
-  // Acao de pontos de vida sem efeito.
+  // Texto da mensagem, envia apenas localmente para evitar duplicatas.
   if (!acao.Proto().texto().empty() && !omite_texto) {
-    AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s);
-    atraso_s += 0.5f;
+    AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s, true  /*local apenas*/);
+    atraso_s += 0.75f;
   }
-  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s);
+
+  // Aqui eh acao para display. Isso vai para todos, porque a acao enviada para clientes nao afeta pontos
+  // de vida.
+  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s, true);
+  atraso_s += 0.5f;
+
+  if (acao.Proto().afeta_pontos_vida()) {
+    // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
+    TrataNotificacao(n);
+  }
+  return atraso_s;
 }
 
 void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
@@ -4400,12 +4401,9 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
+        float atraso_s = 0.0f;
         for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          if (ap.afeta_pontos_vida()) {
-            AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino);
-          } else if (ap.has_texto()) {
-            AdicionaAcaoTexto(id_entidade_destino, ap.texto());
-          }
+          atraso_s = GeraAcaoFilha(*acao, id_entidade_destino, atraso_s);
         }
       }
     }

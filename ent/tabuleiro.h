@@ -181,10 +181,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza parcialmente entidade dentro da notificacao. Isso significa que apenas os campos presentes na entidade serao atualizados. */
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
+  /** Gera acao filha de acao para a entidade. Se afeta pontos de vida, ira causar dano de verdade.
+  * Gera tambem localmente as acoes de texto.
   * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
+  * Retorna o atraso atualizado.
   */
-  void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade);
+  float GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
@@ -542,9 +544,9 @@ class Tabuleiro : public ntf::Receptor {
   };
 
   /** Adiciona uma acao de texto na entidade. */
-  void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f);
+  void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
-  void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f);
+  void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
 
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);

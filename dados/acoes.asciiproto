@@ -141,6 +141,7 @@ acao {
   ignora_luz: true
   ignora_municao: true
   ignora_reducao_dano_barbaro: true
+  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Pedrada (gigante)'

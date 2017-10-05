@@ -1,3 +1,6 @@
+Agarrar sem afetar alvo quando falha.
+Manobra de desagarrar.
+
 Reducao de dano.
 
 Segunda rodada de dano do fogo quimico.
