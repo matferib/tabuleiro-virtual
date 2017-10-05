@@ -184,8 +184,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Gera acao filha de acao para a entidade. Se afeta pontos de vida, ira causar dano de verdade.
   * Gera tambem localmente as acoes de texto.
   * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
+  * Retorna o atraso atualizado.
   */
-  void GeraAcaoFilha(const Acao& acao, unsigned int id_entidade);
+  float GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);

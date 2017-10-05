@@ -1605,11 +1605,11 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta,
   TrataNotificacao(na);
 }
 
-void Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade) {
+float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s) {
   auto* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr) {
     LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
-    return;
+    return atraso_s;
   }
 
   const auto& ap = acao.Proto();
@@ -1623,12 +1623,16 @@ void Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade) {
     }
   }
 
-  float atraso_s = 0;
   // Texto da mensagem, envia apenas localmente para evitar duplicatas.
   if (!acao.Proto().texto().empty() && !omite_texto) {
     AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s, true  /*local apenas*/);
-    atraso_s += 0.5f;
+    atraso_s += 0.75f;
   }
+
+  // Aqui eh acao para display. Isso vai para todos, porque a acao enviada para clientes nao afeta pontos
+  // de vida.
+  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s, true);
+  atraso_s += 0.5f;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
@@ -1636,10 +1640,8 @@ void Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade) {
     n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
     TrataNotificacao(n);
-    // Aqui eh acao para display. Isso vai para todos, porque a acao enviada para clientes nao afeta pontos
-    // de vida.
-    AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s);
   }
+  return atraso_s;
 }
 
 void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
@@ -4399,8 +4401,9 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
+        float atraso_s = 0.0f;
         for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          GeraAcaoFilha(*acao, id_entidade_destino);
+          atraso_s = GeraAcaoFilha(*acao, id_entidade_destino, atraso_s);
         }
       }
     }
