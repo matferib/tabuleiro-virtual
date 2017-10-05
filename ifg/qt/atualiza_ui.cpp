@@ -227,7 +227,7 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   std::map<std::string, std::string> nome_id_map;
   for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
     const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma);
-    if ((cac && ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma)) ||
+    if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) ||
         (projetil_area && arma_projetil_area) ||
         (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
       nome_id_map[arma.nome()] = arma.id();
