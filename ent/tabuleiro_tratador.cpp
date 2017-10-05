@@ -1120,10 +1120,10 @@ float Tabuleiro::TrataAcaoIndividual(
     bool nao_letal = da != nullptr && da->nao_letal();
     // Consome municao.
     if (vezes >= 0 && da != nullptr && da->has_municao()) {
-      ntf::Notificacao n;
-      PreencheNotificacaoConsumirMunicao(*entidade, *da, &n);
-      *grupo_desfazer->add_notificacao() = n;
-      TrataNotificacao(n);
+      ntf::Notificacao n_municao;
+      PreencheNotificacaoConsumirMunicao(*entidade, *da, &n_municao);
+      *grupo_desfazer->add_notificacao() = n_municao;
+      TrataNotificacao(n_municao);
     }
 
     entidade->ProximoAtaque();
@@ -1142,7 +1142,6 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     if (passou_rm && acao_proto->permite_salvacao()) {
-      //LOG(INFO) << "acao: " << acao_proto->DebugString();
       std::string resultado_salvacao;
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
@@ -1201,7 +1200,6 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
-  LOG(INFO) << "acao: " << acao_proto.ShortDebugString();
   if (!acao_proto.has_tipo()) {
     LOG(ERROR) << "Acao invalida da entidade";
     return atraso_s;
