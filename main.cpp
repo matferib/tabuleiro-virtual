@@ -7,6 +7,7 @@
 #include <gflags/gflags.h>
 #endif
 
+#include <QDir>
 #include <QLocale>
 #include <Qt>
 #include <QApplication>
@@ -77,6 +78,12 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+#if __APPLE__
+  QDir dir(QCoreApplication::applicationDirPath());
+  //dir.cdUp();
+  dir.cd("plugins");
+  QCoreApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+#endif
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QApplication q_app(argc, argv);
   std::unique_ptr<ifg::qt::Principal> p(
