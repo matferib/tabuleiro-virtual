@@ -227,14 +227,17 @@ public:
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_29;
     QSpinBox *spin_alcance_quad;
+    QSpacerItem *horizontalSpacer_10;
     QLabel *label_30;
     QLabel *label_32;
     QSpinBox *spin_incrementos;
+    QSpacerItem *horizontalSpacer_6;
     QLabel *label_82;
     QSpinBox *spin_municao;
     QSpacerItem *horizontalSpacer_2;
     QLabel *label_83;
     QSpinBox *spin_ordem_ataque;
+    QSpacerItem *horizontalSpacer_11;
     QLabel *label_55;
     QPushButton *botao_bonus_ataque;
     QHBoxLayout *horizontalLayout_34;
@@ -1349,6 +1352,10 @@ public:
 
         horizontalLayout_6->addWidget(spin_alcance_quad);
 
+        horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_6->addItem(horizontalSpacer_10);
+
         label_30 = new QLabel(verticalLayoutWidget_2);
         label_30->setObjectName(QString::fromUtf8("label_30"));
         sizePolicy5.setHeightForWidth(label_30->sizePolicy().hasHeightForWidth());
@@ -1369,8 +1376,13 @@ public:
         spin_incrementos->setObjectName(QString::fromUtf8("spin_incrementos"));
         sizePolicy1.setHeightForWidth(spin_incrementos->sizePolicy().hasHeightForWidth());
         spin_incrementos->setSizePolicy(sizePolicy1);
+        spin_incrementos->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(spin_incrementos);
+
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_6->addItem(horizontalSpacer_6);
 
         label_82 = new QLabel(verticalLayoutWidget_2);
         label_82->setObjectName(QString::fromUtf8("label_82"));
@@ -1408,6 +1420,10 @@ public:
         spin_ordem_ataque->setMaximum(9);
 
         horizontalLayout_6->addWidget(spin_ordem_ataque);
+
+        horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_6->addItem(horizontalSpacer_11);
 
         label_55 = new QLabel(verticalLayoutWidget_2);
         label_55->setObjectName(QString::fromUtf8("label_55"));
