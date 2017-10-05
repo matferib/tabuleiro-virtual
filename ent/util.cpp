@@ -1784,13 +1784,14 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
 
   // Se nao tiver agarrar, cria um.
   if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
-        [] (const EntidadeProto::DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" || da.tipo_acao() == ACAO_AGARRAR; })) {
+        [] (const EntidadeProto::DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" ||
+                                                           da.tipo_acao() == ACAO_AGARRAR; })) {
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_acao(ACAO_AGARRAR);
     da->set_tipo_ataque("Agarrar");
     da->set_rotulo("agarrar");
   }
- 
+
   for (auto& da : *proto->mutable_dados_ataque()) {
     RecomputaDependenciasArma(tabelas, *proto, &da);
   }
