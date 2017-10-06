@@ -336,13 +336,6 @@ void Visualizador3d::initializeGL() {
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
-  std::cerr << "width: " << width << endl;
-  std::cerr << "ali" << std::endl;
-  std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
-  std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
-  std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
-  std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
-
   tabuleiro_->TrataRedimensionaJanela(width, height);
 }
 

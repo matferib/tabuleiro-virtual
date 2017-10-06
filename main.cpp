@@ -7,6 +7,7 @@
 #include <gflags/gflags.h>
 #endif
 
+#include <QDir>
 #include <QLocale>
 #include <Qt>
 #include <QApplication>
@@ -61,11 +62,27 @@ int main(int argc, char** argv) {
 #if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
+  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#if __APPLE__
+  std::string x_path(argv[0]);
+  bool bundle = x_path.find("Contents/MacOS") != std::string::npos;
+  if (bundle) {
+    //QStringList list(dir.absolutePath() + "../Frameworks");
+    //list.append(dir.absolutePath() + "../Frameworks/qtplugins");
+    QStringList list("/Applications/TabuleiroVirtual.app/Contents/Frameworks");
+    list.append("/Applications/TabuleiroVirtual.app/Contents/Frameworks/qtplugins");
+    QCoreApplication::setLibraryPaths(list);
+  }
+  QApplication q_app(argc, argv);
+  QDir dir(QCoreApplication::applicationDirPath());
+  LOG(ERROR) << "app dir: " << dir.absolutePath().toStdString();
+#endif
+
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   ent::Tabelas tabelas;
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
-  arq::Inicializa();
+  arq::Inicializa(dir.absolutePath().toStdString());
   boost::asio::io_service servico_io;
   net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
@@ -77,8 +94,6 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  QApplication q_app(argc, argv);
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);

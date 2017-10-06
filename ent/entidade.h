@@ -245,6 +245,9 @@ class Entidade {
   int CA(const ent::Entidade& atacante, TipoCA tipo) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
+  void AtaqueAnterior() {
+    vd_.ataques_na_rodada = std::max(0, vd_.ataques_na_rodada-1); vd_.ultimo_ataque_ms = 0;
+  }
   // A chance de falha ao atacar.
   int ChanceFalhaAtaque() const;
   // A chance de um inimigo falhar um ataque contra esta entidade.
