@@ -42,7 +42,7 @@ enum tipo_e {
 #if ANDROID
 void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados);
 #else
-void Inicializa();
+void Inicializa(const std::string& path);
 #endif
 
 // Retorna conteudo de um diretorio. Se o filtro for passado, aqueles que retornarem true serao filtrados (removidos).
