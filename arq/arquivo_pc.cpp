@@ -17,8 +17,11 @@
 
 namespace arq {
 
-void Inicializa() {
+std::string g_x_path;
+
+void Inicializa(const std::string& x_path) {
   interno::CriaDiretoriosUsuario();
+  g_x_path = x_path;
 }
 
 namespace plat {
@@ -53,7 +56,17 @@ const std::string DiretorioAppsUsuario() {
 #endif
 }
 
+bool RodandoDeBundle() {
+#if __APPLE__ && TARGET_OS_MAC
+  return g_x_path.find("Contents/MacOS") != std::string::npos;
+#endif
+  return false;
+}
+
 const std::string DiretorioAssets() {
+#if __APPLE__ && TARGET_OS_MAC
+  return RodandoDeBundle() ? g_x_path + "/../Resources/" : "";
+#endif
   return "";
 }
 
