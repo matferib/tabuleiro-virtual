@@ -28,6 +28,8 @@ echo "Escrevendo em ${BUNDLEDIR}"
 
 RESOURCESDIR=${BUNDLEDIR}/Contents/Resources
 XDIR=${BUNDLEDIR}/Contents/MacOS
+FRAMEWORKSDIR=${BUNDLEDIR}/Contents/Frameworks
+MACDEPLOYQT=/usr/local/Cellar/qt5/5.9.1/bin/macdeployqt
 
 make apple && \
 mkdir -p ${XDIR} ${RESOURCESDIR}/tabuleiros_salvos ${RESOURCESDIR}/dados ${RESOURCESDIR}/shaders ${RESOURCESDIR}/texturas ${RESOURCESDIR}/modelos3d && \
@@ -43,12 +45,5 @@ for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost
   install_name_tool -change /usr/local/lib/${i} @executable_path/../Frameworks/${i} ${XDIR}/tabvirt;
   set +x
 done && \
-for i in Qt.PrintSupport/framework/Versions/5/QtPrintSupport QtOpenGL.framework/Versions/5/QtOpenGL QtGui.framework/Versions/5/QtGui QtCore.framework/Versions/5/QtCore QtWidgets.framework/Versions/5/QtWidgets; do
-  set -x
-  install_name_tool -change /usr/local/opt/qt/lib/${i} @executable_path/../Frameworks/${i} ${XDIR}/tabvirt;
-  set +x
-done && \
-set -x && \
-install_name_tool -change /usr/local/opt/qt/lib/Qt.PrintSupport/framework/Versions/5/QtPrintSupport @executable_path/../Frameworks/Qt.PrintSupport/framework/Versions/5/QtPrintSupport ${BUNDLEDIR}/Contents/Frameworks/qtplugins/platforms/libqcocoa.dylib &&
-set +x && \
+${MACDEPLOYQT} macqt5bundle && \
 pkgbuild --identifier com.matferib.TabuleiroVirtual --version ${VERSAO} --install-location=/Applications/TabuleiroVirtual.app --root ./${BUNDLEDIR} TabuleiroVirtual-${VERSAO}.pkg

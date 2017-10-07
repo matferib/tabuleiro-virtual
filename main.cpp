@@ -63,20 +63,8 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#if __APPLE__
-  std::string x_path(argv[0]);
-  bool bundle = x_path.find("Contents/MacOS") != std::string::npos;
-  if (bundle) {
-    //QStringList list(dir.absolutePath() + "../Frameworks");
-    //list.append(dir.absolutePath() + "../Frameworks/qtplugins");
-    QStringList list("/Applications/TabuleiroVirtual.app/Contents/Frameworks");
-    list.append("/Applications/TabuleiroVirtual.app/Contents/Frameworks/qtplugins");
-    QCoreApplication::setLibraryPaths(list);
-  }
   QApplication q_app(argc, argv);
   QDir dir(QCoreApplication::applicationDirPath());
-  LOG(ERROR) << "app dir: " << dir.absolutePath().toStdString();
-#endif
 
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   ent::Tabelas tabelas;
