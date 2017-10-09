@@ -1,3 +1,4 @@
+Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
 Manobra de desagarrar.
 
