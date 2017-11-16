@@ -1829,6 +1829,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   // Gera os Vbos.
   g_vbos.resize(NUM_VBOS);
   for (int i = 0; i < NUM_VBOS; ++i) {
+    g_vbos[i].Desgrava();
     g_vbos[i].Grava(vbos_nao_gravados[i]);
   }
   // Texturas globais.

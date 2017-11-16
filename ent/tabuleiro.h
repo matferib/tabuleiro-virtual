@@ -329,7 +329,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRolagem(dir_rolagem_e dir);
 
   /** inicializa os parametros do openGL. Chamado no IOS e ANDROID tambem para recuperar o contexto grafico. */
-  void IniciaGL();
+  void IniciaGL(bool reinicio = false);
 
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
@@ -966,7 +966,7 @@ class Tabuleiro : public ntf::Receptor {
   void GeraVboRosaDosVentos();
 
   /** Gera e configura o framebuffer. */
-  void GeraFramebuffer();
+  void GeraFramebuffer(bool reinicio);
 
   /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
   void GeraTerrenoAleatorioNotificando();
@@ -1003,6 +1003,7 @@ class Tabuleiro : public ntf::Receptor {
 
   struct DadosFramebuffer {
     ~DadosFramebuffer();
+    void Apaga();
     GLuint framebuffer = 0;
     GLuint textura = 0;
     GLuint renderbuffer = 0;

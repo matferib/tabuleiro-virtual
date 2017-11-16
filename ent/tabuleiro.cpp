@@ -243,6 +243,10 @@ void Tabuleiro::LiberaTextura() {
 }
 
 Tabuleiro::DadosFramebuffer::~DadosFramebuffer() {
+  Apaga();
+}
+
+void Tabuleiro::DadosFramebuffer::Apaga() {
   gl::ApagaFramebuffers(1, &framebuffer);
   gl::ApagaTexturas(1, &textura);
   gl::ApagaRenderbuffers(1, &renderbuffer);
@@ -300,7 +304,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 
   if (reiniciar_grafico) {
     LiberaTextura();
-    IniciaGL();
+    IniciaGL(reiniciar_grafico);
     // Atencao V_ERRO so pode ser usado com contexto grafico.
     V_ERRO("estado inicial pos grafico");
   }
@@ -2528,7 +2532,7 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   //LOG(INFO) << "Dimensões da janela: " << largura << "x" << altura_;
 }
 
-void Tabuleiro::IniciaGL() {
+void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
 #if !USAR_OPENGL_ES
 #ifdef GL_PROGRAM_POINT_SIZE
   gl::Habilita(GL_PROGRAM_POINT_SIZE);  // deixa o shader decidir tamanho do ponto.
@@ -2545,10 +2549,10 @@ void Tabuleiro::IniciaGL() {
 
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
-
   RegeraVboTabuleiro();
   IniciaGlControleVirtual();
-  GeraFramebuffer();
+  GeraFramebuffer(reinicio);
+
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
 
@@ -3174,6 +3178,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
   vbo_disco.Concatena(vbo_seta);
   vbo_disco.Concatena(vbo_n);
+  vbo_rosa_.Desgrava();
   vbo_rosa_.Grava(vbo_disco);
 }
 
@@ -3217,6 +3222,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
     0.25f, 1.0f,
   };
   vbo.AtribuiTexturas(texturas);
+  vbo_caixa_ceu_.Desgrava();
   vbo_caixa_ceu_.Grava(vbo);
 }
 
@@ -3247,6 +3253,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
   tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
   V_ERRO("RegeraVboTabuleiro antes gravar");
+  // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
+  vbos_tabuleiro_.Desgrava();
   vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
@@ -3325,11 +3333,13 @@ void Tabuleiro::RegeraVboTabuleiro() {
   grade_horizontal.AtribuiIndices(&indices_grade);
   grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
   grade_nao_gravada.Concatena(&grade_horizontal);
+  vbos_grade_.Desgrava();
   vbos_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
 void Tabuleiro::GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb) {
+  dfb->Apaga();
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   gl::GeraFramebuffers(1, &dfb->framebuffer);
@@ -3368,6 +3378,7 @@ void Tabuleiro::GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb) {
 // A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
 // tentara se houver a extensao, caso contrario seta pra false e prossegue.
 void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb) {
+  dfb->Apaga();
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer cubo ? " << textura_cubo;
@@ -3473,7 +3484,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
 }
 
 
-void Tabuleiro::GeraFramebuffer() {
+void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
   GeraFramebufferLocal(
       1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
