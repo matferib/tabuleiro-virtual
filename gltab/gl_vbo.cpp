@@ -213,6 +213,10 @@ void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
   }
 }
 
+void VbosGravados::Desgrava() {
+  vbos_.clear();
+}
+
 void VbosGravados::Desenha() const {
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
@@ -618,6 +622,7 @@ void VboGravado::Desgrava() {
   gl::ApagaBuffers(1, &nome_indices_);
   nome_indices_ = 0;
   ApagaBufferUnico();
+  gravado_ = false;
 }
 
 
