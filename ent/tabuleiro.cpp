@@ -6164,6 +6164,7 @@ void Tabuleiro::DesenhaListaGenerica(
   const int n_objetos = lista.size();
   const int objs_por_pagina = 10;
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
+  if (num_paginas == 0) return;
   pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas - 1 : pagina_corrente;
   if (pagina_corrente < 0) pagina_corrente = 0;
 
