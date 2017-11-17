@@ -6164,13 +6164,12 @@ void Tabuleiro::DesenhaListaGenerica(
   const int n_objetos = lista.size();
   const int objs_por_pagina = 10;
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
-  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas : pagina_corrente;
+  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas - 1 : pagina_corrente;
+  if (pagina_corrente < 0) pagina_corrente = 0;
+
   const int objeto_inicial = pagina_corrente * objs_por_pagina;
   const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
       ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
-  if (pagina_corrente > num_paginas - 1) {
-    pagina_corrente = std::max(num_paginas - 1, 0);
-  }
 
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
