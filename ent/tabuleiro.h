@@ -124,7 +124,7 @@ class Tabuleiro : public ntf::Receptor {
   * de rodada a ela. Deve ser chamada apenas pelo mestre verdadeiro durante o loop de atualizacao ou pelos
   * mestres caso notificacao nao seja nullptr.
   */
-  void AtualizaIniciativas(ntf::Notificacao* notificacao = nullptr);
+  void AtualizaIniciativas(ntf::Notificacao* grupo_notificacao = nullptr);
 
   /** Inverte o bit da entidade. */
   enum bit_e {
@@ -731,6 +731,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
+
+  /** Muda a selecao para a entidade com a iniciativa. Se for jogador, apenas mudara se a entidade
+  * estiver presa ao jogador.
+  */
+  void SelecionaEntidadeIniciativa();
 
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
   * ETAB_ENT_SELECIONADA em caso de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso

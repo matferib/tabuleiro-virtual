@@ -2264,11 +2264,17 @@ void Tabuleiro::RefrescaTerrenoParaClientes() {
   central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
 }
 
+// ApagaIniciativas.
 void Tabuleiro::LimpaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
+  bool passa_rodada = false;
   if (EmModoMestreIncluindoSecundario()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
+      passa_rodada =
+        !iniciativas_.empty() &&
+        std::any_of(entidades.begin(), entidades.end(),
+                    [this](const Entidade* e) { return e->Id() == iniciativas_.rbegin()->id; });
     } else {
       for (const auto& di : iniciativas_) {
         const auto* entidade = BuscaEntidade(di.id);
@@ -2296,10 +2302,12 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   // Processar e desfazer.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
   for (const auto* entidade : entidades) {
     if (entidade->Tipo() != TE_ENTIDADE) {
       continue;
     }
+    VLOG(1) << "Apagando iniciativa de id " << entidade->Id();
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
@@ -2314,9 +2322,31 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
     //TrataNotificacao(*n);
   }
+  if (passa_rodada) {
+    PassaUmaRodadaNotificando(&grupo_notificacoes);
+  }
   TrataNotificacao(grupo_notificacoes);
   AtualizaIniciativas(&grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  SelecionaEntidadeIniciativa();
+}
+
+void Tabuleiro::SelecionaEntidadeIniciativa() {
+  unsigned int id_corrente = IdIniciativaCorrente();
+  if (id_corrente == Entidade::IdInvalido) return;
+  try {
+    if (EmModoMestreIncluindoSecundario()) {
+      SelecionaEntidade(id_corrente);
+    } else if (IdPresoACamera(id_corrente)) {
+      SelecionaEntidade(id_corrente);
+      if (IdPresoACamera(id_corrente)) {
+        MudaEntidadeCameraPresa(id_corrente);
+      }
+    }
+    MudaEstadoAposSelecao();
+  } catch (...) {
+    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
+  }
 }
 
 void Tabuleiro::RolaIniciativasNotificando() {
@@ -2440,20 +2470,7 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
   }
-
-  unsigned int id_corrente = IdIniciativaCorrente();
-  try {
-    if (EmModoMestreIncluindoSecundario()) {
-      SelecionaEntidade(id_corrente);
-    } else if (IdPresoACamera(id_corrente)) {
-      SelecionaEntidade(id_corrente);
-      if (IdPresoACamera(id_corrente)) {
-        MudaEntidadeCameraPresa(id_corrente);
-      }
-    }
-  } catch (...) {
-    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
-  }
+  SelecionaEntidadeIniciativa();
 }
 
 void Tabuleiro::ProximaIniciativa() {
@@ -4293,10 +4310,10 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   EnfileiraTempo(timer, &tempos_atualiza_parcial_);
 }
 
-void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
+void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
   // Apenas o mestre roda pois ele atualiza as iniciativas de forma geral.
-  if ((notificacao == nullptr && !EmModoMestre()) ||
-      (notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
+  if ((grupo_notificacao == nullptr && !EmModoMestre()) ||
+      (grupo_notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
     return;
   }
   int indice_antes = indice_iniciativa_;
@@ -4313,6 +4330,7 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
   for (auto& id_ent : entidades_) {
     const auto* entidade = id_ent.second.get();
     if (!entidade->TemIniciativa()) {
+      VLOG(3) << "Entidade sem iniciativa";
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
@@ -4328,38 +4346,41 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
         atualizar_remoto = true;  // atualizacao.
         entidades_adicionar.push_back(entidade);
       } else {
+        VLOG(2) << "Entidade " << entidade->Id() << " presente";
         it->second->presente = true;
       }
     }
   }
   // Remove nao presentes.
-  bool passa_uma_rodada = false;
+  //bool passa_uma_rodada = false;
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
       // Iniciativa nao esta mais presente.
-      VLOG(1) << "Removendo entidade da iniciativa";
+      VLOG(1) << "Removendo entidade i=" << i << " da iniciativa, indice antes: " << indice_iniciativa_
+              << ", tamanho: " << iniciativas_.size();
       atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
       } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
-        VLOG(1) << "Era ultimo, passar uma rodada se sobrar algo";
+        VLOG(1) << "Era ultimo, voltar para comeco";
         indice_iniciativa_ = 0;
-        passa_uma_rodada = true;
+        //passa_uma_rodada = true;
       }
-      // Senao, ignora pq nao faz diferennca, mesmo que i == indice.
+      // Senao, ignora pq nao faz diferenca, mesmo que i == indice.
       // Agora pode remover.
       iniciativas_.erase(iniciativas_.begin() + i);
+      VLOG(1) << "Removido, indice depois: " << indice_iniciativa_ << ", tamanho depois: " << iniciativas_.size();
     } else {
       ++i;
     }
   }
   // Nao passa para o caso em que as iniciativas ficaram vazias.
-  if (!iniciativas_.empty() && passa_uma_rodada) {
-     VLOG(1) << "Passando uma rodada";
+  //if (!iniciativas_.empty() && passa_uma_rodada) {
+  //   VLOG(1) << "Passando uma rodada";
     // se notificacao for nullptr, vai fazer imediatamente.
-    PassaUmaRodadaNotificando(notificacao);
-  }
+  //  PassaUmaRodadaNotificando(grupo_notificacao);
+  //}
 
   // Adiciona novas entidades (ou atualizadas).
   for (const auto* entidade : entidades_adicionar) {
@@ -4387,8 +4408,8 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
   if (atualizar_remoto) {
     std::unique_ptr<ntf::Notificacao> n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
     SerializaIniciativas(n_local->mutable_tabuleiro());
-    if (notificacao != nullptr) {
-      auto* n = notificacao->add_notificacao();
+    if (grupo_notificacao != nullptr) {
+      auto* n = grupo_notificacao->add_notificacao();
       *n = *n_local;
       // Importante para desfazer.
       n->mutable_tabuleiro_antes()->set_indice_iniciativa(indice_antes);
@@ -4433,7 +4454,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
 }
 
 bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
-  VLOG(2) << "Selecionando entidade: " << id;
+  VLOG(1) << "Selecionando entidade: " << id;
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
@@ -4452,6 +4473,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   }
   // Nao precisa mudar porque a funcao MudaEstadoAposSelecao fara isso.
   // estado_ = ETAB_ENTS_SELECIONADAS;
+  VLOG(1) << "Estado nao mudado (deve-se chamar MudaEstadoAposSelecao): " << id;
   return true;
 }
 
@@ -4518,7 +4540,7 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
 void Tabuleiro::MudaEstadoAposSelecao() {
   // Alterna o estado. Note que eh possivel que essa chamada ocorra durante uma rotacao com botao do meio (ETAB_ROTACAO).
-  VLOG(2) << "Estado antes mudanca: " << StringEstado(estado_);
+  VLOG(1) << "Estado antes MudaEstadoAposSelecao: " << StringEstado(estado_);
   if (ids_entidades_selecionadas_.empty()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       estado_ = ETAB_OCIOSO;
@@ -4528,7 +4550,7 @@ void Tabuleiro::MudaEstadoAposSelecao() {
       estado_ = ETAB_ENTS_SELECIONADAS;
     }
   }
-  VLOG(2) << "Estado apos mudanca: " << StringEstado(estado_);
+  VLOG(1) << "Estado apos MudaEstadoAposSelecao: " << StringEstado(estado_);
   quadrado_selecionado_ = -1;
 }
 
