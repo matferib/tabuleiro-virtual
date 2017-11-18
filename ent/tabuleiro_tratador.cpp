@@ -1043,8 +1043,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 }
 
 float Tabuleiro::TrataAcaoIndividual(
-    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
-    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
+    Entidade* entidade, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Efeito individual.
   Entidade* entidade_destino =
      id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
@@ -1115,7 +1115,7 @@ float Tabuleiro::TrataAcaoIndividual(
     if (vezes > 0) {
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
     }
-    
+
     const auto* da = entidade->DadoCorrente();
     bool nao_letal = da != nullptr && da->nao_letal();
     // Consome municao.

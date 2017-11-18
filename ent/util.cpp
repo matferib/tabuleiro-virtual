@@ -840,18 +840,28 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
+  if (da.ataque_distancia()) return TipoAtaque::DISTANCIA;
+  if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
+  return TipoAtaque::CORPO_A_CORPO;
+}
+
 // Pode ser chamado com ed == default para ver alguns modificadores do atacante.
-int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed) {
+int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   // ataque.
-  if (ea.caida() && !distancia) {
+  if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
   }
   if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
     modificador += 2;
   }
+  if (tipo_ataque == TipoAtaque::AGARRAR) {
+    if (PossuiTalento("agarrar_aprimorado", ea)) modificador += 4;
+    if (PossuiTalento("agarrar_aprimorado", ed)) modificador -= 4;
+  }
   // Nao aplica contra a entidade default.
-  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && !distancia) {
+  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador += 1;
   }
 
@@ -882,7 +892,7 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
 
   // Defesa.
   if (ed.caida()) {
-    if (distancia) modificador -= 4;
+    if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
   }
   return modificador;
@@ -1135,7 +1145,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     return std::make_tuple(0, "Atacante em defesa total", true);
   }
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
-  const int outros_modificadores = ModificadorAtaque(da->ataque_distancia(), ea.Proto(), ed.Proto());
+  const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
   // Realiza um ataque de toque.
   std::string texto_toque_agarrar;
@@ -2724,7 +2734,7 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
 }
 
 std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador = ModificadorAtaque(da.tipo_ataque() != "Ataque Corpo a Corpo", proto, EntidadeProto());
+  int modificador = ModificadorAtaque(DaParaTipoAtaque(da), proto, EntidadeProto());
   std::string texto_modificador;
   if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
 

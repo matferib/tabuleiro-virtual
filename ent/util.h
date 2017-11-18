@@ -203,8 +203,13 @@ class AlteraBlendEscopo {
   bool restaurar_;
 };
 
+enum class TipoAtaque {
+  CORPO_A_CORPO,
+  DISTANCIA,
+  AGARRAR
+};
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
-int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status.
 int ModificadorDano(const EntidadeProto& ea);
 
