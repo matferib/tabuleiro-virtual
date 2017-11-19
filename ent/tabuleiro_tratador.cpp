@@ -1183,10 +1183,11 @@ float Tabuleiro::TrataAcaoIndividual(
   }
 
   if (realiza_acao) {
-    // Se agarrou, desfaz aqui.
     if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+      // Se agarrou, desfaz aqui.
       auto* no = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+      nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
     }
     VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
