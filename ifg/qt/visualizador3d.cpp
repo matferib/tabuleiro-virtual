@@ -1018,7 +1018,7 @@ void PreencheConfiguraTesouro(
   delegado->deleteLater();
 
   lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-    auto* pocao = proto_retornado->mutable_tesouro()->add_pocoes();
+    /*auto* pocao = */proto_retornado->mutable_tesouro()->add_pocoes();
     // Para aparecer pocao vazia.
     //pocao->set_id("forca_touro");
     AtualizaUITesouro(tabelas, gerador, *proto_retornado);
