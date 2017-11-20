@@ -119,16 +119,20 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
   }
 }
 
+// TODO passar para util.
 struct MisturaPreNevoaEscopo {
-  explicit MisturaPreNevoaEscopo(const Cor& cor) {
-    gl::CorMisturaPreNevoa(cor.r(), cor.g(), cor.b());
-  }
+  explicit MisturaPreNevoaEscopo(const Cor& cor) : MisturaPreNevoaEscopo(cor.r(), cor.g(), cor.b()) {}
+
   MisturaPreNevoaEscopo(float r, float g, float b) {
+    gl::LeCorMisturaPreNevoa(salvo_);
     gl::CorMisturaPreNevoa(r, g, b);
   }
+
   ~MisturaPreNevoaEscopo() {
-    gl::CorMisturaPreNevoa(1.0f, 1.0f, 1.0f);
+    gl::CorMisturaPreNevoa(salvo_[0], salvo_[1], salvo_[2]);
   }
+
+  GLfloat salvo_[4];
 };
 
 void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(

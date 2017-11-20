@@ -1597,6 +1597,20 @@ void UnidadeTextura(GLenum unidade) {
 #endif
 }
 
+void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b) {
+  interno::UniformeSeValido(interno::BuscaShader().uni_gltab_cor_mistura_pre_nevoa, r, g, b, 1.0f);
+}
+
+void LeCorMisturaPreNevoa(GLfloat* rgb) {
+  if (interno::BuscaShader().uni_gltab_cor_mistura_pre_nevoa == -1) return;
+  GLfloat cor[4];
+  const auto& shader = interno::BuscaShader();
+  LeUniforme(shader.programa, shader.uni_gltab_cor_mistura_pre_nevoa, cor);
+  rgb[0] = cor[0];
+  rgb[1] = cor[1];
+  rgb[2] = cor[2];
+}
+
 void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
