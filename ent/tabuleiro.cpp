@@ -2563,6 +2563,7 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
+  gl::CorMisturaPreNevoa(1.0f, 1.0f, 1.0f);
 
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
@@ -6035,7 +6036,8 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    float alcance_visao_m = entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
+    float alcance_visao_m =
+        entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
     ConfiguraNevoa(alcance_visao_m, alcance_visao_m + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);

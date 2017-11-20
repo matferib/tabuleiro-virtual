@@ -58,18 +58,8 @@ void DobraMargemCritico(EntidadeProto::DadosAtaque* da) {
   da->set_margem_critico(21 - margem);
 }
 
-}  // namespace
-
-void MudaCor(const float* cor) {
-  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-}
-
-void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
-  if (!pd->has_nevoa()) {
-    MudaCor(cor);
-    return;
-  }
-  // Distancia do ponto pra nevoa.
+// Distancia do ponto da matriz de modelagem para a nevoa.
+float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
   GLfloat mv_gl[16];
   gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
   Matrix4 mv(mv_gl);
@@ -86,6 +76,21 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
           << ", ponto: (" << ponto.x << ", " << ponto.y << ", " << ponto.z << ")"
           << ", minimo: " << pd->nevoa().minimo()
           << ", maximo: " << pd->nevoa().maximo();
+  return distancia;
+}
+
+}  // namespace
+
+void MudaCor(const float* cor) {
+  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+}
+
+void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
+  if (!pd->has_nevoa()) {
+    MudaCor(cor);
+    return;
+  }
+  float distancia = DistanciaPontoCorrenteParaNevoa(pd);
   if (distancia > pd->nevoa().maximo()) {
     gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
   } else if (distancia > pd->nevoa().minimo()) {
