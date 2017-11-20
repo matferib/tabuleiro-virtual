@@ -1084,6 +1084,7 @@ float Tabuleiro::TrataAcaoIndividual(
       if (vezes < 0) {
         PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
       }
+      // TODO usar: AdicionaAcaoTexto.
       ntf::Notificacao n_texto;
       n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
       auto* acao_texto = n_texto.mutable_acao();
@@ -2236,10 +2237,24 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
     ntf::Notificacao grupo_desfazer;
     grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (const auto& id_alvo : e->Proto().agarrado_a()) {
-      PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << e->Id() << " de " << id_alvo;
       auto* ealvo = BuscaEntidade(id_alvo);
       if (ealvo == nullptr) continue;
+      if (modo_dano_automatico_) {
+        int vezes;
+        std::string texto;
+        bool realiza_acao;
+        AcaoProto acao_proto;
+        acao_proto.set_id("Agarrar");
+        acao_proto.set_tipo(ACAO_AGARRAR);
+        std::tie(vezes, texto, realiza_acao) =
+            AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, e->DadoAgarrar(), *ealvo, ealvo->Pos());
+        AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(e) + " " + texto);
+        texto = "desagarrar: " + texto;
+        AdicionaAcaoTexto(e->Id(), texto, 0.0f  /*atraso*/);
+        if (vezes < 1) continue;
+      } 
+      PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << ealvo->Id() << " de " << e->Id();
     }

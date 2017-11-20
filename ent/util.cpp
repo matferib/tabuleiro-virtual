@@ -1128,6 +1128,12 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
+}
+
+std::tuple<int, std::string, bool> AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    const Entidade& ed, const Posicao& pos_alvo) {
   const int ataque_origem = ea.BonusAtaque();
 
   const int d20_agarrar_defesa = RolaDado(20);
@@ -1166,7 +1172,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     std::string texto_erro;
     bool acertou;
     std::tie(total, texto_erro, acertou) =
-        ComputaAcertoOuErro(d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(), ea.Proto(), ed.Proto());
+        ComputaAcertoOuErro(
+            d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
+            ea.Proto(), ed.Proto());
     if (!acertou) {
       return std::make_tuple(total, texto_erro, total == -1 ? false : true);
     }

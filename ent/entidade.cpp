@@ -1538,6 +1538,15 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
+const EntidadeProto::DadosAtaque* Entidade::DadoAgarrar() const {
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == "Agarrar") {
+      return &da;
+    }
+  }
+  return nullptr; 
+}
+
 std::string Entidade::TipoAtaque() const {
   const auto* da = DadoCorrente();
   if (da != nullptr) {
