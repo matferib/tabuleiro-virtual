@@ -6114,6 +6114,11 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
   GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
+  GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
+                                 proto_corrente_->luz_ambiente().g(),
+                                 proto_corrente_->luz_ambiente().b(),
+                                 proto_corrente_->luz_ambiente().a()};
+  gl::CorMisturaPreNevoa(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
     MudaCor(COR_BRANCA);
   } else {
