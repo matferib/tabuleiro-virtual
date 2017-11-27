@@ -453,7 +453,7 @@ modelo {
 modelo {
   id: 'Enxame (gafanhotos)'
   entidade {
-    dados_vida: '6d8-6' achatado: true info_textura { id: 'locust_swarm.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    dados_vida: '6d8-6' modelo_3d { id: 'gelatinous_cube' } info_textura { id: 'locust_swarm.png' } cor { r: 1 g: 1 b: 1 } faz_sombra: false
     # na verdade eh considerado diminuto, entao tem que ajustar ataque a CA na mao.
     tamanho: TM_GRANDE
     info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
