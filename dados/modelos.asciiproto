@@ -277,7 +277,7 @@ modelo {
 modelo {
   id: 'Centopéia Enorme'
   entidade {
-    dados_vida: '12d8+12' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
+    dados_vida: '6d8+6' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
     ultima_acao: 'Ataque Corpo a Corpo'
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     modificador_iniciativa: 2
@@ -288,12 +288,30 @@ modelo {
 modelo {
   id: 'Centopéia Imensa'
   entidade {
-    dados_vida: '12d8+12' tamanho: TM_IMENSO info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
-    ultima_acao: 'Ataque Corpo a Corpo'
+    dados_vida: '12d8+12' tamanho: TM_IMENSO modelo_3d { id: 'centipede' }
+    info_classes { id: 'verme' nivel: 12 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    modificador_iniciativa: 2
-    rotulo_especial: 'agarrar: +27\nveneno fort 17, 1d8 des/1d8 des'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 11 dano: '2d8+9' ca_normal: 18 ca_toque: 10 ca_surpreso: 14 }
+    rotulo_especial: 'movimento: 8 quadrados, escalar: 8\nagarrar: +27\nveneno fort 17, 1d8 des/1d8 des'
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo' alcance_m: 4.5 dano_basico: '2d8'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' alcance_m: 4.5 dano_basico: '2d8'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 10 } } }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
   }
 }
 modelo {
@@ -433,19 +451,70 @@ modelo {
   }
 }
 modelo {
+  id: 'Enxame (gafanhotos)'
+  entidade {
+    dados_vida: '6d8-6' modelo_3d { id: 'gelatinous_cube' } info_textura { id: 'locust_swarm.png' } cor { r: 1 g: 1 b: 1 } faz_sombra: false
+    # na verdade eh considerado diminuto, entao tem que ajustar ataque a CA na mao.
+    tamanho: TM_GRANDE
+    info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    rotulo_especial: 'movimento: 2 quadrados, voando 6\n2d6 a quem estiver na area\ndistracao: fort 12 ou nausea 1 rodadai\nimune a armas\ntoma 50% mais de dano de área'
+    dados_ataque {
+      rotulo: 'enxame' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico_fixo: '2d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao {
+        permite_ataque_vs_defesa: false
+      }
+    }
+    dados_defesa {
+      imune_critico: true
+      ca { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'diminuto' valor: 5 } } }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Enxame (centopéias)'
   entidade {
     dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 4
     rotulo_especial: 'ini +4\ndano: 2d6 + veneno + nausea\nveneno: fort 13 1d4 des/1d4 des\nnausea: for 13 por 1 rodada'
+    dados_defesa { imune_critico: true }
   }
 }
 modelo {
   id: 'Enxame (morcegos)'
   entidade {
     dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' }
-    modificador_iniciativa: 2
-    rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada' voadora: true
+    info_classes { id: 'animal' nivel: 3 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+    rotulo_especial: 'movimento: 8 voando\nferimento 1/rodada'
+    voadora: true
+    dados_ataque {
+      rotulo: 'enxame' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico_fixo: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao {
+        permite_ataque_vs_defesa: false
+      }
+    }
+    dados_defesa {
+      imune_critico: true
+      ca { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'diminuto' valor: 5 } } }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
   }
 }
 modelo {
@@ -454,6 +523,7 @@ modelo {
     dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' }
     modificador_iniciativa: 2
     rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
+    dados_defesa { imune_critico: true }
   }
 }
 modelo {
@@ -488,23 +558,83 @@ modelo {
 modelo {
   id: 'Formiga Gigante'
   entidade {
-    dados_vida: '2d8' info_textura { id: 'giantant.png'} cor { r: 0.3 g: 0.2 b: 0.2 }
-    rotulo_especial: 'ini 0\nca 17/10/17 at +1 dano 1d6\nagarrar aprimorado ferrao dano 2d4+1\n'
+    dados_vida: '2d8' modelo_3d { id: 'giant_ant'} cor { r: 0.6 g: 0.4 b: 0.4 }
+    info_classes { id: 'verme' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    rotulo_especial: 'agarrar aprimorado pequenos, faro\nmovimento 10 quadrados, escalar 4 quadrados'
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'mordida agarrando' tipo_ataque: 'Agarrar' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
+    }
+    atributos {
+      # Usa o array padrao: 11 10 11 10 11 10.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
   }
 }
 modelo {
   id: 'Formiga Gigante, Soldado'
   entidade {
-    dados_vida: '2d8+2' info_textura { id: 'giantant_soldier.png'} cor { r: 0.2 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini 0\nca 17/10/17 at +3 dano 2d4+3\nagarrar aprimorado ferrao dano 2d4+1\n'
+    dados_vida: '2d8+2' modelo_3d { id: 'giant_ant'} cor { r: 0.4 g: 0.2 b: 0.2 }
+    info_classes { id: 'verme' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    rotulo_especial: 'agarrar aprimorado pequenos, faro\nferrao dano 2d4+1\nmovimento 10 quadrados, escalar 4'
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico_fixo: '2d4+1' }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
   }
 }
 modelo {
   id: 'Formiga Gigante, Rainha'
   entidade {
-    dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
-    rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
-    modificador_iniciativa: -1
+    dados_vida: '4d8+4' tamanho: TM_GRANDE modelo_3d { id: 'giant_ant'}  cor { r: 0.6 g: 0.6 b: 0.3 }
+    info_classes { id: 'verme' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    rotulo_especial: 'agarrar aprimorado medios, faro\nmovimento 8 quadrados\nalalcance 1 quadrado'
+    dados_ataque {
+      rotulo: 'mordida' alcance_m: 1.5 tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'mordida agarrando' alcance_m: 1.5 tipo_ataque: 'Agarrar' dano_basico: '2d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } } }
+    }
+
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
   }
 }
 modelo {

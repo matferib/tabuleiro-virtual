@@ -243,6 +243,10 @@ void Tabuleiro::LiberaTextura() {
 }
 
 Tabuleiro::DadosFramebuffer::~DadosFramebuffer() {
+  Apaga();
+}
+
+void Tabuleiro::DadosFramebuffer::Apaga() {
   gl::ApagaFramebuffers(1, &framebuffer);
   gl::ApagaTexturas(1, &textura);
   gl::ApagaRenderbuffers(1, &renderbuffer);
@@ -300,7 +304,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 
   if (reiniciar_grafico) {
     LiberaTextura();
-    IniciaGL();
+    IniciaGL(reiniciar_grafico);
     // Atencao V_ERRO so pode ser usado com contexto grafico.
     V_ERRO("estado inicial pos grafico");
   }
@@ -2260,11 +2264,17 @@ void Tabuleiro::RefrescaTerrenoParaClientes() {
   central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
 }
 
+// ApagaIniciativas.
 void Tabuleiro::LimpaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
+  bool passa_rodada = false;
   if (EmModoMestreIncluindoSecundario()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
+      passa_rodada =
+        !iniciativas_.empty() &&
+        std::any_of(entidades.begin(), entidades.end(),
+                    [this](const Entidade* e) { return e->Id() == iniciativas_.rbegin()->id; });
     } else {
       for (const auto& di : iniciativas_) {
         const auto* entidade = BuscaEntidade(di.id);
@@ -2292,10 +2302,12 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   // Processar e desfazer.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
   for (const auto* entidade : entidades) {
     if (entidade->Tipo() != TE_ENTIDADE) {
       continue;
     }
+    VLOG(1) << "Apagando iniciativa de id " << entidade->Id();
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* e_antes = n->mutable_entidade_antes();
@@ -2310,9 +2322,31 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
     //TrataNotificacao(*n);
   }
+  if (passa_rodada) {
+    PassaUmaRodadaNotificando(&grupo_notificacoes);
+  }
   TrataNotificacao(grupo_notificacoes);
   AtualizaIniciativas(&grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  SelecionaEntidadeIniciativa();
+}
+
+void Tabuleiro::SelecionaEntidadeIniciativa() {
+  unsigned int id_corrente = IdIniciativaCorrente();
+  if (id_corrente == Entidade::IdInvalido) return;
+  try {
+    if (EmModoMestreIncluindoSecundario()) {
+      SelecionaEntidade(id_corrente);
+    } else if (IdPresoACamera(id_corrente)) {
+      SelecionaEntidade(id_corrente);
+      if (IdPresoACamera(id_corrente)) {
+        MudaEntidadeCameraPresa(id_corrente);
+      }
+    }
+    MudaEstadoAposSelecao();
+  } catch (...) {
+    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
+  }
 }
 
 void Tabuleiro::RolaIniciativasNotificando() {
@@ -2436,20 +2470,7 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
   }
-
-  unsigned int id_corrente = IdIniciativaCorrente();
-  try {
-    if (EmModoMestreIncluindoSecundario()) {
-      SelecionaEntidade(id_corrente);
-    } else if (IdPresoACamera(id_corrente)) {
-      SelecionaEntidade(id_corrente);
-      if (IdPresoACamera(id_corrente)) {
-        MudaEntidadeCameraPresa(id_corrente);
-      }
-    }
-  } catch (...) {
-    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
-  }
+  SelecionaEntidadeIniciativa();
 }
 
 void Tabuleiro::ProximaIniciativa() {
@@ -2528,7 +2549,7 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   //LOG(INFO) << "Dimensões da janela: " << largura << "x" << altura_;
 }
 
-void Tabuleiro::IniciaGL() {
+void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
 #if !USAR_OPENGL_ES
 #ifdef GL_PROGRAM_POINT_SIZE
   gl::Habilita(GL_PROGRAM_POINT_SIZE);  // deixa o shader decidir tamanho do ponto.
@@ -2542,13 +2563,14 @@ void Tabuleiro::IniciaGL() {
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
+  gl::CorMisturaPreNevoa(1.0f, 1.0f, 1.0f);
 
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
-
   RegeraVboTabuleiro();
   IniciaGlControleVirtual();
-  GeraFramebuffer();
+  GeraFramebuffer(reinicio);
+
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
 
@@ -3174,6 +3196,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
   vbo_disco.Concatena(vbo_seta);
   vbo_disco.Concatena(vbo_n);
+  vbo_rosa_.Desgrava();
   vbo_rosa_.Grava(vbo_disco);
 }
 
@@ -3217,6 +3240,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
     0.25f, 1.0f,
   };
   vbo.AtribuiTexturas(texturas);
+  vbo_caixa_ceu_.Desgrava();
   vbo_caixa_ceu_.Grava(vbo);
 }
 
@@ -3247,6 +3271,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
   tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
   V_ERRO("RegeraVboTabuleiro antes gravar");
+  // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
+  vbos_tabuleiro_.Desgrava();
   vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
@@ -3325,11 +3351,13 @@ void Tabuleiro::RegeraVboTabuleiro() {
   grade_horizontal.AtribuiIndices(&indices_grade);
   grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
   grade_nao_gravada.Concatena(&grade_horizontal);
+  vbos_grade_.Desgrava();
   vbos_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
 void Tabuleiro::GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb) {
+  dfb->Apaga();
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   gl::GeraFramebuffers(1, &dfb->framebuffer);
@@ -3368,6 +3396,7 @@ void Tabuleiro::GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb) {
 // A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
 // tentara se houver a extensao, caso contrario seta pra false e prossegue.
 void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb) {
+  dfb->Apaga();
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer cubo ? " << textura_cubo;
@@ -3473,7 +3502,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
 }
 
 
-void Tabuleiro::GeraFramebuffer() {
+void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
   GeraFramebufferLocal(
       1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
@@ -3636,6 +3665,7 @@ void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, in
       int indice = Terreno::IndicePontoTabuleiro(x, y, num_quad_x);
       if (indice < 0 || indice >= pontos->size()) {
         LOG(ERROR) << "indice invalido: " << indice;
+        continue;
       }
       pontos->Set(indice, funcao(*pontos, indice));
     }
@@ -3714,12 +3744,15 @@ void Tabuleiro::DesenhaTabuleiro() {
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
-  if (parametros_desenho_.has_offset_terreno()) {
+  // Experimentalmente, desligar face nula de terreno para evitar que a camera veja
+  // atraves de montanhas e afins.
+  // TODO liberar para o mestre?
+  //if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
     gl::Desabilita(GL_CULL_FACE);
-  } else {
-    gl::Habilita(GL_CULL_FACE);
-  }
+  //} else {
+  //  gl::Habilita(GL_CULL_FACE);
+  //}
   V_ERRO("desenhando tabuleiro dentro");
 
   // Desenha o chao mais pro fundo.
@@ -4282,10 +4315,10 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   EnfileiraTempo(timer, &tempos_atualiza_parcial_);
 }
 
-void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
+void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
   // Apenas o mestre roda pois ele atualiza as iniciativas de forma geral.
-  if ((notificacao == nullptr && !EmModoMestre()) ||
-      (notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
+  if ((grupo_notificacao == nullptr && !EmModoMestre()) ||
+      (grupo_notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
     return;
   }
   int indice_antes = indice_iniciativa_;
@@ -4302,6 +4335,7 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
   for (auto& id_ent : entidades_) {
     const auto* entidade = id_ent.second.get();
     if (!entidade->TemIniciativa()) {
+      VLOG(3) << "Entidade sem iniciativa";
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
@@ -4317,38 +4351,41 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
         atualizar_remoto = true;  // atualizacao.
         entidades_adicionar.push_back(entidade);
       } else {
+        VLOG(2) << "Entidade " << entidade->Id() << " presente";
         it->second->presente = true;
       }
     }
   }
   // Remove nao presentes.
-  bool passa_uma_rodada = false;
+  //bool passa_uma_rodada = false;
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
       // Iniciativa nao esta mais presente.
-      VLOG(1) << "Removendo entidade da iniciativa";
+      VLOG(1) << "Removendo entidade i=" << i << " da iniciativa, indice antes: " << indice_iniciativa_
+              << ", tamanho: " << iniciativas_.size();
       atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
       } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
-        VLOG(1) << "Era ultimo, passar uma rodada se sobrar algo";
+        VLOG(1) << "Era ultimo, voltar para comeco";
         indice_iniciativa_ = 0;
-        passa_uma_rodada = true;
+        //passa_uma_rodada = true;
       }
-      // Senao, ignora pq nao faz diferennca, mesmo que i == indice.
+      // Senao, ignora pq nao faz diferenca, mesmo que i == indice.
       // Agora pode remover.
       iniciativas_.erase(iniciativas_.begin() + i);
+      VLOG(1) << "Removido, indice depois: " << indice_iniciativa_ << ", tamanho depois: " << iniciativas_.size();
     } else {
       ++i;
     }
   }
   // Nao passa para o caso em que as iniciativas ficaram vazias.
-  if (!iniciativas_.empty() && passa_uma_rodada) {
-     VLOG(1) << "Passando uma rodada";
+  //if (!iniciativas_.empty() && passa_uma_rodada) {
+  //   VLOG(1) << "Passando uma rodada";
     // se notificacao for nullptr, vai fazer imediatamente.
-    PassaUmaRodadaNotificando(notificacao);
-  }
+  //  PassaUmaRodadaNotificando(grupo_notificacao);
+  //}
 
   // Adiciona novas entidades (ou atualizadas).
   for (const auto* entidade : entidades_adicionar) {
@@ -4376,8 +4413,8 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
   if (atualizar_remoto) {
     std::unique_ptr<ntf::Notificacao> n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
     SerializaIniciativas(n_local->mutable_tabuleiro());
-    if (notificacao != nullptr) {
-      auto* n = notificacao->add_notificacao();
+    if (grupo_notificacao != nullptr) {
+      auto* n = grupo_notificacao->add_notificacao();
       *n = *n_local;
       // Importante para desfazer.
       n->mutable_tabuleiro_antes()->set_indice_iniciativa(indice_antes);
@@ -4422,7 +4459,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
 }
 
 bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
-  VLOG(2) << "Selecionando entidade: " << id;
+  VLOG(1) << "Selecionando entidade: " << id;
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
@@ -4441,6 +4478,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   }
   // Nao precisa mudar porque a funcao MudaEstadoAposSelecao fara isso.
   // estado_ = ETAB_ENTS_SELECIONADAS;
+  VLOG(1) << "Estado nao mudado (deve-se chamar MudaEstadoAposSelecao): " << id;
   return true;
 }
 
@@ -4507,7 +4545,7 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
 void Tabuleiro::MudaEstadoAposSelecao() {
   // Alterna o estado. Note que eh possivel que essa chamada ocorra durante uma rotacao com botao do meio (ETAB_ROTACAO).
-  VLOG(2) << "Estado antes mudanca: " << StringEstado(estado_);
+  VLOG(1) << "Estado antes MudaEstadoAposSelecao: " << StringEstado(estado_);
   if (ids_entidades_selecionadas_.empty()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       estado_ = ETAB_OCIOSO;
@@ -4517,7 +4555,7 @@ void Tabuleiro::MudaEstadoAposSelecao() {
       estado_ = ETAB_ENTS_SELECIONADAS;
     }
   }
-  VLOG(2) << "Estado apos mudanca: " << StringEstado(estado_);
+  VLOG(1) << "Estado apos MudaEstadoAposSelecao: " << StringEstado(estado_);
   quadrado_selecionado_ = -1;
 }
 
@@ -6001,7 +6039,8 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    float alcance_visao_m = entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
+    float alcance_visao_m =
+        entidade_referencia->Proto().has_alcance_visao_m() ? entidade_referencia->Proto().alcance_visao_m() : 18.0f;
     ConfiguraNevoa(alcance_visao_m, alcance_visao_m + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
@@ -6078,6 +6117,11 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
   GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
+  GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
+                                 proto_corrente_->luz_ambiente().g(),
+                                 proto_corrente_->luz_ambiente().b(),
+                                 proto_corrente_->luz_ambiente().a()};
+  gl::CorMisturaPreNevoa(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
     MudaCor(COR_BRANCA);
   } else {
@@ -6101,6 +6145,13 @@ void Tabuleiro::DesenhaCaixaCeu() {
     gl::LigacaoComTextura(tipo_textura, 0);
     vbo_caixa_ceu_.forca_texturas(false);
   }
+  // Roda pra direcao do olhar.
+  //Posicao vetor;
+  //vetor.set_x(olho_.alvo().x() - olho_.pos().x());
+  //vetor.set_y(olho_.alvo().y() - olho_.pos().y());
+  //vetor.set_z(0);
+  //gl::Roda(VetorParaRotacaoGraus(vetor), 0.0f, 0.0f, 1.0f);
+
   gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
@@ -6108,6 +6159,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
+  gl::CorMisturaPreNevoa(1.0f, 1.0f, 1.0f);
 #else
   // Hack para ver textura de cubo.
   if (!gl::OclusaoLigada()) {
@@ -6152,13 +6204,13 @@ void Tabuleiro::DesenhaListaGenerica(
   const int n_objetos = lista.size();
   const int objs_por_pagina = 10;
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
-  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas : pagina_corrente;
+  if (num_paginas == 0) return;
+  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas - 1 : pagina_corrente;
+  if (pagina_corrente < 0) pagina_corrente = 0;
+
   const int objeto_inicial = pagina_corrente * objs_por_pagina;
   const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
       ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
-  if (pagina_corrente > num_paginas - 1) {
-    pagina_corrente = std::max(num_paginas - 1, 0);
-  }
 
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);

@@ -78,6 +78,11 @@ public:
     QLineEdit *campo_id;
     QLineEdit *campo_descricao;
     QLabel *label_16;
+    QWidget *horizontalLayoutWidget_6;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *label_17;
+    QComboBox *combo_id_cenario;
+    QPushButton *botao_clonar;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
@@ -344,6 +349,32 @@ public:
 
         horizontalLayout_5->addWidget(label_16);
 
+        horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoIluminacao);
+        horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
+        horizontalLayoutWidget_6->setGeometry(QRect(240, 330, 241, 71));
+        horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_6);
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
+        label_17 = new QLabel(horizontalLayoutWidget_6);
+        label_17->setObjectName(QString::fromUtf8("label_17"));
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(label_17->sizePolicy().hasHeightForWidth());
+        label_17->setSizePolicy(sizePolicy3);
+
+        horizontalLayout_6->addWidget(label_17);
+
+        combo_id_cenario = new QComboBox(horizontalLayoutWidget_6);
+        combo_id_cenario->setObjectName(QString::fromUtf8("combo_id_cenario"));
+
+        horizontalLayout_6->addWidget(combo_id_cenario);
+
+        botao_clonar = new QPushButton(horizontalLayoutWidget_6);
+        botao_clonar->setObjectName(QString::fromUtf8("botao_clonar"));
+
+        horizontalLayout_6->addWidget(botao_clonar);
+
 
         retranslateUi(ifg__qt__DialogoIluminacao);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoIluminacao, SLOT(reject()));
@@ -416,6 +447,8 @@ public:
         campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", 0));
         label_16->setText(QApplication::translate(
             "ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", 0));
+        label_17->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Clonar", 0));
+        botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", 0));
     } // retranslateUi
 
 };

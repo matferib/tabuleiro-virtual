@@ -26,8 +26,13 @@ uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 uniform highp samplerCube gltab_unidade_textura_cubo;   // handler da textura de cubos.
+uniform lowp vec4 gltab_cor_mistura_pre_nevoa;  // Cor da mistura para terreno, usa a nevoa.
 
 void main() {
+  if (v_Pos_model.y < -0.1) {
+    gl_FragColor = gltab_cor_mistura_pre_nevoa;
+    return;
+  }
   lowp vec4 cor_final = v_Color;
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);

@@ -35,6 +35,7 @@ varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeir
 varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
+uniform lowp vec4 gltab_cor_mistura_pre_nevoa;      // Mistura antes de aplicar nevoa.
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -146,7 +147,7 @@ void main() {
   }
 
   // Nevoa.
-  cor_final *= cor_oclusao;
+  cor_final *= gltab_cor_mistura_pre_nevoa * cor_oclusao;
   if (gltab_nevoa_cor.a > 0.0) {
     mediump float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
     lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);

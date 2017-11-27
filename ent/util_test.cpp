@@ -491,10 +491,10 @@ TEST(TesteMatriz, TesteMatriz) {
   }
 
   {
-    Vector4 v1(4.0f, 1.0f, 5.0f, 1.0f); 
-    Vector4 v2(1.0f, 1.0f, 1.0f, 1.0f); 
+    Vector4 v1(4.0f, 1.0f, 5.0f, 1.0f);
+    Vector4 v2(1.0f, 1.0f, 1.0f, 1.0f);
     Vector4 v3 = v1 - v2;  // da 3.0, 0.0, 4.0 (tamanho 5).
-    Vector4 vt(0.0f, 0.0f, 0.0f, 1.0f); 
+    Vector4 vt(0.0f, 0.0f, 0.0f, 1.0f);
     Matrix4 m;
     m.rotateY(90.0f);
     m.rotateZ(180.0f);
@@ -507,7 +507,27 @@ TEST(TesteMatriz, TesteMatriz) {
     EXPECT_NEAR(v1.y, vr.y, 0.001);
     EXPECT_NEAR(v1.z, vr.z, 0.001);
   }
+}
 
+TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
+  {
+    EntidadeProto ea;
+    EntidadeProto ed;
+    ed.set_caida(true);
+
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 4);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), -4);
+  }
+  {
+    EntidadeProto ea;
+    EntidadeProto ed;
+
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
+    ea.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 4);
+    ed.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
+  }
 }
 
 }  // namespace ent.

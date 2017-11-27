@@ -119,13 +119,31 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
   }
 }
 
+// TODO passar para util.
+struct MisturaPreNevoaEscopo {
+  explicit MisturaPreNevoaEscopo(const Cor& cor) : MisturaPreNevoaEscopo(cor.r(), cor.g(), cor.b()) {}
+
+  MisturaPreNevoaEscopo(float r, float g, float b) {
+    gl::LeCorMisturaPreNevoa(salvo_);
+    gl::CorMisturaPreNevoa(r, g, b);
+  }
+
+  ~MisturaPreNevoaEscopo() {
+    gl::CorMisturaPreNevoa(salvo_[0], salvo_[1], salvo_[2]);
+  }
+
+  GLfloat salvo_[4];
+};
+
 void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd,
     const Matrix4& modelagem, const Matrix4& tijolo_base, const Matrix4& tijolo_tela, const Matrix4& tela_textura, const Matrix4& deslocamento_textura) {
   bool achatar = Achatar(proto, pd);
-  std::unique_ptr<AlteraBlendEscopo> blend_escopo;
+  std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
   if (proto.has_modelo_3d()) {
-    blend_escopo.reset(new AlteraBlendEscopo(pd, proto.cor()));
+    if (proto.cor().has_r() || proto.cor().has_g() || proto.cor().has_b()) {
+      blend_escopo.reset(new MisturaPreNevoaEscopo(proto.cor()));
+    }
   } else {
     AjustaCor(proto, pd);
   }

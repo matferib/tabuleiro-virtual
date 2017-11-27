@@ -203,8 +203,13 @@ class AlteraBlendEscopo {
   bool restaurar_;
 };
 
+enum class TipoAtaque {
+  CORPO_A_CORPO,
+  DISTANCIA,
+  AGARRAR
+};
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
-int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status.
 int ModificadorDano(const EntidadeProto& ea);
 
@@ -212,7 +217,11 @@ int ModificadorDano(const EntidadeProto& ea);
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+std::tuple<int, std::string, bool> AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+std::tuple<int, std::string, bool> AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    const Entidade& ed, const Posicao& pos_alvo);
 
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, texto do resultado.
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
