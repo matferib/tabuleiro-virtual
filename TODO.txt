@@ -1,3 +1,4 @@
+Combos no windows nao expandem alem do tamanho original.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
