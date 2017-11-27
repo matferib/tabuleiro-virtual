@@ -3743,12 +3743,15 @@ void Tabuleiro::DesenhaTabuleiro() {
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
-  if (parametros_desenho_.has_offset_terreno()) {
+  // Experimentalmente, desligar face nula de terreno para evitar que a camera veja
+  // atraves de montanhas e afins.
+  // TODO liberar para o mestre?
+  //if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
     gl::Desabilita(GL_CULL_FACE);
-  } else {
-    gl::Habilita(GL_CULL_FACE);
-  }
+  //} else {
+  //  gl::Habilita(GL_CULL_FACE);
+  //}
   V_ERRO("desenhando tabuleiro dentro");
 
   // Desenha o chao mais pro fundo.
