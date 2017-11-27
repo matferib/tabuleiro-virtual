@@ -1,7 +1,3 @@
-Botao de clonar cenario.
-
-Entidades com modelo e com cor nao estao sendo enevoadas.
-
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
