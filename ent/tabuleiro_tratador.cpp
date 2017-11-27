@@ -1860,7 +1860,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   float x3d, y3d, z3d;
   if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
-    LOG(INFO) << "z olho: " << olho_.alvo().z();
     parametros_desenho_.set_offset_terreno(olho_.alvo().z());
   }
   MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
