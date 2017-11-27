@@ -504,6 +504,40 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   event->accept();
 }
 
+namespace {
+void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* combo) {
+  combo->addItem("Novo", QVariant());
+  combo->addItem("Principal", QVariant(-1));
+  for (const auto& t : tabuleiro.sub_cenario()) {
+    std::string descricao;
+    if (t.descricao_cenario().empty()) {
+      descricao = google::protobuf::StringPrintf("Sub Cenário: %d", t.id_cenario());
+    } else {
+      descricao = google::protobuf::StringPrintf("%s (%d)", t.descricao_cenario().c_str(), t.id_cenario());
+    }
+    combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(t.id_cenario()));
+  }
+}
+
+void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& proto, QComboBox* combo) {
+  if (id_cenario == -1) {
+    // 0 eh novo, 1 eh o principal.
+    combo->setCurrentIndex(1);
+    return;
+  }
+  int i = 2;
+  for (const auto& t : proto.sub_cenario()) {
+    if (t.id_cenario() == id_cenario) {
+      combo->setCurrentIndex(i);
+      return;
+    }
+    ++i;
+  }
+  combo->setCurrentIndex(0);
+}
+
+}  // namespace
+
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     const ntf::Notificacao& notificacao) {
   const auto& entidade = notificacao.entidade();
@@ -624,6 +658,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
 
+  PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
+
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
     gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
@@ -631,9 +667,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.spin_trans_x, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_y, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_z, SIGNAL(valueChanged(double)), habilita_posicao);
-  lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [gerador] {
+  lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [this, &gerador, proto_retornado] {
     bool trans_cenario = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
-    gerador.linha_transicao_cenario->setEnabled(trans_cenario);
+    //gerador.linha_transicao_cenario->setEnabled(trans_cenario);
+    SelecionaCenarioComboCenarios(
+        proto_retornado->transicao_cenario().has_id_cenario() ? proto_retornado->transicao_cenario().id_cenario() : -2,
+        tabuleiro_->Proto(), gerador.combo_id_cenario);
+    gerador.combo_id_cenario->setEnabled(trans_cenario);
     gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
     gerador.spin_trans_x->setEnabled(trans_cenario);
     gerador.spin_trans_y->setEnabled(trans_cenario);
@@ -642,14 +682,18 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   if (!entidade.transicao_cenario().has_id_cenario()) {
     bool trans_tesouro = entidade.tipo_transicao() == ent::EntidadeProto::TRANS_TESOURO;
     gerador.combo_transicao->setCurrentIndex(trans_tesouro ? ent::EntidadeProto::TRANS_TESOURO : ent::EntidadeProto::TRANS_NENHUMA);
-    gerador.linha_transicao_cenario->setEnabled(false);
+    //gerador.linha_transicao_cenario->setEnabled(false);
+    gerador.combo_id_cenario->setEnabled(false);
     gerador.checkbox_transicao_posicao->setEnabled(false);
     gerador.spin_trans_x->setEnabled(false);
     gerador.spin_trans_y->setEnabled(false);
     gerador.spin_trans_z->setEnabled(false);
   } else {
     gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_CENARIO);
-    gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
+    //gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
+    SelecionaCenarioComboCenarios(entidade.transicao_cenario().id_cenario(), tabuleiro_->Proto(), gerador.combo_id_cenario);
+
+    gerador.combo_id_cenario->setEnabled(true);
     if (entidade.transicao_cenario().has_x()) {
       gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
       gerador.spin_trans_x->setValue(entidade.transicao_cenario().x());
@@ -721,22 +765,27 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_z(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
-      bool ok = false;
-      int val = gerador.linha_transicao_cenario->text().toInt(&ok);
-      if (!ok || (val < CENARIO_PRINCIPAL)) {
-        LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toUtf8().constData();
-      }
-      proto_retornado->mutable_transicao_cenario()->set_id_cenario(ok ? val : CENARIO_INVALIDO);
-      if (ok) {
-        if (gerador.checkbox_transicao_posicao->checkState() == Qt::Checked) {
-          proto_retornado->mutable_transicao_cenario()->set_x(gerador.spin_trans_x->value());
-          proto_retornado->mutable_transicao_cenario()->set_y(gerador.spin_trans_y->value());
-          proto_retornado->mutable_transicao_cenario()->set_z(gerador.spin_trans_z->value());
-        } else {
-          proto_retornado->mutable_transicao_cenario()->clear_x();
-          proto_retornado->mutable_transicao_cenario()->clear_y();
-          proto_retornado->mutable_transicao_cenario()->clear_z();
+      //bool ok = false;
+      //int val = gerador.linha_transicao_cenario->text().toInt(&ok);
+      QVariant qval = gerador.combo_id_cenario->itemData(gerador.combo_id_cenario->currentIndex());
+      int val = 0;
+      if (!qval.isValid()) {
+        // Busca um novo id.
+        for (const auto& t : tabuleiro_->Proto().sub_cenario()) {
+          if (t.id_cenario() == val) ++val;
         }
+      } else {
+        val = qval.toInt();
+      }
+      proto_retornado->mutable_transicao_cenario()->set_id_cenario(val);
+      if (gerador.checkbox_transicao_posicao->checkState() == Qt::Checked) {
+        proto_retornado->mutable_transicao_cenario()->set_x(gerador.spin_trans_x->value());
+        proto_retornado->mutable_transicao_cenario()->set_y(gerador.spin_trans_y->value());
+        proto_retornado->mutable_transicao_cenario()->set_z(gerador.spin_trans_z->value());
+      } else {
+        proto_retornado->mutable_transicao_cenario()->clear_x();
+        proto_retornado->mutable_transicao_cenario()->clear_y();
+        proto_retornado->mutable_transicao_cenario()->clear_z();
       }
     } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_TESOURO) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_TESOURO);

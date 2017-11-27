@@ -535,6 +535,9 @@ class Tabuleiro : public ntf::Receptor {
 
   const OpcoesProto& Opcoes() const { return opcoes_; }
 
+  /** Retorna o proto para acessos mais complexos. */
+  const TabuleiroProto& Proto() const { return proto_; }
+
  private:
   struct DadosIniciativa {
     unsigned int id;

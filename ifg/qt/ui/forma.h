@@ -108,7 +108,7 @@ public:
     QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout_19;
     QComboBox *combo_transicao;
-    QLineEdit *linha_transicao_cenario;
+    QComboBox *combo_id_cenario;
     QCheckBox *checkbox_transicao_posicao;
     QPushButton *botao_transicao_mapa;
     QHBoxLayout *horizontalLayout_14;
@@ -132,7 +132,7 @@ public:
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(872, 561);
+        ifg__qt__DialogoForma->resize(902, 561);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(320, 10, 181, 41));
@@ -502,7 +502,7 @@ public:
         groupBox_5->setGeometry(QRect(450, 120, 401, 131));
         verticalLayoutWidget_2 = new QWidget(groupBox_5);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 40, 381, 80));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 40, 391, 80));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -513,10 +513,10 @@ public:
 
         horizontalLayout_19->addWidget(combo_transicao);
 
-        linha_transicao_cenario = new QLineEdit(verticalLayoutWidget_2);
-        linha_transicao_cenario->setObjectName(QString::fromUtf8("linha_transicao_cenario"));
+        combo_id_cenario = new QComboBox(verticalLayoutWidget_2);
+        combo_id_cenario->setObjectName(QString::fromUtf8("combo_id_cenario"));
 
-        horizontalLayout_19->addWidget(linha_transicao_cenario);
+        horizontalLayout_19->addWidget(combo_id_cenario);
 
         checkbox_transicao_posicao = new QCheckBox(verticalLayoutWidget_2);
         checkbox_transicao_posicao->setObjectName(QString::fromUtf8("checkbox_transicao_posicao"));
@@ -645,8 +645,7 @@ public:
         QWidget::setTabOrder(spin_escala_y_quad, spin_escala_z_quad);
         QWidget::setTabOrder(spin_escala_z_quad, combo_textura);
         QWidget::setTabOrder(combo_textura, checkbox_ladrilho);
-        QWidget::setTabOrder(checkbox_ladrilho, linha_transicao_cenario);
-        QWidget::setTabOrder(linha_transicao_cenario, checkbox_transicao_posicao);
+        QWidget::setTabOrder(checkbox_ladrilho, checkbox_transicao_posicao);
         QWidget::setTabOrder(checkbox_transicao_posicao, botao_transicao_mapa);
         QWidget::setTabOrder(botao_transicao_mapa, spin_trans_x);
         QWidget::setTabOrder(spin_trans_x, spin_trans_y);
@@ -727,7 +726,6 @@ public:
          << QApplication::translate("ifg::qt::DialogoForma", "Cen\303\241rio", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0, QApplication::UnicodeUTF8)
         );
-        linha_transicao_cenario->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Id do cen\303\241rio", 0, QApplication::UnicodeUTF8));
         checkbox_transicao_posicao->setText(QApplication::translate("ifg::qt::DialogoForma", "Posi\303\247\303\243o?", 0, QApplication::UnicodeUTF8));
         botao_transicao_mapa->setText(QApplication::translate("ifg::qt::DialogoForma", "Clicar", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("ifg::qt::DialogoForma", "X", 0, QApplication::UnicodeUTF8));

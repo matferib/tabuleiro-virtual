@@ -6142,6 +6142,13 @@ void Tabuleiro::DesenhaCaixaCeu() {
     gl::LigacaoComTextura(tipo_textura, 0);
     vbo_caixa_ceu_.forca_texturas(false);
   }
+  // Roda pra direcao do olhar.
+  //Posicao vetor;
+  //vetor.set_x(olho_.alvo().x() - olho_.pos().x());
+  //vetor.set_y(olho_.alvo().y() - olho_.pos().y());
+  //vetor.set_z(0);
+  //gl::Roda(VetorParaRotacaoGraus(vetor), 0.0f, 0.0f, 1.0f);
+
   gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
