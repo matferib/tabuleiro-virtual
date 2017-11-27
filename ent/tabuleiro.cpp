@@ -6159,6 +6159,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
+  gl::CorMisturaPreNevoa(1.0f, 1.0f, 1.0f);
 #else
   // Hack para ver textura de cubo.
   if (!gl::OclusaoLigada()) {

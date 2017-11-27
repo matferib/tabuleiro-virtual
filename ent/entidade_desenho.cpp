@@ -141,7 +141,9 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
   bool achatar = Achatar(proto, pd);
   std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
   if (proto.has_modelo_3d()) {
-    blend_escopo.reset(new MisturaPreNevoaEscopo(proto.cor()));
+    if (proto.cor().has_r() || proto.cor().has_g() || proto.cor().has_b()) {
+      blend_escopo.reset(new MisturaPreNevoaEscopo(proto.cor()));
+    }
   } else {
     AjustaCor(proto, pd);
   }
