@@ -519,6 +519,13 @@ void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* comb
   }
 }
 
+// Retorna CENARIO_INVALIDO (-2) caso igual a novo.
+int IdCenarioSelecionado(const QComboBox* combo) {
+  QVariant qval = combo->itemData(combo->currentIndex());
+  if (!qval.isValid()) return CENARIO_INVALIDO;
+  return qval.toInt();
+}
+
 void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& proto, QComboBox* combo) {
   if (id_cenario == -1) {
     // 0 eh novo, 1 eh o principal.
@@ -671,7 +678,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     bool trans_cenario = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
     //gerador.linha_transicao_cenario->setEnabled(trans_cenario);
     SelecionaCenarioComboCenarios(
-        proto_retornado->transicao_cenario().has_id_cenario() ? proto_retornado->transicao_cenario().id_cenario() : -2,
+        proto_retornado->transicao_cenario().has_id_cenario() ? proto_retornado->transicao_cenario().id_cenario() : CENARIO_INVALIDO,
         tabuleiro_->Proto(), gerador.combo_id_cenario);
     gerador.combo_id_cenario->setEnabled(trans_cenario);
     gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
@@ -771,8 +778,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       int val = 0;
       if (!qval.isValid()) {
         // Busca um novo id.
-        for (const auto& t : tabuleiro_->Proto().sub_cenario()) {
-          if (t.id_cenario() == val) ++val;
+        while (std::any_of(tabuleiro_->Proto().sub_cenario().begin(), tabuleiro_->Proto().sub_cenario().end(),
+               [val] (const ent::TabuleiroProto& cenario) { return cenario.id_cenario() == val; })) {
+          ++val;
         }
       } else {
         val = qval.toInt();
@@ -1886,6 +1894,22 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     }
     gerador.linha_largura->setEnabled(novo_estado != Qt::Checked);
     gerador.linha_altura->setEnabled(novo_estado != Qt::Checked);
+  });
+
+  // Clonar cenario.
+  PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
+  lambda_connect(gerador.botao_clonar, SIGNAL(clicked()), [this, &gerador, proto_retornado, dialogo] () {
+    int valor = IdCenarioSelecionado(gerador.combo_id_cenario);
+    int id_corrente = proto_retornado->id_cenario();
+    if (valor == CENARIO_INVALIDO || valor == id_corrente) return;
+    for (const auto& t : tabuleiro_->Proto().sub_cenario()) {
+      if (t.id_cenario() == valor) {
+        *proto_retornado = t;
+        proto_retornado->set_id_cenario(id_corrente);
+        dialogo->accept();
+        return;
+      }
+    }
   });
 
   // Ao aceitar o diálogo, aplica as mudancas.
