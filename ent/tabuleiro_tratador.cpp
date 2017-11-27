@@ -597,6 +597,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       } else {
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
         //gl::ModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
         gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
         gl::CarregaIdentidade();
         ConfiguraOlhar();
@@ -609,9 +610,9 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float delta_x = nx - ultimo_x_3d_;
         float delta_y = ny - ultimo_y_3d_;
         // Dependendo da posicao da pinca, os deltas podem se tornar muito grandes. Tentar manter o olho no tabuleiro.
-        auto* p = olho_.mutable_alvo();
-        float novo_x = p->x() - delta_x;
-        float novo_y = p->y() - delta_y;
+        auto* alvo = olho_.mutable_alvo();
+        float novo_x = alvo->x() - delta_x;
+        float novo_y = alvo->y() - delta_y;
         const float tolerancia_quadrados = 10;
         const float maximo_x = TamanhoX() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
         const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
@@ -619,8 +620,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           VLOG(1) << "Olho fora do tabuleiro";
           return false;
         }
-        p->set_x(novo_x);
-        p->set_y(novo_y);
+        alvo->set_x(novo_x);
+        alvo->set_y(novo_y);
         olho_.clear_destino();
         AtualizaOlho(0  /*intervalo_ms*/, true  /*forca*/);
         ultimo_x_ = x;
@@ -753,6 +754,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         // Isso provavelmente foi um clique convertido em deslize.
         DeselecionaEntidades();
       }
+      parametros_desenho_.clear_offset_terreno();
       estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -1856,16 +1858,22 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 }
 
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
-  VLOG(1) << "Botao direito pressionado";
   float x3d, y3d, z3d;
+  if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
+    LOG(INFO) << "z olho: " << olho_.alvo().z();
+    parametros_desenho_.set_offset_terreno(olho_.alvo().z());
+  }
   MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
-  ultimo_x_3d_ = x3d;
-  ultimo_y_3d_ = y3d;
+  //MousePara3d(x, y, &x3d, &y3d, &z3d);
+  VLOG(1) << "Botao direito pressionado: x3d: " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
   primeiro_x_ = ultimo_x_ = x;
   primeiro_y_ = ultimo_y_ = y;
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
   if (estado_ != ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     estado_anterior_ = estado_;
     estado_ = ETAB_DESLIZANDO;
+    primeiro_z_3d_ = z3d;
   }
 }
 
