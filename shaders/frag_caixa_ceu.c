@@ -29,7 +29,7 @@ uniform highp samplerCube gltab_unidade_textura_cubo;   // handler da textura de
 uniform lowp vec4 gltab_cor_mistura_pre_nevoa;  // Cor da mistura para terreno, usa a nevoa.
 
 void main() {
-  if (v_Pos_model.y < -0.2) {
+  if (v_Pos_model.y < -0.1) {
     gl_FragColor = gltab_cor_mistura_pre_nevoa;
     return;
   }
