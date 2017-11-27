@@ -3665,6 +3665,7 @@ void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, in
       int indice = Terreno::IndicePontoTabuleiro(x, y, num_quad_x);
       if (indice < 0 || indice >= pontos->size()) {
         LOG(ERROR) << "indice invalido: " << indice;
+        continue;
       }
       pontos->Set(indice, funcao(*pontos, indice));
     }
