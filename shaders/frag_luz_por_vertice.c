@@ -52,6 +52,7 @@ uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para prese
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
+uniform lowp vec4 gltab_cor_mistura_pre_nevoa;      // Mistura antes de aplicar nevoa.
 
 void main() {
   lowp vec4 cor_oclusao = vec4(1.0, 1.0, 1.0, 1.0);
@@ -91,7 +92,7 @@ void main() {
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
-  cor_final *= cor_oclusao;
+  cor_final *= cor_oclusao * gltab_cor_mistura_pre_nevoa;
 
   // Nevoa: em cenario sem nevoa, o if saiu bem mais barato. Com nevoa ficou igual.
   //mediump float distancia = length(v_Pos - gltab_nevoa_referencia);

@@ -67,6 +67,7 @@ modelo { id: 'Elemental do Ar (Pequeno)' }
 sub_menu {
   id: 'Enxames'
   modelo { id: 'Enxame (centopéias)' }
+  modelo { id: 'Enxame (gafanhotos)' }
   modelo { id: 'Enxame (morcegos)' }
   modelo { id: 'Enxame (ratos)' }
 }

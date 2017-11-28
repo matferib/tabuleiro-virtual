@@ -182,7 +182,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   pd->set_x(x3d);
   pd->set_y(y3d);
   pd->set_z(z3d);
-  pd->set_id_cenario(cenario_corrente_);
+  pd->set_id_cenario(IdCenario());
   a->set_texto(texto);
   central_->AdicionaNotificacao(n);
 }
@@ -597,6 +597,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       } else {
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
         //gl::ModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
         gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
         gl::CarregaIdentidade();
         ConfiguraOlhar();
@@ -609,9 +610,9 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float delta_x = nx - ultimo_x_3d_;
         float delta_y = ny - ultimo_y_3d_;
         // Dependendo da posicao da pinca, os deltas podem se tornar muito grandes. Tentar manter o olho no tabuleiro.
-        auto* p = olho_.mutable_alvo();
-        float novo_x = p->x() - delta_x;
-        float novo_y = p->y() - delta_y;
+        auto* alvo = olho_.mutable_alvo();
+        float novo_x = alvo->x() - delta_x;
+        float novo_y = alvo->y() - delta_y;
         const float tolerancia_quadrados = 10;
         const float maximo_x = TamanhoX() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
         const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
@@ -619,8 +620,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           VLOG(1) << "Olho fora do tabuleiro";
           return false;
         }
-        p->set_x(novo_x);
-        p->set_y(novo_y);
+        alvo->set_x(novo_x);
+        alvo->set_y(novo_y);
         olho_.clear_destino();
         AtualizaOlho(0  /*intervalo_ms*/, true  /*forca*/);
         ultimo_x_ = x;
@@ -753,6 +754,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         // Isso provavelmente foi um clique convertido em deslize.
         DeselecionaEntidades();
       }
+      parametros_desenho_.clear_offset_terreno();
       estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -1043,8 +1045,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 }
 
 float Tabuleiro::TrataAcaoIndividual(
-    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
-    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
+    Entidade* entidade, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Efeito individual.
   Entidade* entidade_destino =
      id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
@@ -1084,6 +1086,7 @@ float Tabuleiro::TrataAcaoIndividual(
       if (vezes < 0) {
         PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
       }
+      // TODO usar: AdicionaAcaoTexto.
       ntf::Notificacao n_texto;
       n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
       auto* acao_texto = n_texto.mutable_acao();
@@ -1115,7 +1118,7 @@ float Tabuleiro::TrataAcaoIndividual(
     if (vezes > 0) {
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
     }
-    
+
     const auto* da = entidade->DadoCorrente();
     bool nao_letal = da != nullptr && da->nao_letal();
     // Consome municao.
@@ -1183,10 +1186,11 @@ float Tabuleiro::TrataAcaoIndividual(
   }
 
   if (realiza_acao) {
-    // Se agarrou, desfaz aqui.
     if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+      // Se agarrou, desfaz aqui.
       auto* no = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+      nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
     }
     VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
@@ -1293,12 +1297,12 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
-    pos_entidade.set_id_cenario(cenario_corrente_);
+    pos_entidade.set_id_cenario(IdCenario());
     // Depois tabuleiro.
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
     pos_tabuleiro.set_z(z3d);
-    pos_tabuleiro.set_id_cenario(cenario_corrente_);
+    pos_tabuleiro.set_id_cenario(IdCenario());
   } else if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
@@ -1309,7 +1313,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
     pos_tabuleiro.set_z(z3d);
-    pos_tabuleiro.set_id_cenario(cenario_corrente_);
+    pos_tabuleiro.set_id_cenario(IdCenario());
   }
 
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
@@ -1731,7 +1735,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         trans->set_x(x3d);
         trans->set_y(y3d);
         trans->set_z(z3d);
-        trans->set_id_cenario(cenario_corrente_);
+        trans->set_id_cenario(IdCenario());
         central_->AdicionaNotificacao(n);
         break;
       }
@@ -1854,16 +1858,21 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 }
 
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
-  VLOG(1) << "Botao direito pressionado";
   float x3d, y3d, z3d;
+  if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
+    parametros_desenho_.set_offset_terreno(olho_.alvo().z());
+  }
   MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
-  ultimo_x_3d_ = x3d;
-  ultimo_y_3d_ = y3d;
+  //MousePara3d(x, y, &x3d, &y3d, &z3d);
+  VLOG(1) << "Botao direito pressionado: x3d: " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
   primeiro_x_ = ultimo_x_ = x;
   primeiro_y_ = ultimo_y_ = y;
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
   if (estado_ != ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     estado_anterior_ = estado_;
     estado_ = ETAB_DESLIZANDO;
+    primeiro_z_3d_ = z3d;
   }
 }
 
@@ -2235,10 +2244,24 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
     ntf::Notificacao grupo_desfazer;
     grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (const auto& id_alvo : e->Proto().agarrado_a()) {
-      PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << e->Id() << " de " << id_alvo;
       auto* ealvo = BuscaEntidade(id_alvo);
       if (ealvo == nullptr) continue;
+      if (modo_dano_automatico_) {
+        int vezes;
+        std::string texto;
+        bool realiza_acao;
+        AcaoProto acao_proto;
+        acao_proto.set_id("Agarrar");
+        acao_proto.set_tipo(ACAO_AGARRAR);
+        std::tie(vezes, texto, realiza_acao) =
+            AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, e->DadoAgarrar(), *ealvo, ealvo->Pos());
+        AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(e) + " " + texto);
+        texto = "desagarrar: " + texto;
+        AdicionaAcaoTexto(e->Id(), texto, 0.0f  /*atraso*/);
+        if (vezes < 1) continue;
+      } 
+      PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << ealvo->Id() << " de " << e->Id();
     }

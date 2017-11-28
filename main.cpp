@@ -62,7 +62,9 @@ int main(int argc, char** argv) {
 #if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
+#if __APPLE__
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
   QApplication q_app(argc, argv);
   QDir dir(QCoreApplication::applicationDirPath());
 

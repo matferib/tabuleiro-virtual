@@ -224,6 +224,7 @@ class VbosNaoGravados {
 class VbosGravados {
  public:
   void Grava(const VbosNaoGravados& vbos_nao_gravados);
+  void Desgrava();
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
 

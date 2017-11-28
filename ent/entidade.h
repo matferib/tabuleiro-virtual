@@ -223,6 +223,7 @@ class Entidade {
 
   // Retorna nullptr caso nao haja.
   const EntidadeProto::DadosAtaque* DadoCorrente() const;
+  const EntidadeProto::DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   // Retorna modificadores para ataques de toque.

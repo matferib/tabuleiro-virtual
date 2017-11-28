@@ -58,18 +58,8 @@ void DobraMargemCritico(EntidadeProto::DadosAtaque* da) {
   da->set_margem_critico(21 - margem);
 }
 
-}  // namespace
-
-void MudaCor(const float* cor) {
-  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-}
-
-void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
-  if (!pd->has_nevoa()) {
-    MudaCor(cor);
-    return;
-  }
-  // Distancia do ponto pra nevoa.
+// Distancia do ponto da matriz de modelagem para a nevoa.
+float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
   GLfloat mv_gl[16];
   gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
   Matrix4 mv(mv_gl);
@@ -86,6 +76,21 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
           << ", ponto: (" << ponto.x << ", " << ponto.y << ", " << ponto.z << ")"
           << ", minimo: " << pd->nevoa().minimo()
           << ", maximo: " << pd->nevoa().maximo();
+  return distancia;
+}
+
+}  // namespace
+
+void MudaCor(const float* cor) {
+  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+}
+
+void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
+  if (!pd->has_nevoa()) {
+    MudaCor(cor);
+    return;
+  }
+  float distancia = DistanciaPontoCorrenteParaNevoa(pd);
   if (distancia > pd->nevoa().maximo()) {
     gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
   } else if (distancia > pd->nevoa().minimo()) {
@@ -840,18 +845,28 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
+  if (da.ataque_distancia()) return TipoAtaque::DISTANCIA;
+  if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
+  return TipoAtaque::CORPO_A_CORPO;
+}
+
 // Pode ser chamado com ed == default para ver alguns modificadores do atacante.
-int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed) {
+int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   // ataque.
-  if (ea.caida() && !distancia) {
+  if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
   }
   if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
     modificador += 2;
   }
+  if (tipo_ataque == TipoAtaque::AGARRAR) {
+    if (PossuiTalento("agarrar_aprimorado", ea)) modificador += 4;
+    if (PossuiTalento("agarrar_aprimorado", ed)) modificador -= 4;
+  }
   // Nao aplica contra a entidade default.
-  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && !distancia) {
+  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador += 1;
   }
 
@@ -882,7 +897,7 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
 
   // Defesa.
   if (ed.caida()) {
-    if (distancia) modificador -= 4;
+    if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
   }
   return modificador;
@@ -1118,6 +1133,12 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
+}
+
+std::tuple<int, std::string, bool> AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    const Entidade& ed, const Posicao& pos_alvo) {
   const int ataque_origem = ea.BonusAtaque();
 
   const int d20_agarrar_defesa = RolaDado(20);
@@ -1135,7 +1156,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     return std::make_tuple(0, "Atacante em defesa total", true);
   }
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
-  const int outros_modificadores = ModificadorAtaque(da->ataque_distancia(), ea.Proto(), ed.Proto());
+  const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
   // Realiza um ataque de toque.
   std::string texto_toque_agarrar;
@@ -1156,7 +1177,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     std::string texto_erro;
     bool acertou;
     std::tie(total, texto_erro, acertou) =
-        ComputaAcertoOuErro(d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(), ea.Proto(), ed.Proto());
+        ComputaAcertoOuErro(
+            d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
+            ea.Proto(), ed.Proto());
     if (!acertou) {
       return std::make_tuple(total, texto_erro, total == -1 ? false : true);
     }
@@ -2724,7 +2747,7 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
 }
 
 std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador = ModificadorAtaque(da.tipo_ataque() != "Ataque Corpo a Corpo", proto, EntidadeProto());
+  int modificador = ModificadorAtaque(DaParaTipoAtaque(da), proto, EntidadeProto());
   std::string texto_modificador;
   if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
 

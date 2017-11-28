@@ -124,7 +124,7 @@ class Tabuleiro : public ntf::Receptor {
   * de rodada a ela. Deve ser chamada apenas pelo mestre verdadeiro durante o loop de atualizacao ou pelos
   * mestres caso notificacao nao seja nullptr.
   */
-  void AtualizaIniciativas(ntf::Notificacao* notificacao = nullptr);
+  void AtualizaIniciativas(ntf::Notificacao* grupo_notificacao = nullptr);
 
   /** Inverte o bit da entidade. */
   enum bit_e {
@@ -329,7 +329,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRolagem(dir_rolagem_e dir);
 
   /** inicializa os parametros do openGL. Chamado no IOS e ANDROID tambem para recuperar o contexto grafico. */
-  void IniciaGL();
+  void IniciaGL(bool reinicio = false);
 
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
@@ -521,6 +521,8 @@ class Tabuleiro : public ntf::Receptor {
   */
   void CarregaSubCenario(int id, const Posicao& camera);
 
+  int IdCenario() const { return proto_corrente_->id_cenario(); }
+
   /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
   float ZChao(float x, float y) const;
 
@@ -534,6 +536,9 @@ class Tabuleiro : public ntf::Receptor {
   void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
 
   const OpcoesProto& Opcoes() const { return opcoes_; }
+
+  /** Retorna o proto para acessos mais complexos. */
+  const TabuleiroProto& Proto() const { return proto_; }
 
  private:
   struct DadosIniciativa {
@@ -731,6 +736,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
+
+  /** Muda a selecao para a entidade com a iniciativa. Se for jogador, apenas mudara se a entidade
+  * estiver presa ao jogador.
+  */
+  void SelecionaEntidadeIniciativa();
 
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
   * ETAB_ENT_SELECIONADA em caso de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
@@ -966,7 +976,7 @@ class Tabuleiro : public ntf::Receptor {
   void GeraVboRosaDosVentos();
 
   /** Gera e configura o framebuffer. */
-  void GeraFramebuffer();
+  void GeraFramebuffer(bool reinicio);
 
   /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
   void GeraTerrenoAleatorioNotificando();
@@ -1003,6 +1013,7 @@ class Tabuleiro : public ntf::Receptor {
 
   struct DadosFramebuffer {
     ~DadosFramebuffer();
+    void Apaga();
     GLuint framebuffer = 0;
     GLuint textura = 0;
     GLuint renderbuffer = 0;
@@ -1238,7 +1249,6 @@ class Tabuleiro : public ntf::Receptor {
   bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.
-  int cenario_corrente_ = CENARIO_PRINCIPAL;
   TabuleiroProto* proto_corrente_ = &proto_;
 
   // Controle virtual.

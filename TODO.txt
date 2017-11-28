@@ -1,5 +1,8 @@
+Combos no windows nao expandem alem do tamanho original.
+Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
+Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
-Manobra de desagarrar.
+Manobra de derrubar (principalmente em ataques automaticos tipo hiena).
 
 Reducao de dano.
 
@@ -36,7 +39,6 @@ Fazer tabela nao copiavel para evitar copia a toa.
 Modificador de ataque para higher ground.
 
 Ao adicionar entidade, incluir nos algemados.
-Lista de cenarios na UI de transicao.
 Objetos inflamaveis (sem ser entidade) e permitir duracao infinita.
 Ajuste de eventos no android para fazer resolucao menor.
 

@@ -3412,6 +3412,11 @@ QGroupBox::title {
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_forca</tabstop>
+  <tabstop>spin_destreza</tabstop>
+  <tabstop>spin_constituicao</tabstop>
+  <tabstop>spin_inteligencia</tabstop>
+  <tabstop>spin_sabedoria</tabstop>
+  <tabstop>spin_carisma</tabstop>
   <tabstop>spin_ca_armadura_melhoria</tabstop>
   <tabstop>spin_ca_escudo_melhoria</tabstop>
   <tabstop>linha_rotulo_ataque</tabstop>
@@ -3432,6 +3437,54 @@ QGroupBox::title {
   <tabstop>tab_tesouro</tabstop>
   <tabstop>linha_bba</tabstop>
   <tabstop>linha_nivel</tabstop>
+  <tabstop>checkbox_caida</tabstop>
+  <tabstop>checkbox_morta</tabstop>
+  <tabstop>checkbox_salvacao</tabstop>
+  <tabstop>tabela_lista_eventos</tabstop>
+  <tabstop>botao_adicionar_evento</tabstop>
+  <tabstop>botao_remover_evento</tabstop>
+  <tabstop>lista_formas_alternativas</tabstop>
+  <tabstop>botao_adicionar_forma_alternativa</tabstop>
+  <tabstop>botao_remover_forma_alternativa</tabstop>
+  <tabstop>botao_bonus_pv_temporario</tabstop>
+  <tabstop>spin_dano_nao_letal</tabstop>
+  <tabstop>combo_classe</tabstop>
+  <tabstop>combo_mod_conjuracao</tabstop>
+  <tabstop>combo_salvacoes_fortes</tabstop>
+  <tabstop>slider_ordem_caos</tabstop>
+  <tabstop>slider_bem_mal</tabstop>
+  <tabstop>spin_niveis_negativos</tabstop>
+  <tabstop>spin_xp</tabstop>
+  <tabstop>botao_remover_talento</tabstop>
+  <tabstop>botao_adicionar_talento</tabstop>
+  <tabstop>tabela_talentos</tabstop>
+  <tabstop>tabela_pericias</tabstop>
+  <tabstop>combo_arma</tabstop>
+  <tabstop>checkbox_op</tabstop>
+  <tabstop>spin_bonus_magico</tabstop>
+  <tabstop>spin_municao</tabstop>
+  <tabstop>spin_ordem_ataque</tabstop>
+  <tabstop>botao_bonus_ataque</tabstop>
+  <tabstop>linha_dano</tabstop>
+  <tabstop>combo_empunhadura</tabstop>
+  <tabstop>botao_bonus_dano</tabstop>
+  <tabstop>botao_bonus_ca</tabstop>
+  <tabstop>combo_armadura</tabstop>
+  <tabstop>combo_escudo</tabstop>
+  <tabstop>botao_bonus_constituicao</tabstop>
+  <tabstop>botao_bonus_destreza</tabstop>
+  <tabstop>botao_bonus_forca</tabstop>
+  <tabstop>botao_bonus_sabedoria</tabstop>
+  <tabstop>botao_bonus_inteligencia</tabstop>
+  <tabstop>botao_bonus_carisma</tabstop>
+  <tabstop>botao_bonus_salvacao_fortitude</tabstop>
+  <tabstop>botao_bonus_salvacao_vontade</tabstop>
+  <tabstop>botao_bonus_salvacao_reflexo</tabstop>
+  <tabstop>botao_bonus_iniciativa</tabstop>
+  <tabstop>spin_rm</tabstop>
+  <tabstop>lista_pocoes</tabstop>
+  <tabstop>botao_adicionar_pocao</tabstop>
+  <tabstop>botao_remover_pocao</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -246,7 +246,7 @@ void print_uniforms(GLuint program) {
     GLenum type;
 
     LeUniformeAtivo(program, i, 255, NULL, &size, &type, name);
-    GLint location = LocalUniforme (program, name);
+    GLint location = LocalUniforme(program, name);
     for (unsigned int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
       if (type_set [j].type != type)
         continue;
@@ -359,6 +359,7 @@ bool IniciaVariaveis(VarShader* shader) {
   // Variaveis uniformes.
   for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_luz_ambiente", &shader->uni_gltab_luz_ambiente_cor },
+          {"gltab_cor_mistura_pre_nevoa", &shader->uni_gltab_cor_mistura_pre_nevoa },
           {"gltab_luz_direcional.cor", &shader->uni_gltab_luz_direcional_cor },
           {"gltab_luz_direcional.pos", &shader->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &shader->uni_gltab_textura },
@@ -409,6 +410,7 @@ bool IniciaVariaveis(VarShader* shader) {
     DadosVariavel dv;
     GLint indice;
   };
+  // Forca as variaveis para indices > 0 (driver da ATI nao curte).
   for (const auto& d : std::vector<DadosAtributo> {
           {{"gltab_vertice", &shader->atr_gltab_vertice}, 1},
           {{"gltab_normal", &shader->atr_gltab_normal}, 2},
@@ -1601,6 +1603,20 @@ void UnidadeTextura(GLenum unidade) {
   glActiveTexture(unidade);
   //glClientActiveTexture(unidade);
 #endif
+}
+
+void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b) {
+  interno::UniformeSeValido(interno::BuscaShader().uni_gltab_cor_mistura_pre_nevoa, r, g, b, 1.0f);
+}
+
+void LeCorMisturaPreNevoa(GLfloat* rgb) {
+  if (interno::BuscaShader().uni_gltab_cor_mistura_pre_nevoa == -1) return;
+  GLfloat cor[4];
+  const auto& shader = interno::BuscaShader();
+  LeUniforme(shader.programa, shader.uni_gltab_cor_mistura_pre_nevoa, cor);
+  rgb[0] = cor[0];
+  rgb[1] = cor[1];
+  rgb[2] = cor[2];
 }
 
 void FinalizaGl() {
