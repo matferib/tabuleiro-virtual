@@ -521,6 +521,8 @@ class Tabuleiro : public ntf::Receptor {
   */
   void CarregaSubCenario(int id, const Posicao& camera);
 
+  int IdCenario() const { return proto_corrente_->id_cenario(); }
+
   /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
   float ZChao(float x, float y) const;
 
@@ -1247,7 +1249,6 @@ class Tabuleiro : public ntf::Receptor {
   bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.
-  int cenario_corrente_ = CENARIO_PRINCIPAL;
   TabuleiroProto* proto_corrente_ = &proto_;
 
   // Controle virtual.
