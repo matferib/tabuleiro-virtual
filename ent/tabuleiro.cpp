@@ -4209,6 +4209,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         olho_.mutable_pos()->set_x(entidade_referencia->X());
         olho_.mutable_pos()->set_y(entidade_referencia->Y());
         olho_.mutable_pos()->set_z(entidade_referencia->ZOlho());
+        olho_.mutable_pos()->set_id_cenario(entidade_referencia->IdCenario());
         // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
         // que a camera de perspectiva.
         olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
@@ -4283,6 +4284,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
   pos_olho->set_x(pos_alvo->x() + cosf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_y(pos_alvo->y() + sinf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_z(pos_alvo->z() + olho_.altura());
+  pos_olho->set_id_cenario(IdCenario());
 }
 
 void Tabuleiro::AtualizaRaioOlho(float raio) {
