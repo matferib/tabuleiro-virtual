@@ -255,7 +255,7 @@ void Tabuleiro::DadosFramebuffer::Apaga() {
 void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Proto do tabuleiro.
   proto_.Clear();
-  cenario_corrente_ = CENARIO_PRINCIPAL;
+  //cenario_corrente_ = CENARIO_PRINCIPAL;
   proto_corrente_ = &proto_;
   // Iluminacao.
   ReiniciaIluminacao(&proto_);
@@ -1063,10 +1063,10 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         modelo.mutable_pos()->set_x(x);
         modelo.mutable_pos()->set_y(y);
         modelo.mutable_pos()->set_z(z);
-        modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
+        modelo.mutable_pos()->set_id_cenario(IdCenario());
       } else if (!Desfazendo()) {
         // Se nao estiver desfazendo, poe a entidade no cenario corrente.
-        modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
+        modelo.mutable_pos()->set_id_cenario(IdCenario());
       }
       unsigned int id_entidade = GeraIdEntidade(id_cliente_);
       if (processando_grupo_) {
@@ -1782,7 +1782,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       int id_cenario = notificacao.entidade().transicao_cenario().id_cenario();
-      if (notificacao.entidade().transicao_cenario().has_id_cenario() && id_cenario != cenario_corrente_) {
+      if (notificacao.entidade().transicao_cenario().has_id_cenario() && id_cenario != IdCenario()) {
         CarregaSubCenario(id_cenario, e->PosTransicao());
       }
       EntraModoClique(MODO_SELECAO_TRANSICAO);
@@ -3890,7 +3890,7 @@ void Tabuleiro::OrdenaEntidades() {
   std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisProximoOlho);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* entidade = it->second.get();
-    if (entidade->IdCenario() == cenario_corrente_) {
+    if (entidade->IdCenario() == IdCenario()) {
       set_entidades.insert(entidade);
     }
   }
@@ -3912,7 +3912,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
-    if (entidade->Pos().id_cenario() != cenario_corrente_) continue;
+    if (entidade->Pos().id_cenario() != IdCenario()) continue;
     if (PulaEntidade(entidade->Proto(), parametros_desenho_)) continue;
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
     if (camera_presa_ &&  entidade->Id() == IdCameraPresa() &&
@@ -3956,7 +3956,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     std::vector<std::pair<unsigned int, unsigned int>> agarrados;
     for (auto& it : entidades_) {
       auto* entidade = it.second.get();
-      if (entidade->Pos().id_cenario() != cenario_corrente_) continue;
+      if (entidade->Pos().id_cenario() != IdCenario()) continue;
       for (auto id_agarrado : entidade->Proto().agarrado_a()) {
         if (id_agarrado < entidade->Id()) {
           agarrados.push_back(std::make_pair(id_agarrado, entidade->Id()));
@@ -3989,7 +3989,7 @@ void Tabuleiro::ColetaVbosEntidades() {
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
-    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+    if (entidade->Pos().id_cenario() != IdCenario()) {
       continue;
     }
     if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
@@ -4054,7 +4054,7 @@ void Tabuleiro::DesenhaAuras() {
 void Tabuleiro::DesenhaAcoes() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    if (a->IdCenario() != cenario_corrente_) {
+    if (a->IdCenario() != IdCenario()) {
       continue;
     }
     a->Desenha(&parametros_desenho_);
@@ -4064,7 +4064,7 @@ void Tabuleiro::DesenhaAcoes() {
 void Tabuleiro::DesenhaAcoesTranslucidas() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    if (a->IdCenario() != cenario_corrente_) {
+    if (a->IdCenario() != IdCenario()) {
       continue;
     }
     a->DesenhaTranslucido(&parametros_desenho_);
@@ -4189,7 +4189,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
     if (entidade_referencia == nullptr) {
       AlternaCameraPresa();
     } else {
-      bool cenario_diferente = entidade_referencia->Pos().id_cenario() != proto_corrente_->id_cenario();
+      bool cenario_diferente = entidade_referencia->Pos().id_cenario() != IdCenario();
       if (cenario_diferente) {
         // Pode acontecer da entidade estar se movendo para o cenario novo.
         if ((entidade_referencia->Destino().has_id_cenario() &&
@@ -4198,7 +4198,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         }
       }
       if (cenario_diferente) {
-        // Carrega sub cenario chama AtualizaOlho.
+        // Carrega sub cenario chama AtualizaOlho, daria loop.
         //CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
         AlternaCameraPresa();
         LOG(WARNING) << "Nao consigo atualizar olho porque entidade presa esta em outro cenario";
@@ -5063,12 +5063,12 @@ void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
 }
 
 void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
-  cenario_corrente_ = id_cenario;
   TabuleiroProto* cenario = BuscaSubCenario(id_cenario);
   if (cenario == nullptr) {
     LOG(ERROR) << "Cenario " << id_cenario << " nao existe";
     return;
   }
+  //cenario_corrente_ = id_cenario;
   // Deseleciona entidades que nao transitaram.
   std::vector<unsigned int> ids_a_deselecionar;
   for (auto id : ids_entidades_selecionadas_) {
@@ -5113,7 +5113,7 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
     }
   }
   entidades_copiadas.mutable_origem()->set_nome(proto_.nome());
-  entidades_copiadas.mutable_origem()->set_id_cenario(cenario_corrente_);
+  entidades_copiadas.mutable_origem()->set_id_cenario(IdCenario());
   std::string str_entidades;
   google::protobuf::TextFormat::PrintToString(entidades_copiadas, &str_entidades);
   QApplication::clipboard()->setText(QString::fromStdString(str_entidades));
@@ -6352,7 +6352,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   std::vector<int> mapa_indice_ids;
   for (const auto& it : entidades_) {
     const auto* e = it.second.get();
-    if (e->IdCenario() != cenario_corrente_) {
+    if (e->IdCenario() != IdCenario()) {
       continue;
     }
     mapa_indice_ids.push_back(e->Id());
@@ -6532,7 +6532,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   //const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
   //const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
-  int cenario_origem =  (entidade_origem != nullptr) ? entidade_origem->IdCenario() : cenario_corrente_;
+  int cenario_origem =  (entidade_origem != nullptr) ? entidade_origem->IdCenario() : IdCenario();
   std::vector<const Entidade*> entidades_cenario;
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
@@ -6996,7 +6996,7 @@ void Tabuleiro::MudaEntidadeCameraPresa(unsigned int id) {
   LOG(INFO) << "Salvando camera para " << ids_camera_presa_.front();
 
   ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
-  if (entidade->Pos().id_cenario() != cenario_corrente_) {
+  if (entidade->Pos().id_cenario() != IdCenario()) {
     CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
   }
   LOG(INFO) << "Camera presa em " << id;
@@ -7030,7 +7030,7 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   if (entidade == nullptr) {
     LOG(INFO) << "Nao ha outra entidade para prender, retornando a primeira.";
   } else {
-    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+    if (entidade->Pos().id_cenario() != IdCenario()) {
       CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
     }
   }

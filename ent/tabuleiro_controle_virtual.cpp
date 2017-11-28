@@ -1100,7 +1100,7 @@ void Tabuleiro::DesenhaIniciativas() {
     if (entidade->Morta()) {
       rotulo += " (morta)";
     }
-    if (entidade->IdCenario() != cenario_corrente_) {
+    if (entidade->IdCenario() != IdCenario()) {
       rotulo += " (outro cenario)";
     }
     snprintf(str, 50, "%d-%s", entidade->Iniciativa(), StringSemUtf8(rotulo).c_str());

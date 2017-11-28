@@ -182,7 +182,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   pd->set_x(x3d);
   pd->set_y(y3d);
   pd->set_z(z3d);
-  pd->set_id_cenario(cenario_corrente_);
+  pd->set_id_cenario(IdCenario());
   a->set_texto(texto);
   central_->AdicionaNotificacao(n);
 }
@@ -1297,12 +1297,12 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
-    pos_entidade.set_id_cenario(cenario_corrente_);
+    pos_entidade.set_id_cenario(IdCenario());
     // Depois tabuleiro.
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
     pos_tabuleiro.set_z(z3d);
-    pos_tabuleiro.set_id_cenario(cenario_corrente_);
+    pos_tabuleiro.set_id_cenario(IdCenario());
   } else if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
@@ -1313,7 +1313,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
     pos_tabuleiro.set_z(z3d);
-    pos_tabuleiro.set_id_cenario(cenario_corrente_);
+    pos_tabuleiro.set_id_cenario(IdCenario());
   }
 
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
@@ -1735,7 +1735,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         trans->set_x(x3d);
         trans->set_y(y3d);
         trans->set_z(z3d);
-        trans->set_id_cenario(cenario_corrente_);
+        trans->set_id_cenario(IdCenario());
         central_->AdicionaNotificacao(n);
         break;
       }
