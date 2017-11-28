@@ -1031,7 +1031,8 @@ void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDese
     return;
   }
   if (IdCenario() != pd->pos_olho().id_cenario()) {
-    VLOG(2) << "Nao desenhando acao pois id cenario eh diferente";
+    VLOG(1) << "Nao desenhando acao pois id cenario: " << IdCenario() 
+            << " vs olho id: " << pd->pos_olho().id_cenario();
     return;
   }
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
