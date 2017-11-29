@@ -1418,7 +1418,8 @@ int CAToque(const EntidadeProto& proto, const Bonus& outros_bonus) {
   Bonus ca(outros_bonus);
   CombinaBonus(proto.dados_defesa().ca(), &ca);
   return BonusTotalExcluindo(ca,
-         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA });
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL,
+           TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ARMADURA_NATURAL_MELHORIA });
 }
 
 int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
@@ -1426,7 +1427,9 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
   CombinaBonus(proto.dados_defesa().ca(), &ca);
   const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
   return BonusTotalExcluindo(ca,
-         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ESQUIVA }) - std::max(modificador_destreza, 0);
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL,
+           TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ARMADURA_NATURAL_MELHORIA,
+           TB_ESQUIVA }) - std::max(modificador_destreza, 0);
 }
 
 bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
