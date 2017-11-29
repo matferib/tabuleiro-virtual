@@ -1030,7 +1030,8 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
     switch (parametros.tipo_modificador_salvacao()) {
       case TMS_MODIFICADOR_CONJURACAO:
         for (auto& da : *modelo->mutable_dados_ataque()) {
-          da.mutable_acao_fixa->set_dificuldade_salvacao(da.mutable_acao_fixa->dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+          da.mutable_acao_fixa()->set_dificuldade_salvacao(
+              da.acao_fixa().dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
         }
         break;
       case TMS_NENHUM:
