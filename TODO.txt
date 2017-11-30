@@ -1,5 +1,4 @@
 Esfera flamejante: entidade salva mas o dano ainda eh mostrado.
-Centopeia: nao esta batendo os ataques (imensa).
 Fazer coluna de chamas.
 Planilha zicada no mac.
 Bug clonando cenario principal.
