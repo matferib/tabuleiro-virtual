@@ -63,6 +63,21 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o 
+// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
+void ExpandeComboBox(QComboBox* combo) {
+#if WIN32
+  int scroll = combo->count() <= combo->maxVisibleItems() ? 0 :
+      QApplication::style()->pixelMetric(QStyle::PixelMetric::PM_ScrollBarExtent);
+  int max = 0;
+  for (int i = 0; i < combo->count(); i++) {
+    int width = combo->view()->fontMetrics().width(combo->itemText(i));
+    if (max < width) max = width;
+  }
+  combo->view()->setMinimumWidth(scroll + max);
+#endif
+}
+
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -176,6 +191,7 @@ void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::f
     }
     combo_textura->setCurrentIndex(index);
   }
+  ExpandeComboBox(combo_textura);
 }
 
 void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
@@ -256,6 +272,7 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
     }
     combo_modelos_3d->setCurrentIndex(index);
   }
+  ExpandeComboBox(combo_modelos_3d);
 }
 
 // Preenche proto_retornado usando entidade e o combo como base.
@@ -517,6 +534,7 @@ void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* comb
     }
     combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(t.id_cenario()));
   }
+  ExpandeComboBox(combo);
 }
 
 // Retorna CENARIO_INVALIDO (-2) caso igual a novo.
@@ -837,7 +855,7 @@ QString NumeroSinalizado(int valor) {
   return ret;
 }
 
-ent::EmpunhaduraArma ComboParaEmpunhadura(QComboBox* combo) {
+ent::EmpunhaduraArma ComboParaEmpunhadura(const QComboBox* combo) {
   if (!ent::EmpunhaduraArma_IsValid(combo->currentIndex())) {
     return ent::EA_ARMA_APENAS;
   }
@@ -936,6 +954,8 @@ void PreencheConfiguraComboArmaduraEscudo(
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
+  ExpandeComboBox(combo_armadura);
+  ExpandeComboBox(combo_escudo);
 }
 
 void PreencheConfiguraEventos(
@@ -1192,6 +1212,7 @@ void ConfiguraComboArma(
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
+  ExpandeComboBox(combo_arma);
 }
 
 void PreencheConfiguraComboTipoAtaque(
@@ -1316,6 +1337,7 @@ void PreencheComboSalvacoesFortes(QComboBox* combo) {
   combo->addItem("Fortitude e Vontade");
   combo->addItem("Reflexo e Vontade");
   combo->addItem("Todas");
+  ExpandeComboBox(combo);
 }
 
 std::vector<ent::TipoSalvacao> ComboParaSalvacoesFortes(const QComboBox* combo) {

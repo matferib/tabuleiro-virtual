@@ -191,16 +191,41 @@ modelo {
     modelo_3d { id: 'bulette' } info_textura { id: 'terrain_rocky.png' } cor { r: 1 g: 1 b: 1 }
     rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
     info_classes { id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM }
+    # Ataque total.
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano: '2d8' alcance_m: 2
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '2d8' alcance_m: 2
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano: '2d6' alcance_m: 2 empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
+    # Ataque total saltando: +5 de bonus, sem mordida.
+    dados_ataque {
+      grupo: 'salto' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra+salto' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'salto' valor: 5 } } }
+    }
+    dados_ataque {
+      grupo: 'salto' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra+salto' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'salto' valor: 5 } } }
+    }
+    dados_ataque {
+      grupo: 'salto' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra+salto' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'salto' valor: 5 } } }
+    }
+    dados_ataque {
+      grupo: 'salto' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra+salto' dano_basico: '2d6' alcance_m: 2
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'salto' valor: 5 } } }
+    }
+
     # Defesa.
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 12 } } }
@@ -392,7 +417,8 @@ modelo {
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
       acao_fixa {
-        cor { r: 1.0 g: 1.0  b: 0.0 } permite_ataque_vs_defesa: false
+        cor { r: 1.0 g: 1.0  b: 0.0 }
+        permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         dificuldade_salvacao: 12
       }
@@ -402,6 +428,7 @@ modelo {
   }
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
   }
 }
 modelo {
