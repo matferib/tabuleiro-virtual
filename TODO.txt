@@ -1,3 +1,12 @@
+Centopeia: nao esta batendo os ataques (imensa).
+Salvacao de esfera flamejante nao esta considerando bonus de atributo.
+Pele de arvore: o bonus eh de melhoria sobre armadura natural.
+Bulette: nao esta computando bonus de forca.
+Acoes e dados nao aparecem nos cenarios diferentes do primeiro.
+Fazer coluna de chamas.
+Planilha zicada no mac.
+
+Bug clonando cenario principal.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
