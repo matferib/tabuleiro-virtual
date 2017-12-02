@@ -1021,7 +1021,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
       }
     }
   }
@@ -3156,4 +3156,3 @@ tabela_pericias {
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
-

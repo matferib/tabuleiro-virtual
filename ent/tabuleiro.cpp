@@ -1026,6 +1026,19 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       }
     }
   }
+  if (parametros.has_tipo_modificador_salvacao()) {
+    switch (parametros.tipo_modificador_salvacao()) {
+      case TMS_MODIFICADOR_CONJURACAO:
+        for (auto& da : *modelo->mutable_dados_ataque()) {
+          da.mutable_acao_fixa()->set_dificuldade_salvacao(
+              da.acao_fixa().dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+        }
+        break;
+      case TMS_NENHUM:
+      default:
+        break;
+    }
+  }
   if (!parametros.rotulo_especial().empty()) {
     *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
   }

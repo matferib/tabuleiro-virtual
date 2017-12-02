@@ -65,9 +65,19 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o 
+// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
 void ExpandeComboBox(QComboBox* combo) {
-  int width = combo->view()->minimumSizeHint().width();
-  combo->setMinimumWidth(width);
+#if WIN32
+  int scroll = combo->count() <= combo->maxVisibleItems() ? 0 :
+      QApplication::style()->pixelMetric(QStyle::PixelMetric::PM_ScrollBarExtent);
+  int max = 0;
+  for (int i = 0; i < combo->count(); i++) {
+    int width = combo->view()->fontMetrics().width(combo->itemText(i));
+    if (max < width) max = width;
+  }
+  combo->view()->setMinimumWidth(scroll + max);
+#endif
 }
 
 // Retorna uma string de estilo para background-color baseada na cor passada.
