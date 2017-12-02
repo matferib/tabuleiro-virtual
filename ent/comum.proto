@@ -256,6 +256,7 @@ enum TipoBonus {
   TB_TAMANHO = 28;
   // Cumulativo.
   TB_SEM_NOME = 29;
+  TB_ARMADURA_NATURAL_MELHORIA = 30;
 }
 
 

@@ -1026,6 +1026,19 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       }
     }
   }
+  if (parametros.has_tipo_modificador_salvacao()) {
+    switch (parametros.tipo_modificador_salvacao()) {
+      case TMS_MODIFICADOR_CONJURACAO:
+        for (auto& da : *modelo->mutable_dados_ataque()) {
+          da.mutable_acao_fixa()->set_dificuldade_salvacao(
+              da.acao_fixa().dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+        }
+        break;
+      case TMS_NENHUM:
+      default:
+        break;
+    }
+  }
   if (!parametros.rotulo_especial().empty()) {
     *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
   }
@@ -1044,9 +1057,11 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
 #endif
       if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
-        // Na pratica so funciona com camera presa porque o duplo clique tira a selecao.
+        // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
+        VLOG(1) << "buscando referencia para criacao de entidade";
         const auto* referencia = EntidadeCameraPresaOuSelecionada();
         if (referencia == nullptr && notificacao.has_id_referencia()) {
+          VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
           referencia = BuscaEntidade(notificacao.id_referencia());
         }
         if (referencia != nullptr) {

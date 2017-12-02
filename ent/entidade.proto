@@ -196,7 +196,7 @@ message EntidadeProto {
     optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
-    optional AcaoProto acao_fixa = 41;
+    optional AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
     // Indica arma obra prima. Modifica bonus_ataque.
     optional bool obra_prima = 14;
     optional EmpunhaduraArma empunhadura = 15;

@@ -1,4 +1,8 @@
-Combos no windows nao expandem alem do tamanho original.
+Esfera flamejante: entidade salva mas o dano ainda eh mostrado.
+Fazer coluna de chamas.
+Planilha zicada no mac.
+Bug clonando cenario principal.
+
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
