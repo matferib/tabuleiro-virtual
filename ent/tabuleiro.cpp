@@ -4728,15 +4728,15 @@ void CorrigeTopologiaAposMudancaTamanho(
       pontos->empty()) {
     return;
   }
-  LOG(INFO) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
-            << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
-            << ", pontos_size: " << pontos->size();
+  VLOG(1) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
+          << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
+          << ", pontos_size: " << pontos->size();
   RepeatedField<double> novos_pontos;
   novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
   for (int i = 0; i < pontos->size(); ++i) {
     float z = pontos->Get(i);
     if (z > 0) {
-      LOG(INFO) << "ponto (" << i << ") > 0: " << z;
+      VLOG(1) << "ponto (" << i << ") > 0: " << z;
       break;
     }
   }
@@ -4744,10 +4744,10 @@ void CorrigeTopologiaAposMudancaTamanho(
   for (int y = 0; y <= tam_y_velho; ++y) {
     for (int x = 0; x <= tam_x_velho; ++x) {
       int indice = y * (tam_x_velho + 1) + x;
-      LOG(INFO) << "indice: " << indice;
+      VLOG(1) << "indice: " << indice;
       float z = pontos->Get(indice);
       if (z > 0) {
-        LOG(INFO) << "ponto (" << x << ", " << y << ") > 0: " << z;
+        VLOG(1) << "ponto (" << x << ", " << y << ") > 0: " << z;
         break;
       }
     }
@@ -4977,6 +4977,18 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
       LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
+}
+
+const TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) const {
+  if (id_cenario == CENARIO_PRINCIPAL) {
+    return &proto_;
+  }
+  for (auto& sub_cenario : proto_.sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
+      return &sub_cenario;
+    }
+  }
+  return nullptr;
 }
 
 TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {
