@@ -1089,14 +1089,7 @@ float Tabuleiro::TrataAcaoIndividual(
       if (vezes < 0) {
         PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
       }
-      // TODO usar: AdicionaAcaoTexto.
-      ntf::Notificacao n_texto;
-      n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
-      auto* acao_texto = n_texto.mutable_acao();
-      acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      acao_texto->set_texto(acao_proto->texto());
-      acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
-      TrataNotificacao(n_texto);
+      AdicionaAcaoTexto(entidade->Id(), acao_proto->texto(), 0);
       if (realiza_acao) {
         VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
         *n->mutable_acao() = *acao_proto;
