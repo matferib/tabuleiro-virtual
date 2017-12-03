@@ -786,6 +786,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         destino->set_x(entidade_selecionada->X());
         destino->set_y(entidade_selecionada->Y());
         destino->set_z(entidade_selecionada->Z());
+        destino->set_id_cenario(entidade_selecionada->IdCenario());
         central_->AdicionaNotificacaoRemota(n);
         // Para desfazer.
         auto* n_desfazer = g_desfazer.add_notificacao();
@@ -796,10 +797,12 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         pos_final->set_x(entidade_selecionada->X());
         pos_final->set_y(entidade_selecionada->Y());
         pos_final->set_z(entidade_selecionada->Z());
+        pos_final->set_id_cenario(entidade_selecionada->IdCenario());
         auto* pos_original = n_desfazer->mutable_entidade_antes()->mutable_pos();
         pos_original->set_x(entidade_selecionada->X() - vetor_delta.x());
         pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
         pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
+        pos_original->set_id_cenario(entidade_selecionada->IdCenario());
       }
       AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ETAB_ENTS_SELECIONADAS;
@@ -1086,14 +1089,7 @@ float Tabuleiro::TrataAcaoIndividual(
       if (vezes < 0) {
         PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
       }
-      // TODO usar: AdicionaAcaoTexto.
-      ntf::Notificacao n_texto;
-      n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
-      auto* acao_texto = n_texto.mutable_acao();
-      acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      acao_texto->set_texto(acao_proto->texto());
-      acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
-      TrataNotificacao(n_texto);
+      AdicionaAcaoTexto(entidade->Id(), acao_proto->texto(), 0);
       if (realiza_acao) {
         VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
         *n->mutable_acao() = *acao_proto;
