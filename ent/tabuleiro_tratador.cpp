@@ -1142,6 +1142,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     if (passou_rm && acao_proto->permite_salvacao()) {
       std::string resultado_salvacao;
+      // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
@@ -1151,6 +1152,8 @@ float Tabuleiro::TrataAcaoIndividual(
             "resultado salvacao de entidade %s: %s",
             RotuloEntidade(entidade_destino).c_str(),
             resultado_salvacao.c_str()));
+      // Deixa o delta em aberto novamente para ser preenchido pelo valor de delta_pontos_vida.
+      acao_proto->clear_delta_pontos_vida();
     }
     VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     acao_proto->set_nao_letal(nao_letal);

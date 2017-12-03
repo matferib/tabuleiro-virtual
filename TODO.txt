@@ -1,6 +1,4 @@
-Desfazer de mover esta enviando ele para o cenario principal.
 Desenho de agarrar nao esta transicionando o cenario.
-Esfera flamejante: entidade salva mas o dano ainda eh mostrado.
 Fazer coluna de chamas.
 Planilha zicada no mac.
 Bug clonando cenario principal.
