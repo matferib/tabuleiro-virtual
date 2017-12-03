@@ -1,6 +1,4 @@
-Fazer coluna de chamas.
 Planilha zicada no mac.
-Bug clonando cenario principal.
 
 Colocar salvacoes autoamaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
