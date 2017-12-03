@@ -1,8 +1,8 @@
-Desenho de agarrar nao esta transicionando o cenario.
 Fazer coluna de chamas.
 Planilha zicada no mac.
 Bug clonando cenario principal.
 
+Colocar salvacoes autoamaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.

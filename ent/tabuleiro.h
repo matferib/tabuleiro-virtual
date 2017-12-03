@@ -596,6 +596,9 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao para desenhar os pontos de rolagem do tabuleiro. */
   void DesenhaPontosRolagem();
 
+  /** Desenha os elos das entidades agarradas. */
+  void DesenhaElosAgarrar();
+
   /** Desenha as entidades. */
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
