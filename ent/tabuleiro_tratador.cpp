@@ -2009,6 +2009,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
       pos_depois->set_x(x3d);
       pos_depois->set_y(y3d);
       pos_depois->set_z(z3d);
+      pos_depois->set_id_cenario(entidade->Pos().id_cenario());
       e->set_apoiada(entidade->Apoiada());
       AdicionaNotificacaoListaEventos(n);
       MoveEntidadeNotificando(n);
