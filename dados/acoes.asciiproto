@@ -55,7 +55,7 @@ acao {
   id: 'Coluna de Chamas'
   tipo: ACAO_DISPERSAO
   cor { r: 1 g: 1 b: 1 a: 0.5 }
-  raio_quadrados: 4  # quadrados.
+  raio_quadrados: 2  # quadrados.
   geometria: ACAO_GEO_CILINDRO
   efeito_area: true
 	permite_salvacao: true
