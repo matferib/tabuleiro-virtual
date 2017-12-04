@@ -889,6 +889,13 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.set_margem_critico(dano_arma.margem_critico);
   } else {
     da.set_id_arma(id);
+    // Se houver dano, usa ele mesmo com id. Deixa RecomputaDependencias decidir.
+    if (!gerador.linha_dano->text().isEmpty()) {
+      ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+      da.set_dano_basico(dano_arma.dano);
+      da.set_multiplicador_critico(dano_arma.multiplicador);
+      da.set_margem_critico(dano_arma.margem_critico);
+    }
   }
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
   da.set_incrementos(gerador.spin_incrementos->value());
@@ -1199,7 +1206,6 @@ void ConfiguraComboArma(
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
-    gerador.linha_dano->setEnabled(id_arma == "nenhuma");
 
     const int index_lista = gerador.lista_ataques->currentRow();
     if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
@@ -1210,6 +1216,7 @@ void ConfiguraComboArma(
       da->set_id_arma(id_arma);
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
+    gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
   ExpandeComboBox(combo_arma);

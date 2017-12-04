@@ -52,24 +52,6 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
-  id: 'Coluna de Chamas'
-  tipo: ACAO_DISPERSAO
-  cor { r: 1 g: 1 b: 1 a: 0.5 }
-  raio_quadrados: 2  # quadrados.
-  geometria: ACAO_GEO_CILINDRO
-  efeito_area: true
-	permite_salvacao: true
-  icone: 'icon_flame_strike.png'
-  info_textura { id: 'fire.png' }
-  duracao_s: 0.350
-  dois_lados: true
-  # TODO: para druida eh 14.
-  dificuldade_salvacao: 15
-  resultado_salvacao: RS_MEIO
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
-}
-acao {
   id: 'Cone de Gelo'
   tipo: ACAO_DISPERSAO
   cor: { r: 0.3 b: 1.0 g: 0.3 }
@@ -85,6 +67,15 @@ acao {
   resultado_salvacao: RS_MEIO
   tipo_salvacao: TS_REFLEXO
   ignora_reducao_dano_barbaro: true
+}
+acao {
+  id: 'Feitiço de Clérigo'
+}
+acao {
+  id: 'Feitiço de Druida'
+}
+acao {
+  id: 'Feitiço de Mago'
 }
 acao {
   id: 'Feitiço de Toque'

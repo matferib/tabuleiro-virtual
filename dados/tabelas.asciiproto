@@ -3156,3 +3156,47 @@ tabela_pericias {
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
+tabela_feiticos {
+  armas {
+    id: 'coluna_chamas'
+    nome: 'Coluna de Chamas'
+    alcance_quadrados: 20  # +2 por nivel.
+    info_classes { 
+      classe: 'clerigo'
+      nivel: 5
+    }
+    info_classes { 
+      classe: 'druida'
+      nivel: 4
+    }
+    info_classes { 
+      dominio: 'sol'
+      nivel: 5
+    }
+    info_classes { 
+      dominio: 'guerra'
+      nivel: 5
+    }
+    info_classes { 
+      classe: 'druida'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_CILINDRO
+      efeito_area: true
+    	permite_salvacao: true
+      icone: 'icon_flame_strike.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      dois_lados: true
+      # TODO: para druida eh 14.
+      dificuldade_salvacao: 15
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+}

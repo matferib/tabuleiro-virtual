@@ -142,6 +142,11 @@ void Tabuleiro::CarregaControleVirtual() {
       n->add_info_textura()->set_id(arma.acao().icone());
     }
   }
+  for (const auto& feitico : tabelas_.todas().tabela_feiticos().armas()) {
+    if (feitico.acao().has_icone()) {
+      n->add_info_textura()->set_id(feitico.acao().icone());
+    }
+  }
 
   central_->AdicionaNotificacao(n);
 
@@ -179,6 +184,11 @@ void Tabuleiro::LiberaControleVirtual() {
   for (const auto& arma : tabelas_.todas().tabela_armas().armas()) {
     if (arma.acao().has_icone()) {
       n->add_info_textura()->set_id(arma.acao().icone());
+    }
+  }
+  for (const auto& feitico : tabelas_.todas().tabela_feiticos().armas()) {
+    if (feitico.acao().has_icone()) {
+      n->add_info_textura()->set_id(feitico.acao().icone());
     }
   }
   central_->AdicionaNotificacao(n);

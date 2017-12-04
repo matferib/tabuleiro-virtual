@@ -1600,7 +1600,7 @@ const ArmaProto& ArmaOutraMao(
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
-  const auto& arma = tabelas.Arma(da->id_arma());
+  const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
@@ -1613,9 +1613,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     }
 
     // tipo certo de ataque.
-    bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
-    bool cac = PossuiCategoria(CAT_CAC, arma);
+    const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
+    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    const bool cac = PossuiCategoria(CAT_CAC, arma);
     if (distancia && cac) {
       // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
       if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
@@ -1628,17 +1628,17 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     } else if (projetil_area) {
       da->set_tipo_ataque("Projétil de Área");
       da->set_tipo_acao(ACAO_PROJETIL_AREA);
-    } else {
+    } else if (distancia) {
       da->set_tipo_ataque("Ataque a Distância");
       da->set_tipo_acao(ACAO_PROJETIL);
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
-    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
+    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
       da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico_secundario());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
-    } else {
+    } else if (arma.has_dano()) {
       da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
@@ -1783,7 +1783,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       PossuiTalento("especializacao_arma", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
   AtribuiOuRemoveBonus(
       PossuiTalento("especializacao_arma_maior", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
-  // Estes dois sao os mais importantes, porque eh o que vale.
+  // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que vale.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));

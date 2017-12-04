@@ -95,6 +95,16 @@ message ArmaProto {
   optional string dano_dispersao = 19;
   // Para outros efeitos.
   optional AcaoProto acao = 20;
+  // Em caso de feitico, indica quais classes podem usa-lo e o nivel.
+  message InfoClasse {
+    // Classe que pode usar o feitico.
+    optional string classe = 1;
+    // Para feiticos de classe.
+    optional string dominio = 2;
+    // Nivel da classe.
+    optional int32 nivel = 3;
+  }
+  repeated InfoClasse info_classes = 21;
 }
 
 message TabelaArmaduraOuEscudo {
@@ -134,6 +144,7 @@ message TodasTabelas {
   optional TabelaEfeitos tabela_efeitos = 4;
   optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPericias tabela_pericias =  6;
+  optional TabelaArmas tabela_feiticos = 7;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
 }

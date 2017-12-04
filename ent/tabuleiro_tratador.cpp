@@ -1204,7 +1204,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
   if (!acao_proto.has_tipo()) {
-    LOG(ERROR) << "Acao invalida da entidade";
+    LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
     return atraso_s;
   }
   if (id_entidade_destino != Entidade::IdInvalido) {
