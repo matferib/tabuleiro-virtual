@@ -67,6 +67,8 @@ message StringPorTamanho {
   optional string medio = 1;
   optional string pequeno = 2;
   optional string grande = 3;
+  // Dano nao varia por tamanho.
+  optional string invariavel = 4;
 }
 
 message ArmaProto {

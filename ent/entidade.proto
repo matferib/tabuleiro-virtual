@@ -343,4 +343,21 @@ message EntidadeProto {
   optional TendenciaDetalhada tendencia = 80;
   // XP do personagem.
   optional int32 experiencia = 84;
+
+  message FeiticosPorNivel {
+    optional int32 nivel = 1;
+    optional int32 total = 2;
+    optional int32 usados = 3;
+    repeated string memorizados = 4;
+    optional string memorizado_dominio = 5;
+    repeated string conhecidos = 6;
+  }
+  message InfoFeiticosClasse {
+    optional string id_classe = 1;
+    optional bool possui_nivel_0 = 2;
+    optional bool precisa_memorizar = 3;
+    optional bool possui_dominio = 4;
+    repeated FeiticosPorNivel feiticos_por_nivel = 5;
+  }
+  repeated InfoFeiticosClasse feiticos_classes = 87;
 }

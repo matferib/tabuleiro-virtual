@@ -968,7 +968,7 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
   const auto* da = ea.DadoCorrente();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da!= nullptr && da->has_municao() && da->municao() == 0) {
-    VLOG(1) << "Nao ha municao para ataque";
+    VLOG(1) << "Nao ha municao para ataque: " << da->DebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
 
@@ -1567,6 +1567,9 @@ std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const En
 }
 
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
+  if (dano.has_invariavel()) {
+    return dano.invariavel();
+  }
   switch (tamanho) {
     case TM_MEDIO: return dano.medio();
     case TM_PEQUENO: return dano.pequeno();
@@ -2696,13 +2699,8 @@ void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, Entidade
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
 
-  if (acao_proto.ignora_municao()) {
+  if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
     da->clear_municao();
-  }
-  // Hack de missil magico.
-  if (da->tipo_ataque() == "Míssil Mágico") {
-    if (!da->has_dano()) da->set_dano("1d4+1");
-    if (da->alcance_m() < 33) da->set_alcance_m(33);
   }
   da->set_tipo_ataque(acao_proto.id());
   da->set_tipo_acao(acao_proto.tipo());

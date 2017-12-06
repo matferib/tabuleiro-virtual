@@ -3161,23 +3161,23 @@ tabela_feiticos {
     id: 'coluna_chamas'
     nome: 'Coluna de Chamas'
     alcance_quadrados: 20  # +2 por nivel.
-    info_classes { 
+    info_classes {
       classe: 'clerigo'
       nivel: 5
     }
-    info_classes { 
+    info_classes {
       classe: 'druida'
       nivel: 4
     }
-    info_classes { 
+    info_classes {
       dominio: 'sol'
       nivel: 5
     }
-    info_classes { 
+    info_classes {
       dominio: 'guerra'
       nivel: 5
     }
-    info_classes { 
+    info_classes {
       classe: 'druida'
       nivel: 4
     }
@@ -3187,7 +3187,7 @@ tabela_feiticos {
       raio_quadrados: 2  # quadrados.
       geometria: ACAO_GEO_CILINDRO
       efeito_area: true
-    	permite_salvacao: true
+      permite_salvacao: true
       icone: 'icon_flame_strike.png'
       info_textura { id: 'fire.png' }
       duracao_s: 0.350
@@ -3197,6 +3197,142 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'bola_de_fogo'
+    nome: 'Bola de Fogo'
+    alcance_quadrados: 80  # +8 por nivel.
+    info_classes { 
+      classe: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      # Mais modificador de conjurador.
+      dificuldade_salvacao: 13
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'cone_de_gelo'
+    nome: 'Cone de Gelo'
+    alcance_quadrados: 12
+    info_classes { 
+      classe: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      dominio: 'agua'
+      nivel: 6
+    }
+    acao {
+      id: 'Cone de Gelo'
+      tipo: ACAO_DISPERSAO
+      cor: { r: 0.3 b: 1.0 g: 0.3 }
+      distancia_quadrados: 12  # quadrados
+      geometria: ACAO_GEO_CONE
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_ice.png'
+      duracao_s: 0.350
+      dois_lados: true
+      # TODO para clerigo da agua eh 16.
+      dificuldade_salvacao: 15
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'relampago'
+    nome: 'Relâmpago'
+    alcance_quadrados: 24
+    info_classes {
+      classe: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      efeito_area: true
+      distancia_quadrados: 14  # quadrados
+      permite_salvacao: true
+      icone: "icon_lightning.png"
+      info_textura { id: 'lightning.png' }
+      ignora_luz: true
+      dificuldade_salvacao: 13
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'tempestade_glacial'
+    nome: 'Tempestade Glacial'
+    alcance_quadrados: 80  # + 8 nivel
+    info_classes {
+      classe: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      classe: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      dominio: 'agua'
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_CILINDRO
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_ice.png'
+      info_textura { id: 'ice.png' }
+      duracao_s: 0.350
+      dois_lados: true
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'missil_magico'
+    nome: 'Míssil Mágico'
+    alcance_quadrados: 20  # +2 nivel
+    dano { invariavel: '1d4+1' }
+    info_classes {
+      classe: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_PROJETIL
+      geometria: ACAO_GEO_ESFERA
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      cor { r: 0.0 g: 0.0 b: 1.0 }
+      velocidade {
+        tipo_aceleracao: ACAO_ACEL_CONSTANTE
+        aceleracao_m_s_2: 0.04
+      }
+      icone: 'icon_magic_missile.png'
+      ignora_luz: true
+      ignora_municao: true
+      ignora_reducao_dano_barbaro: true
+      consequencia: TC_DESLOCA_ALVO
     }
   }
 }
