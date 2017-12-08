@@ -3160,7 +3160,8 @@ tabela_feiticos {
   armas {
     id: 'coluna_chamas'
     nome: 'Coluna de Chamas'
-    alcance_quadrados: 20  # +2 por nivel.
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       classe: 'clerigo'
       nivel: 5
@@ -3202,8 +3203,9 @@ tabela_feiticos {
   armas {
     id: 'bola_de_fogo'
     nome: 'Bola de Fogo'
-    alcance_quadrados: 80  # +8 por nivel.
-    info_classes { 
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
       classe: 'mago'
       nivel: 3
     }
@@ -3230,7 +3232,7 @@ tabela_feiticos {
     id: 'cone_de_gelo'
     nome: 'Cone de Gelo'
     alcance_quadrados: 12
-    info_classes { 
+    info_classes {
       classe: 'mago'
       nivel: 5
     }
@@ -3283,7 +3285,8 @@ tabela_feiticos {
   armas {
     id: 'tempestade_glacial'
     nome: 'Tempestade Glacial'
-    alcance_quadrados: 80  # + 8 nivel
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
       classe: 'druida'
       nivel: 4
@@ -3313,7 +3316,8 @@ tabela_feiticos {
   armas {
     id: 'missil_magico'
     nome: 'Míssil Mágico'
-    alcance_quadrados: 20  # +2 nivel
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
     info_classes {
       classe: 'mago'

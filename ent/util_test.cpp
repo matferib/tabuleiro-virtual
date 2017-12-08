@@ -1,3 +1,4 @@
+#include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
@@ -528,6 +529,21 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
     ed.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
     EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
   }
+}
+
+TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
+  Tabelas tabelas;
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("missil_magico");
+
+  RecomputaDependencias(tabelas, &proto);
+
+  EXPECT_EQ(da->alcance_m(), 26 * TAMANHO_LADO_QUADRADO);
 }
 
 }  // namespace ent.

@@ -83,6 +83,12 @@ message ArmaProto {
   repeated TipoDano tipo_dano = 9;
   optional int32 alcance_quadrados = 10;
   optional int32 alcance_minimo_quadrados = 17;
+  enum ModificadorAlcance {
+    MOD_NENHUM = 0;
+    MOD_2_QUAD_NIVEL = 1;
+    MOD_8_QUAD_NIVEL = 2;
+  }
+  optional ModificadorAlcance modificador_alcance = 22;
   optional int32 margem_critico = 7 [default=20];
   optional int32 multiplicador_critico = 11 [default=2];
   optional int32 margem_critico_secundario = 12 [default=20];

@@ -1601,6 +1601,17 @@ const ArmaProto& ArmaOutraMao(
   return tabelas.Arma(da_outra_mao->id_arma());
 }
 
+// Retorna a classe de um feitico.
+std::string ClasseFeitico(const EntidadeProto::DadosAtaque& da) {
+  const std::string& tipo = da.tipo_ataque();
+  if (tipo == "Feitiço de Clérigo") return "clerigo";
+  if (tipo == "Feitiço de Druida") return "druida";
+  if (tipo == "Feitiço de Mago") return "mago";
+  if (tipo == "Feitiço de Ranger") return "ranger";
+  if (tipo == "Feitiço de Paladino") return "paladino";
+  return "";
+}
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
@@ -1678,7 +1689,20 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
-    da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
+    int mod_distancia_quadrados = 0;
+    const std::string& classe_cojurador = ClasseFeitico(*da);
+    const int nivel = Nivel(classe_cojurador, proto);
+    switch (arma.modificador_alcance()) {
+      case ArmaProto::MOD_2_QUAD_NIVEL:
+        mod_distancia_quadrados = 2 * nivel;
+        break;
+      case ArmaProto::MOD_8_QUAD_NIVEL:
+        mod_distancia_quadrados = 8 * nivel;
+        break;
+      default:
+        ;
+    }
+    da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS);
     da->set_alcance_minimo_m(0);
   } else if (da->tipo_ataque() == "Ataque Corpo a Corpo") {
     // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
