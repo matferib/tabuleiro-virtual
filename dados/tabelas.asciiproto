@@ -2613,6 +2613,7 @@ tabela_classes {
   }
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id_para_magia: 'mago'
 
     pericias: 'blefar'
     pericias: 'concentracao'
@@ -3163,24 +3164,22 @@ tabela_feiticos {
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
-      classe: 'clerigo'
+      id: 'clerigo'
       nivel: 5
     }
     info_classes {
-      classe: 'druida'
+      id: 'druida'
       nivel: 4
     }
     info_classes {
-      dominio: 'sol'
+      id: 'sol'
+      dominio: true
       nivel: 5
     }
     info_classes {
-      dominio: 'guerra'
+      id: 'guerra'
+      dominio: true
       nivel: 5
-    }
-    info_classes {
-      classe: 'druida'
-      nivel: 4
     }
     acao {
       tipo: ACAO_DISPERSAO
@@ -3193,8 +3192,7 @@ tabela_feiticos {
       info_textura { id: 'fire.png' }
       duracao_s: 0.350
       dois_lados: true
-      # TODO: para druida eh 14.
-      dificuldade_salvacao_base: 15
+      dificuldade_salvacao_por_nivel: true
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3206,7 +3204,7 @@ tabela_feiticos {
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
-      classe: 'mago'
+      id: 'mago'
       nivel: 3
     }
     acao {
@@ -3222,7 +3220,7 @@ tabela_feiticos {
       ignora_luz: true
       consequencia: TC_INFLAMA_ALVO
       # Mais modificador de conjurador.
-      dificuldade_salvacao_base: 13
+      dificuldade_salvacao_por_nivel: true 
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3233,11 +3231,12 @@ tabela_feiticos {
     nome: 'Cone de Gelo'
     alcance_quadrados: 12
     info_classes {
-      classe: 'mago'
+      id: 'mago'
       nivel: 5
     }
     info_classes {
-      dominio: 'agua'
+      id: 'agua'
+      dominio: true 
       nivel: 6
     }
     acao {
@@ -3251,8 +3250,7 @@ tabela_feiticos {
       icone: 'icon_ice.png'
       duracao_s: 0.350
       dois_lados: true
-      # TODO para clerigo da agua eh 16.
-      dificuldade_salvacao_base: 15
+      dificuldade_salvacao_por_nivel: true 
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3263,7 +3261,7 @@ tabela_feiticos {
     nome: 'Relâmpago'
     alcance_quadrados: 24
     info_classes {
-      classe: 'mago'
+      id: 'mago'
       nivel: 3
     }
     acao {
@@ -3276,7 +3274,7 @@ tabela_feiticos {
       icone: "icon_lightning.png"
       info_textura { id: 'lightning.png' }
       ignora_luz: true
-      dificuldade_salvacao_base: 13
+      dificuldade_salvacao_por_nivel: true 
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3288,15 +3286,16 @@ tabela_feiticos {
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
-      classe: 'druida'
+      id: 'druida'
       nivel: 4
     }
     info_classes {
-      classe: 'mago'
+      id: 'mago'
       nivel: 4
     }
     info_classes {
-      dominio: 'agua'
+      id: 'agua'
+      dominio: true
       nivel: 5
     }
     acao {
@@ -3320,7 +3319,7 @@ tabela_feiticos {
     modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
     info_classes {
-      classe: 'mago'
+      id: 'mago'
       nivel: 1
     }
     acao {

@@ -313,6 +313,8 @@ message InfoClasse {
   optional ProgressaoConjurador progressao_conjurador = 10;
   // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
   repeated string pericias = 11;
+  // Qual a classe de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
+  optional string id_para_magia = 12; 
 }
 
 message ConsequenciaEvento {

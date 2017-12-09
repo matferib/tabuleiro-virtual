@@ -98,6 +98,8 @@ message AcaoProto {
   optional ResultadoSalvacao resultado_salvacao = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;
+  // Caso presente, usara 10 + o nivel do feitico como base.
+  optional bool dificuldade_salvacao_por_nivel = 50;
   optional int32 dificuldade_salvacao = 33;
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,

@@ -2573,6 +2573,8 @@ int ModificadorAtributo(const Bonus& atributo) {
   return ModificadorAtributo(total_atributo);
 }
 
+// Melhor fazer sobre o proto do personagem do que para tabela por causa de classes nao tabeladas.
+// A consequencia eh que o personagem deve ter a classe.
 int ModificadorAtributoConjuracao(const std::string& id_classe, const EntidadeProto& proto) {
   for (const auto& info_classe : proto.info_classes()) {
     if (info_classe.id() == id_classe) {
@@ -2713,6 +2715,28 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
   });
 }
 
+// Varias classes usam o mesmo tipo de magia: feiticeiros, magos, adeptos e especialistas.
+std::string NormalizaIdClasse(const std::string& id) {
+  if (id == "feiticeiro") return "mago";
+  if (id == "adepto") return "mago";
+  if (id == "necromante") return "mago";
+  return id;
+}
+
+const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe) {
+  const auto& classe_tabelada = tabelas.Classe(id_classe);
+  return classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : id_classe;
+}
+
+// Retorna o nivel do feitico para determinada classe.
+int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const ArmaProto& arma) {
+  const auto& id = IdParaMagia(tabelas, id_classe);
+  for (const auto& ic : arma.info_classes()) {
+    if (ic.id() == id) return ic.nivel();
+  }
+  return 0;
+}
+
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
   da->clear_acao();
@@ -2724,9 +2748,10 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
-  if (da->acao().has_dificuldade_salvacao_base()) {
-    da->mutable_acao()->set_dificuldade_salvacao(
-        da->acao().dificuldade_salvacao_base() + ModificadorAtributoConjuracao(ClasseParaFeitico(da->tipo_ataque(), proto), proto));
+  if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
+    const std::string& classe = ClasseParaFeitico(da->tipo_ataque(), proto);
+    const int base = da->acao().has_dificuldade_salvacao_base() ? da->acao().dificuldade_salvacao_base() : 10 + NivelFeitico(tabelas, classe, arma);
+    da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(classe, proto));
   }
 
   if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
@@ -3052,14 +3077,14 @@ int Nivel(const std::string& id, const EntidadeProto& proto) {
 }
 
 std::string ClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
-  if (tipo_ataque == "Feitiço de Clérigo") return ("clerigo");
-  if (tipo_ataque == "Feitiço de Druida") return ("druida");
-  if (tipo_ataque == "Feitiço de Ranger") return ("ranger");
-  if (tipo_ataque == "Feitiço de Paladino") return ("paladino");
+  if (tipo_ataque == "Feitiço de Clérigo") return "clerigo";
+  if (tipo_ataque == "Feitiço de Druida") return "druida";
+  if (tipo_ataque == "Feitiço de Ranger") return "ranger";
+  if (tipo_ataque == "Feitiço de Paladino") return "paladino";
   if (tipo_ataque == "Feitiço de Mago") {
     const int nivel_mago = Nivel("mago", proto);
     const int nivel_feiticeiro = Nivel("feiticeiro", proto);
-    return nivel_mago > nivel_feiticeiro ? "mago" : "feiticeiro";
+    return nivel_mago >= nivel_feiticeiro ? "mago" : "feiticeiro";
   }
   return "";
 }
