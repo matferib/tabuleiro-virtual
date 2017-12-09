@@ -2377,6 +2377,7 @@ tabela_classes {
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id_para_magia: 'mago'
 
     pericias: 'concentracao'
     pericias: 'oficios'
