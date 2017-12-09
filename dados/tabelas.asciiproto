@@ -3194,7 +3194,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       # TODO: para druida eh 14.
-      dificuldade_salvacao: 15
+      dificuldade_salvacao_base: 15
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3222,7 +3222,7 @@ tabela_feiticos {
       ignora_luz: true
       consequencia: TC_INFLAMA_ALVO
       # Mais modificador de conjurador.
-      dificuldade_salvacao: 13
+      dificuldade_salvacao_base: 13
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3252,7 +3252,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       # TODO para clerigo da agua eh 16.
-      dificuldade_salvacao: 15
+      dificuldade_salvacao_base: 15
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
@@ -3276,7 +3276,7 @@ tabela_feiticos {
       icone: "icon_lightning.png"
       info_textura { id: 'lightning.png' }
       ignora_luz: true
-      dificuldade_salvacao: 13
+      dificuldade_salvacao_base: 13
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true

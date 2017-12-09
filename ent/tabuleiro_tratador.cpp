@@ -978,9 +978,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
 float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
-  if (acao_proto->permite_salvacao()) {
-    acao_proto->set_dificuldade_salvacao(acao_proto->dificuldade_salvacao() + entidade->ModificadorAtributoConjuracao());
-  }
   if (pos_entidade_destino.has_x()) {
     acao_proto->mutable_pos_entidade()->CopyFrom(pos_entidade_destino);
   }

@@ -279,6 +279,8 @@ int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
 int ModificadorAtributo(const Bonus& atributo);
 int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
+// Retorna o modificador de atributo de conjuracao para uma determinada classe.
+int ModificadorAtributoConjuracao(const std::string& id_classe, const EntidadeProto& proto);
 // Retorna bonus por TipoAtributo.
 const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto);
 Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto);
@@ -309,7 +311,7 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
@@ -380,6 +382,8 @@ int Nivel(const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
 int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+// Dado um tipo de ataque (ver ids de acoes), retorna a classe do proto que corresponde a ela.
+std::string ClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

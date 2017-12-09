@@ -1604,7 +1604,7 @@ const ArmaProto& ArmaOutraMao(
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
-  AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
+  ArmaParaDadosAtaque(tabelas, arma, proto, da);
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -2573,6 +2573,15 @@ int ModificadorAtributo(const Bonus& atributo) {
   return ModificadorAtributo(total_atributo);
 }
 
+int ModificadorAtributoConjuracao(const std::string& id_classe, const EntidadeProto& proto) {
+  for (const auto& info_classe : proto.info_classes()) {
+    if (info_classe.id() == id_classe) {
+      return info_classe.modificador_atributo_conjuracao();
+    }
+  }
+  return 0;
+}
+
 void AtribuiBaseAtributo(int valor, TipoAtributo ta, EntidadeProto* proto) {
   auto* bonus = BonusAtributo(ta, proto);
   AtribuiBonus(valor, TB_BASE, "base", bonus);
@@ -2704,20 +2713,27 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
   });
 }
 
-void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
+  const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
   da->clear_acao();
+  // Aplica acao da arma.
   if (arma.has_acao()) {
     *da->mutable_acao() = arma.acao();
   }
+  // Aplica acao fixa.
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
+  }
+  if (da->acao().has_dificuldade_salvacao_base()) {
+    da->mutable_acao()->set_dificuldade_salvacao(
+        da->acao().dificuldade_salvacao_base() + ModificadorAtributoConjuracao(ClasseParaFeitico(da->tipo_ataque(), proto), proto));
   }
 
   if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
     da->clear_municao();
   }
   da->set_tipo_ataque(acao_proto.id());
-  da->set_tipo_acao(acao_proto.tipo());
+  da->set_tipo_acao(acao_proto.has_tipo() ? acao_proto.tipo() : da->acao().tipo());
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
     da->set_tipo_ataque(PossuiCategoria(CAT_PROJETIL_AREA, arma)
         ? "Projétil de Área"
@@ -3035,19 +3051,22 @@ int Nivel(const std::string& id, const EntidadeProto& proto) {
   return 0;
 }
 
-// Retorna a classe de um feitico. Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
-int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  const std::string& tipo = da.tipo_ataque();
-  if (tipo == "Feitiço de Clérigo") return Nivel("clerigo", proto);
-  if (tipo == "Feitiço de Druida") return Nivel("druida", proto);
-  if (tipo == "Feitiço de Ranger") return Nivel("ranger", proto);
-  if (tipo == "Feitiço de Paladino") return Nivel("paladino", proto);
-  if (tipo == "Feitiço de Mago") {
+std::string ClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
+  if (tipo_ataque == "Feitiço de Clérigo") return ("clerigo");
+  if (tipo_ataque == "Feitiço de Druida") return ("druida");
+  if (tipo_ataque == "Feitiço de Ranger") return ("ranger");
+  if (tipo_ataque == "Feitiço de Paladino") return ("paladino");
+  if (tipo_ataque == "Feitiço de Mago") {
     const int nivel_mago = Nivel("mago", proto);
     const int nivel_feiticeiro = Nivel("feiticeiro", proto);
-    return std::max(nivel_mago, nivel_feiticeiro);
+    return nivel_mago > nivel_feiticeiro ? "mago" : "feiticeiro";
   }
-  return 0;
+  return "";
+}
+
+// Retorna a classe de um feitico. Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
+int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  return Nivel(ClasseParaFeitico(da.tipo_ataque(), proto), proto);
 }
 
 bool EmDefesaTotal(const EntidadeProto& proto) {

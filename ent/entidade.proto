@@ -195,6 +195,12 @@ message EntidadeProto {
     optional float alcance_m = 10;
     optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
+    // A diferenca desses dois eh importante.
+    // O campo acao eh o valor final, recomputado sempre a partir da acao da arma e da acao_fixa.
+    // Por que nao deixar tudo na arma? Alguns monstros tem modificadores de dados de ataque
+    // sem usar armas, portanto eles tem na entrada deles acao_fixa. Por exemplo, o ankheg.
+    // Caso o jato dele tivesse acao ao inves de acao_fixa, qualquer mudanca que cause recomputacao
+    // (tipo drenar forca), apagaria o campo acao.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
     optional AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
     // Indica arma obra prima. Modifica bonus_ataque.

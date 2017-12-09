@@ -96,6 +96,8 @@ message AcaoProto {
   optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
   optional ResultadoSalvacao resultado_salvacao = 32;
+  // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
+  optional int32 dificuldade_salvacao_base = 49;
   optional int32 dificuldade_salvacao = 33;
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
