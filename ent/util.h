@@ -382,8 +382,11 @@ int Nivel(const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
 int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
-// Dado um tipo de ataque (ver ids de acoes), retorna a classe do proto que corresponde a ela.
-std::string ClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
+// Retorna o id de classe para um tipo de ataque. Note que todas variantes de mago (feiticeiro, adepto etc) retornam mago.
+std::string ClasseParaFeitico(const std::string& tipo_ataque);
+// Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
+// e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto); 
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

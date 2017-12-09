@@ -557,7 +557,36 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
 
     EXPECT_EQ(da->alcance_m(), 24 * TAMANHO_LADO_QUADRADO);
   }
+}
 
+TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
+  Tabelas tabelas;
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("bola_de_fogo");
+    RecomputaDependencias(tabelas, &proto);
+
+    EXPECT_EQ(da->acao().dificuldade_salvacao(), 14);
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("feiticeiro");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(14, TA_CARISMA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("bola_de_fogo");
+    RecomputaDependencias(tabelas, &proto);
+
+    EXPECT_EQ(da->acao().dificuldade_salvacao(), 15);
+  }
 }
 
 }  // namespace ent.

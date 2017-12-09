@@ -2715,14 +2715,6 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
   });
 }
 
-// Varias classes usam o mesmo tipo de magia: feiticeiros, magos, adeptos e especialistas.
-std::string NormalizaIdClasse(const std::string& id) {
-  if (id == "feiticeiro") return "mago";
-  if (id == "adepto") return "mago";
-  if (id == "necromante") return "mago";
-  return id;
-}
-
 const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe) {
   const auto& classe_tabelada = tabelas.Classe(id_classe);
   return classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : id_classe;
@@ -2749,9 +2741,15 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
   if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
-    const std::string& classe = ClasseParaFeitico(da->tipo_ataque(), proto);
-    const int base = da->acao().has_dificuldade_salvacao_base() ? da->acao().dificuldade_salvacao_base() : 10 + NivelFeitico(tabelas, classe, arma);
-    da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(classe, proto));
+    // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
+    // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
+    // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
+    // enquanto ClasseParaFeitico busca a classe para feitico (mago).
+    const auto& ic = InfoClasseParaFeitico(da->tipo_ataque(), proto);
+    const int base = da->acao().has_dificuldade_salvacao_base()
+        ? da->acao().dificuldade_salvacao_base()
+        : 10 + NivelFeitico(tabelas, ClasseParaFeitico(da->tipo_ataque()), arma);
+    da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(ic.id(), proto));
   }
 
   if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
@@ -3068,7 +3066,6 @@ int Nivel(const EntidadeProto& proto) {
   return total;
 }
 
-
 int Nivel(const std::string& id, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
     if (ic.id() == id) return ic.nivel();
@@ -3076,22 +3073,32 @@ int Nivel(const std::string& id, const EntidadeProto& proto) {
   return 0;
 }
 
-std::string ClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
+std::string ClasseParaFeitico(const std::string& tipo_ataque) {
   if (tipo_ataque == "Feitiço de Clérigo") return "clerigo";
   if (tipo_ataque == "Feitiço de Druida") return "druida";
   if (tipo_ataque == "Feitiço de Ranger") return "ranger";
   if (tipo_ataque == "Feitiço de Paladino") return "paladino";
-  if (tipo_ataque == "Feitiço de Mago") {
-    const int nivel_mago = Nivel("mago", proto);
-    const int nivel_feiticeiro = Nivel("feiticeiro", proto);
-    return nivel_mago >= nivel_feiticeiro ? "mago" : "feiticeiro";
-  }
+  if (tipo_ataque == "Feitiço de Mago") return "mago";
   return "";
 }
 
-// Retorna a classe de um feitico. Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
+  const auto& id = ClasseParaFeitico(tipo_ataque);
+  const InfoClasse* ret = &InfoClasse::default_instance();
+  // Evita comparacao com ids vazios, ja que id_para_magia pode ser vazio tb.
+  if (id.empty()) return *ret;
+  int max = 0;
+  for (const auto& ic : proto.info_classes()) {
+    if ((ic.id() == id || ic.id_para_magia() == id) && ic.nivel() > max) {
+      max = ic.nivel();
+      ret = &ic;
+    }
+  }
+  return *ret;
+}
+
 int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  return Nivel(ClasseParaFeitico(da.tipo_ataque(), proto), proto);
+  return InfoClasseParaFeitico(da.tipo_ataque(), proto).nivel();
 }
 
 bool EmDefesaTotal(const EntidadeProto& proto) {
