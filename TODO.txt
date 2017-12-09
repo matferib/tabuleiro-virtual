@@ -1,7 +1,5 @@
 Campo de feiticos por dia.
-Automatizar dano e distancia de feiticos.
-Feiticos: permitir alcance mutavel (como o dano).
-Passar outros para esse modelo: bola de fogo, cone de gelo etc.
+Automatizar dano de feiticos.
 Planilha zicada no mac.
 
 Colocar salvacoes autoamaticas de veneno.

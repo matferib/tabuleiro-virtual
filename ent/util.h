@@ -377,6 +377,9 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 int Nivel(const std::string& id, const EntidadeProto& proto);
 // Nivel total da entidade.
 int Nivel(const EntidadeProto& proto);
+// Retorna o nivel da classe para um tipo de ataque.
+// Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
+int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

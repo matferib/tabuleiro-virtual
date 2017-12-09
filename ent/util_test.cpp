@@ -533,17 +533,31 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
 
 TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
   Tabelas tabelas;
-  EntidadeProto proto;
-  auto* ic = proto.add_info_classes();
-  ic->set_id("mago");
-  ic->set_nivel(3);
-  auto* da = proto.add_dados_ataque();
-  da->set_tipo_ataque("Feitiço de Mago");
-  da->set_id_arma("missil_magico");
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("missil_magico");
+    RecomputaDependencias(tabelas, &proto);
 
-  RecomputaDependencias(tabelas, &proto);
+    EXPECT_EQ(da->alcance_m(), 26 * TAMANHO_LADO_QUADRADO);
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("feiticeiro");
+    ic->set_nivel(2);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("missil_magico");
+    RecomputaDependencias(tabelas, &proto);
 
-  EXPECT_EQ(da->alcance_m(), 26 * TAMANHO_LADO_QUADRADO);
+    EXPECT_EQ(da->alcance_m(), 24 * TAMANHO_LADO_QUADRADO);
+  }
+
 }
 
 }  // namespace ent.
