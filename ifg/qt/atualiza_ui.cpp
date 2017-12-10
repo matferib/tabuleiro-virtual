@@ -23,6 +23,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUITesouro(tabelas, gerador, proto);
   AtualizaUIPontosVida(gerador, proto);
   AtualizaUIPericias(tabelas, gerador, proto);
+  AtualizaUIFeiticos(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -429,6 +430,62 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     LOG(ERROR) << "modelo eh nullptr";
   }
   gerador.tabela_pericias->update();
+}
+
+// Feiticos.
+void AdicionaItemFeitico(
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, bool memorizado,
+    QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto* item_feitico = new QTreeWidgetItem(pai);
+  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  item_feitico->setData(0, Qt::UserRole, QVariant(1));
+  item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
+  item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
+  item_feitico->setData(3, Qt::UserRole, QVariant(slot));
+  item_feitico->setCheckState(0, memorizado ? Qt::Checked : Qt::Unchecked);
+  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaFeiticosNivel(
+    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* item) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto filhos = item->takeChildren();
+  for (auto* f : filhos) {
+    delete f;
+  }
+  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  int slot = 0;
+  for (const auto& feitico : feiticos_nivel.feiticos()) {
+    AdicionaItemFeitico(gerador, feitico.nome(), id_classe, nivel, slot++, feitico.memorizado(), item);
+  }
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaFeiticosClasse(ifg::qt::Ui::DialogoEntidade& gerador, const ent::InfoClasse& ic, const ent::EntidadeProto& proto, QTreeWidgetItem* item) {
+  for (int i = 0; i < 10; ++i) {
+    auto* item_nivel = new QTreeWidgetItem(item);
+    item_nivel->setText(0, QString::number(i));
+    item_nivel->setData(0, Qt::UserRole, QVariant(0));
+    item_nivel->setData(1, Qt::UserRole, QVariant(ic.id().c_str()));
+    item_nivel->setData(2, Qt::UserRole, QVariant(i));
+    AtualizaFeiticosNivel(gerador, i, ic.id(), proto, item_nivel);
+  }
+}
+
+void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.arvore_feiticos->blockSignals(true);
+  gerador.arvore_feiticos->clear();
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.has_nivel_conjurador()) {
+      // Acha a entrada de feitico do proto.
+      auto* item_classe = new QTreeWidgetItem(gerador.arvore_feiticos);
+      item_classe->setText(0, QString::fromUtf8(ic.nome().c_str()));
+      AtualizaFeiticosClasse(gerador, ic, proto, item_classe);
+    }
+  }
+  gerador.arvore_feiticos->blockSignals(false);
 }
 
 }  // namespace qt

@@ -1,13 +1,6 @@
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
-ContextMenuHelper::ContextMenuHelper(QObject *parent, const std::function<void(const QPoint& pos)> f)
-    : QObject(parent), function_(f) {}
-
-void ContextMenuHelper::pressed(const QPoint& pos) {
-  function_(pos);
-}
-
 connect_functor_helper::connect_functor_helper(
     QObject *parent, const std::function<void()> &f) : QObject(parent), function_(f) {}
 

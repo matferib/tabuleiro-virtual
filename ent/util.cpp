@@ -3202,4 +3202,38 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
   return std::any_of(proto.agarrado_a().begin(), proto.agarrado_a().end(), [id] (unsigned int tid) { return id == tid; });
 }
 
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto) {
+  for (const auto& fc : proto.feiticos_classes()) {
+    if (fc.id_classe() == id) return fc;
+  }
+  return EntidadeProto::InfoFeiticosClasse::default_instance();
+}
+
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    if (fc.id_classe() == id) return &fc;
+  }
+  auto* fc = proto->add_feiticos_classes();
+  fc->set_id_classe(id);
+  return fc;
+}
+
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto) {
+  const auto& fc = FeiticosClasse(id, proto);
+  for (const auto& fn : fc.feiticos_por_nivel()) {
+    if (fn.nivel() == nivel) return fn;
+  }
+  return EntidadeProto::FeiticosPorNivel::default_instance();
+}
+
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto) {
+  auto* fc = FeiticosClasse(id, proto);
+  for (auto& fn : *fc->mutable_feiticos_por_nivel()) {
+    if (fn.nivel() == nivel) return &fn;
+  }
+  auto* fn = fc->add_feiticos_por_nivel();
+  fn->set_nivel(nivel);
+  return fn;
+}
+
 }  // namespace ent

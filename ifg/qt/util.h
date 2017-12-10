@@ -8,17 +8,47 @@
 #include <QItemDelegate>
 #include <QObject>
 #include <QComboBox>
+#include <QTreeWidgetItem>
 #include "ent/entidade.pb.h"
 #include "log/log.h"
+
+// Objeto para tratar mudancas de arvores.
+class TreeHelper : public QObject {
+Q_OBJECT
+ public:
+  TreeHelper(QObject *parent, const std::function<void(QTreeWidgetItem*, int)> f)
+      : QObject(parent), function_(f) {}
+
+ public slots:
+  void itemChanged(QTreeWidgetItem* item, int column) {
+    function_(item, column);
+  }
+
+ private:
+  std::function<void(QTreeWidgetItem*, int)> function_;
+};
+
+// Lambda connect para arvores.
+inline bool lambda_connect(
+    QObject *sender,
+    const char *signal,
+    const std::function<void(QTreeWidgetItem*, int)> receiver,
+    Qt::ConnectionType type = Qt::AutoConnection) {
+  return QObject::connect(
+      sender, signal, new TreeHelper(sender, receiver), SLOT(itemChanged(QTreeWidgetItem*, int)), type);
+}
 
 // Objeto para tratar menus de contexto.
 class ContextMenuHelper : public QObject {
 Q_OBJECT
  public:
-  ContextMenuHelper(QObject *parent, const std::function<void(const QPoint& pos)> f);
+  ContextMenuHelper(QObject *parent, const std::function<void(const QPoint& pos)> f)
+      : QObject(parent), function_(f) {}
 
  public slots:
-  void pressed(const QPoint& pos);
+  void pressed(const QPoint& pos) {
+    function_(pos);
+  }
 
  private:
   std::function<void(const QPoint& pos)> function_;

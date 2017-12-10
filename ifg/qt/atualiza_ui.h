@@ -58,6 +58,15 @@ void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Enti
 // Atualiza a tabela de pericias.
 void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Atualiza a lista de feiticos da classe.
+void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+// Atualiza os feiticos de um nivel para uma classe.
+void AtualizaFeiticosNivel(
+    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* item);
+void AdicionaItemFeitico(
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, bool memorizado,
+    QTreeWidgetItem* pai);
+
 }  // namespace qt
 }  // namespace ifg
 

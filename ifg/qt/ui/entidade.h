@@ -32,6 +32,7 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
 #include <QtGui/QTableView>
+#include <QtGui/QTreeWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
@@ -343,6 +344,8 @@ public:
     QListWidget *lista_pocoes;
     QPushButton *botao_adicionar_pocao;
     QPushButton *botao_remover_pocao;
+    QWidget *tab_4;
+    QTreeWidget *arvore_feiticos;
     QWidget *tab_2;
     QWidget *layoutWidget_5;
     QHBoxLayout *horizontalLayout_32;
@@ -1293,13 +1296,15 @@ public:
 
         combo_tipo_ataque = new QComboBox(verticalLayoutWidget_2);
         combo_tipo_ataque->setObjectName(QString::fromUtf8("combo_tipo_ataque"));
-        sizePolicy1.setHeightForWidth(combo_tipo_ataque->sizePolicy().hasHeightForWidth());
-        combo_tipo_ataque->setSizePolicy(sizePolicy1);
+        sizePolicy4.setHeightForWidth(combo_tipo_ataque->sizePolicy().hasHeightForWidth());
+        combo_tipo_ataque->setSizePolicy(sizePolicy4);
 
         horizontalLayout_29->addWidget(combo_tipo_ataque);
 
         combo_arma = new QComboBox(verticalLayoutWidget_2);
         combo_arma->setObjectName(QString::fromUtf8("combo_arma"));
+        sizePolicy4.setHeightForWidth(combo_arma->sizePolicy().hasHeightForWidth());
+        combo_arma->setSizePolicy(sizePolicy4);
 
         horizontalLayout_29->addWidget(combo_arma);
 
@@ -1470,6 +1475,8 @@ public:
 
         combo_empunhadura = new QComboBox(verticalLayoutWidget_2);
         combo_empunhadura->setObjectName(QString::fromUtf8("combo_empunhadura"));
+        sizePolicy1.setHeightForWidth(combo_empunhadura->sizePolicy().hasHeightForWidth());
+        combo_empunhadura->setSizePolicy(sizePolicy1);
 
         horizontalLayout_34->addWidget(combo_empunhadura);
 
@@ -1999,6 +2006,23 @@ public:
         botao_remover_pocao->setObjectName(QString::fromUtf8("botao_remover_pocao"));
         botao_remover_pocao->setGeometry(QRect(500, 350, 31, 27));
         tab_tesouro->addTab(tab, QString());
+        tab_4 = new QWidget();
+        tab_4->setObjectName(QString::fromUtf8("tab_4"));
+        arvore_feiticos = new QTreeWidget(tab_4);
+        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
+        __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
+        arvore_feiticos->setHeaderItem(__qtreewidgetitem);
+        arvore_feiticos->setObjectName(QString::fromUtf8("arvore_feiticos"));
+        arvore_feiticos->setGeometry(QRect(10, 20, 1021, 461));
+        QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy8.setHorizontalStretch(0);
+        sizePolicy8.setVerticalStretch(0);
+        sizePolicy8.setHeightForWidth(arvore_feiticos->sizePolicy().hasHeightForWidth());
+        arvore_feiticos->setSizePolicy(sizePolicy8);
+        arvore_feiticos->setHeaderHidden(true);
+        arvore_feiticos->setColumnCount(1);
+        arvore_feiticos->header()->setDefaultSectionSize(100);
+        tab_tesouro->addTab(tab_4, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
         layoutWidget_5 = new QWidget(tab_2);
@@ -2527,6 +2551,7 @@ public:
         botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
         botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_4), QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247os", 0, QApplication::UnicodeUTF8));
         label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         texto_notas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));

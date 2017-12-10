@@ -350,13 +350,19 @@ message EntidadeProto {
   // XP do personagem.
   optional int32 experiencia = 84;
 
+  // Feiticos.
+  message InfoFeitico {
+    optional string id = 1;
+    optional string nome = 2;
+    optional bool dominio = 3;
+    optional bool memorizado = 4;
+  }
   message FeiticosPorNivel {
     optional int32 nivel = 1;
     optional int32 total = 2;
     optional int32 usados = 3;
-    repeated string memorizados = 4;
-    optional string memorizado_dominio = 5;
-    repeated string conhecidos = 6;
+    optional int32 conhecidos = 4;
+    repeated InfoFeitico feiticos = 5;
   }
   message InfoFeiticosClasse {
     optional string id_classe = 1;
@@ -366,4 +372,5 @@ message EntidadeProto {
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;
+  // Fim feiticos.
 }

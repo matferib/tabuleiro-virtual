@@ -433,6 +433,12 @@ const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeP
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);
 
+// Retorna os feiticos da classe.
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto); 
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto); 
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto); 
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto); 
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

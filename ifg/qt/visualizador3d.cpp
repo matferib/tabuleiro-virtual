@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QItemDelegate>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QStandardItem>
@@ -1060,6 +1061,70 @@ void PreencheConfiguraTalentos(
   });
 }
 
+void PreencheConfiguraFeiticos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  // Menu de contexto da arvore.
+  gerador.arvore_feiticos->setContextMenuPolicy(Qt::CustomContextMenu);
+  lambda_connect(
+      gerador.arvore_feiticos, SIGNAL(customContextMenuRequested(const QPoint &)),
+      [this_, &gerador, proto_retornado] (const QPoint& pos) {
+    QTreeWidgetItem* item = gerador.arvore_feiticos->itemAt(pos);
+    QVariant data = item->data(0, Qt::UserRole);
+    if (!data.isValid()) return;
+    switch (data.toInt()) {
+      case 0: {
+        QMenu menu("Menu Nivel", gerador.arvore_feiticos);
+        QAction acao("Adicionar", &menu);
+        lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
+          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+          int nivel = item->data(2, Qt::UserRole).toInt();
+          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          f->add_feiticos()->set_nome("Nome");
+          AdicionaItemFeitico(gerador, "Nome", id, nivel, f->feiticos_size() - 1, /*memorizado=*/false, item);
+        });
+        menu.addAction(&acao);
+        menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
+      }
+      break;
+      case 1: {
+        QMenu menu("Menu Feitico", gerador.arvore_feiticos);
+        QAction acao("Remover", &menu);
+        lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
+          gerador.arvore_feiticos->blockSignals(true);
+          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+          int nivel = item->data(2, Qt::UserRole).toInt();
+          int slot = item->data(3, Qt::UserRole).toInt();
+          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          if (slot < 0 || slot >= f->feiticos_size()) {
+            gerador.arvore_feiticos->blockSignals(false);
+            return;
+          }
+          f->mutable_feiticos()->DeleteSubrange(slot, 1);
+          AtualizaFeiticosNivel(gerador, nivel, id, *proto_retornado, item->parent());
+          gerador.arvore_feiticos->blockSignals(false);
+        });
+        menu.addAction(&acao);
+        menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
+      }
+      break;
+      default: ;
+    }
+  });
+  lambda_connect(gerador.arvore_feiticos, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+      [this_, &gerador, proto_retornado] (QTreeWidgetItem* item, int column) {
+    std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+    int nivel = item->data(2, Qt::UserRole).toInt();
+    int slot = item->data(3, Qt::UserRole).toInt();
+    auto* f = FeiticosNivel(nivel, id, proto_retornado);
+    if (slot < 0 || slot >= f->feiticos_size()) return;
+    f->mutable_feiticos(slot)->set_nome(item->text(0).toUtf8().constData());
+    f->mutable_feiticos(slot)->set_memorizado(item->checkState(0));
+  });
+  AtualizaUIFeiticos(this_->tabelas(), gerador, proto);
+}
+
+// Formas alternativas.
 void PreencheConfiguraFormasAlternativas(
     Visualizador3d* this_, QDialog* dialogo,
     ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado,
@@ -1560,6 +1625,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Pericias e Talentos.
   PreencheConfiguraPericias(this, gerador, entidade, proto_retornado);
   PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
+
+  // Feiticos.
+  PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
