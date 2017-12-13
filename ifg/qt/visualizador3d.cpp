@@ -1078,6 +1078,7 @@ void PreencheConfiguraFeiticos(
         QAction acao("Adicionar", &menu);
         lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
           std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+          if (ClasseDeveConhecerFeitico(this_->tabelas(), id)) return;
           int nivel = item->data(2, Qt::UserRole).toInt();
           auto* f = FeiticosNivel(nivel, id, proto_retornado);
           f->add_conhecidos()->set_nome("Nome");
