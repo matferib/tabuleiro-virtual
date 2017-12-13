@@ -315,6 +315,19 @@ message InfoClasse {
   repeated string pericias = 11;
   // Qual a classe de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12; 
+  optional bool possui_dominio = 14;
+  optional bool precisa_conhecer = 15;
+  // Representa os slots para cada nivel de magia. Por exemplo, slots[0] eh o numero de slots de nivel zero para o nivel.
+  message ProgressaoParaNivel {
+    optional string magias_por_dia = 2;  // Para facilitar a tabela. Comeca sempre do nivel 0.
+    optional string conhecidos = 3;      // Comeca sempre do nivel 0.
+  }
+  // A progressao apresenta os slots para cada nivel da classe. Por exemplo, slots_para_nivel[1] representa os slots para
+  // nivel 1 da classe. O indice zero sempre eh vazio.
+  message ProgressaoFeitico {
+    repeated ProgressaoParaNivel para_nivel = 1;
+  }
+  optional ProgressaoFeitico progressao_feitico = 16;
 }
 
 message ConsequenciaEvento {

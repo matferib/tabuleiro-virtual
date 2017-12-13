@@ -350,25 +350,29 @@ message EntidadeProto {
   // XP do personagem.
   optional int32 experiencia = 84;
 
-  // Feiticos.
-  message InfoFeitico {
+  // Informacao sobre um feitico conhecido.
+  message InfoConhecido {
+    // Identificador do feitico, usado pelo slot.
     optional string id = 1;
     optional string nome = 2;
+    // Indica feitico de domino.
     optional bool dominio = 3;
-    optional bool memorizado = 4;
+  }
+  // As magias prontas para lancamento.
+  message InfoLancar {
+    // O id e o nivel identificam o feitico.
+    optional string id = 1;
+    optional int32 nivel = 2;
+    // Indica slot usado.
+    optional bool usado = 3;
   }
   message FeiticosPorNivel {
-    optional int32 nivel = 1;
-    optional int32 total = 2;
-    optional int32 usados = 3;
-    optional int32 conhecidos = 4;
-    repeated InfoFeitico feiticos = 5;
+    // Nivel dos feiticos.
+    repeated InfoConhecido conhecidos = 5;
+    repeated InfoLancar para_lancar = 6;
   }
   message InfoFeiticosClasse {
     optional string id_classe = 1;
-    optional bool possui_nivel_0 = 2;
-    optional bool precisa_memorizar = 3;
-    optional bool possui_dominio = 4;
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;

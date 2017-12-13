@@ -1073,21 +1073,21 @@ void PreencheConfiguraFeiticos(
     QVariant data = item->data(0, Qt::UserRole);
     if (!data.isValid()) return;
     switch (data.toInt()) {
-      case 0: {
+      case RAIZ_CONHECIDO: {
         QMenu menu("Menu Nivel", gerador.arvore_feiticos);
         QAction acao("Adicionar", &menu);
         lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
           std::string id = item->data(1, Qt::UserRole).toString().toStdString();
           int nivel = item->data(2, Qt::UserRole).toInt();
           auto* f = FeiticosNivel(nivel, id, proto_retornado);
-          f->add_feiticos()->set_nome("Nome");
-          AdicionaItemFeitico(gerador, "Nome", id, nivel, f->feiticos_size() - 1, /*memorizado=*/false, item);
+          f->add_conhecidos()->set_nome("Nome");
+          AdicionaItemFeiticoConhecido(gerador, "Nome", id, nivel, f->conhecidos_size() - 1, item);
         });
         menu.addAction(&acao);
         menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
       }
       break;
-      case 1: {
+      case CONHECIDO: {
         QMenu menu("Menu Feitico", gerador.arvore_feiticos);
         QAction acao("Remover", &menu);
         lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
@@ -1096,12 +1096,12 @@ void PreencheConfiguraFeiticos(
           int nivel = item->data(2, Qt::UserRole).toInt();
           int slot = item->data(3, Qt::UserRole).toInt();
           auto* f = FeiticosNivel(nivel, id, proto_retornado);
-          if (slot < 0 || slot >= f->feiticos_size()) {
+          if (slot < 0 || slot >= f->conhecidos_size()) {
             gerador.arvore_feiticos->blockSignals(false);
             return;
           }
-          f->mutable_feiticos()->DeleteSubrange(slot, 1);
-          AtualizaFeiticosNivel(gerador, nivel, id, *proto_retornado, item->parent());
+          f->mutable_conhecidos()->DeleteSubrange(slot, 1);
+          AtualizaFeiticosConhecidosNivel(gerador, nivel, id, *proto_retornado, item->parent());
           gerador.arvore_feiticos->blockSignals(false);
         });
         menu.addAction(&acao);
@@ -1117,9 +1117,15 @@ void PreencheConfiguraFeiticos(
     int nivel = item->data(2, Qt::UserRole).toInt();
     int slot = item->data(3, Qt::UserRole).toInt();
     auto* f = FeiticosNivel(nivel, id, proto_retornado);
-    if (slot < 0 || slot >= f->feiticos_size()) return;
-    f->mutable_feiticos(slot)->set_nome(item->text(0).toUtf8().constData());
-    f->mutable_feiticos(slot)->set_memorizado(item->checkState(0));
+    if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
+      if (slot < 0 || slot >= f->conhecidos_size()) return;
+      f->mutable_conhecidos(slot)->set_nome(item->text(0).toUtf8().constData());
+    }
+    if (item->data(0, Qt::UserRole).toInt() == PARA_LANCAR) {
+      if (slot < 0 || slot >= f->para_lancar_size()) return;
+      f->mutable_para_lancar(slot)->set_id(item->text(0).toUtf8().constData());
+      f->mutable_para_lancar(slot)->set_usado(item->checkState(0));
+    }
   });
   AtualizaUIFeiticos(this_->tabelas(), gerador, proto);
 }

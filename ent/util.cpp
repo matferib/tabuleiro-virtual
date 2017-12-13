@@ -2423,6 +2423,29 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   // TODO sinergia e talentos.
 }
 
+void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
+    // Encontra a entrada da classe, ou cria se nao houver.
+    auto* fc = FeiticosClasse(ic.id(), proto);
+    // Le a progressao.
+    const int nivel = std::min(ic.nivel(), 20);
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
+    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
+    const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel).magias_por_dia();
+    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+    Redimensiona(magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
+
+    for (int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
+      const char magias_do_nivel = magias_por_dia[nivel_magia] - '0';
+      // TODO modificador atributo.
+      Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+    }
+    LOG(INFO) << "feiticos: " << fc->DebugString();
+  }
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
@@ -2467,6 +2490,9 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasDadosAtaque(tabelas, proto);
 
   RecomputaDependenciasPericias(tabelas, proto);
+
+  RecomputaDependenciasMagiasPorDia(tabelas, proto);
+
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
 
@@ -3132,6 +3158,16 @@ void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf
   }
 }
 
+template <class T>
+void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
+  if (tam == c->size()) return;
+  if (tam < c->size()) {
+    c->DeleteSubrange(tam, c->size());
+    return;
+  }
+  while (c->size() < tam) c->Add();
+}
+
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
   uint32_t i = 0;
   for (const auto& e : eventos) {
@@ -3219,21 +3255,20 @@ EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, Entidad
 }
 
 const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto) {
+  nivel = std::min(nivel, 9);
   const auto& fc = FeiticosClasse(id, proto);
-  for (const auto& fn : fc.feiticos_por_nivel()) {
-    if (fn.nivel() == nivel) return fn;
-  }
-  return EntidadeProto::FeiticosPorNivel::default_instance();
+  if (nivel < 0 || nivel >= fc.feiticos_por_nivel().size()) return EntidadeProto::FeiticosPorNivel::default_instance();
+  return fc.feiticos_por_nivel(nivel);
 }
 
 EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto) {
+  nivel = std::min(nivel, 9);
   auto* fc = FeiticosClasse(id, proto);
-  for (auto& fn : *fc->mutable_feiticos_por_nivel()) {
-    if (fn.nivel() == nivel) return &fn;
+  if (nivel < 0) return nullptr;
+  while (nivel >= fc->feiticos_por_nivel().size()) {
+    fc->add_feiticos_por_nivel();
   }
-  auto* fn = fc->add_feiticos_por_nivel();
-  fn->set_nivel(nivel);
-  return fn;
+  return fc->mutable_feiticos_por_nivel(nivel);
 }
 
 }  // namespace ent

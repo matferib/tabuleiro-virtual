@@ -405,6 +405,8 @@ std::string RotuloEntidade(const EntidadeProto& proto);
 // Remove os campos para os quais predicado retornar true.
 template <class T>
 void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
+template <class T>
+void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
 // Acha um id unico de evento para o proto passado.
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);

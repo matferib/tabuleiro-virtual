@@ -104,7 +104,7 @@ message ArmaProto {
   // Para outros efeitos.
   optional AcaoProto acao = 20;
   // Em caso de feitico, indica quais classes podem usa-lo e o nivel.
-  message InfoClasse {
+  message InfoClasseParaFeitico {
     // Classe que pode usar o feitico, ou id do dominio.
     optional string id = 1;
     // Para feiticos de dominio.
@@ -112,7 +112,7 @@ message ArmaProto {
     // Nivel da classe.
     optional int32 nivel = 3;
   }
-  repeated InfoClasse info_classes = 21;
+  repeated InfoClasseParaFeitico info_classes = 21;
 }
 
 message TabelaArmaduraOuEscudo {
