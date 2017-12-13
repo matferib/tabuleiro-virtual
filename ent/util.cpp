@@ -2423,6 +2423,29 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   // TODO sinergia e talentos.
 }
 
+void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
+    // Encontra a entrada da classe, ou cria se nao houver.
+    auto* fc = FeiticosClasse(ic.id(), proto);
+    // Le a progressao.
+    const int nivel = std::min(ic.nivel(), 20);
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
+    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
+    const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
+    // Classe nao tem magias conhecidas.
+    if (magias_conhecidas.empty()) continue;
+    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+    Redimensiona(magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
+
+    for (int nivel_magia = 0; nivel_magia < magias_conhecidas.size(); ++nivel_magia) {
+      const char magias_conhecidas_do_nivel = magias_conhecidas[nivel_magia] - '0';
+      Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
+    }
+  }
+}
+
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
@@ -2442,7 +2465,6 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
       // TODO modificador atributo.
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
     }
-    LOG(INFO) << "feiticos: " << fc->DebugString();
   }
 }
 
@@ -2491,6 +2513,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   RecomputaDependenciasPericias(tabelas, proto);
 
+  RecomputaDependenciasMagiasConhecidas(tabelas, proto);
   RecomputaDependenciasMagiasPorDia(tabelas, proto);
 
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
@@ -3269,6 +3292,12 @@ EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id,
     fc->add_feiticos_por_nivel();
   }
   return fc->mutable_feiticos_por_nivel(nivel);
+}
+
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id) {
+  const auto& ic = tabelas.Classe(id);
+  if (ic.progressao_feitico().para_nivel().size() < 2) return false;
+  return !ic.progressao_feitico().para_nivel(1).conhecidos().empty();
 }
 
 }  // namespace ent

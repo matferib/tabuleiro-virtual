@@ -441,6 +441,9 @@ EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, Entidad
 const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto); 
 EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto); 
 
+// Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
