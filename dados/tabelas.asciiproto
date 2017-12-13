@@ -2356,6 +2356,29 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31' }
+      para_nivel { magias_por_dia: '42' }
+      para_nivel { magias_por_dia: '421' }
+      para_nivel { magias_por_dia: '532' }
+      para_nivel { magias_por_dia: '5321' }
+      para_nivel { magias_por_dia: '5332' }
+      para_nivel { magias_por_dia: '64321' }
+      para_nivel { magias_por_dia: '64332' }
+      para_nivel { magias_por_dia: '644321' }
+      para_nivel { magias_por_dia: '644332' }
+      para_nivel { magias_por_dia: '6544321' }
+      para_nivel { magias_por_dia: '6544332' }
+      para_nivel { magias_por_dia: '65544321' }
+      para_nivel { magias_por_dia: '65544332' }
+      para_nivel { magias_por_dia: '655544321' }
+      para_nivel { magias_por_dia: '655544332' }
+      para_nivel { magias_por_dia: '6555544321' }
+      para_nivel { magias_por_dia: '6555544332' }
+      para_nivel { magias_por_dia: '6555554433' }
+      para_nivel { magias_por_dia: '6555554444' }
+    }
 
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2543,6 +2566,29 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '2' conhecidos: '4' }
+      para_nivel { magias_por_dia: '30' conhecidos: '52' }
+      para_nivel { magias_por_dia: '31' conhecidos: '63' }
+      para_nivel { magias_por_dia: '320' conhecidos: '632' }
+      para_nivel { magias_por_dia: '331' conhecidos: '643' }
+      para_nivel { magias_por_dia: '332' conhecidos: '643' }
+      para_nivel { magias_por_dia: '3320' conhecidos: '6442' }
+      para_nivel { magias_por_dia: '3331' conhecidos: '6443' }
+      para_nivel { magias_por_dia: '3332' conhecidos: '6443' }
+      para_nivel { magias_por_dia: '33320' conhecidos: '64442' }
+      para_nivel { magias_por_dia: '33331' conhecidos: '64443' }
+      para_nivel { magias_por_dia: '33332' conhecidos: '64443' }
+      para_nivel { magias_por_dia: '333320' conhecidos: '644442' }
+      para_nivel { magias_por_dia: '433331' conhecidos: '644443' }
+      para_nivel { magias_por_dia: '443332' conhecidos: '644443' }
+      para_nivel { magias_por_dia: '4443320' conhecidos: '6544442' }
+      para_nivel { magias_por_dia: '4444331' conhecidos: '6554443' }
+      para_nivel { magias_por_dia: '4444432' conhecidos: '6555443' }
+      para_nivel { magias_por_dia: '4444443' conhecidos: '6555544' }
+      para_nivel { magias_por_dia: '4444444' conhecidos: '6555554' }
+    }
 
     pericias: 'avaliacao'
     pericias: 'equilibrio'
@@ -2588,6 +2634,29 @@ tabela_classes {
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31' }
+      para_nivel { magias_por_dia: '42' }
+      para_nivel { magias_por_dia: '421' }
+      para_nivel { magias_por_dia: '432' }
+      para_nivel { magias_por_dia: '4321' }
+      para_nivel { magias_por_dia: '4332' }
+      para_nivel { magias_por_dia: '44321' }
+      para_nivel { magias_por_dia: '44332' }
+      para_nivel { magias_por_dia: '444321' }
+      para_nivel { magias_por_dia: '444332' }
+      para_nivel { magias_por_dia: '4444321' }
+      para_nivel { magias_por_dia: '4444332' }
+      para_nivel { magias_por_dia: '44444321' }
+      para_nivel { magias_por_dia: '44444332' }
+      para_nivel { magias_por_dia: '444444321' }
+      para_nivel { magias_por_dia: '444444332' }
+      para_nivel { magias_por_dia: '4444444321' }
+      para_nivel { magias_por_dia: '4444444332' }
+      para_nivel { magias_por_dia: '4444444433' }
+      para_nivel { magias_por_dia: '4444444444' }
+    }
 
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2615,6 +2684,29 @@ tabela_classes {
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     id_para_magia: 'mago'
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '53' conhecidos: '42' }
+      para_nivel { magias_por_dia: '64' conhecidos: '52' }
+      para_nivel { magias_por_dia: '65' conhecidos: '53' }
+      para_nivel { magias_por_dia: '663' conhecidos: '631' }
+      para_nivel { magias_por_dia: '664' conhecidos: '642' }
+      para_nivel { magias_por_dia: '6653' conhecidos: '7421' }
+      para_nivel { magias_por_dia: '6664' conhecidos: '7532' }
+      para_nivel { magias_por_dia: '66653' conhecidos: '85321' }
+      para_nivel { magias_por_dia: '66664' conhecidos: '85432' }
+      para_nivel { magias_por_dia: '666653' conhecidos: '954321' }
+      para_nivel { magias_por_dia: '666664' conhecidos: '955432' }
+      para_nivel { magias_por_dia: '6666653' conhecidos: '9554321' }
+      para_nivel { magias_por_dia: '6666664' conhecidos: '9554432' }
+      para_nivel { magias_por_dia: '66666653' conhecidos: '95544321' }
+      para_nivel { magias_por_dia: '66666664' conhecidos: '95544432' }
+      para_nivel { magias_por_dia: '666666653' conhecidos: '955444321' }
+      para_nivel { magias_por_dia: '666666664' conhecidos: '955444332' }
+      para_nivel { magias_por_dia: '6666666653' conhecidos: '9554443321' }
+      para_nivel { magias_por_dia: '6666666664' conhecidos: '9554443332' }
+      para_nivel { magias_por_dia: '6666666666' conhecidos: '9554443333' }
+    }
 
     pericias: 'blefar'
     pericias: 'concentracao'
