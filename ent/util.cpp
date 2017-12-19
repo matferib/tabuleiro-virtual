@@ -2446,6 +2446,18 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
   }
 }
 
+namespace {
+
+int FeiticosBonusPorAtributoPorNivel(int nivel, const Bonus& atributo) {
+  int modificador_atributo = ModificadorAtributo(atributo);
+  // Nunca ha bonus de nivel 0.
+  if (nivel <= 0 || nivel > 9) return 0;
+  if (modificador_atributo < nivel) return 0;
+  return static_cast<int>(floor(((modificador_atributo - nivel) / 4) + 1));
+}
+
+}  // namespace
+
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
@@ -2457,12 +2469,17 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
     const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel).magias_por_dia();
+
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     Redimensiona(magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
 
     for (int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
-      const char magias_do_nivel = magias_por_dia[nivel_magia] - '0';
-      // TODO modificador atributo.
+      int magias_do_nivel =
+        (magias_por_dia[nivel_magia] - '0') +
+        FeiticosBonusPorAtributoPorNivel(
+            nivel_magia,
+            BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto));
+
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
     }
   }
@@ -3261,6 +3278,11 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
   return std::any_of(proto.agarrado_a().begin(), proto.agarrado_a().end(), [id] (unsigned int tid) { return id == tid; });
 }
 
+
+// ---------
+// Feiticos.
+// ---------
+
 const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto) {
   for (const auto& fc : proto.feiticos_classes()) {
     if (fc.id_classe() == id) return fc;
@@ -3299,5 +3321,6 @@ bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id) {
   if (ic.progressao_feitico().para_nivel().size() < 2) return false;
   return !ic.progressao_feitico().para_nivel(1).conhecidos().empty();
 }
+// Fim feiticos.
 
 }  // namespace ent
