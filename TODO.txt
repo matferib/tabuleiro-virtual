@@ -1,4 +1,4 @@
-Tabela de feiticos de adepto, druida, paladino, ranger.
+Tabela de feiticos de adepto, paladino, ranger.
 Terminar feiticos: como fazer no controle virtual o consumo e como tratar o caso de feiticeiros.
 Automatizar dano de feiticos.
 Planilha zicada no mac.

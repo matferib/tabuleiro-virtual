@@ -2482,7 +2482,29 @@ tabela_classes {
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
-
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31' }
+      para_nivel { magias_por_dia: '42' }
+      para_nivel { magias_por_dia: '421' }
+      para_nivel { magias_por_dia: '532' }
+      para_nivel { magias_por_dia: '5321' }
+      para_nivel { magias_por_dia: '5332' }
+      para_nivel { magias_por_dia: '64321' }
+      para_nivel { magias_por_dia: '64332' }
+      para_nivel { magias_por_dia: '644321' }
+      para_nivel { magias_por_dia: '644332' }
+      para_nivel { magias_por_dia: '6544321' }
+      para_nivel { magias_por_dia: '6544332' }
+      para_nivel { magias_por_dia: '65544321' }
+      para_nivel { magias_por_dia: '65544332' }
+      para_nivel { magias_por_dia: '655544321' }
+      para_nivel { magias_por_dia: '655544332' }
+      para_nivel { magias_por_dia: '6555544321' }
+      para_nivel { magias_por_dia: '6555544332' }
+      para_nivel { magias_por_dia: '6555554433' }
+      para_nivel { magias_por_dia: '6555554444' }
+    }
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
