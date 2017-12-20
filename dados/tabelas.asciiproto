@@ -2356,6 +2356,7 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    possui_dominio: true
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31' }
