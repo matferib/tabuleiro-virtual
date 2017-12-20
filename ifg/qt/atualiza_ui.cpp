@@ -464,11 +464,15 @@ void AtualizaFeiticosConhecidosNivel(
 }
 
 void AdicionaItemFeiticoParaLancar(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, bool usado,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& nome, const std::string& id_classe, int nivel, int slot, bool usado,
     QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto* item_feitico = new QTreeWidgetItem(pai);
-  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  item_feitico->setText(0, QString::fromUtf8("Nome"));
+  if (tabelas.Classe(id_classe).possui_dominio() && slot == 0) {
+    item_feitico->setBackground(0, QBrush(Qt::lightGray));
+  }
   item_feitico->setData(0, Qt::UserRole, QVariant(PARA_LANCAR));
   item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
@@ -479,7 +483,8 @@ void AdicionaItemFeiticoParaLancar(
 }
 
 void AtualizaFeiticosParaLancarNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto filhos = pai->takeChildren();
   for (auto* f : filhos) {
@@ -489,17 +494,19 @@ void AtualizaFeiticosParaLancarNivel(
   int slot = 0;
   VLOG(1) << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size() << ", proto: " << proto.feiticos_classes(0).DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
-    AdicionaItemFeiticoParaLancar(gerador, para_lancar.id(), id_classe, nivel, slot++, para_lancar.usado(), pai);
+    AdicionaItemFeiticoParaLancar(
+        tabelas, gerador, para_lancar.id(), id_classe, nivel, slot++, para_lancar.usado(), pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
 }
 
-void AtualizaFeiticosClasse(ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+void AtualizaFeiticosClasse(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   const auto& fc = ent::FeiticosClasse(id_classe, proto);
   for (int nivel = 0; nivel < fc.feiticos_por_nivel().size(); ++nivel) {
-    LOG(INFO) << "nivel: " << nivel;
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
     {
@@ -514,7 +521,7 @@ void AtualizaFeiticosClasse(ifg::qt::Ui::DialogoEntidade& gerador, const std::st
     {
       auto* item_para_lancar = new QTreeWidgetItem(item_nivel);
       item_para_lancar->setText(0, QString::fromUtf8("Para Lançar"));
-      AtualizaFeiticosParaLancarNivel(gerador, nivel, id_classe, proto, item_para_lancar);
+      AtualizaFeiticosParaLancarNivel(tabelas, gerador, nivel, id_classe, proto, item_para_lancar);
       gerador.arvore_feiticos->blockSignals(true);
     }
   }
@@ -530,7 +537,7 @@ void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     // Acha a entrada de feitico do proto.
     auto* item_classe = new QTreeWidgetItem(gerador.arvore_feiticos);
     item_classe->setText(0, QString::fromUtf8(ic.nome().c_str()));
-    AtualizaFeiticosClasse(gerador, ic.id(), proto, item_classe);
+    AtualizaFeiticosClasse(tabelas, gerador, ic.id(), proto, item_classe);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
