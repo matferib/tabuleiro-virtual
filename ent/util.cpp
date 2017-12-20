@@ -2478,8 +2478,8 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
         (magias_por_dia[nivel_magia] - '0') +
         FeiticosBonusPorAtributoPorNivel(
             nivel_magia,
-            BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto));
-
+            BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
+        (classe_tabelada.possui_dominio() && nivel_magia > 0 && nivel_magia <= 9 ? 1 : 0);
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
     }
   }
