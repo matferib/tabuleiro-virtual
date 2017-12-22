@@ -540,6 +540,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o proto para acessos mais complexos. */
   const TabuleiroProto& Proto() const { return proto_; }
 
+  /** @return o proto do sub cenario, ou nullptr se nao houver. Versao const. */
+  const TabuleiroProto* BuscaSubCenario(int id_cenario) const;
+
  private:
   struct DadosIniciativa {
     unsigned int id;
@@ -595,6 +598,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** funcao para desenhar os pontos de rolagem do tabuleiro. */
   void DesenhaPontosRolagem();
+
+  /** Desenha os elos das entidades agarradas. */
+  void DesenhaElosAgarrar();
 
   /** Desenha as entidades. */
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);

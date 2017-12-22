@@ -13,7 +13,7 @@
 namespace ifg {
 namespace qt {
 
-// Modelo de talento para ser usado pelos views de tabela.
+// Modelo de pericias para ser usado pelos views de tabela.
 class ModeloPericias : public QAbstractTableModel {
   Q_OBJECT
  public:

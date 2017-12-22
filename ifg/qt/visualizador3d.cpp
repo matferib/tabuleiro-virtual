@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QItemDelegate>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QScreen>
@@ -535,35 +536,35 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
 namespace {
 void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* combo) {
   combo->addItem("Novo", QVariant());
-  combo->addItem("Principal", QVariant(-1));
-  for (const auto& t : tabuleiro.sub_cenario()) {
+  combo->addItem("Principal", QVariant(CENARIO_PRINCIPAL));
+  for (const auto& sub_cenario : tabuleiro.sub_cenario()) {
     std::string descricao;
-    if (t.descricao_cenario().empty()) {
-      descricao = google::protobuf::StringPrintf("Sub Cenário: %d", t.id_cenario());
+    if (sub_cenario.descricao_cenario().empty()) {
+      descricao = google::protobuf::StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
     } else {
-      descricao = google::protobuf::StringPrintf("%s (%d)", t.descricao_cenario().c_str(), t.id_cenario());
+      descricao = google::protobuf::StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
     }
-    combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(t.id_cenario()));
+    combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(sub_cenario.id_cenario()));
   }
   ExpandeComboBox(combo);
 }
 
 // Retorna CENARIO_INVALIDO (-2) caso igual a novo.
-int IdCenarioSelecionado(const QComboBox* combo) {
+int IdCenarioComboCenarios(const QComboBox* combo) {
   QVariant qval = combo->itemData(combo->currentIndex());
   if (!qval.isValid()) return CENARIO_INVALIDO;
   return qval.toInt();
 }
 
 void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& proto, QComboBox* combo) {
-  if (id_cenario == -1) {
+  if (id_cenario == CENARIO_PRINCIPAL) {
     // 0 eh novo, 1 eh o principal.
     combo->setCurrentIndex(1);
     return;
   }
   int i = 2;
-  for (const auto& t : proto.sub_cenario()) {
-    if (t.id_cenario() == id_cenario) {
+  for (const auto& sub_cenario : proto.sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
       combo->setCurrentIndex(i);
       return;
     }
@@ -900,6 +901,13 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.set_margem_critico(dano_arma.margem_critico);
   } else {
     da.set_id_arma(id);
+    // Se houver dano, usa ele mesmo com id. Deixa RecomputaDependencias decidir.
+    if (!gerador.linha_dano->text().isEmpty()) {
+      ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+      da.set_dano_basico(dano_arma.dano);
+      da.set_multiplicador_critico(dano_arma.multiplicador);
+      da.set_margem_critico(dano_arma.margem_critico);
+    }
   }
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toStdString());
   da.set_incrementos(gerador.spin_incrementos->value());
@@ -1064,6 +1072,77 @@ void PreencheConfiguraTalentos(
   });
 }
 
+void PreencheConfiguraFeiticos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  // Menu de contexto da arvore.
+  gerador.arvore_feiticos->setContextMenuPolicy(Qt::CustomContextMenu);
+  lambda_connect(
+      gerador.arvore_feiticos, SIGNAL(customContextMenuRequested(const QPoint &)),
+      [this_, &gerador, proto_retornado] (const QPoint& pos) {
+    QTreeWidgetItem* item = gerador.arvore_feiticos->itemAt(pos);
+    QVariant data = item->data(0, Qt::UserRole);
+    if (!data.isValid()) return;
+    switch (data.toInt()) {
+      case RAIZ_CONHECIDO: {
+        QMenu menu("Menu Nivel", gerador.arvore_feiticos);
+        QAction acao("Adicionar", &menu);
+        lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
+          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+          if (ClasseDeveConhecerFeitico(this_->tabelas(), id)) return;
+          int nivel = item->data(2, Qt::UserRole).toInt();
+          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          f->add_conhecidos()->set_nome("Nome");
+          AdicionaItemFeiticoConhecido(gerador, "Nome", id, nivel, f->conhecidos_size() - 1, item);
+        });
+        menu.addAction(&acao);
+        menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
+      }
+      break;
+      case CONHECIDO: {
+        QMenu menu("Menu Feitico", gerador.arvore_feiticos);
+        QAction acao("Remover", &menu);
+        lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
+          gerador.arvore_feiticos->blockSignals(true);
+          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+          int nivel = item->data(2, Qt::UserRole).toInt();
+          int slot = item->data(3, Qt::UserRole).toInt();
+          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          if (slot < 0 || slot >= f->conhecidos_size()) {
+            gerador.arvore_feiticos->blockSignals(false);
+            return;
+          }
+          f->mutable_conhecidos()->DeleteSubrange(slot, 1);
+          AtualizaFeiticosConhecidosNivel(gerador, nivel, id, *proto_retornado, item->parent());
+          gerador.arvore_feiticos->blockSignals(false);
+        });
+        menu.addAction(&acao);
+        menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
+      }
+      break;
+      default: ;
+    }
+  });
+  lambda_connect(gerador.arvore_feiticos, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+      [this_, &gerador, proto_retornado] (QTreeWidgetItem* item, int column) {
+    std::string id = item->data(1, Qt::UserRole).toString().toStdString();
+    int nivel = item->data(2, Qt::UserRole).toInt();
+    int slot = item->data(3, Qt::UserRole).toInt();
+    auto* f = FeiticosNivel(nivel, id, proto_retornado);
+    if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
+      if (slot < 0 || slot >= f->conhecidos_size()) return;
+      f->mutable_conhecidos(slot)->set_nome(item->text(0).toUtf8().constData());
+    }
+    if (item->data(0, Qt::UserRole).toInt() == PARA_LANCAR) {
+      if (slot < 0 || slot >= f->para_lancar_size()) return;
+      f->mutable_para_lancar(slot)->set_id(item->text(0).toUtf8().constData());
+      f->mutable_para_lancar(slot)->set_usado(item->checkState(0));
+    }
+  });
+  AtualizaUIFeiticos(this_->tabelas(), gerador, proto);
+}
+
+// Formas alternativas.
 void PreencheConfiguraFormasAlternativas(
     Visualizador3d* this_, QDialog* dialogo,
     ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado,
@@ -1210,7 +1289,6 @@ void ConfiguraComboArma(
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
-    gerador.linha_dano->setEnabled(id_arma == "nenhuma");
 
     const int index_lista = gerador.lista_ataques->currentRow();
     if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
@@ -1221,6 +1299,7 @@ void ConfiguraComboArma(
       da->set_id_arma(id_arma);
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
+    gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
   ExpandeComboBox(combo_arma);
@@ -1564,6 +1643,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Pericias e Talentos.
   PreencheConfiguraPericias(this, gerador, entidade, proto_retornado);
   PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
+
+  // Feiticos.
+  PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -1932,16 +2014,15 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   // Clonar cenario.
   PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
   lambda_connect(gerador.botao_clonar, SIGNAL(clicked()), [this, &gerador, proto_retornado, dialogo] () {
-    int valor = IdCenarioSelecionado(gerador.combo_id_cenario);
-    int id_corrente = proto_retornado->id_cenario();
-    if (valor == CENARIO_INVALIDO || valor == id_corrente) return;
-    for (const auto& t : tabuleiro_->Proto().sub_cenario()) {
-      if (t.id_cenario() == valor) {
-        *proto_retornado = t;
-        proto_retornado->set_id_cenario(id_corrente);
-        dialogo->accept();
-        return;
-      }
+    const int id_combo = IdCenarioComboCenarios(gerador.combo_id_cenario);
+    const int id_corrente = proto_retornado->id_cenario();
+    if (id_combo == CENARIO_INVALIDO || id_combo == id_corrente) return;
+    const auto* cenario = ((const ent::Tabuleiro*)tabuleiro_)->BuscaSubCenario(id_combo);
+    if (cenario != nullptr) {
+      *proto_retornado = *cenario;
+      proto_retornado->set_id_cenario(id_corrente);
+      dialogo->accept();
+      return;
     }
   });
 

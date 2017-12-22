@@ -23,6 +23,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUITesouro(tabelas, gerador, proto);
   AtualizaUIPontosVida(gerador, proto);
   AtualizaUIPericias(tabelas, gerador, proto);
+  AtualizaUIFeiticos(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -221,15 +222,24 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 }
 
 void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque) {
-  bool cac = tipo_ataque == "Ataque Corpo a Corpo";
-  bool projetil_area = tipo_ataque == "Projétil de Área";
-  bool distancia = tipo_ataque == "Ataque a Distância";
+  const bool cac = tipo_ataque == "Ataque Corpo a Corpo";
+  const bool projetil_area = tipo_ataque == "Projétil de Área";
+  const bool distancia = tipo_ataque == "Ataque a Distância";
+  const bool feitico_mago = tipo_ataque == "Feitiço de Mago";
+  const bool feitico_clerigo = tipo_ataque == "Feitiço de Clérigo";
+  const bool feitico_druida = tipo_ataque == "Feitiço de Druida";
   std::map<std::string, std::string> nome_id_map;
-  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
-    const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma);
-    if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) ||
-        (projetil_area && arma_projetil_area) ||
-        (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
+  if (cac || projetil_area || distancia) {
+    for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
+      const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma);
+      if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) ||
+          (projetil_area && arma_projetil_area) ||
+          (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma))) {
+        nome_id_map[arma.nome()] = arma.id();
+      }
+    }
+  } else if (feitico_mago || feitico_clerigo || feitico_druida) {
+    for (const auto& arma : tabelas.todas().tabela_feiticos().armas()) {
       nome_id_map[arma.nome()] = arma.id();
     }
   }
@@ -270,7 +280,9 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
-  gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área");
+  gerador.combo_arma->setEnabled(
+      tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
+      tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
   PreencheComboArma(tabelas, gerador, tipo_ataque);
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
@@ -418,6 +430,110 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     LOG(ERROR) << "modelo eh nullptr";
   }
   gerador.tabela_pericias->update();
+}
+
+// Feiticos.
+void AdicionaItemFeiticoConhecido(
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot,
+    QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto* item_feitico = new QTreeWidgetItem(pai);
+  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  item_feitico->setData(0, Qt::UserRole, QVariant(CONHECIDO));
+  item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
+  item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
+  item_feitico->setData(3, Qt::UserRole, QVariant(slot));
+  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaFeiticosConhecidosNivel(
+    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto filhos = pai->takeChildren();
+  for (auto* f : filhos) {
+    delete f;
+  }
+  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  int slot = 0;
+  for (const auto& conhecido : feiticos_nivel.conhecidos()) {
+    AdicionaItemFeiticoConhecido(gerador, conhecido.nome(), id_classe, nivel, slot++, pai);
+    gerador.arvore_feiticos->blockSignals(true);
+  }
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AdicionaItemFeiticoParaLancar(
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, bool usado,
+    QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto* item_feitico = new QTreeWidgetItem(pai);
+  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  item_feitico->setData(0, Qt::UserRole, QVariant(PARA_LANCAR));
+  item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
+  item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
+  item_feitico->setData(3, Qt::UserRole, QVariant(slot));
+  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+  item_feitico->setCheckState(0, usado ? Qt::Checked : Qt::Unchecked);
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaFeiticosParaLancarNivel(
+    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  auto filhos = pai->takeChildren();
+  for (auto* f : filhos) {
+    delete f;
+  }
+  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  int slot = 0;
+  VLOG(1) << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size() << ", proto: " << proto.feiticos_classes(0).DebugString();
+  for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
+    AdicionaItemFeiticoParaLancar(gerador, para_lancar.id(), id_classe, nivel, slot++, para_lancar.usado(), pai);
+    gerador.arvore_feiticos->blockSignals(true);
+  }
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaFeiticosClasse(ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+  gerador.arvore_feiticos->blockSignals(true);
+  const auto& fc = ent::FeiticosClasse(id_classe, proto);
+  for (int nivel = 0; nivel < fc.feiticos_por_nivel().size(); ++nivel) {
+    LOG(INFO) << "nivel: " << nivel;
+    auto* item_nivel = new QTreeWidgetItem(pai);
+    item_nivel->setText(0, QString::number(nivel));
+    {
+      auto* item_conhecidos = new QTreeWidgetItem(item_nivel);
+      item_conhecidos->setText(0, "Conhecidos");
+      item_conhecidos->setData(0, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
+      item_conhecidos->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
+      item_conhecidos->setData(2, Qt::UserRole, QVariant(nivel));
+      AtualizaFeiticosConhecidosNivel(gerador, nivel, id_classe, proto, item_conhecidos);
+      gerador.arvore_feiticos->blockSignals(true);
+    }
+    {
+      auto* item_para_lancar = new QTreeWidgetItem(item_nivel);
+      item_para_lancar->setText(0, QString::fromUtf8("Para Lançar"));
+      AtualizaFeiticosParaLancarNivel(gerador, nivel, id_classe, proto, item_para_lancar);
+      gerador.arvore_feiticos->blockSignals(true);
+    }
+  }
+  gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.arvore_feiticos->blockSignals(true);
+  gerador.arvore_feiticos->clear();
+  for (const auto& ic : proto.info_classes()) {
+    if (!ic.has_nivel_conjurador()) continue;
+
+    // Acha a entrada de feitico do proto.
+    auto* item_classe = new QTreeWidgetItem(gerador.arvore_feiticos);
+    item_classe->setText(0, QString::fromUtf8(ic.nome().c_str()));
+    AtualizaFeiticosClasse(gerador, ic.id(), proto, item_classe);
+    gerador.arvore_feiticos->blockSignals(true);
+  }
+  gerador.arvore_feiticos->blockSignals(false);
 }
 
 }  // namespace qt

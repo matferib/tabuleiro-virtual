@@ -978,9 +978,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
 float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
-  if (acao_proto->permite_salvacao()) {
-    acao_proto->set_dificuldade_salvacao(acao_proto->dificuldade_salvacao() + entidade->ModificadorAtributoConjuracao());
-  }
   if (pos_entidade_destino.has_x()) {
     acao_proto->mutable_pos_entidade()->CopyFrom(pos_entidade_destino);
   }
@@ -1142,6 +1139,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     if (passou_rm && acao_proto->permite_salvacao()) {
       std::string resultado_salvacao;
+      // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
@@ -1151,6 +1149,8 @@ float Tabuleiro::TrataAcaoIndividual(
             "resultado salvacao de entidade %s: %s",
             RotuloEntidade(entidade_destino).c_str(),
             resultado_salvacao.c_str()));
+      // Deixa o delta em aberto novamente para ser preenchido pelo valor de delta_pontos_vida.
+      acao_proto->clear_delta_pontos_vida();
     }
     VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     acao_proto->set_nao_letal(nao_letal);
@@ -1201,7 +1201,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
   if (!acao_proto.has_tipo()) {
-    LOG(ERROR) << "Acao invalida da entidade";
+    LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
     return atraso_s;
   }
   if (id_entidade_destino != Entidade::IdInvalido) {
@@ -2005,6 +2005,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
       pos_depois->set_x(x3d);
       pos_depois->set_y(y3d);
       pos_depois->set_z(z3d);
+      pos_depois->set_id_cenario(entidade->Pos().id_cenario());
       e->set_apoiada(entidade->Apoiada());
       AdicionaNotificacaoListaEventos(n);
       MoveEntidadeNotificando(n);

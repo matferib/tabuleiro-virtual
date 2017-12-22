@@ -8,10 +8,61 @@
 #include <QItemDelegate>
 #include <QObject>
 #include <QComboBox>
+#include <QTreeWidgetItem>
 #include "ent/entidade.pb.h"
 #include "log/log.h"
 
-class QColor;
+// Objeto para tratar mudancas de arvores.
+class TreeHelper : public QObject {
+Q_OBJECT
+ public:
+  TreeHelper(QObject *parent, const std::function<void(QTreeWidgetItem*, int)> f)
+      : QObject(parent), function_(f) {}
+
+ public slots:
+  void itemChanged(QTreeWidgetItem* item, int column) {
+    function_(item, column);
+  }
+
+ private:
+  std::function<void(QTreeWidgetItem*, int)> function_;
+};
+
+// Lambda connect para arvores.
+inline bool lambda_connect(
+    QObject *sender,
+    const char *signal,
+    const std::function<void(QTreeWidgetItem*, int)> receiver,
+    Qt::ConnectionType type = Qt::AutoConnection) {
+  return QObject::connect(
+      sender, signal, new TreeHelper(sender, receiver), SLOT(itemChanged(QTreeWidgetItem*, int)), type);
+}
+
+// Objeto para tratar menus de contexto.
+class ContextMenuHelper : public QObject {
+Q_OBJECT
+ public:
+  ContextMenuHelper(QObject *parent, const std::function<void(const QPoint& pos)> f)
+      : QObject(parent), function_(f) {}
+
+ public slots:
+  void pressed(const QPoint& pos) {
+    function_(pos);
+  }
+
+ private:
+  std::function<void(const QPoint& pos)> function_;
+};
+
+// Lambda connect para menus.
+inline bool lambda_connect(
+    QObject *sender,
+    const char *signal,
+    const std::function<void(const QPoint& pos)> receiver,
+    Qt::ConnectionType type = Qt::AutoConnection) {
+  return QObject::connect(
+      sender, signal, new ContextMenuHelper(sender, receiver), SLOT(pressed(const QPoint&)), type);
+}
 
 // O objetivo desta classe eh permitir a utilizacao de lambdas nas funcoes de conexao do QT.
 // Fonte: http://blog.codef00.com/2011/03/27/combining-qts-signals-and-slots-with-c0x-lamdas/
@@ -20,7 +71,7 @@ Q_OBJECT
  public:
   connect_functor_helper(QObject *parent, const std::function<void()> &f);
 
- public Q_SLOTS:
+ public slots:
   void signaled();
 
  private:
@@ -28,14 +79,13 @@ Q_OBJECT
 };
 
 // Esta é a função que deve ser usada no lugar do connect.
-template <class T>
-bool lambda_connect(
+inline bool lambda_connect(
     QObject *sender,
     const char *signal,
-    const T &reciever,
+    const std::function<void()>& receiver,
     Qt::ConnectionType type = Qt::AutoConnection) {
   return QObject::connect(
-      sender, signal, new connect_functor_helper(sender, reciever), SLOT(signaled()), type);
+      sender, signal, new connect_functor_helper(sender, receiver), SLOT(signaled()), type);
 }
 
 // Responsavel por tratar items representados por um mapa de string(nome) -> string (id).

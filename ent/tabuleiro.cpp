@@ -1057,9 +1057,11 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
 #endif
       if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
-        // Na pratica so funciona com camera presa porque o duplo clique tira a selecao.
+        // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
+        VLOG(1) << "buscando referencia para criacao de entidade";
         const auto* referencia = EntidadeCameraPresaOuSelecionada();
         if (referencia == nullptr && notificacao.has_id_referencia()) {
+          VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
           referencia = BuscaEntidade(notificacao.id_referencia());
         }
         if (referencia != nullptr) {
@@ -2868,6 +2870,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desenhando entidades");
 
+  if (parametros_desenho_.desenha_ligacao_agarrar()) {
+    DesenhaElosAgarrar();
+  }
+  V_ERRO("desenhando elos de agarrar");
+
+
   if (desenhar_caixa_ceu) {
     DesenhaCaixaCeu();
   }
@@ -3963,36 +3971,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
-
-  if (parametros_desenho_.desenha_ligacao_agarrar()) {
-    // Este par sempre tem o id menor primeiro para evitar duplicacao.
-    std::vector<std::pair<unsigned int, unsigned int>> agarrados;
-    for (auto& it : entidades_) {
-      auto* entidade = it.second.get();
-      if (entidade->Pos().id_cenario() != IdCenario()) continue;
-      for (auto id_agarrado : entidade->Proto().agarrado_a()) {
-        if (id_agarrado < entidade->Id()) {
-          agarrados.push_back(std::make_pair(id_agarrado, entidade->Id()));
-        }
-      }
-      for (const auto& par : agarrados) {
-        const auto* e1 = BuscaEntidade(par.first);
-        const auto* e2 = BuscaEntidade(par.second);
-        if (e1 == nullptr || e2 == nullptr) continue;
-        Vector3 v1 = PosParaVector3(e1->PosicaoAcao());
-        Vector3 v2 = PosParaVector3(e2->PosicaoAcao());
-        Vector3 v2v1 = v2 - v1;
-        Matrix4 mr = MatrizRotacao(v2v1);
-        gl::VboNaoGravado cubo = gl::VboCuboSolido(1.0f);
-        cubo.Translada(0.5f, 0.0f, 0.0f);
-        cubo.Escala(v2v1.length(), 0.1f, 0.1f);
-        cubo.Multiplica(mr);
-        cubo.Translada(v1.x, v1.y, v1.z);
-        MudaCor(COR_PRETA);
-        gl::DesenhaVbo(cubo);
-      }
-    }
-  }
 }
 
 void Tabuleiro::ColetaVbosEntidades() {
@@ -4127,6 +4105,38 @@ void Tabuleiro::DesenhaPontosRolagem() {
     gl::CarregaNome(id++);
     gl::Retangulo(-TAMANHO_LADO_QUADRADO_2 + delta.first, -TAMANHO_LADO_QUADRADO_2 + delta.second,
                   TAMANHO_LADO_QUADRADO_2 + delta.first, TAMANHO_LADO_QUADRADO_2 + delta.second);
+  }
+}
+
+void Tabuleiro::DesenhaElosAgarrar() {
+  // Este par sempre tem o id menor primeiro para evitar duplicacao.
+  std::vector<std::pair<unsigned int, unsigned int>> agarrados;
+  for (auto& it : entidades_) {
+    auto* entidade = it.second.get();
+    if (entidade->IdCenario() != IdCenario()) continue;
+    for (auto id_agarrado : entidade->Proto().agarrado_a()) {
+      if (id_agarrado < entidade->Id()) {
+        agarrados.push_back(std::make_pair(id_agarrado, entidade->Id()));
+      }
+    }
+  }
+
+  for (const auto& par : agarrados) {
+    const auto* e1 = BuscaEntidade(par.first);
+    const auto* e2 = BuscaEntidade(par.second);
+    // Verifica se ambos estao no cenario.
+    if (e1 == nullptr || e2 == nullptr || e1->IdCenario() != IdCenario() || e2->IdCenario() != IdCenario()) continue;
+    Vector3 v1 = PosParaVector3(e1->PosicaoAcao());
+    Vector3 v2 = PosParaVector3(e2->PosicaoAcao());
+    Vector3 v2v1 = v2 - v1;
+    Matrix4 mr = MatrizRotacao(v2v1);
+    gl::VboNaoGravado cubo = gl::VboCuboSolido(1.0f);
+    cubo.Translada(0.5f, 0.0f, 0.0f);
+    cubo.Escala(v2v1.length(), 0.1f, 0.1f);
+    cubo.Multiplica(mr);
+    cubo.Translada(v1.x, v1.y, v1.z);
+    MudaCor(COR_PRETA);
+    gl::DesenhaVbo(cubo);
   }
 }
 
@@ -4718,15 +4728,15 @@ void CorrigeTopologiaAposMudancaTamanho(
       pontos->empty()) {
     return;
   }
-  LOG(INFO) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
-            << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
-            << ", pontos_size: " << pontos->size();
+  VLOG(1) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
+          << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
+          << ", pontos_size: " << pontos->size();
   RepeatedField<double> novos_pontos;
   novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
   for (int i = 0; i < pontos->size(); ++i) {
     float z = pontos->Get(i);
     if (z > 0) {
-      LOG(INFO) << "ponto (" << i << ") > 0: " << z;
+      VLOG(1) << "ponto (" << i << ") > 0: " << z;
       break;
     }
   }
@@ -4734,10 +4744,10 @@ void CorrigeTopologiaAposMudancaTamanho(
   for (int y = 0; y <= tam_y_velho; ++y) {
     for (int x = 0; x <= tam_x_velho; ++x) {
       int indice = y * (tam_x_velho + 1) + x;
-      LOG(INFO) << "indice: " << indice;
+      VLOG(1) << "indice: " << indice;
       float z = pontos->Get(indice);
       if (z > 0) {
-        LOG(INFO) << "ponto (" << x << ", " << y << ") > 0: " << z;
+        VLOG(1) << "ponto (" << x << ", " << y << ") > 0: " << z;
         break;
       }
     }
@@ -4967,6 +4977,18 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
       LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
+}
+
+const TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) const {
+  if (id_cenario == CENARIO_PRINCIPAL) {
+    return &proto_;
+  }
+  for (auto& sub_cenario : proto_.sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
+      return &sub_cenario;
+    }
+  }
+  return nullptr;
 }
 
 TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {

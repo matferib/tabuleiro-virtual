@@ -118,6 +118,13 @@ Tabelas::Tabelas() {
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
   }
+  for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
+    if (feitico.nome().empty()) {
+      feitico.set_nome(feitico.id());
+    }
+    feiticos_[feitico.id()] = &feitico;
+  }
+
   auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
     auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
     *novo_arco = arco_base;
@@ -172,6 +179,16 @@ const ArmaduraOuEscudoProto& Tabelas::Escudo(const std::string& id) const {
 const ArmaProto& Tabelas::Arma(const std::string& id) const {
   auto it = armas_.find(id);
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
+}
+
+const ArmaProto& Tabelas::Feitico(const std::string& id) const {
+  auto it = feiticos_.find(id);
+  return it == feiticos_.end() ? ArmaProto::default_instance() : *it->second;
+}
+
+const ArmaProto& Tabelas::ArmaOuFeitico(const std::string& id) const {
+  const auto& arma = Arma(id);
+  return arma.has_id() ? arma : Feitico(id);
 }
 
 const EfeitoProto& Tabelas::Efeito(TipoEfeito tipo) const {

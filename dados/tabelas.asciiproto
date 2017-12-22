@@ -2356,6 +2356,29 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31' }
+      para_nivel { magias_por_dia: '42' }
+      para_nivel { magias_por_dia: '421' }
+      para_nivel { magias_por_dia: '532' }
+      para_nivel { magias_por_dia: '5321' }
+      para_nivel { magias_por_dia: '5332' }
+      para_nivel { magias_por_dia: '64321' }
+      para_nivel { magias_por_dia: '64332' }
+      para_nivel { magias_por_dia: '644321' }
+      para_nivel { magias_por_dia: '644332' }
+      para_nivel { magias_por_dia: '6544321' }
+      para_nivel { magias_por_dia: '6544332' }
+      para_nivel { magias_por_dia: '65544321' }
+      para_nivel { magias_por_dia: '65544332' }
+      para_nivel { magias_por_dia: '655544321' }
+      para_nivel { magias_por_dia: '655544332' }
+      para_nivel { magias_por_dia: '6555544321' }
+      para_nivel { magias_por_dia: '6555544332' }
+      para_nivel { magias_por_dia: '6555554433' }
+      para_nivel { magias_por_dia: '6555554444' }
+    }
 
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2377,6 +2400,7 @@ tabela_classes {
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id_para_magia: 'mago'
 
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2542,6 +2566,29 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '2' conhecidos: '4' }
+      para_nivel { magias_por_dia: '30' conhecidos: '52' }
+      para_nivel { magias_por_dia: '31' conhecidos: '63' }
+      para_nivel { magias_por_dia: '320' conhecidos: '632' }
+      para_nivel { magias_por_dia: '331' conhecidos: '643' }
+      para_nivel { magias_por_dia: '332' conhecidos: '643' }
+      para_nivel { magias_por_dia: '3320' conhecidos: '6442' }
+      para_nivel { magias_por_dia: '3331' conhecidos: '6443' }
+      para_nivel { magias_por_dia: '3332' conhecidos: '6443' }
+      para_nivel { magias_por_dia: '33320' conhecidos: '64442' }
+      para_nivel { magias_por_dia: '33331' conhecidos: '64443' }
+      para_nivel { magias_por_dia: '33332' conhecidos: '64443' }
+      para_nivel { magias_por_dia: '333320' conhecidos: '644442' }
+      para_nivel { magias_por_dia: '433331' conhecidos: '644443' }
+      para_nivel { magias_por_dia: '443332' conhecidos: '644443' }
+      para_nivel { magias_por_dia: '4443320' conhecidos: '6544442' }
+      para_nivel { magias_por_dia: '4444331' conhecidos: '6554443' }
+      para_nivel { magias_por_dia: '4444432' conhecidos: '6555443' }
+      para_nivel { magias_por_dia: '4444443' conhecidos: '6555544' }
+      para_nivel { magias_por_dia: '4444444' conhecidos: '6555554' }
+    }
 
     pericias: 'avaliacao'
     pericias: 'equilibrio'
@@ -2587,6 +2634,29 @@ tabela_classes {
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31' }
+      para_nivel { magias_por_dia: '42' }
+      para_nivel { magias_por_dia: '421' }
+      para_nivel { magias_por_dia: '432' }
+      para_nivel { magias_por_dia: '4321' }
+      para_nivel { magias_por_dia: '4332' }
+      para_nivel { magias_por_dia: '44321' }
+      para_nivel { magias_por_dia: '44332' }
+      para_nivel { magias_por_dia: '444321' }
+      para_nivel { magias_por_dia: '444332' }
+      para_nivel { magias_por_dia: '4444321' }
+      para_nivel { magias_por_dia: '4444332' }
+      para_nivel { magias_por_dia: '44444321' }
+      para_nivel { magias_por_dia: '44444332' }
+      para_nivel { magias_por_dia: '444444321' }
+      para_nivel { magias_por_dia: '444444332' }
+      para_nivel { magias_por_dia: '4444444321' }
+      para_nivel { magias_por_dia: '4444444332' }
+      para_nivel { magias_por_dia: '4444444433' }
+      para_nivel { magias_por_dia: '4444444444' }
+    }
 
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2613,6 +2683,30 @@ tabela_classes {
   }
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id_para_magia: 'mago'
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '53' conhecidos: '42' }
+      para_nivel { magias_por_dia: '64' conhecidos: '52' }
+      para_nivel { magias_por_dia: '65' conhecidos: '53' }
+      para_nivel { magias_por_dia: '663' conhecidos: '631' }
+      para_nivel { magias_por_dia: '664' conhecidos: '642' }
+      para_nivel { magias_por_dia: '6653' conhecidos: '7421' }
+      para_nivel { magias_por_dia: '6664' conhecidos: '7532' }
+      para_nivel { magias_por_dia: '66653' conhecidos: '85321' }
+      para_nivel { magias_por_dia: '66664' conhecidos: '85432' }
+      para_nivel { magias_por_dia: '666653' conhecidos: '954321' }
+      para_nivel { magias_por_dia: '666664' conhecidos: '955432' }
+      para_nivel { magias_por_dia: '6666653' conhecidos: '9554321' }
+      para_nivel { magias_por_dia: '6666664' conhecidos: '9554432' }
+      para_nivel { magias_por_dia: '66666653' conhecidos: '95544321' }
+      para_nivel { magias_por_dia: '66666664' conhecidos: '95544432' }
+      para_nivel { magias_por_dia: '666666653' conhecidos: '955444321' }
+      para_nivel { magias_por_dia: '666666664' conhecidos: '955444332' }
+      para_nivel { magias_por_dia: '6666666653' conhecidos: '9554443321' }
+      para_nivel { magias_por_dia: '6666666664' conhecidos: '9554443332' }
+      para_nivel { magias_por_dia: '6666666666' conhecidos: '9554443333' }
+    }
 
     pericias: 'blefar'
     pericias: 'concentracao'
@@ -3154,5 +3248,187 @@ tabela_pericias {
     # classes: [  'bardo'  'ladino' ]
     atributo: TA_CARISMA
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
+  }
+}
+tabela_feiticos {
+  armas {
+    id: 'coluna_chamas'
+    nome: 'Coluna de Chamas'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sol'
+      dominio: true
+      nivel: 5
+    }
+    info_classes {
+      id: 'guerra'
+      dominio: true
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_CILINDRO
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_flame_strike.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      dois_lados: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'bola_de_fogo'
+    nome: 'Bola de Fogo'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      # Mais modificador de conjurador.
+      dificuldade_salvacao_por_nivel: true 
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'cone_de_gelo'
+    nome: 'Cone de Gelo'
+    alcance_quadrados: 12
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'agua'
+      dominio: true 
+      nivel: 6
+    }
+    acao {
+      id: 'Cone de Gelo'
+      tipo: ACAO_DISPERSAO
+      cor: { r: 0.3 b: 1.0 g: 0.3 }
+      distancia_quadrados: 12  # quadrados
+      geometria: ACAO_GEO_CONE
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_ice.png'
+      duracao_s: 0.350
+      dois_lados: true
+      dificuldade_salvacao_por_nivel: true 
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'relampago'
+    nome: 'Relâmpago'
+    alcance_quadrados: 24
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      efeito_area: true
+      distancia_quadrados: 14  # quadrados
+      permite_salvacao: true
+      icone: "icon_lightning.png"
+      info_textura { id: 'lightning.png' }
+      ignora_luz: true
+      dificuldade_salvacao_por_nivel: true 
+      resultado_salvacao: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'tempestade_glacial'
+    nome: 'Tempestade Glacial'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'agua'
+      dominio: true
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_CILINDRO
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_ice.png'
+      info_textura { id: 'ice.png' }
+      duracao_s: 0.350
+      dois_lados: true
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'missil_magico'
+    nome: 'Míssil Mágico'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    dano { invariavel: '1d4+1' }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_PROJETIL
+      geometria: ACAO_GEO_ESFERA
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      cor { r: 0.0 g: 0.0 b: 1.0 }
+      velocidade {
+        tipo_aceleracao: ACAO_ACEL_CONSTANTE
+        aceleracao_m_s_2: 0.04
+      }
+      icone: 'icon_magic_missile.png'
+      ignora_luz: true
+      ignora_municao: true
+      ignora_reducao_dano_barbaro: true
+      consequencia: TC_DESLOCA_ALVO
+    }
   }
 }

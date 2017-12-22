@@ -195,6 +195,12 @@ message EntidadeProto {
     optional float alcance_m = 10;
     optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
+    // A diferenca desses dois eh importante.
+    // O campo acao eh o valor final, recomputado sempre a partir da acao da arma e da acao_fixa.
+    // Por que nao deixar tudo na arma? Alguns monstros tem modificadores de dados de ataque
+    // sem usar armas, portanto eles tem na entrada deles acao_fixa. Por exemplo, o ankheg.
+    // Caso o jato dele tivesse acao ao inves de acao_fixa, qualquer mudanca que cause recomputacao
+    // (tipo drenar forca), apagaria o campo acao.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
     optional AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
     // Indica arma obra prima. Modifica bonus_ataque.
@@ -343,4 +349,32 @@ message EntidadeProto {
   optional TendenciaDetalhada tendencia = 80;
   // XP do personagem.
   optional int32 experiencia = 84;
+
+  // Informacao sobre um feitico conhecido.
+  message InfoConhecido {
+    // Identificador do feitico, usado pelo slot.
+    optional string id = 1;
+    optional string nome = 2;
+    // Indica feitico de domino.
+    optional bool dominio = 3;
+  }
+  // As magias prontas para lancamento.
+  message InfoLancar {
+    // O id e o nivel identificam o feitico.
+    optional string id = 1;
+    optional int32 nivel = 2;
+    // Indica slot usado.
+    optional bool usado = 3;
+  }
+  message FeiticosPorNivel {
+    // Nivel dos feiticos.
+    repeated InfoConhecido conhecidos = 5;
+    repeated InfoLancar para_lancar = 6;
+  }
+  message InfoFeiticosClasse {
+    optional string id_classe = 1;
+    repeated FeiticosPorNivel feiticos_por_nivel = 5;
+  }
+  repeated InfoFeiticosClasse feiticos_classes = 87;
+  // Fim feiticos.
 }

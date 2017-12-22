@@ -19,6 +19,8 @@ class Tabelas {
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
   const ArmaProto& Arma(const std::string& id) const;
+  const ArmaProto& Feitico(const std::string& id) const;
+  const ArmaProto& ArmaOuFeitico(const std::string& id) const;
   const EfeitoProto& Efeito(TipoEfeito tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const PocaoProto& Pocao(const std::string& id) const;
@@ -32,6 +34,7 @@ class Tabelas {
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
   std::unordered_map<std::string, const ArmaProto*> armas_;
+  std::unordered_map<std::string, const ArmaProto*> feiticos_;
   std::unordered_map<int, const EfeitoProto*> efeitos_;
   std::unordered_map<std::string, const PocaoProto*> pocoes_;
   std::unordered_map<std::string, const TalentoProto*> talentos_;

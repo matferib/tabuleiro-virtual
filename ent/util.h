@@ -279,6 +279,8 @@ int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
 int ModificadorAtributo(const Bonus& atributo);
 int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto);
+// Retorna o modificador de atributo de conjuracao para uma determinada classe.
+int ModificadorAtributoConjuracao(const std::string& id_classe, const EntidadeProto& proto);
 // Retorna bonus por TipoAtributo.
 const Bonus& BonusAtributo(TipoAtributo ta, const EntidadeProto& proto);
 Bonus* BonusAtributo(TipoAtributo ta, EntidadeProto* proto);
@@ -309,7 +311,7 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
 bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* dados_ataque);
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
@@ -377,6 +379,14 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 int Nivel(const std::string& id, const EntidadeProto& proto);
 // Nivel total da entidade.
 int Nivel(const EntidadeProto& proto);
+// Retorna o nivel da classe para um tipo de ataque.
+// Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
+int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+// Retorna o id de classe para um tipo de ataque. Note que todas variantes de mago (feiticeiro, adepto etc) retornam mago.
+std::string ClasseParaFeitico(const std::string& tipo_ataque);
+// Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
+// e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto); 
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
@@ -395,6 +405,8 @@ std::string RotuloEntidade(const EntidadeProto& proto);
 // Remove os campos para os quais predicado retornar true.
 template <class T>
 void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
+template <class T>
+void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
 // Acha um id unico de evento para o proto passado.
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
@@ -422,6 +434,15 @@ const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeP
 
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);
+
+// Retorna os feiticos da classe.
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto); 
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto); 
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto); 
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto); 
+
+// Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id);
 
 }  // namespace ent
 

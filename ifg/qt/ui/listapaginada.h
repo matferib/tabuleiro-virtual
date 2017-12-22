@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'listapaginada.ui'
 **
-** Created by: Qt User Interface Compiler version 4.8.6
+** Created by: Qt User Interface Compiler version 5.2.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -9,14 +9,14 @@
 #ifndef LISTAPAGINADA_H
 #define LISTAPAGINADA_H
 
-#include <QAction>
-#include <QApplication>
-#include <QButtonGroup>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QHeaderView>
-#include <QListWidget>
-#include <QVariant>
+#include <QtCore/QVariant>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QListWidget>
 
 namespace ifg {
 namespace qt {
@@ -30,15 +30,15 @@ public:
     void setupUi(QDialog *ifg__qt__ListaPaginada)
     {
         if (ifg__qt__ListaPaginada->objectName().isEmpty())
-            ifg__qt__ListaPaginada->setObjectName(QString::fromUtf8("ifg__qt__ListaPaginada"));
+            ifg__qt__ListaPaginada->setObjectName(QStringLiteral("ifg__qt__ListaPaginada"));
         ifg__qt__ListaPaginada->resize(400, 300);
         botoes = new QDialogButtonBox(ifg__qt__ListaPaginada);
-        botoes->setObjectName(QString::fromUtf8("botoes"));
+        botoes->setObjectName(QStringLiteral("botoes"));
         botoes->setGeometry(QRect(30, 240, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         lista = new QListWidget(ifg__qt__ListaPaginada);
-        lista->setObjectName(QString::fromUtf8("lista"));
+        lista->setObjectName(QStringLiteral("lista"));
         lista->setGeometry(QRect(20, 20, 351, 211));
 
         retranslateUi(ifg__qt__ListaPaginada);

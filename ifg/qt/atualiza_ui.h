@@ -58,6 +58,23 @@ void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Enti
 // Atualiza a tabela de pericias.
 void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Tipo de elemento da UI de feitico.
+enum TipoItemFeitico {
+  // Filhos sao feiticos conhecidos.
+  RAIZ_CONHECIDO = 0,
+  // Um feitico conhecido.
+  CONHECIDO = 1,
+  // Um feitico para lancar (slot).
+  PARA_LANCAR = 2,
+};
+// Atualiza a lista de feiticos da classe.
+void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+// Atualiza os feiticos conhecidos de um nivel.
+void AtualizaFeiticosConhecidosNivel(
+    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai);
+void AdicionaItemFeiticoConhecido(
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, QTreeWidgetItem* pai);
+
 }  // namespace qt
 }  // namespace ifg
 

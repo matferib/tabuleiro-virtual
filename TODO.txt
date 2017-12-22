@@ -1,4 +1,9 @@
-Combos no windows nao expandem alem do tamanho original.
+Dificuldade de feiticos deve variar com o nivel (tem feitico que tem nivel diferente para clerigo e mago por exemplo).
+Campo de feiticos por dia.
+Automatizar dano de feiticos.
+Planilha zicada no mac.
+
+Colocar salvacoes autoamaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.

@@ -33,58 +33,13 @@ acao {
   ignora_resistencia_magia: true
 }
 acao {
-  id: 'Bola de Fogo'
-  tipo: ACAO_DISPERSAO
-  cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-  raio_quadrados: 4  # quadrados.
-  geometria: ACAO_GEO_ESFERA
-  efeito_area: true
-	permite_salvacao: true
-  icone: 'icon_fireball.png'
-  info_textura { id: 'fire.png' }
-  duracao_s: 0.350
-  ignora_luz: true
-  consequencia: TC_INFLAMA_ALVO
-  # Mais modificador de conjurador.
-  dificuldade_salvacao: 13
-  resultado_salvacao: RS_MEIO
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
+  id: 'Feitiço de Clérigo'
 }
 acao {
-  id: 'Coluna de Chamas'
-  tipo: ACAO_DISPERSAO
-  cor { r: 1 g: 1 b: 1 a: 0.5 }
-  raio_quadrados: 4  # quadrados.
-  geometria: ACAO_GEO_CILINDRO
-  efeito_area: true
-	permite_salvacao: true
-  icone: 'icon_flame_strike.png'
-  info_textura { id: 'fire.png' }
-  duracao_s: 0.350
-  dois_lados: true
-  # TODO: para druida eh 14.
-  dificuldade_salvacao: 15
-  resultado_salvacao: RS_MEIO
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
+  id: 'Feitiço de Druida'
 }
 acao {
-  id: 'Cone de Gelo'
-  tipo: ACAO_DISPERSAO
-  cor: { r: 0.3 b: 1.0 g: 0.3 }
-  distancia_quadrados: 12  # quadrados
-  geometria: ACAO_GEO_CONE
-  efeito_area: true
-	permite_salvacao: true
-  icone: 'icon_ice.png'
-  duracao_s: 0.350
-  dois_lados: true
-  # TODO para clerigo da agua eh 16.
-  dificuldade_salvacao: 15
-  resultado_salvacao: RS_MEIO
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
+  id: 'Feitiço de Mago'
 }
 acao {
   id: 'Feitiço de Toque'
@@ -126,22 +81,6 @@ acao {
   dificuldade_salvacao: 11
   tipo_salvacao: TS_REFLEXO
   ignora_reducao_dano_barbaro: true
-}
-acao {
-  id: 'Míssil Mágico'
-  tipo: ACAO_PROJETIL
-  geometria: ACAO_GEO_ESFERA
-  escala { x: 0.2 y: 0.2 z: 0.2 }
-  cor { r: 0.0 g: 0.0 b: 1.0 }
-  velocidade {
-    tipo_aceleracao: ACAO_ACEL_CONSTANTE
-    aceleracao_m_s_2: 0.04
-  }
-  icone: 'icon_magic_missile.png'
-  ignora_luz: true
-  ignora_municao: true
-  ignora_reducao_dano_barbaro: true
-  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -187,36 +126,6 @@ acao {
   consequencia: TC_INFLAMA_ALVO
   ataque_toque: true
   ataque_distancia: true
-  ignora_reducao_dano_barbaro: true
-}
-acao {
-  id: 'Relâmpago'
-  tipo: ACAO_RAIO
-  cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
-  duracao_s: 0.5
-  efeito_area: true
-	distancia_quadrados: 14  # quadrados
-	permite_salvacao: true
-  icone: "icon_lightning.png"
-  info_textura { id: 'lightning.png' }
-  ignora_luz: true
-  dificuldade_salvacao: 13
-  resultado_salvacao: RS_MEIO
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
-}
-acao {
-  id: 'Tempestade Glacial'
-  tipo: ACAO_DISPERSAO
-  cor { r: 1 g: 1 b: 1 a: 0.5 }
-  raio_quadrados: 4  # quadrados.
-  geometria: ACAO_GEO_CILINDRO
-  efeito_area: true
-	permite_salvacao: false
-  icone: 'icon_ice.png'
-  info_textura { id: 'ice.png' }
-  duracao_s: 0.350
-  dois_lados: true
   ignora_reducao_dano_barbaro: true
 }
 acao {

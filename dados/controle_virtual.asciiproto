@@ -14,6 +14,128 @@ fixo {
     dica: "Bebe a poção."
     visibilidade { referencia { tipo: VIS_POCAO } }
   }
+  # Feiticos.
+  dados_botoes {
+    largura: 3
+    altura: 1
+    linha: 4
+    coluna: 4
+    rotulo: "Feitico"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_NULA
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 7
+    rotulo: "0"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 8
+    rotulo: "1"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 9
+    rotulo: "2"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 10
+    rotulo: "3"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 11
+    rotulo: "4"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 12
+    rotulo: "5"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 13
+    rotulo: "6"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 14
+    rotulo: "7"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 15
+    rotulo: "8"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 4
+    coluna: 16
+    rotulo: "9"
+    cor_rotulo {}
+    id: CONTROLE_NOP
+    forma: FORMA_DISCO
+    rotacao_graus: 45.0
+  }
+
   # Linha 5.
   dados_botoes {
     tamanho: 1
@@ -67,6 +189,7 @@ fixo {
     visibilidade { referencia { tipo: VIS_FURIA } }
   }
 
+  # Coisas la da direita.
   # Salvar e abrir.
   dados_botoes {
     tamanho: 1

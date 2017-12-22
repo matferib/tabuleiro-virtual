@@ -968,7 +968,7 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap,
   const auto* da = ea.DadoCorrente();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da!= nullptr && da->has_municao() && da->municao() == 0) {
-    VLOG(1) << "Nao ha municao para ataque";
+    VLOG(1) << "Nao ha municao para ataque: " << da->DebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
 
@@ -1567,6 +1567,9 @@ std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const En
 }
 
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
+  if (dano.has_invariavel()) {
+    return dano.invariavel();
+  }
   switch (tamanho) {
     case TM_MEDIO: return dano.medio();
     case TM_PEQUENO: return dano.pequeno();
@@ -1600,8 +1603,8 @@ const ArmaProto& ArmaOutraMao(
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
-  const auto& arma = tabelas.Arma(da->id_arma());
-  AcaoParaAtaque(arma, tabelas.Acao(da->tipo_ataque()), da);
+  const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
+  ArmaParaDadosAtaque(tabelas, arma, proto, da);
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -1613,9 +1616,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     }
 
     // tipo certo de ataque.
-    bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
-    bool cac = PossuiCategoria(CAT_CAC, arma);
+    const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
+    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    const bool cac = PossuiCategoria(CAT_CAC, arma);
     if (distancia && cac) {
       // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
       if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
@@ -1628,17 +1631,17 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     } else if (projetil_area) {
       da->set_tipo_ataque("Projétil de Área");
       da->set_tipo_acao(ACAO_PROJETIL_AREA);
-    } else {
+    } else if (distancia) {
       da->set_tipo_ataque("Ataque a Distância");
       da->set_tipo_acao(ACAO_PROJETIL);
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
-    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
+    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
       da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico_secundario());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
-    } else {
+    } else if (arma.has_dano()) {
       da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
@@ -1675,7 +1678,19 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
-    da->set_alcance_m(arma.alcance_quadrados() * QUADRADOS_PARA_METROS);
+    int mod_distancia_quadrados = 0;
+    const int nivel = NivelParaFeitico(*da, proto);
+    switch (arma.modificador_alcance()) {
+      case ArmaProto::MOD_2_QUAD_NIVEL:
+        mod_distancia_quadrados = 2 * nivel;
+        break;
+      case ArmaProto::MOD_8_QUAD_NIVEL:
+        mod_distancia_quadrados = 8 * nivel;
+        break;
+      default:
+        ;
+    }
+    da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS);
     da->set_alcance_minimo_m(0);
   } else if (da->tipo_ataque() == "Ataque Corpo a Corpo") {
     // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
@@ -1783,7 +1798,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       PossuiTalento("especializacao_arma", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
   AtribuiOuRemoveBonus(
       PossuiTalento("especializacao_arma_maior", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
-  // Estes dois sao os mais importantes, porque eh o que vale.
+  // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que vale.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
@@ -1863,12 +1878,14 @@ const EntidadeProto::DadosAtaque* DadosAtaque(const std::string& id_arma, const 
   return nullptr;
 }
 
+#if 0
 bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
   return std::any_of(proto.dados_ataque().begin(), proto.dados_ataque().end(), [&id_arma] (
         const EntidadeProto::DadosAtaque& da) {
       return da.id_arma() == id_arma;
   });
 }
+#endif
 
 // Poe e na primeira posicao de rf, movendo todos uma posicao para tras. Parametro 'e' fica invalido.
 template <class T>
@@ -2406,6 +2423,51 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   // TODO sinergia e talentos.
 }
 
+void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
+    // Encontra a entrada da classe, ou cria se nao houver.
+    auto* fc = FeiticosClasse(ic.id(), proto);
+    // Le a progressao.
+    const int nivel = std::min(ic.nivel(), 20);
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
+    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
+    const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
+    // Classe nao tem magias conhecidas.
+    if (magias_conhecidas.empty()) continue;
+    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+    Redimensiona(magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
+
+    for (int nivel_magia = 0; nivel_magia < magias_conhecidas.size(); ++nivel_magia) {
+      const char magias_conhecidas_do_nivel = magias_conhecidas[nivel_magia] - '0';
+      Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
+    }
+  }
+}
+
+void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
+    // Encontra a entrada da classe, ou cria se nao houver.
+    auto* fc = FeiticosClasse(ic.id(), proto);
+    // Le a progressao.
+    const int nivel = std::min(ic.nivel(), 20);
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
+    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
+    const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel).magias_por_dia();
+    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+    Redimensiona(magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
+
+    for (int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
+      const char magias_do_nivel = magias_por_dia[nivel_magia] - '0';
+      // TODO modificador atributo.
+      Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+    }
+  }
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
@@ -2450,6 +2512,10 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasDadosAtaque(tabelas, proto);
 
   RecomputaDependenciasPericias(tabelas, proto);
+
+  RecomputaDependenciasMagiasConhecidas(tabelas, proto);
+  RecomputaDependenciasMagiasPorDia(tabelas, proto);
+
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
 
@@ -2554,6 +2620,17 @@ int ModificadorAtributo(const Bonus& atributo) {
     total_atributo += 10;
   }
   return ModificadorAtributo(total_atributo);
+}
+
+// Melhor fazer sobre o proto do personagem do que para tabela por causa de classes nao tabeladas.
+// A consequencia eh que o personagem deve ter a classe.
+int ModificadorAtributoConjuracao(const std::string& id_classe, const EntidadeProto& proto) {
+  for (const auto& info_classe : proto.info_classes()) {
+    if (info_classe.id() == id_classe) {
+      return info_classe.modificador_atributo_conjuracao();
+    }
+  }
+  return 0;
 }
 
 void AtribuiBaseAtributo(int valor, TipoAtributo ta, EntidadeProto* proto) {
@@ -2687,25 +2764,48 @@ bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeP
   });
 }
 
-void AcaoParaAtaque(const ArmaProto& arma, const AcaoProto& acao_proto, EntidadeProto::DadosAtaque* da) {
+const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe) {
+  const auto& classe_tabelada = tabelas.Classe(id_classe);
+  return classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : id_classe;
+}
+
+// Retorna o nivel do feitico para determinada classe.
+int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const ArmaProto& arma) {
+  const auto& id = IdParaMagia(tabelas, id_classe);
+  for (const auto& ic : arma.info_classes()) {
+    if (ic.id() == id) return ic.nivel();
+  }
+  return 0;
+}
+
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
+  const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
   da->clear_acao();
+  // Aplica acao da arma.
   if (arma.has_acao()) {
     *da->mutable_acao() = arma.acao();
   }
+  // Aplica acao fixa.
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
+  if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
+    // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
+    // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
+    // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
+    // enquanto ClasseParaFeitico busca a classe para feitico (mago).
+    const auto& ic = InfoClasseParaFeitico(da->tipo_ataque(), proto);
+    const int base = da->acao().has_dificuldade_salvacao_base()
+        ? da->acao().dificuldade_salvacao_base()
+        : 10 + NivelFeitico(tabelas, ClasseParaFeitico(da->tipo_ataque()), arma);
+    da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(ic.id(), proto));
+  }
 
-  if (acao_proto.ignora_municao()) {
+  if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
     da->clear_municao();
   }
-  // Hack de missil magico.
-  if (da->tipo_ataque() == "Míssil Mágico") {
-    if (!da->has_dano()) da->set_dano("1d4+1");
-    if (da->alcance_m() < 33) da->set_alcance_m(33);
-  }
   da->set_tipo_ataque(acao_proto.id());
-  da->set_tipo_acao(acao_proto.tipo());
+  da->set_tipo_acao(acao_proto.has_tipo() ? acao_proto.tipo() : da->acao().tipo());
   if (da->tipo_ataque().empty() && da->has_id_arma()) {
     da->set_tipo_ataque(PossuiCategoria(CAT_PROJETIL_AREA, arma)
         ? "Projétil de Área"
@@ -3015,12 +3115,39 @@ int Nivel(const EntidadeProto& proto) {
   return total;
 }
 
-
 int Nivel(const std::string& id, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
     if (ic.id() == id) return ic.nivel();
   }
   return 0;
+}
+
+std::string ClasseParaFeitico(const std::string& tipo_ataque) {
+  if (tipo_ataque == "Feitiço de Clérigo") return "clerigo";
+  if (tipo_ataque == "Feitiço de Druida") return "druida";
+  if (tipo_ataque == "Feitiço de Ranger") return "ranger";
+  if (tipo_ataque == "Feitiço de Paladino") return "paladino";
+  if (tipo_ataque == "Feitiço de Mago") return "mago";
+  return "";
+}
+
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
+  const auto& id = ClasseParaFeitico(tipo_ataque);
+  const InfoClasse* ret = &InfoClasse::default_instance();
+  // Evita comparacao com ids vazios, ja que id_para_magia pode ser vazio tb.
+  if (id.empty()) return *ret;
+  int max = 0;
+  for (const auto& ic : proto.info_classes()) {
+    if ((ic.id() == id || ic.id_para_magia() == id) && ic.nivel() > max) {
+      max = ic.nivel();
+      ret = &ic;
+    }
+  }
+  return *ret;
+}
+
+int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  return InfoClasseParaFeitico(da.tipo_ataque(), proto).nivel();
 }
 
 bool EmDefesaTotal(const EntidadeProto& proto) {
@@ -3052,6 +3179,16 @@ void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf
   for (int i = c->size() - 1; i >= 0; --i) {
     if (predicado(c->Get(i))) c->DeleteSubrange(i, 1);
   }
+}
+
+template <class T>
+void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
+  if (tam == c->size()) return;
+  if (tam < c->size()) {
+    c->DeleteSubrange(tam, c->size());
+    return;
+  }
+  while (c->size() < tam) c->Add();
 }
 
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
@@ -3122,6 +3259,45 @@ const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeP
 
 bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
   return std::any_of(proto.agarrado_a().begin(), proto.agarrado_a().end(), [id] (unsigned int tid) { return id == tid; });
+}
+
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto) {
+  for (const auto& fc : proto.feiticos_classes()) {
+    if (fc.id_classe() == id) return fc;
+  }
+  return EntidadeProto::InfoFeiticosClasse::default_instance();
+}
+
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    if (fc.id_classe() == id) return &fc;
+  }
+  auto* fc = proto->add_feiticos_classes();
+  fc->set_id_classe(id);
+  return fc;
+}
+
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto) {
+  nivel = std::min(nivel, 9);
+  const auto& fc = FeiticosClasse(id, proto);
+  if (nivel < 0 || nivel >= fc.feiticos_por_nivel().size()) return EntidadeProto::FeiticosPorNivel::default_instance();
+  return fc.feiticos_por_nivel(nivel);
+}
+
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto) {
+  nivel = std::min(nivel, 9);
+  auto* fc = FeiticosClasse(id, proto);
+  if (nivel < 0) return nullptr;
+  while (nivel >= fc->feiticos_por_nivel().size()) {
+    fc->add_feiticos_por_nivel();
+  }
+  return fc->mutable_feiticos_por_nivel(nivel);
+}
+
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id) {
+  const auto& ic = tabelas.Classe(id);
+  if (ic.progressao_feitico().para_nivel().size() < 2) return false;
+  return !ic.progressao_feitico().para_nivel(1).conhecidos().empty();
 }
 
 }  // namespace ent
