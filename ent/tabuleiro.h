@@ -551,6 +551,10 @@ class Tabuleiro : public ntf::Receptor {
     bool presente;  // usado durante atualizacao de iniciativa.
   };
 
+  /** Botao de usar feitico clicado. */
+  void TrataBotaoUsarFeitico(int nivel);
+  void ConsomeFeitico(unsigned int id_entidade, const std::string& feitico, int slot, int nivel);
+
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */

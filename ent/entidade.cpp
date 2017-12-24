@@ -1902,4 +1902,15 @@ bool Entidade::IgnoraChanceFalha() const {
   return proto_.dados_ataque_global().chance_falha() < 0;
 }
 
+void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado) {
+  auto* fn = FeiticosNivelOuNullptr(id_classe, nivel, &proto_);
+  if (fn == nullptr || fn->para_lancar().size() <= indice) {
+    LOG(ERROR) << "Nao foi possivel alterar o feitico de classe " << id_classe
+               << ", nivel: " << nivel << ", indice: " << indice
+               << ", para entidade: " << RotuloEntidade(this);
+    return;
+  }
+  fn->mutable_para_lancar(indice)->set_usado(usado);
+}
+
 }  // namespace ent

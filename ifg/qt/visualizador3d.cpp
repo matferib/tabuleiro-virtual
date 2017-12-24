@@ -1080,7 +1080,7 @@ void PreencheConfiguraFeiticos(
           std::string id = item->data(1, Qt::UserRole).toString().toStdString();
           if (ClasseDeveConhecerFeitico(this_->tabelas(), id)) return;
           int nivel = item->data(2, Qt::UserRole).toInt();
-          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          auto* f = FeiticosNivel(id, nivel, proto_retornado);
           f->add_conhecidos()->set_nome("Nome");
           AdicionaItemFeiticoConhecido(gerador, "Nome", id, nivel, f->conhecidos_size() - 1, item);
         });
@@ -1096,7 +1096,7 @@ void PreencheConfiguraFeiticos(
           std::string id = item->data(1, Qt::UserRole).toString().toStdString();
           int nivel = item->data(2, Qt::UserRole).toInt();
           int slot = item->data(3, Qt::UserRole).toInt();
-          auto* f = FeiticosNivel(nivel, id, proto_retornado);
+          auto* f = FeiticosNivel(id, nivel, proto_retornado);
           if (slot < 0 || slot >= f->conhecidos_size()) {
             gerador.arvore_feiticos->blockSignals(false);
             return;
@@ -1117,7 +1117,7 @@ void PreencheConfiguraFeiticos(
     std::string id = item->data(1, Qt::UserRole).toString().toStdString();
     int nivel = item->data(2, Qt::UserRole).toInt();
     int slot = item->data(3, Qt::UserRole).toInt();
-    auto* f = FeiticosNivel(nivel, id, proto_retornado);
+    auto* f = FeiticosNivel(id, nivel, proto_retornado);
     if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
       if (slot < 0 || slot >= f->conhecidos_size()) return;
       f->mutable_conhecidos(slot)->set_nome(item->text(0).toUtf8().constData());

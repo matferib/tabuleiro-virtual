@@ -3283,32 +3283,41 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
 // Feiticos.
 // ---------
 
-const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto) {
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(
+    const std::string& id_classe, const EntidadeProto& proto) {
   for (const auto& fc : proto.feiticos_classes()) {
-    if (fc.id_classe() == id) return fc;
+    if (fc.id_classe() == id_classe) return fc;
   }
   return EntidadeProto::InfoFeiticosClasse::default_instance();
 }
 
-EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto) {
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id_classe, EntidadeProto* proto) {
   for (auto& fc : *proto->mutable_feiticos_classes()) {
-    if (fc.id_classe() == id) return &fc;
+    if (fc.id_classe() == id_classe) return &fc;
   }
   auto* fc = proto->add_feiticos_classes();
-  fc->set_id_classe(id);
+  fc->set_id_classe(id_classe);
   return fc;
 }
 
-const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto) {
+EntidadeProto::InfoFeiticosClasse* FeiticosClasseOuNullptr(const std::string& id_classe, EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    if (fc.id_classe() == id_classe) return &fc;
+  }
+  return nullptr;
+}
+
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(
+    const std::string& id_classe, int nivel, const EntidadeProto& proto) {
   nivel = std::min(nivel, 9);
-  const auto& fc = FeiticosClasse(id, proto);
+  const auto& fc = FeiticosClasse(id_classe, proto);
   if (nivel < 0 || nivel >= fc.feiticos_por_nivel().size()) return EntidadeProto::FeiticosPorNivel::default_instance();
   return fc.feiticos_por_nivel(nivel);
 }
 
-EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto) {
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(const std::string& id_classe, int nivel, EntidadeProto* proto) {
   nivel = std::min(nivel, 9);
-  auto* fc = FeiticosClasse(id, proto);
+  auto* fc = FeiticosClasse(id_classe, proto);
   if (nivel < 0) return nullptr;
   while (nivel >= fc->feiticos_por_nivel().size()) {
     fc->add_feiticos_por_nivel();
@@ -3316,11 +3325,77 @@ EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id,
   return fc->mutable_feiticos_por_nivel(nivel);
 }
 
-bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id) {
-  const auto& ic = tabelas.Classe(id);
+EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
+    const std::string& id_classe, int nivel, EntidadeProto* proto) {
+  nivel = std::min(nivel, 9);
+  if (nivel < 0) return nullptr;
+  auto* fc = FeiticosClasseOuNullptr(id_classe, proto);
+  if (fc == nullptr) return nullptr;
+  if (nivel >= fc->feiticos_por_nivel().size()) {
+    return nullptr;
+  }
+  return fc->mutable_feiticos_por_nivel(nivel);
+}
+
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_classe) {
+  const auto& ic = tabelas.Classe(id_classe);
   if (ic.progressao_feitico().para_nivel().size() < 2) return false;
   return !ic.progressao_feitico().para_nivel(1).conhecidos().empty();
 }
 // Fim feiticos.
+
+std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto) {
+  std::string classe;
+  int nivel = 0;
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.nivel_conjurador() > 0 && ic.nivel() > nivel) {
+      nivel = ic.nivel();
+      classe = ic.id();
+    }
+  }
+  return classe;
+}
+
+int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto) {
+  const auto& fn = FeiticosNivel(id_classe, nivel, proto);
+  for (int i = 0; i < fn.para_lancar().size(); ++i) {
+    if (!fn.para_lancar(i).usado()) return i;
+  }
+  return -1;
+}
+
+ntf::Notificacao NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade) {
+  // Consome o slot.
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ALTERAR_FEITICO);
+  auto* e_depois = n.mutable_entidade();
+  e_depois->set_id(id_entidade);
+  auto* fc = e_depois->add_feiticos_classes();
+  fc->set_id_classe(id_classe);
+  auto* fn = fc->add_feiticos_por_nivel();
+  fn->set_nivel(nivel);
+  auto* pl = fn->add_para_lancar();
+  pl->set_usado(usado);
+  pl->set_indice(indice);
+  return n;
+}
+
+// Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
+// erro, retorna nivel negativo.
+std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n) {
+  if (n.entidade().feiticos_classes().empty() ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel().empty() ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty()) {
+    // Bizarramente, make_tuple da pau de linker se usar Entidade::IdInvalido.
+    unsigned int id_invalido = Entidade::IdInvalido;
+    return std::make_tuple("", -1, 0, false, id_invalido);
+  }
+  const auto& fc = n.entidade().feiticos_classes(0);
+  const auto& fn = fc.feiticos_por_nivel(0);
+  const auto& pl = fn.para_lancar(0);
+  return std::make_tuple(
+      fc.id_classe(), fn.has_nivel() ? fn.nivel() : -1, pl.indice(), pl.usado(), n.entidade().id());
+}
 
 }  // namespace ent

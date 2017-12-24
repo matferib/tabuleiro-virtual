@@ -168,6 +168,9 @@ class Entidade {
   /** Atualiza apenas os campos presentes no proto para a entidade. */
   void AtualizaParcial(const EntidadeProto& proto_parcial);
 
+  /** Altera o indice de feitico da entidade para usado ou nao. */
+  void AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado);
+
   using MapaIdAcao = std::unordered_map<std::string, std::unique_ptr<AcaoProto>>;
   // Retorna true se entidade possui acao propria.
   bool AcaoAnterior();

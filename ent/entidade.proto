@@ -365,9 +365,13 @@ message EntidadeProto {
     optional int32 nivel = 2;
     // Indica slot usado.
     optional bool usado = 3;
+    // Identificador de slot, apenas para notificacoes de alteracao de feitico.
+    optional int32 indice = 4;
   }
   message FeiticosPorNivel {
-    // Nivel dos feiticos.
+    // Nivel dos feiticos. Preenchido apenas em notificacoes de alteracao de feitico.
+    optional int32 nivel = 1;
+
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
   }

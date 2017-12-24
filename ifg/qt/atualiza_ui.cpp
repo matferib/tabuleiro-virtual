@@ -454,7 +454,7 @@ void AtualizaFeiticosConhecidosNivel(
   for (auto* f : filhos) {
     delete f;
   }
-  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
     AdicionaItemFeiticoConhecido(gerador, conhecido.nome(), id_classe, nivel, slot++, pai);
@@ -490,7 +490,7 @@ void AtualizaFeiticosParaLancarNivel(
   for (auto* f : filhos) {
     delete f;
   }
-  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   VLOG(1) << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size() << ", proto: " << proto.feiticos_classes(0).DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {

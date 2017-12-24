@@ -1,5 +1,8 @@
+Feiticos:
+- Fazer a escolha do slot quando tiver que memorizar.
+- Melhorar a UI, colocando nivel acima e o numero de slots dentro do circulo. Mostrar tb a classe ativa.
+- Visibilidade dos botoes de magia.
 Tabela de feiticos de adepto, paladino, ranger.
-Terminar feiticos: como fazer no controle virtual o consumo e como tratar o caso de feiticeiros.
 Automatizar dano de feiticos.
 Planilha zicada no mac.
 

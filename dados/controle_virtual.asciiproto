@@ -32,9 +32,8 @@ fixo {
     coluna: 7
     rotulo: "0"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_0
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -43,9 +42,8 @@ fixo {
     coluna: 8
     rotulo: "1"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_1
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -54,9 +52,8 @@ fixo {
     coluna: 9
     rotulo: "2"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_2
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -65,9 +62,8 @@ fixo {
     coluna: 10
     rotulo: "3"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_3
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -76,9 +72,8 @@ fixo {
     coluna: 11
     rotulo: "4"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_4
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -87,9 +82,8 @@ fixo {
     coluna: 12
     rotulo: "5"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_5
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -98,9 +92,8 @@ fixo {
     coluna: 13
     rotulo: "6"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_6
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -109,9 +102,8 @@ fixo {
     coluna: 14
     rotulo: "7"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_7
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -120,9 +112,8 @@ fixo {
     coluna: 15
     rotulo: "8"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
   dados_botoes {
     largura: 1
@@ -131,9 +122,8 @@ fixo {
     coluna: 16
     rotulo: "9"
     cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
   }
 
   # Linha 5.

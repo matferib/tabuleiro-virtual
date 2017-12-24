@@ -2271,4 +2271,32 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
   }
 }
 
+void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  // Encontra a classe para lancar magia.
+  std::string id_classe = ClasseFeiticoAtiva(tabelas_, e->Proto());
+  // Se tem que memorizar, escolhe a magia.
+  const auto& ic = tabelas_.Classe(id_classe);
+  if (ic.precisa_memorizar()) {
+    LOG(INFO) << "Nao implementado";
+    return;
+  } else {
+    int indice = IndiceFeiticoDisponivel(id_classe, nivel, e->Proto());
+    if (indice < 0) {
+      LOG(WARNING) << "Nao ha slots para gastar";
+      return;
+    }
+    // Consome o slot.
+    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
+        NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, e->Id())));
+    AdicionaNotificacaoListaEventos(*n);
+    TrataNotificacao(*n);
+    central_->AdicionaNotificacaoRemota(n.release());
+  }
+}
+
 }  // namespace ent
