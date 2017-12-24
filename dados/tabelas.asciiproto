@@ -2403,7 +2403,29 @@ tabela_classes {
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     precisa_memorizar: true
-
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '31'   }
+      para_nivel { magias_por_dia: '31'   }
+      para_nivel { magias_por_dia: '32'   }
+      para_nivel { magias_por_dia: '320'  }
+      para_nivel { magias_por_dia: '321'  }
+      para_nivel { magias_por_dia: '321'  }
+      para_nivel { magias_por_dia: '332'  }
+      para_nivel { magias_por_dia: '3320' }
+      para_nivel { magias_por_dia: '3321' }
+      para_nivel { magias_por_dia: '3321' }
+      para_nivel { magias_por_dia: '3332' }
+      para_nivel { magias_por_dia: '33320' }
+      para_nivel { magias_por_dia: '33321' }
+      para_nivel { magias_por_dia: '33321' }
+      para_nivel { magias_por_dia: '33332' }
+      para_nivel { magias_por_dia: '333320' }
+      para_nivel { magias_por_dia: '333321' }
+      para_nivel { magias_por_dia: '333321' }
+      para_nivel { magias_por_dia: '333332' }
+      para_nivel { magias_por_dia: '333332' }
+    }
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -2452,7 +2474,29 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     precisa_memorizar: true
-
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '0' }
+      para_nivel { magias_por_dia: '0' }
+      para_nivel { magias_por_dia: '1' }
+      para_nivel { magias_por_dia: '1' }
+      para_nivel { magias_por_dia: '10' }
+      para_nivel { magias_por_dia: '10' }
+      para_nivel { magias_por_dia: '11' }
+      para_nivel { magias_por_dia: '110' }
+      para_nivel { magias_por_dia: '111' }
+      para_nivel { magias_por_dia: '111' }
+      para_nivel { magias_por_dia: '2110' }
+      para_nivel { magias_por_dia: '2111' }
+      para_nivel { magias_por_dia: '2211' }
+      para_nivel { magias_por_dia: '2221' }
+      para_nivel { magias_por_dia: '3221' }
+      para_nivel { magias_por_dia: '3332' }
+      para_nivel { magias_por_dia: '3333' }
+    }
     pericias: 'escalar'
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -2532,7 +2576,29 @@ tabela_classes {
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     precisa_memorizar: true
-
+    progressao_feitico {
+      para_nivel {}
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '' }
+      para_nivel { magias_por_dia: '0' }
+      para_nivel { magias_por_dia: '0' }
+      para_nivel { magias_por_dia: '1' }
+      para_nivel { magias_por_dia: '1' }
+      para_nivel { magias_por_dia: '10' }
+      para_nivel { magias_por_dia: '10' }
+      para_nivel { magias_por_dia: '11' }
+      para_nivel { magias_por_dia: '110' }
+      para_nivel { magias_por_dia: '111' }
+      para_nivel { magias_por_dia: '111' }
+      para_nivel { magias_por_dia: '2110' }
+      para_nivel { magias_por_dia: '2111' }
+      para_nivel { magias_por_dia: '2211' }
+      para_nivel { magias_por_dia: '2221' }
+      para_nivel { magias_por_dia: '3221' }
+      para_nivel { magias_por_dia: '3332' }
+      para_nivel { magias_por_dia: '3333' }
+    }
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
