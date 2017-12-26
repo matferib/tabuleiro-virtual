@@ -3342,6 +3342,11 @@ bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_cla
   if (ic.progressao_feitico().para_nivel().size() < 2) return false;
   return !ic.progressao_feitico().para_nivel(1).conhecidos().empty();
 }
+
+bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe) {
+  return tabelas.Classe(id_classe).precisa_memorizar();
+}
+
 // Fim feiticos.
 
 std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto) {
@@ -3396,6 +3401,27 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
   const auto& pl = fn.para_lancar(0);
   return std::make_tuple(
       fc.id_classe(), fn.has_nivel() ? fn.nivel() : -1, pl.indice(), pl.usado(), n.entidade().id());
+}
+
+ntf::Notificacao NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto) {
+  const auto& fc = FeiticosClasse(id_classe, proto);
+  ntf::Notificacao n;
+  if (fc.id_classe().empty()) {
+    n.set_tipo(ntf::TN_ERRO);
+    n.set_erro(google::protobuf::StringPrintf("Classe '%s' nao encontrada no proto", id_classe.c_str()));
+    return n;
+  }
+  n.set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
+  *n.mutable_entidade()->add_feiticos_classes() = fc;
+  n.mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(nivel + 1, 10);
+  return n;
+}
+
+const EntidadeProto::InfoConhecido& FeiticoConhecido(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
+  const auto& fn = FeiticosNivel(id_classe, nivel, proto);
+  if (indice >= fn.conhecidos().size()) return EntidadeProto::InfoConhecido::default_instance();
+  return fn.conhecidos(indice);
 }
 
 }  // namespace ent

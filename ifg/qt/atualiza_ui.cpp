@@ -443,7 +443,7 @@ void AdicionaItemFeiticoConhecido(
   item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
   item_feitico->setData(3, Qt::UserRole, QVariant(slot));
-  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+  item_feitico->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
@@ -463,22 +463,28 @@ void AtualizaFeiticosConhecidosNivel(
   gerador.arvore_feiticos->blockSignals(false);
 }
 
+// Adiciona o item para lancar. Caso a classe precise de memorizar, ira mostrar o nome do feitico memorizado
+// no indice.
 void AdicionaItemFeiticoParaLancar(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
-    const std::string& nome, const std::string& id_classe, int nivel, int slot, bool usado,
-    QTreeWidgetItem* pai) {
+    const std::string& id_classe, int nivel, int slot, const ent::EntidadeProto::InfoLancar& para_lancar,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto* item_feitico = new QTreeWidgetItem(pai);
-  item_feitico->setText(0, QString::fromUtf8("Nome"));
   if (tabelas.Classe(id_classe).possui_dominio() && slot == 0) {
     item_feitico->setBackground(0, QBrush(Qt::lightGray));
+  }
+  if (ent::ClassePrecisaMemorizar(tabelas, id_classe)) {
+    item_feitico->setText(
+        0, QString::fromUtf8(ent::FeiticoConhecido(id_classe, para_lancar, proto).nome().c_str()));
   }
   item_feitico->setData(0, Qt::UserRole, QVariant(PARA_LANCAR));
   item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
   item_feitico->setData(3, Qt::UserRole, QVariant(slot));
-  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
-  item_feitico->setCheckState(0, usado ? Qt::Checked : Qt::Unchecked);
+  item_feitico->setFlags(
+      Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+  item_feitico->setCheckState(0, para_lancar.usado() ? Qt::Checked : Qt::Unchecked);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
@@ -492,10 +498,11 @@ void AtualizaFeiticosParaLancarNivel(
   }
   const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
-  VLOG(1) << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size() << ", proto: " << proto.feiticos_classes(0).DebugString();
+  VLOG(1)
+      << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size()
+      << ", proto: " << proto.feiticos_classes(0).DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
-    AdicionaItemFeiticoParaLancar(
-        tabelas, gerador, para_lancar.id(), id_classe, nivel, slot++, para_lancar.usado(), pai);
+    AdicionaItemFeiticoParaLancar(tabelas, gerador, id_classe, nivel, slot++, para_lancar, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);

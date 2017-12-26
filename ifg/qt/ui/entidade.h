@@ -2019,6 +2019,8 @@ public:
         sizePolicy8.setVerticalStretch(0);
         sizePolicy8.setHeightForWidth(arvore_feiticos->sizePolicy().hasHeightForWidth());
         arvore_feiticos->setSizePolicy(sizePolicy8);
+        arvore_feiticos->setDragEnabled(false);
+        arvore_feiticos->setDragDropMode(QAbstractItemView::NoDragDrop);
         arvore_feiticos->setHeaderHidden(true);
         arvore_feiticos->setColumnCount(1);
         arvore_feiticos->header()->setDefaultSectionSize(100);
@@ -2156,7 +2158,7 @@ public:
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
 
-        tab_tesouro->setCurrentIndex(0);
+        tab_tesouro->setCurrentIndex(5);
 
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);

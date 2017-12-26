@@ -455,13 +455,30 @@ int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const Entid
 // Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
 bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_classe);
 
+// Retorna se a classe tiver que memorizar feiticos antes de lancar (mago, clerigo, paladino etc). 
+// Retorna false para feiticeiro e bardo, por exemplo.
+bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe);
+
 // Retorna a classe de feitico ativa para o personagem.
 std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto);
+
+// Retorna o nome do feitico conhecido ou vazio se nao houver.
+const EntidadeProto::InfoConhecido& FeiticoConhecido(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+inline const EntidadeProto::InfoConhecido& FeiticoConhecido(
+    const std::string& id_classe, const ent::EntidadeProto::InfoLancar& para_lancar,
+    const EntidadeProto& proto) {
+  return FeiticoConhecido(id_classe, para_lancar.nivel_conhecido(), para_lancar.indice_conhecido(), proto);
+}
 
 // Retorna uma notificacao de alterar feitico para um personagem.
 ntf::Notificacao NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade);
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
+
+// Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe
+// de feitico com todos ate o nivel desejado.
+ntf::Notificacao NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 }  // namespace ent
 

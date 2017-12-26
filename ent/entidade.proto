@@ -360,18 +360,18 @@ message EntidadeProto {
   }
   // As magias prontas para lancamento.
   message InfoLancar {
-    // O id e o nivel identificam o feitico.
-    optional string id = 1;
-    optional int32 nivel = 2;
+    // Identifica o feitico (se tiver que memorizar).
+    optional int32 nivel_conhecido = 1;
+    optional int32 indice_conhecido = 2;
     // Indica slot usado.
     optional bool usado = 3;
-    // Identificador de slot, apenas para notificacoes de alteracao de feitico.
     optional int32 indice = 4;
   }
   message FeiticosPorNivel {
     // Nivel dos feiticos. Preenchido apenas em notificacoes de alteracao de feitico.
     optional int32 nivel = 1;
 
+    // Esses arrays sao sempre indexado por nivel, mesmo que nao haja nivel 0.
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
   }

@@ -2257,7 +2257,7 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
         texto = "desagarrar: " + texto;
         AdicionaAcaoTexto(e->Id(), texto, 0.0f  /*atraso*/);
         if (vezes < 1) continue;
-      } 
+      }
       PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << ealvo->Id() << " de " << e->Id();
@@ -2279,24 +2279,7 @@ void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
   }
   // Encontra a classe para lancar magia.
   std::string id_classe = ClasseFeiticoAtiva(tabelas_, e->Proto());
-  // Se tem que memorizar, escolhe a magia.
-  const auto& ic = tabelas_.Classe(id_classe);
-  if (ic.precisa_memorizar()) {
-    LOG(INFO) << "Nao implementado";
-    return;
-  } else {
-    int indice = IndiceFeiticoDisponivel(id_classe, nivel, e->Proto());
-    if (indice < 0) {
-      LOG(WARNING) << "Nao ha slots para gastar";
-      return;
-    }
-    // Consome o slot.
-    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
-        NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, e->Id())));
-    AdicionaNotificacaoListaEventos(*n);
-    TrataNotificacao(*n);
-    central_->AdicionaNotificacaoRemota(n.release());
-  }
+  TrataNotificacao(NotificacaoEscolherFeitico(id_classe, nivel, e->Proto()));
 }
 
 }  // namespace ent

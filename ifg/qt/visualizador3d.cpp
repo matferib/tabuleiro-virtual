@@ -1123,9 +1123,11 @@ void PreencheConfiguraFeiticos(
       f->mutable_conhecidos(slot)->set_nome(item->text(0).toUtf8().constData());
     }
     if (item->data(0, Qt::UserRole).toInt() == PARA_LANCAR) {
-      if (slot < 0 || slot >= f->para_lancar_size()) return;
-      f->mutable_para_lancar(slot)->set_id(item->text(0).toUtf8().constData());
-      f->mutable_para_lancar(slot)->set_usado(item->checkState(0));
+      LOG(ERROR) << "Nao implementado";
+      return;
+      //if (slot < 0 || slot >= f->para_lancar_size()) return;
+      //f->mutable_para_lancar(slot)->set_id(item->text(0).toUtf8().constData());
+      //f->mutable_para_lancar(slot)->set_usado(item->checkState(0));
     }
   });
   AtualizaUIFeiticos(this_->tabelas(), gerador, proto);

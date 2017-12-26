@@ -4,6 +4,7 @@
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
+#include "goog/stringprintf.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/tecladomouse.h"
@@ -40,6 +41,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO:
+      TrataEscolherFeitico(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA:
       TrataEscolheCor(notificacao);
       return true;
@@ -255,6 +259,69 @@ void InterfaceGrafica::VoltaEscolherModeloEntidade(
     const std::string& nome) {
   tabuleiro_->SelecionaModeloEntidade(nome);
   tabuleiro_->ReativaWatchdogSeMestre();
+}
+
+//-----------------
+// Escolher feitico
+//-----------------
+void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
+  if (notificacao.entidade().feiticos_classes().empty() ||
+      notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
+      notificacao.entidade().feiticos_classes(0).feiticos_por_nivel().empty()) {
+    // TODO ERRO.
+    return;
+  }
+  const auto& fc = notificacao.entidade().feiticos_classes(0);
+  const auto& id_classe = fc.id_classe();
+  std::vector<std::string> lista;
+  if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
+    // Monta lista de feiticos para lancar.
+    int nivel = 0;
+    for (const auto& fn : fc.feiticos_por_nivel()) {
+      int indice = 0;
+      for (const auto& pl : fn.para_lancar()) {
+        if (pl.usado()) continue;
+        const auto& c = ent::FeiticoConhecido(
+            id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
+        lista.push_back(google::protobuf::StringPrintf("%d[%d]: %s", nivel, indice, c.nome().c_str()));
+        ++indice;
+      }
+      ++nivel;
+    }
+  } else {
+    // Monta lista de feiticos conhecidos.
+    int nivel = 0;
+    for (const auto& fn : fc.feiticos_por_nivel()) {
+      int indice = 0;
+      for (const auto& c : fn.conhecidos()) {
+        lista.push_back(google::protobuf::StringPrintf("%d[%d]: %s", nivel, indice, c.nome().c_str()));
+        ++indice;
+      }
+      ++nivel;
+    }
+  }
+
+  EscolheItemLista("Escolha o Feitiço", lista, [&lista](bool ok, int indice) {
+    if (!ok) {
+      LOG(ERROR) << "Nao rolou";
+    } else {
+      LOG(INFO) << "Escolhi: " << lista[indice];
+    }
+  });
+
+  #if 0
+  int indice = IndiceFeiticoDisponivel(id_classe, nivel, e->Proto());
+  if (indice < 0) {
+    LOG(WARNING) << "Nao ha slots para gastar";
+    return;
+  }
+  // Consome o slot.
+  std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
+      NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, e->Id())));
+  AdicionaNotificacaoListaEventos(*n);
+  TrataNotificacao(*n);
+  central_->AdicionaNotificacaoRemota(n.release());
+  #endif
 }
 
 }  // namespace ifg
