@@ -3424,4 +3424,11 @@ const EntidadeProto::InfoConhecido& FeiticoConhecido(
   return fn.conhecidos(indice);
 }
 
+const EntidadeProto::InfoLancar& FeiticoParaLancar(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
+  const auto& fn = FeiticosNivel(id_classe, nivel, proto);
+  if (indice >= fn.para_lancar().size()) return EntidadeProto::InfoLancar::default_instance();
+  return fn.para_lancar(indice);
+}
+
 }  // namespace ent

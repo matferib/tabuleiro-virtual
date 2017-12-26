@@ -67,13 +67,35 @@ enum TipoItemFeitico {
   // Um feitico para lancar (slot).
   PARA_LANCAR = 2,
 };
+
+// Cada coluna dos item widgets tem um significado no Qt::USerRole.
+enum TipoDadoColuna {
+  // Indica se o item eh feitico para lancar ou conhecido.
+  TCOL_CONHECIDO_OU_PARA_LANCAR = 0,
+  // Id do feitico para conhecidos.
+  TCOL_ID_CLASSE = 1,
+  // Nivel do feitico.
+  TCOL_NIVEL = 2,
+  // Indice do feitico.
+  TCOL_INDICE = 3,
+  // Para lancar, nivel do conhecido.
+  TCOL_NIVEL_CONHECIDO = 4,
+  // Para lancar, indice do conhecido.
+  TCOL_INDICE_CONHECIDO = 5,
+  // Para lancar, usado.
+  TCOL_USADO = 6,
+};
 // Atualiza a lista de feiticos da classe.
 void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 // Atualiza os feiticos conhecidos de um nivel.
 void AtualizaFeiticosConhecidosNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai);
+    ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, int nivel,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* pai);
 void AdicionaItemFeiticoConhecido(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, QTreeWidgetItem* pai);
+    ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& nome, const std::string& id_classe, int nivel, int indice,
+    QTreeWidgetItem* pai);
 
 }  // namespace qt
 }  // namespace ifg

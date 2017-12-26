@@ -462,7 +462,7 @@ bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe
 // Retorna a classe de feitico ativa para o personagem.
 std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto);
 
-// Retorna o nome do feitico conhecido ou vazio se nao houver.
+// Retorna o nome do feitico conhecido ou default_instance se nao houver.
 const EntidadeProto::InfoConhecido& FeiticoConhecido(
     const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
 inline const EntidadeProto::InfoConhecido& FeiticoConhecido(
@@ -470,6 +470,10 @@ inline const EntidadeProto::InfoConhecido& FeiticoConhecido(
     const EntidadeProto& proto) {
   return FeiticoConhecido(id_classe, para_lancar.nivel_conhecido(), para_lancar.indice_conhecido(), proto);
 }
+
+// Retorna o feitico para lancar ou default_instance se nao houver.
+const EntidadeProto::InfoLancar& FeiticoParaLancar(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
 
 // Retorna uma notificacao de alterar feitico para um personagem.
 ntf::Notificacao NotificacaoAlterarFeitico(
