@@ -3413,7 +3413,10 @@ ntf::Notificacao NotificacaoEscolherFeitico(const std::string& id_classe, int ni
   }
   n.set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
   *n.mutable_entidade()->add_feiticos_classes() = fc;
-  n.mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(nivel + 1, 10);
+  if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
+    n.mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
+        nivel + 1, (fc.feiticos_por_nivel().size() - nivel - 1));
+  }
   return n;
 }
 
