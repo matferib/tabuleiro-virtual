@@ -2158,7 +2158,7 @@ public:
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
 
-        tab_tesouro->setCurrentIndex(5);
+        tab_tesouro->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);

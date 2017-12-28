@@ -63,7 +63,7 @@ QGroupBox::title {
     <string notr="true"/>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_geral">
     <attribute name="title">

@@ -3373,7 +3373,7 @@ ntf::Notificacao NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade) {
   // Consome o slot.
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ALTERAR_FEITICO);
+  n.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
   auto* e_depois = n.mutable_entidade();
   e_depois->set_id(id_entidade);
   auto* fc = e_depois->add_feiticos_classes();
@@ -3403,18 +3403,20 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
       fc.id_classe(), fn.has_nivel() ? fn.nivel() : -1, pl.indice(), pl.usado(), n.entidade().id());
 }
 
-ntf::Notificacao NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto) {
+std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
+    const std::string& id_classe, int nivel, const EntidadeProto& proto) {
   const auto& fc = FeiticosClasse(id_classe, proto);
-  ntf::Notificacao n;
+  std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao);
   if (fc.id_classe().empty()) {
-    n.set_tipo(ntf::TN_ERRO);
-    n.set_erro(google::protobuf::StringPrintf("Classe '%s' nao encontrada no proto", id_classe.c_str()));
+    n->set_tipo(ntf::TN_ERRO);
+    n->set_erro(google::protobuf::StringPrintf("Classe '%s' nao encontrada no proto", id_classe.c_str()));
     return n;
   }
-  n.set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
-  *n.mutable_entidade()->add_feiticos_classes() = fc;
+  n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
+  n->mutable_entidade()->set_id(proto.id());
+  *n->mutable_entidade()->add_feiticos_classes() = fc;
   if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
-    n.mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
+    n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
         nivel + 1, (fc.feiticos_por_nivel().size() - nivel - 1));
   }
   return n;

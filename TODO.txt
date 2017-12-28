@@ -1,8 +1,7 @@
 Feiticos:
-- Drag and drop de conhecidos para lancar.
-- Fazer a escolha do slot quando tiver que memorizar.
-- Melhorar a UI, colocando nivel acima e o numero de slots dentro do circulo. Mostrar tb a classe ativa.
+- Melhorar o controle virtual, colocando nivel acima e o numero de slots dentro do circulo. Mostrar tb a classe ativa.
 - Visibilidade dos botoes de magia.
+- Botao de limpar usados.
 Automatizar dano de feiticos.
 Planilha zicada no mac.
 

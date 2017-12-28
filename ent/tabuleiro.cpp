@@ -1772,7 +1772,7 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-    case ntf::TN_ALTERAR_FEITICO: {
+    case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
       std::string id_classe;
       int nivel;
       int indice;
@@ -1788,8 +1788,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LOG(ERROR) << "Erro processando TN_ALTERAR_FEITICO, entidade nao encontrada: "
                    << notificacao.DebugString();
         break;
-      } 
+      }
       e->AlteraFeitico(id_classe, nivel, indice, usado);
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      }
       break;
     }
     case ntf::TN_ENVIAR_TEXTURAS: {
@@ -5633,9 +5636,9 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         *n_inversa.add_notificacao() = InverteNotificacao(n);
       }
       break;
-    case ntf::TN_ALTERAR_FEITICO: {
+    case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
       VLOG(1) << "Invertendo TN_ALTERAR_FEITICO";
-      n_inversa.set_tipo(ntf::TN_ALTERAR_FEITICO);
+      n_inversa.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
       std::string id_classe;
       int nivel;
       int indice;
@@ -5643,7 +5646,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       unsigned int id;
       std::tie(id_classe, nivel, indice, usado, id) = DadosNotificacaoAlterarFeitico(n_original);
       if (nivel < 0) {
-        LOG(ERROR) << "Falha ao inverter ntf::TN_ALTERAR_FEITICO: " << n_original.DebugString();
+        LOG(ERROR) << "Falha ao inverter ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: " << n_original.DebugString();
         break;
       }
       n_inversa = NotificacaoAlterarFeitico(id_classe, nivel, indice, !usado, id);

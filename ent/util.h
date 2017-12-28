@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -482,7 +483,7 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe
 // de feitico com todos ate o nivel desejado.
-ntf::Notificacao NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
+std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 }  // namespace ent
 
