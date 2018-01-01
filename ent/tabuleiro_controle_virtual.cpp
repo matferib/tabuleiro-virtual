@@ -980,6 +980,12 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
             return !il.usado();
           });
         }
+        case VIS_CLASSE_FEITICO_ATIVA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
+          return !id_classe.empty();
+        }
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
@@ -989,13 +995,14 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
   return true;
 }
 
-std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
-  if (db.has_rotulo()) {
-    return db.rotulo();
-  }
+std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const Entidade* entidade) const {
   switch (db.id()) {
-    case CONTROLE_RODADA:
+    case CONTROLE_RODADA: {
       return net::to_string(proto_.contador_rodadas());
+    }
+    case CONTROLE_CLASSE_FEITICO_ATIVA: {
+      return tabelas_.Classe(ClasseFeiticoAtiva(entidade->Proto())).nome();
+    }
     case CONTROLE_TEXTURA_ENTIDADE: {
       std::string rotulo = TexturaEntidade(EntidadesSelecionadas());
       return rotulo.empty() ? "-" : rotulo;
@@ -1005,9 +1012,8 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
       return rotulo.empty() ? "-" : rotulo;
     }
     default:
-      ;
+      return db.rotulo();
   }
-  return "";
 }
 
 std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
@@ -1062,7 +1068,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   if (parametros_desenho_.has_picking_x() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
     return;
   }
-  std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db));
+  std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db, entidade));
   if (rotulo.empty()) {
     return;
   }

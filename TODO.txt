@@ -1,7 +1,8 @@
 Feiticos:
-- Botao de classe de feitico ativa e sua visibilidade.
-- Melhorar o controle virtual, colocando nivel acima e o numero de slots dentro do circulo. Mostrar tb a classe ativa.
+- Melhorar o controle virtual, colocando o numero de slots dentro do circulo.
+- Botao de classe de feitico ativa funcionando.
 - Botao de limpar usados.
+- Botoes de feitico causando acao.
 Automatizar dano de feiticos.
 Planilha zicada no mac.
 
