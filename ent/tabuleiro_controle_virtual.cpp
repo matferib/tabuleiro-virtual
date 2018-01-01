@@ -1011,6 +1011,23 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
       std::string rotulo = modelo_selecionado_com_parametros_.first;
       return rotulo.empty() ? "-" : rotulo;
     }
+    case CONTROLE_USAR_FEITICO_0:
+    case CONTROLE_USAR_FEITICO_1:
+    case CONTROLE_USAR_FEITICO_2:
+    case CONTROLE_USAR_FEITICO_3:
+    case CONTROLE_USAR_FEITICO_4:
+    case CONTROLE_USAR_FEITICO_5:
+    case CONTROLE_USAR_FEITICO_6:
+    case CONTROLE_USAR_FEITICO_7:
+    case CONTROLE_USAR_FEITICO_8:
+    case CONTROLE_USAR_FEITICO_9: {
+      const auto& id_classe = ClasseFeiticoAtiva(entidade->Proto());
+      const auto& fn = FeiticosNivel(id_classe, db.id() - CONTROLE_USAR_FEITICO_0, entidade->Proto());
+      return net::to_string((int)std::count_if(fn.para_lancar().begin(), fn.para_lancar().end(),
+           [] (const ent::EntidadeProto::InfoLancar& il) {
+         return !il.usado();
+      }));
+    }
     default:
       return db.rotulo();
   }

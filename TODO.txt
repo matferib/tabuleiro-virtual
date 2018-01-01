@@ -1,5 +1,4 @@
 Feiticos:
-- Melhorar o controle virtual, colocando o numero de slots dentro do circulo.
 - Botao de classe de feitico ativa funcionando.
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
