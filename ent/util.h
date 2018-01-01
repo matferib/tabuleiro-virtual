@@ -438,17 +438,17 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto);
 
 // Retorna os feiticos da classe. Para as versoes mutaveis, uma cria e a outra retorna nullptr.
 const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(
-    const std::string& id_classe, const EntidadeProto& proto); 
-EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id_classe, EntidadeProto* proto); 
-EntidadeProto::InfoFeiticosClasse* FeiticosClasseOuNullptr(const std::string& id_classe, EntidadeProto* proto); 
+    const std::string& id_classe, const EntidadeProto& proto);
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id_classe, EntidadeProto* proto);
+EntidadeProto::InfoFeiticosClasse* FeiticosClasseOuNullptr(const std::string& id_classe, EntidadeProto* proto);
 
 // Retorna os feiticos de nivel da classe. Ditto sobre mutaveis.
 const EntidadeProto::FeiticosPorNivel& FeiticosNivel(
-    const std::string& id_classe, int nivel, const EntidadeProto& proto); 
+    const std::string& id_classe, int nivel, const EntidadeProto& proto);
 EntidadeProto::FeiticosPorNivel* FeiticosNivel(
-    const std::string& id_classe, int nivel, EntidadeProto* proto); 
+    const std::string& id_classe, int nivel, EntidadeProto* proto);
 EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
-    const std::string& id_classe, int nivel, EntidadeProto* proto); 
+    const std::string& id_classe, int nivel, EntidadeProto* proto);
 
 // Retorna o indice de um feitico disponivel para a entidade. Retorna -1 se nao houver.
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
@@ -456,12 +456,15 @@ int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const Entid
 // Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
 bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_classe);
 
-// Retorna se a classe tiver que memorizar feiticos antes de lancar (mago, clerigo, paladino etc). 
+// Retorna se a classe tiver que memorizar feiticos antes de lancar (mago, clerigo, paladino etc).
 // Retorna false para feiticeiro e bardo, por exemplo.
 bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe);
 
 // Retorna a classe de feitico ativa para o personagem.
-std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto);
+const ent::EntidadeProto::InfoFeiticosClasse& InfoClasseFeiticoAtiva(const EntidadeProto& proto);
+inline const std::string& ClasseFeiticoAtiva(const EntidadeProto& proto) {
+  return InfoClasseFeiticoAtiva(proto).id_classe();
+}
 
 // Retorna o nome do feitico conhecido ou default_instance se nao houver.
 const EntidadeProto::InfoConhecido& FeiticoConhecido(

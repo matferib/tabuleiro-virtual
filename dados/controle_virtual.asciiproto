@@ -34,6 +34,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_0
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_0 } }
   }
   dados_botoes {
     largura: 1
@@ -44,6 +45,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_1
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_1 } }
   }
   dados_botoes {
     largura: 1
@@ -54,6 +56,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_2
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_2 } }
   }
   dados_botoes {
     largura: 1
@@ -64,6 +67,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_3
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_3 } }
   }
   dados_botoes {
     largura: 1
@@ -74,6 +78,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_4
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_4 } }
   }
   dados_botoes {
     largura: 1
@@ -84,6 +89,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_5
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_5 } }
   }
   dados_botoes {
     largura: 1
@@ -94,6 +100,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_6
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_6 } }
   }
   dados_botoes {
     largura: 1
@@ -104,6 +111,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_7
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_7 } }
   }
   dados_botoes {
     largura: 1
@@ -114,6 +122,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_8 } }
   }
   dados_botoes {
     largura: 1
@@ -124,6 +133,7 @@ fixo {
     cor_rotulo {}
     id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
+    visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
 
   # Linha 5.

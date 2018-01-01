@@ -3349,16 +3349,16 @@ bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe
 
 // Fim feiticos.
 
-std::string ClasseFeiticoAtiva(const Tabelas& tabelas, const EntidadeProto& proto) {
-  std::string classe;
+const ent::EntidadeProto::InfoFeiticosClasse& InfoClasseFeiticoAtiva(const EntidadeProto& proto) {
+  std::string id_classe;
   int nivel = 0;
   for (const auto& ic : proto.info_classes()) {
     if (ic.nivel_conjurador() > 0 && ic.nivel() > nivel) {
       nivel = ic.nivel();
-      classe = ic.id();
+      id_classe = ic.id();
     }
   }
-  return classe;
+  return FeiticosClasse(id_classe, proto);
 }
 
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto) {

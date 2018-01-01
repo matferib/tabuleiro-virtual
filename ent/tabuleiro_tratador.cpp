@@ -2278,7 +2278,7 @@ void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
     return;
   }
   // Encontra a classe para lancar magia.
-  std::string id_classe = ClasseFeiticoAtiva(tabelas_, e->Proto());
+  const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
   central_->AdicionaNotificacao(NotificacaoEscolherFeitico(id_classe, nivel, e->Proto()).release());
 }
 

@@ -187,6 +187,17 @@ enum TipoVisibilidade {
   VIS_ATAQUE_FURTIVO = 9;
   // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo forma alternativa.
   VIS_FORMA_ALTERNATIVA = 10;
+  // Visibilidade de botoes de feitico.
+  VIS_FEITICO_0 = 11;
+  VIS_FEITICO_1 = 12;
+  VIS_FEITICO_2 = 13;
+  VIS_FEITICO_3 = 14;
+  VIS_FEITICO_4 = 15;
+  VIS_FEITICO_5 = 16;
+  VIS_FEITICO_6 = 17;
+  VIS_FEITICO_7 = 18;
+  VIS_FEITICO_8 = 19;
+  VIS_FEITICO_9 = 20;
 }
 
 message Visibilidade {

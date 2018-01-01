@@ -960,6 +960,26 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
+        case VIS_FEITICO_0:
+        case VIS_FEITICO_1:
+        case VIS_FEITICO_2:
+        case VIS_FEITICO_3:
+        case VIS_FEITICO_4:
+        case VIS_FEITICO_5:
+        case VIS_FEITICO_6:
+        case VIS_FEITICO_7:
+        case VIS_FEITICO_8:
+        case VIS_FEITICO_9: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
+          if (id_classe.empty()) return false;
+          const auto& fn = FeiticosNivel(id_classe, ref.tipo() - VIS_FEITICO_0, e->Proto());
+          return std::any_of(fn.para_lancar().begin(), fn.para_lancar().end(),
+              [] (const EntidadeProto::InfoLancar& il) {
+            return !il.usado();
+          });
+        }
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
