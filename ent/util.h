@@ -246,6 +246,11 @@ enum tipo_dano_e {
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
+// Preenche n com o tipo passado, setando id da entidade antes e depois em n.
+// Retorna entidade antes e depois dentro de n.
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
+
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 
@@ -465,6 +470,8 @@ const ent::EntidadeProto::InfoFeiticosClasse& InfoClasseFeiticoAtiva(const Entid
 inline const std::string& ClasseFeiticoAtiva(const EntidadeProto& proto) {
   return InfoClasseFeiticoAtiva(proto).id_classe();
 }
+// Retorna a proxima classe de feitico ativa para o proto (vazio se nao houver, a mesma se houver apenas uma).
+const std::string& ProximaClasseFeiticoAtiva(const EntidadeProto& proto);
 
 // Retorna o nome do feitico conhecido ou default_instance se nao houver.
 const EntidadeProto::InfoConhecido& FeiticoConhecido(

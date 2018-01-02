@@ -1371,6 +1371,14 @@ void PreencheNotificacaoAtualizaoPontosVida(
   }
 }
 
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n) {
+  n->set_tipo(tipo);
+  n->mutable_entidade_antes()->set_id(entidade.Id());
+  n->mutable_entidade()->set_id(entidade.Id());
+  return std::make_pair(n->mutable_entidade_antes(), n->mutable_entidade());
+}
+
 // Retorna se os bonus sao cumulativos.
 bool BonusCumulativo(TipoBonus tipo) {
   switch (tipo) {
@@ -3350,15 +3358,35 @@ bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe
 // Fim feiticos.
 
 const ent::EntidadeProto::InfoFeiticosClasse& InfoClasseFeiticoAtiva(const EntidadeProto& proto) {
-  std::string id_classe;
-  int nivel = 0;
-  for (const auto& ic : proto.info_classes()) {
-    if (ic.nivel_conjurador() > 0 && ic.nivel() > nivel) {
-      nivel = ic.nivel();
-      id_classe = ic.id();
+  std::string id_classe = proto.classe_feitico_ativa();
+  if (id_classe.empty()) {
+    int nivel = 0;
+    for (const auto& ic : proto.info_classes()) {
+      if (ic.nivel_conjurador() > 0 && ic.nivel() > nivel) {
+        nivel = ic.nivel();
+        id_classe = ic.id();
+      }
     }
   }
   return FeiticosClasse(id_classe, proto);
+}
+
+const std::string& ProximaClasseFeiticoAtiva(const EntidadeProto& proto) {
+  std::vector<const std::string*> classes;
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.nivel_conjurador() > 0) {
+      classes.push_back(&ic.id());
+    }
+  }
+  if (classes.empty()) return InfoClasse::default_instance().id();
+  if (classes.size() == 1) return *classes[0];
+  // encontra o indice corrente.
+  auto it = std::find_if(classes.begin(), classes.end(), [&proto] (const std::string* c) {
+    return proto.classe_feitico_ativa() == *c;
+  });
+  if (it == classes.end() || *it == classes.back()) return *classes[0];
+  // Duas dereferencias: uma do iterador, outra do ponteiro
+  return *(*(it + 1));
 }
 
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto) {

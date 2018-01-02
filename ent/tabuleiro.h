@@ -553,7 +553,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Botao de usar feitico clicado. */
   void TrataBotaoUsarFeitico(int nivel);
-  void ConsomeFeitico(unsigned int id_entidade, const std::string& feitico, int slot, int nivel);
+  /** Botao de alterar a classe de feitico ativa clicado. */
+  void TrataMudarClasseFeiticoAtiva();
 
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);

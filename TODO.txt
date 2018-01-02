@@ -1,5 +1,4 @@
 Feiticos:
-- Botao de classe de feitico ativa funcionando.
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
 Automatizar dano de feiticos.

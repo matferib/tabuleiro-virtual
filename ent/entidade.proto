@@ -380,5 +380,7 @@ message EntidadeProto {
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;
+  // Indica a classe de feitico ativa.
+  optional string classe_feitico_ativa = 88;
   // Fim feiticos.
 }

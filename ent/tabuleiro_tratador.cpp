@@ -2282,4 +2282,19 @@ void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
   central_->AdicionaNotificacao(NotificacaoEscolherFeitico(id_classe, nivel, e->Proto()).release());
 }
 
+void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  ntf::Notificacao n;
+  EntidadeProto* e_antes, *e_depois;
+  std::tie(e_antes, e_depois) =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
+  e_antes->set_classe_feitico_ativa(e->Proto().classe_feitico_ativa());
+  e_depois->set_classe_feitico_ativa(ProximaClasseFeiticoAtiva(e->Proto()));
+  TrataNotificacao(n);
+}
+
 }  // namespace ent

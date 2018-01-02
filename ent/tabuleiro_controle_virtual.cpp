@@ -210,6 +210,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_USAR_FEITICO_9:
       TrataBotaoUsarFeitico(id - CONTROLE_USAR_FEITICO_0);
       break;
+    case CONTROLE_CLASSE_FEITICO_ATIVA:
+      TrataMudarClasseFeiticoAtiva();
+      break;
     case CONTROLE_ROLAR_D20:
     case CONTROLE_ROLAR_D100:
       AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
