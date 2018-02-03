@@ -198,6 +198,21 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
   VLOG(1) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_USAR_FEITICO_0:
+    case CONTROLE_USAR_FEITICO_1:
+    case CONTROLE_USAR_FEITICO_2:
+    case CONTROLE_USAR_FEITICO_3:
+    case CONTROLE_USAR_FEITICO_4:
+    case CONTROLE_USAR_FEITICO_5:
+    case CONTROLE_USAR_FEITICO_6:
+    case CONTROLE_USAR_FEITICO_7:
+    case CONTROLE_USAR_FEITICO_8:
+    case CONTROLE_USAR_FEITICO_9:
+      TrataBotaoUsarFeitico(id - CONTROLE_USAR_FEITICO_0);
+      break;
+    case CONTROLE_CLASSE_FEITICO_ATIVA:
+      TrataMudarClasseFeiticoAtiva();
+      break;
     case CONTROLE_ROLAR_D20:
     case CONTROLE_ROLAR_D100:
       AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
@@ -948,6 +963,32 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
+        case VIS_FEITICO_0:
+        case VIS_FEITICO_1:
+        case VIS_FEITICO_2:
+        case VIS_FEITICO_3:
+        case VIS_FEITICO_4:
+        case VIS_FEITICO_5:
+        case VIS_FEITICO_6:
+        case VIS_FEITICO_7:
+        case VIS_FEITICO_8:
+        case VIS_FEITICO_9: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
+          if (id_classe.empty()) return false;
+          const auto& fn = FeiticosNivel(id_classe, ref.tipo() - VIS_FEITICO_0, e->Proto());
+          return std::any_of(fn.para_lancar().begin(), fn.para_lancar().end(),
+              [] (const EntidadeProto::InfoLancar& il) {
+            return !il.usado();
+          });
+        }
+        case VIS_CLASSE_FEITICO_ATIVA: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
+          return !id_classe.empty();
+        }
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
@@ -957,13 +998,14 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
   return true;
 }
 
-std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
-  if (db.has_rotulo()) {
-    return db.rotulo();
-  }
+std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const Entidade* entidade) const {
   switch (db.id()) {
-    case CONTROLE_RODADA:
+    case CONTROLE_RODADA: {
       return net::to_string(proto_.contador_rodadas());
+    }
+    case CONTROLE_CLASSE_FEITICO_ATIVA: {
+      return tabelas_.Classe(ClasseFeiticoAtiva(entidade->Proto())).nome();
+    }
     case CONTROLE_TEXTURA_ENTIDADE: {
       std::string rotulo = TexturaEntidade(EntidadesSelecionadas());
       return rotulo.empty() ? "-" : rotulo;
@@ -972,10 +1014,26 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
       std::string rotulo = modelo_selecionado_com_parametros_.first;
       return rotulo.empty() ? "-" : rotulo;
     }
+    case CONTROLE_USAR_FEITICO_0:
+    case CONTROLE_USAR_FEITICO_1:
+    case CONTROLE_USAR_FEITICO_2:
+    case CONTROLE_USAR_FEITICO_3:
+    case CONTROLE_USAR_FEITICO_4:
+    case CONTROLE_USAR_FEITICO_5:
+    case CONTROLE_USAR_FEITICO_6:
+    case CONTROLE_USAR_FEITICO_7:
+    case CONTROLE_USAR_FEITICO_8:
+    case CONTROLE_USAR_FEITICO_9: {
+      const auto& id_classe = ClasseFeiticoAtiva(entidade->Proto());
+      const auto& fn = FeiticosNivel(id_classe, db.id() - CONTROLE_USAR_FEITICO_0, entidade->Proto());
+      return net::to_string((int)std::count_if(fn.para_lancar().begin(), fn.para_lancar().end(),
+           [] (const ent::EntidadeProto::InfoLancar& il) {
+         return !il.usado();
+      }));
+    }
     default:
-      ;
+      return db.rotulo();
   }
-  return "";
 }
 
 std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
@@ -1030,7 +1088,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   if (parametros_desenho_.has_picking_x() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
     return;
   }
-  std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db));
+  std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db, entidade));
   if (rotulo.empty()) {
     return;
   }

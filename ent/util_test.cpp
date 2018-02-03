@@ -465,15 +465,15 @@ TEST(TesteDanoArma, TesteDanoArma) {
 
 TEST(TesteMatriz, TesteMatriz) {
   {
-    Vector3 v(1.0f, 0.0f, 0.0f); 
-    Vector3 vt(1.0f, 0.0f, 0.0f); 
+    Vector3 v(1.0f, 0.0f, 0.0f);
+    Vector3 vt(1.0f, 0.0f, 0.0f);
     Matrix4 m = MatrizRotacao(v);
     EXPECT_EQ(v, m * vt);
   }
 
   {
-    Vector3 v(0.0f, 1.0f, 0.0f); 
-    Vector3 vt(1.0f, 0.0f, 0.0f); 
+    Vector3 v(0.0f, 1.0f, 0.0f);
+    Vector3 vt(1.0f, 0.0f, 0.0f);
     Matrix4 m = MatrizRotacao(v);
     Vector3 vr = m * vt;
     EXPECT_NEAR(v.x, vr.x, 0.001);
@@ -482,8 +482,8 @@ TEST(TesteMatriz, TesteMatriz) {
   }
 
   {
-    Vector3 v(0.0f, 0.0f, 1.0f); 
-    Vector3 vt(1.0f, 0.0f, 0.0f); 
+    Vector3 v(0.0f, 0.0f, 1.0f);
+    Vector3 vt(1.0f, 0.0f, 0.0f);
     Matrix4 m = MatrizRotacao(v);
     Vector3 vr = m * vt;
     EXPECT_NEAR(v.x, vr.x, 0.001);
@@ -586,6 +586,46 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     RecomputaDependencias(tabelas, &proto);
 
     EXPECT_EQ(da->acao().dificuldade_salvacao(), 15);
+  }
+}
+
+TEST(TesteFeiticos, TesteFeiticos) {
+  Tabelas tabelas;
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(14, TA_INTELIGENCIA, &proto);
+    RecomputaDependencias(tabelas, &proto);
+
+    ASSERT_EQ(proto.feiticos_classes().size(), 1);
+    EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "mago");
+    // Progressao tabelada: 4 2 1.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel().size(), 3);
+    // Nivel 0: Fixo em 4.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size(), 4);
+    // Nivel 1: 2 + 1 de bonus de atributo.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(1).para_lancar().size(), 3);
+    // Nivel 2: 1 + 1 de bonus de atributo.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(2).para_lancar().size(), 2);
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);
+    RecomputaDependencias(tabelas, &proto);
+
+    ASSERT_EQ(proto.feiticos_classes().size(), 1);
+    EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "clerigo");
+    // Progressao tabelada: 3 1+1.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel().size(), 2);
+    // Nivel 0: Fixo em 3.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size(), 3);
+    // Nivel 1: 1 + 1 dominio + 1 de bonus de atributo.
+    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(1).para_lancar().size(), 3);
   }
 }
 

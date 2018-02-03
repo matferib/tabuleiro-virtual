@@ -3366,6 +3366,12 @@ QGroupBox::title {
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="dragEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::NoDragDrop</enum>
+     </property>
      <property name="headerHidden">
       <bool>true</bool>
      </property>

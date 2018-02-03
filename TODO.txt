@@ -1,5 +1,6 @@
-Dificuldade de feiticos deve variar com o nivel (tem feitico que tem nivel diferente para clerigo e mago por exemplo).
-Campo de feiticos por dia.
+Feiticos:
+- Botao de limpar usados.
+- Botoes de feitico causando acao.
 Automatizar dano de feiticos.
 Planilha zicada no mac.
 

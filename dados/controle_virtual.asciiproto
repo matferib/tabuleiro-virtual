@@ -18,12 +18,38 @@ fixo {
   dados_botoes {
     largura: 3
     altura: 1
+    linha: 5
+    coluna: 4
+    rotulo: "Nivel"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    # Translacao nao funciona com rotulo.
+    #translacao_y: -3.3 
+    visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
+  }
+  dados_botoes {
+    largura: 3
+    altura: 1
     linha: 4
     coluna: 4
     rotulo: "Feitico"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_CLASSE_FEITICO_ATIVA
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
+  }
+  # Nivel 0.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 7
+    rotulo: "0"
+    id: CONTROLE_NOP 
     forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_0 } }
   }
   dados_botoes {
     largura: 1
@@ -31,10 +57,22 @@ fixo {
     linha: 4
     coluna: 7
     rotulo: "0"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_0
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_0 } }
+  }
+  # Nivel 1.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 8
+    rotulo: "1"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_1 } }
   }
   dados_botoes {
     largura: 1
@@ -42,10 +80,22 @@ fixo {
     linha: 4
     coluna: 8
     rotulo: "1"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_1
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_1 } }
+  }
+  # Nivel 2.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 9
+    rotulo: "2"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_2 } }
   }
   dados_botoes {
     largura: 1
@@ -53,10 +103,22 @@ fixo {
     linha: 4
     coluna: 9
     rotulo: "2"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_2
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_2 } }
+  }
+  # Nivel 3.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 10
+    rotulo: "3"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_3 } }
   }
   dados_botoes {
     largura: 1
@@ -64,10 +126,22 @@ fixo {
     linha: 4
     coluna: 10
     rotulo: "3"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_3
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_3 } }
+  }
+  # Nivel 4.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 11
+    rotulo: "4"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_4 } }
   }
   dados_botoes {
     largura: 1
@@ -75,10 +149,22 @@ fixo {
     linha: 4
     coluna: 11
     rotulo: "4"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_4
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_4 } }
+  }
+  # Nivel 5.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 12
+    rotulo: "5"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_5 } }
   }
   dados_botoes {
     largura: 1
@@ -86,10 +172,22 @@ fixo {
     linha: 4
     coluna: 12
     rotulo: "5"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_5
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_5 } }
+  }
+  # Nivel 6.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 13
+    rotulo: "6"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -0.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_6 } }
   }
   dados_botoes {
     largura: 1
@@ -97,10 +195,22 @@ fixo {
     linha: 4
     coluna: 13
     rotulo: "6"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_6
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_6 } }
+  }
+  # Nivel 7.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 14
+    rotulo: "7"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -3.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_7 } }
   }
   dados_botoes {
     largura: 1
@@ -108,10 +218,22 @@ fixo {
     linha: 4
     coluna: 14
     rotulo: "7"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_7
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_7 } }
+  }
+  # Nivel 8.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 15
+    rotulo: "8"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -3.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_8 } }
   }
   dados_botoes {
     largura: 1
@@ -119,10 +241,22 @@ fixo {
     linha: 4
     coluna: 15
     rotulo: "8"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_8 } }
+  }
+  # Nivel 9.
+  dados_botoes {
+    largura: 1
+    altura: 1
+    linha: 5
+    coluna: 16
+    rotulo: "9"
+    id: CONTROLE_NOP 
+    forma: FORMA_NULA
+    cor_rotulo { r: 1.0 g: 1.0 }
+    #translacao_y: -3.3 
+    visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
   dados_botoes {
     largura: 1
@@ -130,10 +264,9 @@ fixo {
     linha: 4
     coluna: 16
     rotulo: "9"
-    cor_rotulo {}
-    id: CONTROLE_NOP
+    id: CONTROLE_USAR_FEITICO_8
     forma: FORMA_DISCO
-    rotacao_graus: 45.0
+    visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
 
   # Linha 5.

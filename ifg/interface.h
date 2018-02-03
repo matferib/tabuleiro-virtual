@@ -37,7 +37,8 @@ class InterfaceGrafica : public ntf::Receptor {
   // Mostra um dialogo de erro ou informacao.
   virtual void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) = 0;
 
-  // Funcao generica para retorno da escolha de um item da lista.
+  // Funcao generica para retorno da escolha de um item da lista. funcao_volta eh chamada com false
+  // em caso de cancelamento, ou com o indice escolhido caso contrario.
   virtual void EscolheItemLista(
       const std::string& titulo,
       const std::vector<std::string>& lista,
@@ -79,6 +80,7 @@ class InterfaceGrafica : public ntf::Receptor {
   void VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao);
   void VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito);
 
+  void TrataEscolherFeitico(const ntf::Notificacao& notificacao);
   void TrataEscolheCor(const ntf::Notificacao& notificacao);
   void VoltaEscolheCor(bool ok, float r, float g, float b, float a);
 

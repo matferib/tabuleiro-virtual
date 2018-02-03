@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -245,6 +246,11 @@ enum tipo_dano_e {
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
+// Preenche n com o tipo passado, setando id da entidade antes e depois em n.
+// Retorna entidade antes e depois dentro de n.
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
+
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 
@@ -435,14 +441,59 @@ const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeP
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);
 
-// Retorna os feiticos da classe.
-const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(const std::string& id, const EntidadeProto& proto); 
-EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id, EntidadeProto* proto); 
-const EntidadeProto::FeiticosPorNivel& FeiticosNivel(int nivel, const std::string& id, const EntidadeProto& proto); 
-EntidadeProto::FeiticosPorNivel* FeiticosNivel(int nivel, const std::string& id, EntidadeProto* proto); 
+// Retorna os feiticos da classe. Para as versoes mutaveis, uma cria e a outra retorna nullptr.
+const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(
+    const std::string& id_classe, const EntidadeProto& proto);
+EntidadeProto::InfoFeiticosClasse* FeiticosClasse(const std::string& id_classe, EntidadeProto* proto);
+EntidadeProto::InfoFeiticosClasse* FeiticosClasseOuNullptr(const std::string& id_classe, EntidadeProto* proto);
+
+// Retorna os feiticos de nivel da classe. Ditto sobre mutaveis.
+const EntidadeProto::FeiticosPorNivel& FeiticosNivel(
+    const std::string& id_classe, int nivel, const EntidadeProto& proto);
+EntidadeProto::FeiticosPorNivel* FeiticosNivel(
+    const std::string& id_classe, int nivel, EntidadeProto* proto);
+EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
+    const std::string& id_classe, int nivel, EntidadeProto* proto);
+
+// Retorna o indice de um feitico disponivel para a entidade. Retorna -1 se nao houver.
+int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 // Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
-bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id);
+bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_classe);
+
+// Retorna se a classe tiver que memorizar feiticos antes de lancar (mago, clerigo, paladino etc).
+// Retorna false para feiticeiro e bardo, por exemplo.
+bool ClassePrecisaMemorizar(const Tabelas& tabelas, const std::string& id_classe);
+
+// Retorna a classe de feitico ativa para o personagem.
+const ent::EntidadeProto::InfoFeiticosClasse& InfoClasseFeiticoAtiva(const EntidadeProto& proto);
+inline const std::string& ClasseFeiticoAtiva(const EntidadeProto& proto) {
+  return InfoClasseFeiticoAtiva(proto).id_classe();
+}
+// Retorna a proxima classe de feitico ativa para o proto (vazio se nao houver, a mesma se houver apenas uma).
+const std::string& ProximaClasseFeiticoAtiva(const EntidadeProto& proto);
+
+// Retorna o nome do feitico conhecido ou default_instance se nao houver.
+const EntidadeProto::InfoConhecido& FeiticoConhecido(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+inline const EntidadeProto::InfoConhecido& FeiticoConhecido(
+    const std::string& id_classe, const ent::EntidadeProto::InfoLancar& para_lancar,
+    const EntidadeProto& proto) {
+  return FeiticoConhecido(id_classe, para_lancar.nivel_conhecido(), para_lancar.indice_conhecido(), proto);
+}
+
+// Retorna o feitico para lancar ou default_instance se nao houver.
+const EntidadeProto::InfoLancar& FeiticoParaLancar(
+    const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+
+// Retorna uma notificacao de alterar feitico para um personagem.
+ntf::Notificacao NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade);
+std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
+
+// Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe
+// de feitico com todos ate o nivel desejado.
+std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 }  // namespace ent
 

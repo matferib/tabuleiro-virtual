@@ -1772,6 +1772,29 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
+      std::string id_classe;
+      int nivel;
+      int indice;
+      bool usado;
+      unsigned int id;
+      std::tie(id_classe, nivel, indice, usado, id) = DadosNotificacaoAlterarFeitico(notificacao);
+      if (nivel < 0) {
+        LOG(ERROR) << "Erro processando TN_ALTERAR_FEITICO: " << notificacao.DebugString();
+        break;
+      }
+      auto* e = BuscaEntidade(id);
+      if (e == nullptr) {
+        LOG(ERROR) << "Erro processando TN_ALTERAR_FEITICO, entidade nao encontrada: "
+                   << notificacao.DebugString();
+        break;
+      }
+      e->AlteraFeitico(id_classe, nivel, indice, usado);
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      }
+      break;
+    }
     case ntf::TN_ENVIAR_TEXTURAS: {
       // Cliente recebendo texturas de servidor.
       if (notificacao.local()) {
@@ -5612,6 +5635,22 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         *n_inversa.add_notificacao() = InverteNotificacao(n);
       }
       break;
+    case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
+      VLOG(1) << "Invertendo TN_ALTERAR_FEITICO";
+      n_inversa.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
+      std::string id_classe;
+      int nivel;
+      int indice;
+      bool usado;
+      unsigned int id;
+      std::tie(id_classe, nivel, indice, usado, id) = DadosNotificacaoAlterarFeitico(n_original);
+      if (nivel < 0) {
+        LOG(ERROR) << "Falha ao inverter ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: " << n_original.DebugString();
+        break;
+      }
+      n_inversa = NotificacaoAlterarFeitico(id_classe, nivel, indice, !usado, id);
+      break;
+    }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
       *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();

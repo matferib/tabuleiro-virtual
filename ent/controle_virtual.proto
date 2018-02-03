@@ -131,6 +131,18 @@ enum IdBotao {
   CONTROLE_DEFESA_TOTAL = 121;
   CONTROLE_LUTA_DEFENSIVA = 122;
 
+  CONTROLE_USAR_FEITICO_0 = 123;
+  CONTROLE_USAR_FEITICO_1 = 124;
+  CONTROLE_USAR_FEITICO_2 = 125;
+  CONTROLE_USAR_FEITICO_3 = 126;
+  CONTROLE_USAR_FEITICO_4 = 127;
+  CONTROLE_USAR_FEITICO_5 = 128;
+  CONTROLE_USAR_FEITICO_6 = 129;
+  CONTROLE_USAR_FEITICO_7 = 130;
+  CONTROLE_USAR_FEITICO_8 = 131;
+  CONTROLE_USAR_FEITICO_9 = 132;
+  CONTROLE_CLASSE_FEITICO_ATIVA = 133;
+
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
   CONTROLE_ULTIMA_ACAO_0 = 201;
@@ -176,6 +188,18 @@ enum TipoVisibilidade {
   VIS_ATAQUE_FURTIVO = 9;
   // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo forma alternativa.
   VIS_FORMA_ALTERNATIVA = 10;
+  // Visibilidade de botoes de feitico.
+  VIS_FEITICO_0 = 11;
+  VIS_FEITICO_1 = 12;
+  VIS_FEITICO_2 = 13;
+  VIS_FEITICO_3 = 14;
+  VIS_FEITICO_4 = 15;
+  VIS_FEITICO_5 = 16;
+  VIS_FEITICO_6 = 17;
+  VIS_FEITICO_7 = 18;
+  VIS_FEITICO_8 = 19;
+  VIS_FEITICO_9 = 20;
+  VIS_CLASSE_FEITICO_ATIVA = 21;
 }
 
 message Visibilidade {
@@ -198,7 +222,7 @@ message DadosBotao {
   optional int32 linha = 4;
   // Em qual coluna o botao se encontra.
   optional int32 coluna = 5;
-  // Escrita no bota, maximo dois caracteres.
+  // Escrito no botao.
   optional string rotulo = 6;
   // // cor do rotulo (letra).
   optional Cor cor_rotulo = 7;

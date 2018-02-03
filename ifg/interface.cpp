@@ -4,6 +4,7 @@
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
+#include "goog/stringprintf.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/tecladomouse.h"
@@ -40,6 +41,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO:
+      TrataEscolherFeitico(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA:
       TrataEscolheCor(notificacao);
       return true;
@@ -255,6 +259,75 @@ void InterfaceGrafica::VoltaEscolherModeloEntidade(
     const std::string& nome) {
   tabuleiro_->SelecionaModeloEntidade(nome);
   tabuleiro_->ReativaWatchdogSeMestre();
+}
+
+//-----------------
+// Escolher feitico
+//-----------------
+void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
+  if (notificacao.entidade().feiticos_classes().empty() ||
+      notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
+      notificacao.entidade().feiticos_classes(0).feiticos_por_nivel().empty()) {
+    LOG(ERROR) << "Notificacao de escolher feitico invalida: " << notificacao.DebugString();
+    return;
+  }
+  const auto& fc = notificacao.entidade().feiticos_classes(0);
+  const auto& id_classe = fc.id_classe();
+  std::vector<std::string> lista;
+  std::vector<std::pair<int, int>> items;
+  int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
+  if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
+    // Monta lista de feiticos para lancar do nivel.
+    const auto& fn = fc.feiticos_por_nivel(nivel_gasto);
+    for (int indice = 0; indice < fn.para_lancar().size(); ++indice) {
+      const auto& pl = fn.para_lancar(indice);
+      if (pl.usado()) continue;
+      const auto& c = ent::FeiticoConhecido(
+          id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
+      lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, c.nome().c_str()));
+      items.push_back(std::make_pair(nivel_gasto, indice));
+    }
+    if (lista.empty()) {
+      auto* nerro = ntf::NovaNotificacao(ntf::TN_ERRO);
+      nerro->set_erro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto));
+      central_->AdicionaNotificacao(nerro);
+      return;
+    }
+  } else {
+    // Monta lista de feiticos conhecidos ate o nivel.
+    int indice_gasto = ent::IndiceFeiticoDisponivel(id_classe, nivel_gasto, notificacao.entidade());
+    if (indice_gasto == -1) {
+      auto* nerro = ntf::NovaNotificacao(ntf::TN_ERRO);
+      nerro->set_erro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto));
+      central_->AdicionaNotificacao(nerro);
+      return;
+    }
+    for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
+      const auto& fn = fc.feiticos_por_nivel(nivel);
+      for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
+        const auto& c = fn.conhecidos(indice);
+        lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel, indice, c.nome().c_str()));
+        // Gasta do nivel certo.
+        items.push_back(std::make_pair(nivel_gasto, indice_gasto));
+      }
+    }
+  }
+
+  EscolheItemLista("Escolha o Feitiço", lista,
+      [this, notificacao, id_classe, items](bool ok, int indice_lista) {
+    if (!ok) {
+      LOG(INFO) << "Nao usando feitico";
+      return;
+    }
+    // Consome o feitico.
+    int nivel;
+    int indice;
+    std::tie(nivel, indice) = items[indice_lista];
+    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
+        ent::NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, notificacao.entidade().id())));
+    tabuleiro_->AdicionaNotificacaoListaEventos(*n);
+    central_->AdicionaNotificacao(n.release());
+  });
 }
 
 }  // namespace ifg

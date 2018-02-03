@@ -66,7 +66,7 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
 // problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
 void ExpandeComboBox(QComboBox* combo) {
 #if WIN32
@@ -1088,12 +1088,17 @@ void PreencheConfiguraFeiticos(
         QMenu menu("Menu Nivel", gerador.arvore_feiticos);
         QAction acao("Adicionar", &menu);
         lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
-          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
-          if (ClasseDeveConhecerFeitico(this_->tabelas(), id)) return;
-          int nivel = item->data(2, Qt::UserRole).toInt();
-          auto* f = FeiticosNivel(nivel, id, proto_retornado);
-          f->add_conhecidos()->set_nome("Nome");
-          AdicionaItemFeiticoConhecido(gerador, "Nome", id, nivel, f->conhecidos_size() - 1, item);
+          gerador.arvore_feiticos->blockSignals(true);
+          std::string id_classe = item->data(TCOL_ID_CLASSE, Qt::UserRole).toString().toStdString();
+          if (ClasseDeveConhecerFeitico(this_->tabelas(), id_classe)) return;
+          int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
+          auto* fn = FeiticosNivel(id_classe, nivel, proto_retornado);
+          fn->add_conhecidos()->set_nome("");
+          AdicionaItemFeiticoConhecido(gerador, "", id_classe, nivel, fn->conhecidos_size() - 1, item);
+          if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
+            AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
+          }
+          gerador.arvore_feiticos->blockSignals(false);
         });
         menu.addAction(&acao);
         menu.exec(gerador.arvore_feiticos->mapToGlobal(pos));
@@ -1104,16 +1109,35 @@ void PreencheConfiguraFeiticos(
         QAction acao("Remover", &menu);
         lambda_connect(&acao, SIGNAL(triggered()), [this_, &gerador, proto_retornado, item] () {
           gerador.arvore_feiticos->blockSignals(true);
-          std::string id = item->data(1, Qt::UserRole).toString().toStdString();
-          int nivel = item->data(2, Qt::UserRole).toInt();
-          int slot = item->data(3, Qt::UserRole).toInt();
-          auto* f = FeiticosNivel(nivel, id, proto_retornado);
-          if (slot < 0 || slot >= f->conhecidos_size()) {
+          std::string id_classe = item->data(TCOL_ID_CLASSE, Qt::UserRole).toString().toStdString();
+          int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
+          int indice = item->data(TCOL_INDICE, Qt::UserRole).toInt();
+          const auto& fc = ent::FeiticosClasse(id_classe, *proto_retornado);
+          auto* fn = FeiticosNivel(id_classe, nivel, proto_retornado);
+          if (indice < 0 || indice >= fn->conhecidos_size()) {
             gerador.arvore_feiticos->blockSignals(false);
             return;
           }
-          f->mutable_conhecidos()->DeleteSubrange(slot, 1);
-          AtualizaFeiticosConhecidosNivel(gerador, nivel, id, *proto_retornado, item->parent());
+          fn->mutable_conhecidos()->DeleteSubrange(indice, 1);
+          AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, *proto_retornado, item->parent());
+          // aqui tem que corrigir todos para lancar que apontavam para feiticos do mesmo nivel:
+          // 1- indice do removido: resetar para primeiro indice.
+          // 2- indice > removido: diminuir o indice em 1.
+          if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
+            for (int i = 0; i < fc.feiticos_por_nivel().size(); ++i) {
+              auto* fn_correcao = FeiticosNivel(id_classe, i, proto_retornado);
+              for (auto& pl : *fn_correcao->mutable_para_lancar()) {
+                if (pl.nivel_conhecido() != nivel ||
+                    !pl.has_indice_conhecido() || pl.indice_conhecido() < indice) continue;
+                if (pl.indice_conhecido() == indice) {
+                  pl.clear_indice_conhecido();
+                } else {
+                  pl.set_indice_conhecido(pl.indice_conhecido() - 1);
+                }
+              }
+            }
+            AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
+          }
           gerador.arvore_feiticos->blockSignals(false);
         });
         menu.addAction(&acao);
@@ -1125,18 +1149,27 @@ void PreencheConfiguraFeiticos(
   });
   lambda_connect(gerador.arvore_feiticos, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
       [this_, &gerador, proto_retornado] (QTreeWidgetItem* item, int column) {
-    std::string id = item->data(1, Qt::UserRole).toString().toStdString();
-    int nivel = item->data(2, Qt::UserRole).toInt();
-    int slot = item->data(3, Qt::UserRole).toInt();
-    auto* f = FeiticosNivel(nivel, id, proto_retornado);
+    std::string id_classe = item->data(TCOL_ID_CLASSE, Qt::UserRole).toString().toStdString();
+    int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
+    int indice = item->data(TCOL_INDICE, Qt::UserRole).toInt();
+    auto* f = FeiticosNivel(id_classe, nivel, proto_retornado);
     if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
-      if (slot < 0 || slot >= f->conhecidos_size()) return;
-      f->mutable_conhecidos(slot)->set_nome(item->text(0).toUtf8().constData());
+      if (indice < 0 || indice >= f->conhecidos_size()) return;
+      f->mutable_conhecidos(indice)->set_nome(item->text(0).toUtf8().constData());
+      if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
+        AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
+      }
     }
     if (item->data(0, Qt::UserRole).toInt() == PARA_LANCAR) {
-      if (slot < 0 || slot >= f->para_lancar_size()) return;
-      f->mutable_para_lancar(slot)->set_id(item->text(0).toUtf8().constData());
-      f->mutable_para_lancar(slot)->set_usado(item->checkState(0));
+      if (indice < 0 || indice >= f->para_lancar_size()) return;
+      f->mutable_para_lancar(indice)->set_nivel_conhecido(
+          item->data(TCOL_NIVEL_CONHECIDO, Qt::UserRole).toInt());
+      f->mutable_para_lancar(indice)->set_indice_conhecido(
+          item->data(TCOL_INDICE_CONHECIDO, Qt::UserRole).toInt());
+      f->mutable_para_lancar(indice)->set_usado(
+          item->data(TCOL_USADO, Qt::UserRole).toBool());
+      VLOG(1) << "atualizando feitico para lancar nivel " << nivel << ", indice: " << indice
+              << ": " << f->para_lancar(indice).ShortDebugString();
     }
   });
   AtualizaUIFeiticos(this_->tabelas(), gerador, proto);

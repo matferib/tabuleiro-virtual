@@ -2257,7 +2257,7 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
         texto = "desagarrar: " + texto;
         AdicionaAcaoTexto(e->Id(), texto, 0.0f  /*atraso*/);
         if (vezes < 1) continue;
-      } 
+      }
       PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       VLOG(1) << "desgarrando " << ealvo->Id() << " de " << e->Id();
@@ -2269,6 +2269,32 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
       AdicionaNotificacaoListaEventos(grupo_desfazer);
     }
   }
+}
+
+void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  // Encontra a classe para lancar magia.
+  const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
+  central_->AdicionaNotificacao(NotificacaoEscolherFeitico(id_classe, nivel, e->Proto()).release());
+}
+
+void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  ntf::Notificacao n;
+  EntidadeProto* e_antes, *e_depois;
+  std::tie(e_antes, e_depois) =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
+  e_antes->set_classe_feitico_ativa(e->Proto().classe_feitico_ativa());
+  e_depois->set_classe_feitico_ativa(ProximaClasseFeiticoAtiva(e->Proto()));
+  TrataNotificacao(n);
 }
 
 }  // namespace ent

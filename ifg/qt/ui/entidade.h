@@ -2019,6 +2019,8 @@ public:
         sizePolicy8.setVerticalStretch(0);
         sizePolicy8.setHeightForWidth(arvore_feiticos->sizePolicy().hasHeightForWidth());
         arvore_feiticos->setSizePolicy(sizePolicy8);
+        arvore_feiticos->setDragEnabled(false);
+        arvore_feiticos->setDragDropMode(QAbstractItemView::NoDragDrop);
         arvore_feiticos->setHeaderHidden(true);
         arvore_feiticos->setColumnCount(1);
         arvore_feiticos->header()->setDefaultSectionSize(100);

@@ -33,6 +33,23 @@ DEFINE_string(tabuleiro, "", "Se nao vazio, carrega o tabuleiro passado ao inici
 
 using namespace std;
 
+#if 0
+// Para capturar excecoes do QT.
+class MyApp : public QApplication {
+ public:
+  MyApp(int& argc, char** argv) : QApplication(argc, argv) {}
+  bool notify(QObject* receiver, QEvent* event) {
+    try {
+      return QApplication::notify(receiver, event);
+    } catch (const std::exception& e) {
+      receiver->dumpObjectInfo();
+      LOG(INFO) << "exception: " << e.what();
+    }
+    return false;
+  }
+};
+#endif
+
 namespace {
 void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   try {
@@ -65,6 +82,7 @@ int main(int argc, char** argv) {
 #if __APPLE__
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+  //MyApp q_app(argc, argv);
   QApplication q_app(argc, argv);
   QDir dir(QCoreApplication::applicationDirPath());
 

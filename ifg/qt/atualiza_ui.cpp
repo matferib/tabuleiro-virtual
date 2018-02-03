@@ -1,5 +1,6 @@
 #include "ifg/qt/atualiza_ui.h"
 
+#include <QHBoxLayout>
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
@@ -439,22 +440,23 @@ void AdicionaItemFeiticoConhecido(
   gerador.arvore_feiticos->blockSignals(true);
   auto* item_feitico = new QTreeWidgetItem(pai);
   item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
-  item_feitico->setData(0, Qt::UserRole, QVariant(CONHECIDO));
-  item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
-  item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
-  item_feitico->setData(3, Qt::UserRole, QVariant(slot));
-  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+  item_feitico->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(CONHECIDO));
+  item_feitico->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
+  item_feitico->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
+  item_feitico->setData(TCOL_INDICE, Qt::UserRole, QVariant(slot));
+  item_feitico->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
 void AtualizaFeiticosConhecidosNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, int nivel,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto filhos = pai->takeChildren();
   for (auto* f : filhos) {
     delete f;
   }
-  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
     AdicionaItemFeiticoConhecido(gerador, conhecido.nome(), id_classe, nivel, slot++, pai);
@@ -463,62 +465,239 @@ void AtualizaFeiticosConhecidosNivel(
   gerador.arvore_feiticos->blockSignals(false);
 }
 
+QCheckBox* CriaCheckboxUsado(
+    const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico) {
+  auto* checkbox = new QCheckBox();
+  const auto& fn_para_lancar = FeiticoParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto);
+  checkbox->setCheckState(fn_para_lancar.usado() ? Qt::Checked : Qt::Unchecked);
+  item_feitico->setData(TCOL_USADO, Qt::UserRole, QVariant(fn_para_lancar.usado()));
+  QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  sizePolicy.setHorizontalStretch(0);
+  checkbox->setSizePolicy(sizePolicy);
+  lambda_connect(checkbox, SIGNAL(stateChanged(int)), [item_feitico] (int estado) {
+    item_feitico->setData(TCOL_USADO, Qt::UserRole, QVariant(estado == Qt::Checked));
+  });;
+  return checkbox;
+}
+
+void PreencheComboParaLancar(
+    const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico, QComboBox* combo) {
+  QStringList lista;
+  // Mapeia os indices do combo para (nivel_conhecido, indice_conhecido).
+  std::vector<std::pair<int, int>> mapa;
+  const auto& fn_para_lancar = FeiticoParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto);
+  int indice_corrente = -1;
+  combo->clear();
+  for (int nivel_conhecido = nivel_para_lancar; nivel_conhecido >= 0; --nivel_conhecido) {
+    const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
+    int indice_conhecido = 0;
+    for (const auto& c : fn.conhecidos()) {
+      lista.push_back(QString::fromUtf8(c.nome().c_str()));
+      if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
+          fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
+        indice_corrente = mapa.size();
+        item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(nivel_conhecido));
+        item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(indice_conhecido));
+      }
+      mapa.push_back(std::make_pair(nivel_conhecido, indice_conhecido));
+      ++indice_conhecido;
+    }
+  }
+  combo->addItems(lista);
+  combo->setCurrentIndex(indice_corrente);
+  combo->disconnect();
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [item_feitico, mapa] (int indice) {
+      // Trigar apenas 1 evento.
+      item_feitico->treeWidget()->blockSignals(true);
+      item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(mapa[indice].first));
+      item_feitico->treeWidget()->blockSignals(false);
+      item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(mapa[indice].second));
+  });;
+}
+
+// Preenche o item da arvore com um combo que possui todos os feiticos conhecidos ate o nivel passado.
+QComboBox* CriaComboParaLancar(
+    const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico) {
+  auto* combo = new QComboBox();
+  combo->setObjectName("combo_para_lancar");
+  PreencheComboParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto, item_feitico, combo);
+  return combo;
+}
+
+// Adiciona o item para lancar. Caso a classe precise de memorizar, ira mostrar o nome do feitico memorizado
+// no indice.
 void AdicionaItemFeiticoParaLancar(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot, bool usado,
-    QTreeWidgetItem* pai) {
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, int nivel, int indice, const ent::EntidadeProto::InfoLancar& para_lancar,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto* item_feitico = new QTreeWidgetItem(pai);
-  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  if (tabelas.Classe(id_classe).possui_dominio() && indice == 0) {
+    item_feitico->setBackground(0, QBrush(Qt::lightGray));
+  }
+  auto* hwidget = new QWidget;
+  auto* hbox = new QHBoxLayout;
+  hbox->addWidget(CriaCheckboxUsado(id_classe, nivel, indice, proto, item_feitico), 0, Qt::AlignLeft);
+  if (ent::ClassePrecisaMemorizar(tabelas, id_classe)) {
+    hbox->addWidget(CriaComboParaLancar(id_classe, nivel, indice, proto, item_feitico));
+  }
+  hwidget->setLayout(hbox);
+  item_feitico->treeWidget()->setItemWidget(item_feitico, 0, hwidget);
   item_feitico->setData(0, Qt::UserRole, QVariant(PARA_LANCAR));
   item_feitico->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(2, Qt::UserRole, QVariant(nivel));
-  item_feitico->setData(3, Qt::UserRole, QVariant(slot));
-  item_feitico->setFlags(item_feitico->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
-  item_feitico->setCheckState(0, usado ? Qt::Checked : Qt::Unchecked);
+  item_feitico->setData(3, Qt::UserRole, QVariant(indice));
+  item_feitico->setFlags(
+      item_feitico->flags() | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
 void AtualizaFeiticosParaLancarNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, int nivel, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, int nivel, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto filhos = pai->takeChildren();
   for (auto* f : filhos) {
     delete f;
   }
-  const auto& feiticos_nivel = ent::FeiticosNivel(nivel, id_classe, proto);
+  const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
-  VLOG(1) << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size() << ", proto: " << proto.feiticos_classes(0).DebugString();
+  VLOG(1)
+      << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size()
+      << ", proto: " << proto.feiticos_classes(0).DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
-    AdicionaItemFeiticoParaLancar(gerador, para_lancar.id(), id_classe, nivel, slot++, para_lancar.usado(), pai);
+    AdicionaItemFeiticoParaLancar(tabelas, gerador, id_classe, nivel, slot++, para_lancar, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
 }
 
-void AtualizaFeiticosClasse(ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
+void AtualizaFeiticosClasse(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   const auto& fc = ent::FeiticosClasse(id_classe, proto);
   for (int nivel = 0; nivel < fc.feiticos_por_nivel().size(); ++nivel) {
-    LOG(INFO) << "nivel: " << nivel;
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
     {
       auto* item_conhecidos = new QTreeWidgetItem(item_nivel);
       item_conhecidos->setText(0, "Conhecidos");
-      item_conhecidos->setData(0, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
-      item_conhecidos->setData(1, Qt::UserRole, QVariant(id_classe.c_str()));
-      item_conhecidos->setData(2, Qt::UserRole, QVariant(nivel));
-      AtualizaFeiticosConhecidosNivel(gerador, nivel, id_classe, proto, item_conhecidos);
+      item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
+      item_conhecidos->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
+      item_conhecidos->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
+      AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, proto, item_conhecidos);
       gerador.arvore_feiticos->blockSignals(true);
     }
     {
       auto* item_para_lancar = new QTreeWidgetItem(item_nivel);
+      item_para_lancar->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_PARA_LANCAR));
+      item_para_lancar->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
+      item_para_lancar->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
       item_para_lancar->setText(0, QString::fromUtf8("Para Lançar"));
-      AtualizaFeiticosParaLancarNivel(gerador, nivel, id_classe, proto, item_para_lancar);
+      AtualizaFeiticosParaLancarNivel(tabelas, gerador, id_classe, nivel, proto, item_para_lancar);
       gerador.arvore_feiticos->blockSignals(true);
     }
   }
   gerador.arvore_feiticos->blockSignals(false);
+}
+
+void AtualizaCombosParaLancarDoNivel(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, int nivel, const ent::EntidadeProto& proto, QTreeWidgetItem* item_nivel) {
+  if (nivel < 0 || nivel > 9) return;
+  QTreeWidgetItem* item_raiz_para_lancar = nullptr;
+  for (int i = 0; i < item_nivel->childCount(); ++i) {
+    if (item_nivel->child(i)->data(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole).toInt() == RAIZ_PARA_LANCAR) {
+      item_raiz_para_lancar = item_nivel->child(i);
+      break;
+    }
+  }
+  if (item_raiz_para_lancar == nullptr) {
+    LOG(ERROR) << "Nao encontrei o item raiz para lancar";
+    return;
+  }
+  for (int i = 0; i < item_raiz_para_lancar->childCount(); ++i) {
+    auto* item_para_lancar = item_raiz_para_lancar->child(i);
+    // Aqui deve ser uma widget contendo o combo.
+    auto* combo = gerador.arvore_feiticos->itemWidget(item_para_lancar, 0)
+        ->findChild<QComboBox*>("combo_para_lancar");
+    if (combo == nullptr) {
+      LOG(ERROR) << "Nao encontrei o combo para lancar";
+      continue;
+    }
+    combo->blockSignals(true);
+    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    combo->blockSignals(false);
+  }
+}
+
+QTreeWidgetItem* ItemRaizParaLancar(QTreeWidgetItem* item_nivel) {
+  for (int i = 0; i < item_nivel->childCount(); ++i) {
+    if (item_nivel->child(i)->data(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole).toInt() == RAIZ_PARA_LANCAR) {
+      return item_nivel->child(i);
+    }
+  }
+  LOG(ERROR) << "Nao encontrei o item raiz para lancar";
+  return nullptr;
+}
+
+// Retorna o combo para lancar dentro de item_para_lancar.
+QComboBox* ComboParaLancar(QTreeWidgetItem* item_para_lancar, QTreeWidget* arvore) {
+  auto* combo = arvore->itemWidget(item_para_lancar, 0)
+      ->findChild<QComboBox*>("combo_para_lancar");
+  if (combo == nullptr) {
+    LOG(ERROR) << "Nao encontrei o combo para lancar";
+  }
+  return combo;
+}
+
+// Encontra o item da classe da arvore de feiticos.
+QTreeWidgetItem* ItemClasse(const std::string& id_classe, QTreeWidget* arvore) {
+  for (int i = 0; i < arvore->topLevelItemCount(); ++i) {
+    auto* item_classe = arvore->topLevelItem(i);
+    if (item_classe->data(TCOL_ID_CLASSE, Qt::UserRole).toString().toStdString() != id_classe) {
+      continue;
+    }
+    return item_classe;
+  }
+  return nullptr;
+}
+
+void AtualizaCombosParaLancarDoNivel(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, int nivel, int nivel_removido, int indice_removido,
+    const ent::EntidadeProto& proto, QTreeWidgetItem* item_nivel) {
+  if (nivel < 0 || nivel > 9) return;
+  QTreeWidgetItem* item_raiz_para_lancar = ItemRaizParaLancar(item_nivel);
+  if (item_raiz_para_lancar == nullptr) return;
+
+  for (int i = 0; i < item_raiz_para_lancar->childCount(); ++i) {
+    auto* item_para_lancar = item_raiz_para_lancar->child(i);
+    // Aqui deve ser uma widget contendo o combo.
+    auto* combo = ComboParaLancar(item_para_lancar, gerador.arvore_feiticos);
+    if (combo == nullptr) continue;
+    combo->blockSignals(true);
+    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    combo->blockSignals(false);
+  }
+}
+
+void AtualizaCombosParaLancar(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id_classe, const ent::EntidadeProto& proto) {
+  auto* item_classe = ItemClasse(id_classe, gerador.arvore_feiticos);
+  if (item_classe == nullptr) {
+    LOG(ERROR) << "Nao encontrei item da classe";
+    return;
+  }
+  // Itera nos niveis da classe.
+  for (int nivel = 0; nivel < item_classe->childCount(); ++nivel) {
+    AtualizaCombosParaLancarDoNivel(tabelas, gerador, id_classe, nivel, proto, item_classe->child(nivel));
+  }
 }
 
 void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -530,7 +709,8 @@ void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     // Acha a entrada de feitico do proto.
     auto* item_classe = new QTreeWidgetItem(gerador.arvore_feiticos);
     item_classe->setText(0, QString::fromUtf8(ic.nome().c_str()));
-    AtualizaFeiticosClasse(gerador, ic.id(), proto, item_classe);
+    item_classe->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(ic.id().c_str()));
+    AtualizaFeiticosClasse(tabelas, gerador, ic.id(), proto, item_classe);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);

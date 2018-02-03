@@ -12,6 +12,34 @@
 #include "ent/entidade.pb.h"
 #include "log/log.h"
 
+
+// Objeto para tratar mudancas de combo.
+class ComboBoxHelper : public QObject {
+Q_OBJECT
+ public:
+  ComboBoxHelper(QObject *parent, const std::function<void(int)> f)
+      : QObject(parent), function_(f) {}
+
+ public slots:
+  void indexChanged(int indice) {
+    function_(indice);
+  }
+
+ private:
+  std::function<void(int)> function_;
+};
+
+// Lambda connect util para combo boxes.
+inline bool lambda_connect(
+    QObject *sender,
+    const char *signal,
+    const std::function<void(int)> receiver,
+    Qt::ConnectionType type = Qt::AutoConnection) {
+  return QObject::connect(
+      sender, signal, new ComboBoxHelper(sender, receiver), SLOT(indexChanged(int)), type);
+}
+
+
 // Objeto para tratar mudancas de arvores.
 class TreeHelper : public QObject {
 Q_OBJECT

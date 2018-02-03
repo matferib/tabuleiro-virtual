@@ -551,6 +551,11 @@ class Tabuleiro : public ntf::Receptor {
     bool presente;  // usado durante atualizacao de iniciativa.
   };
 
+  /** Botao de usar feitico clicado. */
+  void TrataBotaoUsarFeitico(int nivel);
+  /** Botao de alterar a classe de feitico ativa clicado. */
+  void TrataMudarClasseFeiticoAtiva();
+
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
@@ -921,7 +926,7 @@ class Tabuleiro : public ntf::Receptor {
   bool EstadoBotao(IdBotao id_botao) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
-  std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
+  std::string RotuloBotaoControleVirtual(const DadosBotao& db, const Entidade* entidade) const;
 
   void DesenhaBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float padding, float largura_botao, float altura_botao, const Entidade* entidade);
