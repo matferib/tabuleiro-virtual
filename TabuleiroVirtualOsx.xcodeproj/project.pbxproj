@@ -21,6 +21,11 @@
 		EAA38BC81F241CA700616689 /* tabelas.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC61F241CA700616689 /* tabelas.pb.cc */; };
 		EAA38BCA1F241CC400616689 /* tabuleiro_tratador.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC91F241CC400616689 /* tabuleiro_tratador.cpp */; };
 		EAABA55120268F8100C9DD9A /* moc_pericias_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAABA55020268F8000C9DD9A /* moc_pericias_util.cpp */; };
+		EAABA5532026918700C9DD9A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD0738F1DA4C15700F234A1 /* OpenGL.framework */; };
+		EAABA558202691A900C9DD9A /* QtCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAABA554202691A900C9DD9A /* QtCore.framework */; };
+		EAABA559202691A900C9DD9A /* QtGui.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAABA555202691A900C9DD9A /* QtGui.framework */; };
+		EAABA55A202691A900C9DD9A /* QtOpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAABA556202691A900C9DD9A /* QtOpenGL.framework */; };
+		EAABA55B202691A900C9DD9A /* QtWidgets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAABA557202691A900C9DD9A /* QtWidgets.framework */; };
 		EAD073231DA4B86E00F234A1 /* gl_char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491101BABCB6E00F86C24 /* gl_char.cpp */; };
 		EAD073241DA4B86E00F234A1 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491121BABCB6E00F86C24 /* gl_comum.cpp */; };
 		EAD073261DA4B86E00F234A1 /* gl_normal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491161BABCB6E00F86C24 /* gl_normal.cpp */; };
@@ -57,11 +62,7 @@
 		EAD073801DA4BEEA00F234A1 /* qt_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAD073761DA4BEEA00F234A1 /* qt_interface.cpp */; };
 		EAD073861DA4BFEF00F234A1 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAD073821DA4BFEF00F234A1 /* util.cpp */; };
 		EAD073871DA4BFEF00F234A1 /* visualizador3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAD073841DA4BFEF00F234A1 /* visualizador3d.cpp */; };
-		EAD073901DA4C15700F234A1 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD0738F1DA4C15700F234A1 /* OpenGL.framework */; };
 		EAD073941DA4C3F500F234A1 /* libpthread.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD073931DA4C3F500F234A1 /* libpthread.tbd */; };
-		EAD073981DA4C62700F234A1 /* QtCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD073951DA4C62700F234A1 /* QtCore.framework */; };
-		EAD073991DA4C62700F234A1 /* QtGui.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD073961DA4C62700F234A1 /* QtGui.framework */; };
-		EAD0739A1DA4C62700F234A1 /* QtOpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD073971DA4C62700F234A1 /* QtOpenGL.framework */; };
 		EAD0739F1DA4C68400F234A1 /* lodepng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAD0739C1DA4C68400F234A1 /* lodepng.cpp */; };
 		EAD073A01DA4C68400F234A1 /* texturas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAD0739D1DA4C68400F234A1 /* texturas.cpp */; };
 		EAD073A51DA4C76A00F234A1 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD073A11DA4C76A00F234A1 /* libboost_filesystem.a */; };
@@ -140,6 +141,10 @@
 		EAA491191BABCB6E00F86C24 /* gl_vbo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl_vbo.h; sourceTree = "<group>"; };
 		EAA4911B1BABCB6E00F86C24 /* glues.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glues.cpp; sourceTree = "<group>"; };
 		EAABA55020268F8000C9DD9A /* moc_pericias_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pericias_util.cpp; sourceTree = "<group>"; };
+		EAABA554202691A900C9DD9A /* QtCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtCore.framework; path = ../../../../usr/local/Cellar/qt/5.9.1/lib/QtCore.framework; sourceTree = "<group>"; };
+		EAABA555202691A900C9DD9A /* QtGui.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtGui.framework; path = ../../../../usr/local/Cellar/qt/5.9.1/lib/QtGui.framework; sourceTree = "<group>"; };
+		EAABA556202691A900C9DD9A /* QtOpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtOpenGL.framework; path = ../../../../usr/local/Cellar/qt/5.9.1/lib/QtOpenGL.framework; sourceTree = "<group>"; };
+		EAABA557202691A900C9DD9A /* QtWidgets.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtWidgets.framework; path = ../../../../usr/local/Cellar/qt/5.9.1/lib/QtWidgets.framework; sourceTree = "<group>"; };
 		EAD0731C1DA4B65900F234A1 /* TabuleiroVirtual */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TabuleiroVirtual; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD0733B1DA4BC9200F234A1 /* controle_virtual.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = controle_virtual.pb.cc; sourceTree = "<group>"; };
 		EAD0733C1DA4BC9200F234A1 /* tabuleiro_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabuleiro_interface.cpp; sourceTree = "<group>"; };
@@ -197,15 +202,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAABA558202691A900C9DD9A /* QtCore.framework in Frameworks */,
+				EAABA559202691A900C9DD9A /* QtGui.framework in Frameworks */,
+				EAABA55A202691A900C9DD9A /* QtOpenGL.framework in Frameworks */,
+				EAABA55B202691A900C9DD9A /* QtWidgets.framework in Frameworks */,
+				EAABA5532026918700C9DD9A /* OpenGL.framework in Frameworks */,
 				EAD073A51DA4C76A00F234A1 /* libboost_filesystem.a in Frameworks */,
 				EAD073A61DA4C76A00F234A1 /* libboost_system.a in Frameworks */,
 				EAD073A71DA4C76A00F234A1 /* libboost_timer.a in Frameworks */,
 				EAD073A81DA4C76A00F234A1 /* libprotobuf.a in Frameworks */,
-				EAD073981DA4C62700F234A1 /* QtCore.framework in Frameworks */,
-				EAD073991DA4C62700F234A1 /* QtGui.framework in Frameworks */,
-				EAD0739A1DA4C62700F234A1 /* QtOpenGL.framework in Frameworks */,
 				EAD073941DA4C3F500F234A1 /* libpthread.tbd in Frameworks */,
-				EAD073901DA4C15700F234A1 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +241,7 @@
 				EAD0738F1DA4C15700F234A1 /* OpenGL.framework */,
 				EA164D9E1C03E4BC008F8270 /* Products */,
 				EAD0731D1DA4B65900F234A1 /* TabuleiroVirtual */,
+				EAABA5522026918700C9DD9A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -304,6 +311,17 @@
 			);
 			path = gltab;
 			sourceTree = SOURCE_ROOT;
+		};
+		EAABA5522026918700C9DD9A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EAABA554202691A900C9DD9A /* QtCore.framework */,
+				EAABA555202691A900C9DD9A /* QtGui.framework */,
+				EAABA556202691A900C9DD9A /* QtOpenGL.framework */,
+				EAABA557202691A900C9DD9A /* QtWidgets.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
 		};
 		EAD0731D1DA4B65900F234A1 /* TabuleiroVirtual */ = {
 			isa = PBXGroup;
@@ -605,7 +623,8 @@
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					/usr/local/lib,
-					/usr/local/Cellar/qt5/Frameworks,
+					/usr/local/Cellar/qt5/5.9.1/Frameworks,
+					/usr/local/Cellar/qt/5.9.1/lib,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -672,7 +691,8 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					/usr/local/lib,
-					/usr/local/Cellar/qt5/Frameworks,
+					/usr/local/Cellar/qt5/5.9.1/Frameworks,
+					/usr/local/Cellar/qt/5.9.1/lib,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
