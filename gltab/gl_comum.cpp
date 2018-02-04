@@ -759,28 +759,28 @@ void CarregaIdentidade() {
 
 void MultiplicaMatriz(const GLfloat* matriz) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  Matrix4 m4(matriz);
+  const Matrix4 m4(matriz);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  Matrix4 m4 = Matrix4().scale(x, y, z);
+  const Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  auto& m4 = Matrix4().translate(x, y, z);
+  const auto m4 = Matrix4().translate(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
+  const Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
 }
