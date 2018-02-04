@@ -94,8 +94,8 @@ void ConverteDano(ArmaProto* arma) {
 Tabelas::Tabelas() {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_);
-  } catch (...) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto";
+  } catch (const std::exception& e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
   }
   for (const auto& armadura : tabelas_.tabela_armaduras().armaduras()) {
     armaduras_[armadura.id()] = &armadura;
