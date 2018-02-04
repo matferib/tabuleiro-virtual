@@ -20,6 +20,7 @@
 		EAA38BC71F241CA700616689 /* tabelas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC51F241CA700616689 /* tabelas.cpp */; };
 		EAA38BC81F241CA700616689 /* tabelas.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC61F241CA700616689 /* tabelas.pb.cc */; };
 		EAA38BCA1F241CC400616689 /* tabuleiro_tratador.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA38BC91F241CC400616689 /* tabuleiro_tratador.cpp */; };
+		EAABA55120268F8100C9DD9A /* moc_pericias_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAABA55020268F8000C9DD9A /* moc_pericias_util.cpp */; };
 		EAD073231DA4B86E00F234A1 /* gl_char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491101BABCB6E00F86C24 /* gl_char.cpp */; };
 		EAD073241DA4B86E00F234A1 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491121BABCB6E00F86C24 /* gl_comum.cpp */; };
 		EAD073261DA4B86E00F234A1 /* gl_normal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA491161BABCB6E00F86C24 /* gl_normal.cpp */; };
@@ -138,6 +139,7 @@
 		EAA491181BABCB6E00F86C24 /* gl_vbo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gl_vbo.cpp; sourceTree = "<group>"; };
 		EAA491191BABCB6E00F86C24 /* gl_vbo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl_vbo.h; sourceTree = "<group>"; };
 		EAA4911B1BABCB6E00F86C24 /* glues.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glues.cpp; sourceTree = "<group>"; };
+		EAABA55020268F8000C9DD9A /* moc_pericias_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pericias_util.cpp; sourceTree = "<group>"; };
 		EAD0731C1DA4B65900F234A1 /* TabuleiroVirtual */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TabuleiroVirtual; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD0733B1DA4BC9200F234A1 /* controle_virtual.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = controle_virtual.pb.cc; sourceTree = "<group>"; };
 		EAD0733C1DA4BC9200F234A1 /* tabuleiro_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabuleiro_interface.cpp; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 		EAD0736C1DA4BEB400F234A1 /* qt */ = {
 			isa = PBXGroup;
 			children = (
+				EAABA55020268F8000C9DD9A /* moc_pericias_util.cpp */,
 				EAA38BC11F241C2300616689 /* atualiza_ui.cpp */,
 				EAD073881DA4BFF300F234A1 /* ui */,
 				EAD073821DA4BFEF00F234A1 /* util.cpp */,
@@ -526,6 +529,7 @@
 				EAD0732D1DA4B86E00F234A1 /* entidade.pb.cc in Sources */,
 				EAD0732E1DA4B86E00F234A1 /* entidade_composta.cpp in Sources */,
 				EAD0732F1DA4B86E00F234A1 /* entidade_desenho.cpp in Sources */,
+				EAABA55120268F8100C9DD9A /* moc_pericias_util.cpp in Sources */,
 				EAD073301DA4B86E00F234A1 /* entidade_forma.cpp in Sources */,
 				EAD073311DA4B86E00F234A1 /* tabuleiro.cpp in Sources */,
 				EAD073321DA4B86E00F234A1 /* tabuleiro.pb.cc in Sources */,
@@ -601,7 +605,7 @@
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					/usr/local/lib,
-					/usr/local/Cellar/qt/4.8.6/lib,
+					/usr/local/Cellar/qt5/Frameworks,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -609,7 +613,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					"$(inherited)",
+					"USAR_QT5=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -618,9 +622,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/lib/QtGui.framework/Headers,
-					/usr/local/lib/QtOpenGL.framework/Headers,
-					/usr/local/lib/QtCore.framework/Headers,
+					/usr/local/Cellar/qt5/5.9.1/include/,
+					/usr/local/Cellar/qt5/5.9.1/include/QtWidgets,
+					/usr/local/Cellar/qt5/5.9.1/include/QtGui,
+					/usr/local/Cellar/qt5/5.9.1/include/QtCore,
+					/usr/local/Cellar/qt5/5.9.1/include/QtOpenGL,
+					/usr/local/Cellar/qt5/5.9.1/lib/QtGui.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtOpenGL.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtCore.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtWidgets.framework/Headers,
 					/usr/local/include,
 					"/Users/mribeiro/Projetos/tabuleiro-virtual",
 				);
@@ -662,10 +672,14 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					/usr/local/lib,
-					/usr/local/Cellar/qt/4.8.6/lib,
+					/usr/local/Cellar/qt5/Frameworks,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RELEASE=1",
+					"USAR_QT5=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -673,9 +687,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/lib/QtGui.framework/Headers,
-					/usr/local/lib/QtOpenGL.framework/Headers,
-					/usr/local/lib/QtCore.framework/Headers,
+					/usr/local/Cellar/qt5/5.9.1/include/,
+					/usr/local/Cellar/qt5/5.9.1/include/QtWidgets,
+					/usr/local/Cellar/qt5/5.9.1/include/QtGui,
+					/usr/local/Cellar/qt5/5.9.1/include/QtCore,
+					/usr/local/Cellar/qt5/5.9.1/include/QtOpenGL,
+					/usr/local/Cellar/qt5/5.9.1/lib/QtGui.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtOpenGL.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtCore.framework/Headers,
+					/usr/local/Cellars/qt5/5.9.1/lib/QtWidgets.framework/Headers,
 					/usr/local/include,
 					"/Users/mribeiro/Projetos/tabuleiro-virtual",
 				);
