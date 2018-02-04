@@ -16,6 +16,7 @@
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro_interface.h"
+#include "goog/stringprintf.h"
 //#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/tecladomouse.h"
@@ -87,10 +88,11 @@ int main(int argc, char** argv) {
   QDir dir(QCoreApplication::applicationDirPath());
 
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
-  ent::Tabelas tabelas;
+  // Arq::Inicializa tem que vir antes, porque os outros leem varias coisas de arquivos.
+  arq::Inicializa(dir.absolutePath().toStdString());
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
-  arq::Inicializa(dir.absolutePath().toStdString());
+  ent::Tabelas tabelas;
   boost::asio::io_service servico_io;
   net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
@@ -120,6 +122,13 @@ int main(int argc, char** argv) {
     central.AdicionaNotificacao(n);
   }
 #endif
+  // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
+  if (tabelas.todas().tabela_classes().info_classes().empty()) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro(google::protobuf::StringPrintf(
+          "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
+    central.AdicionaNotificacao(n);
+  }
   try {
     p->Executa();
   }
