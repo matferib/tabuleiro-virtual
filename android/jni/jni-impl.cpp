@@ -349,7 +349,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   std::string mensagem_str;
   mensagem_str.resize(tam_mensagem);
   env->GetByteArrayRegion(mensagem, 0, tam_mensagem, (jbyte*)&mensagem_str[0]);
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade()->ParseFromString(mensagem_str);
   // Desfaz o hack de eventos
   auto evento_deshackeado(ent::LeEventos(n->entidade().evento(0).descricao()));

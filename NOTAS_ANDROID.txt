@@ -170,10 +170,6 @@ Senao, tem que desinstalar com adb e instalar de novo.
 ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro
 
 
--- Delay gigante em relacao ao servidor:
-
-O app do Banco do Brasil da conflito com o tabuleiro.
-
 =============
 Assinando APP
 =============

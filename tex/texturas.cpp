@@ -304,7 +304,9 @@ class Texturas::InfoTexturaInterna {
 #endif
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if !USAR_OPENGL_ES
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+#endif
 
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
     gl::DesabilitaMipmapAniso(GL_TEXTURE_CUBE_MAP);
