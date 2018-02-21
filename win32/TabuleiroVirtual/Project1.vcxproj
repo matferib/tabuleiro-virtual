@@ -273,7 +273,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(SolutionDir)protobuf-2.6.1\src;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtGui;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtCore;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -344,8 +344,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(SolutionDir)protobuf-2.6.1\src;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtGui;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtCore;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(SolutionDir)protobuf-2.6.1\src;C:\Qt5\5.9.1\msvc2015_64\include;C:\Qt5\5.9.1\msvc2015_64\include\QtOpenGL;C:\Qt5\5.9.1\msvc2015_64\include\QtCore;C:\Qt5\5.9.1\msvc2015_64\include\QtWidgets;C:\Qt5\5.9.1\msvc2015_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -353,8 +353,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>QtOpengl4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;C:\Qt5\5.9.1\msvc2015_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>

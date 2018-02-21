@@ -126,9 +126,10 @@ int main(int argc, char** argv) {
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(google::protobuf::StringPrintf(
-          "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
+        "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
     central.AdicionaNotificacao(n);
   }
+
   try {
     p->Executa();
   }
