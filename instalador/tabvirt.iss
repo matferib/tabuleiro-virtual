@@ -27,7 +27,7 @@ Name: {localappdata}\TabuleiroVirtual
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion; 
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
-Source: ..\win32\lib\*.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\win32\libqt5\*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
 Source: ..\shaders\*.c; Destdir: {app}\shaders; Flags: ignoreversion;
