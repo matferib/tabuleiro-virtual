@@ -33,10 +33,11 @@ elif sistema == 'apple':
   env['QT_LIB'] = []
 else:
   print 'QTCPPPATH: ' + env['QTDIR']
-  env['QTDIR'] = '/usr'
-  env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
+  env['QTDIR'] = '/home/matheus/Qt5/5.10.1/gcc_64/'
+  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
+  env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets']
-  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
+  env['RPATH'] = [env['QT_LIBPATH']]
 
 # protobuffer.
 env['PROTOCOUTDIR'] = './'
