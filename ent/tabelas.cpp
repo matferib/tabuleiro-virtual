@@ -140,6 +140,10 @@ Tabelas::Tabelas() {
   for (const auto& pocao : tabelas_.tabela_pocoes().pocoes()) {
     pocoes_[pocao.id()] = &pocao;
   }
+  for (const auto& anel : tabelas_.tabela_aneis().aneis()) {
+    aneis_[anel.id()] = &anel;
+  }
+
   for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
     talentos_[talento.id()] = &talento;
   }
@@ -203,6 +207,11 @@ const AcaoProto& Tabelas::Acao(const std::string& id) const {
 
 const PocaoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
+  return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
+}
+
+const PocaoProto& Tabelas::Anel(const std::string& id) const {
+  auto it = aneis_.find(id);
   return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
 }
 
