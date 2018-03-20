@@ -2,7 +2,6 @@ Feiticos:
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
 Automatizar dano de feiticos.
-Planilha zicada no mac.
 
 Colocar salvacoes autoamaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).

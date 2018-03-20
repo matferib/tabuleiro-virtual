@@ -63,6 +63,7 @@ enum TipoEfeito {
   EFEITO_ABENCOAR_ARMA = 31;          // TODO
 
   EFEITO_PEDRA_ENCANTADA = 32;
+  EFEITO_DEFLEXAO_CA = 33;
 }
 
 // Tipo de visao para entidades e camera.
