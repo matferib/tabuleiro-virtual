@@ -404,14 +404,29 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   //gerador.lista_tesouro->setPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
   //gerador.lista_tesouro->setCursor(cursor);
 
-  const int indice = gerador.lista_pocoes->currentRow();
-  gerador.lista_pocoes->clear();
-  for (const auto& pocao : proto.tesouro().pocoes()) {
-    const auto& pp = tabelas.Pocao(pocao.id());
-    auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_pocoes);
-    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  // Pocoes.
+  {
+    const int indice = gerador.lista_pocoes->currentRow();
+    gerador.lista_pocoes->clear();
+    for (const auto& pocao : proto.tesouro().pocoes()) {
+      const auto& pp = tabelas.Pocao(pocao.id());
+      auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_pocoes);
+      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    gerador.lista_pocoes->setCurrentRow(indice);
   }
-  gerador.lista_pocoes->setCurrentRow(indice);
+  // Aneis.
+  {
+    const int indice = gerador.lista_aneis->currentRow();
+    gerador.lista_aneis->clear();
+    for (const auto& anel : proto.tesouro().aneis()) {
+      const auto& pp = tabelas.Anel(anel.id());
+      auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_aneis);
+      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    gerador.lista_aneis->setCurrentRow(indice);
+  }
+
   for (auto* obj : objs) obj->blockSignals(false);
 }
 

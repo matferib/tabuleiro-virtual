@@ -1212,26 +1212,54 @@ void PreencheConfiguraTesouro(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
 
-  std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
-  auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
-  gerador.lista_pocoes->setItemDelegate(delegado);
-  delegado->deleteLater();
+  // Pocoes.
+  {
+    std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
+    auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
+    gerador.lista_pocoes->setItemDelegate(delegado);
+    delegado->deleteLater();
 
-  lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-    /*auto* pocao = */proto_retornado->mutable_tesouro()->add_pocoes();
-    // Para aparecer pocao vazia.
-    //pocao->set_id("forca_touro");
-    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-    gerador.lista_pocoes->setCurrentRow(proto_retornado->tesouro().pocoes_size() - 1);
-  });
-  lambda_connect(gerador.botao_remover_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-    const int indice = gerador.lista_pocoes->currentRow();
-    if (indice >= 0 && indice < proto_retornado->tesouro().pocoes_size()) {
-      proto_retornado->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice, 1);
-    }
-    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-    gerador.lista_pocoes->setCurrentRow(indice);
-  });
+    lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      /*auto* pocao = */proto_retornado->mutable_tesouro()->add_pocoes();
+      // Para aparecer pocao vazia.
+      //pocao->set_id("forca_touro");
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      gerador.lista_pocoes->setCurrentRow(proto_retornado->tesouro().pocoes_size() - 1);
+    });
+    lambda_connect(gerador.botao_remover_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      const int indice = gerador.lista_pocoes->currentRow();
+      if (indice >= 0 && indice < proto_retornado->tesouro().pocoes_size()) {
+        proto_retornado->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice, 1);
+      }
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      gerador.lista_pocoes->setCurrentRow(indice);
+    });
+  }
+
+  // Aneis.
+  {
+    std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_aneis->itemDelegate());
+    auto* delegado = new AnelDelegate(tabelas, gerador.lista_aneis, proto_retornado);
+    gerador.lista_aneis->setItemDelegate(delegado);
+    delegado->deleteLater();
+
+    lambda_connect(gerador.botao_adicionar_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      /*auto* anel= */proto_retornado->mutable_tesouro()->add_aneis();
+      // Para aparecer anel vazia.
+      //anel->set_id("protecao_1");
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      gerador.lista_aneis->setCurrentRow(proto_retornado->tesouro().aneis_size() - 1);
+    });
+    lambda_connect(gerador.botao_remover_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      const int indice = gerador.lista_aneis->currentRow();
+      if (indice >= 0 && indice < proto_retornado->tesouro().aneis_size()) {
+        proto_retornado->mutable_tesouro()->mutable_aneis()->DeleteSubrange(indice, 1);
+      }
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      gerador.lista_aneis->setCurrentRow(indice);
+    });
+  }
+
   AtualizaUITesouro(tabelas, gerador, proto);
   gerador.lista_tesouro->setPlainText((proto.tesouro().tesouro().c_str()));
 }

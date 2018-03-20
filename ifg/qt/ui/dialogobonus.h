@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dialogo_bonus.ui'
 **
-** Created by: Qt User Interface Compiler version 5.2.1
+** Created by: Qt User Interface Compiler version 5.10.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -63,9 +63,9 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoBonus)
     {
-        ifg__qt__DialogoBonus->setWindowTitle(QApplication::translate("ifg::qt::DialogoBonus", "Dialog", 0));
-        botao_adicionar_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "+", 0));
-        botao_remover_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "-", 0));
+        ifg__qt__DialogoBonus->setWindowTitle(QApplication::translate("ifg::qt::DialogoBonus", "Dialog", nullptr));
+        botao_adicionar_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "+", nullptr));
+        botao_remover_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "-", nullptr));
     } // retranslateUi
 
 };
