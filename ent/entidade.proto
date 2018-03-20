@@ -284,8 +284,8 @@ message EntidadeProto {
   message DadosTesouro {
     optional string tesouro = 1;
     repeated PocaoProto pocoes = 2;
-    repeated AnelProto aneis = 3;
-    repeated MantoProto mantos = 4;
+    repeated PocaoProto aneis = 3;
+    repeated PocaoProto mantos = 4;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.

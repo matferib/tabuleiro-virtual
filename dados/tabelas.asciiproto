@@ -1017,6 +1017,16 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_DEFLEXAO_CA
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'deflexao_ca' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_PELE_ARVORE
     consequencia {
       usa_complemento: true
@@ -1176,6 +1186,49 @@ tabela_efeitos {
   efeitos {
     # Chance de falha.
     id: EFEITO_INVISIBILIDADE
+  }
+}
+
+tabela_aneis {
+  aneis {
+    id: 'protecao_1'
+    nome: 'Proteção +1'
+    id_efeito: EFEITO_DEFLEXAO_CA
+    descricao: 'Proteção contínua na forma de +1 de deflexão para CA.'
+    complementos: 1
+    custo_po: 2000
+  }
+  aneis {
+    id: 'protecao_2'
+    nome: 'Proteção +2'
+    id_efeito: EFEITO_DEFLEXAO_CA
+    descricao: 'Proteção contínua na forma de +2 de deflexão para CA.'
+    complementos: 2
+    custo_po: 8000
+  }
+  aneis {
+    id: 'protecao_3'
+    nome: 'Proteção +3'
+    id_efeito: EFEITO_DEFLEXAO_CA
+    descricao: 'Proteção contínua na forma de +3 de deflexão para CA.'
+    complementos: 3
+    custo_po: 18000
+  }
+  aneis {
+    id: 'protecao_4'
+    nome: 'Proteção +4'
+    id_efeito: EFEITO_DEFLEXAO_CA
+    descricao: 'Proteção contínua na forma de +4 de deflexão para CA.'
+    complementos: 4
+    custo_po: 32000
+  }
+  aneis {
+    id: 'protecao_5'
+    nome: 'Proteção +5'
+    id_efeito: EFEITO_DEFLEXAO_CA
+    descricao: 'Proteção contínua na forma de +5 de deflexão para CA.'
+    complementos: 5
+    custo_po: 50000
   }
 }
 

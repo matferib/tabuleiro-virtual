@@ -144,6 +144,10 @@ message TabelaPericias {
   repeated PericiaProto pericias = 1;
 }
 
+message TabelaAneis {
+  repeated PocaoProto aneis = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -155,4 +159,5 @@ message TodasTabelas {
   optional TabelaArmas tabela_feiticos = 7;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
+  optional TabelaAneis tabela_aneis = 52;
 }
