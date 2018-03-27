@@ -1,3 +1,7 @@
+Lista de eventos mostrando apenas 1 na UI.
+Colocar anel de protecao e manto de resistencia: TERMINAR.
+
+
 Feiticos:
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
@@ -21,7 +25,6 @@ Atualizacao de tabela remota e tabela nao srd.
 
 Colocar arte da fuga no agarrar.
 
-Colocar anel de protecao e manto de resistencia.
 
 Modificadores de grapple: 4 patas e outros.
 Descer iniciativas em 1 para nao baguncar com status.
