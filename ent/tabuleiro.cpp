@@ -7184,26 +7184,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       e_depois->mutable_tesouro()->add_pocoes();
     }
     if (indice_efeito < pocao.id_efeito().size()) {
-      *e_depois->mutable_evento() = entidade->Proto().evento();
-      std::vector<TipoEfeito> efeitos;
-      if (pocao.combinacao_efeitos() == COMB_EXCLUSIVO) {
-        efeitos.push_back(pocao.id_efeito(indice_efeito));
-      } else {
-        for (auto id_efeito : pocao.id_efeito()) {
-          efeitos.push_back((TipoEfeito)id_efeito);
-        }
-      }
-      for (auto id_efeito : efeitos) {
-        auto* evento = AdicionaEvento(id_efeito, pocao.duracao_rodadas(), false, e_depois);
-        if (!pocao.complementos().empty()) {
-          *evento->mutable_complementos() = pocao.complementos();
-        }
-        if (pocao.descricao().empty()) {
-          evento->set_descricao(pocao.nome());
-        } else {
-          evento->set_descricao(pocao.descricao());
-        }
-      }
+      AdicionaEventoItemMagico(pocao, indice_efeito, pocao.duracao_rodadas(), false, e_depois);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
       int total;
