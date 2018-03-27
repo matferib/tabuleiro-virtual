@@ -3240,12 +3240,49 @@ uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProt
   return i;
 }
 
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto) {
+EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   auto* e = proto->add_evento();
   e->set_id_efeito(id_efeito);
   e->set_rodadas(rodadas);
+  e->set_continuo(continuo);
   e->set_id_unico(AchaIdUnicoEvento(*proto));
   return e;
+}
+
+void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
+  for (auto& evento : *proto->mutable_evento()) {
+    if (evento.id_unico() == id_unico) {
+      evento.set_rodadas(-1);
+      return;
+    }
+  }
+}
+
+std::vector<int> AdicionaEventoItemMagico(
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
+  std::vector<int> ids_unicos;
+  std::vector<TipoEfeito> efeitos;
+  if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
+    if (indice < 0 || indice >= item.id_efeito().size()) {
+      LOG(ERROR) << "indice de efeito de item invalido para " << item.DebugString();
+    } else {
+      efeitos.push_back(item.id_efeito(indice));
+    }
+  } else {
+    for (auto id_efeito : item.id_efeito()) {
+      efeitos.push_back((TipoEfeito)id_efeito);
+    }
+  }
+
+  for (auto id_efeito : efeitos) {
+    auto* evento = AdicionaEvento(id_efeito, rodadas, continuo, proto);
+    ids_unicos.push_back(evento->id_unico());
+    if (!item.complementos().empty()) {
+      *evento->mutable_complementos() = item.complementos();
+    }
+    evento->set_descricao(item.descricao().empty() ? item.nome() : item.descricao());
+  }
+  return ids_unicos;
 }
 
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto) {

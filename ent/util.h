@@ -419,7 +419,22 @@ uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProt
 inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUnicoEvento(proto.evento()); }
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente.
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, EntidadeProto* proto);
+EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+// Dado um item magico, adiciona o efeito dele ao proto.
+// Retorna os ids unicos dos eventos criados.
+// Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
+// TODO: rodadas automatico?
+std::vector<int> AdicionaEventoItemMagico(const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
+inline std::vector<int> AdicionaEventoItemMagico(
+    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
+  return AdicionaEventoItemMagico(item, -1, rodadas, continuo, proto);
+}
+inline std::vector<int> AdicionaEventoItemMagicoContinuo(const ItemMagicoProto& item, EntidadeProto* proto) {
+  return AdicionaEventoItemMagico(item, -1, 1, true, proto);
+}
+
+// Marca a duracao do evento para -1.
+void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto);
 
 // Retorna todos os talentos da entidade em um vector, para facilitar.
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);

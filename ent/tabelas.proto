@@ -129,7 +129,7 @@ message TabelaEfeitos {
 }
 
 message TabelaPocoes {
-  repeated PocaoProto pocoes = 1;
+  repeated ItemMagicoProto pocoes = 1;
 }
 
 message TabelaTalentos {
@@ -145,7 +145,7 @@ message TabelaPericias {
 }
 
 message TabelaAneis {
-  repeated PocaoProto aneis = 1;
+  repeated ItemMagicoProto aneis = 1;
 }
 
 // O arquivo tabelas.asciiproto eh desse tipo.

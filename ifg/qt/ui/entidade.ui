@@ -3403,6 +3403,22 @@ QGroupBox::title {
       <string>+</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="botao_usar_anel">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>10</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Usar/retirar anel</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">

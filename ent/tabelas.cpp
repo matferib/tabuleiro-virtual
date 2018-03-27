@@ -205,14 +205,14 @@ const AcaoProto& Tabelas::Acao(const std::string& id) const {
   return it == acoes_.end() ? AcaoProto::default_instance() : *it->second;
 }
 
-const PocaoProto& Tabelas::Pocao(const std::string& id) const {
+const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
-  return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
+  return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
-const PocaoProto& Tabelas::Anel(const std::string& id) const {
+const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {
   auto it = aneis_.find(id);
-  return it == pocoes_.end() ? PocaoProto::default_instance() : *it->second;
+  return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const TalentoProto& Tabelas::Talento(const std::string& id) const {

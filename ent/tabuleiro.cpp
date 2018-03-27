@@ -6803,7 +6803,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     proto_depois.set_id(id_entidade.first);
     *proto_depois.mutable_evento() = entidade->Proto().evento();
     for (auto& e : *proto_depois.mutable_evento()) {
-      if (e.rodadas() > 0) {
+      if (e.rodadas() > 0 && !e.continuo()) {
         e.set_rodadas(e.rodadas() - 1);
       }
     }
@@ -7194,7 +7194,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
         }
       }
       for (auto id_efeito : efeitos) {
-        auto* evento = AdicionaEvento(id_efeito, pocao.duracao_rodadas(), e_depois);
+        auto* evento = AdicionaEvento(id_efeito, pocao.duracao_rodadas(), false, e_depois);
         if (!pocao.complementos().empty()) {
           *evento->mutable_complementos() = pocao.complementos();
         }
@@ -7276,7 +7276,7 @@ void Tabuleiro::AlternaFuria() {
       // Para ver novo modificador.
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), e_depois);
+      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");

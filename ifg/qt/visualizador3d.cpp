@@ -31,6 +31,7 @@
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
 #include "ifg/qt/pericias_util.h"
+#include "ifg/qt/aneis_util.h"
 #include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/entidade.h"
@@ -1243,6 +1244,29 @@ void PreencheConfiguraTesouro(
     gerador.lista_aneis->setItemDelegate(delegado);
     delegado->deleteLater();
 
+    lambda_connect(gerador.botao_usar_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      const int indice = gerador.lista_aneis->currentRow();
+      if (indice < 0 || indice >= proto_retornado->tesouro().aneis_size()) {
+        return;
+      }
+      auto* anel = proto_retornado->mutable_tesouro()->mutable_aneis(indice);
+      bool em_uso_antes = anel->em_uso();
+      anel->set_em_uso(!em_uso_antes);
+      if (!em_uso_antes) {
+        const auto& anel_tabela = tabelas.Anel(anel->id());
+        for (int id_unico : AdicionaEventoItemMagicoContinuo(anel_tabela, proto_retornado)) {
+          anel->add_ids_efeitos(id_unico);
+        }
+      } else {
+        for (uint32_t id_unico : anel->ids_efeitos()) {
+          ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+        }
+        anel->clear_ids_efeitos();
+      }
+      ent::RecomputaDependencias(tabelas, proto_retornado);
+      AtualizaUI(tabelas, gerador, *proto_retornado);
+    });
+
     lambda_connect(gerador.botao_adicionar_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
       /*auto* anel= */proto_retornado->mutable_tesouro()->add_aneis();
       // Para aparecer anel vazia.
@@ -1252,10 +1276,18 @@ void PreencheConfiguraTesouro(
     });
     lambda_connect(gerador.botao_remover_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
       const int indice = gerador.lista_aneis->currentRow();
+      if (indice < 0 || indice >= proto_retornado->tesouro().aneis_size()) {
+        return;
+      }
+      auto* anel = proto_retornado->mutable_tesouro()->mutable_aneis(indice);
+      for (uint32_t id_unico : anel->ids_efeitos()) {
+        ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+      }
       if (indice >= 0 && indice < proto_retornado->tesouro().aneis_size()) {
         proto_retornado->mutable_tesouro()->mutable_aneis()->DeleteSubrange(indice, 1);
       }
-      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      ent::RecomputaDependencias(tabelas, proto_retornado);
+      AtualizaUI(tabelas, gerador, *proto_retornado);
       gerador.lista_aneis->setCurrentRow(indice);
     });
   }

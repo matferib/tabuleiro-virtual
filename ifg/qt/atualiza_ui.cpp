@@ -9,6 +9,7 @@
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
+#include "ifg/qt/aneis_util.h"
 #include "log/log.h"
 #include "net/util.h"
 
@@ -420,8 +421,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
     const int indice = gerador.lista_aneis->currentRow();
     gerador.lista_aneis->clear();
     for (const auto& anel : proto.tesouro().aneis()) {
-      const auto& pp = tabelas.Anel(anel.id());
-      auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_aneis);
+      auto* item = new QListWidgetItem(QString::fromUtf8(NomeAnelParaLista(tabelas, anel).c_str()), gerador.lista_aneis);
       item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
     gerador.lista_aneis->setCurrentRow(indice);

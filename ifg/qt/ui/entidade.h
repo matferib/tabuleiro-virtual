@@ -350,6 +350,7 @@ public:
     QLabel *label_86;
     QListWidget *lista_aneis;
     QPushButton *botao_adicionar_anel;
+    QPushButton *botao_usar_anel;
     QWidget *tab_4;
     QTreeWidget *arvore_feiticos;
     QWidget *tab_2;
@@ -2056,6 +2057,9 @@ public:
         botao_adicionar_anel = new QPushButton(tab);
         botao_adicionar_anel->setObjectName(QStringLiteral("botao_adicionar_anel"));
         botao_adicionar_anel->setGeometry(QRect(1010, 80, 31, 27));
+        botao_usar_anel = new QPushButton(tab);
+        botao_usar_anel->setObjectName(QStringLiteral("botao_usar_anel"));
+        botao_usar_anel->setGeometry(QRect(1010, 10, 31, 27));
         tab_tesouro->addTab(tab, QString());
         tab_4 = new QWidget();
         tab_4->setObjectName(QStringLiteral("tab_4"));
@@ -2598,6 +2602,10 @@ public:
         botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         label_86->setText(QApplication::translate("ifg::qt::DialogoEntidade", "An\303\251is", nullptr));
         botao_adicionar_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_usar_anel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_usar_anel->setText(QString());
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_4), QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247os", nullptr));
         label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", nullptr));

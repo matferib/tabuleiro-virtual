@@ -170,6 +170,8 @@ message EntidadeProto {
     optional bool processado = 5;  // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
     // Identificador unico para o efeito. Util para desfazer fim de efeitos.
     optional uint32 id_unico = 6;
+    // Indica que efeito nao expira (nao precisa decrementar contador de rodadas).
+    optional bool continuo = 7;
   }
   repeated Evento evento = 31;
 
@@ -283,9 +285,9 @@ message EntidadeProto {
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
-    repeated PocaoProto pocoes = 2;
-    repeated PocaoProto aneis = 3;
-    repeated PocaoProto mantos = 4;
+    repeated ItemMagicoProto pocoes = 2;
+    repeated ItemMagicoProto aneis = 3;
+    repeated ItemMagicoProto mantos = 4;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
