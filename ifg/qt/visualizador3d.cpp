@@ -1251,17 +1251,28 @@ void PreencheConfiguraTesouro(
       }
       auto* anel = proto_retornado->mutable_tesouro()->mutable_aneis(indice);
       bool em_uso_antes = anel->em_uso();
-      anel->set_em_uso(!em_uso_antes);
       if (!em_uso_antes) {
+        // Confere se já há dois aneis em uso.
+        int num_em_uso = std::count_if(
+          proto_retornado->tesouro().aneis().begin(), proto_retornado->tesouro().aneis().end(), [] (
+              const ent::ItemMagicoProto& anel) {
+             return anel.em_uso();
+          });
+        if (num_em_uso == 2) {
+          QMessageBox::information(gerador.lista_aneis, QObject::tr("Informação"), QObject::tr("Limite de anéis alcançado."));
+          return;
+        }
         const auto& anel_tabela = tabelas.Anel(anel->id());
         for (int id_unico : AdicionaEventoItemMagicoContinuo(anel_tabela, proto_retornado)) {
           anel->add_ids_efeitos(id_unico);
         }
+        anel->set_em_uso(true);
       } else {
         for (uint32_t id_unico : anel->ids_efeitos()) {
           ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
         }
         anel->clear_ids_efeitos();
+        anel->set_em_uso(false);
       }
       ent::RecomputaDependencias(tabelas, proto_retornado);
       AtualizaUI(tabelas, gerador, *proto_retornado);
