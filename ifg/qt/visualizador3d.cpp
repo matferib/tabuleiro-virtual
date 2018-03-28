@@ -1244,6 +1244,14 @@ void PreencheConfiguraTesouro(
     gerador.lista_aneis->setItemDelegate(delegado);
     delegado->deleteLater();
 
+    lambda_connect(gerador.lista_aneis, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+      int row = gerador.lista_aneis->currentRow();
+      if (row < 0 || row >= gerador.lista_aneis->count() || row >= proto_retornado->tesouro().aneis().size()) {
+        gerador.botao_usar_anel->setText("Usar");
+      } else {
+        gerador.botao_usar_anel->setText(proto_retornado->tesouro().aneis(row).em_uso() ? "Tirar" : "Usar");
+      }
+    });
     lambda_connect(gerador.botao_usar_anel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
       const int indice = gerador.lista_aneis->currentRow();
       if (indice < 0 || indice >= proto_retornado->tesouro().aneis_size()) {
@@ -1259,7 +1267,8 @@ void PreencheConfiguraTesouro(
              return anel.em_uso();
           });
         if (num_em_uso == 2) {
-          QMessageBox::information(gerador.lista_aneis, QObject::tr("Informação"), QObject::tr("Limite de anéis alcançado."));
+          QMessageBox::information(
+              gerador.lista_aneis, QObject::tr("Informação"), QObject::tr("Limite de anéis alcançado."));
           return;
         }
         const auto& anel_tabela = tabelas.Anel(anel->id());
