@@ -6,15 +6,24 @@
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
+#include "ifg/qt/aneis_util.h"
 #include "ifg/qt/constantes.h"
+#include "ifg/qt/evento_util.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
-#include "ifg/qt/aneis_util.h"
 #include "log/log.h"
 #include "net/util.h"
 
 namespace ifg {
 namespace qt {
+
+void AtualizaUIEventos(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  LOG(INFO) << "reset";
+  auto* model = qobject_cast<ModeloEvento*>(gerador.tabela_lista_eventos->model());
+  if (model == nullptr) return;
+  model->ModeloAtualizado();
+}
 
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
@@ -26,6 +35,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIPontosVida(gerador, proto);
   AtualizaUIPericias(tabelas, gerador, proto);
   AtualizaUIFeiticos(tabelas, gerador, proto);
+  AtualizaUIEventos(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {

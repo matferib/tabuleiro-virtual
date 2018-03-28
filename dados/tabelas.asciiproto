@@ -1230,6 +1230,216 @@ tabela_aneis {
     complementos: 5
     custo_po: 50000
   }
+  aneis {
+    id: 'queda_suave'
+    nome: 'Queda suave'
+    custo_po: 2200
+  }
+  aneis {
+    id: 'sustento'
+    nome: 'Sustento'
+    custo_po: 2500
+  }
+  aneis {
+    id: 'escalada'
+    nome: 'Escalada'
+    custo_po: 2500
+  }
+  aneis {
+    id: 'salto'
+    nome: 'Salto'
+    custo_po: 2500
+  }
+  aneis {
+    id: 'natacao'
+    nome: 'Natação'
+    custo_po: 2500
+  }
+  aneis {
+    id: 'contramagica'
+    nome: 'Contramágica'
+    custo_po: 4000
+  }
+  aneis {
+    id: 'escudo_mental'
+    nome: 'Escudo mental'
+    custo_po: 8000
+  }
+  aneis {
+    id: 'escudo_energia'
+    nome: 'Escudo de energia'
+    custo_po: 8500
+  }
+  aneis {
+    id: 'ariete'
+    nome: 'Aríete'
+    custo_po: 8600
+  }
+  aneis {
+    id: 'escalada_aprimorada'
+    nome: 'Escalada aprimorada'
+    custo_po: 10000
+  }
+  aneis {
+    id: 'salto_aprimorado'
+    nome: 'Salto aprimorado'
+    custo_po: 10000
+  }
+  aneis {
+    id: 'natacao_aprimorada'
+    nome: 'Natação aprimorada'
+    custo_po: 10000
+  }
+  aneis {
+    id: 'cativar_animais'
+    nome: 'Cativar animais'
+    custo_po: 10800
+  }
+  aneis {
+    id: 'resistencia_elementos_menor'
+    nome: 'Resistência a elementos (menor)'
+    custo_po: 12000
+  }
+  aneis {
+    id: 'poder_camaleao'
+    nome: 'Poder do camaleão'
+    custo_po: 12700
+  }
+  aneis {
+    id: 'caminhar_agua'
+    nome: 'Caminhar na água'
+    custo_po: 15000
+  }
+  aneis {
+    id: 'armazenar_magia_menor'
+    nome: 'Armazenar magias (menor)'
+    custo_po: 18000
+  }
+  aneis {
+    id: 'invisibilidade'
+    nome: 'Invisibilidade'
+    custo_po: 20000
+  }
+  aneis {
+    id: 'arcano_i'
+    nome: 'Arcano (I)'
+    custo_po: 20000
+  }
+  aneis {
+    id: 'evasao'
+    nome: 'Evasão'
+    custo_po: 25000
+  }
+  aneis {
+    id: 'visao_continua'
+    nome: 'Visão contínua'
+    custo_po: 25000
+  }
+  aneis {
+    id: 'movimento_subito'
+    nome: 'Movimento súbito'
+    custo_po: 27000
+  }
+  aneis {
+    id: 'mesclarse_as_pedras'
+    nome: 'Mesclar-se as pedras'
+    custo_po: 27000
+  }
+  aneis {
+    id: 'resistencia_elementos_maior'
+    nome: 'Resistência a elementos (maior)'
+    custo_po: 28000
+  }
+  aneis {
+    id: 'arcano_ii'
+    nome: 'Arcano (II)'
+    custo_po: 40000
+  }
+  aneis {
+    id: 'movimentacao_livre'
+    nome: 'Movimentação livre'
+    custo_po: 40000
+  }
+  aneis {
+    id: 'resistencia_elementos_superior'
+    nome: 'Resistência a elementos (superior)'
+    custo_po: 44000
+  }
+  aneis {
+    id: 'escudo_aliado_par'
+    nome: 'Escudo alidado (par)'
+    custo_po: 50000
+  }
+  aneis {
+    id: 'estrelas_cadentes'
+    nome: 'Estrelas cadentes'
+    custo_po: 50000
+  }
+  aneis {
+    id: 'armazenar_magias'
+    nome: 'Armazenar magias'
+    custo_po: 50000
+  }
+  aneis {
+    id: 'arcano_iii'
+    nome: 'Arcano (III)'
+    custo_po: 70000
+  }
+  aneis {
+    id: 'telecinesia'
+    nome: 'Telecinésia'
+    custo_po: 75000
+  }
+  aneis {
+    id: 'regeneracao'
+    nome: 'Regeneração'
+    custo_po: 90000
+  }
+  aneis {
+    id: 'tres_desejos'
+    nome: 'Três desejos'
+    custo_po: 97950
+  }
+  aneis {
+    id: 'refletir_magias'
+    nome: 'Refletir magias'
+    custo_po: 98280
+  }
+  aneis {
+    id: 'arcano_iv'
+    nome: 'Arcano (IV)'
+    custo_po: 100000
+  }
+  aneis {
+    id: 'convocar_djinn'
+    nome: 'Convocar djinn'
+    custo_po: 125000
+  }
+  aneis {
+    id: 'comandar_elemental_ar'
+    nome: 'Comandar elemental (ar)'
+    custo_po: 200000
+  }
+  aneis {
+    id: 'comandar_elemental_terra'
+    nome: 'Comandar elemental (terra)'
+    custo_po: 200000
+  }
+  aneis {
+    id: 'comandar_elemental_fogo'
+    nome: 'Comandar elemental (fogo)'
+    custo_po: 200000
+  }
+  aneis {
+    id: 'comandar_elemental_agua'
+    nome: 'Comandar elemental (água)'
+    custo_po: 200000
+  }
+  aneis {
+    id: 'armazenar_magias_maior'
+    nome: 'Armazenar magias (maior)'
+    custo_po: 200000
+  }
 }
 
 tabela_pocoes {

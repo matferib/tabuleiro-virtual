@@ -5,6 +5,8 @@
 #include <QItemDelegate>
 #include "ent/tabelas.h"
 #include "goog/stringprintf.h"
+#include "log/log.h"
+#include "ifg/qt/util.h"
 
 namespace ifg {
 namespace qt {

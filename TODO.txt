@@ -1,6 +1,5 @@
-Lista de eventos mostrando apenas 1 na UI.
-Colocar anel de protecao e manto de resistencia: TERMINAR.
-
+Colocar outros aneis com efeitos (especialmente em pericias).
+mantos: (de resistencia) TERMINAR.
 
 Feiticos:
 - Botao de limpar usados.

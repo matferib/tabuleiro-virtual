@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <QComboBox>
+#include <QTableView>
 #include "ent/entidade.pb.h"
+#include "ent/util.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
@@ -39,6 +41,7 @@ const google::protobuf::RepeatedField<int> StringParaComplementos(const QString&
 
 // Modelo de evento para ser usado pelos views de tabela.
 class ModeloEvento : public QAbstractTableModel {
+  Q_OBJECT
  public:
   using Evento = ent::EntidadeProto::Evento;
   using Eventos = google::protobuf::RepeatedPtrField<Evento>;
@@ -106,7 +109,8 @@ class ModeloEvento : public QAbstractTableModel {
     const int column = index.column();
     const auto& evento = eventos_->Get(row);
     switch (column) {
-      case 0: return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
+      case 0: 
+        return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
       case 1: return QVariant(ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
@@ -156,6 +160,12 @@ class ModeloEvento : public QAbstractTableModel {
 
   Qt::ItemFlags flags(const QModelIndex & index) const override {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+  }
+
+  // Sinaliza que o modelo foi atualizado externamente.
+  void ModeloAtualizado() {
+    beginResetModel();
+    endResetModel();
   }
 
  private:
