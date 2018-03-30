@@ -148,6 +148,10 @@ message TabelaAneis {
   repeated ItemMagicoProto aneis = 1;
 }
 
+message TabelaMantos {
+  repeated ItemMagicoProto mantos = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -160,4 +164,5 @@ message TodasTabelas {
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
+  optional TabelaMantos tabela_mantos = 53;
 }

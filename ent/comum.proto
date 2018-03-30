@@ -64,6 +64,7 @@ enum TipoEfeito {
 
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
+  EFEITO_RESISTENCIA_SALVACAO = 34;
 }
 
 // Tipo de visao para entidades e camera.
