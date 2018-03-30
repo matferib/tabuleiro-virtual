@@ -1209,6 +1209,121 @@ void PreencheConfiguraFormasAlternativas(
   });
 }
 
+#if 0
+QListWidget* ListaItens(ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return gerador.lista_aneis;
+    case TipoItem::TIPO_MANTO: return gerador.lista_mantos;
+  }
+  return nullptr;
+}
+
+QPushButton* BotaoAdicionar(ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return gerador.botao_adicionar_anel;
+    case TipoItem::TIPO_MANTO: return gerador.botao_adicionar_manto;
+  }
+  return nullptr;
+}
+
+QPushButton* BotaoRemover(ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return gerador.botao_remover_anel;
+    case TipoItem::TIPO_MANTO: return gerador.botao_remover_manto;
+  }
+  return nullptr;
+}
+
+QPushButton* BotaoUsar(ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return gerador.botao_usar_anel;
+    case TipoItem::TIPO_MANTO: return gerador.botao_usar_manto;
+  }
+  return nullptr;
+}
+
+void PreencheConfiguraTesouroTipo(
+   Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo,
+   const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+
+  auto* lista = ListaItens(gerador, tipo);
+  std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
+  auto* delegado = new ItemMagicoDelegate(tabelas, TipoItem::TIPO_ANEL, lista, proto_retornado);
+  lista->setItemDelegate(delegado);
+  delegado->deleteLater();
+  auto* botao_adicionar = BotaoAdicionar(gerador, tipo);
+  auto* botao_remover = BotaoRemover(gerador, tipo);
+  auto* botao_usar = BotaoUsar(gerador, tipo);
+
+  lambda_connect(lista, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado, botao_usar] () {
+    int row = lista->currentRow();
+    if (row < 0 || row >= lista->count() || row >= proto_retornado->tesouro().aneis().size()) {
+      botao_usar->setText("Usar");
+    } else {
+      botao_usar->setText(proto_retornado->tesouro().aneis(row).em_uso() ? "Tirar" : "Usar");
+    }
+  });
+  lambda_connect(botao_usar, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    const int indice = lista->currentRow();
+    if (indice < 0 || indice >= proto_retornado->tesouro().aneis_size()) {
+      return;
+    }
+    auto* anel = proto_retornado->mutable_tesouro()->mutable_aneis(indice);
+    bool em_uso_antes = anel->em_uso();
+    if (!em_uso_antes) {
+      // Confere se já há dois aneis em uso.
+      int num_em_uso = std::count_if(
+        proto_retornado->tesouro().aneis().begin(), proto_retornado->tesouro().aneis().end(), [] (
+            const ent::ItemMagicoProto& anel) {
+           return anel.em_uso();
+        });
+      if (num_em_uso == 2) {
+        QMessageBox::information(
+            lista, QObject::tr("Informação"), QObject::tr("Limite de anéis alcançado."));
+        return;
+      }
+      const auto& anel_tabela = tabelas.Anel(anel->id());
+      for (int id_unico : AdicionaEventoItemMagicoContinuo(anel_tabela, proto_retornado)) {
+        anel->add_ids_efeitos(id_unico);
+      }
+      anel->set_em_uso(true);
+    } else {
+      for (uint32_t id_unico : anel->ids_efeitos()) {
+        ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+      }
+      anel->clear_ids_efeitos();
+      anel->set_em_uso(false);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+
+  lambda_connect(botao_adicionar, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    /*auto* anel= */proto_retornado->mutable_tesouro()->add_aneis();
+    // Para aparecer anel vazia.
+    //anel->set_id("protecao_1");
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    lista->setCurrentRow(proto_retornado->tesouro().aneis_size() - 1);
+  });
+  lambda_connect(botao_remover, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    const int indice = lista->currentRow();
+    if (indice < 0 || indice >= proto_retornado->tesouro().aneis_size()) {
+      return;
+    }
+    auto* anel = proto_retornado->mutable_tesouro()->mutable_aneis(indice);
+    for (uint32_t id_unico : anel->ids_efeitos()) {
+      ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+    }
+    if (indice >= 0 && indice < proto_retornado->tesouro().aneis_size()) {
+      proto_retornado->mutable_tesouro()->mutable_aneis()->DeleteSubrange(indice, 1);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+    lista->setCurrentRow(indice);
+  });
+}
+#endif
+
 void PreencheConfiguraTesouro(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
@@ -1240,7 +1355,7 @@ void PreencheConfiguraTesouro(
   // Aneis.
   {
     std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_aneis->itemDelegate());
-    auto* delegado = new AnelDelegate(tabelas, gerador.lista_aneis, proto_retornado);
+    auto* delegado = new ItemMagicoDelegate(tabelas, TipoItem::TIPO_ANEL, gerador.lista_aneis, proto_retornado);
     gerador.lista_aneis->setItemDelegate(delegado);
     delegado->deleteLater();
 
@@ -1309,6 +1424,81 @@ void PreencheConfiguraTesouro(
       ent::RecomputaDependencias(tabelas, proto_retornado);
       AtualizaUI(tabelas, gerador, *proto_retornado);
       gerador.lista_aneis->setCurrentRow(indice);
+    });
+  }
+
+  // Mantos.
+  {
+    std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_mantos->itemDelegate());
+    auto* delegado = new ItemMagicoDelegate(tabelas, TipoItem::TIPO_MANTO, gerador.lista_mantos, proto_retornado);
+    gerador.lista_mantos->setItemDelegate(delegado);
+    delegado->deleteLater();
+
+    lambda_connect(gerador.lista_mantos, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+      int row = gerador.lista_mantos->currentRow();
+      if (row < 0 || row >= gerador.lista_mantos->count() || row >= proto_retornado->tesouro().mantos().size()) {
+        gerador.botao_usar_manto->setText("Vestir");
+      } else {
+        gerador.botao_usar_manto->setText(proto_retornado->tesouro().mantos(row).em_uso() ? "Tirar" : "Vestir");
+      }
+    });
+    lambda_connect(gerador.botao_usar_manto, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      const int indice = gerador.lista_mantos->currentRow();
+      if (indice < 0 || indice >= proto_retornado->tesouro().mantos_size()) {
+        return;
+      }
+      auto* manto = proto_retornado->mutable_tesouro()->mutable_mantos(indice);
+      bool em_uso_antes = manto->em_uso();
+      if (!em_uso_antes) {
+        // Confere se já há um manto em uso.
+        int num_em_uso = std::count_if(
+          proto_retornado->tesouro().mantos().begin(), proto_retornado->tesouro().mantos().end(), [] (
+              const ent::ItemMagicoProto& manto) {
+             return manto.em_uso();
+          });
+        if (num_em_uso == 1) {
+          QMessageBox::information(
+              gerador.lista_mantos, QObject::tr("Informação"), QObject::tr("Apenas um manto é permitido."));
+          return;
+        }
+        const auto& manto_tabela = tabelas.Manto(manto->id());
+        for (int id_unico : AdicionaEventoItemMagicoContinuo(manto_tabela, proto_retornado)) {
+          manto->add_ids_efeitos(id_unico);
+        }
+        manto->set_em_uso(true);
+      } else {
+        for (uint32_t id_unico : manto->ids_efeitos()) {
+          ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+        }
+        manto->clear_ids_efeitos();
+        manto->set_em_uso(false);
+      }
+      ent::RecomputaDependencias(tabelas, proto_retornado);
+      AtualizaUI(tabelas, gerador, *proto_retornado);
+    });
+
+    lambda_connect(gerador.botao_adicionar_manto, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      /*auto* manto= */proto_retornado->mutable_tesouro()->add_mantos();
+      // Para aparecer mantovazia.
+      //manto->set_id("resistencia_1");
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      gerador.lista_mantos->setCurrentRow(proto_retornado->tesouro().mantos_size() - 1);
+    });
+    lambda_connect(gerador.botao_remover_manto, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      const int indice = gerador.lista_mantos->currentRow();
+      if (indice < 0 || indice >= proto_retornado->tesouro().mantos_size()) {
+        return;
+      }
+      auto* manto = proto_retornado->mutable_tesouro()->mutable_mantos(indice);
+      for (uint32_t id_unico : manto->ids_efeitos()) {
+        ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
+      }
+      if (indice >= 0 && indice < proto_retornado->tesouro().mantos_size()) {
+        proto_retornado->mutable_tesouro()->mutable_mantos()->DeleteSubrange(indice, 1);
+      }
+      ent::RecomputaDependencias(tabelas, proto_retornado);
+      AtualizaUI(tabelas, gerador, *proto_retornado);
+      gerador.lista_mantos->setCurrentRow(indice);
     });
   }
 

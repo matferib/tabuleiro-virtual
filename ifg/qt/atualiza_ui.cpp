@@ -407,7 +407,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 }
 
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes };
+  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Nao atualiza o campo de texto, faz isso so no final.
@@ -431,10 +431,25 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
     const int indice = gerador.lista_aneis->currentRow();
     gerador.lista_aneis->clear();
     for (const auto& anel : proto.tesouro().aneis()) {
-      auto* item = new QListWidgetItem(QString::fromUtf8(NomeAnelParaLista(tabelas, anel).c_str()), gerador.lista_aneis);
+      auto* item = new QListWidgetItem(QString::fromUtf8(
+            NomeParaLista(tabelas, TipoItem::TIPO_ANEL, anel).c_str()), gerador.lista_aneis);
       item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
     gerador.lista_aneis->setCurrentRow(indice);
+  }
+
+  // Mantos.
+  {
+    const int indice = gerador.lista_mantos->currentRow();
+    gerador.lista_mantos->clear();
+    LOG(INFO) << "mantos"; 
+    for (const auto& manto : proto.tesouro().mantos()) {
+      LOG(INFO) << "manto: " << manto.ShortDebugString(); 
+      auto* item = new QListWidgetItem(QString::fromUtf8(
+            NomeParaLista(tabelas, TipoItem::TIPO_MANTO, manto).c_str()), gerador.lista_mantos);
+      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    gerador.lista_mantos->setCurrentRow(indice);
   }
 
   for (auto* obj : objs) obj->blockSignals(false);

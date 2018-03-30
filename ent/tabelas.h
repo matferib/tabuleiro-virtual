@@ -25,6 +25,7 @@ class Tabelas {
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
+  const ItemMagicoProto& Manto(const std::string& id) const;
   const TalentoProto& Talento(const std::string& id) const;
   const InfoClasse& Classe(const std::string& id) const;
   const PericiaProto& Pericia(const std::string& id) const;
@@ -39,6 +40,7 @@ class Tabelas {
   std::unordered_map<int, const EfeitoProto*> efeitos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;
   std::unordered_map<std::string, const ItemMagicoProto*> aneis_;
+  std::unordered_map<std::string, const ItemMagicoProto*> mantos_;
   std::unordered_map<std::string, const TalentoProto*> talentos_;
   std::unordered_map<std::string, const PericiaProto*> pericias_;
   std::unordered_map<std::string, const InfoClasse*> classes_;

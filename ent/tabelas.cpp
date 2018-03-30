@@ -144,6 +144,10 @@ Tabelas::Tabelas() {
     aneis_[anel.id()] = &anel;
   }
 
+  for (const auto& manto : tabelas_.tabela_mantos().mantos()) {
+    mantos_[manto.id()] = &manto;
+  }
+
   for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
     talentos_[talento.id()] = &talento;
   }
@@ -212,7 +216,12 @@ const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
 
 const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {
   auto it = aneis_.find(id);
-  return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == aneis_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
+  auto it = mantos_.find(id);
+  return it == mantos_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const TalentoProto& Tabelas::Talento(const std::string& id) const {
