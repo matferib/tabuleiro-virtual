@@ -1,5 +1,4 @@
-Colocar outros aneis com efeitos (especialmente em pericias).
-mantos: (de resistencia) TERMINAR.
+Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 
 Feiticos:
 - Botao de limpar usados.
