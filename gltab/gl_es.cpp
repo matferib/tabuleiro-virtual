@@ -30,9 +30,9 @@ interno::Contexto* g_contexto = nullptr;
 }  // namespace
 
 
-void IniciaGl(bool luz_por_pixel) {
-  g_contexto = new interno::Contexto(new interno::ContextoEs);
-  interno::IniciaComum(luz_por_pixel, BuscaContexto());
+void IniciaGl(bool luz_por_pixel, float escala) {
+  g_contexto = new interno::Contexto(escala, new interno::ContextoEs);
+  interno::IniciaComum(luz_por_pixel, g_contexto->escala, BuscaContexto());
 }
 
 namespace interno {
