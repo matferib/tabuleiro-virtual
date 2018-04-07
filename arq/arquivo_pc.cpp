@@ -17,6 +17,7 @@
 
 namespace arq {
 
+// Caminho do executavel.
 std::string g_x_path;
 
 void Inicializa(const std::string& x_path) {
