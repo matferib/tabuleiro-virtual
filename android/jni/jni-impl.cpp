@@ -1,4 +1,8 @@
 /** Wrapper JNI para o tabuleiro baseado no Tabuleiro. */
+#if USAR_QT
+#include <QApplication>
+#endif
+
 #include <memory>
 #include <stdlib.h>
 #include <jni.h>
@@ -16,6 +20,9 @@
 #include "ent/util.h"
 #include "ifg/tecladomouse.h"
 #include "ifg/interface_android.h"
+#if USAR_QT
+#include "ifg/qt/qt_interface.h"
+#endif
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -48,7 +55,9 @@ class ReceptorErro : public ntf::Receptor {
     try {
       switch (notificacao.tipo()) {
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
+#if !USAR_QT
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
+#endif
           break;
         default:
           return false;
@@ -116,6 +125,10 @@ std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
+#if USAR_QT
+std::unique_ptr<ifg::qt::InterfaceGraficaQt> g_interface_qt;
+std::unique_ptr<QApplication> g_qapp;
+#endif
 
 }  // namespace
 
@@ -163,6 +176,7 @@ void SalvaOpcoes() {
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco,
     jboolean mapeamento_sombras, jboolean luz_por_pixel, jobject assets, jstring dir_dados) {
+
   g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
   g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
   SalvaOpcoes();
@@ -178,8 +192,17 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_receptor.reset(new ReceptorErro);
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
+#if USAR_QT
+  g_interface_qt.reset(new ifg::qt::InterfaceGraficaQt(*g_tabelas, nullptr, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
+#else
   g_interface_android.reset(new ifg::InterfaceGraficaAndroid(
         *g_tabelas, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
+#endif
+#if USAR_QT
+  int argc = 0;
+  char* argv = "";
+  g_qapp.reset(new QApplication(argc, &argv));
+#endif
 
   /*{
     ntf::Notificacao ninfo;
