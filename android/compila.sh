@@ -3,6 +3,7 @@
 # Pode ser XOOM=1, NEXUS7=1 etc ou vazio.
 DISP=
 PROF=
+QT=
 MODO=debug
 DEBUG="1"
 INSTALAR="1"
@@ -31,6 +32,9 @@ while [[ $# > 0 ]]; do
       PROF="PROFILER_LIGADO=1"
       NDK_MODULE_PATH=/home/matheus/Projetos/tabuleiro-virtual/android/jni
       ;;
+    -q|--usar_qt)
+      QT="USAR_QT=1"
+      ;;
     *)
     ;;
   esac
@@ -41,8 +45,9 @@ echo "Dispositivo: ${DISP:-universal}"
 echo "DEBUG: ${DEBUG}"
 echo "PROFILER: ${PROF}"
 echo "SUFIXO: ${SUFIXO}"
+echo "QT: ${QT}"
 pushd .
-cd jni && ${ANDROID_NDK}/ndk-build -j 4 V=1 ${DISP} ${PROF} DEBUG=${DEBUG} && cd .. && \
+cd jni && ${ANDROID_NDK}/ndk-build -j 4 V=1 ${DISP} ${PROF} ${QT} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
 test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 popd
