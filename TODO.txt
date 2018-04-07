@@ -5,7 +5,7 @@ Feiticos:
 - Botoes de feitico causando acao.
 Automatizar dano de feiticos.
 
-Colocar salvacoes autoamaticas de veneno.
+Colocar salvacoes automaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
