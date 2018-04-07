@@ -49,6 +49,7 @@ Compilando protocol buffers:
 
 - Configuracao do protobuf:
 ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
+ATENCAO 2: os arquivos hoje sao compilados dentro do projeto. Entao acho que apenas a parte de configuracao eh necessaria hoje.
 
 Essas variaveis abaixo devem ser setadas, caso contrario vai usar as do sistema que podem ser incompativeis com android (por exemplo, mac).
 Referencia: https://developer.android.com/ndk/guides/standalone_toolchain.html
