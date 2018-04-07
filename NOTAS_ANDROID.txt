@@ -40,8 +40,8 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-de
 ==============
 
 Criar o toolchain de cross-compile:
-export TOOLCHAIN=/var/tmp/my-toolchain
-${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-19 --install-dir=$TOOLCHAIN --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+export TOOLCHAIN=/var/tmp/my-toolchain-r16b
+${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=gnustl --install-dir=${TOOLCHAIN}
 
 -- Protobuffer:
 
@@ -49,15 +49,30 @@ Compilando protocol buffers:
 
 - Configuracao do protobuf:
 ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
+
 Essas variaveis abaixo devem ser setadas, caso contrario vai usar as do sistema que podem ser incompativeis com android (por exemplo, mac).
-export AR="${TOOLCHAIN}/bin/arm-linux-androideabi-ar"
+Referencia: https://developer.android.com/ndk/guides/standalone_toolchain.html
+
+export PATH=$PATH:${TOOLCHAIN}/bin
+target_host=arm-linux-androideabi
+export AR="$target_host-ar"
+export AS=$target_host-clang
+export CC=$target_host-clang
+export CXX=$target_host-clang++
+export LD=$target_host-ld
+export STRIP=$target_host-strip
+export CFLAGS="-fPIE -fPIC"
+export LDFLAGS="-pie"
+
+Antigas que eu usava.
 export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 export CFLAGS="-fPIC -DANDROID -nostdlib"
 export LDFLAGS="-Wl,-rpath-link=${TOOLCHAIN}/arm-linux-androideabi/lib/ -L${TOOLCHAIN}/arm-linux-androideabi/lib/"
-export CPPFLAGS="-I${TOOLCHAIN}/sysroot/usr/include"
+export CPPFLAGS="-I${TOOLCHAIN}/sysroot/usr/include -I${TOOLCHAIN}/sysroot/usr/include/linux"
 export LIBS="-lstdc++ -lc"
+
 ./configure --host=arm-*-eabi
 make
 
