@@ -18,6 +18,10 @@ ifneq ($(USAR_QT),)
 	LOCAL_MODULE := qt5opengl-prebuilt
 	LOCAL_SRC_FILES := ../../../../Qt5/5.10.1/android_$(TARGET_ARCH_ABI)/lib/libQt5OpenGL.so
 	include $(PREBUILT_SHARED_LIBRARY)
+	include $(CLEAR_VARS)
+	LOCAL_MODULE := qt5androidplugin-prebuilt
+	LOCAL_SRC_FILES := ../../../../Qt5/5.10.1/android_$(TARGET_ARCH_ABI)/plugins/platforms/android/libqtforandroid.so
+	include $(PREBUILT_SHARED_LIBRARY)
 endif
 
 # Proto: precisa gerar o config.
@@ -84,7 +88,7 @@ LOCAL_ARM_MODE := arm
 #endif
 
 ifneq ($(USAR_QT),)
-	LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DUSAR_QT -DUSAR_QT5
+	LOCAL_CPPFLAGS += -DUSAR_QT -DUSAR_QT5
 endif
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DDEBUG=$(DEBUG)
 ifneq ($(NEXUS7),)
@@ -96,7 +100,7 @@ endif
 LOCAL_STATIC_LIBRARIES := protobuf boost
 
 ifneq ($(USAR_QT),)
-	LOCAL_SHARED_LIBRARIES := qt5core-prebuilt qt5gui-prebuilt qt5widgets-prebuilt qt5opengl-prebuilt
+	LOCAL_SHARED_LIBRARIES := qt5core-prebuilt qt5gui-prebuilt qt5widgets-prebuilt qt5opengl-prebuilt qt5androidplugin-prebuilt
 endif
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -landroid
 LOCAL_CPP_FEATURES := rtti exceptions
