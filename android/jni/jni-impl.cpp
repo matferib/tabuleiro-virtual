@@ -19,9 +19,10 @@
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "ifg/tecladomouse.h"
-#include "ifg/interface_android.h"
 #if USAR_QT
 #include "ifg/qt/qt_interface.h"
+#else
+#include "ifg/interface_android.h"
 #endif
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
@@ -124,10 +125,11 @@ std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
-std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 #if USAR_QT
 std::unique_ptr<ifg::qt::InterfaceGraficaQt> g_interface_qt;
 std::unique_ptr<QApplication> g_qapp;
+#else
+std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 #endif
 
 }  // namespace
@@ -360,7 +362,9 @@ jint Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, job
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
   g_receptor->setEnvThisz(env, thiz);
+#if !USAR_QT
   g_interface_android->setEnvThisz(env, thiz);
+#endif
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
