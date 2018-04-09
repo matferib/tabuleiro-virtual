@@ -3,7 +3,6 @@
 
 #include <QApplication>
 #include <QWidget>
-#include "ifg/qt/texturas.h"
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
@@ -32,7 +31,7 @@ class Principal : public QWidget, ntf::Receptor {
   /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
   * instanciar o objeto.
   */
-  static Principal* Cria(QApplication* qapp,
+  static Principal* Cria(QCoreApplication* qapp,
                          const ent::Tabelas& tabelas,
                          ent::Tabuleiro* tabuleiro,
                          ent::Texturas* texturas,
@@ -58,12 +57,12 @@ class Principal : public QWidget, ntf::Receptor {
 
  private:
   Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ent::Texturas* texturas,
-            ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QApplication* q_app);
+            ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QCoreApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;
   /** a aplicacao QT. Nao eh dono. */
-  QApplication* q_app_;
+  QCoreApplication* q_app_;
   /** Temporizador. */
   QTimer* q_timer_;
   /** O mundo virtual. */

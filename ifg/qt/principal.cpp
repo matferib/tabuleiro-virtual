@@ -35,7 +35,7 @@ using namespace std;
 /////////////
 
 Principal* Principal::Cria(
-    QApplication* q_app,
+    QCoreApplication* q_app,
     const ent::Tabelas& tabelas,
     ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ifg::TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central) {
@@ -61,7 +61,7 @@ Principal::Principal(const ent::Tabelas& tabelas,
                      ent::Texturas* texturas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
-                     QApplication* q_app)
+                     QCoreApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
       tabuleiro_(tabuleiro), menu_principal_(new MenuPrincipal(tabuleiro, central, this)),
       v3d_(new Visualizador3d(tabelas, teclado_mouse, central, tabuleiro, this)) {
