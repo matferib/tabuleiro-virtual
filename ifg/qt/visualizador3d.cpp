@@ -35,7 +35,6 @@
 #include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/entidade.h"
-#include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
 #include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/cenario.h"
