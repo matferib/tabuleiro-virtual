@@ -1487,107 +1487,107 @@ tabela_aneis {
 
 tabela_mantos {
   mantos {
-    id: 'manto_resistencia_1' 
-    nome: 'Manto da resistência +1' 
+    id: 'manto_resistencia_1'
+    nome: 'Manto da resistência +1'
     custo_po: 1000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 1
   }
   mantos {
     id: 'manto_elfico'
-    nome: 'Manto élfico', 
+    nome: 'Manto élfico'
     custo_po: 2500
     # propriedades: { pericias: { esconderse: { competencia: 5 } } }
   }
   mantos {
-    id: 'manto_carisma_2' 
-    nome: 'Manto do carisma +2' 
+    id: 'manto_carisma_2'
+    nome: 'Manto do carisma +2'
     custo_po: 4000
-    # propriedades: { atributos: { carisma: 2 } },  
+    # propriedades: { atributos: { carisma: 2 } }
   }
   mantos {
-    id: 'manto_resistencia_2' 
-    nome: 'Manto da resistência +2' 
+    id: 'manto_resistencia_2'
+    nome: 'Manto da resistência +2'
     custo_po: 4000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 2
   }
   mantos {
-    id: 'manto_arraia' 
-    nome: 'Manto da arraia' 
+    id: 'manto_arraia'
+    nome: 'Manto da arraia'
     custo_po: 7200
   }
   mantos {
-    id: 'manto_resistencia_3' 
-    nome: 'Manto da resistência +3' 
+    id: 'manto_resistencia_3'
+    nome: 'Manto da resistência +3'
     custo_po: 9000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 3
   }
   mantos {
-    id: 'capa_saltimbanco' 
-    nome: 'Capa do saltimbanco' 
+    id: 'capa_saltimbanco'
+    nome: 'Capa do saltimbanco'
     custo_po: 10080
   }
   mantos {
-    id: 'manto_aranha' 
-    nome: 'Manto da aranha' 
-    custo_po: 14000 
+    id: 'manto_aranha'
+    nome: 'Manto da aranha'
+    custo_po: 14000
   }
   mantos {
-    id: 'manto_carisma_4' 
-    nome: 'Manto do carisma +4' 
+    id: 'manto_carisma_4'
+    nome: 'Manto do carisma +4'
     custo_po: 16000
-    # propriedades: { atributos: { carisma: 4 } },  
+    # propriedades: { atributos: { carisma: 4 } }
   }
   mantos {
-    id: 'manto_resistencia_4' 
-    nome: 'Manto da resistência +4' 
+    id: 'manto_resistencia_4'
+    nome: 'Manto da resistência +4'
     custo_po: 16000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 4
   }
   mantos {
-    id: 'manto_deslocamento_menor' 
-    nome: 'Manto do deslocamento (menor)' 
+    id: 'manto_deslocamento_menor'
+    nome: 'Manto do deslocamento (menor)'
     custo_po: 24000
   }
   mantos {
-    id: 'manto_resistencia_5' 
-    nome: 'Manto da resistência +5' 
+    id: 'manto_resistencia_5'
+    nome: 'Manto da resistência +5'
     custo_po: 25000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 4
   }
   mantos {
-    id: 'manto_morcego' 
-    nome: 'Manto do morcego' 
+    id: 'manto_morcego'
+    nome: 'Manto do morcego'
     custo_po: 26000
   }
   mantos {
-    id: 'manto_carisma_6' 
-    nome: 'Manto do carisma +6' 
+    id: 'manto_carisma_6'
+    nome: 'Manto do carisma +6'
     custo_po: 36000
-    # propriedades: { atributos: { carisma: 6 } },  
+    # propriedades: { atributos: { carisma: 6 } }
   }
   mantos {
-    id: 'manto_deslocamento_maior' 
-    nome: 'Manto do deslocamento (maior)' 
+    id: 'manto_deslocamento_maior'
+    nome: 'Manto do deslocamento (maior)'
     custo_po: 50000
   }
   mantos {
-    id: 'manto_forma_eterea' 
-    nome: 'Manto da forma etérea' 
+    id: 'manto_forma_eterea'
+    nome: 'Manto da forma etérea'
     custo_po: 55000
   }
   mantos {
-    id: 'manto_fe' 
-    nome: 'Túnica da fé' 
+    id: 'manto_fe'
+    nome: 'Túnica da fé'
     custo_po: 76000
   }
   mantos {
-    id: 'tunica_resistencia_magia' 
-    nome: 'Túnica de resistência a magia' 
+    id: 'tunica_resistencia_magia'
+    nome: 'Túnica de resistência a magia'
     custo_po: 90000
   }
 }
