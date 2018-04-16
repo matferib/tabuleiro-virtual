@@ -65,6 +65,7 @@ enum TipoEfeito {
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
   EFEITO_RESISTENCIA_SALVACAO = 34;
+  EFEITO_COMPETENCIA_PERICIA = 35;
 }
 
 // Tipo de visao para entidades e camera.
@@ -332,6 +333,21 @@ message InfoClasse {
   optional ProgressaoFeitico progressao_feitico = 16;
 }
 
+// Informacao sobre a pericia do personagem.
+// Cada pericia tem a chave e os pontos gastos e um indicador se eh de classe ou nao.
+message InfoPericia {
+  optional string id = 1;
+  optional int32 pontos = 2;
+  // Complemento da pericia.
+  optional string complemento = 4;
+  // Valor final da pericia.
+  optional Bonus bonus = 5;
+  // As restricoes de sinergia da pericia.
+  repeated string restricoes_sinergia = 6;
+  // Para forcar a ser de classe mesmo quando nao eh.
+  optional bool de_classe = 7;
+}
+
 message ConsequenciaEvento {
   // Afeta todos atributos.
   optional Atributos atributos = 1;
@@ -341,9 +357,8 @@ message ConsequenciaEvento {
   optional Bonus jogada_ataque = 3;
   // Alteracao no tamanho da entidade.
   optional Bonus tamanho = 4;
-
-  // Uma string de cura (tipo 1d8+1).
-  //optional string cura = 5;
+  // Alteracao na pericia.
+  optional InfoPericia dados_pericia = 5; 
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;
@@ -436,6 +451,8 @@ message ItemMagicoProto {
   optional int32 custo_po = 5;
   // Para efeitos que usam complemento.
   repeated int32 complementos = 6;
+  // Para efeitos que usam complemento de string (como pericia).
+  repeated string complementos_str = 12;
   // Para efeitos de cura.
   optional string delta_pontos_vida = 7;
   optional CombinacaoEfeitos combinacao_efeitos = 8;
@@ -570,4 +587,36 @@ message ParametrosDesenho {
 
   // Se verdadeiro, desenhara a ligacao de agarrar das entidades.
   optional bool desenha_ligacao_agarrar = 60 [default=true];
+}
+
+enum TipoVeneno {
+  TV_CONTATO = 1;
+  TV_INGESTAO = 2;
+  TV_FERIMENTO = 3;
+  TV_INALACAO = 4;
+}
+
+enum TipoDanoVeneno {
+  TDV_NENHUM = 1;
+  TDV_PONTOS_VIDA = 2;
+  TDV_FORCA = 3;
+  TDV_DESTREZA = 4;
+  TDV_CONSTITUICAO = 5;
+  TDV_INTELIGENCIA = 6;
+  TDV_SABEDORIA = 7;
+  TDV_CARISMA = 8;
+}
+
+message Veneno {
+  optional string nome = 1;
+  optional TipoVeneno tipo = 2;
+  // A cardinalidade eh a mesma para cada par. Alguns venenos tem mais de um tipo de dano.
+  repeated string dano_inicial = 3;
+  repeated TipoDanoVeneno tipo_dano = 4;
+  optional bool dano_primario_permanente = 5;
+  repeated string dano_secundario = 6;
+  repeated TipoDanoVeneno tipo_dano_secundario = 7;
+  optional bool dano_secundario_permanente = 8;
+  // Classe de dificuldade.
+  optional int32 cd = 9;
 }

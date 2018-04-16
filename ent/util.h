@@ -448,10 +448,10 @@ int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& e
 float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Acesso a pericias do proto.
-EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
-EntidadeProto::InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto);
+InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
+InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto);
 // Retorna default caso nao encontre.
-const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
+const InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
 
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);

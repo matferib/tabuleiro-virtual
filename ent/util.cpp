@@ -1910,6 +1910,18 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_INVISIBILIDADE:
       proto->set_visivel(false);
       break;
+    case EFEITO_COMPETENCIA_PERICIA: {
+      // Encontra a pericia do efeito.
+      auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
+      Bonus bonus;
+      auto* bi = bonus.add_bonus_individual();
+      bi->set_tipo(TB_COMPETENCIA);
+      auto* po = bi->add_por_origem();
+      po->set_valor(evento.complementos(0));
+      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
+      AplicaBonusOuRemove(bonus, pericia_proto->mutable_bonus());
+    }
+    break;
     case EFEITO_AJUDA:
       if (!evento.processado()) {
         // Gera os pontos de vida temporarios.
@@ -1920,7 +1932,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         auto* po = AtribuiBonus(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
         if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
       }
-      break;
+    break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento.processado()) {
         const auto& funda = DadosAtaque("funda", *proto);
@@ -1940,7 +1952,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         da.set_municao(3);
         InsereInicio(&da, proto->mutable_dados_ataque());
       }
-      break;
+    break;
     default: ;
   }
 }
@@ -1970,7 +1982,19 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
   switch (evento.id_efeito()) {
     case EFEITO_INVISIBILIDADE:
       proto->set_visivel(true);
-      break;
+    break;
+    case EFEITO_COMPETENCIA_PERICIA: {
+      // Encontra a pericia do efeito.
+      auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
+      Bonus bonus;
+      auto* bi = bonus.add_bonus_individual();
+      bi->set_tipo(TB_COMPETENCIA);
+      auto* po = bi->add_por_origem();
+      po->set_valor(0);
+      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
+      AplicaBonusOuRemove(bonus, pericia_proto->mutable_bonus());
+    }
+    break;
     case EFEITO_AJUDA: {
       auto* bi = BonusIndividualSePresente(TB_SEM_NOME, proto->mutable_pontos_vida_temporarios_por_fonte());
       auto* po = OrigemSePresente("ajuda", bi);
@@ -2381,7 +2405,7 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
 
   // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
-  std::unordered_map<std::string, EntidadeProto::InfoPericia*> mapa_pericias_proto;
+  std::unordered_map<std::string, InfoPericia*> mapa_pericias_proto;
   for (auto& ip : *proto->mutable_info_pericias()) {
     mapa_pericias_proto[ip.id()] = &ip;
   }
@@ -3280,6 +3304,9 @@ std::vector<int> AdicionaEventoItemMagico(
     if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();
     }
+    if (!item.complementos_str().empty()) {
+      *evento->mutable_complementos_str() = item.complementos_str();
+    }
     evento->set_descricao(item.descricao().empty() ? item.nome() : item.descricao());
   }
   return ids_unicos;
@@ -3296,14 +3323,14 @@ std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto) {
   return todos_talentos;
 }
 
-EntidadeProto::InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto) {
+InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto) {
   for (auto& pericia : *proto->mutable_info_pericias()) {
     if (pericia.id() == id) return &pericia;
   }
   return nullptr;
 }
 
-EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto) {
+InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto) {
   for (auto& pericia : *proto->mutable_info_pericias()) {
     if (pericia.id() == id) return &pericia;
   }
@@ -3312,11 +3339,11 @@ EntidadeProto::InfoPericia* PericiaCriando(const std::string& id, EntidadeProto*
   return pericia;
 }
 
-const EntidadeProto::InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto) {
+const InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto) {
   for (auto& pericia : proto.info_pericias()) {
     if (pericia.id() == id) return pericia;
   }
-  return EntidadeProto::InfoPericia::default_instance();
+  return InfoPericia::default_instance();
 }
 
 bool AgarradoA(unsigned int id, const EntidadeProto& proto) {

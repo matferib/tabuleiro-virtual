@@ -17,7 +17,7 @@ namespace qt {
 class ModeloPericias : public QAbstractTableModel {
   Q_OBJECT
  public:
-  using InfoPericia = ent::EntidadeProto::InfoPericia;
+  using InfoPericia = ent::InfoPericia;
 
   ModeloPericias(const ent::Tabelas& tabelas, const ent::EntidadeProto& proto, QTableView* tabela)
       : QAbstractTableModel(tabela), tabelas_(tabelas), proto_(proto) {

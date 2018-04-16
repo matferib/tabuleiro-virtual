@@ -1113,13 +1113,17 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     const auto* da = entidade->DadoCorrente();
-    bool nao_letal = da != nullptr && da->nao_letal();
+
     // Consome municao.
     if (vezes >= 0 && da != nullptr && da->has_municao()) {
       ntf::Notificacao n_municao;
       PreencheNotificacaoConsumirMunicao(*entidade, *da, &n_municao);
       *grupo_desfazer->add_notificacao() = n_municao;
       TrataNotificacao(n_municao);
+    }
+
+    if (vezes >= 0 && da != nullptr && da->has_veneno()) {
+      // TODO aplica veneno.
     }
 
     entidade->ProximoAtaque();
@@ -1153,6 +1157,7 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_proto->clear_delta_pontos_vida();
     }
     VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
+    bool nao_letal = da != nullptr && da->nao_letal();
     acao_proto->set_nao_letal(nao_letal);
     acao_proto->set_gera_outras_acoes(true);  // para os textos.
 
