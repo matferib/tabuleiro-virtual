@@ -1,5 +1,7 @@
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 
+Terminar venenos.
+
 Feiticos:
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
