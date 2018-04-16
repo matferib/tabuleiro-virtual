@@ -202,7 +202,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
 #endif
 #if USAR_QT
   int argc = 0;
-  char* argv = "";
+  char* argv[] = {""};
   g_qapp.reset(new QApplication(argc, &argv));
 #endif
 
