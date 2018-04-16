@@ -41,6 +41,7 @@ enum tipo_e {
 // Cria os diretorios locais.
 #if ANDROID
 void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados);
+void Inicializa(JNIEnv* env, AAssetManager *asset_manager, const std::string& dir_dados);
 #else
 void Inicializa(const std::string& path);
 #endif
