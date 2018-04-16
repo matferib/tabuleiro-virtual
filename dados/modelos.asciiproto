@@ -346,6 +346,7 @@ modelo {
     rotulo_especial: 'movimento: 8 quadrados, escalar: 8\nveneno fort 17, 1d8 des/1d8 des'
     dados_ataque {
       rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo' alcance_m: 4.5 dano_basico: '2d8'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d8' tipo_dano: TDV_DESTREZA dano_secundario: '1d8' tipo_dano_secundario: TDV_DESTREZA cd: 17 }
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
