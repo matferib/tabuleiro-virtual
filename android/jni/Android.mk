@@ -53,17 +53,17 @@ include $(BUILD_STATIC_LIBRARY)
 # Baseado em file:///opt/android-ndk-r9d/docs/ANDROID-MK.html.
 include $(CLEAR_VARS)         # Limpa todas variaveis LOCAL_* exceto LOCAL_PATH.
 LOCAL_MODULE := tabuleiro     # Modulo definido por este Android.mk.
+LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/android/native_app_glue/
 
 ifneq ($(USAR_QT),)
-	LOCAL_C_INCLUDES := /home/matheus/Qt5/5.10.1/android_armv7/include/ \
+	LOCAL_C_INCLUDES += /home/matheus/Qt5/5.10.1/android_armv7/include/ \
                       /home/matheus/Qt5/5.10.1/android_armv7/include/QtWidgets \
                       /home/matheus/Qt5/5.10.1/android_armv7/include/QtGui \
                       /home/matheus/Qt5/5.10.1/android_armv7/include/QtOpenGL \
                       /home/matheus/Qt5/5.10.1/android_armv7/include/QtCore
 endif
 
-LOCAL_SRC_FILES := jni-impl.cpp \
-	                 gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl_vbo.cpp gltab/glues.cpp \
+LOCAL_SRC_FILES := gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl_vbo.cpp gltab/glues.cpp \
 									 matrix/matrices.cpp \
 									 net/util.cpp net/cliente.cpp net/servidor.cpp net/socket.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
@@ -76,7 +76,21 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 									 m3d/m3d.cpp \
 									 arq/arquivo.cpp arq/arquivo_android.cpp
 ifneq ($(USAR_QT),)
-	LOCAL_SRC_FILES += ifg/qt/qt_interface.cpp ifg/qt/util.cpp ifg/qt/moc_util.cpp
+	LOCAL_SRC_FILES += main.cpp \
+                     ifg/qt/moc_evento_util.cpp \
+                     ifg/qt/util.cpp \
+                     ifg/qt/atualiza_ui.cpp \
+                     ifg/qt/moc_menuprincipal.cpp \
+                     ifg/qt/moc_pericias_util.cpp \
+                     ifg/qt/principal.cpp \
+                     ifg/qt/visualizador3d.cpp \
+                     ifg/qt/menuprincipal.cpp \
+                     ifg/qt/moc_principal.cpp \
+                     ifg/qt/constantes.cpp \
+                     ifg/qt/moc_util.cpp \
+                     ifg/qt/qt_interface.cpp
+else
+	LOCAL_SRC_FILES += jni-impl.cpp
 endif
 
 # Flags de performance.
@@ -101,6 +115,7 @@ LOCAL_STATIC_LIBRARIES := protobuf boost
 
 ifneq ($(USAR_QT),)
 	LOCAL_SHARED_LIBRARIES := qt5core-prebuilt qt5gui-prebuilt qt5widgets-prebuilt qt5opengl-prebuilt qt5androidplugin-prebuilt
+	LOCAL_STATIC_LIBRARIES += android_native_app_glue
 endif
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -landroid
 LOCAL_CPP_FEATURES := rtti exceptions
@@ -114,4 +129,7 @@ endif
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.
 ifneq ($(PROFILER_LIGADO),)
   $(call import-module,android-ndk-profiler)
+endif
+ifneq ($(USAR_QT),)
+	$(call import-module,android/native_app_glue)
 endif
