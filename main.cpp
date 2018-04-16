@@ -1,5 +1,9 @@
 /** @file main.cpp o inicio de tudo. Responsavel por instanciar a interface grafica principal. */
 
+#if ANDROID
+#include <android_native_app_glue.h>
+#endif
+
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -71,8 +75,15 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
 }
 }  // namespace
 
-
+#if ANDROID
+extern "C" {
+void android_main(struct android_app* state) {
+  int argc = 0;
+  char* argv[] = {};
+#else
 int main(int argc, char** argv) {
+#endif
+
 #if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
   //google::ParseCommandLineFlags(&argc, &argv, true);
@@ -89,7 +100,11 @@ int main(int argc, char** argv) {
 
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   // Arq::Inicializa tem que vir antes, porque os outros leem varias coisas de arquivos.
+#if ANDROID
+  arq::Inicializa(state->activity->env, state->activity->assetManager, state->activity->internalDataPath);
+#else
   arq::Inicializa(dir.absolutePath().toStdString());
+#endif
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
   ent::Tabelas tabelas;
@@ -104,6 +119,7 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
@@ -125,8 +141,8 @@ int main(int argc, char** argv) {
   // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf(
-        "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
+    //n->set_erro(google::protobuf::StringPrintf(
+    //    "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
     central.AdicionaNotificacao(n);
   }
 
@@ -135,7 +151,19 @@ int main(int argc, char** argv) {
   }
   catch (exception& e) {
     std::cerr << e.what() << std::endl;
+#if ANDROID
+    return;
+#else
     return 1;
+#endif
   }
+#if ANDROID
+  return;
+#else
   return 0;
+#endif
 }
+
+#if ANDROID
+}  // extern C
+#endif
