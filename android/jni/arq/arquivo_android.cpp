@@ -27,6 +27,12 @@ void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados) {
   interno::CriaDiretoriosUsuario();
 }
 
+void Inicializa(JNIEnv* env, AAssetManager *asset_manager, const std::string& dir_dados) {
+  g_aman = asset_manager;
+  g_dir_dados = dir_dados;
+  interno::CriaDiretoriosUsuario();
+}
+
 namespace plat {
 // Leitura.
 void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
