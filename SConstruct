@@ -32,8 +32,8 @@ elif sistema == 'apple':
                        ['/usr/local/Cellar/qt5/5.9.1/include/'])
   env['QT_LIB'] = []
 else:
-  print 'QTCPPPATH: ' + env['QTDIR']
   env['QTDIR'] = '/home/matheus/Qt5/5.10.1/gcc_64/'
+  print 'QTCPPPATH: ' + env['QTDIR']
   env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets']
@@ -62,7 +62,7 @@ elif sistema == 'apple':
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 else:
   # linux.
-  env['CPPPATH'] += ['./', ]
+  env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
