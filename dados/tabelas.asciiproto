@@ -2628,6 +2628,7 @@ tabela_talentos {
     # mago: 1
   }
   talentos {
+    # Heighten spell.
     id: 'elevar_magia'
     nome: 'Elevar Magia'
     descricao: 'Conjura a magia num nível mais elevado, alterando sua classe de dificuldade, nível etc.'
