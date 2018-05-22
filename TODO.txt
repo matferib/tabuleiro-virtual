@@ -1,4 +1,7 @@
+Clique botao direito na arvore de feiticos ta dando crash.
+Implementar resistencia a magia.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
+Salvacoes e progressao bba automaticos por tipo de classe de monstro (aberração, por exemplo).
 
 Terminar venenos.
 
