@@ -2462,7 +2462,7 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
     const int nivel = std::min(ic.nivel(), 20);
-    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
     const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
@@ -2497,7 +2497,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
     const int nivel = std::min(ic.nivel(), 20);
-    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
     const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel).magias_por_dia();

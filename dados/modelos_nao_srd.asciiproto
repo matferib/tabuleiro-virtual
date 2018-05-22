@@ -119,42 +119,124 @@ modelo {
 modelo {
   id: 'Phaerimm Filhote'
   entidade {
-    dados_vida: '1d8' tamanho: TM_MIUDO modelo_3d { id: "phaerimm" } voadora: true info_textura { id: 'phaerimm.png' } cor { r: 0.6 g: 1.0 b: 0.6 }
+    info_classes {
+      id: 'aberracao'
+      nivel: 1 nivel_conjurador: 1
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '1d8' tamanho: TM_MIUDO modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini +3 mov 6\nat -1 2x garras dano 1\nca: 17/15/14, RM 11\nfeiticos CD 11+: 5/4'
   }
 }
 modelo {
   id: 'Phaerimm Juvenil'
   entidade {
-    dados_vida: '4d8' tamanho: TM_PEQUENO modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.4 g: 0.9 b: 0.4 }
+    info_classes {
+      id: 'aberracao'
+      nivel: 4 nivel_conjurador: 4
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '4d8' tamanho: TM_PEQUENO modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini +2 mov 6\nat +3 2x garras dano 1d3-1, mordida dano 1d6\nca: 19/13/17, RM 14\nfeiticos CD 12 (13 ev): 6/7/4'
   }
 }
 modelo {
   id: 'Phaerimm Jovem Adulto'
   entidade {
-    dados_vida: '7d8+7' modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.3 g: 0.8 b: 0.3 }
+    info_classes {
+      id: 'aberracao'
+      nivel: 7 nivel_conjurador: 7
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '7d8+7' modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini +1 mov 6\nat +6 4x garras dano 1d4+1, mordida dano 1d8\nferrao 1d6 + veneno CD 14\nca: 21/11/20, RM 17\nfeiticos CD 13 (15 ev): 6/7/7/5'
   }
 }
 modelo {
   id: 'Phaerimm Adulto'
   entidade {
-    dados_vida: '10d8+10' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.2 g: 0.7 b: 0.2 }
+    info_classes {
+      id: 'aberracao'
+      nivel: 10 nivel_conjurador: 10
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '10d8+10' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini +0 mov 6\nat +9 4x garras dano 1d6+3, mordida dano 2d6+1\nferrao 1d8 + veneno CD 16 + implante\nca: 23/9/23, RM 20\nfeiticos CD 14 (16 ev): 6/7/7/7/6/3'
   }
 }
 modelo {
   id: 'Phaerimm Experiente'
   entidade {
-    dados_vida: '13d8+26' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.15 g: 0.6 b: 0.15 }
-    rotulo_especial: 'ini +0 mov 6\nat +12 4x garras dano 1d6+4, mordida dano 2d6+2\nferrao 1d8 + veneno CD 18 + implante\nca: 27/9/27, RM 23\nfeiticos CD 15 (17 en/ev): 6/8/7/7/7/7/4'
+    dados_vida: '13d8+26' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" }
+    info_classes {
+      id: 'aberracao' nome: 'Aberração'
+      nivel: 13 nivel_conjurador: 13
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+      progressao_conjurador: PCONJ_UM
+      id_para_magia: 'mago'
+      id_para_progressao_de_magia: 'feiticeiro'
+    }
+    voadora: true
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+    }
+    # Mordida tem alcance menor.
+    dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6' alcance_m: 1.5 }
+    # Ferrao nao tem modificador de forca.
+    dados_ataque { rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano: '1d8' }
+    dados_defesa {
+      resistencia_magia: 23
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 18 } } }
+    }
+    info_talentos {
+      gerais { id: 'ataques_multiplos' }
+      gerais { id: 'foco_em_magia' complemento: 'evocacao' }
+      gerais { id: 'foco_em_magia' complemento: 'encantamento' }
+      gerais { id: 'magia_penetrante' }
+      gerais { id: 'magia_penetrante_maior' }
+    }
+    feiticos_classes {
+      id_classe: 'aberracao'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' nome: 'Pasmar' }
+        conhecidos { id: 'detectar_magia' nome: 'Detectar Magia' }
+        conhecidos { id: 'luz' nome: 'Luz' }
+        conhecidos { id: 'maos_magicas' nome: 'Mãos Mágicas' }
+        conhecidos { id: 'raio_gelo' nome: 'Raio de Gelo' }
+        conhecidos { id: 'ler_magia' nome: 'Ler Magia' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'maos_flamejantes' nome: '' }
+        conhecidos { id: 'misseis_magicos' nome: '' }
+        conhecidos { id: 'raio_enfraquecimento' nome: '' }
+        conhecidos { id: 'escudo_arcano' nome: '' }
+        conhecidos { id: 'sono' nome: '' }
+      }
+    }
+    rotulo_especial: 'mov 6\nRedução de dano: 10/magia\nFerrao: CD 18 2d4 rodadas paralisia/1d3 horas\nimplante\nfeiticos CD 15 (17 en/ev): 6/8/7/7/7/7/4'
   }
 }
 modelo {
   id: 'Phaerimm Ancião'
   entidade {
-    dados_vida: '16d8+32' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true
+    info_classes {
+      id: 'aberracao'
+      nivel: 16 nivel_conjurador: 16
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '16d8+32' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } voadora: true
     cor { r: 0.12 g: 0.55 b: 0.12 }
     rotulo_especial: 'ini +0 mov 6\nat +16 4x garras dano 1d6+5, mordida dano 2d6+2\nferrao 1d8 + veneno CD 20 + implante\nca: 31/9/31, RM 26\nfeiticos CD 16 (18 en/ev): 6/7/7/7/7/7/7/5/3'
   }
@@ -162,7 +244,12 @@ modelo {
 modelo {
   id: 'Phaerimm Ancião Venerável'
   entidade {
-    dados_vida: '19d8+57' tamanho: TM_ENORME modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.1 g: 0.5 b: 0.1 }
+    info_classes {
+      id: 'aberracao'
+      nivel: 19 nivel_conjurador: 19
+      progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    }
+    dados_vida: '19d8+57' tamanho: TM_ENORME modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }

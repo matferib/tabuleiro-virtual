@@ -750,6 +750,8 @@ void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     auto* item_classe = new QTreeWidgetItem(gerador.arvore_feiticos);
     item_classe->setText(0, QString::fromUtf8(ic.nome().c_str()));
     item_classe->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(ic.id().c_str()));
+    // Aqui se passa o id ao inves de id_para_progressao porque as informacoes de magia estao vinculadas ao id.
+    // Por exemplo, uma aberracao que lanca magias de feiticeiro armazena seus dados em aberracao e nao feiticeiro.
     AtualizaFeiticosClasse(tabelas, gerador, ic.id(), proto, item_classe);
     gerador.arvore_feiticos->blockSignals(true);
   }

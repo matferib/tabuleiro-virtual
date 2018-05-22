@@ -1081,6 +1081,8 @@ void PreencheConfiguraFeiticos(
       gerador.arvore_feiticos, SIGNAL(customContextMenuRequested(const QPoint &)),
       [this_, &gerador, proto_retornado] (const QPoint& pos) {
     QTreeWidgetItem* item = gerador.arvore_feiticos->itemAt(pos);
+    // Não há nada na árvore. Mostrar um menu de contexto adicionando itens?
+    if (item == nullptr) return;
     QVariant data = item->data(0, Qt::UserRole);
     if (!data.isValid()) return;
     switch (data.toInt()) {
