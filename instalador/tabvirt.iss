@@ -4,10 +4,10 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 3.4.0
+AppVerName=Tabuleiro Virtual 3.4.1
 AppPublisher=Matferib
 OutputDir=output
-OutputBaseFilename=TabuleiroVirtual-3.4.0
+OutputBaseFilename=TabuleiroVirtual-3.4.1
 Compression=lzma
 SolidCompression=yes
 DefaultDirName={pf32}\TabuleiroVirtual
@@ -35,6 +35,7 @@ Source: ..\modelos3d\*.binproto; Destdir: {app}\modelos3d; Flags: ignoreversion;
 Source: ..\tabuleiros_salvos\castelo.binproto; Destdir: {app}\tabuleiros_salvos; Flags: ignoreversion;
 Source: ..\tabuleiros_salvos\deserto.binproto; Destdir: {app}\tabuleiros_salvos; Flags: ignoreversion;
 Source: ..\tabuleiros_salvos\features.binproto; Destdir: {app}\tabuleiros_salvos; Flags: ignoreversion;
+Source: ..\platforms\*.dll; Destdir: {app}\platforms; Flags: ignoreversion;
 
 [Icons]
 Name: "{group}\Tabuleiro Virtual"; Filename: "{app}\tabvirt.exe"; WorkingDir: "{app}"; IconFilename: "{app}/icon.ico"
