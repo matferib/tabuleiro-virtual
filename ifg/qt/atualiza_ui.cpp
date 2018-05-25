@@ -442,9 +442,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   {
     const int indice = gerador.lista_mantos->currentRow();
     gerador.lista_mantos->clear();
-    LOG(INFO) << "mantos"; 
     for (const auto& manto : proto.tesouro().mantos()) {
-      LOG(INFO) << "manto: " << manto.ShortDebugString(); 
       auto* item = new QListWidgetItem(QString::fromUtf8(
             NomeParaLista(tabelas, TipoItem::TIPO_MANTO, manto).c_str()), gerador.lista_mantos);
       item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
