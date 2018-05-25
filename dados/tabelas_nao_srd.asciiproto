@@ -1,0 +1,40 @@
+tabela_classes {
+  info_classes {
+    id: 'agente_harpista' nome: 'Agente Harpista'
+    progressao_bba: PBBA_TRES_QUARTOS
+    # Dados de vida: d6
+    salvacoes_fortes: TS_VONTADE
+    # Pontos: 6 nivel + inteligencia.
+    pericias: 'acrobacia'
+    pericias: 'arte_da_fuga'
+    pericias: 'atuacao'
+    pericias: 'avaliacao'
+    pericias: 'blefar'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'diplomacia'
+    pericias: 'disfarces'
+    pericias: 'escalar'
+    pericias: 'esconderse'
+    pericias: 'falar_idioma'
+    pericias: 'furtividade'
+    pericias: 'natacao'
+    pericias: 'obter_informacao'
+    pericias: 'oficios'
+    pericias: 'ouvir'
+    pericias: 'prestigidacao'
+    pericias: 'profissao'
+    pericias: 'saltar'
+    pericias: 'sentir_motivacao'
+    pericias: 'sobrevivencia'
+    # Progressao de feitico: +1 classe anterior.
+  }
+}

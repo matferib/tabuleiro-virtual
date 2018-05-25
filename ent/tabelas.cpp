@@ -93,10 +93,18 @@ void ConverteDano(ArmaProto* arma) {
 
 Tabelas::Tabelas() {
   try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_);
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
   } catch (const std::exception& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
+    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
   }
+  try {
+    TodasTabelas tabelas_padroes;
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
+    tabelas_.MergeFrom(tabelas_padroes);
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
+  }
+
   for (const auto& armadura : tabelas_.tabela_armaduras().armaduras()) {
     armaduras_[armadura.id()] = &armadura;
   }
