@@ -1,3 +1,4 @@
+Dar um jeito de transmitir as coisas (tabelas por exemplo) nao srd para clientes. Versionar?
 Procurar funcao last_write_time.
 Ordenacao de tabuleiros salvos por data.
 Clique botao direito na arvore de feiticos ta dando crash.
