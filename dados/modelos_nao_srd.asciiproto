@@ -218,11 +218,44 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'maos_flamejantes' nome: '' }
-        conhecidos { id: 'misseis_magicos' nome: '' }
-        conhecidos { id: 'raio_enfraquecimento' nome: '' }
-        conhecidos { id: 'escudo_arcano' nome: '' }
-        conhecidos { id: 'sono' nome: '' }
+        conhecidos { id: 'disco flutuante' nome: 'Disco Flutuante' }
+        conhecidos { id: 'misseis_magicos' nome: 'Mísseis Mágicos' }
+        conhecidos { id: 'raio_enfraquecimento' nome: 'Raio do Enfraquecimento' }
+        conhecidos { id: 'escudo_arcano' nome: 'Escudo Arcano' }
+        conhecidos { id: 'armadura_arcana' nome: 'Armadura Arcana' }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'nublar' nome: 'Nublar' }
+        conhecidos { id: 'detectar_pensamento' nome: 'Detectar Pensamento' }
+        conhecidos { id: 'raio_ardente' nome: 'Raio Ardente' }
+        conhecidos { id: 'reflexos' nome: 'Reflexos' }
+        conhecidos { id: 'imagem_menor' nome: 'Imagem Menor' }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' nome: 'Dissipar Magia' }
+        conhecidos { id: 'bola_de_fogo' nome: 'Bola de Fogo' }
+        conhecidos { id: 'protecao_contra_elementos' nome: 'Proteção contra Elementos' }
+        conhecidos { id: 'lentidao' nome: 'Lentidão' }
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'desespero_esmagador' nome: 'Desespero Esmagador' }
+        conhecidos { id: 'invisibilidade_maior' nome: 'Invisibilidade Maior' }
+        conhecidos { id: 'confusao' nome: 'Confusão' }
+        conhecidos { id: 'olho_arcano' nome: 'Olho Arcano' }
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'cone_glacial' nome: 'Cone Glacial' }
+        conhecidos { id: 'dominar_pessoa' nome: 'Dominar Pessoa' }
+        conhecidos { id: 'teletransporte' nome: 'Teletransporte' }
+      }
+      feiticos_por_nivel {
+        nivel: 6
+        conhecidos { id: 'corrente_relampagos' nome: 'Corrente de Relâmpagos' }
+        conhecidos { id: 'globo_invulnerabilidade' nome: 'Globo de Invulnerabilidade' }
       }
     }
     rotulo_especial: 'mov 6\nRedução de dano: 10/magia\nFerrao: CD 18 2d4 rodadas paralisia/1d3 horas\nimplante\nfeiticos CD 15 (17 en/ev): 6/8/7/7/7/7/4'
