@@ -92,6 +92,7 @@ void ConverteDano(ArmaProto* arma) {
 }  // namespace
 
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
+  central_->RegistraReceptor(this);
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
   } catch (const std::exception& e) {
@@ -276,13 +277,16 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // É possivel?
       if (!notificacao.local()) return false;
       VLOG(1) << "Enviando requisicao TN_REQUISITAR_TABELAS para servidor";
-      central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS));
+      auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS);
+      n->set_id_rede(notificacao.id_rede());
+      central_->AdicionaNotificacaoRemota(n);
       return true;
     }
     case ntf::TN_REQUISITAR_TABELAS: {
       // Servidor recebendo requisicao de tabelas.
       // É possivel?
       if (notificacao.local()) return false;
+      VLOG(1) << "Enviando tabelas para cliente '" << notificacao.id_rede() << "'";
       auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
       *n->mutable_tabelas() = tabelas_;
       n->set_id_rede(notificacao.id_rede());

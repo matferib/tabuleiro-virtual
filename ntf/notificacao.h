@@ -40,7 +40,7 @@ class CentralNotificacoes {
   /** Registra um receptor com a central, que nao sera dono dele. */
   void RegistraReceptor(Receptor* receptor);
 
-  /** Registra um receptor remoto com a central, que nao sera dono dele. */
+  /** Registra um emissor remoto com a central, que nao sera dono dele. */
   void RegistraEmissorRemoto(EmissorRemoto* receptor);
 
   /** Tira um receptor do registro.
