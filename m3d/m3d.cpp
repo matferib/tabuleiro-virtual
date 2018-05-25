@@ -69,9 +69,9 @@ Modelos3d::~Modelos3d() {
 }
 
 bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
-  if (notificacao.tipo() == ntf::TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D) {
+  if (notificacao.tipo() == ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D) {
     if (!notificacao.local()) {
-      LOG(ERROR) << "TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D deve ser sempre local";
+      LOG(ERROR) << "TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D deve ser sempre local";
       return false;
     }
     // Notificacao local: envia os ids de texturas locais para o servidor.
