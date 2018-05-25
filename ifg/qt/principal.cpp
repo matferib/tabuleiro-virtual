@@ -105,6 +105,15 @@ void Principal::closeEvent(QCloseEvent *event) {
     n.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
     n.set_endereco("ultimo_tabuleiro_automatico.binproto");
     tabuleiro_->TrataNotificacao(n);
+  } else if (tabuleiro_->HaEntidadesSelecionaveis()) {
+    auto reply = QMessageBox::question(this, tr("Finalizar"), tr("Salvar Personagens?"),
+                                       QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS);
+      n.set_endereco("personagens_automatico.binproto");
+      tabuleiro_->TrataNotificacao(n);
+    }
   }
   event->accept();
 }

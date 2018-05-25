@@ -1,3 +1,5 @@
+Procurar funcao last_write_time.
+Ordenacao de tabuleiros salvos por data.
 Clique botao direito na arvore de feiticos ta dando crash.
 Implementar resistencia a magia.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).

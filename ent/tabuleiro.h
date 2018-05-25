@@ -466,6 +466,9 @@ class Tabuleiro : public ntf::Receptor {
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
 
+  /** @return true se houver personagens selecionaveis. */
+  bool HaEntidadesSelecionaveis() const;
+
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
   * mestres secundarios tambem.
   */
@@ -819,8 +822,13 @@ class Tabuleiro : public ntf::Receptor {
   **/
   ntf::Notificacao* SerializaTabuleiro(const std::string& nome = "");
 
-  /** @return uma notificacao do tipo TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS preenchida. */
+  /** @return uma notificacao do tipo TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS preenchida.
+  * O motivo de ser TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS eh para os clientes poderem receber
+  * a notificacao gerada pela funcao.
+  */
   ntf::Notificacao* SerializaEntidadesSelecionaveis() const;
+  /** Assim como acima, mas serializa apenas os personagens de camera presa. */
+  ntf::Notificacao* SerializaEntidadesSelecionaveisJogador() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;

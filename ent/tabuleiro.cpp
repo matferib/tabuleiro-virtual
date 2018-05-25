@@ -2120,13 +2120,21 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       RemoveSubCenarioNotificando(notificacao);
       return true;
     }
-    case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
-      std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
+    case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS:
+    case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS_JOGADOR: {
+      bool jogador = notificacao.tipo() == ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS_JOGADOR;
+      std::unique_ptr<ntf::Notificacao> n(
+          jogador ? SerializaEntidadesSelecionaveisJogador() : SerializaEntidadesSelecionaveis());
+      if (n->tabuleiro().entidade().empty()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro(jogador ? "Não há entidades presas a câmera" : "Não há entidades selecionáveis");
+        central_->AdicionaNotificacao(n);
+      }
       try {
         boost::filesystem::path caminho(notificacao.endereco());
         arq::EscreveArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), *n);
         auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
-        ninfo->set_erro("Entidades selecionáveis salvas");
+        ninfo->set_erro(jogador ? "Entidades do jogador salvas" : "Entidades selecionáveis salvas");
         central_->AdicionaNotificacao(ninfo);
       } catch (const std::logic_error& e) {
         auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -4852,6 +4860,7 @@ void Tabuleiro::DeserializaRelevoCenario(const TabuleiroProto& novo_proto) {
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
   auto* notificacao = new ntf::Notificacao;
   try {
+    // O tipo é TN_DESERIALIZAR_TABULEIRO para que os clientes possam receber essa notificacao.
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
     t->CopyFrom(proto_);
@@ -4945,10 +4954,24 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
 }
 
 ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
+  // O motivo de ser TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS eh para os clientes poderem receber a
+  // notificacao gerada pela funcao.
+  // TODO mudar isso, muito bizarro.
   std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
   for (const auto& id_e : entidades_) {
     if (id_e.second->SelecionavelParaJogador()) {
       n->mutable_tabuleiro()->add_entidade()->CopyFrom(id_e.second->Proto());
+    }
+  }
+  return n.release();
+}
+
+ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveisJogador() const {
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
+  for (const auto& id_e : ids_camera_presa_) {
+    const auto* e = BuscaEntidade(id_e);
+    if (e != nullptr) {
+      *n->mutable_tabuleiro()->add_entidade() = e->Proto();
     }
   }
   return n.release();
@@ -7365,6 +7388,13 @@ void Tabuleiro::AlternaLutaDefensiva() {
   TrataNotificacao(*n);
   // Desfazer.
   AdicionaNotificacaoListaEventos(*n);
+}
+
+bool Tabuleiro::HaEntidadesSelecionaveis() const {
+  for (const auto& kv : entidades_) {
+    if (kv.second->SelecionavelParaJogador()) return true;
+  }
+  return false;
 }
 
 }  // namespace ent
