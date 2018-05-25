@@ -4,14 +4,17 @@
 #include <unordered_map>
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.pb.h"
+#include "ntf/notificacao.h"
 
 namespace ent {
 
 // Classe que gerencia as tabelas.
-class Tabelas {
+class Tabelas : public ntf::Receptor {
  public:
   // Carrega as tabelas.
-  Tabelas();
+  Tabelas(ntf::CentralNotificacoes* central);
+
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   const TodasTabelas& todas() const { return tabelas_; }
 
@@ -32,7 +35,13 @@ class Tabelas {
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
 
  private:
+  // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
+  void RecarregaMapas();
+
   TodasTabelas tabelas_;
+  // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
+  Acoes tabela_acoes_;
+
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
   std::unordered_map<std::string, const ArmaProto*> armas_;
@@ -44,10 +53,9 @@ class Tabelas {
   std::unordered_map<std::string, const TalentoProto*> talentos_;
   std::unordered_map<std::string, const PericiaProto*> pericias_;
   std::unordered_map<std::string, const InfoClasse*> classes_;
-
-  // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
-  Acoes tabela_acoes_;
   std::unordered_map<std::string, const AcaoProto*> acoes_;
+
+  ntf::CentralNotificacoes* central_;
 };
 
 }  // namespace ent

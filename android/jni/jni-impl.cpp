@@ -182,8 +182,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
   g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
   SalvaOpcoes();
-  g_tabelas.reset(new ent::Tabelas);
   g_central.reset(new ntf::CentralNotificacoes);
+  g_tabelas.reset(new ent::Tabelas(g_central.get()));
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(*g_opcoes, *g_tabelas, g_texturas.get(), g_modelos3d.get(), g_central.get()));

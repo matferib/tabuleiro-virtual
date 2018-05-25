@@ -107,10 +107,10 @@ int main(int argc, char** argv) {
 #endif
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
-  ent::Tabelas tabelas;
   boost::asio::io_service servico_io;
   net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
+  ent::Tabelas tabelas(&central);
   net::Servidor servidor(&sincronizador, &central);
   net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);

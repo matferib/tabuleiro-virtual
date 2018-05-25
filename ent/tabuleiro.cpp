@@ -1894,12 +1894,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
-          // texturas cuidara disso.
-          // Aqui comeca o fluxo de envio de texturas de servidor para cliente. Nessa primeira mensagem
-          // o cliente envia seus ids para o servidor.
-          auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D);
+          // Aqui comeca o fluxo de envio de coisas de servidor para cliente. Nessa primeira mensagem
+          // o cliente cria uma notificacao para cada componente que tratara essa mensagem mandar suas
+          // requisicoes para o servidor.
+          auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D);
           nit->set_id_rede(notificacao.id_rede());
-          VLOG(1) << "Enviando TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D: " << nit->DebugString();
+          VLOG(1) << "Enviando TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: " << nit->DebugString();
           central_->AdicionaNotificacao(nit);
         } else {
           AlterarModoMestre(true);  // volta modo mestre.

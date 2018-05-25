@@ -91,7 +91,7 @@ void ConverteDano(ArmaProto* arma) {
 
 }  // namespace
 
-Tabelas::Tabelas() {
+Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
   } catch (const std::exception& e) {
@@ -103,7 +103,34 @@ Tabelas::Tabelas() {
     tabelas_.MergeFrom(tabelas_padroes);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what()));
+    central_->AdicionaNotificacao(n);
   }
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what()));
+    central_->AdicionaNotificacao(n);
+  }
+  RecarregaMapas();
+}
+
+void Tabelas::RecarregaMapas() {
+  armaduras_.clear();
+  escudos_.clear();
+  armas_.clear();
+  feiticos_.clear();
+  efeitos_.clear();
+  pocoes_.clear();
+  aneis_.clear();
+  mantos_.clear();
+  talentos_.clear();
+  pericias_.clear();
+  classes_.clear();
+  acoes_.clear();
 
   for (const auto& armadura : tabelas_.tabela_armaduras().armaduras()) {
     armaduras_[armadura.id()] = &armadura;
@@ -172,11 +199,6 @@ Tabelas::Tabelas() {
     pericias_[pericia.id()] = &pericia;
   }
 
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
-  } catch (...) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto";
-  }
   for (const auto& acao : tabela_acoes_.acao()) {
     acoes_[acao.id()] = &acao;
   }
@@ -245,6 +267,38 @@ const InfoClasse& Tabelas::Classe(const std::string& id) const {
 const PericiaProto& Tabelas::Pericia(const std::string& id) const {
   auto it = pericias_.find(id);
   return it == pericias_.end() ? PericiaProto::default_instance() : *it->second;
+}
+
+bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  switch (notificacao.tipo()) {
+    case ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: {
+      // Cliente enviando requisicao de tabelas.
+      // É possivel?
+      if (!notificacao.local()) return false;
+      VLOG(1) << "Enviando requisicao TN_REQUISITAR_TABELAS para servidor";
+      central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS));
+      return true;
+    }
+    case ntf::TN_REQUISITAR_TABELAS: {
+      // Servidor recebendo requisicao de tabelas.
+      // É possivel?
+      if (notificacao.local()) return false;
+      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
+      *n->mutable_tabelas() = tabelas_;
+      n->set_id_rede(notificacao.id_rede());
+      central_->AdicionaNotificacaoRemota(n);
+      return true;
+    }
+    case ntf::TN_ENVIAR_TABELAS: {
+      // Cliente recebendo tabelas.
+      if (notificacao.local()) return false;
+      tabelas_ = notificacao.tabelas();
+      RecarregaMapas();
+      return true;
+    }
+    default:
+      return false;
+  }
 }
 
 }  // namespace

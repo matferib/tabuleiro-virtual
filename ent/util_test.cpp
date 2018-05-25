@@ -8,7 +8,7 @@
 namespace ent {
 
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("ladino");
@@ -35,7 +35,7 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   // TODO ignorar INT SAB CAR.
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   AtribuiBaseAtributo(14, TA_FORCA, &proto);
   AtribuiBonus(2, TB_NIVEL, "nivel", BonusAtributo(TA_FORCA, &proto));
@@ -98,7 +98,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 }
 
 TEST(TesteDependencias, TestePericias) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("ladino");
@@ -108,7 +108,7 @@ TEST(TesteDependencias, TestePericias) {
 }
 
 TEST(TesteDependencias, TesteNiveisNegativos) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
   proto.set_pontos_vida(10);
@@ -138,7 +138,7 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
 }
 
 TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
@@ -163,7 +163,7 @@ TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
 }
 
 TEST(TesteDependencias, TesteDependencias) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   proto.set_tamanho(TM_GRANDE);
   auto* ic = proto.add_info_classes();
@@ -246,7 +246,7 @@ TEST(TesteDependencias, TesteDependencias) {
 }
 
 TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
@@ -316,7 +316,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
 }
 
 TEST(TesteDependencias, TesteAgarrar) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("guerreiro");
@@ -343,9 +343,9 @@ TEST(TesteDependencias, TesteAgarrar) {
 }
 
 TEST(TesteDependencias, TesteAjuda) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
   ev->add_complementos(3);
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -369,10 +369,10 @@ TEST(TesteDependencias, TesteAjuda) {
 }
 
 TEST(TesteDependencias, TesteAjuda2) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
-  ev = AdicionaEvento(EFEITO_AJUDA, 10, &proto);
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
+  ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
   uint32_t id_segundo_evento = ev->id_unico();
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -532,7 +532,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
 }
 
 TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   {
     EntidadeProto proto;
     auto* ic = proto.add_info_classes();
@@ -560,7 +560,7 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
 }
 
 TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   {
     EntidadeProto proto;
     auto* ic = proto.add_info_classes();
@@ -590,7 +590,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
 }
 
 TEST(TesteFeiticos, TesteFeiticos) {
-  Tabelas tabelas;
+  Tabelas tabelas(nullptr);
   {
     EntidadeProto proto;
     auto* ic = proto.add_info_classes();
