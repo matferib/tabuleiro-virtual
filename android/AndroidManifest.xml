@@ -29,5 +29,5 @@
     <!-- texture compression -->
     <!--supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
     <supports-gl-texture android:name="GL_OES_compressed_paletted_texture" /-->
-    <supports-screens android:xlargeScreens="true" android:largeScreens="true" />
+    <supports-screens android:xlargeScreens="true" android:largeScreens="true" android:anyDensity="true" />
 </manifest>
