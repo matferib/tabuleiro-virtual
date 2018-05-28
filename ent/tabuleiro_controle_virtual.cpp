@@ -195,7 +195,7 @@ void Tabuleiro::LiberaControleVirtual() {
 }
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id) {
-  VLOG(1) << "picking id: " << id;
+  VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_USAR_FEITICO_0:
@@ -490,7 +490,20 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
-        PassaUmaRodadaNotificando();
+        if (!duplo) {
+          PassaUmaRodadaNotificando();
+        } else {
+          ntf::Notificacao grupo_notificacoes;
+          grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+          // O clique duplo tera passado uma rodada já.
+          for (int i = 0; i < 9; ++i) {
+            auto* n = grupo_notificacoes.add_notificacao();
+            PassaUmaRodadaNotificando(n);
+            TrataNotificacao(*n);
+          }
+          // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.
+          AdicionaNotificacaoListaEventos(grupo_notificacoes);
+        }
       } else {
         ZeraRodadasNotificando();
       }
