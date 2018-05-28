@@ -1223,6 +1223,7 @@ modelo {
 modelo {
   id: 'Humano Ladino 3'
   entidade {
+    info_classes { id: 'ladino' nivel: 3 }
     dados_vida: '3d6+3' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 3'
@@ -1235,6 +1236,7 @@ modelo {
 modelo {
   id: 'Humano Ladino 4'
   entidade {
+    info_classes { id: 'ladino' nivel: 4 }
     dados_vida: '4d6+4' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 4'
@@ -1247,6 +1249,7 @@ modelo {
 modelo {
   id: 'Humano Ladino 5'
   entidade {
+    info_classes { id: 'ladino' nivel: 5 }
     dados_vida: '5d6+5' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 5'
@@ -1259,6 +1262,7 @@ modelo {
 modelo {
   id: 'Humano Ladino 7'
   entidade {
+    info_classes { id: 'ladino' nivel: 7 }
     dados_vida: '7d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 7'
