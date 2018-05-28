@@ -244,7 +244,7 @@ modelo {
         conhecidos { id: 'desespero_esmagador' nome: 'Desespero Esmagador' }
         conhecidos { id: 'invisibilidade_maior' nome: 'Invisibilidade Maior' }
         conhecidos { id: 'confusao' nome: 'Confusão' }
-        conhecidos { id: 'olho_arcano' nome: 'Olho Arcano' }
+        conhecidos { id: 'metamorfoso' nome: 'Metamorfose' }
       }
       feiticos_por_nivel {
         nivel: 5
