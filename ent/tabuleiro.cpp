@@ -568,7 +568,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   // Zera as coisas nao usadas durante oclusao.
   parametros_desenho_.set_desenha_acoes(false);
   parametros_desenho_.set_limpa_fundo(false);
-  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_usar_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_iniciativas(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
@@ -638,7 +638,7 @@ void Tabuleiro::DesenhaMapaLuz() {
   // Zera as coisas nao usadas durante luzes.
   parametros_desenho_.set_desenha_acoes(false);
   parametros_desenho_.set_limpa_fundo(false);
-  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_usar_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_iniciativas(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
@@ -705,7 +705,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   // Zera as coisas nao usadas na sombra.
   parametros_desenho_.set_limpa_fundo(false);
-  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_usar_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_iniciativas(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
@@ -829,7 +829,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.clear_desenha_mapa_oclusao();
     parametros_desenho_.clear_desenha_mapa_luzes();
     parametros_desenho_.set_limpa_fundo(false);
-    parametros_desenho_.set_transparencias(false);
+    parametros_desenho_.set_usar_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
     parametros_desenho_.set_desenha_lista_pontos_vida(false);
     parametros_desenho_.set_desenha_quadrado_selecao(false);
@@ -2958,7 +2958,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparente
   // a outros nao transparentes durante o picking.
   if (parametros_desenho_.desenha_entidades() && !parametros_desenho_.nao_desenha_entidades_translucidas()) {
-    if (parametros_desenho_.transparencias()) {
+    if (parametros_desenho_.usar_transparencias()) {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);

@@ -525,8 +525,8 @@ message ParametrosDesenho {
   optional bool desenha_fps = 10 [default=false];
   // Operacao de limpeza eh cara, alguns modos nao precisam dela.
   optional bool limpa_fundo = 11 [default=true];
-  // Usar transparencia.
-  optional bool transparencias = 12 [default=true];
+  // Usar transparencia. Caso contrario, as entidades translucidas serao desenhadas como solidas.
+  optional bool usar_transparencias = 12 [default=true];
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
   optional bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.
