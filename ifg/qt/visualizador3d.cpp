@@ -802,6 +802,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_z(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toStdString());
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
+      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_CENARIO);
       //bool ok = false;
       //int val = gerador.linha_transicao_cenario->text().toInt(&ok);
       QVariant qval = gerador.combo_id_cenario->itemData(gerador.combo_id_cenario->currentIndex());
