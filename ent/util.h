@@ -363,11 +363,14 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
 // Retorna true se o personagem tiver o talento.
-bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
-bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& entidade);
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& proto);
+bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& proto);
 // Retorna o talento do personagem, ou nullptr se nao tiver.
-const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade);
-const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade);
+const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& proto);
+const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& proto);
+
+// Retorna true se possui a habilidade especial.
+bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& proto);
 
 // Retorna se a pericia eh considerada de classe para o proto.
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto);
@@ -377,7 +380,7 @@ inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_
 inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
 inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
 inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
-// Retorna o bonus contra tendencia de um atacante. 
+// Retorna o bonus contra tendencia de um atacante.
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 
@@ -392,7 +395,7 @@ int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& 
 std::string ClasseParaFeitico(const std::string& tipo_ataque);
 // Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
 // e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
-const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto); 
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

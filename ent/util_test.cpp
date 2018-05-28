@@ -7,6 +7,22 @@
 
 namespace ent {
 
+TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("monge");
+  ic->set_nivel(2);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
+  EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+  ic->set_nivel(9);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+}
+
+
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;

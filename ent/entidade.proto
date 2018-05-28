@@ -328,7 +328,6 @@ message EntidadeProto {
     repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
-
   repeated InfoPericia info_pericias = 85;
 
   // Alinhamento ou tendencia.

@@ -1232,21 +1232,31 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
       descricao_resultado = "salvou tudo (manual)";
     }
   } else if (ap.has_dificuldade_salvacao()) {
-    // TODO evasao e evasao aprimorada.
     int d20 = RolaDado(20);
     int bonus = ed.Salvacao(ea, ap.tipo_salvacao());
     int total = d20 + bonus;
+    std::string str_evasao;
     if (total >= ap.dificuldade_salvacao()) {
       if (ap.resultado_salvacao() == RS_MEIO) {
-        delta_pontos_vida /= 2;
+        if (ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao", ed.Proto())) {
+          delta_pontos_vida = 0;
+          str_evasao = " (evasão)";
+        } else {
+          delta_pontos_vida /= 2;
+        }
       } else if (ap.resultado_salvacao() == RS_QUARTO) {
         delta_pontos_vida /= 4;
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
+      str_evasao = " (sem evasão aprimorada)";
+      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
+        delta_pontos_vida  /= 2;
+        str_evasao = " (evasão aprimorada)";
+      }
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
@@ -2204,6 +2214,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.has_nome()) {
       ic.clear_salvacoes_fortes();
+      ic.clear_habilidades_por_nivel();
       ic.MergeFrom(classe_tabelada);
     }
     if (ic.has_atributo_conjuracao()) {
@@ -3066,6 +3077,15 @@ const TalentoProto* Talento(const std::string& chave_talento, const std::string&
   }
   for (const auto& t : entidade.info_talentos().outros()) {
     if (chave_talento == t.id() && complemento == t.complemento()) return &t;
+  }
+  return nullptr;
+}
+
+bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    for (const auto& he : ic.habilidades_por_nivel()) {
+      if (chave == he.id() && ic.nivel() >= he.nivel()) return true;
+    }
   }
   return nullptr;
 }

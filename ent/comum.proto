@@ -317,7 +317,7 @@ message InfoClasse {
   // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
   repeated string pericias = 11;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
-  optional string id_para_magia = 12; 
+  optional string id_para_magia = 12;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
   optional string id_para_progressao_de_magia = 18;
   optional bool possui_dominio = 14;
@@ -333,6 +333,13 @@ message InfoClasse {
     repeated ProgressaoParaNivel para_nivel = 1;
   }
   optional ProgressaoFeitico progressao_feitico = 16;
+  message HabilidadesEspeciaisPorNivel {
+    // Chave da habilidade especial na tabela de chaves.
+    optional string id = 1;
+    // Em qual nivel se ganha.
+    optional int32 nivel = 2;
+  }
+  repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
 }
 
 // Informacao sobre a pericia do personagem.
@@ -360,7 +367,7 @@ message ConsequenciaEvento {
   // Alteracao no tamanho da entidade.
   optional Bonus tamanho = 4;
   // Alteracao na pericia.
-  optional InfoPericia dados_pericia = 5; 
+  optional InfoPericia dados_pericia = 5;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;
@@ -436,6 +443,14 @@ message TalentoProto {
     optional int32 valor = 2;
   }
   repeated BonusPericia bonus_pericias = 8;
+}
+
+message HabilidadeEspecialProto {
+  // Chave da habilidade.
+  optional string id = 1;
+  // Nome da habilidade.
+  optional string nome = 2;
+  optional string descricao = 5;
 }
 
 // Vale para anel, pocao etc.
