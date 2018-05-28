@@ -2937,7 +2937,7 @@ tabela_classes {
     pericias: 'sobrevivencia'
     pericias: 'natacao'
     pericias: 'usar_cordas'
-
+    habilidades_por_nivel { id: 'evasao' nivel: 9 }
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
@@ -3068,7 +3068,7 @@ tabela_classes {
     pericias: 'acrobacias'
     pericias: 'usar_instrumento_magico'
     pericias: 'usar_cordas'
-
+    habilidades_por_nivel { id: 'evasao' nivel: 2 }
     salvacoes_fortes: TS_REFLEXO
   }
   info_classes {
@@ -3257,6 +3257,8 @@ tabela_classes {
     pericias: 'observar'
     pericias: 'natacao'
     pericias: 'acrobacias'
+    habilidades_por_nivel { id: 'evasao' nivel: 2 }
+    habilidades_por_nivel { id: 'evasao_aprimorada' nivel: 9 }
 
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
   }
