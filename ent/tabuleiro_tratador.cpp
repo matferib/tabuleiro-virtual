@@ -1376,6 +1376,10 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+  if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
+    LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
+    return;
+  }
   Entidade* entidade_transicao = BuscaEntidade(id);
   if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
@@ -1681,6 +1685,7 @@ void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, Parametros
     case Tabuleiro::MODO_SINALIZACAO:
       break;
     case Tabuleiro::MODO_TRANSICAO:
+      pd->set_usar_transparencias(false);
       break;
     case Tabuleiro::MODO_REGUA:
       break;
@@ -1708,9 +1713,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   ConfiguraParametrosDesenho(modo_clique_, &parametros_desenho_);
   unsigned int id, tipo_objeto;
   float profundidade;
-  // Tem que ter uma forma de nao desenhar entidades fixas transparentes. Para poder fazer picking dentro dagua.
-  // O problema desse jeito eh pegar coisas do outro lado de paredes solidas.
-  // parametros_desenho_.set_nao_desenha_entidades_fixas(true);
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
