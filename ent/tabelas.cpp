@@ -92,7 +92,9 @@ void ConverteDano(ArmaProto* arma) {
 }  // namespace
 
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
-  central_->RegistraReceptor(this);
+  if (central_ != nullptr) {
+    central_->RegistraReceptor(this);
+  }
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
   } catch (const std::exception& e) {
@@ -104,17 +106,21 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     tabelas_.MergeFrom(tabelas_padroes);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what()));
-    central_->AdicionaNotificacao(n);
+    if (central_ != nullptr) {
+      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what()));
+      central_->AdicionaNotificacao(n);
+    }
   }
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what()));
-    central_->AdicionaNotificacao(n);
+    if (central_ != nullptr) {
+      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what()));
+      central_->AdicionaNotificacao(n);
+    }
   }
   RecarregaMapas();
 }
