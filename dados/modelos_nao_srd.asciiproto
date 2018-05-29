@@ -168,6 +168,7 @@ modelo {
   id: 'Phaerimm Experiente'
   entidade {
     dados_vida: '13d8+26' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" }
+    posicao_acao { x: 0.5 y: 0 z: 0.5 }
     info_classes {
       id: 'aberracao' nome: 'Aberração'
       nivel: 13 nivel_conjurador: 13

@@ -233,8 +233,15 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, cons
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
+inline Vector4 PosParaVector4(const Posicao& pos) { return Vector4(pos.x(), pos.y(), pos.z(), 1.0f); }
 inline Posicao Vector3ParaPosicao(const Vector3& v) {
-  Posicao p; p.set_x(v.x); p.set_y(v.y); p.set_z(v.z);
+  Posicao p;
+  p.set_x(v.x); p.set_y(v.y); p.set_z(v.z);
+  return p;
+}
+inline Posicao Vector4ParaPosicao(const Vector4& v) {
+  Posicao p;
+  p.set_x(v.x / v.w); p.set_y(v.y / v.w); p.set_z(v.z / v.w);
   return p;
 }
 

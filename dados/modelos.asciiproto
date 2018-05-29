@@ -715,6 +715,7 @@ modelo {
   id: 'Gavião-Seta, adolescente'
   entidade {
     dados_vida: '3d8+3'
+    posicao_acao { x: 0.75 y: 0 z: 0 }
     tamanho: TM_PEQUENO
     modelo_3d { id: 'arrowhawk' }
     rotulo_especial: ''

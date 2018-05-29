@@ -79,6 +79,8 @@ message EntidadeProto {
   // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela
   // esta em pos.z + translacao.z.
   optional Posicao pos = 4;
+  // Se a entidade tiver, usa esta posicao ao inves da posicao padrao.
+  optional Posicao posicao_acao = 89;
   // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
   optional Escala escala = 22;

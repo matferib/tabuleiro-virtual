@@ -1242,7 +1242,7 @@ std::pair<TipoAcao, std::string> Entidade::TipoAcaoComIcone(
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
-  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * matriz;
+  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
   //GLfloat matriz[16];
   //gl::Le(GL_MODELVIEW_MATRIX, matriz);
   //VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
@@ -1252,17 +1252,23 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
   Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
-  ponto = matriz * ponto;
+  //ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
-  Posicao pos;
-  pos.set_x(ponto[0]);
-  pos.set_y(ponto[1]);
-  pos.set_z(ponto[2]);
-  return pos;
+  //Posicao pos;
+  //pos.set_x(ponto[0]);
+  //pos.set_y(ponto[1]);
+  //pos.set_z(ponto[2]);
+  return Vector4ParaPosicao(matriz * ponto);
 }
 
 const Posicao Entidade::PosicaoAcao() const {
+  if (proto_.has_posicao_acao()) {
+    Matrix4 matriz;
+    matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
+    Vector4 ponto(PosParaVector4(proto_.posicao_acao()));
+    return Vector4ParaPosicao(matriz * ponto);
+  }
   return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
 }
 
