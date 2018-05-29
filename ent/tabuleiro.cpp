@@ -2011,9 +2011,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         }
         n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
         central_->AdicionaNotificacao(n);
-        break;
+      } else {
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
       }
-      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
       break;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
