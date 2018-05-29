@@ -1821,6 +1821,12 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
   da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
+
+  // CA do ataque.
+  bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+  da->set_ca_normal(CATotal(proto, permite_escudo));
+  da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
+  da->set_ca_toque(CAToque(proto));
 }
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -2215,6 +2221,8 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     if (classe_tabelada.has_nome()) {
       ic.clear_salvacoes_fortes();
       ic.clear_habilidades_por_nivel();
+      ic.clear_pericias();
+      ic.clear_progressao_feitico();
       ic.MergeFrom(classe_tabelada);
     }
     if (ic.has_atributo_conjuracao()) {
@@ -2277,13 +2285,6 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
       ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
-  // CA dos ataques.
-  for (auto& da : *proto_retornado->mutable_dados_ataque()) {
-    bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
-    da.set_ca_normal(CATotal(*proto_retornado, permite_escudo));
-    da.set_ca_surpreso(CASurpreso(*proto_retornado, permite_escudo));
-    da.set_ca_toque(CAToque(*proto_retornado));
-  }
 }
 
 void RecomputaDependenciasSalvacoes(
@@ -3092,7 +3093,7 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
 
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
-    const auto& ct = tabelas.Classe(ic.id()); 
+    const auto& ct = tabelas.Classe(ic.id());
     if (std::any_of(ct.pericias().begin(), ct.pericias().end(),
           [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
       return true;

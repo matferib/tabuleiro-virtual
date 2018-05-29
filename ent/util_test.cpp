@@ -22,6 +22,19 @@ TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
 }
 
+TEST(TesteVazamento, TesteVazamento) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("monge");
+  ic->set_nivel(2);
+  RecomputaDependencias(tabelas, &proto);
+  int tamanho = proto.ByteSize();
+  for (int i = 0; i < 100; ++i) {
+    RecomputaDependencias(tabelas, &proto);
+  }
+  EXPECT_EQ(tamanho, proto.ByteSize());
+}
 
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   Tabelas tabelas(nullptr);
