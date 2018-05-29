@@ -18,7 +18,7 @@ struct Modelo3d {
   bool Valido() const { return !vbos_nao_gravados.Vazio(); }
 };
 
-// Para carregar um modelo 3d, mande uma mensagem TN_CARREGAR_MODELO_3D. Para descarregar, TN_DESCARREGAR_MODELO_3D. 
+// Para carregar um modelo 3d, mande uma mensagem TN_CARREGAR_MODELO_3D. Para descarregar, TN_DESCARREGAR_MODELO_3D.
 // O modelo deve estar em notificacao.entidade().modelo_3d().id().
 class Modelos3d : public ntf::Receptor {
  public:
