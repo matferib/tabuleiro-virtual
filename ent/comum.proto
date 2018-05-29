@@ -316,6 +316,9 @@ message InfoClasse {
   optional ProgressaoConjurador progressao_conjurador = 10;
   // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
   repeated string pericias = 11;
+  // Essas nao vem da tabela de classe, mas sim do modelo do monstro. Ver gaviao-seta como exemplo.
+  // Atencao: esta aqui nao eh limpa no merge, portanto NUNCA deve aparecer na tabela de classes.
+  repeated string pericias_monstro = 20;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.

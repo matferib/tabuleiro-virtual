@@ -3098,6 +3098,10 @@ bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, c
           [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
       return true;
     }
+    if (std::any_of(ic.pericias_monstro().begin(), ic.pericias_monstro().end(),
+          [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
+      return true;
+    }
   }
   return false;
 }
