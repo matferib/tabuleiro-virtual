@@ -170,6 +170,7 @@ class Entidade {
 
   /** Altera o indice de feitico da entidade para usado ou nao. */
   void AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado);
+  void AlteraTodosFeiticos(const EntidadeProto& proto_parcial);
 
   using MapaIdAcao = std::unordered_map<std::string, std::unique_ptr<AcaoProto>>;
   // Retorna true se entidade possui acao propria.

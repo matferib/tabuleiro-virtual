@@ -1908,6 +1908,10 @@ bool Entidade::IgnoraChanceFalha() const {
   return proto_.dados_ataque_global().chance_falha() < 0;
 }
 
+void Entidade::AlteraTodosFeiticos(const EntidadeProto& proto_parcial) {
+  *proto_.mutable_feiticos_classes() = proto_parcial.feiticos_classes();
+}
+
 void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado) {
   auto* fn = FeiticosNivelOuNullptr(id_classe, nivel, &proto_);
   //LOG(INFO) << "PROTO: " << FeiticosClasse(id_classe, proto_).DebugString();
