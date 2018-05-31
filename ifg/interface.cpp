@@ -319,8 +319,8 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int nivel;
     int indice;
     std::tie(nivel, indice) = items[indice_lista];
-    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
-        ent::NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, notificacao.entidade().id())));
+    auto n = ent::NotificacaoAlterarFeitico(
+        id_classe, nivel, indice, true /*usado*/, notificacao.entidade());
     tabuleiro_->AdicionaNotificacaoListaEventos(*n);
     central_->AdicionaNotificacao(n.release());
   });
