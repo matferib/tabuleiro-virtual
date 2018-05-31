@@ -382,7 +382,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       // Notificacao local: envia os ids de texturas locais para o servidor.
-      auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TEXTURAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TEXTURAS);
       // Percorre arquivos globais.
       std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
       for (const std::string& id : globais ) {
@@ -400,7 +400,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       n->set_servidor_apenas(true);
       // Envia para o servidor.
       VLOG(1) << "Enviando remoto TN_REQUISITAR_TEXTURAS: " << n->DebugString();
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_REQUISITAR_TEXTURAS: {
@@ -436,7 +436,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       // Compara os arquivos recebidos com os baixados.
       // Envia para o servidor.
-      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
       for (const auto& id : ids_faltantes) {
         auto* info = n->add_info_textura();
         std::vector<unsigned char> dados;
@@ -446,7 +446,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       n->set_id_rede(notificacao.id_rede());
       VLOG(1) << "Enviando texturas faltantes a cliente.";
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_ENVIAR_TEXTURAS: {
