@@ -1077,18 +1077,7 @@ void PreencheConfiguraFeiticos(
   // Menu de contexto da arvore.
   gerador.arvore_feiticos->setContextMenuPolicy(Qt::CustomContextMenu);
   lambda_connect(gerador.botao_renovar_feiticos, SIGNAL(clicked()), [this_, &gerador, proto_retornado] () {
-    for (const auto& ic : *proto_retornado->mutable_info_classes()) {
-      if (!ic.has_nivel_conjurador()) continue;
-      auto* fc = ent::FeiticosClasse(ic.id(), proto_retornado);
-      if (fc == nullptr) continue;
-      for (int nivel = 0; nivel < fc->feiticos_por_nivel().size(); ++nivel) {
-        auto* fn = FeiticosNivelOuNullptr(ic.id(), nivel, proto_retornado);
-        if (fn == nullptr) continue;
-        for (auto& pl : *fn->mutable_para_lancar()) {
-          pl.set_usado(false);
-        }
-      }
-    }
+    ent::RenovaFeiticos(proto_retornado);
     gerador.arvore_feiticos->blockSignals(true);
     AtualizaUIFeiticos(this_->tabelas(), gerador, *proto_retornado);
     gerador.arvore_feiticos->blockSignals(true);
