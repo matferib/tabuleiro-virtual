@@ -2288,19 +2288,30 @@ void Tabuleiro::DescansaPersonagemNotificando() {
   }
   const auto& proto = e->Proto();
   int nivel = Nivel(proto);
+  auto n_grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
+
   // Cura 1 PV por nivel.
-  auto n = NovaNotificacao(proto, ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   {
-    auto* e_antes = n->mutable_entidade_antes();
+    ntf::Notificacao* n_cura;
+    EntidadeProto* e_antes, *e_depois;
+    std::tie(n_cura, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo.get());
     e_antes->set_pontos_vida(e->PontosVida());
-  }
-  {
-    auto* e_depois = n->mutable_entidade();
     e_depois->set_pontos_vida(std::min(e->MaximoPontosVida(), e->PontosVida() + nivel));
     AdicionaAcaoDeltaPontosVidaSemAfetar(e->Id(), nivel, 0);
   }
-  AdicionaNotificacaoListaEventos(*n);
-  TrataNotificacao(*n);
+  {
+    ntf::Notificacao* n_feitico;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(n_feitico, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO, proto, n_grupo.get());
+    *e_antes->mutable_feiticos_classes() = proto.feiticos_classes();
+    *e_depois->mutable_feiticos_classes() = proto.feiticos_classes();
+    RenovaFeiticos(e_depois);
+  }
+
+  AdicionaNotificacaoListaEventos(*n_grupo);
+  TrataNotificacao(*n_grupo);
 }
 
 void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {

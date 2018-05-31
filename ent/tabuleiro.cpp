@@ -1772,6 +1772,19 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO: {
+      auto* e = BuscaEntidade(notificacao.entidade().id());
+      if (e == nullptr) {
+        LOG(ERROR) << "Erro processando TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO, entidade nao encontrada: "
+                   << notificacao.DebugString();
+        break;
+      }
+      e->AlteraTodosFeiticos(notificacao.entidade());
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      }
+      break;
+    }
     case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
       std::string id_classe;
       int nivel;
@@ -5643,8 +5656,14 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         *n_inversa.add_notificacao() = InverteNotificacao(n);
       }
       break;
+    case ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO: {
+      VLOG(1) << "Invertendo TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO";
+      n_inversa.set_tipo(ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO);
+      *n_inversa.mutable_entidade() = n_original.entidade_antes();
+      break;
+    }
     case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
-      VLOG(1) << "Invertendo TN_ALTERAR_FEITICO";
+      VLOG(1) << "Invertendo TN_ALTERAR_FEITICO_NOTIFICANDO";
       n_inversa.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
       *n_inversa.mutable_entidade() = n_original.entidade_antes();
       break;
