@@ -81,11 +81,20 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
-std::unique_ptr<ntf::Notificacao> NovaNotificacao(const EntidadeProto& proto, ntf::Tipo tipo) {
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto) {
   auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(tipo));
   n->mutable_entidade_antes()->set_id(proto.id());
   n->mutable_entidade()->set_id(proto.id());
   return n;
+}
+
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+        ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+  auto* n = pai->add_notificacao();
+  n->set_tipo(tipo);
+  n->mutable_entidade_antes()->set_id(proto.id());
+  n->mutable_entidade()->set_id(proto.id());
+  return std::make_tuple(n, n->mutable_entidade_antes(), n->mutable_entidade());
 }
 
 void MudaCor(const float* cor) {
@@ -3232,14 +3241,9 @@ int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& 
 }
 
 void RenovaFeiticos(EntidadeProto* proto) {
-  for (const auto& ic : *proto->mutable_info_classes()) {
-    if (!ic.has_nivel_conjurador()) continue;
-    auto* fc = ent::FeiticosClasse(ic.id(), proto);
-    if (fc == nullptr) continue;
-    for (int nivel = 0; nivel < fc->feiticos_por_nivel().size(); ++nivel) {
-      auto* fn = FeiticosNivelOuNullptr(ic.id(), nivel, proto);
-      if (fn == nullptr) continue;
-      for (auto& pl : *fn->mutable_para_lancar()) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    for (auto& fn : *fc.mutable_feiticos_por_nivel()) {
+      for (auto& pl : *fn.mutable_para_lancar()) {
         pl.set_usado(false);
       }
     }
@@ -3511,7 +3515,7 @@ int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const Entid
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto) {
   // Consome o slot.
-  auto n = NovaNotificacao(proto, ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
+  auto n = NovaNotificacao(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO, proto);
   {
     auto* e_depois = n->mutable_entidade();
     auto* fc = e_depois->add_feiticos_classes();
@@ -3540,8 +3544,11 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 // erro, retorna nivel negativo.
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n) {
   if (n.entidade().feiticos_classes().empty() ||
+      n.entidade().feiticos_classes().size() > 1 ||
       n.entidade().feiticos_classes(0).feiticos_por_nivel().empty() ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty()) {
+      n.entidade().feiticos_classes(0).feiticos_por_nivel().size() > 1 ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty() ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size() > 1) {
     // Bizarramente, make_tuple da pau de linker se usar Entidade::IdInvalido.
     unsigned int id_invalido = Entidade::IdInvalido;
     return std::make_tuple("", -1, 0, false, id_invalido);

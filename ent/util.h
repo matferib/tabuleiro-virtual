@@ -29,7 +29,10 @@ class Tabelas;
 void IniciaUtil();
 
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
-std::unique_ptr<ntf::Notificacao> NovaNotificacao(const EntidadeProto& proto, ntf::Tipo tipo);
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto);
+/** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
