@@ -1132,18 +1132,18 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         AdicionaNotificacaoListaEventos(n_desfazer);
       }
       // Envia a entidade para os outros.
-      auto* n = ntf::NovaNotificacao(notificacao.tipo());
+      auto n = ntf::NovaNotificacao(notificacao.tipo());
       n->mutable_entidade()->CopyFrom(entidade->Proto());
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
     } else {
       // Mensagem veio de fora.
       auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(erro.what());
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
 }
@@ -1840,9 +1840,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
       if (notificacao.local()) {
-        auto* nr = ntf::NovaNotificacao(notificacao.tipo());
+        auto nr = ntf::NovaNotificacao(notificacao.tipo());
         nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
-        central_->AdicionaNotificacaoRemota(nr);
+        central_->AdicionaNotificacaoRemota(nr.release());
       }
 
       break;
@@ -1862,9 +1862,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       } else {
         if (notificacao.has_erro()) {
-          auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-          n->set_erro(notificacao.erro());
-          central_->AdicionaNotificacao(n);
+          central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(notificacao.erro()));
         }
         return true;
       }
@@ -1891,21 +1889,19 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_RESPOSTA_CONEXAO: {
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
-          auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
-          ni->set_erro(std::string("Conectado ao servidor"));
-          central_->AdicionaNotificacao(ni);
+          central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_INFO, "Conectado ao servidor"));
           // Aqui comeca o fluxo de envio de coisas de servidor para cliente. Nessa primeira mensagem
           // o cliente cria uma notificacao para cada componente que tratara essa mensagem mandar suas
           // requisicoes para o servidor.
-          auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D);
+          auto nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D);
           nit->set_id_rede(notificacao.id_rede());
           VLOG(1) << "Enviando TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: " << nit->DebugString();
-          central_->AdicionaNotificacao(nit);
+          central_->AdicionaNotificacao(nit.release());
         } else {
           AlterarModoMestre(true);  // volta modo mestre.
-          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+          auto ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro conectando ao servidor: ") + notificacao.erro());
-          central_->AdicionaNotificacao(ne);
+          central_->AdicionaNotificacao(ne.release());
         }
       }
       return true;
@@ -2005,12 +2001,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
       if (TemNome()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
         if (notificacao.entidade().has_modelo_3d()) {
           n->mutable_entidade()->mutable_modelo_3d();
         }
         n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(n.release());
       } else {
         central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
       }
@@ -2024,9 +2020,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         if (notificacao.endereco().empty()) {
           // Busca o nome atual do tabuleiro.
           if (proto_.nome().empty()) {
-            auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-            ne->set_erro("Tabuleiro ainda não salvo.");
-            central_->AdicionaNotificacao(ne);
+            central_->AdicionaNotificacao(ntf::NovaNotificacaoErro("Tabuleiro ainda não salvo."));
             return true;
           }
           caminho_str = proto_.nome();
@@ -2039,15 +2033,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           arq::EscreveArquivoBinProto(notificacao.entidade().has_modelo_3d()
               ? arq::TIPO_MODELOS_3D_BAIXADOS : arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
         } catch (const std::logic_error& erro) {
-          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-          ne->set_erro(erro.what());
-          central_->AdicionaNotificacao(ne);
+          central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(erro.what()));
           return true;
         }
-        auto* notificacao_info = ntf::NovaNotificacao(ntf::TN_INFO);
-        notificacao_info->set_erro(google::protobuf::StringPrintf(
-              "%s salvo em %s", notificacao.entidade().has_modelo_3d() ? "Modelo 3d" : "Tabuleiro", caminho_str.c_str()));
-        central_->AdicionaNotificacao(notificacao_info);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_INFO,
+              google::protobuf::StringPrintf("%s salvo em %s",
+                  notificacao.entidade().has_modelo_3d() ? "Modelo 3d" : "Tabuleiro", caminho_str.c_str())));
       } else {
         // Enviar remotamente.
         if (notificacao.clientes_pendentes()) {
@@ -2058,13 +2049,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
             clientes_.insert(std::make_pair(id_tab, notificacao.id_rede()));
             nt_tabuleiro->mutable_tabuleiro()->set_id_cliente(id_tab);
           } catch (const std::logic_error& e) {
-            auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+            auto ne = ntf::NovaNotificacao(ntf::TN_ERRO);
             ne->set_erro(e.what());
             // Envia para os clientes pendentes tb.
             auto* copia_ne = new ntf::Notificacao(*ne);
             copia_ne->set_clientes_pendentes(true);
             copia_ne->set_id_rede(notificacao.id_rede());
-            central_->AdicionaNotificacao(ne);
+            central_->AdicionaNotificacao(ne.release());
             central_->AdicionaNotificacaoRemota(copia_ne);
             return true;
           }
@@ -2096,9 +2087,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           arq::LeArquivoBinProto(tipo, nome_arquivo, &nt_tabuleiro);
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (std::logic_error&) {
-          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
-          central_->AdicionaNotificacao(ne);
+          central_->AdicionaNotificacao(
+              ntf::NovaNotificacaoErro(std::string("Erro lendo arquivo: ") + notificacao.endereco()));
           return true;
         }
         nt_tabuleiro.set_endereco(nt_tabuleiro.tabuleiro().nome());
@@ -2126,20 +2116,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       std::unique_ptr<ntf::Notificacao> n(
           jogador ? SerializaEntidadesSelecionaveisJogador() : SerializaEntidadesSelecionaveis());
       if (n->tabuleiro().entidade().empty()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        n->set_erro(jogador ? "Não há entidades presas a câmera" : "Não há entidades selecionáveis");
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+              jogador ? "Não há entidades presas a câmera" : "Não há entidades selecionáveis"));
       }
       try {
         boost::filesystem::path caminho(notificacao.endereco());
         arq::EscreveArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), *n);
-        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
-        ninfo->set_erro(jogador ? "Entidades do jogador salvas" : "Entidades selecionáveis salvas");
-        central_->AdicionaNotificacao(ninfo);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(
+              ntf::TN_INFO, jogador ? "Entidades do jogador salvas" : "Entidades selecionáveis salvas"));
       } catch (const std::logic_error& e) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        n->set_erro(e.what());
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(e.what()));
       }
       return true;
     }
@@ -2150,13 +2136,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         arq::LeArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), &n);
         n.mutable_entidade()->set_selecionavel_para_jogador(notificacao.entidade().selecionavel_para_jogador());
         DeserializaEntidadesSelecionaveis(n);
-        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
-        ninfo->set_erro("Entidades selecionáveis restauradas");
-        central_->AdicionaNotificacao(ninfo);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_INFO, "Entidades selecionáveis restauradas"));
       } catch (const std::logic_error& e) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        n->set_erro(e.what());
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(e.what()));
       }
       return true;
     }
@@ -2199,9 +2181,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
       if (entidade == nullptr) {
-        auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-        ne->set_erro("Deve haver uma entidade (e apenas uma) selecionada.");
-        central_->AdicionaNotificacao(ne);
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro("Deve haver uma entidade (e apenas uma) selecionada."));
         return true;
       }
       auto* n = new ntf::Notificacao(notificacao);
@@ -2240,9 +2220,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           LOG(WARNING) << "Erro, cliente " << notificacao.entidade().id() << " nao encontrado";
           return true;
         }
-        auto* n = NovaNotificacao(ntf::TN_ALTERAR_MODO_MESTRE_SECUNDARIO);
+        auto n = NovaNotificacao(ntf::TN_ALTERAR_MODO_MESTRE_SECUNDARIO);
         n->set_id_rede(it->second);
-        central_->AdicionaNotificacaoRemota(n);
+        central_->AdicionaNotificacaoRemota(n.release());
         if (mestres_secundarios_.find(it->first) == mestres_secundarios_.end()) {
           mestres_secundarios_.insert(it->first);
         } else {
@@ -2284,10 +2264,10 @@ void Tabuleiro::RefrescaMovimentosParciais() {
       pos.set_x(e->X());
       pos.set_y(e->Y());
       pos.set_z(e->Z());
-      auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+      auto n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
       n->mutable_entidade()->mutable_destino()->CopyFrom(pos);
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
     }
   } else if (estado_ == ETAB_ENTS_TRANSLACAO_ROTACAO || estado_ == ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     for (const auto& id_proto : translacoes_rotacoes_escalas_antes_) {
@@ -2296,12 +2276,12 @@ void Tabuleiro::RefrescaMovimentosParciais() {
         continue;
       }
       // Atualiza clientes quando delta passar de algum valor.
-      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+      auto nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
       nr->mutable_entidade()->set_id(e->Id());
       nr->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
       *nr->mutable_entidade()->mutable_escala() = e->Proto().escala();
       *nr->mutable_entidade()->mutable_pos() = e->Pos();
-      central_->AdicionaNotificacaoRemota(nr);
+      central_->AdicionaNotificacaoRemota(nr.release());
     }
   }
 }
@@ -2532,10 +2512,10 @@ void Tabuleiro::ProximaIniciativa() {
       return;
     }
     // Envia requisicao pro mestre passar a vez.
-    auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
+    auto n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
     n->set_servidor_apenas(true);
     n->mutable_entidade()->set_id(id_iniciativa);
-    central_->AdicionaNotificacaoRemota(n);
+    central_->AdicionaNotificacaoRemota(n.release());
     return;
   }
 
@@ -4469,7 +4449,7 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
   }
   // Atualiza a iniciativa dos clientes remotos.
   if (atualizar_remoto) {
-    std::unique_ptr<ntf::Notificacao> n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
+    auto n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
     SerializaIniciativas(n_local->mutable_tabuleiro());
     if (grupo_notificacao != nullptr) {
       auto* n = grupo_notificacao->add_notificacao();
@@ -4712,8 +4692,9 @@ void Tabuleiro::CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y,
   }
 }
 
+// TODO mudar para unique_ptr
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
+  auto notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
   tabuleiro->set_id_cliente(id_cliente_);
@@ -4734,21 +4715,23 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
   tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
-  return notificacao;
+  return notificacao.release();
 }
 
+// TODO mudar para unique_ptr
 ntf::Notificacao* Tabuleiro::SerializaRelevoCenario() const {
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  auto notificacao = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
   *tabuleiro->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
-  return notificacao;
+  return notificacao.release();
 }
 
+// TODO mudar para unique_ptr
 ntf::Notificacao* Tabuleiro::CriaNotificacaoAbrirOpcoes() const {
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
+  auto notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   notificacao->mutable_opcoes()->CopyFrom(opcoes_);
-  return notificacao;
+  return notificacao.release();
 }
 
 namespace {
@@ -4897,11 +4880,11 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     EstadoInicial(true);
   }
   if (notificacao.has_erro()) {
-    auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto ne = ntf::NovaNotificacao(ntf::TN_ERRO);
     ne->set_erro(std::string("Erro ao deserializar tabuleiro: ") + notificacao.erro());
-    central_->AdicionaNotificacao(ne);
-    auto* n = ntf::NovaNotificacao(ntf::TN_DESCONECTAR);
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(ne.release());
+    auto n = ntf::NovaNotificacao(ntf::TN_DESCONECTAR);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   // Cria os sub cenarios dummy para atualizacao de textura funcionar,
@@ -4957,7 +4940,7 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
   // O motivo de ser TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS eh para os clientes poderem receber a
   // notificacao gerada pela funcao.
   // TODO mudar isso, muito bizarro.
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
+  auto n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
   for (const auto& id_e : entidades_) {
     if (id_e.second->SelecionavelParaJogador()) {
       n->mutable_tabuleiro()->add_entidade()->CopyFrom(id_e.second->Proto());
@@ -4967,7 +4950,7 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
 }
 
 ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveisJogador() const {
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
+  auto n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
   for (const auto& id_e : ids_camera_presa_) {
     const auto* e = BuscaEntidade(id_e);
     if (e != nullptr) {
@@ -5881,9 +5864,9 @@ void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
   }
   RemoveEntidade(id_remocao);
   // Envia para os clientes.
-  auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+  auto n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
   n->mutable_entidade()->set_id(id_remocao);
-  central_->AdicionaNotificacaoRemota(n);
+  central_->AdicionaNotificacaoRemota(n.release());
   DeselecionaEntidade(id_remocao);
 }
 
@@ -5984,16 +5967,16 @@ bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
   // Libera textura anterior se houver e for diferente da corrente.
   if (velho_tem && velho_proto->id() != novo_proto.id()) {
     VLOG(2) << "Liberando textura: " << velho_proto->id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->CopyFrom(*velho_proto);
-    central->AdicionaNotificacao(nl);
+    central->AdicionaNotificacao(nl.release());
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_tem && novo_proto.id() != velho_proto->id()) {
     VLOG(2) << "Carregando textura: " << novo_proto.id();
-    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->add_info_textura()->CopyFrom(novo_proto);
-    central->AdicionaNotificacao(nc);
+    central->AdicionaNotificacao(nc.release());
   }
 
   if (novo_tem) {
@@ -7182,7 +7165,7 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
     auto* e_antes = n->mutable_entidade_antes();
@@ -7222,7 +7205,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
   // Desfazer.
   AdicionaNotificacaoListaEventos(*n);
   {
-    std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
     n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
     *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
     Cor c;
@@ -7241,7 +7224,7 @@ void Tabuleiro::AlternaFuria() {
   if (entidade == nullptr) return;
   const int nivel_barbaro = Nivel("barbaro", entidade->Proto());
   if (nivel_barbaro < 1) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
@@ -7286,7 +7269,7 @@ void Tabuleiro::AlternaFuria() {
       evento->set_descricao("furia_barbaro");
       evento->set_rodadas(3 + ModificadorAtributo(bc));
       {
-        std::unique_ptr<ntf::Notificacao> n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+        auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
         n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
         *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
         Cor c;
@@ -7309,7 +7292,7 @@ void Tabuleiro::AlternaFuria() {
 void Tabuleiro::AlternaDefesaTotal() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
@@ -7342,7 +7325,7 @@ void Tabuleiro::AlternaDefesaTotal() {
 void Tabuleiro::AlternaLutaDefensiva() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
