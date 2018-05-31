@@ -18,7 +18,7 @@ std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(Tipo tipo, const std::str
   return std::move(n);
 }
 
-std::unique_ptr<Notificacao> NovaNotificacaoErro(Tipo tipo, const std::string& erro) {
+std::unique_ptr<Notificacao> NovaNotificacaoErro(const std::string& erro) {
   return NovaNotificacaoErroTipada(TN_ERRO, erro);
 }
 

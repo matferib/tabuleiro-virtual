@@ -9,9 +9,9 @@
 
 namespace ntf {
 
-std::unique_ptr<Notificacao> NovaNotificacao(ntf::Tipo tipo);
+std::unique_ptr<Notificacao> NovaNotificacao(Tipo tipo);
 std::unique_ptr<Notificacao> NovaNotificacaoErro(const std::string& erro);
-std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(ntf::Tipo tipo, const std::string& erro);
+std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(Tipo tipo, const std::string& erro);
 
 /** Interface para receber notificações. */
 class Receptor {
