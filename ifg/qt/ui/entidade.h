@@ -205,6 +205,7 @@ public:
     QTableView *tabela_talentos;
     QLabel *label_81;
     QTableView *tabela_pericias;
+    QWidget *tab_5;
     QWidget *tab_estatisticas;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
@@ -360,6 +361,7 @@ public:
     QPushButton *botao_usar_manto;
     QWidget *tab_4;
     QTreeWidget *arvore_feiticos;
+    QPushButton *botao_renovar_feiticos;
     QWidget *tab_2;
     QWidget *layoutWidget_5;
     QHBoxLayout *horizontalLayout_32;
@@ -1267,6 +1269,9 @@ public:
         tabela_pericias->setObjectName(QStringLiteral("tabela_pericias"));
         tabela_pericias->setGeometry(QRect(30, 50, 501, 431));
         tab_tesouro->addTab(tab_3, QString());
+        tab_5 = new QWidget();
+        tab_5->setObjectName(QStringLiteral("tab_5"));
+        tab_tesouro->addTab(tab_5, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QStringLiteral("tab_estatisticas"));
         botao_remover_ataque = new QPushButton(tab_estatisticas);
@@ -2103,7 +2108,7 @@ public:
         __qtreewidgetitem->setText(0, QStringLiteral("1"));
         arvore_feiticos->setHeaderItem(__qtreewidgetitem);
         arvore_feiticos->setObjectName(QStringLiteral("arvore_feiticos"));
-        arvore_feiticos->setGeometry(QRect(10, 20, 1021, 461));
+        arvore_feiticos->setGeometry(QRect(10, 50, 1021, 431));
         QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy8.setHorizontalStretch(0);
         sizePolicy8.setVerticalStretch(0);
@@ -2114,6 +2119,9 @@ public:
         arvore_feiticos->setHeaderHidden(true);
         arvore_feiticos->setColumnCount(1);
         arvore_feiticos->header()->setDefaultSectionSize(100);
+        botao_renovar_feiticos = new QPushButton(tab_4);
+        botao_renovar_feiticos->setObjectName(QStringLiteral("botao_renovar_feiticos"));
+        botao_renovar_feiticos->setGeometry(QRect(10, 20, 131, 25));
         tab_tesouro->addTab(tab_4, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QStringLiteral("tab_2"));
@@ -2444,6 +2452,7 @@ public:
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", nullptr));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", nullptr));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", nullptr));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", nullptr));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", nullptr));
@@ -2649,6 +2658,10 @@ public:
 #endif // QT_NO_TOOLTIP
         botao_usar_manto->setText(QString());
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_renovar_feiticos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Renovar Feiti\303\247os", nullptr));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_4), QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247os", nullptr));
         label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", nullptr));
 #ifndef QT_NO_TOOLTIP

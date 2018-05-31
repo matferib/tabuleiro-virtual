@@ -347,9 +347,7 @@ void Visualizador3d::initializeGL() {
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(erro.what());
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(erro.what()));
   }
 }
 
@@ -413,9 +411,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         VLOG(1) << "Alterações descartadas";
         break;
       }
-      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
+      auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
       n->mutable_entidade()->Swap(entidade_proto.get());
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
@@ -429,9 +427,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         VLOG(1) << "Alterações de iluminação descartadas";
         break;
       }
-      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+      auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
       n->mutable_tabuleiro()->Swap(tabuleiro);
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_OPCOES: {
@@ -445,9 +443,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         VLOG(1) << "Alterações de opcoes descartadas";
         break;
       }
-      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
+      auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
       n->mutable_opcoes()->Swap(opcoes.get());
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       break;
     }
     /*
@@ -742,13 +740,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   }
   // Esconde dialogo e entra no modo de selecao.
   lambda_connect(gerador.botao_transicao_mapa, SIGNAL(clicked()), [this, dialogo, gerador, &entidade, &proto_retornado] {
-    auto* notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO);
+    auto notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO);
     notificacao->mutable_entidade()->set_id(entidade.id());
     notificacao->mutable_entidade()->set_tipo_transicao(ent::EntidadeProto::TRANS_CENARIO);
     if (entidade.has_transicao_cenario()) {
       *notificacao->mutable_entidade()->mutable_transicao_cenario() = entidade.transicao_cenario();
     }
-    central_->AdicionaNotificacao(notificacao);
+    central_->AdicionaNotificacao(notificacao.release());
     delete proto_retornado;
     proto_retornado = nullptr;
     dialogo->reject();
