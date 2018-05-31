@@ -262,17 +262,17 @@ void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
   if (!proto_.modelo_3d().id().empty() &&
       proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
     VLOG(1) << "Liberando modelo_3d: " << proto_.modelo_3d().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
     nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto_.modelo_3d().id());
-    central_->AdicionaNotificacao(nl);
+    central_->AdicionaNotificacao(nl.release());
   }
   // Carrega modelo_3d se houver e for diferente da antiga.
   if (!novo_proto.modelo_3d().id().empty() &&
       novo_proto.modelo_3d().id() != proto_.modelo_3d().id()) {
     VLOG(1) << "Carregando modelo_3d: " << novo_proto.modelo_3d().id();
-    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
     *nc->mutable_entidade()->mutable_modelo_3d() = novo_proto.modelo_3d();
-    central_->AdicionaNotificacao(nc);
+    central_->AdicionaNotificacao(nc.release());
   }
   if (!novo_proto.modelo_3d().id().empty()) {
     *proto_.mutable_modelo_3d() = novo_proto.modelo_3d();
@@ -290,16 +290,16 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->set_id(proto_atual->info_textura().id());
-    central->AdicionaNotificacao(nl);
+    central->AdicionaNotificacao(nl.release());
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
-    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
-    central->AdicionaNotificacao(nc);
+    central->AdicionaNotificacao(nc.release());
   }
   if (novo_proto.info_textura().id().size() > 0) {
     proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
@@ -1850,9 +1850,9 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   // Texturas globais.
   {
     // TODO remover essa textura.
-    auto* n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     n_tex->add_info_textura()->set_id("smoke.png");
-    central->AdicionaNotificacao(n_tex);
+    central->AdicionaNotificacao(n_tex.release());
   }
 }
 
