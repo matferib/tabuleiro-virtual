@@ -107,9 +107,9 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
     if (central_ != nullptr) {
-      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-      n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what()));
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(
+            google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
     }
   }
   try {
@@ -117,9 +117,9 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
     if (central_ != nullptr) {
-      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-      n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what()));
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(
+            google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
   RecarregaMapas();
@@ -283,9 +283,9 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // É possivel?
       if (!notificacao.local()) return false;
       VLOG(1) << "Enviando requisicao TN_REQUISITAR_TABELAS para servidor";
-      auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS);
       n->set_id_rede(notificacao.id_rede());
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_REQUISITAR_TABELAS: {
@@ -293,10 +293,10 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // É possivel?
       if (notificacao.local()) return false;
       VLOG(1) << "Enviando tabelas para cliente '" << notificacao.id_rede() << "'";
-      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
       *n->mutable_tabelas() = tabelas_;
       n->set_id_rede(notificacao.id_rede());
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_ENVIAR_TABELAS: {
