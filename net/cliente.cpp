@@ -92,18 +92,16 @@ void Cliente::EnviaDados(const std::string& dados, bool sem_dados) {
 void Cliente::AutoConecta(const std::string& id) {
   VLOG(1) << "Tentando auto conectar como " << id;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
-    n->set_erro("Já há um descobrimento em curso.");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(
+        ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, "Já há um descobrimento em curso."));
     return;
   }
   //LOG(INFO) << "recriando socket";
   socket_descobrimento_.reset(new SocketUdp(sincronizador_, PortaAnuncio()));
   if (!socket_descobrimento_->Aberto()) {
     socket_descobrimento_.reset();
-    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
-    n->set_erro("Nao consegui abrir socket de auto conexao.");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(
+        ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, "Nao consegui abrir socket de auto conexao."));
     return;
   }
   buffer_descobrimento_.resize(10);
@@ -113,10 +111,9 @@ void Cliente::AutoConecta(const std::string& id) {
       [this, id] (const Erro& erro, std::size_t num_bytes) {
         socket_descobrimento_.reset();
         if (erro) {
-          std::string erro_str("Tempo de espera expirado para autoconexão");
-          auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
-          n->set_erro(erro_str);
-          central_->AdicionaNotificacao(n);
+          std::string erro_str = "Tempo de espera expirado para autoconexão";
+          central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, erro_str));
           LOG(ERROR) << erro_str;
           return;
         }
@@ -137,9 +134,8 @@ void Cliente::AutoConecta(const std::string& id) {
 void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   VLOG(1) << "Tentando conectar como " << id << " em " << endereco_str;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
-    n->set_erro("Já há um descobrimento em curso.");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(
+        ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, "Já há um descobrimento em curso."));
     return;
   }
   std::vector<std::string> endereco_porta;
@@ -187,10 +183,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     VLOG(1) << "Conexão bem sucedida";
   } catch (std::exception& e) {
     socket_.reset();
-    auto* notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
-    notificacao->set_erro(e.what());
-    central_->AdicionaNotificacao(notificacao);
+    central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, e.what()));
     VLOG(1) << "Falha de conexão com " << endereco_porta[0] << ":" << endereco_porta[1];
     return;
   }
@@ -202,12 +195,12 @@ void Cliente::Desconecta(const std::string& erro) {
   }
   socket_->Fecha();
   socket_.reset();
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
-  central_->AdicionaNotificacao(notificacao);
-  central_->DesregistraEmissorRemoto(this);
+  auto notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   if (!erro.empty()) {
     notificacao->set_erro(erro);
   }
+  central_->AdicionaNotificacao(notificacao.release());
+  central_->DesregistraEmissorRemoto(this);
   LOG(INFO) << "Desconectando: " << erro;
 }
 
