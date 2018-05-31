@@ -81,6 +81,13 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(const EntidadeProto& proto, ntf::Tipo tipo) {
+  auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(tipo));
+  n->mutable_entidade_antes()->set_id(proto.id());
+  n->mutable_entidade()->set_id(proto.id());
+  return n;
+}
+
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }

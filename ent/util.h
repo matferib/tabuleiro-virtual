@@ -28,6 +28,9 @@ class Tabelas;
 
 void IniciaUtil();
 
+/** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(const EntidadeProto& proto, ntf::Tipo tipo);
+
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
 void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
