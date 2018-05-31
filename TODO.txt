@@ -1,11 +1,7 @@
 Mais habilidades especiais, especialmente as que se escolhem (como evasao para ladino).
-Botao de descansar.
 Fogo grego, crash tabuleiro ao editar.
 Dar um jeito de transmitir as coisas (tabelas por exemplo) nao srd para clientes. Versionar?
-Procurar funcao last_write_time.
-Ordenacao de tabuleiros salvos por data.
-Clique botao direito na arvore de feiticos ta dando crash.
-Implementar resistencia a magia.
+Ordenacao de tabuleiros salvos por data: Procurar funcao last_write_time.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Salvacoes e progressao bba automaticos por tipo de classe de monstro (aberração, por exemplo).
 

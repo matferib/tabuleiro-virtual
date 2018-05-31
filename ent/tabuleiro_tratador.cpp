@@ -730,11 +730,18 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           e_antes->set_rotacao_z_graus(proto_antes.rotacao_z_graus());
           *e_antes->mutable_pos() = proto_antes.pos();
           *e_antes->mutable_escala() = proto_antes.escala();
+          e_antes->set_apoiada(entidade->Apoiada());
           auto* e_depois = n->mutable_entidade();
           e_depois->set_id(id_proto.first);
           e_depois->set_rotacao_z_graus(entidade->RotacaoZGraus());
-          *e_depois->mutable_pos() = entidade->Pos();
+          const Posicao& pos = entidade->Pos();
+          float altura_olho = entidade->AlturaOlho();
+          bool apoiado = Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho);
+          *e_depois->mutable_pos() = pos;
           *e_depois->mutable_escala() = entidade->Proto().escala();
+          e_depois->set_apoiada(apoiado);
+          // Como a notificacao so vai para os clientes, apoia manualmente aqui.
+          entidade->Apoia(apoiado);
           central_->AdicionaNotificacaoRemota(new ntf::Notificacao(*n));
         }
         // Para desfazer.
@@ -2226,6 +2233,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       e->set_id(entidade_selecionada->Id());
       e_antes->set_id(entidade_selecionada->Id());
       e_antes->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
+      e_antes->set_apoiada(entidade_selecionada->Apoiada());
       // Altera a translacao em Z.
       //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
       e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
@@ -2233,7 +2241,6 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       const Posicao& pos = e->destino();
       float altura_olho = entidade_selecionada->AlturaOlho();
       e->set_apoiada(Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho));
-      n->mutable_entidade_antes()->set_apoiada(entidade_selecionada->Apoiada());
     }
     // Nop mas envia para os clientes.
     TrataNotificacao(grupo_notificacoes);
