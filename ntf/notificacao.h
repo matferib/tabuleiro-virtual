@@ -9,7 +9,9 @@
 
 namespace ntf {
 
-Notificacao* NovaNotificacao(ntf::Tipo tipo);
+std::unique_ptr<Notificacao> NovaNotificacao(ntf::Tipo tipo);
+std::unique_ptr<Notificacao> NovaNotificacaoErro(const std::string& erro);
+std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(ntf::Tipo tipo, const std::string& erro);
 
 /** Interface para receber notificações. */
 class Receptor {
@@ -32,10 +34,14 @@ class CentralNotificacoes {
 
   /** Adiciona uma notificacao a central, que sera a dona dela. */
   void AdicionaNotificacao(Notificacao* notificacao);
+  void AdicionaNotificacao(std::unique_ptr<Notificacao> notificacao) { AdicionaNotificacao(notificacao.release()); }
 
   /** Adiciona uma notificacao a ser processada apenas pelos emissores remotos.
   * A central possuirá a notificação. */
   void AdicionaNotificacaoRemota(Notificacao* notificacao);
+  void AdicionaNotificacaoRemota(std::unique_ptr<Notificacao> notificacao) {
+    AdicionaNotificacaoRemota(notificacao.release());
+  }
 
   /** Registra um receptor com a central, que nao sera dono dele. */
   void RegistraReceptor(Receptor* receptor);
