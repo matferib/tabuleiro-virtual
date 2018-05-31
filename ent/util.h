@@ -407,6 +407,9 @@ std::string ClasseParaFeitico(const std::string& tipo_ataque);
 // e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
 const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
 
+// Renova todos os feiticos do proto (ficam prontos para serem usados).
+void RenovaFeiticos(EntidadeProto* proto);
+
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
 * descricao [(complemento)] : rodadas.
@@ -515,8 +518,8 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
     const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
 
 // Retorna uma notificacao de alterar feitico para um personagem.
-ntf::Notificacao NotificacaoAlterarFeitico(
-    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade);
+std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe

@@ -2289,7 +2289,7 @@ void Tabuleiro::DescansaPersonagemNotificando() {
   const auto& proto = e->Proto();
   int nivel = Nivel(proto);
   // Cura 1 PV por nivel.
-  std::unique_ptr<ntf::Notificacao> n(NovaNotificacao(proto, ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n = NovaNotificacao(proto, ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_pontos_vida(e->PontosVida());

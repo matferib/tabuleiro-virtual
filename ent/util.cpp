@@ -3231,6 +3231,21 @@ int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& 
   return InfoClasseParaFeitico(da.tipo_ataque(), proto).nivel();
 }
 
+void RenovaFeiticos(EntidadeProto* proto) {
+  for (const auto& ic : *proto->mutable_info_classes()) {
+    if (!ic.has_nivel_conjurador()) continue;
+    auto* fc = ent::FeiticosClasse(ic.id(), proto);
+    if (fc == nullptr) continue;
+    for (int nivel = 0; nivel < fc->feiticos_por_nivel().size(); ++nivel) {
+      auto* fn = FeiticosNivelOuNullptr(ic.id(), nivel, proto);
+      if (fn == nullptr) continue;
+      for (auto& pl : *fn->mutable_para_lancar()) {
+        pl.set_usado(false);
+      }
+    }
+  }
+}
+
 bool EmDefesaTotal(const EntidadeProto& proto) {
   for (const auto& bi : proto.dados_defesa().ca().bonus_individual()) {
     if (bi.tipo() == TB_ESQUIVA) {
@@ -3493,20 +3508,31 @@ int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const Entid
   return -1;
 }
 
-ntf::Notificacao NotificacaoAlterarFeitico(
-    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade) {
+std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto) {
   // Consome o slot.
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
-  auto* e_depois = n.mutable_entidade();
-  e_depois->set_id(id_entidade);
-  auto* fc = e_depois->add_feiticos_classes();
-  fc->set_id_classe(id_classe);
-  auto* fn = fc->add_feiticos_por_nivel();
-  fn->set_nivel(nivel);
-  auto* pl = fn->add_para_lancar();
-  pl->set_usado(usado);
-  pl->set_indice(indice);
+  auto n = NovaNotificacao(proto, ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
+  {
+    auto* e_depois = n->mutable_entidade();
+    auto* fc = e_depois->add_feiticos_classes();
+    fc->set_id_classe(id_classe);
+    auto* fn = fc->add_feiticos_por_nivel();
+    fn->set_nivel(nivel);
+    auto* pl = fn->add_para_lancar();
+    pl->set_usado(usado);
+    pl->set_indice(indice);
+  }
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    auto* fc = e_antes->add_feiticos_classes();
+    fc->set_id_classe(id_classe);
+    auto* fn = fc->add_feiticos_por_nivel();
+    fn->set_nivel(nivel);
+    auto* pl = fn->add_para_lancar();
+    pl->set_usado(FeiticoParaLancar(id_classe, nivel, indice, proto).usado());
+    pl->set_indice(indice);
+  }
+
   return n;
 }
 

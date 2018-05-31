@@ -198,6 +198,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
   VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_DESCANSAR_PERSONAGEM:
+      DescansaPersonagemNotificando();
+      break;
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
@@ -207,9 +210,6 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_USAR_FEITICO_6:
     case CONTROLE_USAR_FEITICO_7:
     case CONTROLE_USAR_FEITICO_8:
-    case CONTROLE_DESCANSAR_PERSONAGEM:
-      DescansaPersonagemNotificando();
-      break;
     case CONTROLE_USAR_FEITICO_9:
       TrataBotaoUsarFeitico(id - CONTROLE_USAR_FEITICO_0);
       break;

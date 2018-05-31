@@ -5646,17 +5646,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
     case ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: {
       VLOG(1) << "Invertendo TN_ALTERAR_FEITICO";
       n_inversa.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
-      std::string id_classe;
-      int nivel;
-      int indice;
-      bool usado;
-      unsigned int id;
-      std::tie(id_classe, nivel, indice, usado, id) = DadosNotificacaoAlterarFeitico(n_original);
-      if (nivel < 0) {
-        LOG(ERROR) << "Falha ao inverter ntf::TN_ALTERAR_FEITICO_NOTIFICANDO: " << n_original.DebugString();
-        break;
-      }
-      n_inversa = NotificacaoAlterarFeitico(id_classe, nivel, indice, !usado, id);
+      *n_inversa.mutable_entidade() = n_original.entidade_antes();
       break;
     }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
