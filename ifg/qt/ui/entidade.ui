@@ -1746,6 +1746,11 @@ QGroupBox::title {
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="tab_5">
+    <attribute name="title">
+     <string>Habilidades Especiais</string>
+    </attribute>
+   </widget>
    <widget class="QWidget" name="tab_estatisticas">
     <attribute name="title">
      <string>Estatísticas</string>
@@ -3501,9 +3506,9 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>50</y>
        <width>1021</width>
-       <height>461</height>
+       <height>431</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -3532,6 +3537,22 @@ QGroupBox::title {
        <string notr="true">1</string>
       </property>
      </column>
+    </widget>
+    <widget class="QPushButton" name="botao_renovar_feiticos">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>131</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Deixa todos os feitiços disponíveis para uso.</string>
+     </property>
+     <property name="text">
+      <string>Renovar Feitiços</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
