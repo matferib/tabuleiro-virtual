@@ -104,13 +104,13 @@ void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok,
     return;
   }
   const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao).id());
-  if (pocao.id_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
+  if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
     VoltaEscolherEfeito(notificacao, indice_pocao, true, 0);
     return;
   }
   std::vector<std::string> efeitos;
-  for (auto id_efeito : pocao.id_efeito()) {
-    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)id_efeito));
+  for (auto tipo_efeito : pocao.tipo_efeito()) {
+    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
   }
   EscolheItemLista(
       "Escolha o efeito", efeitos,

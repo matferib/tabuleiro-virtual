@@ -315,13 +315,15 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
+
+  // Eventos.
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   {
     // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_original.mutable_evento()) {
-      if (!PossuiEventoEspecifico(evento, novo_proto)) {
+      if (!PossuiEventoEspecifico(novo_proto, evento)) {
         evento.set_rodadas(-1);
       } else {
         // Remove porque estas virao do proto novo.
@@ -920,20 +922,19 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     auto& f = vd_.fumaca;
     f.duracao_ms = 0;
   }
-  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
+
+  // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
   if (proto_parcial.evento_size() > 0) {
-    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_.mutable_evento()) {
-      if (!PossuiEventoEspecifico(evento, proto_parcial)) {
-        evento.set_rodadas(-1);
-      } else {
+      if (PossuiEventoEspecifico(proto_parcial, evento)) {
         a_remover.push_back(i);
       }
       ++i;
     }
+    // Faz invertido para nao atrapalhar os indices.
     for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
       proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }

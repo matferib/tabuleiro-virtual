@@ -19,7 +19,6 @@ namespace qt {
 
 void AtualizaUIEventos(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  LOG(INFO) << "reset";
   auto* model = qobject_cast<ModeloEvento*>(gerador.tabela_lista_eventos->model());
   if (model == nullptr) return;
   model->ModeloAtualizado();

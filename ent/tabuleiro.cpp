@@ -977,7 +977,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       evento->set_id_efeito(EFEITO_OUTRO);
       evento->set_rodadas(duracao_rodadas);
       // Acha o id para a referencia, ja que o modelo nao tem nada.
-      evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto()));
+      evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto().evento()));
     }
   }
   if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
@@ -7174,14 +7174,14 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->set_id(entidade->Id());
     *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (indice_efeito < pocao.id_efeito().size() && e_antes->evento().empty()) {
+    if (indice_efeito < pocao.tipo_efeito().size() && e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
       e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
       e_antes->add_evento()->set_rodadas(-1);
@@ -7198,8 +7198,8 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
     if (e_depois->tesouro().pocoes().empty()) {
       e_depois->mutable_tesouro()->add_pocoes();
     }
-    if (indice_efeito < pocao.id_efeito().size()) {
-      AdicionaEventoItemMagico(pocao, indice_efeito, pocao.duracao_rodadas(), false, e_depois);
+    if (indice_efeito < pocao.tipo_efeito().size()) {
+      AdicionaEventoItemMagico(entidade->Proto().evento(), pocao, indice_efeito, pocao.duracao_rodadas(), false, e_depois);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
       int total;
@@ -7272,7 +7272,7 @@ void Tabuleiro::AlternaFuria() {
       // Para ver novo modificador.
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, e_depois);
+      auto* evento = AdicionaEvento(entidade->Proto().evento(), EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");

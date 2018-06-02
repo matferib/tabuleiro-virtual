@@ -1254,7 +1254,7 @@ void ConfiguraListaItensMagicos(
         return;
       }
       const auto& item_tabela = ItemTabela(tabelas, tipo, item->id());
-      for (int id_unico : AdicionaEventoItemMagicoContinuo(item_tabela, proto_retornado)) {
+      for (int id_unico : AdicionaEventoItemMagicoContinuo(proto_retornado->evento(), item_tabela, proto_retornado)) {
         item->add_ids_efeitos(id_unico);
       }
       item->set_em_uso(true);

@@ -2831,7 +2831,7 @@ bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const Entid
 }
 }  // namespace
 
-bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade) {
+bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [evento] (const EntidadeProto::Evento& evento_entidade) {
     if (evento.has_id_unico()) {
       return evento.id_unico() == evento_entidade.id_unico();
@@ -3293,6 +3293,7 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
   uint32_t i = 0;
   for (const auto& e : eventos) {
+    VLOG(2) << "evento: " << e.ShortDebugString();
     i = std::max(i, e.id_unico());
   }
   ++i;
@@ -3311,15 +3312,18 @@ uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProt
       }
     }
   }
+  VLOG(1) << "Retornando id unico: " << i;
   return i;
 }
 
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    TipoEfeito tipo_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   auto* e = proto->add_evento();
-  e->set_id_efeito(id_efeito);
+  e->set_id_efeito(tipo_efeito);
   e->set_rodadas(rodadas);
   e->set_continuo(continuo);
-  e->set_id_unico(AchaIdUnicoEvento(*proto));
+  e->set_id_unico(AchaIdUnicoEvento(eventos));
   return e;
 }
 
@@ -3333,23 +3337,24 @@ void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
 }
 
 std::vector<int> AdicionaEventoItemMagico(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
   std::vector<int> ids_unicos;
   std::vector<TipoEfeito> efeitos;
   if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
-    if (indice < 0 || indice >= item.id_efeito().size()) {
+    if (indice < 0 || indice >= item.tipo_efeito().size()) {
       LOG(ERROR) << "indice de efeito de item invalido para " << item.DebugString();
     } else {
-      efeitos.push_back(item.id_efeito(indice));
+      efeitos.push_back(item.tipo_efeito(indice));
     }
   } else {
-    for (auto id_efeito : item.id_efeito()) {
-      efeitos.push_back((TipoEfeito)id_efeito);
+    for (auto tipo_efeito : item.tipo_efeito()) {
+      efeitos.push_back((TipoEfeito)tipo_efeito);
     }
   }
 
-  for (auto id_efeito : efeitos) {
-    auto* evento = AdicionaEvento(id_efeito, rodadas, continuo, proto);
+  for (auto tipo_efeito : efeitos) {
+    auto* evento = AdicionaEvento(eventos, tipo_efeito, rodadas, continuo, proto);
     ids_unicos.push_back(evento->id_unico());
     if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();

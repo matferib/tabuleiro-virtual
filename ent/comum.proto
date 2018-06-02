@@ -468,7 +468,7 @@ message ItemMagicoProto {
   optional string nome = 2;
   // Tipo do efeito do item (se causar algum).
   // Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
-  repeated TipoEfeito id_efeito = 3;
+  repeated TipoEfeito tipo_efeito = 3;
   // Duracao do efeito.
   optional int32 duracao_rodadas = 4;
   // Custo em PO.

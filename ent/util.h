@@ -326,8 +326,8 @@ bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
-// Retorna verdadeiro se a entidade tiver um evento com mesmo id e descricao.
-bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
+// Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
+bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -435,21 +435,25 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
 // Acha um id unico de evento para o proto passado.
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
-inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUnicoEvento(proto.evento()); }
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente.
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
 // TODO: rodadas automatico?
-std::vector<int> AdicionaEventoItemMagico(const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
+std::vector<int> AdicionaEventoItemMagico(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto_retornado);
 inline std::vector<int> AdicionaEventoItemMagico(
-    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(item, -1, rodadas, continuo, proto);
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto_retornado) {
+  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto_retornado);
 }
-inline std::vector<int> AdicionaEventoItemMagicoContinuo(const ItemMagicoProto& item, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(item, -1, 1, true, proto);
+inline std::vector<int> AdicionaEventoItemMagicoContinuo(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto_retornado) {
+  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto_retornado);
 }
 
 // Marca a duracao do evento para -1.
