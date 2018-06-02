@@ -3377,7 +3377,7 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="label_86">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -3428,7 +3428,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>520</x>
-       <y>140</y>
+       <y>130</y>
        <width>481</width>
        <height>131</height>
       </rect>
@@ -3437,7 +3437,7 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="label_87">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -3501,7 +3501,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>520</x>
-       <y>280</y>
+       <y>260</y>
        <width>481</width>
        <height>131</height>
       </rect>
@@ -3510,7 +3510,7 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="label_88">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -3563,6 +3563,79 @@ QGroupBox::title {
       <rect>
        <x>1010</x>
        <y>310</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_11">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>390</y>
+       <width>481</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_42">
+      <item>
+       <widget class="QLabel" name="label_89">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Braçadeiras</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lista_bracadeiras"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="botao_usar_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>400</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Usar/retirar anel</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>460</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>430</y>
        <width>31</width>
        <height>27</height>
       </rect>

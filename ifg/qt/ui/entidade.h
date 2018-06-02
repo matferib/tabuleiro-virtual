@@ -366,6 +366,13 @@ public:
     QPushButton *botao_usar_luvas;
     QPushButton *botao_remover_luvas;
     QPushButton *botao_adicionar_luvas;
+    QWidget *layoutWidget_11;
+    QHBoxLayout *horizontalLayout_42;
+    QLabel *label_89;
+    QListWidget *lista_bracadeiras;
+    QPushButton *botao_usar_bracadeiras;
+    QPushButton *botao_remover_bracadeiras;
+    QPushButton *botao_adicionar_bracadeiras;
     QWidget *tab_4;
     QTreeWidget *arvore_feiticos;
     QPushButton *botao_renovar_feiticos;
@@ -2062,8 +2069,11 @@ public:
         horizontalLayout_39->setContentsMargins(0, 0, 0, 0);
         label_86 = new QLabel(layoutWidget_8);
         label_86->setObjectName(QStringLiteral("label_86"));
-        sizePolicy5.setHeightForWidth(label_86->sizePolicy().hasHeightForWidth());
-        label_86->setSizePolicy(sizePolicy5);
+        QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sizePolicy8.setHorizontalStretch(0);
+        sizePolicy8.setVerticalStretch(0);
+        sizePolicy8.setHeightForWidth(label_86->sizePolicy().hasHeightForWidth());
+        label_86->setSizePolicy(sizePolicy8);
         label_86->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_39->addWidget(label_86);
@@ -2081,14 +2091,14 @@ public:
         botao_usar_anel->setGeometry(QRect(1010, 10, 31, 27));
         layoutWidget_9 = new QWidget(tab);
         layoutWidget_9->setObjectName(QStringLiteral("layoutWidget_9"));
-        layoutWidget_9->setGeometry(QRect(520, 140, 481, 131));
+        layoutWidget_9->setGeometry(QRect(520, 130, 481, 131));
         horizontalLayout_40 = new QHBoxLayout(layoutWidget_9);
         horizontalLayout_40->setObjectName(QStringLiteral("horizontalLayout_40"));
         horizontalLayout_40->setContentsMargins(0, 0, 0, 0);
         label_87 = new QLabel(layoutWidget_9);
         label_87->setObjectName(QStringLiteral("label_87"));
-        sizePolicy5.setHeightForWidth(label_87->sizePolicy().hasHeightForWidth());
-        label_87->setSizePolicy(sizePolicy5);
+        sizePolicy8.setHeightForWidth(label_87->sizePolicy().hasHeightForWidth());
+        label_87->setSizePolicy(sizePolicy8);
         label_87->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_40->addWidget(label_87);
@@ -2109,14 +2119,14 @@ public:
         botao_usar_manto->setGeometry(QRect(1010, 140, 31, 27));
         layoutWidget_10 = new QWidget(tab);
         layoutWidget_10->setObjectName(QStringLiteral("layoutWidget_10"));
-        layoutWidget_10->setGeometry(QRect(520, 280, 481, 131));
+        layoutWidget_10->setGeometry(QRect(520, 260, 481, 131));
         horizontalLayout_41 = new QHBoxLayout(layoutWidget_10);
         horizontalLayout_41->setObjectName(QStringLiteral("horizontalLayout_41"));
         horizontalLayout_41->setContentsMargins(0, 0, 0, 0);
         label_88 = new QLabel(layoutWidget_10);
         label_88->setObjectName(QStringLiteral("label_88"));
-        sizePolicy5.setHeightForWidth(label_88->sizePolicy().hasHeightForWidth());
-        label_88->setSizePolicy(sizePolicy5);
+        sizePolicy8.setHeightForWidth(label_88->sizePolicy().hasHeightForWidth());
+        label_88->setSizePolicy(sizePolicy8);
         label_88->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_41->addWidget(label_88);
@@ -2135,6 +2145,34 @@ public:
         botao_adicionar_luvas = new QPushButton(tab);
         botao_adicionar_luvas->setObjectName(QStringLiteral("botao_adicionar_luvas"));
         botao_adicionar_luvas->setGeometry(QRect(1010, 310, 31, 27));
+        layoutWidget_11 = new QWidget(tab);
+        layoutWidget_11->setObjectName(QStringLiteral("layoutWidget_11"));
+        layoutWidget_11->setGeometry(QRect(520, 390, 481, 121));
+        horizontalLayout_42 = new QHBoxLayout(layoutWidget_11);
+        horizontalLayout_42->setObjectName(QStringLiteral("horizontalLayout_42"));
+        horizontalLayout_42->setContentsMargins(0, 0, 0, 0);
+        label_89 = new QLabel(layoutWidget_11);
+        label_89->setObjectName(QStringLiteral("label_89"));
+        sizePolicy8.setHeightForWidth(label_89->sizePolicy().hasHeightForWidth());
+        label_89->setSizePolicy(sizePolicy8);
+        label_89->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_42->addWidget(label_89);
+
+        lista_bracadeiras = new QListWidget(layoutWidget_11);
+        lista_bracadeiras->setObjectName(QStringLiteral("lista_bracadeiras"));
+
+        horizontalLayout_42->addWidget(lista_bracadeiras);
+
+        botao_usar_bracadeiras = new QPushButton(tab);
+        botao_usar_bracadeiras->setObjectName(QStringLiteral("botao_usar_bracadeiras"));
+        botao_usar_bracadeiras->setGeometry(QRect(1010, 400, 31, 27));
+        botao_remover_bracadeiras = new QPushButton(tab);
+        botao_remover_bracadeiras->setObjectName(QStringLiteral("botao_remover_bracadeiras"));
+        botao_remover_bracadeiras->setGeometry(QRect(1010, 460, 31, 27));
+        botao_adicionar_bracadeiras = new QPushButton(tab);
+        botao_adicionar_bracadeiras->setObjectName(QStringLiteral("botao_adicionar_bracadeiras"));
+        botao_adicionar_bracadeiras->setGeometry(QRect(1010, 430, 31, 27));
         tab_tesouro->addTab(tab, QString());
         tab_4 = new QWidget();
         tab_4->setObjectName(QStringLiteral("tab_4"));
@@ -2144,11 +2182,11 @@ public:
         arvore_feiticos->setHeaderItem(__qtreewidgetitem);
         arvore_feiticos->setObjectName(QStringLiteral("arvore_feiticos"));
         arvore_feiticos->setGeometry(QRect(10, 50, 1021, 431));
-        QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy8.setHorizontalStretch(0);
-        sizePolicy8.setVerticalStretch(0);
-        sizePolicy8.setHeightForWidth(arvore_feiticos->sizePolicy().hasHeightForWidth());
-        arvore_feiticos->setSizePolicy(sizePolicy8);
+        QSizePolicy sizePolicy9(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy9.setHorizontalStretch(0);
+        sizePolicy9.setVerticalStretch(0);
+        sizePolicy9.setHeightForWidth(arvore_feiticos->sizePolicy().hasHeightForWidth());
+        arvore_feiticos->setSizePolicy(sizePolicy9);
         arvore_feiticos->setDragEnabled(false);
         arvore_feiticos->setDragDropMode(QAbstractItemView::NoDragDrop);
         arvore_feiticos->setHeaderHidden(true);
@@ -2700,6 +2738,13 @@ public:
         botao_usar_luvas->setText(QString());
         botao_remover_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         botao_adicionar_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        label_89->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bra\303\247adeiras", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_usar_bracadeiras->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_usar_bracadeiras->setText(QString());
+        botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", nullptr));

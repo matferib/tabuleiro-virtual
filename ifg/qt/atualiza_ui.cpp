@@ -406,14 +406,22 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
   gerador.lista_formas_alternativas->blockSignals(false);
 }
 
-void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos, gerador.lista_luvas };
-  for (auto* obj : objs) obj->blockSignals(true);
+void AtualizaListaItemMagico(const ent::Tabelas& tabelas, TipoItem tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
+  const int indice = lista->currentRow();
+  lista->clear();
+  for (const auto& item : ItensPersonagem(tipo, proto)) {
+    auto* wi = new QListWidgetItem(QString::fromUtf8(
+          NomeParaLista(tabelas, tipo, item).c_str()), lista);
+    wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  }
+  lista->setCurrentRow(indice);
+}
 
-  // Nao atualiza o campo de texto, faz isso so no final.
-  //auto cursor = gerador.lista_tesouro->cursor();
-  //gerador.lista_tesouro->setPlainText(QString::fromUtf8(proto.tesouro().tesouro().c_str()));
-  //gerador.lista_tesouro->setCursor(cursor);
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  std::vector<QWidget*> objs = {
+      gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos, gerador.lista_luvas, gerador.lista_bracadeiras
+  };
+  for (auto* obj : objs) obj->blockSignals(true);
 
   // Pocoes.
   {
@@ -426,41 +434,11 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
     }
     gerador.lista_pocoes->setCurrentRow(indice);
   }
-  // Aneis.
-  {
-    const int indice = gerador.lista_aneis->currentRow();
-    gerador.lista_aneis->clear();
-    for (const auto& anel : proto.tesouro().aneis()) {
-      auto* item = new QListWidgetItem(QString::fromUtf8(
-            NomeParaLista(tabelas, TipoItem::TIPO_ANEL, anel).c_str()), gerador.lista_aneis);
-      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    gerador.lista_aneis->setCurrentRow(indice);
-  }
 
-  // Luvas.
-  {
-    const int indice = gerador.lista_luvas->currentRow();
-    gerador.lista_luvas->clear();
-    for (const auto& luvas : proto.tesouro().luvas()) {
-      auto* item = new QListWidgetItem(QString::fromUtf8(
-            NomeParaLista(tabelas, TipoItem::TIPO_LUVAS, luvas).c_str()), gerador.lista_luvas);
-      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    gerador.lista_luvas->setCurrentRow(indice);
-  }
-
-  // Mantos.
-  {
-    const int indice = gerador.lista_mantos->currentRow();
-    gerador.lista_mantos->clear();
-    for (const auto& manto : proto.tesouro().mantos()) {
-      auto* item = new QListWidgetItem(QString::fromUtf8(
-            NomeParaLista(tabelas, TipoItem::TIPO_MANTO, manto).c_str()), gerador.lista_mantos);
-      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    gerador.lista_mantos->setCurrentRow(indice);
-  }
+  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_ANEL, gerador.lista_aneis, proto);
+  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_LUVAS, gerador.lista_luvas, proto);
+  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_MANTO, gerador.lista_mantos, proto);
+  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_BRACADEIRAS, gerador.lista_bracadeiras, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }

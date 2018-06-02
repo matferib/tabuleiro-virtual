@@ -15,6 +15,7 @@ enum class TipoItem {
   TIPO_ANEL,
   TIPO_MANTO,
   TIPO_LUVAS,
+  TIPO_BRACADEIRAS,
 };
 
 // Retorna o maximo de itens em uso pelo tipo.
@@ -153,6 +154,7 @@ inline const ent::ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
     case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
     case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
+    case TipoItem::TIPO_BRACADEIRAS: return tabelas.Bracadeiras(id);
   }
   return ent::ItemMagicoProto::default_instance();
 }
@@ -163,6 +165,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
     case TipoItem::TIPO_ANEL: return tabelas.todas().tabela_aneis().aneis();
     case TipoItem::TIPO_MANTO: return tabelas.todas().tabela_mantos().mantos();
     case TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();
+    case TipoItem::TIPO_BRACADEIRAS: return tabelas.todas().tabela_bracadeiras().bracadeiras();
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
   return tabelas.todas().tabela_aneis().aneis();
@@ -174,6 +177,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPers
     case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
     case TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
     case TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
+    case TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto.tesouro().aneis();
@@ -185,6 +189,7 @@ inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagem
     case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
     case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
+    case TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto->mutable_tesouro()->mutable_aneis();
@@ -203,11 +208,8 @@ inline std::string NomeParaLista(
 inline int MaximoEmUso(TipoItem tipo) {
   switch (tipo) {
     case TipoItem::TIPO_ANEL: return 2;
-    case TipoItem::TIPO_MANTO: return 1;
-    case TipoItem::TIPO_LUVAS: return 1;
+    default: return 1;
   }
-  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << ")";
-  return 0;
 }
 
 }  // namespace qt
