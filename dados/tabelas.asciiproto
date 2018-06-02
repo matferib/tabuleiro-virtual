@@ -1233,7 +1233,7 @@ tabela_aneis {
   aneis {
     id: 'protecao_1'
     nome: 'Proteção +1'
-    id_efeito: EFEITO_DEFLEXAO_CA
+    tipo_efeito: EFEITO_DEFLEXAO_CA
     descricao: 'Proteção contínua na forma de +1 de deflexão para CA.'
     complementos: 1
     custo_po: 2000
@@ -1241,7 +1241,7 @@ tabela_aneis {
   aneis {
     id: 'protecao_2'
     nome: 'Proteção +2'
-    id_efeito: EFEITO_DEFLEXAO_CA
+    tipo_efeito: EFEITO_DEFLEXAO_CA
     descricao: 'Proteção contínua na forma de +2 de deflexão para CA.'
     complementos: 2
     custo_po: 8000
@@ -1249,7 +1249,7 @@ tabela_aneis {
   aneis {
     id: 'protecao_3'
     nome: 'Proteção +3'
-    id_efeito: EFEITO_DEFLEXAO_CA
+    tipo_efeito: EFEITO_DEFLEXAO_CA
     descricao: 'Proteção contínua na forma de +3 de deflexão para CA.'
     complementos: 3
     custo_po: 18000
@@ -1257,7 +1257,7 @@ tabela_aneis {
   aneis {
     id: 'protecao_4'
     nome: 'Proteção +4'
-    id_efeito: EFEITO_DEFLEXAO_CA
+    tipo_efeito: EFEITO_DEFLEXAO_CA
     descricao: 'Proteção contínua na forma de +4 de deflexão para CA.'
     complementos: 4
     custo_po: 32000
@@ -1265,7 +1265,7 @@ tabela_aneis {
   aneis {
     id: 'protecao_5'
     nome: 'Proteção +5'
-    id_efeito: EFEITO_DEFLEXAO_CA
+    tipo_efeito: EFEITO_DEFLEXAO_CA
     descricao: 'Proteção contínua na forma de +5 de deflexão para CA.'
     complementos: 5
     custo_po: 50000
@@ -1284,7 +1284,7 @@ tabela_aneis {
     id: 'escalada'
     nome: 'Escalada'
     custo_po: 2500
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 5
     complementos_str: 'escalar'
   }
@@ -1292,7 +1292,7 @@ tabela_aneis {
     id: 'salto'
     nome: 'Salto'
     custo_po: 2500
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 5
     complementos_str: 'saltar'
   }
@@ -1300,7 +1300,7 @@ tabela_aneis {
     id: 'natacao'
     nome: 'Natação'
     custo_po: 2500
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 5
     complementos_str: 'natacao'
   }
@@ -1328,7 +1328,7 @@ tabela_aneis {
     id: 'escalada_aprimorada'
     nome: 'Escalada aprimorada'
     custo_po: 10000
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
     complementos_str: 'escalar'
   }
@@ -1336,7 +1336,7 @@ tabela_aneis {
     id: 'salto_aprimorado'
     nome: 'Salto aprimorado'
     custo_po: 10000
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
     complementos_str: 'saltar'
   }
@@ -1344,7 +1344,7 @@ tabela_aneis {
     id: 'natacao_aprimorada'
     nome: 'Natação aprimorada'
     custo_po: 10000
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
     complementos_str: 'natacao'
   }
@@ -1362,7 +1362,7 @@ tabela_aneis {
     id: 'poder_camaleao'
     nome: 'Poder do camaleão'
     custo_po: 12700
-    id_efeito: EFEITO_COMPETENCIA_PERICIA
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
     complementos_str: 'esconderse'
   }
@@ -1547,56 +1547,56 @@ tabela_bracadeiras {
     id: 'bracadeira_armadura_1'
     nome: 'Braçadeiras da Armadura +1'
     custo_po: 1000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 1
   }
   bracadeiras {
     id: 'bracadeira_armadura_2'
     nome: 'Braçadeiras da Armadura +2'
     custo_po: 4000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 2
   }
   bracadeiras {
     id: 'bracadeira_armadura_3'
     nome: 'Braçadeiras da Armadura +3'
     custo_po: 9000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 3
   }
   bracadeiras {
     id: 'bracadeira_armadura_4'
     nome: 'Braçadeiras da Armadura +4'
     custo_po: 16000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 4
   }
   bracadeiras {
     id: 'bracadeira_armadura_5'
     nome: 'Braçadeiras da Armadura +5'
     custo_po: 25000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 5
   }
   bracadeiras {
     id: 'bracadeira_armadura_6'
     nome: 'Braçadeiras da Armadura +6'
     custo_po: 36000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 6
   }
   bracadeiras {
     id: 'bracadeira_armadura_7'
     nome: 'Braçadeiras da Armadura +7'
     custo_po: 49000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 7
   }
   bracadeiras {
     id: 'bracadeira_armadura_8'
     nome: 'Braçadeiras da Armadura +8'
     custo_po: 64000
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 8
   }
   bracadeiras {
@@ -1632,21 +1632,21 @@ tabela_luvas {
     id: 'luvas_destreza_2'
     nome: 'Luvas da Destreza +2'
     custo_po: 4000
-    id_efeito: EFEITO_MELHORIA_DESTREZA
+    tipo_efeito: EFEITO_MELHORIA_DESTREZA
     complementos: 2
   }
   luvas {
     id: 'luvas_destreza_4'
     nome: 'Luvas da Destreza +4'
     custo_po: 16000
-    id_efeito: EFEITO_MELHORIA_DESTREZA
+    tipo_efeito: EFEITO_MELHORIA_DESTREZA
     complementos: 4
   }
   luvas {
     id: 'luvas_destreza_6'
     nome: 'Luvas da Destreza + 6'
     custo_po: 36000
-    id_efeito: EFEITO_MELHORIA_DESTREZA
+    tipo_efeito: EFEITO_MELHORIA_DESTREZA
     complementos: 6
   }
   luvas {
@@ -1665,7 +1665,7 @@ tabela_luvas {
     id: 'manoplas_poder_ogro'
     nome: 'Manoplas do Poder do Ogro'
     custo_po: 4000
-    id_efeito: EFEITO_MELHORIA_FORCA
+    tipo_efeito: EFEITO_MELHORIA_FORCA
     complementos: 2
   }
 }
@@ -1675,7 +1675,7 @@ tabela_mantos {
     id: 'manto_resistencia_1'
     nome: 'Manto da resistência +1'
     custo_po: 1000
-    id_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 1
   }
   mantos {
@@ -1694,7 +1694,7 @@ tabela_mantos {
     id: 'manto_resistencia_2'
     nome: 'Manto da resistência +2'
     custo_po: 4000
-    id_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 2
   }
   mantos {
@@ -1706,7 +1706,7 @@ tabela_mantos {
     id: 'manto_resistencia_3'
     nome: 'Manto da resistência +3'
     custo_po: 9000
-    id_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 3
   }
   mantos {
@@ -1729,7 +1729,7 @@ tabela_mantos {
     id: 'manto_resistencia_4'
     nome: 'Manto da resistência +4'
     custo_po: 16000
-    id_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 4
   }
   mantos {
@@ -1741,7 +1741,7 @@ tabela_mantos {
     id: 'manto_resistencia_5'
     nome: 'Manto da resistência +5'
     custo_po: 25000
-    id_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 5
   }
   mantos {
@@ -1782,21 +1782,21 @@ tabela_pocoes {
     id: 'abencoar_arma'
     nome: 'Abençoar Arma'
     duracao_rodadas: 2
-    id_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_OUTRO
     descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
     custo_po: 50
   }
   pocoes {
     id: 'aumentar_pessoa'
     nome: 'Aumentar Pessoa'
-    id_efeito: EFEITO_AUMENTAR_PESSOA
+    tipo_efeito: EFEITO_AUMENTAR_PESSOA
     duracao_rodadas: 10
     custo_po: 250
   }
   pocoes {
     id: 'reduzir_pessoa'
     nome: 'Reduzir Pessoa'
-    id_efeito: EFEITO_REDUZIR_PESSOA
+    tipo_efeito: EFEITO_REDUZIR_PESSOA
     duracao_rodadas: 10
     custo_po: 250
   }
@@ -1804,7 +1804,7 @@ tabela_pocoes {
   pocoes {
     id: 'ajuda'
     nome: 'Ajuda'
-    id_efeito: EFEITO_AJUDA
+    tipo_efeito: EFEITO_AJUDA
     duracao_rodadas: 30
     custo_po: 300
     complementos: 3  # 1d8+3.
@@ -1813,7 +1813,7 @@ tabela_pocoes {
   pocoes {
     id: 'invisibilidade'
     nome: 'Invisilidade'
-    id_efeito: EFEITO_INVISIBILIDADE
+    tipo_efeito: EFEITO_INVISIBILIDADE
     duracao_rodadas: 30
     custo_po: 300
   }
@@ -1821,7 +1821,7 @@ tabela_pocoes {
   pocoes {
     id: 'furia'
     nome: 'Fúria'
-    id_efeito: EFEITO_FURIA
+    tipo_efeito: EFEITO_FURIA
     duracao_rodadas: 5
     custo_po: 50
     complementos: 2
@@ -1831,7 +1831,7 @@ tabela_pocoes {
     id: 'patas_aranha'
     nome: 'Patas de Aranha'
     duracao_rodadas: 30
-    id_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_OUTRO
     descricao: 'Ganha movimento escalar 4 quadrados, mantém destreza escalando mas não pode correr.'
     custo_po: 300
   }
@@ -1839,35 +1839,35 @@ tabela_pocoes {
     id: 'pedra_encantada'
     nome: 'Pedra Encantada'
     duracao_rodadas: 300
-    id_efeito: EFEITO_PEDRA_ENCANTADA
+    tipo_efeito: EFEITO_PEDRA_ENCANTADA
     descricao: 'Pedra encantada +1, dano 1d6, 2d6 contra mortos vivos.'
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_mal'
     nome: 'Poteção Contra o Mal'
-    id_efeito: EFEITO_PROTECAO_CONTRA_MAL
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_MAL
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_bem'
     nome: 'Poteção Contra o Bem'
-    id_efeito: EFEITO_PROTECAO_CONTRA_BEM
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_BEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_ordem'
     nome: 'Poteção Contra o Ordem'
-    id_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_caos'
     nome: 'Poteção Contra o Caos'
-    id_efeito: EFEITO_PROTECAO_CONTRA_CAOS
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_CAOS
     duracao_rodadas: 10
     custo_po: 50
   }
@@ -1894,42 +1894,42 @@ tabela_pocoes {
   pocoes {
     id: 'forca_touro'
     nome: 'Força do Touro'
-    id_efeito: EFEITO_FORCA_TOURO
+    tipo_efeito: EFEITO_FORCA_TOURO
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
-    id_efeito: EFEITO_AGILIDADE_GATO
+    tipo_efeito: EFEITO_AGILIDADE_GATO
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'vigor_urso'
     nome: 'Vigor do Urso'
-    id_efeito: EFEITO_VIGOR_URSO
+    tipo_efeito: EFEITO_VIGOR_URSO
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'astucia_raposa'
     nome: 'Astúcia da Raposa'
-    id_efeito: EFEITO_ASTUCIA_RAPOSA
+    tipo_efeito: EFEITO_ASTUCIA_RAPOSA
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'sabedoria_coruja'
     nome: 'Sabedoria da Coruja'
-    id_efeito: EFEITO_SABEDORIA_CORUJA
+    tipo_efeito: EFEITO_SABEDORIA_CORUJA
     duracao_rodadas: 30
     custo_po: 300
   }
   pocoes {
     id: 'esplendor_aguia'
     nome: 'Esplendor da Águia'
-    id_efeito: EFEITO_ESPLENDOR_AGUIA
+    tipo_efeito: EFEITO_ESPLENDOR_AGUIA
     duracao_rodadas: 30
     custo_po: 300
   }
@@ -1937,7 +1937,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_2'
     nome: 'Escudo da Fé (2)'
-    id_efeito: EFEITO_ESCUDO_FE
+    tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 2
     custo_po: 50
     duracao_rodadas: 10
@@ -1945,7 +1945,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_3'
     nome: 'Escudo da Fé (3)'
-    id_efeito: EFEITO_ESCUDO_FE
+    tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 3
     custo_po: 300
     duracao_rodadas: 60
@@ -1953,7 +1953,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_4'
     nome: 'Escudo da Fé (4)'
-    id_efeito: EFEITO_ESCUDO_FE
+    tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 4
     custo_po: 600
     duracao_rodadas: 120
@@ -1961,7 +1961,7 @@ tabela_pocoes {
   pocoes {
     id: 'escudo_fe_5'
     nome: 'Escudo da Fé (5)'
-    id_efeito: EFEITO_ESCUDO_FE
+    tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 5
     custo_po: 900
     duracao_rodadas: 180
@@ -1969,14 +1969,14 @@ tabela_pocoes {
   pocoes {
     id: 'nublar'
     nome: 'Nublar'
-    id_efeito: EFEITO_BORRAR
+    tipo_efeito: EFEITO_BORRAR
     custo_po: 300
     duracao_rodadas: 30
   }
   pocoes {
     id: 'armadura_arcana'
     nome: 'Armadura Arcana'
-    id_efeito: EFEITO_ARMADURA
+    tipo_efeito: EFEITO_ARMADURA
     complementos: 4
     custo_po: 50
     duracao_rodadas: 600
@@ -1984,8 +1984,8 @@ tabela_pocoes {
   pocoes {
     id: 'roupa_encantada_1'
     nome: 'Roupa Encantada (1)'
-    id_efeito: EFEITO_ROUPA_ENCANTADA
-    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    tipo_efeito: EFEITO_ROUPA_ENCANTADA
+    tipo_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 750
     duracao_rodadas: 3000
     complementos: 1
@@ -1994,8 +1994,8 @@ tabela_pocoes {
   pocoes {
     id: 'roupa_encantada_2'
     nome: 'Roupa Encantada (2)'
-    id_efeito: EFEITO_ROUPA_ENCANTADA
-    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    tipo_efeito: EFEITO_ROUPA_ENCANTADA
+    tipo_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1200
     duracao_rodadas: 4800
     complementos: 2
@@ -2004,8 +2004,8 @@ tabela_pocoes {
   pocoes {
     id: 'roupa_encantada_3'
     nome: 'Roupa Encantada (3)'
-    id_efeito: EFEITO_ROUPA_ENCANTADA
-    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    tipo_efeito: EFEITO_ROUPA_ENCANTADA
+    tipo_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 1800
     duracao_rodadas: 7200
     complementos: 3
@@ -2014,8 +2014,8 @@ tabela_pocoes {
   pocoes {
     id: 'roupa_encantada_4'
     nome: 'Roupa Encantada (4)'
-    id_efeito: EFEITO_ROUPA_ENCANTADA
-    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    tipo_efeito: EFEITO_ROUPA_ENCANTADA
+    tipo_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 2400
     duracao_rodadas: 9600
     complementos: 4
@@ -2024,8 +2024,8 @@ tabela_pocoes {
   pocoes {
     id: 'roupa_encantada_5'
     nome: 'Roupa Encantada (5)'
-    id_efeito: EFEITO_ROUPA_ENCANTADA
-    id_efeito: EFEITO_ESCUDO_ENCANTADO
+    tipo_efeito: EFEITO_ROUPA_ENCANTADA
+    tipo_efeito: EFEITO_ESCUDO_ENCANTADO
     custo_po: 3000
     duracao_rodadas: 12000
     complementos: 5
@@ -2034,14 +2034,14 @@ tabela_pocoes {
   pocoes {
     id: 'heroismo'
     nome: 'Heroismo'
-    id_efeito: EFEITO_HEROISMO
+    tipo_efeito: EFEITO_HEROISMO
     custo_po: 750
     duracao_rodadas: 500
   }
   pocoes {
     id: 'pele_arvore_2'
     nome: 'Pele de Árvore (2)'
-    id_efeito: EFEITO_PELE_ARVORE
+    tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 300
     duracao_rodadas: 300
     complementos: 2
@@ -2049,7 +2049,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_3'
     nome: 'Pele de Árvore (3)'
-    id_efeito: EFEITO_PELE_ARVORE
+    tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 600
     duracao_rodadas: 600
     complementos: 3
@@ -2057,7 +2057,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_4'
     nome: 'Pele de Árvore (4)'
-    id_efeito: EFEITO_PELE_ARVORE
+    tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 900
     duracao_rodadas: 900
     complementos: 4
@@ -2065,7 +2065,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_5'
     nome: 'Pele de Árvore (5)'
-    id_efeito: EFEITO_PELE_ARVORE
+    tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 1200
     duracao_rodadas: 1200
     complementos: 5
@@ -2073,14 +2073,14 @@ tabela_pocoes {
   pocoes {
     id: 'santuario'
     nome: 'Santuário'
-    id_efeito: EFEITO_SANTUARIO
+    tipo_efeito: EFEITO_SANTUARIO
     custo_po: 50
     duracao_rodadas: 1
   }
   pocoes {
     id: 'arma_magica'
     nome: 'Arma Mágica'
-    id_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_OUTRO
     custo_po: 50
     duracao_rodadas: 10
     descricao: 'Arma Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
@@ -2088,14 +2088,14 @@ tabela_pocoes {
   pocoes {
     id: 'suportar_elementos'
     nome: 'Suportar Elementos'
-    id_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    tipo_efeito: EFEITO_SUPORTAR_ELEMENTOS
     custo_po: 50
     duracao_rodadas: 14400 # 24 horas.
   }
   pocoes {
     id: 'resistencia_elementos_10'
     nome: 'Resistência a Elementos (10)'
-    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 300
     duracao_rodadas: 300
     complementos: 10
@@ -2103,7 +2103,7 @@ tabela_pocoes {
   pocoes {
     id: 'resistencia_elementos_20'
     nome: 'Resistência a Elementos (20)'
-    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 700
     duracao_rodadas: 700
     complementos: 20
@@ -2111,7 +2111,7 @@ tabela_pocoes {
   pocoes {
     id: 'resistencia_elementos_30'
     nome: 'Resistência a Elementos (30)'
-    id_efeito: EFEITO_RESISTENCIA_ELEMENTOS
+    tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 1100
     duracao_rodadas: 1100
     complementos: 30
@@ -2120,7 +2120,7 @@ tabela_pocoes {
     id: 'voo'
     nome: 'Vôo'
     duracao_rodadas: 50
-    id_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_OUTRO
     descricao: 'Alvo pode voar com velocidade 12 quadrados (8 em armadura média ou pesada).'
     custo_po: 750
   }
