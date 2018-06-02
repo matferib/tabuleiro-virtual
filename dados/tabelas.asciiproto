@@ -1088,6 +1088,24 @@ tabela_efeitos {
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
   }
   efeitos {
+    id: EFEITO_MELHORIA_FORCA
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_DESTREZA
+    consequencia {
+      usa_complemento: true
+      atributos {
+        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_AGILIDADE_GATO
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
   }
@@ -1107,7 +1125,6 @@ tabela_efeitos {
     id: EFEITO_ESPLENDOR_AGUIA
     consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia' } } } } }
   }
-
   efeitos {
     id: EFEITO_ACELERAR
     consequencia {
@@ -1485,6 +1502,165 @@ tabela_aneis {
   }
 }
 
+tabela_botas {
+  botas {
+    id: 'botas_aladas'
+    nome: 'Botas Aladas'
+    custo_po: 16000
+    # Voo 3 vezes por dia por 5 minutos.
+  }
+  botas {
+    id: 'botas_elficas'
+    nome: 'Botas Élficas'
+    custo_po: 2500
+    # +5 teste de furtividade
+  }
+  botas {
+    id: 'botas_inverno'
+    nome: 'Botas do Inverno'
+    custo_po: 2500
+    # Andar na neve ou gelo sem rastro, deslocamento normal.
+    # Suportar elementos.
+  }
+  botas {
+    id: 'botas_levitacao'
+    nome: 'Botas da Levitação'
+    custo_po: 7500
+  }
+  botas {
+    id: 'botas_teletransporte'
+    nome: 'Botas do Teletransporte'
+    custo_po: 49000
+    # Teletransporte 3x dia.
+  }
+  botas {
+    id: 'botas_velocidade'
+    nome: 'Botas da Velocidade'
+    custo_po: 12000
+    # Acelerar 10 rodadas / dia.
+  }
+}
+
+tabela_bracadeiras {
+  bracadeiras {
+    id: 'bracadeira_armadura_1'
+    nome: 'Braçadeiras da Armadura +1'
+    custo_po: 1000
+    # +1 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_2'
+    nome: 'Braçadeiras da Armadura +2'
+    custo_po: 4000
+    # +2 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_3'
+    nome: 'Braçadeiras da Armadura +3'
+    custo_po: 9000
+    # +3 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_4'
+    nome: 'Braçadeiras da Armadura +4'
+    custo_po: 16000
+    # +4 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_5'
+    nome: 'Braçadeiras da Armadura +5'
+    custo_po: 25000
+    # +5 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_6'
+    nome: 'Braçadeiras da Armadura +6'
+    custo_po: 36000
+    # +6 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_7'
+    nome: 'Braçadeiras da Armadura +7'
+    custo_po: 49000
+    # +7 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_armadura_8'
+    nome: 'Braçadeiras da Armadura +8'
+    custo_po: 64000
+    # +8 armadura.
+  }
+  bracadeiras {
+    id: 'bracadeira_arqueiro_maior'
+    nome: 'Braçadeiras do Arqueiro (maiores)'
+    custo_po: 25000
+    # Se nao souber usar o arco, usa sem penalidade.
+    # Caso contrario, +2 ataque, +1 de dano (competencia)
+  }
+  bracadeiras {
+    id: 'bracadeira_arqueiro_menor'
+    nome: 'Braçadeiras do Arqueiro (menores)'
+    custo_po: 5000
+    # Se nao souber usar o arco, usa sem penalidade.
+    # Caso contrario, +1 ataque.
+  }
+}
+
+tabela_luvas {
+  luvas {
+    id: 'luvas_apanhar_flechas'
+    nome: 'Luvas de Apanhar Flechas'
+    custo_po: 4000
+    # Pode usar o talento apanhar objetos.
+  }
+  luvas {
+    id: 'luvas_armazenamento'
+    nome: 'Luvas de Armazenamento'
+    custo_po: 10000
+    # Armazena/recupera objeto de ate 10 kg como acao livre.
+  }
+  luvas {
+    id: 'luvas_destreza_2'
+    nome: 'Luvas da Destreza +2'
+    custo_po: 4000
+    id_efeito: EFEITO_MELHORIA_DESTREZA
+    complementos: 2
+  }
+  luvas {
+    id: 'luvas_destreza_4'
+    nome: 'Luvas da Destreza +4'
+    custo_po: 16000
+    id_efeito: EFEITO_MELHORIA_DESTREZA
+    complementos: 4
+  }
+  luvas {
+    id: 'luvas_destreza_6'
+    nome: 'Luvas da Destreza + 6'
+    custo_po: 36000
+    id_efeito: EFEITO_MELHORIA_DESTREZA
+    complementos: 6
+  }
+  luvas {
+    id: 'luvas_nadar_escalar'
+    nome: 'Luvas de Nadar e Escalar'
+    custo_po: 6250
+    # +5 competencia em em natacao e escalar.
+  }
+  luvas {
+    id: 'manoplas_ferrugem'
+    nome: 'Manoplas da Ferrugem'
+    custo_po: 11500
+    # 1/dia toque enferrujante. Protege contra ferrugem.
+  }
+  luvas {
+    id: 'manoplas_poder_ogro'
+    nome: 'Manoplas do Poder do Ogro'
+    custo_po: 4000
+    id_efeito: EFEITO_MELHORIA_FORCA
+    complementos: 2
+  }
+}
+
 tabela_mantos {
   mantos {
     id: 'manto_resistencia_1'
@@ -1557,7 +1733,7 @@ tabela_mantos {
     nome: 'Manto da resistência +5'
     custo_po: 25000
     id_efeito: EFEITO_RESISTENCIA_SALVACAO
-    complementos: 4
+    complementos: 5
   }
   mantos {
     id: 'manto_morcego'
