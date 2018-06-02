@@ -134,6 +134,7 @@ void Tabelas::RecarregaMapas() {
   pocoes_.clear();
   aneis_.clear();
   mantos_.clear();
+  luvas_.clear();
   talentos_.clear();
   pericias_.clear();
   classes_.clear();
@@ -188,6 +189,10 @@ void Tabelas::RecarregaMapas() {
 
   for (const auto& manto : tabelas_.tabela_mantos().mantos()) {
     mantos_[manto.id()] = &manto;
+  }
+
+  for (const auto& luvas : tabelas_.tabela_luvas().luvas()) {
+    luvas_[luvas.id()] = &luvas;
   }
 
   for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
@@ -259,6 +264,11 @@ const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
   auto it = mantos_.find(id);
   return it == mantos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Luvas(const std::string& id) const {
+  auto it = luvas_.find(id);
+  return it == luvas_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const TalentoProto& Tabelas::Talento(const std::string& id) const {
