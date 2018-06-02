@@ -374,7 +374,7 @@ TEST(TesteDependencias, TesteAgarrar) {
 TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
+  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
   ev->add_complementos(3);
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -400,8 +400,8 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
-  ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
+  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
+  ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
   uint32_t id_segundo_evento = ev->id_unico();
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".

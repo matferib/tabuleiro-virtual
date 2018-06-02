@@ -2177,21 +2177,9 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
 }
 
-// Recomputa as dependencias de atributos (destreza com armadura).
 void RecomputaDependenciasDestreza(const Tabelas& tabelas, EntidadeProto* proto) {
-  auto* dd = proto->mutable_dados_defesa();
-  // Ajusta a destreza de acordo com a armadura. Primeiro limpa para calcular a penalidade de armadura ou escudo.
+  // Legado, apenas para limpar o que foi feito errado.
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
-  const int mod_antes = ModificadorAtributo(proto->atributos().destreza());
-  int bonus_maximo = 100;
-  if (dd->has_id_armadura()) {
-    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
-  }
-  if (dd->has_id_escudo()) {
-    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
-  }
-  int penalidade = mod_antes > bonus_maximo ? bonus_maximo - mod_antes : 0;
-  AtribuiBonus(penalidade, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
 }
 
 // Retorna o bonus base de uma salvacao, dado o nivel. Forte indica que a salvacao eh forte.
@@ -2232,28 +2220,31 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   bool recomputa_base = false;
   proto->mutable_dados_defesa()->clear_reducao_dano_barbaro();
   for (auto& ic : *proto->mutable_info_classes()) {
-    const auto& classe_tabelada = tabelas.Classe(ic.id());
-    if (classe_tabelada.has_nome()) {
-      ic.clear_salvacoes_fortes();
-      ic.clear_habilidades_por_nivel();
-      ic.clear_pericias();
-      ic.clear_progressao_feitico();
-      ic.MergeFrom(classe_tabelada);
+    {
+      const auto& classe_tabelada = tabelas.Classe(ic.id());
+      if (classe_tabelada.has_nome()) {
+        ic.clear_salvacoes_fortes();
+        ic.clear_habilidades_por_nivel();
+        ic.clear_pericias();
+        ic.clear_progressao_feitico();
+        ic.MergeFrom(classe_tabelada);
+      }
     }
-    if (ic.has_atributo_conjuracao()) {
+    if (ic.has_atributo_conjuracao() || ic.has_id_para_progressao_de_magia()) {
+      const auto& classe_tabelada_conjuracao =
+          tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
+      ic.set_atributo_conjuracao(classe_tabelada_conjuracao.atributo_conjuracao());
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
       int nc = 0;
-      if (ic.has_progressao_conjurador()) {
-        switch (ic.progressao_conjurador()) {
-          case PCONJ_UM:
-            nc = ic.nivel(); break;
-          case PCONJ_MEIO_MIN_4:
-            nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
-          default:
-            nc = 0;
-        }
-      } else {
-        nc = ic.nivel_conjurador();
+      ProgressaoConjurador pconj =
+          ic.has_progressao_conjurador() ? ic.progressao_conjurador() : classe_tabelada_conjuracao.progressao_conjurador();
+      switch (pconj) {
+        case PCONJ_UM:
+          nc = ic.nivel(); break;
+        case PCONJ_MEIO_MIN_4:
+          nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
+        default:
+          nc = ic.nivel_conjurador();
       }
       ic.set_nivel_conjurador(nc);
     }
@@ -2289,7 +2280,14 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 
 void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
-  const int modificador_destreza = ModificadorAtributo(proto_retornado->atributos().destreza());
+  int bonus_maximo = std::numeric_limits<int>::max();
+  if (dd->has_id_armadura()) {
+    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
+  }
+  if (dd->has_id_escudo()) {
+    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
+  }
+  const int modificador_destreza = std::min(ModificadorAtributo(proto_retornado->atributos().destreza()), bonus_maximo);
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
   const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
   ent::AtribuiBonus(10, ent::TB_BASE, "base",  dd->mutable_ca());
