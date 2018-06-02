@@ -1076,10 +1076,11 @@ tabela_efeitos {
     }
   }
   efeitos {
-    id: EFEITO_ARMADURA_ARCANA
+    id: EFEITO_ARMADURA
     consequencia {
+      usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA por_origem { valor: 4 origem: 'armadura_arcana' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'armadura' } } }
       }
     }
   }
@@ -1546,49 +1547,57 @@ tabela_bracadeiras {
     id: 'bracadeira_armadura_1'
     nome: 'Braçadeiras da Armadura +1'
     custo_po: 1000
-    # +1 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 1
   }
   bracadeiras {
     id: 'bracadeira_armadura_2'
     nome: 'Braçadeiras da Armadura +2'
     custo_po: 4000
-    # +2 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 2
   }
   bracadeiras {
     id: 'bracadeira_armadura_3'
     nome: 'Braçadeiras da Armadura +3'
     custo_po: 9000
-    # +3 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 3
   }
   bracadeiras {
     id: 'bracadeira_armadura_4'
     nome: 'Braçadeiras da Armadura +4'
     custo_po: 16000
-    # +4 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 4
   }
   bracadeiras {
     id: 'bracadeira_armadura_5'
     nome: 'Braçadeiras da Armadura +5'
     custo_po: 25000
-    # +5 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 5
   }
   bracadeiras {
     id: 'bracadeira_armadura_6'
     nome: 'Braçadeiras da Armadura +6'
     custo_po: 36000
-    # +6 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 6
   }
   bracadeiras {
     id: 'bracadeira_armadura_7'
     nome: 'Braçadeiras da Armadura +7'
     custo_po: 49000
-    # +7 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 7
   }
   bracadeiras {
     id: 'bracadeira_armadura_8'
     nome: 'Braçadeiras da Armadura +8'
     custo_po: 64000
-    # +8 armadura.
+    id_efeito: EFEITO_ARMADURA
+    complementos: 8
   }
   bracadeiras {
     id: 'bracadeira_arqueiro_maior'
@@ -1967,7 +1976,8 @@ tabela_pocoes {
   pocoes {
     id: 'armadura_arcana'
     nome: 'Armadura Arcana'
-    id_efeito: EFEITO_ARMADURA_ARCANA
+    id_efeito: EFEITO_ARMADURA
+    complementos: 4
     custo_po: 50
     duracao_rodadas: 600
   }
