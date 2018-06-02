@@ -382,6 +382,10 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
+  // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
+  // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
+  // que se acumula).
+  optional bool nao_cumulativo = 4;
   // O que ocorre com a entidade quando efeito comeca.
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.

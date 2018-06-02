@@ -1128,6 +1128,7 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_ACELERAR
+    nao_cumulativo: true
     consequencia {
       dados_defesa {
         ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }

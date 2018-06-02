@@ -984,7 +984,7 @@ void PreencheConfiguraEventos(
   gerador.tabela_lista_eventos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
     const int linha = modelo->rowCount();
-    modelo->insertRows(linha, 1, QModelIndex());
+    modelo->insertRows(linha, 1, modelo->index(linha, 0).parent());
     gerador.tabela_lista_eventos->selectRow(linha);
   });
   lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
@@ -993,7 +993,7 @@ void PreencheConfiguraEventos(
       linhas.insert(index.row());
     }
     for (int linha : linhas) {
-      modelo->removeRows(linha, 1, QModelIndex());
+      modelo->removeRows(linha, 1, modelo->index(linha, 0).parent());
     }
   });
   auto* delegado = new TipoEfeitoDelegate(gerador.tabela_lista_eventos, modelo, gerador.tabela_lista_eventos);

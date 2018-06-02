@@ -2156,6 +2156,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
+      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
         AplicaFimEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia_fim()), proto);
       } else {
@@ -2168,8 +2169,17 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
   }
+  // Computa os eventos ainda ativos. Os que nao se acumulam sao ignorados.
+  std::unordered_set<int> efeitos_computados;
   for (auto& evento : *proto->mutable_evento()) {
+    const bool computado = efeitos_computados.find(evento.id_efeito()) != efeitos_computados.end();
+    efeitos_computados.insert(evento.id_efeito());
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
+    if (computado && efeito.nao_cumulativo()) {
+      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
+      continue;
+    }
+    VLOG(1) << "aplicando efeito: " << efeito.DebugString();
     AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }
