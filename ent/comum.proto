@@ -25,6 +25,8 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
+// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
+// Outros sao hardcoded.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -66,6 +68,8 @@ enum TipoEfeito {
   EFEITO_DEFLEXAO_CA = 33;
   EFEITO_RESISTENCIA_SALVACAO = 34;
   EFEITO_COMPETENCIA_PERICIA = 35;
+  EFEITO_MELHORIA_FORCA = 36;
+  EFEITO_MELHORIA_DESTREZA = 37;
 }
 
 // Tipo de visao para entidades e camera.
