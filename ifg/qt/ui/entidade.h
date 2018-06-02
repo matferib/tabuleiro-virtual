@@ -359,6 +359,13 @@ public:
     QPushButton *botao_adicionar_manto;
     QPushButton *botao_remover_manto;
     QPushButton *botao_usar_manto;
+    QWidget *layoutWidget_10;
+    QHBoxLayout *horizontalLayout_41;
+    QLabel *label_88;
+    QListWidget *lista_luvas;
+    QPushButton *botao_usar_luvas;
+    QPushButton *botao_remover_luvas;
+    QPushButton *botao_adicionar_luvas;
     QWidget *tab_4;
     QTreeWidget *arvore_feiticos;
     QPushButton *botao_renovar_feiticos;
@@ -2046,10 +2053,10 @@ public:
         botao_remover_pocao->setGeometry(QRect(480, 350, 31, 27));
         botao_remover_anel = new QPushButton(tab);
         botao_remover_anel->setObjectName(QStringLiteral("botao_remover_anel"));
-        botao_remover_anel->setGeometry(QRect(1010, 110, 31, 27));
+        botao_remover_anel->setGeometry(QRect(1010, 70, 31, 27));
         layoutWidget_8 = new QWidget(tab);
         layoutWidget_8->setObjectName(QStringLiteral("layoutWidget_8"));
-        layoutWidget_8->setGeometry(QRect(520, 10, 481, 221));
+        layoutWidget_8->setGeometry(QRect(520, 10, 481, 121));
         horizontalLayout_39 = new QHBoxLayout(layoutWidget_8);
         horizontalLayout_39->setObjectName(QStringLiteral("horizontalLayout_39"));
         horizontalLayout_39->setContentsMargins(0, 0, 0, 0);
@@ -2068,13 +2075,13 @@ public:
 
         botao_adicionar_anel = new QPushButton(tab);
         botao_adicionar_anel->setObjectName(QStringLiteral("botao_adicionar_anel"));
-        botao_adicionar_anel->setGeometry(QRect(1010, 80, 31, 27));
+        botao_adicionar_anel->setGeometry(QRect(1010, 40, 31, 27));
         botao_usar_anel = new QPushButton(tab);
         botao_usar_anel->setObjectName(QStringLiteral("botao_usar_anel"));
         botao_usar_anel->setGeometry(QRect(1010, 10, 31, 27));
         layoutWidget_9 = new QWidget(tab);
         layoutWidget_9->setObjectName(QStringLiteral("layoutWidget_9"));
-        layoutWidget_9->setGeometry(QRect(520, 250, 481, 221));
+        layoutWidget_9->setGeometry(QRect(520, 140, 481, 131));
         horizontalLayout_40 = new QHBoxLayout(layoutWidget_9);
         horizontalLayout_40->setObjectName(QStringLiteral("horizontalLayout_40"));
         horizontalLayout_40->setContentsMargins(0, 0, 0, 0);
@@ -2093,13 +2100,41 @@ public:
 
         botao_adicionar_manto = new QPushButton(tab);
         botao_adicionar_manto->setObjectName(QStringLiteral("botao_adicionar_manto"));
-        botao_adicionar_manto->setGeometry(QRect(1010, 340, 31, 27));
+        botao_adicionar_manto->setGeometry(QRect(1010, 170, 31, 27));
         botao_remover_manto = new QPushButton(tab);
         botao_remover_manto->setObjectName(QStringLiteral("botao_remover_manto"));
-        botao_remover_manto->setGeometry(QRect(1010, 370, 31, 27));
+        botao_remover_manto->setGeometry(QRect(1010, 200, 31, 27));
         botao_usar_manto = new QPushButton(tab);
         botao_usar_manto->setObjectName(QStringLiteral("botao_usar_manto"));
-        botao_usar_manto->setGeometry(QRect(1010, 270, 31, 27));
+        botao_usar_manto->setGeometry(QRect(1010, 140, 31, 27));
+        layoutWidget_10 = new QWidget(tab);
+        layoutWidget_10->setObjectName(QStringLiteral("layoutWidget_10"));
+        layoutWidget_10->setGeometry(QRect(520, 280, 481, 131));
+        horizontalLayout_41 = new QHBoxLayout(layoutWidget_10);
+        horizontalLayout_41->setObjectName(QStringLiteral("horizontalLayout_41"));
+        horizontalLayout_41->setContentsMargins(0, 0, 0, 0);
+        label_88 = new QLabel(layoutWidget_10);
+        label_88->setObjectName(QStringLiteral("label_88"));
+        sizePolicy5.setHeightForWidth(label_88->sizePolicy().hasHeightForWidth());
+        label_88->setSizePolicy(sizePolicy5);
+        label_88->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_41->addWidget(label_88);
+
+        lista_luvas = new QListWidget(layoutWidget_10);
+        lista_luvas->setObjectName(QStringLiteral("lista_luvas"));
+
+        horizontalLayout_41->addWidget(lista_luvas);
+
+        botao_usar_luvas = new QPushButton(tab);
+        botao_usar_luvas->setObjectName(QStringLiteral("botao_usar_luvas"));
+        botao_usar_luvas->setGeometry(QRect(1010, 280, 31, 27));
+        botao_remover_luvas = new QPushButton(tab);
+        botao_remover_luvas->setObjectName(QStringLiteral("botao_remover_luvas"));
+        botao_remover_luvas->setGeometry(QRect(1010, 340, 31, 27));
+        botao_adicionar_luvas = new QPushButton(tab);
+        botao_adicionar_luvas->setObjectName(QStringLiteral("botao_adicionar_luvas"));
+        botao_adicionar_luvas->setGeometry(QRect(1010, 310, 31, 27));
         tab_tesouro->addTab(tab, QString());
         tab_4 = new QWidget();
         tab_4->setObjectName(QStringLiteral("tab_4"));
@@ -2657,6 +2692,14 @@ public:
         botao_usar_manto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_usar_manto->setText(QString());
+        label_88->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Luvas e\n"
+" Manoplas", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_usar_luvas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_usar_luvas->setText(QString());
+        botao_remover_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        botao_adicionar_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", nullptr));

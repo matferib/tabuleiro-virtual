@@ -6,9 +6,9 @@
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
-#include "ifg/qt/aneis_util.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/itens_magicos_util.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
@@ -407,7 +407,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 }
 
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos };
+  std::vector<QWidget*> objs = { gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos, gerador.lista_luvas };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Nao atualiza o campo de texto, faz isso so no final.
@@ -438,13 +438,23 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
     gerador.lista_aneis->setCurrentRow(indice);
   }
 
+  // Luvas.
+  {
+    const int indice = gerador.lista_luvas->currentRow();
+    gerador.lista_luvas->clear();
+    for (const auto& luvas : proto.tesouro().luvas()) {
+      auto* item = new QListWidgetItem(QString::fromUtf8(
+            NomeParaLista(tabelas, TipoItem::TIPO_LUVAS, luvas).c_str()), gerador.lista_luvas);
+      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    gerador.lista_luvas->setCurrentRow(indice);
+  }
+
   // Mantos.
   {
     const int indice = gerador.lista_mantos->currentRow();
     gerador.lista_mantos->clear();
-    LOG(INFO) << "mantos"; 
     for (const auto& manto : proto.tesouro().mantos()) {
-      LOG(INFO) << "manto: " << manto.ShortDebugString(); 
       auto* item = new QListWidgetItem(QString::fromUtf8(
             NomeParaLista(tabelas, TipoItem::TIPO_MANTO, manto).c_str()), gerador.lista_mantos);
       item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
