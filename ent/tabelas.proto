@@ -152,6 +152,18 @@ message TabelaMantos {
   repeated ItemMagicoProto mantos = 1;
 }
 
+message TabelaBotas {
+  repeated ItemMagicoProto botas = 1;
+}
+
+message TabelaBracadeiras {
+  repeated ItemMagicoProto bracadeiras = 1;
+}
+
+message TabelaLuvas {
+  repeated ItemMagicoProto luvas = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -165,4 +177,7 @@ message TodasTabelas {
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
   optional TabelaMantos tabela_mantos = 53;
+  optional TabelaBotas tabela_botas = 54;
+  optional TabelaBracadeiras tabela_bracadeiras = 55;
+  optional TabelaLuvas tabela_luvas = 56;
 }

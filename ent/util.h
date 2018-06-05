@@ -28,6 +28,12 @@ class Tabelas;
 
 void IniciaUtil();
 
+/** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto);
+/** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
+
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
 void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
@@ -233,8 +239,15 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, cons
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
+inline Vector4 PosParaVector4(const Posicao& pos) { return Vector4(pos.x(), pos.y(), pos.z(), 1.0f); }
 inline Posicao Vector3ParaPosicao(const Vector3& v) {
-  Posicao p; p.set_x(v.x); p.set_y(v.y); p.set_z(v.z);
+  Posicao p;
+  p.set_x(v.x); p.set_y(v.y); p.set_z(v.z);
+  return p;
+}
+inline Posicao Vector4ParaPosicao(const Vector4& v) {
+  Posicao p;
+  p.set_x(v.x / v.w); p.set_y(v.y / v.w); p.set_z(v.z / v.w);
   return p;
 }
 
@@ -313,8 +326,8 @@ bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
-// Retorna verdadeiro se a entidade tiver um evento com mesmo id e descricao.
-bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade);
+// Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
+bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -363,11 +376,14 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
 
 // Retorna true se o personagem tiver o talento.
-bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade);
-bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& entidade);
+bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& proto);
+bool PossuiTalento(const std::string& chave_talento, const std::string& chave_complemento, const EntidadeProto& proto);
 // Retorna o talento do personagem, ou nullptr se nao tiver.
-const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade);
-const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& entidade);
+const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& proto);
+const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& proto);
+
+// Retorna true se possui a habilidade especial.
+bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& proto);
 
 // Retorna se a pericia eh considerada de classe para o proto.
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto);
@@ -377,7 +393,7 @@ inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_
 inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
 inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
 inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
-// Retorna o bonus contra tendencia de um atacante. 
+// Retorna o bonus contra tendencia de um atacante.
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa);
 
@@ -392,7 +408,10 @@ int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& 
 std::string ClasseParaFeitico(const std::string& tipo_ataque);
 // Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
 // e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
-const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto); 
+const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
+
+// Renova todos os feiticos do proto (ficam prontos para serem usados).
+void RenovaFeiticos(EntidadeProto* proto);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
@@ -416,21 +435,25 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
 // Acha um id unico de evento para o proto passado.
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
-inline uint32_t AchaIdUnicoEvento(const EntidadeProto& proto) { return AchaIdUnicoEvento(proto.evento()); }
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente.
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
 // TODO: rodadas automatico?
-std::vector<int> AdicionaEventoItemMagico(const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
+std::vector<int> AdicionaEventoItemMagico(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto_retornado);
 inline std::vector<int> AdicionaEventoItemMagico(
-    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(item, -1, rodadas, continuo, proto);
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto_retornado) {
+  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto_retornado);
 }
-inline std::vector<int> AdicionaEventoItemMagicoContinuo(const ItemMagicoProto& item, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(item, -1, 1, true, proto);
+inline std::vector<int> AdicionaEventoItemMagicoContinuo(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto_retornado) {
+  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto_retornado);
 }
 
 // Marca a duracao do evento para -1.
@@ -502,8 +525,8 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
     const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
 
 // Retorna uma notificacao de alterar feitico para um personagem.
-ntf::Notificacao NotificacaoAlterarFeitico(
-    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade);
+std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe

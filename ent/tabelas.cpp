@@ -92,7 +92,9 @@ void ConverteDano(ArmaProto* arma) {
 }  // namespace
 
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
-  central_->RegistraReceptor(this);
+  if (central_ != nullptr) {
+    central_->RegistraReceptor(this);
+  }
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
   } catch (const std::exception& e) {
@@ -104,17 +106,21 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     tabelas_.MergeFrom(tabelas_padroes);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what()));
-    central_->AdicionaNotificacao(n);
+    if (central_ != nullptr) {
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(
+            google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
+    }
   }
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what()));
-    central_->AdicionaNotificacao(n);
+    if (central_ != nullptr) {
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(
+            google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
+    }
   }
   RecarregaMapas();
 }
@@ -128,6 +134,8 @@ void Tabelas::RecarregaMapas() {
   pocoes_.clear();
   aneis_.clear();
   mantos_.clear();
+  luvas_.clear();
+  bracadeiras_.clear();
   talentos_.clear();
   pericias_.clear();
   classes_.clear();
@@ -182,6 +190,14 @@ void Tabelas::RecarregaMapas() {
 
   for (const auto& manto : tabelas_.tabela_mantos().mantos()) {
     mantos_[manto.id()] = &manto;
+  }
+
+  for (const auto& luvas : tabelas_.tabela_luvas().luvas()) {
+    luvas_[luvas.id()] = &luvas;
+  }
+
+  for (const auto& bracadeiras : tabelas_.tabela_bracadeiras().bracadeiras()) {
+    bracadeiras_[bracadeiras.id()] = &bracadeiras;
   }
 
   for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
@@ -255,6 +271,16 @@ const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
   return it == mantos_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
+const ItemMagicoProto& Tabelas::Luvas(const std::string& id) const {
+  auto it = luvas_.find(id);
+  return it == luvas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Bracadeiras(const std::string& id) const {
+  auto it = bracadeiras_.find(id);
+  return it == bracadeiras_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
 const TalentoProto& Tabelas::Talento(const std::string& id) const {
   auto it = talentos_.find(id);
   return it == talentos_.end() ? TalentoProto::default_instance() : *it->second;
@@ -277,9 +303,9 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // É possivel?
       if (!notificacao.local()) return false;
       VLOG(1) << "Enviando requisicao TN_REQUISITAR_TABELAS para servidor";
-      auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TABELAS);
       n->set_id_rede(notificacao.id_rede());
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_REQUISITAR_TABELAS: {
@@ -287,10 +313,10 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // É possivel?
       if (notificacao.local()) return false;
       VLOG(1) << "Enviando tabelas para cliente '" << notificacao.id_rede() << "'";
-      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
+      auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TABELAS);
       *n->mutable_tabelas() = tabelas_;
       n->set_id_rede(notificacao.id_rede());
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
       return true;
     }
     case ntf::TN_ENVIAR_TABELAS: {

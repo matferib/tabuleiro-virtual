@@ -274,7 +274,7 @@ void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, boo
 // deve ser usada apenas na funcao de RecebeDadosCliente.
 void Servidor::DesconectaCliente(Cliente* cliente) {
   // Notifica interessados na desconexao.
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESCONECTADO));
+  auto n(ntf::NovaNotificacao(ntf::TN_DESCONECTADO));
   n->set_id_rede(cliente->id);
   central_->AdicionaNotificacao(n.release());
 
@@ -290,7 +290,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       [this, cliente] (const Erro& erro, std::size_t bytes_recebidos) {
     if (erro || (bytes_recebidos < cliente->buffer_recepcao.size())) {
       // remove o cliente.
-      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
       std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
         erro_str += "Conexao fechada.";
@@ -299,7 +299,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
                     ", recebi: " + to_string((int)bytes_recebidos);
       }
       n->set_erro(erro_str);
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
       return;
     }
@@ -310,9 +310,9 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
     if (!notificacao->ParseFromString(cliente->buffer_recepcao)) {
       std::string erro_str(std::string("Erro ParseFromString recebendo dados do cliente '") + cliente->id + "'");
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
-      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
       n->set_erro(erro_str);
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
       return;
     }
@@ -327,17 +327,17 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       }
       if (ja_existe) {
         DesconectaCliente(cliente);
-        auto* erro = ntf::NovaNotificacao(ntf::TN_ERRO);
+        auto erro = ntf::NovaNotificacao(ntf::TN_ERRO);
         erro->set_erro(std::string("Id de cliente repetido: '") + notificacao->id_rede() + "'");
-        central_->AdicionaNotificacao(erro);
+        central_->AdicionaNotificacao(erro.release());
         return;
       }
       LOG(INFO) << "Recebi TN_RESPOSTA_CONEXAO de cliente: " << notificacao->id_rede();
       cliente->id = notificacao->id_rede();
-      auto* resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      auto resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
       resposta->set_clientes_pendentes(true);
       resposta->set_id_rede(cliente->id);
-      central_->AdicionaNotificacao(resposta);
+      central_->AdicionaNotificacao(resposta.release());
     }
     // Envia a notificacao para os outros clientes.
     if (!notificacao->servidor_apenas()) {
@@ -367,9 +367,9 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         erro_str += std::string("msg menor que 4. msg: ") + erro.mensagem();
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
-      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
       n->set_erro(erro_str);
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
       return;
     }

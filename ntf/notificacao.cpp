@@ -6,10 +6,20 @@
 
 namespace ntf {
 
-Notificacao* NovaNotificacao(ntf::Tipo tipo) {
-  auto* n = new ntf::Notificacao;
+std::unique_ptr<Notificacao> NovaNotificacao(Tipo tipo) {
+  auto n = std::unique_ptr<Notificacao>(new Notificacao);
   n->set_tipo(tipo);
   return n;
+}
+
+std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(Tipo tipo, const std::string& erro) {
+  auto n = NovaNotificacao(tipo);
+  n->set_erro(erro);
+  return std::move(n);
+}
+
+std::unique_ptr<Notificacao> NovaNotificacaoErro(const std::string& erro) {
+  return NovaNotificacaoErroTipada(TN_ERRO, erro);
 }
 
 CentralNotificacoes::CentralNotificacoes() {}

@@ -104,13 +104,13 @@ void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok,
     return;
   }
   const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao).id());
-  if (pocao.id_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
+  if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
     VoltaEscolherEfeito(notificacao, indice_pocao, true, 0);
     return;
   }
   std::vector<std::string> efeitos;
-  for (auto id_efeito : pocao.id_efeito()) {
-    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)id_efeito));
+  for (auto tipo_efeito : pocao.tipo_efeito()) {
+    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
   }
   EscolheItemLista(
       "Escolha o efeito", efeitos,
@@ -171,9 +171,7 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
   }
 
   if (tab_estaticos.size() + tab_dinamicos.size() == 0) {
-    auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-    ne->set_erro(std::string("Nao existem tabuleiros salvos"));
-    central_->AdicionaNotificacao(ne);
+    central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_ERRO, "Nao existem tabuleiros salvos"));
     tabuleiro_->ReativaWatchdogSeMestre();
     return;
   }
@@ -192,14 +190,14 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
 void InterfaceGrafica::VoltaAbrirTabuleiro(
     bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado) {
   if (!nome.empty()) {
-    auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     if (modelo_3d) {
       notificacao->mutable_entidade()->mutable_modelo_3d();
     }
     notificacao->set_endereco(
         std::string(tipo_retornado == arq::TIPO_TABULEIRO_ESTATICO ? "estatico://" : "dinamico://") + nome);
     notificacao->mutable_tabuleiro()->set_manter_entidades(manter_entidades);
-    central_->AdicionaNotificacao(notificacao);
+    central_->AdicionaNotificacao(notificacao.release());
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }
@@ -217,12 +215,12 @@ void InterfaceGrafica::TrataSalvarTabuleiro(const ntf::Notificacao& notificacao)
 
 void InterfaceGrafica::VoltaSalvarTabuleiro(
     bool modelo_3d, const std::string& nome) {
-  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+  auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
   if (modelo_3d) {
     n->mutable_entidade()->mutable_modelo_3d();
   }
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
@@ -288,18 +286,16 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       items.push_back(std::make_pair(nivel_gasto, indice));
     }
     if (lista.empty()) {
-      auto* nerro = ntf::NovaNotificacao(ntf::TN_ERRO);
-      nerro->set_erro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto));
-      central_->AdicionaNotificacao(nerro);
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
   } else {
     // Monta lista de feiticos conhecidos ate o nivel.
     int indice_gasto = ent::IndiceFeiticoDisponivel(id_classe, nivel_gasto, notificacao.entidade());
     if (indice_gasto == -1) {
-      auto* nerro = ntf::NovaNotificacao(ntf::TN_ERRO);
-      nerro->set_erro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto));
-      central_->AdicionaNotificacao(nerro);
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
     for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
@@ -323,8 +319,8 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int nivel;
     int indice;
     std::tie(nivel, indice) = items[indice_lista];
-    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(
-        ent::NotificacaoAlterarFeitico(id_classe, nivel, indice, true /*usado*/, notificacao.entidade().id())));
+    auto n = ent::NotificacaoAlterarFeitico(
+        id_classe, nivel, indice, true /*usado*/, notificacao.entidade());
     tabuleiro_->AdicionaNotificacaoListaEventos(*n);
     central_->AdicionaNotificacao(n.release());
   });

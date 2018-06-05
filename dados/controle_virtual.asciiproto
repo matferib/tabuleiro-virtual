@@ -21,11 +21,11 @@ fixo {
     linha: 5
     coluna: 4
     rotulo: "Nivel"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
     # Translacao nao funciona com rotulo.
-    #translacao_y: -3.3 
+    #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
   }
   dados_botoes {
@@ -45,10 +45,10 @@ fixo {
     linha: 5
     coluna: 7
     rotulo: "0"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -0.3 
+    #translacao_y: -0.3
     visibilidade { referencia { tipo: VIS_FEITICO_0 } }
   }
   dados_botoes {
@@ -320,6 +320,20 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Entra em fúria."
     visibilidade { referencia { tipo: VIS_FURIA } }
+  }
+
+  # Linha 8.
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: 1
+    rotulo: "Zz"
+    cor_rotulo {}
+    textura: "icon_rest.png"
+    id: CONTROLE_DESCANSAR_PERSONAGEM
+    forma: FORMA_RETANGULO
+    dica: "Descansa personagem."
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
   }
 
   # Coisas la da direita.

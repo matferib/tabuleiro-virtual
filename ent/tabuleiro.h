@@ -554,6 +554,9 @@ class Tabuleiro : public ntf::Receptor {
     bool presente;  // usado durante atualizacao de iniciativa.
   };
 
+  /** Descansa o personagem: cura 1 PV por nivel e restaura feiticos. */
+  void DescansaPersonagemNotificando();
+
   /** Botao de usar feitico clicado. */
   void TrataBotaoUsarFeitico(int nivel);
   /** Botao de alterar a classe de feitico ativa clicado. */

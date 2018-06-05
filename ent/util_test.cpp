@@ -7,6 +7,35 @@
 
 namespace ent {
 
+TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("monge");
+  ic->set_nivel(2);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
+  EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+  ic->set_nivel(9);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
+  EXPECT_TRUE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+}
+
+TEST(TesteVazamento, TesteVazamento) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("monge");
+  ic->set_nivel(2);
+  RecomputaDependencias(tabelas, &proto);
+  int tamanho = proto.ByteSize();
+  for (int i = 0; i < 100; ++i) {
+    RecomputaDependencias(tabelas, &proto);
+  }
+  EXPECT_EQ(tamanho, proto.ByteSize());
+}
+
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
@@ -345,7 +374,7 @@ TEST(TesteDependencias, TesteAgarrar) {
 TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
+  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
   ev->add_complementos(3);
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -371,8 +400,8 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
-  ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &proto);
+  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
+  ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
   uint32_t id_segundo_evento = ev->id_unico();
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".

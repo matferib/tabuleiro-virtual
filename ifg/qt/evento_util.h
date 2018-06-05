@@ -65,13 +65,18 @@ class ModeloEvento : public QAbstractTableModel {
     auto* e = eventos_->Add();
     e->set_id_unico(AchaIdUnicoEvento(*eventos_));
     endInsertRows();
+    emit dataChanged(parent, parent);
     return true;
   }
 
   bool removeRows(int row, int count, const QModelIndex& parent) override {
-    beginRemoveRows(parent, row, row + count - 1);
-    eventos_->DeleteSubrange(row, count);
+    beginRemoveRows(parent, row, eventos_->size() - 1);
+    for (int i = 0; i < count; ++i ) {
+      if (row + i < 0 || row + i >= eventos_->size()) break;
+      eventos_->Mutable(row + i)->set_rodadas(-1);
+    }
     endRemoveRows();
+    emit dataChanged(parent, parent);
     return true;
   }
 

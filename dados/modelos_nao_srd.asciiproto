@@ -168,6 +168,7 @@ modelo {
   id: 'Phaerimm Experiente'
   entidade {
     dados_vida: '13d8+26' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" }
+    posicao_acao { x: 0.5 y: 0 z: 0.5 }
     info_classes {
       id: 'aberracao' nome: 'Aberração'
       nivel: 13 nivel_conjurador: 13
@@ -244,7 +245,7 @@ modelo {
         conhecidos { id: 'desespero_esmagador' nome: 'Desespero Esmagador' }
         conhecidos { id: 'invisibilidade_maior' nome: 'Invisibilidade Maior' }
         conhecidos { id: 'confusao' nome: 'Confusão' }
-        conhecidos { id: 'olho_arcano' nome: 'Olho Arcano' }
+        conhecidos { id: 'metamorfoso' nome: 'Metamorfose' }
       }
       feiticos_por_nivel {
         nivel: 5

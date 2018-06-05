@@ -25,6 +25,8 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
+// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
+// Outros sao hardcoded.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -36,7 +38,7 @@ enum TipoEfeito {
   EFEITO_ACELERAR = 6;
   EFEITO_AUMENTAR_PESSOA = 7;
   EFEITO_REDUZIR_PESSOA = 8;
-  EFEITO_ARMADURA_ARCANA = 9;
+  EFEITO_ARMADURA = 9;
   EFEITO_ESCUDO_FE       = 10;
   EFEITO_SABEDORIA_CORUJA = 11;
   EFEITO_ASTUCIA_RAPOSA = 12;
@@ -66,6 +68,8 @@ enum TipoEfeito {
   EFEITO_DEFLEXAO_CA = 33;
   EFEITO_RESISTENCIA_SALVACAO = 34;
   EFEITO_COMPETENCIA_PERICIA = 35;
+  EFEITO_MELHORIA_FORCA = 36;
+  EFEITO_MELHORIA_DESTREZA = 37;
 }
 
 // Tipo de visao para entidades e camera.
@@ -316,8 +320,11 @@ message InfoClasse {
   optional ProgressaoConjurador progressao_conjurador = 10;
   // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
   repeated string pericias = 11;
+  // Essas nao vem da tabela de classe, mas sim do modelo do monstro. Ver gaviao-seta como exemplo.
+  // Atencao: esta aqui nao eh limpa no merge, portanto NUNCA deve aparecer na tabela de classes.
+  repeated string pericias_monstro = 20;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
-  optional string id_para_magia = 12; 
+  optional string id_para_magia = 12;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
   optional string id_para_progressao_de_magia = 18;
   optional bool possui_dominio = 14;
@@ -333,6 +340,13 @@ message InfoClasse {
     repeated ProgressaoParaNivel para_nivel = 1;
   }
   optional ProgressaoFeitico progressao_feitico = 16;
+  message HabilidadesEspeciaisPorNivel {
+    // Chave da habilidade especial na tabela de chaves.
+    optional string id = 1;
+    // Em qual nivel se ganha.
+    optional int32 nivel = 2;
+  }
+  repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
 }
 
 // Informacao sobre a pericia do personagem.
@@ -360,7 +374,7 @@ message ConsequenciaEvento {
   // Alteracao no tamanho da entidade.
   optional Bonus tamanho = 4;
   // Alteracao na pericia.
-  optional InfoPericia dados_pericia = 5; 
+  optional InfoPericia dados_pericia = 5;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;
@@ -368,6 +382,10 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
+  // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
+  // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
+  // que se acumula).
+  optional bool nao_cumulativo = 4;
   // O que ocorre com a entidade quando efeito comeca.
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
@@ -438,6 +456,14 @@ message TalentoProto {
   repeated BonusPericia bonus_pericias = 8;
 }
 
+message HabilidadeEspecialProto {
+  // Chave da habilidade.
+  optional string id = 1;
+  // Nome da habilidade.
+  optional string nome = 2;
+  optional string descricao = 5;
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
@@ -446,7 +472,7 @@ message ItemMagicoProto {
   optional string nome = 2;
   // Tipo do efeito do item (se causar algum).
   // Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
-  repeated TipoEfeito id_efeito = 3;
+  repeated TipoEfeito tipo_efeito = 3;
   // Duracao do efeito.
   optional int32 duracao_rodadas = 4;
   // Custo em PO.
@@ -510,8 +536,8 @@ message ParametrosDesenho {
   optional bool desenha_fps = 10 [default=false];
   // Operacao de limpeza eh cara, alguns modos nao precisam dela.
   optional bool limpa_fundo = 11 [default=true];
-  // Usar transparencia.
-  optional bool transparencias = 12 [default=true];
+  // Usar transparencia. Caso contrario, as entidades translucidas serao desenhadas como solidas.
+  optional bool usar_transparencias = 12 [default=true];
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
   optional bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.

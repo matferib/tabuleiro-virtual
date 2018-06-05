@@ -1746,6 +1746,11 @@ QGroupBox::title {
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="tab_5">
+    <attribute name="title">
+     <string>Habilidades Especiais</string>
+    </attribute>
+   </widget>
    <widget class="QWidget" name="tab_estatisticas">
     <attribute name="title">
      <string>Estatísticas</string>
@@ -3350,7 +3355,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>1010</x>
-       <y>110</y>
+       <y>70</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -3365,14 +3370,14 @@ QGroupBox::title {
        <x>520</x>
        <y>10</y>
        <width>481</width>
-       <height>221</height>
+       <height>121</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_39">
       <item>
        <widget class="QLabel" name="label_86">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -3394,7 +3399,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>1010</x>
-       <y>80</y>
+       <y>40</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -3423,16 +3428,16 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>520</x>
-       <y>250</y>
+       <y>130</y>
        <width>481</width>
-       <height>221</height>
+       <height>131</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_40">
       <item>
        <widget class="QLabel" name="label_87">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -3454,7 +3459,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>1010</x>
-       <y>340</y>
+       <y>170</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -3467,7 +3472,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>1010</x>
-       <y>370</y>
+       <y>200</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -3480,7 +3485,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>1010</x>
-       <y>270</y>
+       <y>140</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -3492,6 +3497,153 @@ QGroupBox::title {
       <string/>
      </property>
     </widget>
+    <widget class="QWidget" name="layoutWidget_10">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>260</y>
+       <width>481</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_41">
+      <item>
+       <widget class="QLabel" name="label_88">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Luvas e
+ Manoplas</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lista_luvas"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="botao_usar_luvas">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>280</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Usar/retirar anel</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_luvas">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>340</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_luvas">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>310</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_11">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>390</y>
+       <width>481</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_42">
+      <item>
+       <widget class="QLabel" name="label_89">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Braçadeiras</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lista_bracadeiras"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="botao_usar_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>400</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Usar/retirar anel</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>460</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_bracadeiras">
+     <property name="geometry">
+      <rect>
+       <x>1010</x>
+       <y>430</y>
+       <width>31</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
@@ -3501,9 +3653,9 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>50</y>
        <width>1021</width>
-       <height>461</height>
+       <height>431</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -3532,6 +3684,22 @@ QGroupBox::title {
        <string notr="true">1</string>
       </property>
      </column>
+    </widget>
+    <widget class="QPushButton" name="botao_renovar_feiticos">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>131</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Deixa todos os feitiços disponíveis para uso.</string>
+     </property>
+     <property name="text">
+      <string>Renovar Feitiços</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">

@@ -113,7 +113,7 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando controle virtual: " << erro.what();
     return;
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+  auto n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
   for (const auto& p : controle_virtual_.pagina()) {
     for (const auto& db : p.dados_botoes()) {
       if (!db.textura().empty()) {
@@ -148,7 +148,7 @@ void Tabuleiro::CarregaControleVirtual() {
     }
   }
 
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
 
   texturas_entidades_.insert(ROTULO_PADRAO);
   try {
@@ -165,7 +165,7 @@ void Tabuleiro::CarregaControleVirtual() {
 }
 
 void Tabuleiro::LiberaControleVirtual() {
-  auto* n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+  auto n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
   for (const auto& pagina : controle_virtual_.pagina()) {
     for (const auto& db : pagina.dados_botoes()) {
       n->add_info_textura()->set_id(db.textura());
@@ -191,13 +191,16 @@ void Tabuleiro::LiberaControleVirtual() {
       n->add_info_textura()->set_id(feitico.acao().icone());
     }
   }
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
 }
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id) {
-  VLOG(1) << "picking id: " << id;
+  VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_DESCANSAR_PERSONAGEM:
+      DescansaPersonagemNotificando();
+      break;
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
@@ -456,7 +459,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_BEBER_POCAO: {
       const auto* e = EntidadePrimeiraPessoaOuSelecionada();
       if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return;
-      std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
+      auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
       n->mutable_entidade()->set_id(e->Id());
       *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
       central_->AdicionaNotificacao(n.release());
@@ -490,7 +493,20 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
-        PassaUmaRodadaNotificando();
+        if (!duplo) {
+          PassaUmaRodadaNotificando();
+        } else {
+          ntf::Notificacao grupo_notificacoes;
+          grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+          // O clique duplo tera passado uma rodada já.
+          for (int i = 0; i < 9; ++i) {
+            auto* n = grupo_notificacoes.add_notificacao();
+            PassaUmaRodadaNotificando(n);
+            TrataNotificacao(*n);
+          }
+          // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.
+          AdicionaNotificacaoListaEventos(grupo_notificacoes);
+        }
       } else {
         ZeraRodadasNotificando();
       }
@@ -641,9 +657,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DESENHO_COR_PERSONALIZADA:
     {
       if (duplo || alterna_selecao) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA);
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA);
         *n->mutable_tabuleiro()->mutable_luz_ambiente() = cor_personalizada_;
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(n.release());
         break;
       }
       if (!ids_entidades_selecionadas_.empty()) {

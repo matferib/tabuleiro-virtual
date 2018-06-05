@@ -262,17 +262,17 @@ void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
   if (!proto_.modelo_3d().id().empty() &&
       proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
     VLOG(1) << "Liberando modelo_3d: " << proto_.modelo_3d().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
     nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto_.modelo_3d().id());
-    central_->AdicionaNotificacao(nl);
+    central_->AdicionaNotificacao(nl.release());
   }
   // Carrega modelo_3d se houver e for diferente da antiga.
   if (!novo_proto.modelo_3d().id().empty() &&
       novo_proto.modelo_3d().id() != proto_.modelo_3d().id()) {
     VLOG(1) << "Carregando modelo_3d: " << novo_proto.modelo_3d().id();
-    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
     *nc->mutable_entidade()->mutable_modelo_3d() = novo_proto.modelo_3d();
-    central_->AdicionaNotificacao(nc);
+    central_->AdicionaNotificacao(nc.release());
   }
   if (!novo_proto.modelo_3d().id().empty()) {
     *proto_.mutable_modelo_3d() = novo_proto.modelo_3d();
@@ -290,16 +290,16 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->set_id(proto_atual->info_textura().id());
-    central->AdicionaNotificacao(nl);
+    central->AdicionaNotificacao(nl.release());
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
-    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
-    central->AdicionaNotificacao(nc);
+    central->AdicionaNotificacao(nc.release());
   }
   if (novo_proto.info_textura().id().size() > 0) {
     proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
@@ -315,13 +315,15 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
+
+  // Eventos.
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   {
     // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_original.mutable_evento()) {
-      if (!PossuiEventoEspecifico(evento, novo_proto)) {
+      if (!PossuiEventoEspecifico(novo_proto, evento)) {
         evento.set_rodadas(-1);
       } else {
         // Remove porque estas virao do proto novo.
@@ -920,20 +922,19 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     auto& f = vd_.fumaca;
     f.duracao_ms = 0;
   }
-  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
+
+  // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
   if (proto_parcial.evento_size() > 0) {
-    // As duracoes -1 serao retiradas ao recomputar dependencias. Os demais serao adicionados no merge.
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_.mutable_evento()) {
-      if (!PossuiEventoEspecifico(evento, proto_parcial)) {
-        evento.set_rodadas(-1);
-      } else {
+      if (PossuiEventoEspecifico(proto_parcial, evento)) {
         a_remover.push_back(i);
       }
       ++i;
     }
+    // Faz invertido para nao atrapalhar os indices.
     for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
       proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }
@@ -1242,7 +1243,7 @@ std::pair<TipoAcao, std::string> Entidade::TipoAcaoComIcone(
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
-  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * matriz;
+  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
   //GLfloat matriz[16];
   //gl::Le(GL_MODELVIEW_MATRIX, matriz);
   //VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
@@ -1252,17 +1253,23 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
   Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
-  ponto = matriz * ponto;
+  //ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
-  Posicao pos;
-  pos.set_x(ponto[0]);
-  pos.set_y(ponto[1]);
-  pos.set_z(ponto[2]);
-  return pos;
+  //Posicao pos;
+  //pos.set_x(ponto[0]);
+  //pos.set_y(ponto[1]);
+  //pos.set_z(ponto[2]);
+  return Vector4ParaPosicao(matriz * ponto);
 }
 
 const Posicao Entidade::PosicaoAcao() const {
+  if (proto_.has_posicao_acao()) {
+    Matrix4 matriz;
+    matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
+    Vector4 ponto(PosParaVector4(proto_.posicao_acao()));
+    return Vector4ParaPosicao(matriz * ponto);
+  }
   return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
 }
 
@@ -1844,9 +1851,9 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   // Texturas globais.
   {
     // TODO remover essa textura.
-    auto* n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     n_tex->add_info_textura()->set_id("smoke.png");
-    central->AdicionaNotificacao(n_tex);
+    central->AdicionaNotificacao(n_tex.release());
   }
 }
 
@@ -1900,6 +1907,10 @@ int Entidade::ChanceFalhaAtaque() const {
 
 bool Entidade::IgnoraChanceFalha() const {
   return proto_.dados_ataque_global().chance_falha() < 0;
+}
+
+void Entidade::AlteraTodosFeiticos(const EntidadeProto& proto_parcial) {
+  *proto_.mutable_feiticos_classes() = proto_parcial.feiticos_classes();
 }
 
 void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado) {

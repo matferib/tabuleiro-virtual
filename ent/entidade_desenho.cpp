@@ -60,8 +60,9 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   if (proto_.visivel()) {
     // Visivel so eh desenhado aqui se a cor for transparente e mesmo assim,
     // nos casos de picking para os jogadores, so se a unidade for selecionavel.
+    // Exceto se ela tiver transicao de cenario, porque ai, mesmo sendo translucida, precisa de clicar.
     if (proto_.cor().a() == 1.0f ||
-        (pd->has_picking_x() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador())) {
+        (pd->has_picking_x() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador() && proto_.tipo_transicao() == EntidadeProto::TRANS_NENHUMA)) {
       desenhar_objeto = false;
     }
   } else {

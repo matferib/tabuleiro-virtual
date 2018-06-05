@@ -89,6 +89,10 @@ sub_menu {
   modelo { id: 'Formiga Gigante, Rainha'  texto: 'Rainha' }
 }
 sub_menu {
+  id: 'Gavião-Seta'
+  modelo { id: 'Gavião-Seta, adolescente' texto: 'adolescente' }
+}
+sub_menu {
   id: 'Gigantes'
   modelo { id: 'Gigante das Colinas' }
   modelo { id: 'Gigante das Pedras' }

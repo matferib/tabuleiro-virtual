@@ -126,24 +126,23 @@ int main(int argc, char** argv) {
 #if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {
     // Carrega o tabuleiro.
-    auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(std::string("://") + FLAGS_tabuleiro);
-    central.AdicionaNotificacao(n);
+    central.AdicionaNotificacao(n.release());
   }
 #else
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
-    auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(std::string("://") + argv[1]);
-    central.AdicionaNotificacao(n);
+    central.AdicionaNotificacao(n.release());
   }
 #endif
   // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-    //n->set_erro(google::protobuf::StringPrintf(
-    //    "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str()));
-    central.AdicionaNotificacao(n);
+    central.AdicionaNotificacao(ntf::NovaNotificacaoErro(
+          google::protobuf::StringPrintf(
+            "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str())));
   }
 
   try {

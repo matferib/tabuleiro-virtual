@@ -174,7 +174,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   }
   char texto[31];
   snprintf(texto, 30, "d%d = %d", faces_dado_, RolaDado(faces_dado_));
-  auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_local_apenas(false);
@@ -184,7 +184,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   pd->set_z(z3d);
   pd->set_id_cenario(IdCenario());
   a->set_texto(texto);
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
@@ -730,11 +730,18 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           e_antes->set_rotacao_z_graus(proto_antes.rotacao_z_graus());
           *e_antes->mutable_pos() = proto_antes.pos();
           *e_antes->mutable_escala() = proto_antes.escala();
+          e_antes->set_apoiada(entidade->Apoiada());
           auto* e_depois = n->mutable_entidade();
           e_depois->set_id(id_proto.first);
           e_depois->set_rotacao_z_graus(entidade->RotacaoZGraus());
-          *e_depois->mutable_pos() = entidade->Pos();
+          const Posicao& pos = entidade->Pos();
+          float altura_olho = entidade->AlturaOlho();
+          bool apoiado = Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho);
+          *e_depois->mutable_pos() = pos;
           *e_depois->mutable_escala() = entidade->Proto().escala();
+          e_depois->set_apoiada(apoiado);
+          // Como a notificacao so vai para os clientes, apoia manualmente aqui.
+          entidade->Apoia(apoiado);
           central_->AdicionaNotificacaoRemota(new ntf::Notificacao(*n));
         }
         // Para desfazer.
@@ -775,19 +782,21 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       vetor_delta.set_y(ultimo_y_3d_ - primeiro_y_3d_);
       vetor_delta.set_z(ultimo_z_3d_ - primeiro_z_3d_);
       for (unsigned int id : ids_entidades_selecionadas_) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
-        auto* e = n->mutable_entidade();
-        e->set_id(id);
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           continue;
         }
-        auto* destino = e->mutable_destino();
-        destino->set_x(entidade_selecionada->X());
-        destino->set_y(entidade_selecionada->Y());
-        destino->set_z(entidade_selecionada->Z());
-        destino->set_id_cenario(entidade_selecionada->IdCenario());
-        central_->AdicionaNotificacaoRemota(n);
+        {
+          auto n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+          auto* e = n->mutable_entidade();
+          e->set_id(id);
+          auto* destino = e->mutable_destino();
+          destino->set_x(entidade_selecionada->X());
+          destino->set_y(entidade_selecionada->Y());
+          destino->set_z(entidade_selecionada->Z());
+          destino->set_id_cenario(entidade_selecionada->IdCenario());
+          central_->AdicionaNotificacaoRemota(n.release());
+        }
         // Para desfazer.
         auto* n_desfazer = g_desfazer.add_notificacao();
         n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
@@ -1245,13 +1254,13 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
     LOG(INFO) << "Defesor nullptr";
     return;
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
   n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(entidade_defensora->Proto().dados_defesa().entidade_esquiva());
   n->mutable_entidade()->set_id(entidade_defensora->Id());
   n->mutable_entidade()->mutable_dados_defesa()->set_entidade_esquiva(id);
   AdicionaNotificacaoListaEventos(*n);
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
   AdicionaAcaoTexto(
       entidade_defensora->Id(),
       google::protobuf::StringPrintf("esquivando de %s", entidade_atacante->Proto().rotulo().empty()
@@ -1354,12 +1363,12 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   e->AdicionaAcaoExecutada(acao_executada.id());
   if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
-    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     n->set_servidor_apenas(true);
     auto* entidade  = n->mutable_entidade();
     entidade->set_id(e->Id());
     entidade->mutable_lista_acoes()->CopyFrom(e->Proto().lista_acoes());
-    central_->AdicionaNotificacaoRemota(n);
+    central_->AdicionaNotificacaoRemota(n.release());
   }
 }
 
@@ -1376,6 +1385,10 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+  if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
+    LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
+    return;
+  }
   Entidade* entidade_transicao = BuscaEntidade(id);
   if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
@@ -1576,7 +1589,7 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   float distancia = (ve - vd).length();
   char texto[31];
   snprintf(texto, 30, "%.1f m, %d quadrados", distancia, static_cast<int>(distancia / TAMANHO_LADO_QUADRADO));
-  auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_local_apenas(true);
@@ -1586,7 +1599,7 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   pd->set_z(z3d);
   pd->set_id_cenario(entidade->IdCenario());
   a->set_texto(texto);
-  central_->AdicionaNotificacao(n);
+  central_->AdicionaNotificacao(n.release());
 }
 
 void Tabuleiro::TrataBotaoLiberado() {
@@ -1648,7 +1661,7 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
     }
     {
       // Notificacao para clientes remotos.
-      auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+      auto n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
       e->set_id(id_ent.first);
       auto* destino = e->mutable_destino();
@@ -1657,7 +1670,7 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
       destino->set_z(entidade->Z());
       // Posicao final para desfazer.
       n_desfazer->mutable_entidade()->mutable_destino()->CopyFrom(*destino);
-      central_->AdicionaNotificacaoRemota(n);
+      central_->AdicionaNotificacaoRemota(n.release());
     }
   }
   AdicionaNotificacaoListaEventos(g_desfazer);
@@ -1681,6 +1694,7 @@ void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, Parametros
     case Tabuleiro::MODO_SINALIZACAO:
       break;
     case Tabuleiro::MODO_TRANSICAO:
+      pd->set_usar_transparencias(false);
       break;
     case Tabuleiro::MODO_REGUA:
       break;
@@ -1708,9 +1722,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   ConfiguraParametrosDesenho(modo_clique_, &parametros_desenho_);
   unsigned int id, tipo_objeto;
   float profundidade;
-  // Tem que ter uma forma de nao desenhar entidades fixas transparentes. Para poder fazer picking dentro dagua.
-  // O problema desse jeito eh pegar coisas do outro lado de paredes solidas.
-  // parametros_desenho_.set_nao_desenha_entidades_fixas(true);
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
@@ -1729,7 +1740,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           // para sair do modo.
           break;
         }
-        auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
         *n->mutable_entidade() = entidade->Proto();
         n->mutable_entidade()->set_tipo_transicao(EntidadeProto::TRANS_CENARIO);
         auto* trans = n->mutable_entidade()->mutable_transicao_cenario();
@@ -1737,7 +1748,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         trans->set_y(y3d);
         trans->set_z(z3d);
         trans->set_id_cenario(IdCenario());
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacao(n.release());
         break;
       }
       case MODO_ACAO:
@@ -1977,11 +1988,11 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   } else if (pos_pilha == OBJ_ENTIDADE || pos_pilha == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     if (SelecionaEntidade(id, true  /*forcar_fixa*/)) {
-      auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+      auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
       n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
-      central_->AdicionaNotificacao(n);
+      central_->AdicionaNotificacao(n.release());
     }
   } if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
     PickingControleVirtual(x, y, false  /*alterna selecao*/, true  /*duplo*/, id);
@@ -2222,6 +2233,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       e->set_id(entidade_selecionada->Id());
       e_antes->set_id(entidade_selecionada->Id());
       e_antes->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
+      e_antes->set_apoiada(entidade_selecionada->Apoiada());
       // Altera a translacao em Z.
       //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
       e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
@@ -2229,7 +2241,6 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       const Posicao& pos = e->destino();
       float altura_olho = entidade_selecionada->AlturaOlho();
       e->set_apoiada(Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho));
-      n->mutable_entidade_antes()->set_apoiada(entidade_selecionada->Apoiada());
     }
     // Nop mas envia para os clientes.
     TrataNotificacao(grupo_notificacoes);
@@ -2274,6 +2285,40 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
       AdicionaNotificacaoListaEventos(grupo_desfazer);
     }
   }
+}
+
+void Tabuleiro::DescansaPersonagemNotificando() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  const auto& proto = e->Proto();
+  int nivel = Nivel(proto);
+  auto n_grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
+
+  // Cura 1 PV por nivel.
+  {
+    ntf::Notificacao* n_cura;
+    EntidadeProto* e_antes, *e_depois;
+    std::tie(n_cura, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo.get());
+    e_antes->set_pontos_vida(e->PontosVida());
+    e_depois->set_pontos_vida(std::min(e->MaximoPontosVida(), e->PontosVida() + nivel));
+    AdicionaAcaoDeltaPontosVidaSemAfetar(e->Id(), nivel, 0);
+  }
+  {
+    ntf::Notificacao* n_feitico;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(n_feitico, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO, proto, n_grupo.get());
+    *e_antes->mutable_feiticos_classes() = proto.feiticos_classes();
+    *e_depois->mutable_feiticos_classes() = proto.feiticos_classes();
+    RenovaFeiticos(e_depois);
+  }
+
+  AdicionaNotificacaoListaEventos(*n_grupo);
+  TrataNotificacao(*n_grupo);
 }
 
 void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {

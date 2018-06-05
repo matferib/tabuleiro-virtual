@@ -81,6 +81,22 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
+std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto) {
+  auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(tipo));
+  n->mutable_entidade_antes()->set_id(proto.id());
+  n->mutable_entidade()->set_id(proto.id());
+  return n;
+}
+
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+        ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+  auto* n = pai->add_notificacao();
+  n->set_tipo(tipo);
+  n->mutable_entidade_antes()->set_id(proto.id());
+  n->mutable_entidade()->set_id(proto.id());
+  return std::make_tuple(n, n->mutable_entidade_antes(), n->mutable_entidade());
+}
+
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
@@ -1232,21 +1248,31 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
       descricao_resultado = "salvou tudo (manual)";
     }
   } else if (ap.has_dificuldade_salvacao()) {
-    // TODO evasao e evasao aprimorada.
     int d20 = RolaDado(20);
     int bonus = ed.Salvacao(ea, ap.tipo_salvacao());
     int total = d20 + bonus;
+    std::string str_evasao;
     if (total >= ap.dificuldade_salvacao()) {
       if (ap.resultado_salvacao() == RS_MEIO) {
-        delta_pontos_vida /= 2;
+        if (ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao", ed.Proto())) {
+          delta_pontos_vida = 0;
+          str_evasao = " (evasão)";
+        } else {
+          delta_pontos_vida /= 2;
+        }
       } else if (ap.resultado_salvacao() == RS_QUARTO) {
         delta_pontos_vida /= 4;
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida);
+      str_evasao = " (sem evasão aprimorada)";
+      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
+        delta_pontos_vida  /= 2;
+        str_evasao = " (evasão aprimorada)";
+      }
+      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
@@ -1811,6 +1837,12 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
   da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
+
+  // CA do ataque.
+  bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+  da->set_ca_normal(CATotal(proto, permite_escudo));
+  da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
+  da->set_ca_toque(CAToque(proto));
 }
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -2023,66 +2055,65 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
   }
 }
 
-// Preenche os bonus de acordo com o complemento.
-void PreencheValorComplemento(const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
+// Adiciona o id unico a cada origem de bonus.
+// Preenche os bonus de acordo com o complemento se houver.
+void PreencheOrigemValor(
+    int id_unico, const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      if (po.has_indice_complemento()) {
-        if (po.indice_complemento() < 0 || po.indice_complemento() >= complementos.size()) {
-          LOG(ERROR) << "indice complemento invalido: " << po.indice_complemento() << ", tamanho: " << complementos.size();
-        } else {
-          po.set_valor(complementos.Get(po.indice_complemento()));
-        }
+      po.set_origem(google::protobuf::StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
+      if (po.has_indice_complemento() && po.indice_complemento() >= 0 && po.indice_complemento() < complementos.size()) {
+        po.set_valor(complementos.Get(po.indice_complemento()));
       }
     }
   }
 }
 
-// Preenche os bonus de acordo com o valor.
-void PreencheValorBonus(int valor, Bonus* bonus) {
+void PreencheOrigemZeraValor(int id_unico, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_valor(valor);
+      po.set_origem(google::protobuf::StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
+      po.set_valor(0);
     }
   }
 }
 
+
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
 ConsequenciaEvento PreencheConsequencia(
+    int id_unico,
     const google::protobuf::RepeatedField<int>& complementos, const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
-  if (c.usa_complemento()) {
-    if (c.atributos().has_forca())        PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_forca());
-    if (c.atributos().has_destreza())     PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_destreza());
-    if (c.atributos().has_constituicao()) PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_constituicao());
-    if (c.atributos().has_inteligencia()) PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_inteligencia());
-    if (c.atributos().has_sabedoria())    PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_sabedoria());
-    if (c.atributos().has_carisma())      PreencheValorComplemento(complementos, c.mutable_atributos()->mutable_carisma());
-    if (c.dados_defesa().has_ca())        PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_ca());
-    if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-    if (c.dados_defesa().has_salvacao_vontade())   PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
-    if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorComplemento(complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-    if (c.has_jogada_ataque())            PreencheValorComplemento(complementos, c.mutable_jogada_ataque());
-    if (c.has_tamanho())                  PreencheValorComplemento(complementos, c.mutable_tamanho());
-  }
+  if (c.atributos().has_forca())        PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.has_jogada_ataque())            PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_ataque());
+  if (c.has_tamanho())                  PreencheOrigemValor(id_unico, complementos, c.mutable_tamanho());
   return c;
 }
 
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
-ConsequenciaEvento PreencheConsequenciaFim(const ConsequenciaEvento& consequencia_original) {
+ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
-  if (c.atributos().has_forca())        PreencheValorBonus(0, c.mutable_atributos()->mutable_forca());
-  if (c.atributos().has_destreza())     PreencheValorBonus(0, c.mutable_atributos()->mutable_destreza());
-  if (c.atributos().has_constituicao()) PreencheValorBonus(0, c.mutable_atributos()->mutable_constituicao());
-  if (c.atributos().has_inteligencia()) PreencheValorBonus(0, c.mutable_atributos()->mutable_inteligencia());
-  if (c.atributos().has_sabedoria())    PreencheValorBonus(0, c.mutable_atributos()->mutable_sabedoria());
-  if (c.atributos().has_carisma())      PreencheValorBonus(0, c.mutable_atributos()->mutable_carisma());
-  if (c.dados_defesa().has_ca())        PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_ca());
-  if (c.dados_defesa().has_salvacao_fortitude()) PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-  if (c.dados_defesa().has_salvacao_vontade())   PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (c.dados_defesa().has_salvacao_reflexo())   PreencheValorBonus(0, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.has_jogada_ataque())            PreencheValorBonus(0, c.mutable_jogada_ataque());
-  if (c.has_tamanho())                  PreencheValorBonus(0, c.mutable_tamanho());
+  if (c.atributos().has_forca())        PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
+  if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
   return c;
 }
 
@@ -2125,10 +2156,11 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.rodadas() < 0) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
+      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
-        AplicaFimEfeito(evento, PreencheConsequencia(evento.complementos(), efeito.consequencia_fim()), proto);
+        AplicaFimEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia_fim()), proto);
       } else {
-        AplicaFimEfeito(evento, PreencheConsequenciaFim(efeito.consequencia()), proto);
+        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.id_unico(), efeito.consequencia()), proto);
       }
       eventos_a_remover.insert(i);
     }
@@ -2137,30 +2169,27 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
   }
+  // Computa os eventos ainda ativos. Os que nao se acumulam sao ignorados.
+  std::unordered_set<int> efeitos_computados;
   for (auto& evento : *proto->mutable_evento()) {
+    const bool computado = efeitos_computados.find(evento.id_efeito()) != efeitos_computados.end();
+    efeitos_computados.insert(evento.id_efeito());
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
-    AplicaEfeito(evento, PreencheConsequencia(evento.complementos(), efeito.consequencia()), proto);
+    if (computado && efeito.nao_cumulativo()) {
+      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
+      continue;
+    }
+    VLOG(1) << "aplicando efeito: " << efeito.DebugString();
+    AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }
   const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
 }
 
-// Recomputa as dependencias de atributos (destreza com armadura).
-void RecomputaDependenciasDestreza(const Tabelas& tabelas, EntidadeProto* proto) {
-  auto* dd = proto->mutable_dados_defesa();
-  // Ajusta a destreza de acordo com a armadura. Primeiro limpa para calcular a penalidade de armadura ou escudo.
+void RecomputaDependenciasDestrezaLegado(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Legado, apenas para limpar o que foi feito errado. O bonus maximo de destreza afeta apenas a CA.
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
-  const int mod_antes = ModificadorAtributo(proto->atributos().destreza());
-  int bonus_maximo = 100;
-  if (dd->has_id_armadura()) {
-    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
-  }
-  if (dd->has_id_escudo()) {
-    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
-  }
-  int penalidade = mod_antes > bonus_maximo ? bonus_maximo - mod_antes : 0;
-  AtribuiBonus(penalidade, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
 }
 
 // Retorna o bonus base de uma salvacao, dado o nivel. Forte indica que a salvacao eh forte.
@@ -2201,25 +2230,31 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   bool recomputa_base = false;
   proto->mutable_dados_defesa()->clear_reducao_dano_barbaro();
   for (auto& ic : *proto->mutable_info_classes()) {
-    const auto& classe_tabelada = tabelas.Classe(ic.id());
-    if (classe_tabelada.has_nome()) {
-      ic.clear_salvacoes_fortes();
-      ic.MergeFrom(classe_tabelada);
+    {
+      const auto& classe_tabelada = tabelas.Classe(ic.id());
+      if (classe_tabelada.has_nome()) {
+        ic.clear_salvacoes_fortes();
+        ic.clear_habilidades_por_nivel();
+        ic.clear_pericias();
+        ic.clear_progressao_feitico();
+        ic.MergeFrom(classe_tabelada);
+      }
     }
-    if (ic.has_atributo_conjuracao()) {
+    if (ic.has_atributo_conjuracao() || ic.has_id_para_progressao_de_magia()) {
+      const auto& classe_tabelada_conjuracao =
+          tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
+      ic.set_atributo_conjuracao(classe_tabelada_conjuracao.atributo_conjuracao());
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
       int nc = 0;
-      if (ic.has_progressao_conjurador()) {
-        switch (ic.progressao_conjurador()) {
-          case PCONJ_UM:
-            nc = ic.nivel(); break;
-          case PCONJ_MEIO_MIN_4:
-            nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
-          default:
-            nc = 0;
-        }
-      } else {
-        nc = ic.nivel_conjurador();
+      ProgressaoConjurador pconj =
+          ic.has_progressao_conjurador() ? ic.progressao_conjurador() : classe_tabelada_conjuracao.progressao_conjurador();
+      switch (pconj) {
+        case PCONJ_UM:
+          nc = ic.nivel(); break;
+        case PCONJ_MEIO_MIN_4:
+          nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
+        default:
+          nc = ic.nivel_conjurador();
       }
       ic.set_nivel_conjurador(nc);
     }
@@ -2255,7 +2290,14 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 
 void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
-  const int modificador_destreza = ModificadorAtributo(proto_retornado->atributos().destreza());
+  int bonus_maximo = std::numeric_limits<int>::max();
+  if (dd->has_id_armadura()) {
+    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
+  }
+  if (dd->has_id_escudo()) {
+    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
+  }
+  const int modificador_destreza = std::min(ModificadorAtributo(proto_retornado->atributos().destreza()), bonus_maximo);
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
   const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
   ent::AtribuiBonus(10, ent::TB_BASE, "base",  dd->mutable_ca());
@@ -2266,13 +2308,6 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
       ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
-  // CA dos ataques.
-  for (auto& da : *proto_retornado->mutable_dados_ataque()) {
-    bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
-    da.set_ca_normal(CATotal(*proto_retornado, permite_escudo));
-    da.set_ca_surpreso(CASurpreso(*proto_retornado, permite_escudo));
-    da.set_ca_toque(CAToque(*proto_retornado));
-  }
 }
 
 void RecomputaDependenciasSalvacoes(
@@ -2521,7 +2556,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
-  RecomputaDependenciasDestreza(tabelas, proto);
+  RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
   RecomputaDependenciaTamanho(proto);
   RecomputaDependenciasPontosVidaTemporarios(proto);
@@ -2804,7 +2839,7 @@ bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const Entid
 }
 }  // namespace
 
-bool PossuiEventoEspecifico(const EntidadeProto::Evento& evento, const EntidadeProto& entidade) {
+bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [evento] (const EntidadeProto::Evento& evento_entidade) {
     if (evento.has_id_unico()) {
       return evento.id_unico() == evento_entidade.id_unico();
@@ -3070,10 +3105,23 @@ const TalentoProto* Talento(const std::string& chave_talento, const std::string&
   return nullptr;
 }
 
+bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    for (const auto& he : ic.habilidades_por_nivel()) {
+      if (chave == he.id() && ic.nivel() >= he.nivel()) return true;
+    }
+  }
+  return nullptr;
+}
+
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
-    const auto& ct = tabelas.Classe(ic.id()); 
+    const auto& ct = tabelas.Classe(ic.id());
     if (std::any_of(ct.pericias().begin(), ct.pericias().end(),
+          [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
+      return true;
+    }
+    if (std::any_of(ic.pericias_monstro().begin(), ic.pericias_monstro().end(),
           [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
       return true;
     }
@@ -3199,6 +3247,16 @@ int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& 
   return InfoClasseParaFeitico(da.tipo_ataque(), proto).nivel();
 }
 
+void RenovaFeiticos(EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    for (auto& fn : *fc.mutable_feiticos_por_nivel()) {
+      for (auto& pl : *fn.mutable_para_lancar()) {
+        pl.set_usado(false);
+      }
+    }
+  }
+}
+
 bool EmDefesaTotal(const EntidadeProto& proto) {
   for (const auto& bi : proto.dados_defesa().ca().bonus_individual()) {
     if (bi.tipo() == TB_ESQUIVA) {
@@ -3243,6 +3301,7 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
   uint32_t i = 0;
   for (const auto& e : eventos) {
+    VLOG(2) << "evento: " << e.ShortDebugString();
     i = std::max(i, e.id_unico());
   }
   ++i;
@@ -3261,15 +3320,18 @@ uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProt
       }
     }
   }
+  VLOG(1) << "Retornando id unico: " << i;
   return i;
 }
 
-EntidadeProto::Evento* AdicionaEvento(TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    TipoEfeito tipo_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   auto* e = proto->add_evento();
-  e->set_id_efeito(id_efeito);
+  e->set_id_efeito(tipo_efeito);
   e->set_rodadas(rodadas);
   e->set_continuo(continuo);
-  e->set_id_unico(AchaIdUnicoEvento(*proto));
+  e->set_id_unico(AchaIdUnicoEvento(eventos));
   return e;
 }
 
@@ -3283,23 +3345,24 @@ void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
 }
 
 std::vector<int> AdicionaEventoItemMagico(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
   std::vector<int> ids_unicos;
   std::vector<TipoEfeito> efeitos;
   if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
-    if (indice < 0 || indice >= item.id_efeito().size()) {
+    if (indice < 0 || indice >= item.tipo_efeito().size()) {
       LOG(ERROR) << "indice de efeito de item invalido para " << item.DebugString();
     } else {
-      efeitos.push_back(item.id_efeito(indice));
+      efeitos.push_back(item.tipo_efeito(indice));
     }
   } else {
-    for (auto id_efeito : item.id_efeito()) {
-      efeitos.push_back((TipoEfeito)id_efeito);
+    for (auto tipo_efeito : item.tipo_efeito()) {
+      efeitos.push_back((TipoEfeito)tipo_efeito);
     }
   }
 
-  for (auto id_efeito : efeitos) {
-    auto* evento = AdicionaEvento(id_efeito, rodadas, continuo, proto);
+  for (auto tipo_efeito : efeitos) {
+    auto* evento = AdicionaEvento(eventos, tipo_efeito, rodadas, continuo, proto);
     ids_unicos.push_back(evento->id_unico());
     if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();
@@ -3461,20 +3524,31 @@ int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const Entid
   return -1;
 }
 
-ntf::Notificacao NotificacaoAlterarFeitico(
-    const std::string& id_classe, int nivel, int indice, bool usado, unsigned int id_entidade) {
+std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
+    const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto) {
   // Consome o slot.
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO);
-  auto* e_depois = n.mutable_entidade();
-  e_depois->set_id(id_entidade);
-  auto* fc = e_depois->add_feiticos_classes();
-  fc->set_id_classe(id_classe);
-  auto* fn = fc->add_feiticos_por_nivel();
-  fn->set_nivel(nivel);
-  auto* pl = fn->add_para_lancar();
-  pl->set_usado(usado);
-  pl->set_indice(indice);
+  auto n = NovaNotificacao(ntf::TN_ALTERAR_FEITICO_NOTIFICANDO, proto);
+  {
+    auto* e_depois = n->mutable_entidade();
+    auto* fc = e_depois->add_feiticos_classes();
+    fc->set_id_classe(id_classe);
+    auto* fn = fc->add_feiticos_por_nivel();
+    fn->set_nivel(nivel);
+    auto* pl = fn->add_para_lancar();
+    pl->set_usado(usado);
+    pl->set_indice(indice);
+  }
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    auto* fc = e_antes->add_feiticos_classes();
+    fc->set_id_classe(id_classe);
+    auto* fn = fc->add_feiticos_por_nivel();
+    fn->set_nivel(nivel);
+    auto* pl = fn->add_para_lancar();
+    pl->set_usado(FeiticoParaLancar(id_classe, nivel, indice, proto).usado());
+    pl->set_indice(indice);
+  }
+
   return n;
 }
 
@@ -3482,8 +3556,11 @@ ntf::Notificacao NotificacaoAlterarFeitico(
 // erro, retorna nivel negativo.
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n) {
   if (n.entidade().feiticos_classes().empty() ||
+      n.entidade().feiticos_classes().size() > 1 ||
       n.entidade().feiticos_classes(0).feiticos_por_nivel().empty() ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty()) {
+      n.entidade().feiticos_classes(0).feiticos_por_nivel().size() > 1 ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty() ||
+      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size() > 1) {
     // Bizarramente, make_tuple da pau de linker se usar Entidade::IdInvalido.
     unsigned int id_invalido = Entidade::IdInvalido;
     return std::make_tuple("", -1, 0, false, id_invalido);

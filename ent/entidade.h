@@ -170,6 +170,7 @@ class Entidade {
 
   /** Altera o indice de feitico da entidade para usado ou nao. */
   void AlteraFeitico(const std::string& id_classe, int nivel, int indice, bool usado);
+  void AlteraTodosFeiticos(const EntidadeProto& proto_parcial);
 
   using MapaIdAcao = std::unordered_map<std::string, std::unique_ptr<AcaoProto>>;
   // Retorna true se entidade possui acao propria.
@@ -191,7 +192,7 @@ class Entidade {
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
-  /** @return a posicao de algo a uma altura que eh um fator da ALTURA. */
+  /** @return a posicao de algo a uma altura do personagem, dada por fator * ALTURA. */
   const Posicao PosicaoAltura(float fator) const;
 
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */

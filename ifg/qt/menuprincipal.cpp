@@ -355,11 +355,10 @@ void MenuPrincipal::TrataAcaoAcoes(QAction* acao){
 
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
   //cout << (const char*)acao->text().toAscii() << endl;
-  ntf::Notificacao* notificacao = nullptr;
+  std::unique_ptr<ntf::Notificacao> notificacao;
   // Jogo.
   if (acao == acoes_[ME_JOGO][MI_INICIAR]) {
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_INICIAR);
+    notificacao = ntf::NovaNotificacao(ntf::TN_INICIAR);
   } else if (acao == acoes_[ME_JOGO][MI_CONECTAR_PROXY]) {
     // mostra a caixa de dialogo da conexao.
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
@@ -377,8 +376,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     // Botao OK.
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, ip_le] {
-      notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_CONECTAR_PROXY);
+      notificacao = ntf::NovaNotificacao(ntf::TN_CONECTAR_PROXY);
       notificacao->set_endereco(ip_le->text().toUtf8().constData());
       qd->accept();
     });
@@ -412,8 +410,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     // Botao OK.
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
-      notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_CONECTAR);
+      notificacao = ntf::NovaNotificacao(ntf::TN_CONECTAR);
       notificacao->set_id_rede(nome_le->text().toUtf8().constData());
       notificacao->set_endereco(ip_le->text().toUtf8().constData());
       qd->accept();
@@ -489,11 +486,11 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: devera ser definido.
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
     if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
       n->mutable_tabuleiro()->set_manter_entidades(true);
     }
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
@@ -539,7 +536,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   }
 
   if (notificacao != nullptr) {
-    central_->AdicionaNotificacao(notificacao);
+    central_->AdicionaNotificacao(notificacao.release());
   }
 }
 

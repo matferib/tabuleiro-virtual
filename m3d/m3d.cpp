@@ -75,7 +75,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return false;
     }
     // Notificacao local: envia os ids de texturas locais para o servidor.
-    auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_MODELOS_3D);
+    auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_MODELOS_3D);
     // Percorre arquivos globais.
     std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d));
     for (const std::string& id : globais) {
@@ -90,7 +90,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     n->set_servidor_apenas(true);
     // Envia para o servidor.
     VLOG(1) << "Enviando remoto TN_REQUISITAR_MODELOS_3D: " << n->DebugString();
-    central_->AdicionaNotificacaoRemota(n);
+    central_->AdicionaNotificacaoRemota(n.release());
     return true;
   } else if (notificacao.tipo() == ntf::TN_REQUISITAR_MODELOS_3D) {
     // Servidor recebendo de cliente.
@@ -121,7 +121,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       VLOG(1) << "Cliente tem todos os modelos.";
       return true;
     }
-    auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_MODELOS_3D);
+    auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_MODELOS_3D);
     for (const auto& id : ids_faltantes) {
       std::vector<unsigned char> dados;
       try {
@@ -135,7 +135,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     n->set_id_rede(notificacao.id_rede());
     VLOG(1) << "Enviando modelos faltantes a cliente " << n->id_rede();
-    central_->AdicionaNotificacaoRemota(n);
+    central_->AdicionaNotificacaoRemota(n.release());
     return true;
   } else if (notificacao.tipo() == ntf::TN_ENVIAR_MODELOS_3D) {
     if (notificacao.local()) {
