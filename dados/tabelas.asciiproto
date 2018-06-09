@@ -1509,12 +1509,19 @@ tabela_botas {
     id: 'botas_aladas'
     nome: 'Botas Aladas'
     custo_po: 16000
+    a_base_de_cargas: true
+    recarregavel: true
+    max_cargas: 3
+    cargas: 3
     # Voo 3 vezes por dia por 5 minutos.
   }
   botas {
     id: 'botas_elficas'
     nome: 'Botas Élficas'
     custo_po: 2500
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos: 5
+    complementos_str: 'furtividade'
     # +5 teste de furtividade
   }
   botas {
