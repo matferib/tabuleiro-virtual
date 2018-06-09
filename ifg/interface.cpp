@@ -63,6 +63,10 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataEscolherPocao(notificacao);
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA: {
+      TrataEscolherPericia(notificacao);
+      return true;
+    }
     case ntf::TN_INFO:
     case ntf::TN_ERRO: {
       TrataMostraMensagem(notificacao.tipo() == ntf::TN_ERRO, notificacao.erro());
@@ -72,6 +76,53 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
   }
   return false;
+}
+
+//-----------------
+// Escolher Pericia
+//-----------------
+void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const auto& pericias_entidade = notificacao.entidade().info_pericias();
+  std::vector<std::string> nomes_pericias;
+  for (const auto& pericia : pericias_entidade) {
+    nomes_pericias.push_back(tabelas_.Pericia(pericia.id()).nome());
+  }
+  EscolheItemLista(
+      "Escolha a pericia", nomes_pericias,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherPericia,
+          this, notificacao,
+          _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, unsigned int indice_pericia) {
+  if (ok && indice_pericia <= notificacao.entidade().info_pericias_size()) {
+    const auto& entidade = notificacao.entidade();
+    const auto& pericia = entidade.info_pericias(indice_pericia);
+    const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
+    const bool treinado = pericia.pontos() > 0;
+    auto n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+    auto* a = n->mutable_acao();
+    auto* pd = a->mutable_pos_entidade();
+    pd->set_x(entidade.pos().x());
+    pd->set_y(entidade.pos().y());
+    pd->set_z(entidade.pos().z());
+    pd->set_id_cenario(entidade.pos().id_cenario());
+    a->set_tipo(ent::ACAO_DELTA_PONTOS_VIDA);
+    a->set_local_apenas(false);
+    std::string texto;
+    if (treinado || pericia_tabelada.sem_treinamento()) {
+      const int bonus = ent::BonusTotal(pericia.bonus());
+      const int dado = ent::RolaDado(20);
+      texto = google::protobuf::StringPrintf("%s: d%d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
+    } else {
+      texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
+    }
+    a->set_texto(texto);
+    central_->AdicionaNotificacao(n.release());
+  }
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----------------

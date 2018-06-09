@@ -490,6 +490,15 @@ message ItemMagicoProto {
   optional bool em_uso = 10;
   // Ao usar, item gera este efeito. Util para finalizar o efeito.
   repeated uint32 ids_efeitos = 11;
+  // cargas.
+  // Indica que o item funciona a base de cargas.
+  optional bool a_base_de_cargas = 13;
+  // Indica que o item eh recarregavel.
+  optional bool recarregavel = 14;
+  // Maximo de cargas do item.
+  optional int32 max_cargas = 15;
+  // Cargas correntes do item.
+  optional int32 cargas = 16;
 }
 
 message AnelProto {

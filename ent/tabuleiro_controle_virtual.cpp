@@ -220,6 +220,15 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ROLAR_D100:
       AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
       break;
+    case CONTROLE_ROLAR_PERICIA: {
+      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      if (e == nullptr) return;
+      auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA));
+      n->mutable_entidade()->set_id(e->Id());
+      *n->mutable_entidade()->mutable_info_pericias() = e->Proto().info_pericias();
+      central_->AdicionaNotificacao(n.release());
+      break;
+    }
     case CONTROLE_APAGAR_INICIATIVAS:
       LimpaIniciativasNotificando();
       break;

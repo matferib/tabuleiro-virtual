@@ -439,6 +439,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Modo dado, o clique rola um dado. */
   void AlternaModoDado(int faces);
 
+  /** Modo pericia, o clique rola uma pericia para o personagem. */
+  void AlternaModoPericia(const std::string& id_pericia);
+
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
   /** No modo esquiva, o clique seleciona contra quem a entidade se esquivara. */
