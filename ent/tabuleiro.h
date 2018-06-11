@@ -407,6 +407,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);
 
+  /** Rola a pericia apontada por |indice_pericia| em |proto| e notifica clientes. */
+  void TrataRolarPericiaNotificando(int indice_pericia, const EntidadeProto& proto);
+
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();
 
@@ -438,9 +441,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Modo dado, o clique rola um dado. */
   void AlternaModoDado(int faces);
-
-  /** Modo pericia, o clique rola uma pericia para o personagem. */
-  void AlternaModoPericia(const std::string& id_pericia);
 
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();

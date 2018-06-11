@@ -2347,4 +2347,28 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
+void Tabuleiro::TrataRolarPericiaNotificando(int indice_pericia, const EntidadeProto& proto) {
+  const auto& pericia = proto.info_pericias(indice_pericia);
+  const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
+  const bool treinado = pericia.pontos() > 0;
+  auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = n->mutable_acao();
+  auto* pd = a->mutable_pos_entidade();
+  const auto& entidade = BuscaEntidade(proto.id());
+  *pd = entidade->PosicaoAcao();
+  a->set_tipo(ent::ACAO_DELTA_PONTOS_VIDA);
+  a->set_local_apenas(false);
+  std::string texto;
+  if (treinado || pericia_tabelada.sem_treinamento()) {
+    const int bonus = ent::BonusTotal(pericia.bonus());
+    const int dado = ent::RolaDado(20);
+    texto = google::protobuf::StringPrintf("%s: d%d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
+  } else {
+    texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
+  }
+  a->set_texto(texto);
+  central_->AdicionaNotificacao(n.release());
+  AdicionaLogEvento(texto);
+}
+
 }  // namespace ent
