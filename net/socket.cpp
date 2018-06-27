@@ -547,7 +547,7 @@ const Erro ConverteErro(const boost::system::error_code& ec) {
 
 Erro::Erro(void* dependente_plataforma) : Erro() {
   interno_->ec = *((boost::system::error_code*)dependente_plataforma);
-  erro_ = *interno_->ec;
+  erro_ = interno_->ec.value() != boost::system::errc::success;
   msg_ = interno_->ec.message();
   msg_ += ", cod: " + to_string(interno_->ec.value());
 }
