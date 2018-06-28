@@ -33,13 +33,12 @@ protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entida
 
 Gerando os moc:
 export MOC=/c/Qt5/5.9.1/msvc2015_64/bin/moc.exe
-$ $MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
-$ $MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
-$ $MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
-$ $MOC -I. -oifg/qt/moc_pericias_util.cpp ifg/qt/pericias_util.h
-$ $MOC -I. -oifg/qt/moc_aneis_util.cpp ifg/qt/aneis_util.h
-$ $MOC -I. -oifg/qt/moc_pocoes_util.cpp ifg/qt/pocoes_util.h
-$ $MOC -I. -oifg/qt/moc_evento_util.cpp ifg/qt/evento_util.h
+$MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
+$MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
+$MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
+$MOC -I. -oifg/qt/moc_pericias_util.cpp ifg/qt/pericias_util.h
+$MOC -I. -oifg/qt/moc_pocoes_util.cpp ifg/qt/pocoes_util.h
+$MOC -I. -oifg/qt/moc_evento_util.cpp ifg/qt/evento_util.h
 
 Colocar no diretorio win32:
 - qt-everywhere-opensource-src-4.8.6
