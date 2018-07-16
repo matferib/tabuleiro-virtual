@@ -15,9 +15,9 @@ namespace ifg {
 void InterfaceGraficaAndroid::MostraMensagem(
     bool erro, const std::string& mensagem, std::function<void()> funcao_volta) {
   if (env_ == nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   auto* copia_volta = new std::function<void()>(funcao_volta);
@@ -34,9 +34,9 @@ void InterfaceGraficaAndroid::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_dinamicos,
     std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta) {
   if (env_ == nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   jmethodID metodo = Metodo("abreDialogoAbrirTabuleiro", "([Ljava/lang/String;[Ljava/lang/String;J)V");
@@ -66,9 +66,9 @@ void InterfaceGraficaAndroid::EscolheArquivoAbrirTabuleiro(
 void InterfaceGraficaAndroid::EscolheArquivoSalvarTabuleiro(
     std::function<void(const std::string& nome)> funcao_volta) {
   if (env_ == nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   jmethodID metodo = Metodo("abreDialogoSalvarTabuleiro", "(J)V");
@@ -114,9 +114,9 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
     const MenuModelos& menu_modelos,
     std::function<void(const std::string& nome)> funcao_volta) {
   if (env_ == nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   std::set<std::string> modelos = ExtraiModelos(menu_modelos);
@@ -143,9 +143,9 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     const std::vector<std::string>& lista,
     std::function<void(bool, int)> funcao_volta) {
   if (env_ == nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
-    central_->AdicionaNotificacao(n);
+    central_->AdicionaNotificacao(n.release());
     return;
   }
   jmethodID metodo = Metodo("abreDialogoItemsLista", "([Ljava/lang/String;J)V");
