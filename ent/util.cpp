@@ -1405,6 +1405,43 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
   return std::make_pair(n->mutable_entidade_antes(), n->mutable_entidade());
 }
 
+namespace {
+
+bool AtaqueIgual(const EntidadeProto::DadosAtaque& lda, const EntidadeProto::DadosAtaque& rda) {
+  return lda.rotulo() == rda.rotulo() &&
+         lda.tipo_ataque() == rda.tipo_ataque() &&
+         lda.grupo() == rda.grupo();
+}
+
+// Encontra determinado dado de ataque em um proto. Retorna nullptr caso nao encontre.
+EntidadeProto::DadosAtaque* EncontraAtaque(const EntidadeProto::DadosAtaque& da, EntidadeProto* proto) {
+  for (auto& pda : *proto->mutable_dados_ataque()) {
+    if (AtaqueIgual(pda, da)) {
+      return &pda;
+    }
+  }
+  return nullptr;
+}
+}  // namespace
+
+void PreencheNotificacaoConsumoAtaque(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *proto = nullptr, *proto_antes = nullptr;
+  std::tie(proto_antes, proto) =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  *proto->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  auto* da_depois = EncontraAtaque(da, proto);
+  if (da_depois != nullptr) {
+    if (da_depois->has_limite_vezes()) {
+      da_depois->set_limite_vezes(da_depois->limite_vezes() - 1);
+    }
+    if (da_depois->has_municao()) {
+      da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
+    }
+  }
+}
+
 // Retorna se os bonus sao cumulativos.
 bool BonusCumulativo(TipoBonus tipo) {
   switch (tipo) {
@@ -1846,6 +1883,18 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
 }
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Remove ataques cujo numero de vezes exista e seja zero.
+  std::vector<int> indices_a_remover;
+  for (int i = proto->dados_ataque().size() - 1; i >= 0; --i) {
+    const auto& da = proto->dados_ataque(i);
+    if (da.has_limite_vezes() && da.limite_vezes() <= 0) {
+      indices_a_remover.push_back(i);
+    }
+  }
+  for (int indice : indices_a_remover) {
+    proto->mutable_dados_ataque()->DeleteSubrange(indice, 1);
+  }
+
   // Preenche os tipos de ataque automaticamente a partir do tipo_acao.
   // Remover isso quando nao existir mais tipo_ataque.
   // Apenas para as correspondencias 1x1.
@@ -3111,7 +3160,7 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
       if (chave == he.id() && ic.nivel() >= he.nivel()) return true;
     }
   }
-  return nullptr;
+  return false;
 }
 
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {

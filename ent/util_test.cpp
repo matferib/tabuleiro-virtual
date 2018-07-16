@@ -36,6 +36,30 @@ TEST(TesteVazamento, TesteVazamento) {
   EXPECT_EQ(tamanho, proto.ByteSize());
 }
 
+TEST(TesteVezes, TesteVezes) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_vezes(-1);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_curta");
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("cimitarra");
+    da->set_vezes(0);
+  }
+
+  RecomputaDependencias(tabelas, &proto);
+  // Vai ter criado o agarrar tb.
+  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  EXPECT_EQ(proto.dados_ataque(0).id_arma(), "espada_curta");
+}
+
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
