@@ -1440,6 +1440,7 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
     }
   }
+  *n_desfazer  = *n;
 }
 
 // Retorna se os bonus sao cumulativos.
