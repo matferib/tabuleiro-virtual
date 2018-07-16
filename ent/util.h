@@ -259,6 +259,10 @@ enum tipo_dano_e {
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
+// Preenche uma notificacao consumir o dado de ataque e/ou municao.
+void PreencheNotificacaoConsumoAtaque(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
