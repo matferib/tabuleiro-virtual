@@ -64,7 +64,7 @@ else:
   # linux.
   env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC', '-Wno-unused-lambda-capture']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_chrono', 'pthread']
 
 if (debug == '1'):
