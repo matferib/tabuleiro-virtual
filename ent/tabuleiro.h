@@ -682,7 +682,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
-      unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer);
+      unsigned int id_entidade_destino, float atraso_s);
   float TrataAcaoEfeitoArea(
       float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);

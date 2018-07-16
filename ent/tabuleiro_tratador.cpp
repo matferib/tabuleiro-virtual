@@ -139,22 +139,6 @@ void PreencheNotificacaoDesagarrar(
   }
 }
 
-void PreencheNotificacaoConsumirMunicao(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  auto* e_antes = n->mutable_entidade_antes();
-  e_antes->set_id(entidade.Id());
-  *e_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
-  auto* e_depois = n->mutable_entidade();
-  e_depois->set_id(entidade.Id());
-  *e_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
-  for (auto& dda : *e_depois->mutable_dados_ataque()) {
-    if (dda.rotulo() == da.rotulo()) {
-      dda.set_municao(std::max((int)(da.municao() - 1), 0));
-    }
-  }
-}
-
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
@@ -1064,6 +1048,8 @@ float Tabuleiro::TrataAcaoIndividual(
   auto* nd = grupo_desfazer->add_notificacao();
   acao_proto->set_bem_sucedida(true);
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+    // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
+    // -1 indica falha critica.
     int vezes = 1;
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
@@ -1089,6 +1075,7 @@ float Tabuleiro::TrataAcaoIndividual(
       AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
       acao_proto->set_texto(texto);
     }
+
     int delta_pontos_vida = 0;
     acao_proto->set_bem_sucedida(vezes >= 1);
     if (vezes < 0 || !realiza_acao) {
@@ -1101,6 +1088,14 @@ float Tabuleiro::TrataAcaoIndividual(
         *n->mutable_acao() = *acao_proto;
       }
       return atraso_s;
+    }
+
+    const auto* da = entidade->DadoCorrente();
+    if (realiza_acao && da != nullptr && (da->has_municao() || da->has_limite_vezes())) {
+      // Consome vezes e/ou municao.
+      std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
+      PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+      central_->AdicionaNotificacao(n_consumo.release());
     }
 
     if (vezes > 0 && acao_proto->has_afeta_apenas() &&
@@ -1119,16 +1114,6 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     if (vezes > 0) {
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
-    }
-
-    const auto* da = entidade->DadoCorrente();
-
-    // Consome municao.
-    if (vezes >= 0 && da != nullptr && da->has_municao()) {
-      ntf::Notificacao n_municao;
-      PreencheNotificacaoConsumirMunicao(*entidade, *da, &n_municao);
-      *grupo_desfazer->add_notificacao() = n_municao;
-      TrataNotificacao(n_municao);
     }
 
     if (vezes >= 0 && da != nullptr && da->has_veneno()) {
@@ -1212,7 +1197,10 @@ float Tabuleiro::TrataAcaoIndividual(
 
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
-    unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer) {
+    unsigned int id_entidade_destino, float atraso_s) {
+  ntf::Notificacao grupo_desfazer;
+  grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
   AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
   if (!acao_proto.has_tipo()) {
     LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
@@ -1228,13 +1216,14 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);
   if (acao_proto.efeito_projetil_area()) {
-    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
+    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
   } else if (acao_proto.efeito_area()) {
-    atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
+    atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
   } else {
-    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, grupo_desfazer);
+    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
   }
   TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(grupo_desfazer);
   return atraso_s;
 }
 
@@ -1337,18 +1326,14 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     // Realiza a acao de cada entidade contra o alvo ou local.
     // Usa modelo selecionado.
     VLOG(1) << "Acao de entidades.";
-    // Para desfazer.
-    ntf::Notificacao grupo_desfazer;
-    grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     float atraso_s = 0.0f;
     for (auto id_selecionado : ids_origem) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_s, &grupo_desfazer);
+      atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_s);
     }
-    AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
 
   // Atualiza as acoes executadas da entidade se houver apenas uma. A sinalizacao nao eh adicionada a entidade porque ela possui forma propria.
