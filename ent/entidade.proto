@@ -251,6 +251,9 @@ message EntidadeProto {
     optional string grupo = 40;
     // Para ataques com veneno.
     optional Veneno veneno = 42;
+    // Se presente, ataque desaparecerá após ser usado esse número de vezes.
+    // É diferente de munição, que permanece após zerar.
+    optional int32 limite_vezes = 43;
   }
   repeated DadosAtaque dados_ataque = 44;
 
