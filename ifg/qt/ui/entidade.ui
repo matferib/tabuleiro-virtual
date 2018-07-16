@@ -2124,7 +2124,7 @@ QGroupBox::title {
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>Máximo de incrementos permitido pelo ataque</string>
+            <string>Quantidade de munição da arma.</string>
            </property>
            <property name="maximum">
             <number>10000</number>
