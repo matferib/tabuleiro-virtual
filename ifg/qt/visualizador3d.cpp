@@ -1102,6 +1102,7 @@ void PreencheConfiguraFeiticos(
           auto* fn = FeiticosNivel(id_classe, nivel, proto_retornado);
           fn->add_conhecidos()->set_nome("");
           AdicionaItemFeiticoConhecido(gerador, "", id_classe, nivel, fn->conhecidos_size() - 1, item);
+          item->setExpanded(true);
           if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
             AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
           }
