@@ -113,6 +113,14 @@ message ArmaProto {
     optional int32 nivel = 3;
   }
   repeated InfoClasseParaFeitico info_classes = 21;
+
+  // Quantas vezes o feitico pode ser usado.
+  enum ModeloLimiteVezes {
+    LIMITE_UM = 0;
+    LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
+  }
+  // Se a arma for criada por um feitico.
+  optional ModeloLimiteVezes modelo_limite_vezes = 23;
 }
 
 message TabelaArmaduraOuEscudo {

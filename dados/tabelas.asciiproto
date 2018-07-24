@@ -4134,5 +4134,6 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       consequencia: TC_DESLOCA_ALVO
     }
+    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
 }
