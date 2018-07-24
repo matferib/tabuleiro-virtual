@@ -34,12 +34,23 @@ acao {
 }
 acao {
   id: 'Feitiço de Clérigo'
+  classe_conjuracao: 'clerigo'
 }
 acao {
   id: 'Feitiço de Druida'
+  classe_conjuracao: 'druida'
 }
 acao {
   id: 'Feitiço de Mago'
+  classe_conjuracao: 'mago'
+}
+acao {
+  id: 'Feitiço de Ranger'
+  classe_conjuracao: 'ranger'
+}
+acao {
+  id: 'Feitiço de Paladino'
+  classe_conjuracao: 'paladino'
 }
 acao {
   id: 'Feitiço de Toque'
