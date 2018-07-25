@@ -1120,7 +1120,9 @@ float Tabuleiro::TrataAcaoIndividual(
       // TODO aplica veneno.
     }
 
-    entidade->ProximoAtaque();
+    if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
+      entidade->ProximoAtaque();
+    }
 
     bool passou_rm = true;
     if (!acao_proto->ignora_resistencia_magia() &&
