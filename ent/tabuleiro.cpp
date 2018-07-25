@@ -5669,6 +5669,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_LISTA_INICIATIVA";
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
       *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();
       break;
@@ -5739,6 +5740,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       }
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL";
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
