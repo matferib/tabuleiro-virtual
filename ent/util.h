@@ -359,7 +359,7 @@ std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const Entid
 // Exemplo: 1d8(19-20).
 std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
 
-// Retorna a strinf de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
+// Retorna a string de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
 // Exemplo: '(esc+surp) 16, tq: 12'
 std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
 
@@ -407,12 +407,19 @@ int Nivel(const std::string& id, const EntidadeProto& proto);
 int Nivel(const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
-int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
-// Retorna o id de classe para um tipo de ataque. Note que todas variantes de mago (feiticeiro, adepto etc) retornam mago.
-std::string ClasseParaFeitico(const std::string& tipo_ataque);
+int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+// Retorna o id de classe para um tipo de ataque. Por exemplo, 'Feitiço de Mago' retorna 'mago'.
+// Vazio caso contrario.
+std::string TipoAtaqueParaClasse(const Tabelas& tabelas, const std::string& tipo_ataque);
+// Retorna a string de acao para a classe. Por exemplo, se for clerigo, retorna 'Feitiço de Clérigo'.
+std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::string& id_classe);
 // Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
-// e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
-const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
+// e o tipo eh 'Feitico de Mago', retorna o info de feiticeiro.
+const InfoClasse& InfoClasseParaFeitico(
+    const Tabelas& tabelas, const std::string& tipo_ataque, const EntidadeProto& proto);
+// Retorna o id para magia de uma classe. Por exemplo, feiticeiro usa mago. Note que ranger, druida, paladino 
+// possuem sua propria lista de magias. Renomear para IdParaConjuracao?
+const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);
@@ -531,6 +538,12 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 // Retorna uma notificacao de alterar feitico para um personagem.
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
+// Cria uma notificacao de consequencia de uso do feitico, normalmente a criacao de ataques com limite de vezes
+// para a entidade.
+// Caso feitico nao tenha efeito, retorna nullptr.
+std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe

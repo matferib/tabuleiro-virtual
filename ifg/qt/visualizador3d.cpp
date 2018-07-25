@@ -1101,7 +1101,7 @@ void PreencheConfiguraFeiticos(
           int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
           auto* fn = FeiticosNivel(id_classe, nivel, proto_retornado);
           fn->add_conhecidos()->set_nome("");
-          AdicionaItemFeiticoConhecido(gerador, "", id_classe, nivel, fn->conhecidos_size() - 1, item);
+          AdicionaItemFeiticoConhecido(this_->tabelas(), gerador, "", "", id_classe, nivel, fn->conhecidos_size() - 1, item);
           item->setExpanded(true);
           if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
             AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
@@ -1127,7 +1127,7 @@ void PreencheConfiguraFeiticos(
             return;
           }
           fn->mutable_conhecidos()->DeleteSubrange(indice, 1);
-          AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, *proto_retornado, item->parent());
+          AtualizaFeiticosConhecidosNivel(this_->tabelas(), gerador, id_classe, nivel, *proto_retornado, item->parent());
           // aqui tem que corrigir todos para lancar que apontavam para feiticos do mesmo nivel:
           // 1- indice do removido: resetar para primeiro indice.
           // 2- indice > removido: diminuir o indice em 1.
@@ -1163,7 +1163,12 @@ void PreencheConfiguraFeiticos(
     auto* f = FeiticosNivel(id_classe, nivel, proto_retornado);
     if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
       if (indice < 0 || indice >= f->conhecidos_size()) return;
-      f->mutable_conhecidos(indice)->set_nome(item->text(0).toUtf8().constData());
+      f->mutable_conhecidos(indice)->set_nome(item->data(TCOL_NOME_FEITICO, Qt::UserRole).toString().toStdString());
+      if (!item->data(TCOL_ID_FEITICO, Qt::UserRole).toString().isEmpty()) {
+        f->mutable_conhecidos(indice)->set_id(item->data(TCOL_ID_FEITICO, Qt::UserRole).toString().toStdString());
+      } else {
+        f->mutable_conhecidos(indice)->clear_id();
+      }
       if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
         AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
       }

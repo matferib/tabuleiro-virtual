@@ -8,6 +8,7 @@
 #include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/feiticos_util.h"
 #include "ifg/qt/itens_magicos_util.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
@@ -462,21 +463,23 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
 
 // Feiticos.
 void AdicionaItemFeiticoConhecido(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int slot,
     QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  auto* item_feitico = new QTreeWidgetItem(pai);
-  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, pai);
+  item_feitico->setIdNome(QString::fromUtf8(id.c_str()), QString::fromUtf8(nome.c_str()));
   item_feitico->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(CONHECIDO));
   item_feitico->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
   item_feitico->setData(TCOL_INDICE, Qt::UserRole, QVariant(slot));
+  item_feitico->setData(TCOL_ID_FEITICO, Qt::UserRole, QVariant(""));
   item_feitico->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
 void AtualizaFeiticosConhecidosNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, int nivel,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, int nivel,
     const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto filhos = pai->takeChildren();
@@ -486,7 +489,7 @@ void AtualizaFeiticosConhecidosNivel(
   const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
-    AdicionaItemFeiticoConhecido(gerador, conhecido.nome(), id_classe, nivel, slot++, pai);
+    AdicionaItemFeiticoConhecido(tabelas, gerador, conhecido.id(), conhecido.nome(), id_classe, nivel, slot++, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
@@ -616,7 +619,7 @@ void AtualizaFeiticosClasse(
       item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
       item_conhecidos->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
       item_conhecidos->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
-      AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, proto, item_conhecidos);
+      AtualizaFeiticosConhecidosNivel(tabelas, gerador, id_classe, nivel, proto, item_conhecidos);
       gerador.arvore_feiticos->blockSignals(true);
     }
     {

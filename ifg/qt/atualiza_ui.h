@@ -86,17 +86,20 @@ enum TipoDadoColuna {
   TCOL_INDICE_CONHECIDO = 5,
   // Para lancar, usado.
   TCOL_USADO = 6,
+  // Identificador do feitico, se houver.
+  TCOL_ID_FEITICO = 7,
+  TCOL_NOME_FEITICO = 8,
 };
 // Atualiza a lista de feiticos da classe.
 void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 // Atualiza os feiticos conhecidos de um nivel.
 void AtualizaFeiticosConhecidosNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id_classe, int nivel,
     const ent::EntidadeProto& proto, QTreeWidgetItem* pai);
 void AdicionaItemFeiticoConhecido(
-    ifg::qt::Ui::DialogoEntidade& gerador,
-    const std::string& nome, const std::string& id_classe, int nivel, int indice,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int indice,
     QTreeWidgetItem* pai);
 
 // Atualiza os feiticos para lancar de um nivel.

@@ -1751,7 +1751,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
     int mod_distancia_quadrados = 0;
-    const int nivel = NivelParaFeitico(*da, proto);
+    const int nivel = NivelParaFeitico(tabelas, *da, proto);
     switch (arma.modificador_alcance()) {
       case ArmaProto::MOD_2_QUAD_NIVEL:
         mod_distancia_quadrados = 2 * nivel;
@@ -2927,11 +2927,11 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
     // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
-    // enquanto ClasseParaFeitico busca a classe para feitico (mago).
-    const auto& ic = InfoClasseParaFeitico(da->tipo_ataque(), proto);
+    // enquanto TipoAtaqueParaClasse busca a classe para feitico (mago).
+    const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
     const int base = da->acao().has_dificuldade_salvacao_base()
         ? da->acao().dificuldade_salvacao_base()
-        : 10 + NivelFeitico(tabelas, ClasseParaFeitico(da->tipo_ataque()), arma);
+        : 10 + NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
     da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(ic.id(), proto));
   }
 
@@ -3269,17 +3269,27 @@ int Nivel(const std::string& id, const EntidadeProto& proto) {
   return 0;
 }
 
-std::string ClasseParaFeitico(const std::string& tipo_ataque) {
-  if (tipo_ataque == "Feitiço de Clérigo") return "clerigo";
-  if (tipo_ataque == "Feitiço de Druida") return "druida";
-  if (tipo_ataque == "Feitiço de Ranger") return "ranger";
-  if (tipo_ataque == "Feitiço de Paladino") return "paladino";
-  if (tipo_ataque == "Feitiço de Mago") return "mago";
+std::string TipoAtaqueParaClasse(const Tabelas& tabelas, const std::string& tipo_ataque) {
+  for (const auto& acao : tabelas.TodasAcoes().acao()) {
+    if (acao.id() == tipo_ataque) {
+      return acao.classe_conjuracao();
+    }
+  }
   return "";
 }
 
-const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto) {
-  const auto& id = ClasseParaFeitico(tipo_ataque);
+std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::string& id_classe) {
+  for (const auto& acao : tabelas.TodasAcoes().acao()) {
+    if (acao.has_classe_conjuracao() && id_classe == acao.classe_conjuracao()) {
+      return acao.id();
+    }
+  }
+  return "";
+}
+
+const InfoClasse& InfoClasseParaFeitico(
+    const Tabelas& tabelas, const std::string& tipo_ataque, const EntidadeProto& proto) {
+  const auto& id = TipoAtaqueParaClasse(tabelas, tipo_ataque);
   const InfoClasse* ret = &InfoClasse::default_instance();
   // Evita comparacao com ids vazios, ja que id_para_magia pode ser vazio tb.
   if (id.empty()) return *ret;
@@ -3293,8 +3303,8 @@ const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const En
   return *ret;
 }
 
-int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  return InfoClasseParaFeitico(da.tipo_ataque(), proto).nivel();
+int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  return InfoClasseParaFeitico(tabelas, da.tipo_ataque(), proto).nivel();
 }
 
 void RenovaFeiticos(EntidadeProto* proto) {
@@ -3602,6 +3612,49 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
   return n;
 }
 
+int ComputaLimiteVezes(
+    ArmaProto::ModeloLimiteVezes modelo_limite_vezes, const std::string& id_classe, int nivel_conjurador) {
+  switch (modelo_limite_vezes) {
+    case ArmaProto::LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5: {
+      return std::min(5, (nivel_conjurador + 1) / 2);
+    }
+    break;
+    default:
+      return 1;
+  }
+}
+
+std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
+  // Busca feitico.
+  const EntidadeProto::InfoConhecido& ic =
+      FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto);
+  const auto& feitico_tabelado = tabelas.Feitico(ic.id());
+  if (!feitico_tabelado.has_id()) {
+    // Nao ha entrada.
+    LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado.";
+    return nullptr;
+  }
+  auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto);
+  {
+    auto* e_depois = n->mutable_entidade();
+    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+    auto* da = e_depois->add_dados_ataque();
+    da->set_tipo_ataque(ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe)));
+    da->set_rotulo(feitico_tabelado.nome());
+    da->set_id_arma(feitico_tabelado.id());
+    da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), id_classe, Nivel(id_classe, proto)));
+  }
+  {
+    auto* e_antes = n->mutable_entidade_antes();
+    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+    if (e_antes->dados_ataque().empty()) {
+      e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
+    }
+  }
+  return n;
+}
+
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
 // erro, retorna nivel negativo.
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n) {
@@ -3633,6 +3686,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
   }
   n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
   n->mutable_entidade()->set_id(proto.id());
+  *n->mutable_entidade()->mutable_info_classes() = proto.info_classes();
   *n->mutable_entidade()->add_feiticos_classes() = fc;
   if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
     n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
