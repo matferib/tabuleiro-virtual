@@ -3626,13 +3626,17 @@ int ComputaLimiteVezes(
 
 std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
-  // Busca feitico.
+  // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
+  // dos feiticos conhecidos.
   const EntidadeProto::InfoConhecido& ic =
-      FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto);
+      ClassePrecisaMemorizar(tabelas, id_classe)
+      ? FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto)
+      : FeiticoConhecido(id_classe, nivel, indice, proto);
   const auto& feitico_tabelado = tabelas.Feitico(ic.id());
   if (!feitico_tabelado.has_id()) {
     // Nao ha entrada.
-    LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado.";
+    LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado: InfoConhecido: " << ic.ShortDebugString()
+               << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
     return nullptr;
   }
   auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto);
