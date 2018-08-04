@@ -1,5 +1,3 @@
-Arrumar bug da UI de feitico: ao mudar o texto, esta perdendo o ID.
-
 Mais habilidades especiais, especialmente as que se escolhem (como evasao para ladino).
 Fogo grego, crash tabuleiro ao editar.
 Dar um jeito de transmitir as coisas (tabelas por exemplo) nao srd para clientes. Versionar?
