@@ -70,6 +70,7 @@ enum TipoEfeito {
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
+  EFEITO_VENENO = 38;
 }
 
 // Tipo de visao para entidades e camera.
@@ -360,8 +361,7 @@ message InfoPericia {
   optional Bonus bonus = 5;
   // As restricoes de sinergia da pericia.
   repeated string restricoes_sinergia = 6;
-  // Para forcar a ser de classe mesmo quando nao eh.
-  optional bool de_classe = 7;
+  // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
 }
 
 message ConsequenciaEvento {
@@ -642,18 +642,21 @@ enum TipoDanoVeneno {
   TDV_INTELIGENCIA = 6;
   TDV_SABEDORIA = 7;
   TDV_CARISMA = 8;
+  TDV_INCONSCIENCIA = 9;
 }
 
-message Veneno {
-  optional string nome = 1;
-  optional TipoVeneno tipo = 2;
+message VenenoProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional TipoVeneno tipo = 3;
   // A cardinalidade eh a mesma para cada par. Alguns venenos tem mais de um tipo de dano.
-  repeated string dano_inicial = 3;
-  repeated TipoDanoVeneno tipo_dano = 4;
-  optional bool dano_primario_permanente = 5;
-  repeated string dano_secundario = 6;
-  repeated TipoDanoVeneno tipo_dano_secundario = 7;
-  optional bool dano_secundario_permanente = 8;
+  repeated string dano_inicial = 4;
+  repeated TipoDanoVeneno tipo_dano = 5;
+  optional bool dano_primario_permanente = 6;
+  repeated string dano_secundario = 7;
+  repeated TipoDanoVeneno tipo_dano_secundario = 8;
+  optional bool dano_secundario_permanente = 9;
   // Classe de dificuldade.
-  optional int32 cd = 9;
+  optional int32 cd = 10;
+  optional int32 preco_po = 11; 
 }
