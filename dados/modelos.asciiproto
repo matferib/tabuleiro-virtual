@@ -179,7 +179,12 @@ modelo {
     dados_vida: '9d10+45' tamanho: TM_ENORME
     modelo_3d { id: 'bulette' } info_textura { id: 'terrain_rocky.png' } cor { r: 1 g: 1 b: 1 }
     rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
-    info_classes { id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM }
+    info_classes {
+      id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM 
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
     # Apesar do tamanho, bulette alcanca apenas 2 quadrados e não 3.
     # Ataque total.
     dados_ataque {
@@ -227,9 +232,9 @@ modelo {
       gerais { id: 'rastrar' }
     }
     # Sera: 4 + 8 = 12 pontos. Como?
-    info_pericias { id: 'saltar' pontos: 2 de_classe: true }
-    info_pericias { id: 'ouvir' pontos: 8 de_classe: true }
-    info_pericias { id: 'observar' pontos: 2 de_classe: true }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 2 }
 
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
@@ -1666,7 +1671,21 @@ modelo {
   entidade {
     dados_vida: '12d8+120' info_textura { id: 'glabrezu.png' }
     tamanho: TM_ENORME
-    info_classes { id: 'extra_planar' nivel: 12 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_UM }
+    info_classes {
+      id: 'extra_planar' nivel: 12 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_UM
+      pericias_monstro: 'blefar'
+      pericias_monstro: 'concentracao'
+      pericias_monstro: 'diplomacia'
+      pericias_monstro: 'intimidacao'
+      pericias_monstro: 'conhecimento_local'
+      pericias_monstro: 'conhecimento_planos'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'procurar'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'identificar_magia'
+      pericias_monstro: 'observar'
+    }
     cor { r: 0.5 g: 0.1 b: 0.1 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     atributos {
@@ -1712,7 +1731,7 @@ modelo {
     }
     info_pericias { id: 'blefar' pontos: 15 }
     info_pericias { id: 'concentracao' pontos: 15 }
-    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'diplomacia' pontos: 0 }
     info_pericias { id: 'disfarces' pontos: 0 }
     info_pericias { id: 'intimidacao' pontos: 15 }
     info_pericias { id: 'conhecimento_local' pontos: 15 }
@@ -1723,7 +1742,7 @@ modelo {
     info_pericias { id: 'sentir_motivacao' pontos: 15 }
     info_pericias { id: 'identificar_magia' pontos: 15 }
     info_pericias { id: 'observar' pontos: 15 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'sobrevivencia' pontos: 15 }
+    info_pericias { id: 'sobrevivencia' pontos: 0 }
 
     tendencia { simples: TD_CAOTICO_MAU }
 
