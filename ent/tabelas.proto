@@ -172,6 +172,10 @@ message TabelaLuvas {
   repeated ItemMagicoProto luvas = 1;
 }
 
+message TabelaVenenos {
+  repeated VenenoProto venenos = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -188,4 +192,5 @@ message TodasTabelas {
   optional TabelaBotas tabela_botas = 54;
   optional TabelaBracadeiras tabela_bracadeiras = 55;
   optional TabelaLuvas tabela_luvas = 56;
+  optional TabelaVenenos tabela_venenos = 57;
 }
