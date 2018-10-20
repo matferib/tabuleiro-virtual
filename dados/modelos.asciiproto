@@ -1500,6 +1500,10 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      tesouro: '5 PO'
+    }
     tendencia { simples: TD_CAOTICO_MAU }
   }
 }
@@ -1655,6 +1659,75 @@ modelo {
   entidade {
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+  }
+}
+modelo {
+  id: 'Demônio Glabrezu'
+  entidade {
+    dados_vida: '12d8+120' info_textura { id: 'glabrezu.png' }
+    tamanho: TM_ENORME
+    info_classes { id: 'extra_planar' nivel: 12 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_UM }
+    cor { r: 0.5 g: 0.1 b: 0.1 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 31 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 31 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+    }
+    dados_ataque {
+      rotulo: 'pinca' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d8'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'pinca' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d8'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_defesa {
+      resistencia_magia: 23
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 19 } }
+      }
+    }
+    info_talentos {
+      gerais { id: 'trespassar' }
+      gerais { id: 'trespassar_aprimorado' }
+      gerais { id: 'ataques_multiplos' }
+      gerais { id: 'persuasivo' }
+      gerais { id: 'ataque_poderoso' }
+    }
+    info_pericias { id: 'blefar' pontos: 15 }
+    info_pericias { id: 'concentracao' pontos: 15 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'disfarces' pontos: 0 }
+    info_pericias { id: 'intimidacao' pontos: 15 }
+    info_pericias { id: 'conhecimento_local' pontos: 15 }
+    info_pericias { id: 'conhecimento_planos' pontos: 15 }
+    info_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } pontos: 15 }
+    info_pericias { id: 'furtividade' pontos: 15 }
+    info_pericias { id: 'procurar' pontos: 15 }
+    info_pericias { id: 'sentir_motivacao' pontos: 15 }
+    info_pericias { id: 'identificar_magia' pontos: 15 }
+    info_pericias { id: 'observar' pontos: 15 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'sobrevivencia' pontos: 15 }
+
+    tendencia { simples: TD_CAOTICO_MAU }
+
+    rotulo_especial: 'agarrar aprimorado grande, reducao dano 10/bem\nimunidades: eletrcidade e veneno\nresistencias: acido 10, frio 10, fogo 10\ntelepatia 20m, visao verdadeira\nmovimento: 8 quadrados'
   }
 }
 modelo {
