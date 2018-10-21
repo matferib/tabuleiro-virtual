@@ -6826,8 +6826,8 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     }
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n->mutable_entidade_antes()->Swap(&proto_antes);;
-    n->mutable_entidade()->Swap(&proto_depois);;
+    n->mutable_entidade_antes()->Swap(&proto_antes);
+    n->mutable_entidade()->Swap(&proto_depois);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
@@ -7185,8 +7185,9 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
     *e_antes->mutable_evento() = entidade->Proto().evento();
     if (indice_efeito < pocao.tipo_efeito().size() && e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
-      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
-      e_antes->add_evento()->set_rodadas(-1);
+      auto* ev = e_antes->add_evento();
+      ev->set_id_efeito(EFEITO_INVALIDO);
+      ev->set_rodadas(-1);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
       e_antes->set_pontos_vida(entidade->PontosVida());
@@ -7242,8 +7243,9 @@ void Tabuleiro::AlternaFuria() {
     *e_antes->mutable_evento() = entidade->Proto().evento();
     if (e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
-      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
-      e_antes->add_evento()->set_rodadas(-1);
+      auto* ev = e_antes->add_evento();
+      ev->set_id_efeito(EFEITO_INVALIDO);
+      ev->set_rodadas(-1);
     }
   }
   {
