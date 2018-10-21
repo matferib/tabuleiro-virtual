@@ -1228,6 +1228,10 @@ tabela_efeitos {
     # Chance de falha.
     id: EFEITO_INVISIBILIDADE
   }
+  efeitos {
+    # Veneno tem um efeito imediato (primario) e um secundario (10 minutos depois).
+    id: EFEITO_VENENO
+  }
 }
 
 tabela_aneis {
@@ -4137,3 +4141,9 @@ tabela_feiticos {
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
 }
+
+#tabela_venenos {
+#  venenos {
+#    id: 'nitharit' nome: 'Nitharit' tipo: TV_CONTATO dano_secondario: '3d6' tipo_dano_secondario: TDV_CONSTITUICAO preco_po: 650
+#  }
+#}
