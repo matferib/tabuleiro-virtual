@@ -1137,7 +1137,7 @@ float Tabuleiro::TrataAcaoIndividual(
         PreencheNotificacaoEvento(*entidade_destino, EFEITO_VENENO, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_veneno.release());
       }
-      atraso_s += 0.5f + acao_proto->duracao_s();
+      atraso_s += 2.0f + acao_proto->duracao_s();
       AdicionaAcaoTextoLogado(entidade_destino->Id(), veneno_str, atraso_s);
     }
 
