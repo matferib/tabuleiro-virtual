@@ -658,5 +658,5 @@ message VenenoProto {
   optional bool dano_secundario_permanente = 9;
   // Classe de dificuldade.
   optional int32 cd = 10;
-  optional int32 preco_po = 11; 
+  optional int32 preco_po = 11;
 }

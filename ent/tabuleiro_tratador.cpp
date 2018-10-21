@@ -1116,8 +1116,29 @@ float Tabuleiro::TrataAcaoIndividual(
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
     }
 
-    if (vezes >= 0 && da != nullptr && da->has_veneno()) {
-      // TODO aplica veneno.
+    std::string veneno_str;
+    if (vezes > 0 && da != nullptr && da->has_veneno()) {
+      if (entidade_destino->ImuneVeneno()) {
+        veneno_str = "Imune a veneno";
+      } else {
+        const auto& veneno = da->veneno();
+        // TODO permitir salvacao pre definida?
+        int d20 = RolaDado(20);
+        int bonus = entidade_destino->SalvacaoVeneno(*entidade);
+        int total = d20 + bonus;
+        if (total < veneno.cd()) {
+          // nao salvou: criar o efeito do dano.
+          veneno_str = google::protobuf::StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+        } else {
+          veneno_str = google::protobuf::StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+        }
+        // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
+        std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
+        PreencheNotificacaoEvento(*entidade_destino, EFEITO_VENENO, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
+        central_->AdicionaNotificacao(n_veneno.release());
+      }
+      atraso_s += 0.5f + acao_proto->duracao_s();
+      AdicionaAcaoTextoLogado(entidade_destino->Id(), veneno_str, atraso_s);
     }
 
     if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
@@ -1131,9 +1152,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(passou_rm, resultado_rm) =
           AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
       atraso_s += 0.5f + acao_proto->duracao_s();
-      AdicionaAcaoTexto(entidade_destino->Id(), resultado_rm, atraso_s);
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-            "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_rm.c_str()));
+      AdicionaAcaoTextoLogado(entidade_destino->Id(), resultado_rm, atraso_s);
       delta_pontos_vida = 0;
     }
 

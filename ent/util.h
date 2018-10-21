@@ -263,6 +263,9 @@ void PreencheNotificacaoAtualizaoPontosVida(
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
+// Adiciona um evento do tipo passado a entidade.
+void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
@@ -447,9 +450,11 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 // Acha um id unico de evento para o proto passado.
 uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
 
-// Adiciona um evento ao proto, gerando o id do efeito automaticamente.
+// Adiciona um evento ao proto, gerando o id do efeito automaticamente. Os eventos devem vir da entidade, para correto preenchimento do id unico
+// (normalmente proto preenchido nao contem tudo).
 EntidadeProto::Evento* AdicionaEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.

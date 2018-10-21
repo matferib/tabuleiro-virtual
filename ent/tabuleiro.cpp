@@ -1611,6 +1611,14 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   TrataNotificacao(na);
 }
 
+void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
+  AdicionaAcaoTexto(id, texto, atraso_s, local_apenas);
+  auto* entidade_destino = BuscaEntidade(id);
+  AdicionaLogEvento(google::protobuf::StringPrintf(
+          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
+}
+ 
+
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -7176,26 +7184,11 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  ent::EntidadeProto *e_antes, *e_depois;
+  std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
+  std::tie(e_antes, e_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, notificacao.get());
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
-    *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (indice_efeito < pocao.tipo_efeito().size() && e_antes->evento().empty()) {
-      // dummy pra sinalizar que nao tem nada.
-      auto* ev = e_antes->add_evento();
-      ev->set_id_efeito(EFEITO_INVALIDO);
-      ev->set_rodadas(-1);
-    }
-    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
-      e_antes->set_pontos_vida(entidade->PontosVida());
-    }
-  }
-  {
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
     *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
     if (e_depois->tesouro().pocoes().empty()) {
@@ -7212,10 +7205,24 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
   }
+  {
+    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    // Os eventos a gente pega do que foi gerado e zera as rodadas para desfazer.
+    if (!e_depois->evento().empty()) {
+      *e_antes->mutable_evento() = e_depois->evento();
+      for (auto& ev : *e_antes->mutable_evento()) {
+        ev.set_rodadas(-1);
+      }
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      e_antes->set_pontos_vida(entidade->PontosVida());
+    }
+  }
+
   // Vai notificar remoto (atualizacao parcial).
-  TrataNotificacao(*n);
+  TrataNotificacao(*notificacao);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(*n);
+  AdicionaNotificacaoListaEventos(*notificacao);
   {
     auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
     n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;

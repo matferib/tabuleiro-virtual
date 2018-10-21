@@ -567,6 +567,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
+  // Junta AdicionaAcaoTexto e AdicionaLogEvento.
+  void AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
   void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
 

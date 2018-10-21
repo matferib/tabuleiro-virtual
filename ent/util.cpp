@@ -1443,6 +1443,17 @@ void PreencheNotificacaoConsumoAtaque(
   *n_desfazer  = *n;
 }
 
+void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
+  *e_antes->add_evento() = e_depois->evento(0);
+  e_antes->mutable_evento(0)->set_rodadas(-1);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
 // Retorna se os bonus sao cumulativos.
 bool BonusCumulativo(TipoBonus tipo) {
   switch (tipo) {
@@ -1989,6 +2000,8 @@ void InsereInicio(T* e, google::protobuf::RepeatedPtrField<T>* rf) {
 void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_VENENO:
+      break;
     case EFEITO_INVISIBILIDADE:
       proto->set_visivel(false);
       break;
@@ -2062,6 +2075,8 @@ void AplicaFimPedraEncantada(unsigned int id_unico, EntidadeProto* proto) {
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_VENENO:
+    break;
     case EFEITO_INVISIBILIDADE:
       proto->set_visivel(true);
     break;
