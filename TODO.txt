@@ -3,7 +3,6 @@ Ataque com veneno ja cria o efeito de EFEITO_VENENO no alvo. Falta ainda:
 - Durante ataque: criar o efeito primario se falhou salvacao.
 - Ao expirar veneno (ao passar rodada!): causar efeito secundario.
 - Aplicar bonus de salvacao contra veneno na funcao SalvacaoVeneno de entidade.
-- Imunidade a veneno.
 Lembrar que tudo tem que ser feito ou no ataque ou ao passar rodada para nao avacalhar o multiplayer. Se for feito
 no Recomputa, os venenos aleatorios vao causar efeitos diferentes nos clientes.
 
