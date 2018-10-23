@@ -288,7 +288,7 @@ class Entidade {
   // TODO colocar bonus raciais de veneno.
   int SalvacaoVeneno(const Entidade& atacante) const { return Salvacao(atacante, TS_FORTITUDE); }
 
-  bool ImuneVeneno() const { return false; }
+  bool ImuneVeneno() const;
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);

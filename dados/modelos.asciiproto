@@ -1721,6 +1721,7 @@ modelo {
     }
     dados_defesa {
       resistencia_magia: 23
+      imune_veneno: true
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 19 } }
       }

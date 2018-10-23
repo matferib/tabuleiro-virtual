@@ -1926,4 +1926,8 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
   fn->mutable_para_lancar(indice)->set_usado(usado);
 }
 
+bool Entidade::ImuneVeneno() const {
+  return proto_.dados_defesa().imune_veneno();
+}
+
 }  // namespace ent
