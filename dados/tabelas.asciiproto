@@ -1232,6 +1232,21 @@ tabela_efeitos {
     # Veneno tem um efeito imediato (primario) e um secundario (10 minutos depois).
     id: EFEITO_VENENO
   }
+  efeitos {
+    id: EFEITO_DANO_ATRIBUTO_VENENO
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 2 origem: 'veneno' } } }
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 3 origem: 'veneno' } } }
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 4 origem: 'veneno' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 5 origem: 'veneno' } } }
+      }
+    }
+  }
+
 }
 
 tabela_aneis {

@@ -70,7 +70,11 @@ enum TipoEfeito {
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
+  // Indica que entidade esta envenenada.
   EFEITO_VENENO = 38;
+  // Dano de atributo por causa de veneno.
+  // Os complementos indicam quanto de dano em cada atributo: for, des, con, int, sab, car, nesta ordem.
+  EFEITO_DANO_ATRIBUTO_VENENO = 39;
 }
 
 // Tipo de visao para entidades e camera.

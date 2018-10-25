@@ -99,6 +99,7 @@ void AtualizaStringDadosVida(int delta, std::string* dados_vida);
 * Da excecao se dados_vida for mal formado.
 */
 std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida);
+inline int RolaValor(const std::string& valor) { return std::get<0>(GeraPontosVida(valor)); }
 
 /** Converte os dados convertido para string. */
 std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados);
@@ -265,6 +266,7 @@ void PreencheNotificacaoConsumoAtaque(
 
 // Adiciona um evento do tipo passado a entidade.
 void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
@@ -447,8 +449,14 @@ void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf
 template <class T>
 void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
-// Acha um id unico de evento para o proto passado.
-uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
+// Acha um id unico de evento para o proto passado. Normalmente o eventos_entidade vem do proto da entidade e o outro vem do proto que esta sendo
+// gerado para atualizar a entidade.
+uint32_t AchaIdUnicoEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_entidade,
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados);
+inline uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
+  return AchaIdUnicoEvento(eventos, google::protobuf::RepeatedPtrField<EntidadeProto::Evento>());
+}
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente. Os eventos devem vir da entidade, para correto preenchimento do id unico
 // (normalmente proto preenchido nao contem tudo).

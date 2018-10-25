@@ -1446,11 +1446,48 @@ void PreencheNotificacaoConsumoAtaque(
 void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
-  *e_antes->add_evento() = e_depois->evento(0);
-  e_antes->mutable_evento(0)->set_rodadas(-1);
+  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
+  auto* evento_antes = e_antes->add_evento();
+  *evento_antes = *evento;
+  evento_antes->set_rodadas(-1);
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
+  }
+}
+
+namespace {
+// Mapeia o tipo de dano de veneno para o indice de complemento.
+// Retorna -1 se tipo de dano nao for de atributo.
+int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
+  switch (tipo) {
+    case TDV_FORCA: return 0;
+    case TDV_DESTREZA: return 1;
+    case TDV_CONSTITUICAO: return 2;
+    case TDV_INTELIGENCIA: return 3;
+    case TDV_SABEDORIA: return 4;
+    case TDV_CARISMA: return 5;
+    default: return -1;
+  }
+}
+}  // namespace
+
+void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, n, n_desfazer);
+  auto *e_depois = n->mutable_entidade();
+  if (e_depois->evento_size() != 1) {
+    LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << e_depois->evento_size();
+    return;
+  }
+  auto* evento = e_depois->mutable_evento(0);
+  evento->mutable_complementos()->Resize(6, 0);
+  for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
+    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano(i));
+    if (indice_complemento < 0 || indice_complemento >= 6) continue;
+    if (veneno.dano_inicial().size() != veneno.tipo_dano().size()) {
+      LOG(ERROR) << "Veneno mal formado: tamanho de dano incial e tipo dano diferem: " << veneno.dano_inicial().size() << ", " << veneno.tipo_dano().size();
+      continue;
+    }
+    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
   }
 }
 
@@ -3373,40 +3410,37 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
   while (c->size() < tam) c->Add();
 }
 
-uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
-  uint32_t i = 0;
-  for (const auto& e : eventos) {
-    VLOG(2) << "evento: " << e.ShortDebugString();
-    i = std::max(i, e.id_unico());
-  }
-  ++i;
-  // Se chegou aqui com i == 0, tem que voltar com os ids.
-  bool achou = (i != 0);
-  while (!achou) {
-    // Deveria ser info, mas vamos precaver caso algo bizarro aconteca.
-    LOG(WARNING) << "chegou ao maximo de ids, voltando";
-    i = 1;
-    achou = true;
-    for (const auto& e : eventos) {
-      if (e.id_unico() == i) {
-        ++i;
-        achou = false;
-        break;
-      }
+uint32_t AchaIdUnicoEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados) {
+  uint32_t candidato = 0;
+  bool existe = false;
+  auto EhCandidato = [&candidato] (const EntidadeProto::Evento& evento) { return candidato == evento.id_unico(); };
+  do {
+    existe = std::any_of(eventos.begin(), eventos.end(), EhCandidato) ||
+             std::any_of(eventos_sendo_gerados.begin(), eventos_sendo_gerados.end(), EhCandidato);
+    if (!existe) break;
+    ++candidato;
+    if (candidato == 0) {
+      // Se isso acontecer, acredito que a memoria vai explodir antes...
+      LOG(WARNING) << "Cheguei ao limite de eventos";
+      break;
     }
-  }
-  VLOG(1) << "Retornando id unico: " << i;
-  return i;
+  } while (1);
+  VLOG(1) << "Retornando id unico: " << candidato;
+  return candidato;
 }
 
 EntidadeProto::Evento* AdicionaEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     TipoEfeito tipo_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+  // Pega antes de criar o evento.
+  uint32_t id_unico = AchaIdUnicoEvento(eventos, proto->evento());
   auto* e = proto->add_evento();
   e->set_id_efeito(tipo_efeito);
   e->set_rodadas(rodadas);
   e->set_continuo(continuo);
-  e->set_id_unico(AchaIdUnicoEvento(eventos));
+  e->set_id_unico(id_unico);
   return e;
 }
 

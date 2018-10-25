@@ -139,6 +139,8 @@ constexpr int HORAS_PARA_RODADAS = 60 * MINUTOS_PARA_RODADAS;
 constexpr float QUADRADOS_PARA_METROS = 1.5f;
 constexpr float METROS_PARA_QUADRADOS = 1.0f / 1.5f;
 
+constexpr int DIA_EM_RODADAS = 10 * 60 * 24;
+
 }  // namespace ent
 
 #endif  // ENT_CONSTANTES_H

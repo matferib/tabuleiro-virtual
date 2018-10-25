@@ -1121,6 +1121,8 @@ float Tabuleiro::TrataAcaoIndividual(
       if (entidade_destino->ImuneVeneno()) {
         veneno_str = "Imune a veneno";
       } else {
+        // A mesma notificacao pode gerar mais de um efeito, com ids unicos separados.
+        std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
         const auto& veneno = da->veneno();
         // TODO permitir salvacao pre definida?
         int d20 = RolaDado(20);
@@ -1129,11 +1131,12 @@ float Tabuleiro::TrataAcaoIndividual(
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = google::protobuf::StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+          PreencheNotificacaoEventoParaVenenoPrimario(*entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno.get(), nullptr);
+          // Cria efeito do veneno.
         } else {
           veneno_str = google::protobuf::StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
         // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
-        std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
         PreencheNotificacaoEvento(*entidade_destino, EFEITO_VENENO, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_veneno.release());
       }
