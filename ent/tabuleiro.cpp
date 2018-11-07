@@ -6804,38 +6804,25 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
-    EntidadeProto proto_antes;
-    EntidadeProto proto_depois;
-    bool havera_mudanca = false;
     const auto* entidade = id_entidade.second.get();
-    for (const auto& e : entidade->Proto().evento()) {
-      if (e.rodadas() > 0) {
-        havera_mudanca = true;
+    std::vector<const EntidadeProto::Evento*> eventos;
+    for (const auto& evento : entidade->Proto().evento()) {
+      if (evento.rodadas() > 0 && !evento.continuo()) {
+        eventos.push_back(&evento);
       }
     }
-    if (!havera_mudanca) {
+    if (eventos.empty()) {
       continue;
     }
-    // Desfazer.
-    proto_antes.set_id(id_entidade.first);
-    *proto_antes.mutable_evento() = entidade->Proto().evento();
-    if (proto_antes.evento().empty()) {
-      auto* e = proto_antes.add_evento();
-      e->set_id_efeito(EFEITO_INVALIDO);
-      e->set_rodadas(-1);
-    }
-    // Novo proto.
-    proto_depois.set_id(id_entidade.first);
-    *proto_depois.mutable_evento() = entidade->Proto().evento();
-    for (auto& e : *proto_depois.mutable_evento()) {
-      if (e.rodadas() > 0 && !e.continuo()) {
-        e.set_rodadas(e.rodadas() - 1);
-      }
-    }
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n->mutable_entidade_antes()->Swap(&proto_antes);
-    n->mutable_entidade()->Swap(&proto_depois);
+    EntidadeProto *proto_antes, *proto_depois;
+    std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, n);
+    for (const auto& evento : eventos) {
+      *proto_antes->add_evento() = *evento;
+      auto* evento_depois = proto_depois->add_evento();
+      *evento_depois = *evento;
+      evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+    }
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
