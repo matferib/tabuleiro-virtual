@@ -6760,41 +6760,31 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
-#if 0
-void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
-  if (rodadas < 0) {
-    LOG(ERROR) << "Adicionando rodadas < 0";
-    return;
-  }
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (auto& id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
-    if (entidade_selecionada == nullptr) {
-      continue;
-    }
-    // Para desfazer.
-    EntidadeProto proto_antes;
-    proto_antes.set_id(id);
-    proto_antes.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
-    // Proto depois.
-    EntidadeProto proto_depois;
-    proto_depois.set_id(id);
-    proto_depois.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
-    proto_depois.add_evento()->set_rodadas(rodadas);
 
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n->mutable_entidade_antes()->Swap(&proto_antes);
-    n->mutable_entidade()->Swap(&proto_depois);
+namespace {
+
+void AtualizaEventos(const Entidade& entidade, ntf::Notificacao* grupo) {
+  std::vector<const EntidadeProto::Evento*> eventos;
+  for (const auto& evento : entidade.Proto().evento()) {
+    if (evento.rodadas() > 0 && !evento.continuo()) {
+      eventos.push_back(&evento);
+    }
   }
-  if (grupo_notificacoes.notificacao_size() == 0) {
+  if (eventos.empty()) {
     return;
   }
-  TrataNotificacao(grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  for (const auto& evento : eventos) {
+    *proto_antes->add_evento() = *evento;
+    auto* evento_depois = proto_depois->add_evento();
+    *evento_depois = *evento;
+    evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+  }
 }
-#endif
+
+}  // namespace
 
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
@@ -6804,25 +6794,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
-    const auto* entidade = id_entidade.second.get();
-    std::vector<const EntidadeProto::Evento*> eventos;
-    for (const auto& evento : entidade->Proto().evento()) {
-      if (evento.rodadas() > 0 && !evento.continuo()) {
-        eventos.push_back(&evento);
-      }
-    }
-    if (eventos.empty()) {
-      continue;
-    }
-    auto* n = grupo_notificacoes.add_notificacao();
-    EntidadeProto *proto_antes, *proto_depois;
-    std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, n);
-    for (const auto& evento : eventos) {
-      *proto_antes->add_evento() = *evento;
-      auto* evento_depois = proto_depois->add_evento();
-      *evento_depois = *evento;
-      evento_depois->set_rodadas(evento_depois->rodadas() - 1);
-    }
+    AtualizaEventos(*id_entidade.second.get(), &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
