@@ -42,7 +42,7 @@ TEST(TesteVezes, TesteVezes) {
   {
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("espada_longa");
-    da->set_vezes(-1);
+    da->set_limite_vezes(-1);
   }
   {
     auto* da = proto.add_dados_ataque();
@@ -51,7 +51,7 @@ TEST(TesteVezes, TesteVezes) {
   {
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("cimitarra");
-    da->set_vezes(0);
+    da->set_limite_vezes(0);
   }
 
   RecomputaDependencias(tabelas, &proto);
