@@ -122,7 +122,7 @@ constexpr double OLHO_ALTURA_INICIAL = 10.0;
 /** altura maxima do olho. */
 constexpr double OLHO_ALTURA_MAXIMA = 45.0;
 /** altura minima do olho. */
-constexpr double OLHO_ALTURA_MINIMA = 1.5;
+constexpr double OLHO_ALTURA_MINIMA = 0.3;
 
 /** raio (distancia) inicial do olho. */
 constexpr double OLHO_RAIO_INICIAL = 20.0;
