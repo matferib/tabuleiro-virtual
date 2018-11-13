@@ -151,6 +151,7 @@ void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::str
 }
 
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
+  // TODO: deveria ser TextFormat::PrintToString???
   EscreveArquivo(tipo, nome_arquivo, mensagem.DebugString());
 }
 
