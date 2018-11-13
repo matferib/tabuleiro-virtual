@@ -1455,6 +1455,20 @@ void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito,
   }
 }
 
+void PreencheNotificacaoEvento(
+    const Entidade& entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
+  evento->add_complementos_str(complemento_str);
+  auto* evento_antes = e_antes->add_evento();
+  *evento_antes = *evento;
+  evento_antes->set_rodadas(-1);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
 namespace {
 // Mapeia o tipo de dano de veneno para o indice de complemento.
 // Retorna -1 se tipo de dano nao for de atributo.
@@ -1469,15 +1483,20 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
     default: return -1;
   }
 }
+
+bool PreencheNotificacaoEventoParaVenenoComum(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, n, n_desfazer);
+  if (n->entidade().evento_size() != 1) {
+    LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
+    return false;
+  }
+  return true;
+}
 }  // namespace
 
 void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, n, n_desfazer);
-  auto *e_depois = n->mutable_entidade();
-  if (e_depois->evento_size() != 1) {
-    LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << e_depois->evento_size();
-    return;
-  }
+  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, n, n_desfazer)) return;
+  auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
   for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
@@ -1488,6 +1507,23 @@ void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const
       continue;
     }
     evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
+  }
+}
+
+void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, n, n_desfazer)) return;
+  auto* e_depois = n->mutable_entidade();
+  auto* evento = e_depois->mutable_evento(0);
+  evento->mutable_complementos()->Resize(6, 0);
+  for (int i = 0; i < veneno.tipo_dano_secundario().size(); ++i) {
+    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano_secundario(i));
+    if (indice_complemento < 0 || indice_complemento >= 6) continue;
+    if (veneno.dano_secundario().size() != veneno.tipo_dano_secundario().size()) {
+      LOG(ERROR) << "Veneno mal formado: tamanho de dano secundario e tipo dano secundario diferem: "
+                 << veneno.dano_secundario().size() << ", " << veneno.tipo_dano_secundario().size();
+      continue;
+    }
+    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_secundario(i)));
   }
 }
 
@@ -3433,11 +3469,11 @@ uint32_t AchaIdUnicoEvento(
 
 EntidadeProto::Evento* AdicionaEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    TipoEfeito tipo_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+    TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   // Pega antes de criar o evento.
   uint32_t id_unico = AchaIdUnicoEvento(eventos, proto->evento());
   auto* e = proto->add_evento();
-  e->set_id_efeito(tipo_efeito);
+  e->set_id_efeito(id_efeito);
   e->set_rodadas(rodadas);
   e->set_continuo(continuo);
   e->set_id_unico(id_unico);
