@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
@@ -1126,18 +1127,23 @@ float Tabuleiro::TrataAcaoIndividual(
         const auto& veneno = da->veneno();
         // TODO permitir salvacao pre definida?
         int d20 = RolaDado(20);
-        int bonus = entidade_destino->SalvacaoVeneno(*entidade);
+        int bonus = entidade_destino->SalvacaoVeneno();
         int total = d20 + bonus;
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = google::protobuf::StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
           PreencheNotificacaoEventoParaVenenoPrimario(*entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno.get(), nullptr);
-          // Cria efeito do veneno.
         } else {
           veneno_str = google::protobuf::StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
         // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
-        PreencheNotificacaoEvento(*entidade_destino, EFEITO_VENENO, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
+        // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
+        {
+          std::string veneno_proto_str;
+          google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
+          PreencheNotificacaoEvento(
+              *entidade_destino, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
+        }
         central_->AdicionaNotificacao(n_veneno.release());
       }
       atraso_s += 2.0f + acao_proto->duracao_s();

@@ -6761,9 +6761,7 @@ void Tabuleiro::AlternaModoDebug() {
 }
 
 
-namespace {
-
-void AtualizaEventos(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
   std::vector<const EntidadeProto::Evento*> eventos;
   for (const auto& evento : entidade.Proto().evento()) {
     if (evento.rodadas() > 0 && !evento.continuo()) {
@@ -6776,15 +6774,39 @@ void AtualizaEventos(const Entidade& entidade, ntf::Notificacao* grupo) {
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
   std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  float atraso_s = 0.0f;
   for (const auto& evento : eventos) {
     *proto_antes->add_evento() = *evento;
     auto* evento_depois = proto_depois->add_evento();
     *evento_depois = *evento;
     evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+    if (evento->rodadas() == 1 && evento->id_efeito() == EFEITO_VENENO) {
+      // Aplica dano secundario do veneno.
+      for (const auto& veneno_proto_str : evento->complementos_str()) {
+        // Parse do efeito.
+        VenenoProto veneno;
+        if (!google::protobuf::TextFormat::ParseFromString(veneno_proto_str, &veneno)) {
+          continue;
+        }
+        std::string veneno_str;
+        auto* n_veneno = grupo->add_notificacao();
+        int d20 = RolaDado(20);
+        int bonus = entidade.SalvacaoVeneno();
+        int total = d20 + bonus;
+        if (total < veneno.cd()) {
+          // nao salvou: criar o efeito do dano.
+          veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
+          PreencheNotificacaoEventoParaVenenoSecundario(entidade, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno, nullptr);
+        } else {
+          // salvou.
+          veneno_str = google::protobuf::StringPrintf("salvou veneno secundario (%d + %d >= %d)", d20, bonus, veneno.cd());
+        }
+        AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
+        atraso_s += 0.5f;
+      }
+    }
   }
 }
-
-}  // namespace
 
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
@@ -6794,7 +6816,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
-    AtualizaEventos(*id_entidade.second.get(), &grupo_notificacoes);
+    AtualizaEventosAoPassarRodada(*id_entidade.second.get(), &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);

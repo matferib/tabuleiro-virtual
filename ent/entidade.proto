@@ -167,10 +167,10 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
-    optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
-    repeated int32 complementos = 3;  // Alguns efeitos tem complementos.
+    optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+    repeated int32 complementos = 3;       // Alguns efeitos tem complementos.
     repeated string complementos_str = 8;  // Complementos na forma de string.
-    optional bool processado = 5;  // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+    optional bool processado = 5;          // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
     // Identificador unico para o efeito. Util para desfazer fim de efeitos e mensagens de desfazer.
     optional uint32 id_unico = 6;
     // Indica que efeito nao expira (nao precisa decrementar contador de rodadas).

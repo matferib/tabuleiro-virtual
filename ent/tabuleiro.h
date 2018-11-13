@@ -492,8 +492,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
-  /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
-  void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
   /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo.
   * Caso grupo nao seja null, a notificacao ira para ele e nao sera executada.
   */
@@ -1037,6 +1035,9 @@ class Tabuleiro : public ntf::Receptor {
   bool IdPresoACamera(unsigned int id) const {
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
+
+  // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
 
   struct DadosFramebuffer {
     ~DadosFramebuffer();

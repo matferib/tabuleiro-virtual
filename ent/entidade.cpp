@@ -1439,6 +1439,18 @@ int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
   return BonusTotal(b);
 }
 
+int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
+  const auto& dd = proto_.dados_defesa();
+  switch (tipo) {
+    case TS_FORTITUDE: return BonusTotal(dd.salvacao_fortitude());
+    case TS_REFLEXO: return BonusTotal(dd.salvacao_reflexo());
+    case TS_VONTADE: return BonusTotal(dd.salvacao_vontade());
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
+  }
+  return 0;
+}
+
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case ent::TM_MINUSCULO: return 0.4f;

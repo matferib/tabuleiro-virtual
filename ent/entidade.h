@@ -285,8 +285,9 @@ class Entidade {
   bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
   /** Retorna o bonus de salvacao de um tipo para entidade. */
   int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
+  int SalvacaoSemAtacante(TipoSalvacao tipo) const;
   // TODO colocar bonus raciais de veneno.
-  int SalvacaoVeneno(const Entidade& atacante) const { return Salvacao(atacante, TS_FORTITUDE); }
+  int SalvacaoVeneno() const { return SalvacaoSemAtacante(TS_FORTITUDE); }
 
   bool ImuneVeneno() const;
 
