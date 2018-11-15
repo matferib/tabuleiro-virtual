@@ -3814,7 +3814,12 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(OFFSET_TERRENO_ESCALA_DZ, OFFSET_TERRENO_ESCALA_R);
   V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
-  MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  // Cor.
+  if (proto_corrente_->has_cor_piso()) {
+    MudaCor(proto_corrente_->cor_piso());
+  } else {
+    MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  }
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
                 parametros_desenho_.offset_terreno());
@@ -4736,6 +4741,9 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
   tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
+  if (proto_corrente_->has_cor_piso()) {
+    *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
+  }
   return notificacao.release();
 }
 
@@ -4840,9 +4848,14 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_descricao_cenario();
   }
   if (novo_proto.has_nevoa()) {
-    proto_a_atualizar->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+    *proto_a_atualizar->mutable_nevoa() = novo_proto.nevoa();
   } else {
     proto_a_atualizar->clear_nevoa();
+  }
+  if (novo_proto.has_cor_piso()) {
+    *proto_a_atualizar->mutable_cor_piso() = novo_proto.cor_piso();
+  } else {
+    proto_a_atualizar->clear_cor_piso();
   }
   AtualizaTexturas(novo_proto);
   CorrigeTopologiaAposMudancaTamanho(

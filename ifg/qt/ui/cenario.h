@@ -32,8 +32,12 @@ public:
     QDialogButtonBox *botoes;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
+    QHBoxLayout *horizontalLayout_8;
     QLabel *label;
     QComboBox *combo_fundo;
+    QHBoxLayout *horizontalLayout_7;
+    QCheckBox *checkbox_cor_piso;
+    QPushButton *botao_cor_piso;
     QCheckBox *checkbox_ladrilho;
     QCheckBox *checkbox_mestre_apenas;
     QWidget *horizontalLayoutWidget_2;
@@ -97,21 +101,46 @@ public:
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setObjectName(QStringLiteral("horizontalLayout_8"));
         label = new QLabel(horizontalLayoutWidget);
         label->setObjectName(QStringLiteral("label"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
         label->setSizePolicy(sizePolicy);
         label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
-        horizontalLayout->addWidget(label);
+        horizontalLayout_8->addWidget(label);
 
         combo_fundo = new QComboBox(horizontalLayoutWidget);
         combo_fundo->setObjectName(QStringLiteral("combo_fundo"));
 
-        horizontalLayout->addWidget(combo_fundo);
+        horizontalLayout_8->addWidget(combo_fundo);
+
+
+        horizontalLayout->addLayout(horizontalLayout_8);
+
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
+        checkbox_cor_piso = new QCheckBox(horizontalLayoutWidget);
+        checkbox_cor_piso->setObjectName(QStringLiteral("checkbox_cor_piso"));
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(checkbox_cor_piso->sizePolicy().hasHeightForWidth());
+        checkbox_cor_piso->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_7->addWidget(checkbox_cor_piso);
+
+        botao_cor_piso = new QPushButton(horizontalLayoutWidget);
+        botao_cor_piso->setObjectName(QStringLiteral("botao_cor_piso"));
+
+        horizontalLayout_7->addWidget(botao_cor_piso);
+
+
+        horizontalLayout->addLayout(horizontalLayout_7);
 
         checkbox_ladrilho = new QCheckBox(horizontalLayoutWidget);
         checkbox_ladrilho->setObjectName(QStringLiteral("checkbox_ladrilho"));
@@ -131,9 +160,6 @@ public:
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         label_11 = new QLabel(horizontalLayoutWidget_2);
         label_11->setObjectName(QStringLiteral("label_11"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
         label_11->setSizePolicy(sizePolicy1);
         label_11->setIndent(-1);
@@ -200,8 +226,11 @@ public:
         label_3 = new QLabel(groupBox);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(300, 190, 41, 21));
-        sizePolicy.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
-        label_3->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
+        label_3->setSizePolicy(sizePolicy2);
         label_3->setAlignment(Qt::AlignCenter);
         dial_posicao = new QDial(groupBox);
         dial_posicao->setObjectName(QStringLiteral("dial_posicao"));
@@ -219,44 +248,44 @@ public:
         label_4 = new QLabel(groupBox);
         label_4->setObjectName(QStringLiteral("label_4"));
         label_4->setGeometry(QRect(300, 50, 41, 21));
-        sizePolicy.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
-        label_4->setSizePolicy(sizePolicy);
+        sizePolicy2.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy2);
         label_4->setAlignment(Qt::AlignCenter);
         label_5 = new QLabel(groupBox);
         label_5->setObjectName(QStringLiteral("label_5"));
         label_5->setGeometry(QRect(240, 110, 20, 41));
-        sizePolicy.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
-        label_5->setSizePolicy(sizePolicy);
+        sizePolicy2.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
+        label_5->setSizePolicy(sizePolicy2);
         label_5->setAlignment(Qt::AlignCenter);
         label_6 = new QLabel(groupBox);
         label_6->setObjectName(QStringLiteral("label_6"));
         label_6->setGeometry(QRect(380, 110, 20, 41));
-        sizePolicy.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
-        label_6->setSizePolicy(sizePolicy);
+        sizePolicy2.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
+        label_6->setSizePolicy(sizePolicy2);
         label_6->setAlignment(Qt::AlignCenter);
         label_7 = new QLabel(groupBox);
         label_7->setObjectName(QStringLiteral("label_7"));
         label_7->setGeometry(QRect(10, 120, 50, 17));
-        QSizePolicy sizePolicy2(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
-        label_7->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
+        label_7->setSizePolicy(sizePolicy3);
         label_9 = new QLabel(groupBox);
         label_9->setObjectName(QStringLiteral("label_9"));
         label_9->setGeometry(QRect(80, 50, 43, 17));
-        sizePolicy2.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
+        label_9->setSizePolicy(sizePolicy3);
         label_8 = new QLabel(groupBox);
         label_8->setObjectName(QStringLiteral("label_8"));
         label_8->setGeometry(QRect(70, 200, 78, 17));
-        sizePolicy2.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy3);
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setGeometry(QRect(170, 120, 64, 17));
-        sizePolicy2.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy3);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_3->setObjectName(QStringLiteral("horizontalLayoutWidget_3"));
         horizontalLayoutWidget_3->setGeometry(QRect(20, 329, 221, 71));
@@ -354,11 +383,8 @@ public:
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
         label_17 = new QLabel(horizontalLayoutWidget_6);
         label_17->setObjectName(QStringLiteral("label_17"));
-        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(label_17->sizePolicy().hasHeightForWidth());
-        label_17->setSizePolicy(sizePolicy3);
+        sizePolicy.setHeightForWidth(label_17->sizePolicy().hasHeightForWidth());
+        label_17->setSizePolicy(sizePolicy);
 
         horizontalLayout_6->addWidget(label_17);
 
@@ -384,13 +410,21 @@ public:
     void retranslateUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Propriedades Tabuleiro", nullptr));
-        label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Fundo", nullptr));
+        label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Piso", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
+        combo_fundo->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolha o tipo de piso", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_cor_piso->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Usar cor de piso?", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor", nullptr));
+        botao_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor do Piso", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, aplicar\303\241 a textura como um ladrilho (por quadrado)", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Ladrilho", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_mestre_apenas->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
+        checkbox_mestre_apenas->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, apenas mestre ver\303\241 o piso", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_mestre_apenas->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Mestre Apenas", nullptr));
         label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", nullptr));

@@ -2077,6 +2077,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoEntidade(
   return std::unique_ptr<ent::EntidadeProto>();
 }
 
+// ATENCAO: se mexer aqui, mexa tb em Tabuleiro::DeserializaPropriedades pois os campos sao copiados campo a campo
+// para nao se perder outras coisas importantes do cenario.
 ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
@@ -2144,6 +2146,20 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
   // Mestre apenas.
   gerador.checkbox_mestre_apenas->setCheckState(tab_proto.textura_mestre_apenas() ? Qt::Checked : Qt::Unchecked);
+  // Cor de piso.
+  gerador.checkbox_cor_piso->setCheckState(tab_proto.has_cor_piso() ? Qt::Checked : Qt::Unchecked);
+  ent::Cor cor_piso_proto(tab_proto.cor_piso());
+  gerador.botao_cor_piso->setStyleSheet(CorParaEstilo(cor_piso_proto));
+  lambda_connect(gerador.botao_cor_piso, SIGNAL(clicked()), [this, dialogo, &gerador, &cor_piso_proto] {
+    QColor cor =
+        QColorDialog::getColor(ProtoParaCor(cor_piso_proto), dialogo, QObject::tr("Cor do piso"));
+    if (!cor.isValid()) {
+      return;
+    }
+    gerador.checkbox_cor_piso->setCheckState(Qt::Checked);
+    gerador.botao_cor_piso->setStyleSheet(CorParaEstilo(cor));
+    cor_piso_proto = CorParaProto(cor);
+  });
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -2176,7 +2192,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, proto_retornado] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, proto_retornado] {
     proto_retornado->mutable_luz_direcional()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->mutable_cor()->Swap(&cor_direcional_proto);
@@ -2215,6 +2231,13 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     } else {
       proto_retornado->clear_ladrilho();
     }
+    // Cor piso.
+    if (gerador.checkbox_cor_piso->checkState() == Qt::Checked) {
+      proto_retornado->mutable_cor_piso()->Swap(&cor_piso_proto);
+    } else {
+      proto_retornado->clear_cor_piso();
+    }
+
     // Textura ceu.
     if (gerador.combo_ceu->currentIndex() == 0) {
       proto_retornado->clear_info_textura_ceu();
