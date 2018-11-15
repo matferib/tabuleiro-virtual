@@ -3915,7 +3915,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
 
 namespace {
 bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
-  if (!proto.faz_sombra() && pd.desenha_mapa_sombras()) {
+  if (!proto.faz_sombra() && (pd.desenha_mapa_sombras() || pd.has_desenha_mapa_luzes())) {
     return true;
   }
   if (!proto.causa_colisao() && pd.desenha_apenas_entidades_colisivas()) {
