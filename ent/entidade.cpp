@@ -1939,7 +1939,7 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
-  return proto_.dados_defesa().imune_veneno();
+  return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
 }
 
 }  // namespace ent
