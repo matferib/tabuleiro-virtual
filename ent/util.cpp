@@ -1211,6 +1211,11 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     }
   }
 
+  // Imunidade.
+  if (EntidadeImuneDescritor(ed.Proto(), da->descritores())) {
+    return std::make_tuple(0, "Defensor imune ao ataque", true);
+  }
+
   // Se chegou aqui acertou.
   int vezes;
   std::string texto_critico;
@@ -1232,13 +1237,14 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
 }
 
 // Retorna o delta pontos de vida e a string do resultado.
+// A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
   int delta_pontos_vida = ap.delta_pontos_vida();
 
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
-      delta_pontos_vida /= 2;
+      delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
       descricao_resultado = google::protobuf::StringPrintf("salvou metade (manual), dano: %d", -delta_pontos_vida);
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
@@ -1246,6 +1252,8 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
       descricao_resultado = "salvou tudo (manual)";
+    } else {
+      descricao_resultado = "Não salvou (manual)";
     }
   } else if (ap.has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
@@ -1258,7 +1266,7 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
-          delta_pontos_vida /= 2;
+          delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         }
       } else if (ap.resultado_salvacao() == RS_QUARTO) {
         delta_pontos_vida /= 4;
@@ -1269,7 +1277,7 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
     } else {
       str_evasao = " (sem evasão aprimorada)";
       if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
-        delta_pontos_vida  /= 2;
+        delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
       descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
@@ -1290,10 +1298,10 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, cons
   const int total = d20 + nivel_conjurador;
 
   if (d20 + nivel_conjurador < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("(d20+nivel) %d < %d (RM)", total, rm));
+    return std::make_tuple(false, google::protobuf::StringPrintf("não passou RM: (d20+nivel) %d < %d", total, rm));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("(d20+nivel) %d >= %d (RM)", total, rm));
+      true, google::protobuf::StringPrintf("Passou RM: (d20+nivel) %d >= %d", total, rm));
 }
 
 namespace {
@@ -3053,6 +3061,10 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   } else {
     da->clear_ataque_agarrar();
   }
+  std::copy(da->acao().descritores().begin(), da->acao().descritores().end(), google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
+  std::sort(da->mutable_descritores()->begin(), da->mutable_descritores()->end());
+  auto ultimo = std::unique(da->mutable_descritores()->begin(), da->mutable_descritores()->end());
+  da->mutable_descritores()->erase(ultimo, da->mutable_descritores()->end());
 }
 
 std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
@@ -3796,6 +3808,55 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
   const auto& fn = FeiticosNivel(id_classe, nivel, proto);
   if (indice >= fn.para_lancar().size()) return EntidadeProto::InfoLancar::default_instance();
   return fn.para_lancar(indice);
+}
+
+// Observe que o repeatedfield e de inteiros e nao de DescritorAtaque.
+namespace {
+
+bool EntidadeImuneDescritor(const EntidadeProto& proto, int descritor) {
+  const auto& dd = proto.dados_defesa();
+  return std::any_of(dd.imunidades().begin(), dd.imunidades().end(), [descritor](int descritor_imunidade) { return descritor == descritor_imunidade; });
+}
+
+}  // namespace
+
+bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
+  if (descritores.empty()) return false;
+  return std::all_of(descritores.begin(), descritores.end(), [&proto](int descritor) { return EntidadeImuneDescritor(proto, descritor); });
+}
+
+int EntidadeResistenteDescritor(const EntidadeProto& proto, int descritor) {
+  int maior = 0;
+  for (const auto& r : proto.dados_defesa().resistencias()) {
+    if (r.descritor() == descritor) maior = std::max(maior, r.valor());
+  }
+  return maior;
+}
+
+const char* TextoDescritor(int descritor) {
+  switch (descritor) {
+    case DESC_ACIDO: return "ácido";
+    case DESC_AR: return "ar";
+    case DESC_CAOS: return "caos";
+    case DESC_FRIO: return "frio";
+    case DESC_ESCURIDAO: return "escuridão";
+    case DESC_MORTE: return "morte";
+    case DESC_TERRA: return "terra";
+    case DESC_ELETRICIDADE: return "eletricidade";
+    case DESC_MAL: return "mal";
+    case DESC_MEDO: return "medo";
+    case DESC_FOGO: return "fogo";
+    case DESC_FORCA: return "forca";
+    case DESC_BEM: return "bem";
+    case DESC_LEAL: return "leal";
+    case DESC_LUZ: return "luz";
+    case DESC_MENTAL: return "mental";
+    case DESC_SONICO: return "sônico";
+    case DESC_AGUA: return "água";
+    case DESC_VENENO: return "veneno";
+    case DESC_DEPENDENTE_IDIOMA: return "dependente de idioma";
+  }
+  return "desconhecido";
 }
 
 }  // namespace ent

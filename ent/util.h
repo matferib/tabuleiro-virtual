@@ -565,6 +565,14 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 // de feitico com todos ate o nivel desejado.
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
+// Retorna true se a entidade for imune a todos os descritores.
+bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
+// Retorna a quantidade de resistencia a um determinado descritor. Se houver mais de uma resistencia do mesmo tipo, usa a maior.
+int EntidadeResistenteDescritor(const EntidadeProto& proto, int descritor);
+
+// retorna o descritor em formato texto.
+const char* TextoDescritor(int descritor);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
