@@ -1001,31 +1001,51 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     }
 
     acao_proto->add_id_entidade_destino(id);
-    // Para desfazer.
     if (delta_pontos_vida == 0) {
       continue;
     }
-    acao_proto->set_bem_sucedida(true);
     int delta_pv_pos_salvacao = delta_pontos_vida;
     bool passou_rm = true;
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
       atraso_s += 0.5f + acao_proto->duracao_s();
-      AdicionaAcaoTexto(id, resultado_rm, atraso_s);
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_rm.c_str()));
+      AdicionaAcaoTextoLogado(id, resultado_rm, atraso_s);
       delta_pv_pos_salvacao = 0;
     }
-    if (passou_rm && acao_proto->permite_salvacao()) {
-      std::string resultado_salvacao;
-      std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
-          AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-      atraso_s += 0.5f + acao_proto->duracao_s();
-      AdicionaAcaoTexto(id, resultado_salvacao, atraso_s);
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-            "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), resultado_salvacao.c_str()));
+    if (passou_rm) {
+      // Salvacao.
+      if (acao_proto->permite_salvacao()) {
+        std::string resultado_salvacao;
+        std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
+            AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+        atraso_s += 0.5f + acao_proto->duracao_s();
+        AdicionaAcaoTextoLogado(id, resultado_salvacao, atraso_s);
+      }
+      // Imunidade ao tipo de ataque.
+      if (acao_proto->descritores().size() > 1) {
+        LOG(WARNING) << "Atenção, mais de um tipo de descritor de ataque, isso deve ser tratado corretamente mas ainda não é";
+      }
+      if (delta_pv_pos_salvacao != 0 && EntidadeImuneDescritor(entidade_destino->Proto(), acao_proto->descritores())) {
+        delta_pv_pos_salvacao = 0;
+        atraso_s += 0.5f + acao_proto->duracao_s();
+        AdicionaAcaoTextoLogado(id, "Entidade imune ao tipo de ataque", atraso_s);
+      }
+      // Resistencia ao tipo de ataque. Por enquanto, vamos considerar um tipo apenas para simplificar.
+      if (delta_pv_pos_salvacao < 0) {
+        for (int descritor : acao_proto->descritores()) {
+          int resistencia = EntidadeResistenteDescritor(entidade_destino->Proto(), descritor);
+          delta_pv_pos_salvacao += resistencia;
+          atraso_s += 0.5f + acao_proto->duracao_s();
+          AdicionaAcaoTextoLogado(id, google::protobuf::StringPrintf("Resistencia a %s: %d", TextoDescritor(descritor), resistencia), atraso_s);
+          if (delta_pv_pos_salvacao > 0) {
+            delta_pv_pos_salvacao = 0;
+            break;
+          }
+        }
+      }
     }
+    acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_id(id);
     delta_por_entidade->set_delta(delta_pv_pos_salvacao);
