@@ -682,6 +682,47 @@ TEST(TesteFeiticos, TesteFeiticos) {
   }
 }
 
+TEST(TesteImunidades, TesteImunidades) {
+  Tabelas tabelas(nullptr);
+  google::protobuf::RepeatedField<int> descritores;
+  descritores.Add(DESC_ACIDO);
+  {
+    EntidadeProto proto;
+    RecomputaDependencias(tabelas, &proto);
+    EXPECT_FALSE(EntidadeImuneDescritor(proto, descritores));
+  }
+  {
+    EntidadeProto proto;
+    proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
+    RecomputaDependencias(tabelas, &proto);
+    EXPECT_TRUE(EntidadeImuneDescritor(proto, descritores));
+  }
+}
+
+TEST(TesteImunidades, TesteResistenciaDescritor) {
+  Tabelas tabelas(nullptr);
+  {
+    EntidadeProto proto;
+    RecomputaDependencias(tabelas, &proto);
+    EXPECT_EQ(EntidadeResistenteDescritor(proto, DESC_ACIDO), 0);
+  }
+  {
+    EntidadeProto proto;
+    {
+      auto* resistencias = proto.mutable_dados_defesa()->add_resistencias();
+      resistencias->set_valor(10);
+      resistencias->set_descritor(DESC_VENENO);
+    }
+    {
+      auto* resistencias = proto.mutable_dados_defesa()->add_resistencias();
+      resistencias->set_valor(5);
+      resistencias->set_descritor(DESC_ACIDO);
+    }
+    RecomputaDependencias(tabelas, &proto);
+    EXPECT_EQ(EntidadeResistenteDescritor(proto, DESC_ACIDO), 5);
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
