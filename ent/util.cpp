@@ -3825,7 +3825,7 @@ bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::
   return std::all_of(descritores.begin(), descritores.end(), [&proto](int descritor) { return EntidadeImuneDescritor(proto, descritor); });
 }
 
-int EntidadeResistenteDescritor(const EntidadeProto& proto, int descritor) {
+int EntidadeResistenciaDescritor(const EntidadeProto& proto, int descritor) {
   int maior = 0;
   for (const auto& r : proto.dados_defesa().resistencias()) {
     if (r.descritor() == descritor) maior = std::max(maior, r.valor());
@@ -3857,6 +3857,30 @@ const char* TextoDescritor(int descritor) {
     case DESC_DEPENDENTE_IDIOMA: return "dependente de idioma";
   }
   return "desconhecido";
+}
+
+std::tuple<int, std::vector<std::string>> AlteraDeltaPontosVidaPorDescritor(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
+  if (descritores.empty() || delta_pv >= 0) {
+    return std::make_tuple(delta_pv, std::vector<std::string>());
+  }
+  if (EntidadeImuneDescritor(proto, descritores)) {
+    return std::make_tuple(0, std::vector<std::string>{"Entidade imune ao tipo de ataque"});
+  }
+
+  // Resistencia ao tipo de ataque.
+  std::vector<std::string> textos_resistencia;
+  for (int descritor : descritores) {
+    int resistencia = EntidadeResistenciaDescritor(proto, descritor);
+    if (resistencia == 0) continue;
+    delta_pv += resistencia;
+    textos_resistencia.push_back(google::protobuf::StringPrintf("Resistencia a %s: %d", TextoDescritor(descritor), resistencia));
+    if (delta_pv > 0) {
+      delta_pv = 0;
+      break;
+    }
+  }
+  return std::make_tuple(delta_pv, textos_resistencia);
 }
 
 }  // namespace ent

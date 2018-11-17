@@ -473,21 +473,25 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     return;
   }
 
-  bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
   gl::MatrizEscopo salva_matriz;
-  if (achatado) {
-    // So translada para a posicao do objeto.
-    gl::Translada(X(), Y(), Z());
-  } else {
-    MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
-  }
-  // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
-  Posicao vetor_camera_objeto;
-  ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
-  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+  if (Tipo() == TE_ENTIDADE) {
+    bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
+    if (achatado) {
+      // So translada para a posicao do objeto.
+      gl::Translada(X(), Y(), Z());
+    } else {
+      MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    }
+    // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+    Posicao vetor_camera_objeto;
+    ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
+    gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
 
-  // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
-  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+    // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
+    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  } else {
+    gl::Translada(X(), Y(), Z());
+  }
 
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {

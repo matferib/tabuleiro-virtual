@@ -704,7 +704,7 @@ TEST(TesteImunidades, TesteResistenciaDescritor) {
   {
     EntidadeProto proto;
     RecomputaDependencias(tabelas, &proto);
-    EXPECT_EQ(EntidadeResistenteDescritor(proto, DESC_ACIDO), 0);
+    EXPECT_EQ(EntidadeResistenciaDescritor(proto, DESC_ACIDO), 0);
   }
   {
     EntidadeProto proto;
@@ -719,7 +719,7 @@ TEST(TesteImunidades, TesteResistenciaDescritor) {
       resistencias->set_descritor(DESC_ACIDO);
     }
     RecomputaDependencias(tabelas, &proto);
-    EXPECT_EQ(EntidadeResistenteDescritor(proto, DESC_ACIDO), 5);
+    EXPECT_EQ(EntidadeResistenciaDescritor(proto, DESC_ACIDO), 5);
   }
 }
 

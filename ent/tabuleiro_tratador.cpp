@@ -2,6 +2,7 @@
 // teclado e mouse do tabuleiro.
 
 #include <algorithm>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/filesystem.hpp>
 #include <tuple>
 #include <cassert>
@@ -903,6 +904,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
   bool acertou_direto = acao_proto->has_delta_pontos_vida();
   acao_proto->set_bem_sucedida(acertou_direto);
+  acao_proto->set_atraso_s(atraso_s);
   // A acao individual incrementou o ataque.
   if (entidade != nullptr) entidade->AtaqueAnterior();
 
@@ -952,6 +954,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
     int delta_pv = -1;
     if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
       delta_pv = 0;
+    } else {
+      std::vector<std::string> texto_imunidades;
+      std::tie(delta_pv, texto_imunidades) =
+          AlteraDeltaPontosVidaPorDescritor(delta_pv, entidade_destino->Proto(), acao_proto->descritores());
+      for (const auto& texto : texto_imunidades) {
+        AdicionaAcaoTextoLogado(id, texto, atraso_s + 0.5f);
+      }
     }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_omite_texto(id != id_entidade_destino);
@@ -1006,10 +1015,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     }
     int delta_pv_pos_salvacao = delta_pontos_vida;
     bool passou_rm = true;
+    atraso_s += acao_proto->duracao_s();
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
-      atraso_s += 0.5f + acao_proto->duracao_s();
+      atraso_s += 0.5f;
       AdicionaAcaoTextoLogado(id, resultado_rm, atraso_s);
       delta_pv_pos_salvacao = 0;
     }
@@ -1019,30 +1029,16 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         std::string resultado_salvacao;
         std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
             AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-        atraso_s += 0.5f + acao_proto->duracao_s();
+        atraso_s += 0.5f;
         AdicionaAcaoTextoLogado(id, resultado_salvacao, atraso_s);
       }
       // Imunidade ao tipo de ataque.
-      if (acao_proto->descritores().size() > 1) {
-        LOG(WARNING) << "Atenção, mais de um tipo de descritor de ataque, isso deve ser tratado corretamente mas ainda não é";
-      }
-      if (delta_pv_pos_salvacao != 0 && EntidadeImuneDescritor(entidade_destino->Proto(), acao_proto->descritores())) {
-        delta_pv_pos_salvacao = 0;
-        atraso_s += 0.5f + acao_proto->duracao_s();
-        AdicionaAcaoTextoLogado(id, "Entidade imune ao tipo de ataque", atraso_s);
-      }
-      // Resistencia ao tipo de ataque. Por enquanto, vamos considerar um tipo apenas para simplificar.
-      if (delta_pv_pos_salvacao < 0) {
-        for (int descritor : acao_proto->descritores()) {
-          int resistencia = EntidadeResistenteDescritor(entidade_destino->Proto(), descritor);
-          delta_pv_pos_salvacao += resistencia;
-          atraso_s += 0.5f + acao_proto->duracao_s();
-          AdicionaAcaoTextoLogado(id, google::protobuf::StringPrintf("Resistencia a %s: %d", TextoDescritor(descritor), resistencia), atraso_s);
-          if (delta_pv_pos_salvacao > 0) {
-            delta_pv_pos_salvacao = 0;
-            break;
-          }
-        }
+      std::vector<std::string> texto_imunidades;
+      std::tie(delta_pv_pos_salvacao, texto_imunidades) =
+          AlteraDeltaPontosVidaPorDescritor(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->descritores());
+      for (const auto& texto : texto_imunidades) {
+        atraso_s += 0.5f;
+        AdicionaAcaoTextoLogado(id, texto, atraso_s);
       }
     }
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
@@ -1122,9 +1118,8 @@ float Tabuleiro::TrataAcaoIndividual(
     if (vezes > 0 && acao_proto->has_afeta_apenas() &&
         !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
       // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
-      acao_proto->set_texto("Imune");
+      acao_proto->set_texto("Tipo de entidade imune ao ataque");
       acao_proto->set_delta_pontos_vida(0);
-      vezes = 0;
       *n->mutable_acao() = *acao_proto;
       return atraso_s;
     }
@@ -1135,6 +1130,22 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     if (vezes > 0) {
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+    }
+
+    // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
+    // Resistencias e reducoes.
+    std::vector<std::string> textos_imunidade;
+    std::tie(delta_pontos_vida, textos_imunidade) = AlteraDeltaPontosVidaPorDescritor(delta_pontos_vida, entidade_destino->Proto(), da->descritores());
+    if (!textos_imunidade.empty()) {
+      std::string textos = boost::algorithm::join(textos_imunidade, ", ");
+      // Houve reducao, mas nao o suficiente para zerar.
+      AdicionaAcaoTextoLogado(id_entidade_destino, textos, acao_proto->duracao_s() + atraso_s + 0.5f);
+      if (delta_pontos_vida == 0) {
+        // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade/resistencia.
+        acao_proto->set_delta_pontos_vida(0);
+        *n->mutable_acao() = *acao_proto;
+        return atraso_s;
+      }
     }
 
     std::string veneno_str;

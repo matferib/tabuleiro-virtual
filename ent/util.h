@@ -568,10 +568,14 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& 
 // Retorna true se a entidade for imune a todos os descritores.
 bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 // Retorna a quantidade de resistencia a um determinado descritor. Se houver mais de uma resistencia do mesmo tipo, usa a maior.
-int EntidadeResistenteDescritor(const EntidadeProto& proto, int descritor);
+int EntidadeResistenciaDescritor(const EntidadeProto& proto, int descritor);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);
+
+// Altera delta_pv de acordo com os descritores do ataque e de resistencias e imunidades de proto. Retorna o delta_pv alterado e os textos do que ocorreu.
+std::tuple<int, std::vector<std::string>> AlteraDeltaPontosVidaPorDescritor(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 }  // namespace ent
 
