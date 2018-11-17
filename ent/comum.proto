@@ -116,6 +116,30 @@ enum TipoDnD {
   // TODO outros.
 }
 
+enum DescritorAtaque {
+    DESC_NENHUM = 0;
+    DESC_ACIDO = 1;
+    DESC_AR = 2;
+    DESC_CAOS = 3;
+    DESC_FRIO = 4;
+    DESC_ESCURIDAO = 5;
+    DESC_MORTE = 6;
+    DESC_TERRA = 7;
+    DESC_ELETRICIDADE = 8;
+    DESC_MAL = 9;
+    DESC_MEDO = 10;
+    DESC_FOGO = 11;
+    DESC_FORCA = 12;
+    DESC_BEM = 13;
+    DESC_LEAL = 14;
+    DESC_LUZ = 15;
+    DESC_MENTAL = 16;
+    DESC_SONICO = 17;
+    DESC_AGUA = 18;
+    DESC_VENENO = 19;
+    DESC_DEPENDENTE_IDIOMA = 20;
+}
+
 // Tambem usado como vetor.
 message Posicao {
   optional float x = 3;
@@ -208,6 +232,13 @@ message Atributos {
   optional Bonus carisma = 6;
 }
 
+// Reducoes de dano de acordo com descritores.
+message ReducaoDano {
+  optional DescritorAtaque descritor = 1;
+  optional int32 valor = 2;
+  // TODO pensar nas combinacoes.
+}
+
 // Dados de defesa global (independe de ataque).
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
@@ -230,7 +261,11 @@ message DadosDefesa {
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
   optional int32 reducao_dano_barbaro = 15;
   optional int32 resistencia_magia = 16;
-  optional bool imune_veneno = 17;
+  repeated DescritorAtaque imunidades = 17;
+  // Para ataques fisicos.
+  repeated ReducaoDano reducoes_dano = 18;
+  // Para efeitos elementais.
+  repeated ReducaoDano resistencias = 19;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
