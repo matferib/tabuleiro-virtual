@@ -147,6 +147,8 @@ message AcaoProto {
   optional string classe_conjuracao = 47;
   // True se a acao ignorar resistencia a magia.
   optional bool ignora_resistencia_magia = 48;
+  // Descritores do ataque.
+  repeated DescritorAtaque descritores = 51;
 }
 
 // O arquivo de acoes é serializado desta forma.
