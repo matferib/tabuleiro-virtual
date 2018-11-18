@@ -262,6 +262,17 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   }
 }
 
+int MaterialArmaParaIndice(ent::DescritorAtaque descritor) {
+  switch (descritor) {
+    case ent::DESC_ADAMANTE: return 1;
+    case ent::DESC_FERRO_FRIO: return 2;
+    case ent::DESC_MADEIRA_NEGRA: return 3;
+    case ent::DESC_MITRAL: return 4;
+    case ent::DESC_PRATA_ALQUIMICA: return 5;
+    default: return 0;
+  }
+}
+
 }  // namespace
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -269,7 +280,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
-       gerador.combo_arma, gerador.spin_ordem_ataque };
+       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Tem que vir antes do clear.
@@ -296,6 +307,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
       tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
   PreencheComboArma(tabelas, gerador, tipo_ataque);
+  gerador.combo_material_arma->setEnabled(
+      tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
     gerador.botao_remover_ataque->setEnabled(!proto.dados_ataque().empty());
@@ -304,6 +317,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   }
   const auto& da = proto.dados_ataque(linha);
   gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
+  gerador.combo_material_arma->setCurrentIndex(MaterialArmaParaIndice(da.material_arma()));
   gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();

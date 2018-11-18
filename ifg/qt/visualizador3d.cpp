@@ -1454,7 +1454,7 @@ void ConfiguraComboArma(
   ExpandeComboBox(combo_arma);
 }
 
-ent::DescritorAtaque IndiceParaDescritor(int indice) {
+ent::DescritorAtaque IndiceParaMaterialArma(int indice) {
   switch (indice) {
     case 1: return ent::DESC_ADAMANTE;
     case 2: return ent::DESC_FERRO_FRIO;
@@ -1473,7 +1473,7 @@ void ConfiguraComboMaterial(
     const int index_lista = gerador.lista_ataques->currentRow();
     if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
     auto* da = proto_retornado->mutable_dados_ataque(index_lista);
-    ent::DescritorAtaque desc = IndiceParaDescritor(combo_material->currentIndex());
+    ent::DescritorAtaque desc = IndiceParaMaterialArma(combo_material->currentIndex());
     if (desc == ent::DESC_NENHUM) {
       da->clear_material_arma();
     } else {
@@ -1498,7 +1498,11 @@ void PreencheConfiguraComboTipoAtaque(
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
       [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
-    gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+    gerador.combo_arma->setEnabled(
+        tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
+        tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
+    gerador.combo_material_arma->setEnabled(
+        tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
     EditaAtualizaUIAtaque();
     int indice = gerador.lista_ataques->currentRow();
     if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
