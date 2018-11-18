@@ -1,10 +1,26 @@
-Ataque com veneno ja cria o efeito de EFEITO_VENENO no alvo. Falta ainda:
-- Colocar detalhes do veneno no evento.
-- Durante ataque: criar o efeito primario se falhou salvacao.
-- Ao expirar veneno (ao passar rodada!): causar efeito secundario.
+Terminar reducao dano. Refazer testes.
+
+Resistencia a elementos: por rodada!
+
+Dano secundario de fogo grego.
+
+Fazer sucubo 3d.
+Fazer outros demonios.
+
+Problema na iluminacao:
+Luz pontual esta estranha em objetos compostos (Ver sofa por exemplo).
+
+
+Feiticos: ao criar bola de fogo, relampago etc, o dano esta vindo vazio. E o descritor nao esta sendo aplicado. Ver RecomputaDependenciasArma em util.cpp.
+
+Modelar tipo de ataque, para imunidades: exemplo monstro imune a ataque de eletricidade.
+
+Veneno:
 - Aplicar bonus de salvacao contra veneno na funcao SalvacaoVeneno de entidade.
-Lembrar que tudo tem que ser feito ou no ataque ou ao passar rodada para nao avacalhar o multiplayer. Se for feito
-no Recomputa, os venenos aleatorios vao causar efeitos diferentes nos clientes.
+- Outros tipos de veneno que nao afetam atributos.
+- Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
+
+Botao para passar horas.
 
 Colocar outros tipos de tesouro.
 Mais habilidades especiais, especialmente as que se escolhem (como evasao para ladino).
