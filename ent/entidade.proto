@@ -256,8 +256,12 @@ message EntidadeProto {
     optional int32 limite_vezes = 43;
     // Para ataque elemental. Apenas descritores elementais.
     optional DescritorAtaque elemento = 44;
-    // Para tipos do ataque, tipo perfurante, cortante, ferro frio, bom, mau etc.
+    // Computado a partir de varios fatores.
     repeated DescritorAtaque descritores_ataque = 45;
+    // Ferro frio, adamante etc.
+    optional DescritorAtaque material_arma = 46;
+    // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
+    repeated DescritorAtaque tipo_ataque_fisico = 47;
   }
   repeated DadosAtaque dados_ataque = 44;
 

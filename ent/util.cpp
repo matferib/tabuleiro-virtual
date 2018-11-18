@@ -1765,6 +1765,21 @@ const ArmaProto& ArmaOutraMao(
   return tabelas.Arma(da_outra_mao->id_arma());
 }
 
+namespace {
+google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::protobuf::RepeatedField<int>& tipos_dano) {
+  google::protobuf::RepeatedField<int> tipos_ataque_fisico;
+  for (int td : tipos_dano) {
+    switch (td) {
+      case TD_CORTANTE: tipos_ataque_fisico.Add(DESC_CORTANTE); break;
+      case TD_PERFURANTE: tipos_ataque_fisico.Add(DESC_PERFURANTE); break;
+      case TD_CONCUSSAO: tipos_ataque_fisico.Add(DESC_ESTOURANTE); break;
+      default: ;
+    }
+  }
+  return tipos_ataque_fisico;
+}
+}  // namespace
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
@@ -1818,6 +1833,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
       da->set_incrementos(10);
     }
+    *da->mutable_tipo_ataque_fisico() = TiposDanoParaAtaqueFisico(arma.tipo_dano());
   } else if (da->ataque_agarrar()) {
     if (!da->has_dano_basico()) {
       da->set_dano_basico(DanoDesarmadoPorTamanho(proto.tamanho()));
@@ -1831,14 +1847,35 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da->has_dano_basico_fixo()) {
     da->set_dano_basico(da->dano_basico_fixo());
   }
-  if (da->has_municao()) {
-    // Tenta achar o primeiro da lista com mesmo rotulo.
-    for (const auto& dda : proto.dados_ataque()) {
-      if (dda.rotulo() == da->rotulo()) {
-        if (da != &dda) da->set_municao(dda.municao());
-        break;
-      }
+  // Tenta achar o primeiro da lista com mesmo rotulo para obter coisas derivadas do primeiro (municao, descritores).
+  const EntidadeProto::DadosAtaque* primeiro = nullptr;
+  for (const auto& dda : proto.dados_ataque()) {
+    if (dda.rotulo() == da->rotulo()) {
+      primeiro = &dda;
+      break;
     }
+  }
+
+  if (da != primeiro && primeiro != nullptr) {
+    // municao.
+    if (da->has_municao()) da->set_municao(primeiro->municao());
+    // Elemento.
+    if (primeiro->elemento() == DESC_NENHUM) da->clear_elemento();
+    else da->set_elemento(primeiro->elemento());
+    // material.
+    if (primeiro->material_arma() == DESC_NENHUM) da->clear_material_arma();
+    else da->set_material_arma(primeiro->material_arma());
+    // tipo ataque fisico.
+    if (primeiro->tipo_ataque_fisico().empty()) da->tipo_ataque_fisico();
+    else *da->mutable_tipo_ataque_fisico() = primeiro->tipo_ataque_fisico();
+  }
+  // Descritores de ataque.
+  da->clear_descritores_ataque();
+  if (da->material_arma() != DESC_NENHUM) da->add_descritores_ataque(da->material_arma());
+  if (!da->tipo_ataque_fisico().empty()) {
+    std::copy(da->tipo_ataque_fisico().begin(),
+              da->tipo_ataque_fisico().end(),
+              google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores_ataque()));
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {

@@ -1448,9 +1448,41 @@ void ConfiguraComboArma(
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
     gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
+    gerador.combo_material_arma->setEnabled(id_arma != "nenhuma");
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
   ExpandeComboBox(combo_arma);
+}
+
+ent::DescritorAtaque IndiceParaDescritor(int indice) {
+  switch (indice) {
+    case 1: return ent::DESC_ADAMANTE;
+    case 2: return ent::DESC_FERRO_FRIO;
+    case 3: return ent::DESC_MADEIRA_NEGRA;
+    case 4: return ent::DESC_MITRAL;
+    case 5: return ent::DESC_PRATA_ALQUIMICA;
+  }
+  return ent::DESC_NENHUM;
+}
+
+// Preenche o combo de material da arma.
+void ConfiguraComboMaterial(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo_material = gerador.combo_material_arma;
+  lambda_connect(combo_material, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material] () {
+    const int index_lista = gerador.lista_ataques->currentRow();
+    if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
+    auto* da = proto_retornado->mutable_dados_ataque(index_lista);
+    ent::DescritorAtaque desc = IndiceParaDescritor(combo_material->currentIndex());
+    if (desc == ent::DESC_NENHUM) {
+      da->clear_material_arma();
+    } else {
+      da->set_material_arma(desc);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+  });
+  ExpandeComboBox(combo_material);
 }
 
 void PreencheConfiguraComboTipoAtaque(
@@ -1496,6 +1528,7 @@ void PreencheConfiguraDadosAtaque(
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   PreencheConfiguraComboTipoAtaque(tabelas, gerador, EditaAtualizaUIAtaque, proto_retornado);
   ConfiguraComboArma(tabelas, gerador, proto_retornado);
+  ConfiguraComboMaterial(tabelas, gerador, proto_retornado);
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 

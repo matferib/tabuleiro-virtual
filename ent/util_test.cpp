@@ -834,6 +834,71 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
   }
 }
 
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_OU);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_BEM);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -10) << msg;
+}
+
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_E);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_BEM);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -4) << msg;
+}
+
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_E);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_PERFURANTE);
+  rd->add_descritores(DESC_CORTANTE);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  da->set_id_arma("adaga");  // implica DESC_PERFURANTE e DESC_CORTANTE
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -10) << msg;
+}
+
 
 #if 0
 TEST(TesteImunidades, TesteResistenciaDescritor) {

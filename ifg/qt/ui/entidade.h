@@ -220,6 +220,7 @@ public:
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
     QComboBox *combo_arma;
+    QComboBox *combo_material_arma;
     QSpacerItem *horizontalSpacer_5;
     QCheckBox *checkbox_op;
     QLabel *label_23;
@@ -1351,6 +1352,19 @@ public:
         combo_arma->setSizePolicy(sizePolicy4);
 
         horizontalLayout_29->addWidget(combo_arma);
+
+        combo_material_arma = new QComboBox(verticalLayoutWidget_2);
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->setObjectName(QStringLiteral("combo_material_arma"));
+        sizePolicy4.setHeightForWidth(combo_material_arma->sizePolicy().hasHeightForWidth());
+        combo_material_arma->setSizePolicy(sizePolicy4);
+
+        horizontalLayout_29->addWidget(combo_material_arma);
 
         horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -2537,6 +2551,16 @@ public:
         label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", nullptr));
 #ifndef QT_NO_TOOLTIP
         combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", nullptr));
+#endif // QT_NO_TOOLTIP
+        combo_material_arma->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
+        combo_material_arma->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
+        combo_material_arma->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Ferro Frio", nullptr));
+        combo_material_arma->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Madeira Negra", nullptr));
+        combo_material_arma->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", nullptr));
+        combo_material_arma->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Prata Alqu\303\255mica", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_material_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));

@@ -1923,6 +1923,49 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
+          <widget class="QComboBox" name="combo_material_arma">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Tipo do material da arma</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>Nenhum</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Adamante</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ferro Frio</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Madeira Negra</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mitral</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Prata Alquímica</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

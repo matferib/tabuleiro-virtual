@@ -146,6 +146,10 @@ enum DescritorAtaque {
   DESC_ADAMANTE = 24;
   DESC_PRATA_ALQUIMICA = 25;
   DESC_COURO_DRAGAO = 26;
+  // tipo de ataque fisico.
+  DESC_PERFURANTE = 27;
+  DESC_CORTANTE = 28;
+  DESC_ESTOURANTE = 29;
 }
 
 // Tambem usado como vetor.
