@@ -565,16 +565,20 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 // de feitico com todos ate o nivel desejado.
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
-// Retorna true se a entidade for imune a todos os descritores.
-bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
-// Retorna a quantidade de resistencia a um determinado descritor. Se houver mais de uma resistencia do mesmo tipo, usa a maior.
-int EntidadeResistenciaDescritor(const EntidadeProto& proto, int descritor);
+// Retorna true se a entidade for imune a todos os descritores do elemento.
+bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
+// Retorna a quantidade de resistencia a um determinado descritor de elemento. Se houver mais de uma resistencia do mesmo tipo, usa a maior.
+int EntidadeResistenciaElementos(const EntidadeProto& proto, int elemento);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);
 
-// Altera delta_pv de acordo com os descritores do ataque e de resistencias e imunidades de proto. Retorna o delta_pv alterado e os textos do que ocorreu.
-std::tuple<int, std::vector<std::string>> AlteraDeltaPontosVidaPorDescritor(
+// Altera delta_pv de acordo com os elementos do ataque e de resistencias e imunidades de proto. Retorna o delta_pv alterado e os textos do que ocorreu.
+std::tuple<int, std::string> AlteraDeltaPontosVidaParaElemento(
+    int delta_pv, const EntidadeProto& proto, int elementos);
+
+// Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 }  // namespace ent

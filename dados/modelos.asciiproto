@@ -1710,17 +1710,23 @@ modelo {
       }
       imunidades: DESC_ELETRICIDADE
       imunidades: DESC_VENENO
-      resistencias {
+      resistencia_elementos {
         descritor: DESC_ACIDO
         valor: 10
       }
-      resistencias {
+      resistencia_elementos {
         descritor: DESC_FRIO
         valor: 10
       }
-      resistencias {
+      resistencia_elementos {
         descritor: DESC_FOGO
         valor: 10
+      }
+      reducao_dano {
+        descritores: DESC_FERRO_FRIO
+        descritores: DESC_BEM
+        valor: 10
+        tipo_combinacao: COMB_OU
       }
     }
     info_talentos {

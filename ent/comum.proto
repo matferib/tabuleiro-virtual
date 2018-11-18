@@ -117,27 +117,35 @@ enum TipoDnD {
 }
 
 enum DescritorAtaque {
-    DESC_NENHUM = 0;
-    DESC_ACIDO = 1;
-    DESC_AR = 2;
-    DESC_CAOS = 3;
-    DESC_FRIO = 4;
-    DESC_ESCURIDAO = 5;
-    DESC_MORTE = 6;
-    DESC_TERRA = 7;
-    DESC_ELETRICIDADE = 8;
-    DESC_MAL = 9;
-    DESC_MEDO = 10;
-    DESC_FOGO = 11;
-    DESC_FORCA = 12;
-    DESC_BEM = 13;
-    DESC_LEAL = 14;
-    DESC_LUZ = 15;
-    DESC_MENTAL = 16;
-    DESC_SONICO = 17;
-    DESC_AGUA = 18;
-    DESC_VENENO = 19;
-    DESC_DEPENDENTE_IDIOMA = 20;
+  // descritores de magia.
+  DESC_NENHUM = 0;
+  DESC_ACIDO = 1;
+  DESC_AR = 2;
+  DESC_CAOS = 3;
+  DESC_FRIO = 4;
+  DESC_ESCURIDAO = 5;
+  DESC_MORTE = 6;
+  DESC_TERRA = 7;
+  DESC_ELETRICIDADE = 8;
+  DESC_MAL = 9;
+  DESC_MEDO = 10;
+  DESC_FOGO = 11;
+  DESC_FORCA = 12;
+  DESC_BEM = 13;
+  DESC_LEAL = 14;
+  DESC_LUZ = 15;
+  DESC_MENTAL = 16;
+  DESC_SONICO = 17;
+  DESC_AGUA = 18;
+  DESC_VENENO = 19;
+  DESC_DEPENDENTE_IDIOMA = 20;
+  // Outras formas de ataque, nao necessariamente descritores mas funcionam como se fosse.
+  DESC_FERRO_FRIO = 21;
+  DESC_MADEIRA_NEGRA = 22;
+  DESC_MITRAL = 23;
+  DESC_ADAMANTE = 24;
+  DESC_PRATA_ALQUIMICA = 25;
+  DESC_COURO_DRAGAO = 26;
 }
 
 // Tambem usado como vetor.
@@ -232,11 +240,24 @@ message Atributos {
   optional Bonus carisma = 6;
 }
 
+enum TipoCombinacao {
+  COMB_E = 0;  // todos descritores sao requeridos
+  COMB_OU = 1; // um dos descritores é requerido.
+}
+
 // Reducoes de dano de acordo com descritores.
 message ReducaoDano {
+  repeated DescritorAtaque descritores = 1;
+  optional int32 valor = 2;
+  optional TipoCombinacao tipo_combinacao = 3;
+}
+
+// Esse tipo de resistencia é por rodada.
+message ResistenciaElementos {
   optional DescritorAtaque descritor = 1;
   optional int32 valor = 2;
-  // TODO pensar nas combinacoes.
+  // Quanto ja recebeu de dano do tipo na rodada.
+  optional int32 contador_rodada = 3;
 }
 
 // Dados de defesa global (independe de ataque).
@@ -262,10 +283,10 @@ message DadosDefesa {
   optional int32 reducao_dano_barbaro = 15;
   optional int32 resistencia_magia = 16;
   repeated DescritorAtaque imunidades = 17;
-  // Para ataques fisicos.
-  repeated ReducaoDano reducoes_dano = 18;
-  // Para efeitos elementais.
-  repeated ReducaoDano resistencias = 19;
+  // Reduz ataques que nao corresponderem aos descritores.
+  optional ReducaoDano reducao_dano = 18;
+  // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
+  repeated ResistenciaElementos resistencia_elementos = 19;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

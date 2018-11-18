@@ -61,7 +61,7 @@ tabela_armas {
       escala { x: 0.2 y: 0.2 z: 0.2 }
       cor { r: 0.0 g: 0.5 b: 0.0 }
       icone: 'icon_acid.png'
-      descritores: DESC_ACIDO
+      elemento: DESC_ACIDO
     }
   }
   armas {
@@ -80,7 +80,7 @@ tabela_armas {
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_alchemist_fire.png'
       consequencia: TC_INFLAMA_ALVO
-      descritores: DESC_FOGO
+      elemento: DESC_FOGO
     }
     # TODO: apos uma rodada de dano direto, mais 1d6 se o alvo nao extinguiu.
   }
@@ -4002,7 +4002,7 @@ tabela_feiticos {
       dificuldade_salvacao: 11
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_FOGO
+      elemento: DESC_FOGO
     }
   }
   armas {
@@ -4043,7 +4043,7 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_FOGO
+      elemento: DESC_FOGO
     }
   }
   armas {
@@ -4072,7 +4072,7 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_FOGO
+      elemento: DESC_FOGO
     }
   }
   armas {
@@ -4103,7 +4103,7 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_FRIO
+      elemento: DESC_FRIO
     }
   }
   armas {
@@ -4128,7 +4128,7 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_ELETRICIDADE
+      elemento: DESC_ELETRICIDADE
     }
   }
   armas {
@@ -4161,7 +4161,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       ignora_reducao_dano_barbaro: true
-      descritores: DESC_FRIO
+      elemento: DESC_FRIO
     }
   }
   armas {
@@ -4188,7 +4188,7 @@ tabela_feiticos {
       ignora_municao: true
       ignora_reducao_dano_barbaro: true
       consequencia: TC_DESLOCA_ALVO
-      descritores: DESC_FORCA
+      elemento: DESC_FORCA
     }
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }

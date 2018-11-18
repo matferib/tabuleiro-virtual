@@ -1212,7 +1212,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
   }
 
   // Imunidade.
-  if (EntidadeImuneDescritor(ed.Proto(), da->descritores())) {
+  if (EntidadeImuneElemento(ed.Proto(), da->elemento())) {
     return std::make_tuple(0, "Defensor imune ao ataque", true);
   }
 
@@ -3061,10 +3061,7 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   } else {
     da->clear_ataque_agarrar();
   }
-  std::copy(da->acao().descritores().begin(), da->acao().descritores().end(), google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
-  std::sort(da->mutable_descritores()->begin(), da->mutable_descritores()->end());
-  auto ultimo = std::unique(da->mutable_descritores()->begin(), da->mutable_descritores()->end());
-  da->mutable_descritores()->erase(ultimo, da->mutable_descritores()->end());
+  if (da->acao().has_elemento()) da->set_elemento(da->acao().elemento());
 }
 
 std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
@@ -3810,25 +3807,17 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
   return fn.para_lancar(indice);
 }
 
-// Observe que o repeatedfield e de inteiros e nao de DescritorAtaque.
-namespace {
-
-bool EntidadeImuneDescritor(const EntidadeProto& proto, int descritor) {
+bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
+  if (elemento == DESC_NENHUM) return false;
   const auto& dd = proto.dados_defesa();
-  return std::any_of(dd.imunidades().begin(), dd.imunidades().end(), [descritor](int descritor_imunidade) { return descritor == descritor_imunidade; });
+  return std::any_of(dd.imunidades().begin(), dd.imunidades().end(), [elemento](int descritor_imunidade) { return elemento == descritor_imunidade; });
 }
 
-}  // namespace
-
-bool EntidadeImuneDescritor(const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
-  if (descritores.empty()) return false;
-  return std::all_of(descritores.begin(), descritores.end(), [&proto](int descritor) { return EntidadeImuneDescritor(proto, descritor); });
-}
-
-int EntidadeResistenciaDescritor(const EntidadeProto& proto, int descritor) {
+int EntidadeResistenciaElemento(const EntidadeProto& proto, int elemento) {
+  if (elemento == DESC_NENHUM) return 0;
   int maior = 0;
-  for (const auto& r : proto.dados_defesa().resistencias()) {
-    if (r.descritor() == descritor) maior = std::max(maior, r.valor());
+  for (const auto& re : proto.dados_defesa().resistencia_elementos()) {
+    if (re.descritor() == elemento) maior = std::max(maior, re.valor());
   }
   return maior;
 }
@@ -3855,32 +3844,60 @@ const char* TextoDescritor(int descritor) {
     case DESC_AGUA: return "água";
     case DESC_VENENO: return "veneno";
     case DESC_DEPENDENTE_IDIOMA: return "dependente de idioma";
+    case DESC_FERRO_FRIO: return "ferro frio";
+    case DESC_MADEIRA_NEGRA: return "madeira negra";
+    case DESC_MITRAL: return "mitral";
+    case DESC_PRATA_ALQUIMICA: return "prata alquímica";
+    case DESC_COURO_DRAGAO: return "couro de dragão";
   }
-  return "desconhecido";
+  return "nenhum";
 }
 
-std::tuple<int, std::vector<std::string>> AlteraDeltaPontosVidaPorDescritor(
-    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
-  if (descritores.empty() || delta_pv >= 0) {
-    return std::make_tuple(delta_pv, std::vector<std::string>());
+std::tuple<int, std::string> AlteraDeltaPontosVidaParaElemento(
+    int delta_pv, const EntidadeProto& proto, int elemento) {
+  if (delta_pv >= 0 || elemento == DESC_NENHUM) {
+    return std::make_tuple(delta_pv, "");
   }
-  if (EntidadeImuneDescritor(proto, descritores)) {
-    return std::make_tuple(0, std::vector<std::string>{"Entidade imune ao tipo de ataque"});
+  if (EntidadeImuneElemento(proto, elemento)) {
+    return std::make_tuple(0, "Entidade imune ao tipo de ataque");
   }
+  return std::make_tuple(delta_pv, "");
+  // TODO: fazer isso por rodada.
 
   // Resistencia ao tipo de ataque.
-  std::vector<std::string> textos_resistencia;
-  for (int descritor : descritores) {
-    int resistencia = EntidadeResistenciaDescritor(proto, descritor);
-    if (resistencia == 0) continue;
+  std::string texto_resistencia;
+  int resistencia = EntidadeResistenciaElementos(proto, elemento);
+  if (resistencia != 0) {
     delta_pv += resistencia;
-    textos_resistencia.push_back(google::protobuf::StringPrintf("Resistencia a %s: %d", TextoDescritor(descritor), resistencia));
-    if (delta_pv > 0) {
-      delta_pv = 0;
-      break;
-    }
+    texto_resistencia = google::protobuf::StringPrintf("Resistencia a %s: %d", TextoDescritor(elemento), resistencia);
   }
-  return std::make_tuple(delta_pv, textos_resistencia);
+  return std::make_tuple(std::min(delta_pv, 0), texto_resistencia);
+}
+
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
+  const auto& dd = proto.dados_defesa();
+  if (!dd.has_reducao_dano()) {
+    return std::make_tuple(delta_pv, "");
+  }
+  const auto& rd = dd.reducao_dano();
+  if (rd.tipo_combinacao() == COMB_E) {
+    for (const auto& descritor : rd.descritores()) {
+      if (std::none_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
+        delta_pv += dd.reducao_dano().valor();
+        return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
+      }
+    }
+    return std::make_tuple(delta_pv, "Redução de dano não aplicada"); 
+  } else {
+    for (const auto& descritor : rd.descritores()) {
+      if (std::any_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
+        return std::make_tuple(delta_pv, "Reducao de dano não aplicada"); 
+      }
+    }
+    delta_pv += rd.valor();
+    return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
+  }
 }
 
 }  // namespace ent

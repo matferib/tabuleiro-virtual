@@ -254,8 +254,10 @@ message EntidadeProto {
     // Se presente, ataque desaparecerá após ser usado esse número de vezes.
     // É diferente de munição, que permanece após zerar.
     optional int32 limite_vezes = 43;
-    // Era elemento.
-    repeated DescritorAtaque descritores = 44;
+    // Para ataque elemental. Apenas descritores elementais.
+    optional DescritorAtaque elemento = 44;
+    // Para tipos do ataque, tipo perfurante, cortante, ferro frio, bom, mau etc.
+    repeated DescritorAtaque descritores_ataque = 45;
   }
   repeated DadosAtaque dados_ataque = 44;
 
