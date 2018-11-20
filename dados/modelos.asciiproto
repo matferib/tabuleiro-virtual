@@ -744,7 +744,9 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     # Ou um, ou outro, por isso grupos diferentes.
     dados_ataque {
-      grupo: 'raio' rotulo: 'raio_eletrico' descritores: DESC_ELETRICIDADE tipo_ataque: 'Raio' dano: '2d6' alcance_m: 15
+      grupo: 'raio' rotulo: 'raio_eletrico'
+      elemento: DESC_ELETRICIDADE
+      tipo_ataque: 'Raio' dano: '2d6' alcance_m: 15
       acao_fixa { cor { r: 0 b: 1 g: 0 } ignora_resistencia_magia: true consequencia: TC_NENHUMA }
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
@@ -1588,7 +1590,8 @@ modelo {
     info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'Não pode ser flanqueado\nreducao de dano 1/- armas e ataques naturais'
-    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS }
+    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
+    dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
     dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'fogo_alquimico' municao: 3 }

@@ -1248,7 +1248,18 @@ tabela_efeitos {
       }
     }
   }
-
+  efeitos {
+    id: EFEITO_ABENCOAR_ARMA
+    consequencia {
+      usa_complemento: true
+    }
+  }
+  efeitos {
+    id: EFEITO_ALINHAR_ARMA
+    consequencia {
+      usa_complemento: true
+    }
+  }
 }
 
 tabela_aneis {
