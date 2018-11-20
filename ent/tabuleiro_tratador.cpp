@@ -1195,18 +1195,14 @@ float Tabuleiro::TrataAcaoIndividual(
       delta_pontos_vida = 0;
     }
 
+    std::string resultado_salvacao;
     if (passou_rm && acao_proto->permite_salvacao()) {
-      std::string resultado_salvacao;
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-      AdicionaAcaoTexto(entidade_destino->Id(), resultado_salvacao, atraso_s);
-      atraso_s += 0.5f + acao_proto->duracao_s();
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-            "resultado salvacao de entidade %s: %s",
-            RotuloEntidade(entidade_destino).c_str(),
-            resultado_salvacao.c_str()));
+      acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), resultado_salvacao.c_str()));
+      atraso_s += 0.5f;
       // Deixa o delta em aberto novamente para ser preenchido pelo valor de delta_pontos_vida.
       acao_proto->clear_delta_pontos_vida();
     }
@@ -1215,34 +1211,26 @@ float Tabuleiro::TrataAcaoIndividual(
     acao_proto->set_nao_letal(nao_letal);
     acao_proto->set_gera_outras_acoes(true);  // para os textos.
 
+    std::string texto_reducao;
     if (delta_pontos_vida < 0 &&
         !IgnoraReducaoDano(*acao_proto) && entidade_destino != nullptr) {
-      int delta_barbaro;
-      std::string str_barbaro;
-      std::tie(delta_barbaro, str_barbaro) = AlteraDeltaPontosVidaPorReducaoBarbaro(delta_pontos_vida, entidade_destino->Proto());
-      int delta_outros;
       google::protobuf::RepeatedField<int> descritores = acao_proto->descritores_ataque();
       std::copy(da->descritores_ataque().begin(), da->descritores_ataque().end(), google::protobuf::RepeatedFieldBackInserter(&descritores));
-      std::string str_outros;
-      std::tie(delta_outros, str_outros) = AlteraDeltaPontosVidaPorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
-      if (delta_barbaro != delta_pontos_vida && delta_barbaro >= delta_outros) {
-        delta_pontos_vida = delta_barbaro;
-        atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), str_barbaro, atraso_s);
-      } else if (delta_outros != delta_pontos_vida && delta_outros > delta_barbaro) {
-        delta_pontos_vida = delta_outros;
-        atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), str_outros, atraso_s);
+      std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
+      if (!texto_reducao.empty()) {
+        acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), texto_reducao.c_str()));
       }
     }
 
+    AdicionaLogEvento(google::protobuf::StringPrintf(
+          "entidade %s %s %d %s em entidade %s %s",
+          RotuloEntidade(entidade).c_str(),
+          delta_pontos_vida <= 0 ? "causou dano" : "curou",
+          std::abs(delta_pontos_vida),
+          texto_reducao.c_str(),
+          RotuloEntidade(entidade_destino).c_str(),
+          resultado_salvacao.c_str()));
     if (delta_pontos_vida != 0) {
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-            "entidade %s %s %d em entidade %s",
-            RotuloEntidade(entidade).c_str(),
-            delta_pontos_vida < 0 ? "causou dano" : "curou",
-            std::abs(delta_pontos_vida),
-            RotuloEntidade(entidade_destino).c_str()));
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_afeta_pontos_vida(true);
       // Apenas para desfazer.
