@@ -183,7 +183,11 @@ message EntidadeProto {
   // Dados para um ataque especifico.
   // Como depende de AcaoProto, nao movi para comum.
   message DadosAtaque {
+    // O rotulo de um ataque, para identificacao. Identifica uma arma.
     optional string rotulo = 9;
+    // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
+    optional string grupo = 40;
+
     // Deve casar com as strings de id do arquivo de dados das acoes.
     optional string tipo_ataque = 1;
     optional TipoAcao tipo_acao = 39;
@@ -247,8 +251,6 @@ message EntidadeProto {
     optional uint32 id_unico_efeito  = 36;
     // Municao para a arma.
     optional uint32 municao = 38;
-    // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
-    optional string grupo = 40;
     // Para ataques com veneno.
     optional VenenoProto veneno = 42;
     // Se presente, ataque desaparecerá após ser usado esse número de vezes.
@@ -262,6 +264,8 @@ message EntidadeProto {
     optional DescritorAtaque material_arma = 46;
     // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
     repeated DescritorAtaque tipo_ataque_fisico = 47;
+    // Bem, mal, caos, leal.
+    optional DescritorAtaque alinhamento = 48;
   }
   repeated DadosAtaque dados_ataque = 44;
 

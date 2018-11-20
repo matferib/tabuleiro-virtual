@@ -62,7 +62,8 @@ enum TipoEfeito {
   EFEITO_SUPORTAR_ELEMENTOS = 28;     // TODO
   EFEITO_RESISTENCIA_ELEMENTOS = 29;  // TODO
   EFEITO_SANTUARIO = 30;              // TODO
-  EFEITO_ABENCOAR_ARMA = 31;          // TODO
+  // Complemento é o rotulo.
+  EFEITO_ABENCOAR_ARMA = 31;
 
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
@@ -75,6 +76,8 @@ enum TipoEfeito {
   // Dano de atributo por causa de veneno.
   // Os complementos indicam quanto de dano em cada atributo: for, des, con, int, sab, car, nesta ordem.
   EFEITO_DANO_ATRIBUTO_VENENO = 39;
+  // O complemento é da forma: rotulo, alinhamento.
+  EFEITO_ALINHAR_ARMA = 40;
 }
 
 // Tipo de visao para entidades e camera.

@@ -581,6 +581,13 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaParaElemento(
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
+// Altera o delta_pv de acordo com reducoes de barbaro.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(
+    int delta_pv, const EntidadeProto& proto);
+
+// Return true se a acao ignora reducao de dano.
+inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

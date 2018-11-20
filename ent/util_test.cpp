@@ -899,6 +899,86 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
   EXPECT_EQ(delta, -10) << msg;
 }
 
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_E);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_BEM);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* evento = proto_ataque.add_evento();
+  evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
+  evento->add_complementos_str("rotulo_teste");
+  evento->set_rodadas(1);
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  da->set_rotulo("rotulo_teste");
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -10) << msg;
+}
+
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_E);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_BEM);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* evento = proto_ataque.add_evento();
+  evento->set_id_efeito(EFEITO_ALINHAR_ARMA);
+  evento->add_complementos_str("rotulo_teste");
+  evento->add_complementos_str("bem");
+  evento->set_rodadas(1);
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  da->set_rotulo("rotulo_teste");
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -10) << msg;
+}
+
+TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_defesa;
+  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  rd->set_valor(6);
+  rd->set_tipo_combinacao(COMB_E);
+  rd->add_descritores(DESC_FERRO_FRIO);
+  rd->add_descritores(DESC_BEM);
+  RecomputaDependencias(tabelas, &proto_defesa);
+
+  EntidadeProto proto_ataque;
+  auto* evento = proto_ataque.add_evento();
+  evento->set_id_efeito(EFEITO_ALINHAR_ARMA);
+  evento->add_complementos_str("rotulo_teste");
+  evento->add_complementos_str("mau");
+  evento->set_rodadas(1);
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_material_arma(DESC_FERRO_FRIO);
+  da->set_rotulo("rotulo_teste");
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  EXPECT_EQ(delta, -4) << msg;
+}
+
 
 #if 0
 TEST(TesteImunidades, TesteResistenciaDescritor) {

@@ -1137,7 +1137,8 @@ float Tabuleiro::TrataAcaoIndividual(
     std::string texto_imunidade;
     std::tie(delta_pontos_vida, texto_imunidade) = AlteraDeltaPontosVidaParaElemento(delta_pontos_vida, entidade_destino->Proto(), da->elemento());
     if (!texto_imunidade.empty()) {
-      AdicionaAcaoTextoLogado(id_entidade_destino, texto_imunidade, acao_proto->duracao_s() + atraso_s + 0.5f);
+      atraso_s += 0.5f;
+      AdicionaAcaoTextoLogado(id_entidade_destino, texto_imunidade, acao_proto->duracao_s() + atraso_s);
       if (delta_pontos_vida == 0) {
         // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade/resistencia.
         acao_proto->set_delta_pontos_vida(0);
@@ -1215,13 +1216,24 @@ float Tabuleiro::TrataAcaoIndividual(
     acao_proto->set_gera_outras_acoes(true);  // para os textos.
 
     if (delta_pontos_vida < 0 &&
-        !acao_proto->ignora_reducao_dano_barbaro() && entidade_destino != nullptr &&
-        entidade_destino->Proto().dados_defesa().reducao_dano_barbaro() > 0) {
-      AdicionaLogEvento(google::protobuf::StringPrintf(
-          "aplicando reducao de dano de barbaro: %d",
-          entidade_destino->Proto().dados_defesa().reducao_dano_barbaro()));
-      // o delta eh negativo.
-      delta_pontos_vida = std::min(0, delta_pontos_vida + entidade_destino->Proto().dados_defesa().reducao_dano_barbaro());
+        !IgnoraReducaoDano(*acao_proto) && entidade_destino != nullptr) {
+      int delta_barbaro;
+      std::string str_barbaro;
+      std::tie(delta_barbaro, str_barbaro) = AlteraDeltaPontosVidaPorReducaoBarbaro(delta_pontos_vida, entidade_destino->Proto());
+      int delta_outros;
+      google::protobuf::RepeatedField<int> descritores = acao_proto->descritores_ataque();
+      std::copy(da->descritores_ataque().begin(), da->descritores_ataque().end(), google::protobuf::RepeatedFieldBackInserter(&descritores));
+      std::string str_outros;
+      std::tie(delta_outros, str_outros) = AlteraDeltaPontosVidaPorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
+      if (delta_barbaro != delta_pontos_vida && delta_barbaro >= delta_outros) {
+        delta_pontos_vida = delta_barbaro;
+        atraso_s += 0.5f;
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), str_barbaro, atraso_s);
+      } else if (delta_outros != delta_pontos_vida && delta_outros > delta_barbaro) {
+        delta_pontos_vida = delta_outros;
+        atraso_s += 0.5f;
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), str_outros, atraso_s);
+      }
     }
 
     if (delta_pontos_vida != 0) {

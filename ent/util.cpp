@@ -13,6 +13,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include "ent/acoes.h"
 #include "ent/constantes.h"
@@ -1868,10 +1869,15 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     // tipo ataque fisico.
     if (primeiro->tipo_ataque_fisico().empty()) da->tipo_ataque_fisico();
     else *da->mutable_tipo_ataque_fisico() = primeiro->tipo_ataque_fisico();
+    // Alinhamento.
+    if (primeiro->has_alinhamento()) da->set_alinhamento(primeiro->alinhamento());
+    else da->clear_alinhamento();
   }
   // Descritores de ataque.
+
   da->clear_descritores_ataque();
   if (da->material_arma() != DESC_NENHUM) da->add_descritores_ataque(da->material_arma());
+  if (da->alinhamento() != DESC_NENHUM) da->add_descritores_ataque(da->alinhamento());
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
@@ -2097,6 +2103,15 @@ const EntidadeProto::DadosAtaque* DadosAtaque(const std::string& id_arma, const 
   return nullptr;
 }
 
+// Retorna os dado de ataque com o mesmo rotulo.
+std::vector<EntidadeProto::DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, EntidadeProto* proto) {
+  std::vector<EntidadeProto::DadosAtaque*> das;
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.rotulo() == rotulo) das.push_back(&da);
+  }
+  return das;
+}
+
 #if 0
 bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
   return std::any_of(proto.dados_ataque().begin(), proto.dados_ataque().end(), [&id_arma] (
@@ -2114,6 +2129,19 @@ void InsereInicio(T* e, google::protobuf::RepeatedPtrField<T>* rf) {
     rf->SwapElements(i, i-1);
   }
 }
+
+namespace {
+DescritorAtaque StringParaDescritorAlinhamento(const std::string& alinhamento_str) {
+  std::string normalizado = alinhamento_str;
+  std::transform(alinhamento_str.begin(), alinhamento_str.end(), normalizado.begin(), ::tolower);
+  if (normalizado == "bom" || normalizado == "bem") return DESC_BEM;
+  if (normalizado == "mal" || normalizado == "mau") return DESC_MAL;
+  if (normalizado == "caos") return DESC_CAOS;
+  if (normalizado == "lei" || normalizado == "leal") return DESC_LEAL;
+  return DESC_NENHUM;
+}
+
+}  // namespace
 
 void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
@@ -2166,6 +2194,28 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         InsereInicio(&da, proto->mutable_dados_ataque());
       }
     break;
+    case EFEITO_ABENCOAR_ARMA: {
+      if (evento.complementos_str().empty()) {
+        return;
+      }
+      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      for (auto* da : das) {
+        da->set_alinhamento(DESC_BEM);
+      }
+    }
+    break;
+    case EFEITO_ALINHAR_ARMA: {
+      if (evento.complementos_str().size() != 2) {
+        return;
+      }
+      DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
+      if (desc == DESC_NENHUM) return;
+      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      for (auto* da : das) {
+        da->set_alinhamento(desc);
+      }
+    }
+    break;
     default: ;
   }
 }
@@ -2189,6 +2239,16 @@ void AplicaFimPedraEncantada(unsigned int id_unico, EntidadeProto* proto) {
     }
   }
 }
+
+void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
+  // Encontra o dado de ataque.
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.rotulo() == rotulo) {
+      da.clear_alinhamento();
+    }
+  }
+}
+
 
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
@@ -2233,6 +2293,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     break;
     case EFEITO_PEDRA_ENCANTADA:
       AplicaFimPedraEncantada(evento.id_unico(), proto);
+    break;
+    case EFEITO_ABENCOAR_ARMA:
+    case EFEITO_ALINHAR_ARMA: {
+      if (evento.complementos_str().size() >= 1) {
+        AplicaFimAlinhamentoArma(evento.complementos_str(0), proto);
+      }
+    }
     break;
     default: ;
   }
@@ -3925,16 +3992,22 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
         return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
       }
     }
-    return std::make_tuple(delta_pv, "Redução de dano não aplicada"); 
+    return std::make_tuple(delta_pv, "Redução de dano não aplicada");
   } else {
     for (const auto& descritor : rd.descritores()) {
       if (std::any_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
-        return std::make_tuple(delta_pv, "Reducao de dano não aplicada"); 
+        return std::make_tuple(delta_pv, "Reducao de dano não aplicada");
       }
     }
     delta_pv += rd.valor();
     return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
   }
+}
+
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv, const EntidadeProto& proto) {
+  if (proto.dados_defesa().reducao_dano_barbaro() == 0) return std::make_tuple(delta_pv, "");
+  return std::make_tuple(std::min(0, delta_pv + proto.dados_defesa().reducao_dano_barbaro()),
+      google::protobuf::StringPrintf("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
 }
 
 }  // namespace ent
