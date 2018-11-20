@@ -1617,7 +1617,6 @@ void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& text
   AdicionaLogEvento(google::protobuf::StringPrintf(
           "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
 }
- 
 
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
@@ -6495,7 +6494,7 @@ void Tabuleiro::DesenhaLogEventos() {
 
   //MudaCor(COR_AMARELA);
   std::vector<std::string> lista;
-  for (const auto& log : log_eventos_) lista.push_back(log);
+  for (const auto& log : log_eventos_) lista.push_back(StringSemUtf8(log));
 
   DesenhaListaGenerica(0, kNumLinhas,
                        pagina_log_eventos_, StringSemUtf8("Log de Eventos Locais").c_str(), COR_AMARELA,
