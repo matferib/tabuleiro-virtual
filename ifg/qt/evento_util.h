@@ -14,11 +14,33 @@ namespace qt {
 
 namespace {
 
+bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
+  switch (evento.id_efeito()) {
+    case ent::EFEITO_VENENO:
+    case ent::EFEITO_ALINHAR_ARMA:
+    case ent::EFEITO_ABENCOAR_ARMA:
+      return true;
+    default: return false;
+  }
+}
+
 QString ComplementosParaString(const google::protobuf::RepeatedField<int>& complementos) {
   QString s;
   for (int c : complementos) {
     s.append(" ");
     s.append(QString::number(c));
+  }
+  if (!s.isEmpty()) {
+    s.remove(0, 1);
+  }
+  return s;
+}
+
+QString ComplementosStrParaString(const google::protobuf::RepeatedPtrField<std::string>& complementos_str) {
+  QString s;
+  for (const std::string& cs : complementos_str) {
+    s.append(";");
+    s.append(cs.c_str());
   }
   if (!s.isEmpty()) {
     s.remove(0, 1);
@@ -36,6 +58,16 @@ const google::protobuf::RepeatedField<int> StringParaComplementos(const QString&
   }
   return cs;
 }
+
+const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(const QString& complementos) {
+  google::protobuf::RepeatedPtrField<std::string> ss;
+  QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+  for (const auto& s : lista) {
+    *ss.Add() = s.toStdString();
+  }
+  return ss;
+}
+
 
 }  // namespace
 
@@ -116,7 +148,8 @@ class ModeloEvento : public QAbstractTableModel {
     switch (column) {
       case 0: 
         return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
-      case 1: return QVariant(ComplementosParaString(evento.complementos()));
+      case 1: return QVariant(ComplementoEventoString(evento) ?
+                  ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
     }
@@ -145,7 +178,11 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 1: {
-        *evento->mutable_complementos() = StringParaComplementos(value.toString());
+        if (ComplementoEventoString(*evento)) {
+          *evento->mutable_complementos_str() = StringParaComplementosStr(value.toString());
+        } else {
+          *evento->mutable_complementos() = StringParaComplementos(value.toString());
+        }
         emit dataChanged(index, index);
         return true;
       }
