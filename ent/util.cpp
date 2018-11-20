@@ -754,8 +754,8 @@ void PosicionaRaster2d(int x, int y) {
 }
 
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
-const std::string StringSemUtf8(const std::string& id_acao) {
-  std::string ret(id_acao);
+const std::string StringSemUtf8(const std::string& texto) {
+  std::string ret(texto);
   for (const auto& it_mapa : g_mapa_utf8) {
     auto it = ret.find(it_mapa.first);
     while (it != std::string::npos) {
@@ -3989,18 +3989,18 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
     for (const auto& descritor : rd.descritores()) {
       if (std::none_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
         delta_pv += dd.reducao_dano().valor();
-        return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
+        return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("redução de dano: %d", rd.valor()));
       }
     }
-    return std::make_tuple(delta_pv, "Redução de dano não aplicada");
+    return std::make_tuple(delta_pv, "redução de dano não aplicada");
   } else {
     for (const auto& descritor : rd.descritores()) {
       if (std::any_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
-        return std::make_tuple(delta_pv, "Reducao de dano não aplicada");
+        return std::make_tuple(delta_pv, "redução de dano não aplicada");
       }
     }
     delta_pv += rd.valor();
-    return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("Redução de dano: %d", rd.valor()));
+    return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("redução de dano: %d", rd.valor()));
   }
 }
 
@@ -4008,6 +4008,25 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv
   if (proto.dados_defesa().reducao_dano_barbaro() == 0) return std::make_tuple(delta_pv, "");
   return std::make_tuple(std::min(0, delta_pv + proto.dados_defesa().reducao_dano_barbaro()),
       google::protobuf::StringPrintf("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
+}
+
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
+  int delta_barbaro;
+  std::string texto_barbaro;
+  std::tie(delta_barbaro, texto_barbaro) = AlteraDeltaPontosVidaPorReducaoBarbaro(delta_pv, proto);
+  int delta_outros;
+  std::string texto_outros;
+  std::tie(delta_outros, texto_outros) = AlteraDeltaPontosVidaPorReducao(delta_pv, proto, descritores);
+  std::string texto_final;
+  if (delta_barbaro != delta_pv && delta_barbaro >= delta_outros) {
+    delta_pv = delta_barbaro;
+    texto_final = texto_barbaro;
+  } else if (delta_outros != delta_pv && delta_outros > delta_barbaro) {
+    delta_pv = delta_outros;
+    texto_final = texto_outros;
+  }
+  return std::make_tuple(delta_pv, texto_final);
 }
 
 }  // namespace ent

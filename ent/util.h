@@ -178,7 +178,8 @@ static inline std::string& trim(std::string& s) {
   return ltrim(rtrim(s));
 }
 
-const std::string StringSemUtf8(const std::string& id_acao);
+// Normaliza o texto passado, tirando sequencias UTF-8.
+const std::string StringSemUtf8(const std::string& texto);
 
 // Move o delta para uma entidade, garantindo que ela termine acima do solo.
 void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade);
@@ -578,12 +579,16 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaParaElemento(
     int delta_pv, const EntidadeProto& proto, int elementos);
 
 // Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 // Altera o delta_pv de acordo com reducoes de barbaro.
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(
     int delta_pv, const EntidadeProto& proto);
+
+// Altera o delta_pv de acordo com a melhor reducao de dano.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 // Return true se a acao ignora reducao de dano.
 inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
