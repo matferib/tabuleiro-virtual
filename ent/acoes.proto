@@ -149,6 +149,8 @@ message AcaoProto {
   optional bool ignora_resistencia_magia = 48;
   // Ataque elemental.
   optional DescritorAtaque elemento = 51;
+  // Descritores do ataque.
+  repeated DescritorAtaque descritores_ataque = 52;
 }
 
 // O arquivo de acoes é serializado desta forma.
