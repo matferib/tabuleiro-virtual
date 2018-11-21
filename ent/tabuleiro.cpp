@@ -6820,6 +6820,25 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Not
   }
 }
 
+void Tabuleiro::AtualizaResistenciasAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  const auto& resistencias = entidade.Proto().dados_defesa().resistencia_elementos();
+  if (resistencias.empty() || std::all_of(resistencias.begin(), resistencias.end(), [] (const ResistenciaElementos& r) { return r.contador_rodada() == 0; })) {
+    return;
+  }
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* resistencia_antes = proto_antes->mutable_dados_defesa()->mutable_resistencia_elementos();
+  auto* resistencia_depois = proto_depois->mutable_dados_defesa()->mutable_resistencia_elementos();
+  for (const auto& resistencia : resistencias) {
+    if (resistencia.contador_rodada() == 0) continue;
+    *resistencia_antes->Add() = resistencia;
+    auto* rd = resistencia_depois->Add();
+    *rd = resistencia;
+    rd->set_contador_rodada(0);
+  }
+}
+
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
@@ -6828,7 +6847,9 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
-    AtualizaEventosAoPassarRodada(*id_entidade.second.get(), &grupo_notificacoes);
+    const auto& entidade = *id_entidade.second.get();
+    AtualizaEventosAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaResistenciasAoPassarRodada(entidade, &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);

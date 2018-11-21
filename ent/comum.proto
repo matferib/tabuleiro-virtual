@@ -263,7 +263,8 @@ message ReducaoDano {
 message ResistenciaElementos {
   optional DescritorAtaque descritor = 1;
   optional int32 valor = 2;
-  // Quanto ja recebeu de dano do tipo na rodada.
+  // Quanto ja recebeu de dano do tipo na rodada. Como podem haver multiplas do mesmo tipo onde so a melhor se aplica,
+  // todas do mesmo tipo terao o mesmo valor.
   optional int32 contador_rodada = 3;
 }
 

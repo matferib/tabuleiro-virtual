@@ -928,7 +928,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.evento_size() > 0) {
     std::vector<int> a_remover;
     int i = 0;
-    for (auto& evento : *proto_.mutable_evento()) {
+    for (const auto& evento : proto_.evento()) {
       if (PossuiEventoEspecifico(proto_parcial, evento)) {
         a_remover.push_back(i);
       }
@@ -939,6 +939,21 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
       proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }
   }
+
+  // Se encontrar alguma resistencia que ja existe, remove pro MergeFromCorrigir.
+  if (!proto_parcial.dados_defesa().resistencia_elementos().empty()) {
+    std::vector<int> a_remover;
+    int i = 0;
+    for (const auto& resistencia : proto_.dados_defesa().resistencia_elementos()) {
+      if (PossuiResistenciaEspecifica(proto_parcial, resistencia)) a_remover.push_back(i);
+      ++i;
+    }
+    // Faz invertido para nao atrapalhar os indices.
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_.mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(*it, 1);
+    }
+  }
+
   if (proto_parcial.tesouro().pocoes_size() > 0) {
     proto_.mutable_tesouro()->clear_pocoes();
   }

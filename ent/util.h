@@ -337,9 +337,11 @@ bool ArmaDupla(const ArmaProto& arma);
 bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
-bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
-bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento);
+bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
+// Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
+bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -568,15 +570,25 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& 
 
 // Retorna true se a entidade for imune a todos os descritores do elemento.
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
-// Retorna a quantidade de resistencia a um determinado descritor de elemento. Se houver mais de uma resistencia do mesmo tipo, usa a maior.
-int EntidadeResistenciaElementos(const EntidadeProto& proto, int elemento);
+// Retorna a melhor resistencia da entidade contra o elemento ou nullptr se nao houver.
+const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);
 
-// Altera delta_pv de acordo com os elementos do ataque e de resistencias e imunidades de proto. Retorna o delta_pv alterado e os textos do que ocorreu.
-std::tuple<int, std::string> AlteraDeltaPontosVidaParaElemento(
-    int delta_pv, const EntidadeProto& proto, int elementos);
+enum alteracao_delta_e {
+  ALT_NENHUMA = 0,
+  ALT_IMUNIDADE = 1,
+  ALT_RESISTENCIA = 2,
+};
+struct ResultadoImunidadeOuResistencia {
+  int resistido = 0;  // nunca excedera o valor absoluto de delta_pv.
+  std::string texto;  // texto da alteracao.
+  alteracao_delta_e causa = ALT_NENHUMA;  // o que causou a alteracao (imunidade, resistencia, nenhum).
+  const ResistenciaElementos* resistencia = nullptr;  // qual resistencia barrou.
+};
+// Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, int elemento);
 
 // Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(

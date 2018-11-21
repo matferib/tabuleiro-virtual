@@ -82,6 +82,25 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
   return true;
 }
 
+void PreencheNotificacaoDanoElementalRodada(
+    const Entidade& entidade, const ResultadoImunidadeOuResistencia& resultado, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  auto* resistencia_depois = entidade_depois->mutable_dados_defesa()->add_resistencia_elementos();
+  *resistencia_depois = *resultado.resistencia;
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    *n_desfazer->mutable_entidade() = *entidade_depois;
+    auto* e_antes = n_desfazer->mutable_entidade_antes();
+    e_antes->set_id(entidade.Id());
+  }
+
+  resistencia_depois->set_contador_rodada(resistencia_depois->contador_rodada() + resultado.resistido);
+}
+
+
 // As funcoes Preenchem assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
 // n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubaOrigem(
@@ -902,7 +921,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!ha_valor) return atraso_s;
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  bool acertou_direto = acao_proto->has_delta_pontos_vida();
+  const bool acertou_direto = acao_proto->has_delta_pontos_vida();
   acao_proto->set_bem_sucedida(acertou_direto);
   acao_proto->set_atraso_s(atraso_s);
   // A acao individual incrementou o ataque.
@@ -955,11 +974,19 @@ float Tabuleiro::TrataAcaoProjetilArea(
     if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
       delta_pv = 0;
     } else {
-      std::string texto_imunidade;
-      std::tie(delta_pv, texto_imunidade) =
-          AlteraDeltaPontosVidaParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
-      if (!texto_imunidade.empty()) {
-        AdicionaAcaoTextoLogado(id, texto_imunidade, atraso_s + 0.5f);
+      ResultadoImunidadeOuResistencia resultado_elemento =
+          ImunidadeOuResistenciaParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
+      if (resultado_elemento.causa != ALT_NENHUMA) {
+        delta_pv += resultado_elemento.resistido;
+        atraso_s += 0.5f;
+        AdicionaAcaoTextoLogado(id, resultado_elemento.texto, atraso_s);
+        if (resultado_elemento.causa == ALT_RESISTENCIA) {
+          // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
+          std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
+          PreencheNotificacaoDanoElementalRodada(
+              *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
+        }
       }
     }
     auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
@@ -1019,26 +1046,30 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
-      atraso_s += 0.5f;
+      atraso_s += 1.5f;
       AdicionaAcaoTextoLogado(id, resultado_rm, atraso_s);
       delta_pv_pos_salvacao = 0;
     }
-    if (passou_rm) {
-      // Salvacao.
-      if (acao_proto->permite_salvacao()) {
-        std::string resultado_salvacao;
-        std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
-            AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-        atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(id, resultado_salvacao, atraso_s);
-      }
-      // Imunidade ao tipo de ataque.
-      std::string texto_imunidade;
-      std::tie(delta_pv_pos_salvacao, texto_imunidade) =
-          AlteraDeltaPontosVidaParaElemento(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->elemento());
-      if (!texto_imunidade.empty()) {
-        atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(id, texto_imunidade, atraso_s);
+    if (passou_rm && acao_proto->permite_salvacao()) {
+      std::string resultado_salvacao;
+      std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
+          AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      atraso_s += 1.5f;
+      AdicionaAcaoTextoLogado(id, resultado_salvacao, atraso_s);
+    }
+    // Imunidade ao tipo de ataque.
+    ResultadoImunidadeOuResistencia resultado_elemento =
+        ImunidadeOuResistenciaParaElemento(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->elemento());
+    if (resultado_elemento.causa != ALT_NENHUMA) {
+      delta_pv_pos_salvacao += resultado_elemento.resistido;
+      atraso_s += 1.5f;
+      AdicionaAcaoTextoLogado(id, resultado_elemento.texto, atraso_s);
+      if (resultado_elemento.causa == ALT_RESISTENCIA) {
+        // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
+        std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
+        PreencheNotificacaoDanoElementalRodada(
+            *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
+        central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
       }
     }
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
@@ -1052,6 +1083,12 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
   return atraso_s;
+}
+
+// Concatena s ao texto de acao_proto
+void ConcatenaString(const std::string& s, AcaoProto* acao_proto) {
+  if (acao_proto == nullptr) return;
+  acao_proto->set_texto(acao_proto->texto().empty() ? s : google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), s.c_str()));
 }
 
 float Tabuleiro::TrataAcaoIndividual(
@@ -1133,20 +1170,6 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
-    // Resistencias e reducoes.
-    std::string texto_imunidade;
-    std::tie(delta_pontos_vida, texto_imunidade) = AlteraDeltaPontosVidaParaElemento(delta_pontos_vida, entidade_destino->Proto(), da->elemento());
-    if (!texto_imunidade.empty()) {
-      atraso_s += 0.5f;
-      AdicionaAcaoTextoLogado(id_entidade_destino, texto_imunidade, acao_proto->duracao_s() + atraso_s);
-      if (delta_pontos_vida == 0) {
-        // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade/resistencia.
-        acao_proto->set_delta_pontos_vida(0);
-        *n->mutable_acao() = *acao_proto;
-        return atraso_s;
-      }
-    }
-
     std::string veneno_str;
     if (vezes > 0 && da != nullptr && da->has_veneno()) {
       if (entidade_destino->ImuneVeneno()) {
@@ -1184,33 +1207,33 @@ float Tabuleiro::TrataAcaoIndividual(
       entidade->ProximoAtaque();
     }
 
-    bool passou_rm = true;
     if (!acao_proto->ignora_resistencia_magia() &&
         entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
+      bool passou_rm;
       std::tie(passou_rm, resultado_rm) =
           AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
-      atraso_s += 0.5f + acao_proto->duracao_s();
-      AdicionaAcaoTextoLogado(entidade_destino->Id(), resultado_rm, atraso_s);
-      delta_pontos_vida = 0;
+      if (!passou_rm) {
+        atraso_s += 0.5f + acao_proto->duracao_s();
+        delta_pontos_vida = 0;
+        acao_proto->set_delta_pontos_vida(0);
+        acao_proto->set_gera_outras_acoes(true);  // para os textos.
+        ConcatenaString(resultado_rm, acao_proto);
+      }
     }
 
     std::string resultado_salvacao;
-    if (passou_rm && acao_proto->permite_salvacao()) {
+    if (delta_pontos_vida < 0 && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-      acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), resultado_salvacao.c_str()));
-      atraso_s += 0.5f;
+      ConcatenaString(resultado_salvacao, acao_proto);
       // Deixa o delta em aberto novamente para ser preenchido pelo valor de delta_pontos_vida.
       acao_proto->clear_delta_pontos_vida();
     }
-    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
-    bool nao_letal = da != nullptr && da->nao_letal();
-    acao_proto->set_nao_letal(nao_letal);
-    acao_proto->set_gera_outras_acoes(true);  // para os textos.
 
+    // Reducao de dano.
     std::string texto_reducao;
     if (delta_pontos_vida < 0 &&
         !IgnoraReducaoDano(*acao_proto) && entidade_destino != nullptr) {
@@ -1220,16 +1243,45 @@ float Tabuleiro::TrataAcaoIndividual(
       if (!texto_reducao.empty()) {
         acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), texto_reducao.c_str()));
       }
+      if (delta_pontos_vida == 0) {
+        // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
+        acao_proto->set_delta_pontos_vida(0);
+        acao_proto->set_gera_outras_acoes(true);  // para os textos.
+      }
     }
 
+    // Resistencias e imunidades.
+    ResultadoImunidadeOuResistencia resultado_elemento =
+        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, entidade_destino->Proto(), da->elemento());
+    if (resultado_elemento.causa != ALT_NENHUMA) {
+      delta_pontos_vida += resultado_elemento.resistido;
+      ConcatenaString(resultado_elemento.texto, acao_proto);
+      if (resultado_elemento.causa == ALT_RESISTENCIA) {
+        // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
+        std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
+        PreencheNotificacaoDanoElementalRodada(
+            *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
+        central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
+      }
+      if (delta_pontos_vida == 0) {
+        // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
+        acao_proto->set_delta_pontos_vida(0);
+        acao_proto->set_gera_outras_acoes(true);  // para os textos.
+      }
+    }
+
+    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
+    bool nao_letal = da != nullptr && da->nao_letal();
+    acao_proto->set_nao_letal(nao_letal);
+    acao_proto->set_gera_outras_acoes(true);  // para os textos.
+
     AdicionaLogEvento(google::protobuf::StringPrintf(
-          "entidade %s %s %d %s em entidade %s %s",
+          "entidade %s %s %d em entidade %s. Texto: '%s'",
           RotuloEntidade(entidade).c_str(),
           delta_pontos_vida <= 0 ? "causou dano" : "curou",
           std::abs(delta_pontos_vida),
-          texto_reducao.c_str(),
           RotuloEntidade(entidade_destino).c_str(),
-          resultado_salvacao.c_str()));
+          acao_proto->texto().c_str()));
     if (delta_pontos_vida != 0) {
       acao_proto->set_delta_pontos_vida(delta_pontos_vida);
       acao_proto->set_afeta_pontos_vida(true);

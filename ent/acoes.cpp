@@ -315,7 +315,7 @@ class AcaoDeltaPontosVida : public Acao {
     }
   }
 
-  constexpr static int DURACAO_MS = 3000;
+  constexpr static int DURACAO_MS = 4000;
   constexpr static float MAX_DELTA_Z = 2.0f;
 
   std::string string_delta_;
