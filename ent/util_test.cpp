@@ -706,7 +706,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -10);
   }
   {
@@ -718,7 +718,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -4) << msg;
   }
   {
@@ -731,7 +731,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -10) << msg;
   }
 }
@@ -750,7 +750,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -4) << msg;
   }
   {
@@ -765,7 +765,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -4) << msg;
   }
   {
@@ -781,7 +781,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -10) << msg;
   }
 }
@@ -799,7 +799,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -4) << msg;
   }
   {
@@ -814,7 +814,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -10) << msg;
   }
   {
@@ -829,7 +829,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     RecomputaDependencias(tabelas, &proto);
     int delta;
     std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto, descritores);
+    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(delta, -10) << msg;
   }
 }
@@ -851,7 +851,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -872,7 +872,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -4) << msg;
 }
 
@@ -895,7 +895,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -921,7 +921,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -948,7 +948,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -975,36 +975,72 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores_ataque());
   EXPECT_EQ(delta, -4) << msg;
 }
 
 
-#if 0
-TEST(TesteImunidades, TesteResistenciaDescritor) {
+TEST(TesteImunidades, TesteImunidadesNada) {
   Tabelas tabelas(nullptr);
-  {
-    EntidadeProto proto;
-    RecomputaDependencias(tabelas, &proto);
-    EXPECT_EQ(EntidadeResistenciaDescritor(proto, DESC_ACIDO), 0);
-  }
-  {
-    EntidadeProto proto;
-    {
-      auto* resistencias = proto.mutable_dados_defesa()->add_resistencias();
-      resistencias->set_valor(10);
-      resistencias->set_descritor(DESC_VENENO);
-    }
-    {
-      auto* resistencias = proto.mutable_dados_defesa()->add_resistencias();
-      resistencias->set_valor(5);
-      resistencias->set_descritor(DESC_ACIDO);
-    }
-    RecomputaDependencias(tabelas, &proto);
-    EXPECT_EQ(EntidadeResistenciaDescritor(proto, DESC_ACIDO), 5);
-  }
+  EntidadeProto proto;
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO).causa, ALT_NENHUMA);
 }
-#endif
+
+TEST(TesteImunidades, TesteImunidade) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
+  RecomputaDependencias(tabelas, &proto);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  EXPECT_EQ(resultado.causa, ALT_IMUNIDADE);
+  EXPECT_EQ(resultado.resistido, 10);
+}
+
+TEST(TesteImunidades, TesteResistencia) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
+  resistencia->set_valor(10);
+  resistencia->set_contador_rodada(4);
+  resistencia->set_descritor(DESC_ACIDO);
+  RecomputaDependencias(tabelas, &proto);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
+  EXPECT_EQ(resultado.resistido, 6);
+}
+
+TEST(TesteImunidades, TesteMultiplasResistencia) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
+  resistencia->set_valor(10);
+  resistencia->set_contador_rodada(4);
+  resistencia->set_descritor(DESC_ACIDO);
+  auto* resistencia2 = proto.mutable_dados_defesa()->add_resistencia_elementos();
+  resistencia2->set_valor(12);
+  resistencia2->set_contador_rodada(4);
+  resistencia2->set_descritor(DESC_ACIDO);
+
+  RecomputaDependencias(tabelas, &proto);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
+  EXPECT_EQ(resultado.resistido, 8);
+}
+
+TEST(TesteImunidades, TesteResistenciaNaoBate) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
+  resistencia->set_valor(10);
+  resistencia->set_contador_rodada(4);
+  resistencia->set_descritor(DESC_ACIDO);
+
+  RecomputaDependencias(tabelas, &proto);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_FOGO);
+  EXPECT_EQ(resultado.causa, ALT_NENHUMA);
+}
+
 
 }  // namespace ent.
 
