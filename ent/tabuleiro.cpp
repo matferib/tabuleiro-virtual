@@ -1646,8 +1646,9 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float
   }
 
   const auto& ap = acao.Proto();
+  // Por padrao, usa delta e pv da acao. Caso seja por entidade, substitui.
   int delta_pontos_vida = ap.delta_pontos_vida();
-  std::string texto;
+  std::string texto = ap.texto();
   for (const auto& delta_por_entidade : ap.delta_por_entidade()) {
     if (delta_por_entidade.id() == id_entidade) {
       delta_pontos_vida = delta_por_entidade.delta();
@@ -1658,7 +1659,7 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float
 
   // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
   AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta_pontos_vida, texto, atraso_s, /*local_apenas=*/true);
-  atraso_s += 4.0f;
+  atraso_s += 2.0f;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.

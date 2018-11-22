@@ -977,11 +977,16 @@ float Tabuleiro::TrataAcaoProjetilArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area em projetil de area";
       continue;
     }
-    if (id == id_entidade_destino && acertou_direto) continue;
+    if (id == id_entidade_destino && acertou_direto) {
+      continue;
+    }
 
     acao_proto->set_bem_sucedida(true);
     acao_proto->set_afeta_pontos_vida(true);
     acao_proto->add_id_entidade_destino(id);
+    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
+    delta_por_entidade->set_id(id);
+
     int delta_pv = -1;
     if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
       delta_pv = 0;
@@ -991,7 +996,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
       if (resultado_elemento.causa != ALT_NENHUMA) {
         delta_pv += resultado_elemento.resistido;
         atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(id, resultado_elemento.texto, atraso_s);
+        ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
+        AdicionaLogEvento(id, resultado_elemento.texto);
         if (resultado_elemento.causa == ALT_RESISTENCIA) {
           // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
           std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
@@ -1001,9 +1007,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
         }
       }
     }
-    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
-    delta_por_entidade->set_omite_texto(id != id_entidade_destino);
-    delta_por_entidade->set_id(id);
     delta_por_entidade->set_delta(delta_pv);
 
     // Para desfazer.
