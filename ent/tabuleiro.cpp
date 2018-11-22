@@ -1619,6 +1619,10 @@ void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& text
 }
 
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(id, delta, "", atraso_s, local_apenas);
+}
+
+void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
@@ -1626,6 +1630,9 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta,
   a->add_id_entidade_destino(id);
   a->set_afeta_pontos_vida(false);
   a->set_delta_pontos_vida(delta);
+  if (!texto.empty()) {
+    a->set_texto(texto);
+  }
   a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
@@ -1640,25 +1647,18 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float
 
   const auto& ap = acao.Proto();
   int delta_pontos_vida = ap.delta_pontos_vida();
-  bool omite_texto = false;
+  std::string texto;
   for (const auto& delta_por_entidade : ap.delta_por_entidade()) {
     if (delta_por_entidade.id() == id_entidade) {
       delta_pontos_vida = delta_por_entidade.delta();
-      omite_texto = delta_por_entidade.omite_texto();
+      texto = delta_por_entidade.texto();
       break;
     }
   }
 
-  // Texto da mensagem, envia apenas localmente para evitar duplicatas.
-  if (!acao.Proto().texto().empty() && !omite_texto) {
-    AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s, true  /*local apenas*/);
-    atraso_s += 0.75f;
-  }
-
-  // Aqui eh acao para display. Isso vai para todos, porque a acao enviada para clientes nao afeta pontos
-  // de vida.
-  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s, true);
-  atraso_s += 0.5f;
+  // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta_pontos_vida, texto, atraso_s, /*local_apenas=*/true);
+  atraso_s += 4.0f;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
@@ -5640,6 +5640,15 @@ void Tabuleiro::AdicionaLogEvento(const std::string& evento) {
   if (log_eventos_.size() > 30) {
     log_eventos_.pop_back();
   }
+}
+
+void Tabuleiro::AdicionaLogEvento(unsigned int id, const std::string& texto) {
+  if (texto.empty()) {
+    return;
+  }
+  auto* entidade_destino = BuscaEntidade(id);
+  AdicionaLogEvento(google::protobuf::StringPrintf(
+          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {

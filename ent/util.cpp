@@ -1246,15 +1246,15 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
-      descricao_resultado = google::protobuf::StringPrintf("salvou metade (manual), dano: %d", -delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/2: dano %d", -delta_pontos_vida);
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
-      descricao_resultado = google::protobuf::StringPrintf("salvou um quarto (manual), dano: %d", -delta_pontos_vida);
+      descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/4: dano %d", -delta_pontos_vida);
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
-      descricao_resultado = "salvou tudo (manual)";
+      descricao_resultado = "salvacao manual anulou";
     } else {
-      descricao_resultado = "Não salvou (manual)";
+      descricao_resultado = "salvacao manual falhou";
     }
   } else if (ap.has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
@@ -1274,17 +1274,19 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d >= %d, Salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+      descricao_resultado = google::protobuf::StringPrintf(
+          "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
       str_evasao = " (sem evasão aprimorada)";
       if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
-      descricao_resultado = google::protobuf::StringPrintf("%d%+d < %d, Nao salvou, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+      descricao_resultado = google::protobuf::StringPrintf(
+          "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
-    descricao_resultado = google::protobuf::StringPrintf("Acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
+    descricao_resultado = google::protobuf::StringPrintf("salvacao: acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, descricao_resultado);
 }
@@ -1292,17 +1294,17 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
-    return std::make_tuple(true, "sem RM");;
+    return std::make_tuple(true, "");;
   }
   const int d20 = RolaDado(20);
   const int nivel_conjurador = ea.NivelConjurador();
   const int total = d20 + nivel_conjurador;
 
   if (d20 + nivel_conjurador < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("não passou RM: (d20+nivel) %d < %d", total, rm));
+    return std::make_tuple(false, google::protobuf::StringPrintf("RM falhou: %d < %d", total, rm));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("Passou RM: (d20+nivel) %d >= %d", total, rm));
+      true, google::protobuf::StringPrintf("RM sucesso: %d >= %d", total, rm));
 }
 
 namespace {
@@ -3939,7 +3941,7 @@ bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   return std::any_of(dd.imunidades().begin(), dd.imunidades().end(), [elemento](int descritor_imunidade) { return elemento == descritor_imunidade; });
 }
 
-const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, int elemento) {
+const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento) {
   if (elemento == DESC_NENHUM) return nullptr;
   const ResistenciaElementos* maior_resistencia = nullptr;
   for (const auto& resistencia : proto.dados_defesa().resistencia_elementos()) {
@@ -3981,14 +3983,14 @@ const char* TextoDescritor(int descritor) {
   return "nenhum";
 }
 
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, int elemento) {
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento) {
   ResultadoImunidadeOuResistencia resultado;
   if (delta_pv >= 0 || elemento == DESC_NENHUM) {
     return resultado;
   }
   if (EntidadeImuneElemento(proto, elemento)) {
     resultado.resistido = std::abs(delta_pv);
-    resultado.texto = "Entidade imune ao tipo de ataque";
+    resultado.texto = google::protobuf::StringPrintf("imunidade: %s", TextoDescritor(elemento));
     resultado.causa = ALT_IMUNIDADE;
     return resultado;
   }
@@ -4000,7 +4002,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   resultado.causa = ALT_RESISTENCIA;
   const int valor_efetivo = resistencia->valor() - resistencia->contador_rodada();
   resultado.resistido = valor_efetivo > std::abs(delta_pv) ? std::abs(delta_pv) : valor_efetivo;
-  resultado.texto = google::protobuf::StringPrintf("resistencia a %s: %d", TextoDescritor(elemento), valor_efetivo);
+  resultado.texto = google::protobuf::StringPrintf("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
   resultado.resistencia = resistencia;
   return resultado;
 }
@@ -4019,11 +4021,11 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
         return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("redução de dano: %d", rd.valor()));
       }
     }
-    return std::make_tuple(delta_pv, "redução de dano não aplicada");
+    return std::make_tuple(delta_pv, "redução de dano: não aplicada");
   } else {
     for (const auto& descritor : rd.descritores()) {
       if (std::any_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
-        return std::make_tuple(delta_pv, "redução de dano não aplicada");
+        return std::make_tuple(delta_pv, "redução de dano: não aplicada");
       }
     }
     delta_pv += rd.valor();

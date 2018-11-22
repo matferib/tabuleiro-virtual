@@ -42,6 +42,18 @@ namespace ent {
 
 namespace {
 
+// Concatena 's' ao string alvo. Se o texto era vazio, passa a ser 's'. Caso contrario, adiciona '\n' seguido de 's'.
+void ConcatenaString(const std::string& s, std::string* alvo) {
+  if (alvo == nullptr) return;
+  if (alvo->empty()) *alvo = s;
+  else *alvo = google::protobuf::StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
+}
+
+void ConcatenaString(const std::string& s, AcaoProto* acao_proto) {
+  if (acao_proto == nullptr) return;
+  ConcatenaString(s, acao_proto->mutable_texto());
+}
+
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -1033,6 +1045,10 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     }
     if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
+      auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
+      delta_por_entidade->set_id(id);
+      delta_por_entidade->set_delta(0);
+      delta_por_entidade->set_texto("Imune ao ataque devido ao tipo");
       continue;
     }
 
@@ -1040,22 +1056,27 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (delta_pontos_vida == 0) {
       continue;
     }
+    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     int delta_pv_pos_salvacao = delta_pontos_vida;
     bool passou_rm = true;
     atraso_s += acao_proto->duracao_s();
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
-      atraso_s += 1.5f;
-      AdicionaAcaoTextoLogado(id, resultado_rm, atraso_s);
-      delta_pv_pos_salvacao = 0;
+      ConcatenaString(resultado_rm, delta_por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade->Id(), resultado_rm);
+      if (!passou_rm) {
+        delta_pv_pos_salvacao = 0;
+      }
     }
     if (passou_rm && acao_proto->permite_salvacao()) {
       std::string resultado_salvacao;
+      // pega o dano da acao.
       std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       atraso_s += 1.5f;
-      AdicionaAcaoTextoLogado(id, resultado_salvacao, atraso_s);
+      ConcatenaString(resultado_salvacao, delta_por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade->Id(), resultado_salvacao);
     }
     // Imunidade ao tipo de ataque.
     ResultadoImunidadeOuResistencia resultado_elemento =
@@ -1063,7 +1084,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
-      AdicionaAcaoTextoLogado(id, resultado_elemento.texto, atraso_s);
+      ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade->Id(), resultado_elemento.texto);
       if (resultado_elemento.causa == ALT_RESISTENCIA) {
         // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
         std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
@@ -1073,7 +1095,6 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       }
     }
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
-    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
     delta_por_entidade->set_id(id);
     delta_por_entidade->set_delta(delta_pv_pos_salvacao);
     // Notificacao de desfazer.
@@ -1083,12 +1104,6 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
   return atraso_s;
-}
-
-// Concatena s ao texto de acao_proto
-void ConcatenaString(const std::string& s, AcaoProto* acao_proto) {
-  if (acao_proto == nullptr) return;
-  acao_proto->set_texto(acao_proto->texto().empty() ? s : google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), s.c_str()));
 }
 
 float Tabuleiro::TrataAcaoIndividual(

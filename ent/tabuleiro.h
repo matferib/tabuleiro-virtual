@@ -420,6 +420,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona um evento ao log. */
   void AdicionaLogEvento(const std::string& evento);
+  /** Formata a entidade e concatena com texto antes de mandar pro log de eventos. */
+  void AdicionaLogEvento(unsigned int id, const std::string& texto);
 
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();
@@ -569,6 +571,7 @@ class Tabuleiro : public ntf::Receptor {
   void AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
   void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
+  void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
 
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);

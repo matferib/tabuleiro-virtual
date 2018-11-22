@@ -236,9 +236,8 @@ class AcaoDeltaPontosVida : public Acao {
     faltam_ms_ = 0;
     // Monta a string de delta.
     if (acao_proto_.has_delta_pontos_vida()) {
-      string_delta_ = "";
       if (acao_proto_.has_texto()) {
-        string_delta_ = acao_proto_.texto() + "\n";
+        string_texto_ = acao_proto_.texto();
       }
       int delta = abs(acao_proto_.delta_pontos_vida());
       if (!acao_proto_.has_delta_pontos_vida()) {
@@ -251,6 +250,7 @@ class AcaoDeltaPontosVida : public Acao {
         VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
         return;
       }
+      string_delta_ = "";
       if (delta == 0) {
         string_delta_ += "X";
       } else {
@@ -259,14 +259,14 @@ class AcaoDeltaPontosVida : public Acao {
         string_delta_ += delta_texto;
       }
     } else if (acao_proto_.has_texto()) {
-      string_delta_ = acao_proto_.texto();
+      string_texto_ = acao_proto_.texto();
     } else {
       faltam_ms_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida, proto nao tem delta nem texto.";
       return;
     }
-    VLOG(2) << "String delta: " << string_delta_;
-    faltam_ms_ = DURACAO_MS;
+    VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
+    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS + std::count(string_texto_.begin(), string_texto_.end(), '\n') * 2.0f;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -287,14 +287,24 @@ class AcaoDeltaPontosVida : public Acao {
       MudaCorAplicandoNevoa(COR_VERMELHA, pd);
     }
     DesenhaStringDelta();
+
+    if (!string_texto_.empty()) {
+      if (acao_proto_.has_cor()) {
+        const float cor[] = { acao_proto_.cor().r(), acao_proto_.cor().g(), acao_proto_.cor().b() };
+        MudaCorAplicandoNevoa(cor, pd);
+      } else {
+        MudaCorAplicandoNevoa(COR_BRANCA, pd);
+      }
+      DesenhaStringTexto();
+    }
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
-    if (faltam_ms_ == DURACAO_MS) {
+    if (faltam_ms_ == duracao_total_ms_) {
       // Primeiro frame. Apenas posiciona na posicao inicial. Importante pos UI para nao pular o efeito.
       --faltam_ms_;
     } else {
-      pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / DURACAO_MS);
+      pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
       faltam_ms_ -= intervalo_ms;
     }
     if (faltam_ms_ <= 0) {
@@ -315,10 +325,20 @@ class AcaoDeltaPontosVida : public Acao {
     }
   }
 
-  constexpr static int DURACAO_MS = 4000;
+  void DesenhaStringTexto() const {
+    gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+    gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
+    if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
+      gl::DesenhaString(StringSemUtf8(string_texto_));
+    }
+  }
+
+  constexpr static int DURACAO_BASICA_MS = 4000;
   constexpr static float MAX_DELTA_Z = 2.0f;
 
+  std::string string_texto_;
   std::string string_delta_;
+  int duracao_total_ms_ = 0;
   Posicao pos_;
   int faltam_ms_;
 };

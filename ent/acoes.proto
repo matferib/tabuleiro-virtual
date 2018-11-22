@@ -123,7 +123,8 @@ message AcaoProto {
   message DeltaPontosVidaPorEntidade {
     optional uint32 id = 1;
     optional int32 delta = 2;
-    optional bool omite_texto = 3;
+    optional bool omite_texto = 3 [deprecated=true];
+    optional string texto = 4;
   }
   repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
   // Indica ataque de toque.
