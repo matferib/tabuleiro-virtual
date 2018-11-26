@@ -44,6 +44,7 @@ tabela_armas {
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_holy_water.png'
       afeta_apenas: TIPO_MORTO_VIVO
+      afeta_apenas: TIPO_EXTRA_PLANAR  # TODO afetar apenas os maus.
     }
   }
   armas {

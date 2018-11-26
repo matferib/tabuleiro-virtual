@@ -116,6 +116,7 @@ enum TipoDnD {
   TIPO_ANIMAL = 3;
   TIPO_PLANTA = 4;
   TIPO_BESTA_MAGICA = 5; // d10 fortitude, reflexo, bba guerreiro, visao escuro 12q, visao na penumbra.
+  TIPO_EXTRA_PLANAR = 6;
   // TODO outros.
 }
 
