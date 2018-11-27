@@ -2018,6 +2018,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_ca_normal(CATotal(proto, permite_escudo));
   da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
   da->set_ca_toque(CAToque(proto));
+  if (da->has_acao()) {
+   LOG(INFO) << "da: " << da->DebugString();
+  }
 }
 
 // Aplica o maior contador a todas resistencias do mesmo tipo.
@@ -3246,6 +3249,18 @@ std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const Entidad
   return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
 }
 
+std::string StringDescritores(const google::protobuf::RepeatedField<int>& descritores) {
+  if (descritores.empty()) return "";
+  if (descritores.size() == 1) return google::protobuf::StringPrintf(" [%s] ", TextoDescritor(descritores.Get(0)));
+  std::string ret;
+  for (int descritor : descritores) {
+    ret += TextoDescritor(descritores.Get(descritor));
+    ret += ", ";
+  }
+  ret.resize(ret.size() - 2);
+  return google::protobuf::StringPrintf(" [%s] ", ret.c_str());
+}
+
 std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
   char string_rotulo[40] = { '\0' };
@@ -3267,11 +3282,14 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   std::string texto_municao;
   if (da.has_municao()) texto_municao = google::protobuf::StringPrintf(", municao: %d", da.municao());
 
+  std::string texto_elementos;
+  if (da.acao().has_elemento()) texto_elementos = google::protobuf::StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
+
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
-      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(), string_alcance,
-      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(), texto_municao.c_str(),
+      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
