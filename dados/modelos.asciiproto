@@ -382,7 +382,7 @@ modelo {
 modelo {
   id: 'Demônio Vrock'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
     modificador_iniciativa: 2
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -392,7 +392,7 @@ modelo {
 modelo {
   id: 'Demônio Bebilith'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
     modificador_iniciativa: 5
     rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
@@ -402,7 +402,7 @@ modelo {
 modelo {
   id: 'Demônio Babau'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
     modificador_iniciativa: 1
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -412,7 +412,7 @@ modelo {
 modelo {
   id: 'Demônio Dretch'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'ini 0\nat +4 dano 1d6+1\nreducao 5/ferro frio, resistencias, imunidades'
@@ -749,9 +749,8 @@ modelo {
     # Ou um, ou outro, por isso grupos diferentes.
     dados_ataque {
       grupo: 'raio' rotulo: 'raio_eletrico'
-      elemento: DESC_ELETRICIDADE
       tipo_ataque: 'Raio' dano: '2d6' alcance_m: 15
-      acao_fixa { cor { r: 0 b: 1 g: 0 } ignora_resistencia_magia: true consequencia: TC_NENHUMA }
+      acao_fixa { cor { r: 0 b: 1 g: 0 } ignora_resistencia_magia: true consequencia: TC_NENHUMA elemento: DESC_ELETRICIDADE }
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
@@ -1673,7 +1672,7 @@ modelo {
 modelo {
   id: 'Demônio Súcubo'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     tamanho: TM_MEDIO
@@ -1763,7 +1762,7 @@ modelo {
 modelo {
   id: 'Demônio Glabrezu'
   entidade {
-    tipo_dnd: TIPO_EXTRA_PLANAR_MAU
+    tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '12d8+120' modelo_3d { id: 'glabrezu' }
     tamanho: TM_ENORME
     info_classes {
