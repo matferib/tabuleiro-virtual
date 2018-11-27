@@ -1,3 +1,6 @@
+Agua benta dando dano de fogo (tirar o afeta apenas pra testar)
+Afeta Apenas nao funciona.
+
 Carregamento de armas.
 
 Esquiva automatica ao atacar: conferir e melhorar os logs.
