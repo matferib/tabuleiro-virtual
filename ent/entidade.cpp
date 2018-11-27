@@ -1007,6 +1007,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
+  if (proto_.dados_defesa().entidade_esquiva() == IdInvalido) {
+    proto_.mutable_dados_defesa()->clear_entidade_esquiva();
+  }
+
   if (zerar_agarrado_a) {
     proto_.clear_agarrado_a();
   }

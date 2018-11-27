@@ -1,6 +1,8 @@
-Terminar reducao dano. Refazer testes.
+Carregamento de armas.
 
-Resistencia a elementos: por rodada!
+Esquiva automatica ao atacar: conferir e melhorar os logs.
+
+Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 
 Dano secundario de fogo grego.
 
@@ -106,7 +108,6 @@ Arrumar a funcao MousePara3dParaleloZero para montar as matrizes baseado na came
 Versao 2.6.0
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
-- Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
 - Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.
 - Opcao de override de fixa. Ajuda na modelagem.

@@ -1107,7 +1107,7 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
     return std::make_tuple(-1, "falha critica", false);
   } else if ((d20 != 20 || agarrar) && total < ca_destino) {
     std::string texto = google::protobuf::StringPrintf(
-        "falhou: %d%+d%s%s= %d vs %d", d20, ataque_origem,
+        "falhou: %d%+d%s%s= %d < %d", d20, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, ca_destino);
     return std::make_tuple(0, texto, false);
   } else if (agarrar && total == ca_destino) {
@@ -1136,7 +1136,7 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
     std::string texto_falha_toque = google::protobuf::StringPrintf("Ataque de toque falhou: %s", texto_erro.c_str());
     return std::make_tuple(texto_falha_toque, false);
   }
-  std::string texto = google::protobuf::StringPrintf(", toque ok: %d%+d vs %d", d20_toque, ataque_toque, ca_destino_toque);
+  std::string texto = google::protobuf::StringPrintf(", toque ok: %d%+d < %d", d20_toque, ataque_toque, ca_destino_toque);
   return std::make_tuple(texto, true);
 }
 

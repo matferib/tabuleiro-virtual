@@ -138,7 +138,7 @@ message AcaoProto {
   // Indica dano nao letal.
   optional bool nao_letal = 40;
   // Algumas acoes afetam apenas alguns tipos de entidades.
-  optional TipoDnD afeta_apenas = 44;
+  repeated TipoDnD afeta_apenas = 44;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas

@@ -6849,6 +6849,24 @@ void Tabuleiro::AtualizaResistenciasAoPassarRodada(const Entidade& entidade, ntf
   }
 }
 
+void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  const auto& dd = entidade.Proto().dados_defesa();
+  if (!dd.has_entidade_esquiva()) return;
+  const auto* entidade_esquivada = BuscaEntidade(dd.entidade_esquiva());
+  // Todo verificar mesmo cenario?
+  // Entidade ainda viva, mantem.
+  if (entidade_esquivada != nullptr && !entidade_esquivada->Morta()) return;
+
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  proto_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
+  proto_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+}
+
+void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+}
+
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
@@ -6860,6 +6878,8 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     const auto& entidade = *id_entidade.second.get();
     AtualizaEventosAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaResistenciasAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);

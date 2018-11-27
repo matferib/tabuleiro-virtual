@@ -172,6 +172,20 @@ void PreencheNotificacaoDesagarrar(
   }
 }
 
+// Preenche uma notificacao de esquiva contra a entidade de id passado.
+void PreencheNotificacaoEsquiva(
+    unsigned int id_entidade_destino, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  proto_antes->mutable_dados_defesa()->set_entidade_esquiva(
+      entidade.Proto().dados_defesa().has_entidade_esquiva() ? entidade.Proto().dados_defesa().entidade_esquiva() : Entidade::IdInvalido);
+  proto_depois->mutable_dados_defesa()->set_entidade_esquiva(id_entidade_destino);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
@@ -916,6 +930,17 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
+namespace {
+// Passar para util e testar.
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
+  if (acao_proto.afeta_apenas().empty()) return true;
+  return std::any_of(acao_proto.afeta_apenas().begin(), acao_proto.afeta_apenas().end(), [&entidade] (const int tipo) {
+    return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
+  });
+}
+}  // namespace
+
+
 float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
     Entidade* entidade, AcaoProto* acao_proto,
@@ -988,7 +1013,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
     delta_por_entidade->set_id(id);
 
     int delta_pv = -1;
-    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       delta_pv = 0;
     } else {
       ResultadoImunidadeOuResistencia resultado_elemento =
@@ -1046,7 +1072,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
-    if (acao_proto->has_afeta_apenas() && !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
       auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
       delta_por_entidade->set_id(id);
@@ -1170,8 +1196,7 @@ float Tabuleiro::TrataAcaoIndividual(
       central_->AdicionaNotificacao(n_consumo.release());
     }
 
-    if (vezes > 0 && acao_proto->has_afeta_apenas() &&
-        !entidade_destino->TemTipoDnD(acao_proto->afeta_apenas())) {
+    if (vezes > 0 && !AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
       acao_proto->set_texto("Tipo de entidade imune ao ataque");
       acao_proto->set_delta_pontos_vida(0);
@@ -1337,6 +1362,26 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   }
   if (id_entidade_destino != Entidade::IdInvalido) {
     acao_proto.add_id_entidade_destino(id_entidade_destino);
+    // Esquiva.
+    if (PossuiTalento("esquiva", entidade->Proto())) {
+      const auto& dd = entidade->Proto().dados_defesa();
+      bool trocar = true;
+      if (dd.has_entidade_esquiva()) {
+        const auto* entidade_esquiva_corrente = BuscaEntidade(dd.entidade_esquiva());
+        if (entidade_esquiva_corrente != nullptr && !entidade_esquiva_corrente->Morta() &&
+            entidade_esquiva_corrente->IdCenario() == entidade->IdCenario()) {
+          trocar = false;
+        }
+      }
+
+      const auto* entidade_alvo = BuscaEntidade(id_entidade_destino);
+      if (trocar && entidade_alvo != nullptr && entidade_alvo->Tipo() == TE_ENTIDADE) {
+        ntf::Notificacao n;
+        PreencheNotificacaoEsquiva(id_entidade_destino, *entidade, &n, grupo_desfazer.add_notificacao());
+        AdicionaLogEvento(entidade->Id(), google::protobuf::StringPrintf("esquivando de %s", RotuloEntidade(entidade_alvo->Proto()).c_str()));
+        TrataNotificacao(n);
+      }
+    }
   }
   acao_proto.set_atraso_s(atraso_s);
   *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
