@@ -1,8 +1,9 @@
+#include <gtest/gtest.h>
+
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "gtest/gtest.h"
 #include "log/log.h"
 
 namespace ent {
@@ -1041,6 +1042,38 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   EXPECT_EQ(resultado.causa, ALT_NENHUMA);
 }
 
+TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+
+  AcaoProto acao;
+  acao.add_afeta_apenas(TIPO_MORTO_VIVO);
+
+  EXPECT_FALSE(AcaoAfetaAlvo(acao, *e));
+}
+
+TEST(TesteAfetaApenas, TesteAfetaApenasPositivo) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  proto.add_tipo_dnd(TIPO_MORTO_VIVO);
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+
+  AcaoProto acao;
+  acao.add_afeta_apenas(TIPO_MORTO_VIVO);
+
+  EXPECT_TRUE(AcaoAfetaAlvo(acao, *e));
+}
+
+TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+
+  AcaoProto acao;
+
+  EXPECT_TRUE(AcaoAfetaAlvo(acao, *e));
+}
 
 }  // namespace ent.
 

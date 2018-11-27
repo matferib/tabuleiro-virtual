@@ -427,7 +427,7 @@ std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::strin
 // e o tipo eh 'Feitico de Mago', retorna o info de feiticeiro.
 const InfoClasse& InfoClasseParaFeitico(
     const Tabelas& tabelas, const std::string& tipo_ataque, const EntidadeProto& proto);
-// Retorna o id para magia de uma classe. Por exemplo, feiticeiro usa mago. Note que ranger, druida, paladino 
+// Retorna o id para magia de uma classe. Por exemplo, feiticeiro usa mago. Note que ranger, druida, paladino
 // possuem sua propria lista de magias. Renomear para IdParaConjuracao?
 const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
@@ -604,6 +604,13 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
 
 // Return true se a acao ignora reducao de dano.
 inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
+
+// Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
+// alvos especificos, como agua benta, que afeta apenas mortos-vivos e
+// extraplanares.
+//
+// Caso a acao seja generica (nao tem afeta_apenas), retornara true.
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade);
 
 }  // namespace ent
 

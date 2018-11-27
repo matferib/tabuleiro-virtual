@@ -4058,4 +4058,11 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
   return std::make_tuple(delta_pv, texto_final);
 }
 
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
+  if (acao_proto.afeta_apenas().empty()) return true;
+  return std::any_of(acao_proto.afeta_apenas().begin(), acao_proto.afeta_apenas().end(), [&entidade] (const int tipo) {
+    return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
+  });
+}
+
 }  // namespace ent

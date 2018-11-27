@@ -930,17 +930,6 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
-namespace {
-// Passar para util e testar.
-bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
-  if (acao_proto.afeta_apenas().empty()) return true;
-  return std::any_of(acao_proto.afeta_apenas().begin(), acao_proto.afeta_apenas().end(), [&entidade] (const int tipo) {
-    return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
-  });
-}
-}  // namespace
-
-
 float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
     Entidade* entidade, AcaoProto* acao_proto,
