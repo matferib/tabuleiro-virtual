@@ -416,6 +416,22 @@ void Entidade::AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemen
   }
 }
 
+void Entidade::AtualizaLuzAcao(int intervalo_ms) {
+  auto& luz = vd_.luz_acao;
+  if (!luz.inicio.has_raio_m()) return;
+  if (luz.tempo_desde_inicio_ms > luz.duracao_ms) {
+    LOG(INFO) << "luz acao desligada";
+    luz.corrente.Clear();
+    luz.inicio.Clear();
+    return;
+  }
+  const float fator_decaimento = (luz.duracao_ms - luz.tempo_desde_inicio_ms) / static_cast<float>(luz.duracao_ms);
+  luz.corrente.mutable_cor()->set_r(luz.inicio.cor().r() * fator_decaimento);
+  luz.corrente.mutable_cor()->set_g(luz.inicio.cor().g() * fator_decaimento);
+  luz.corrente.mutable_cor()->set_b(luz.inicio.cor().b() * fator_decaimento);
+  luz.tempo_desde_inicio_ms += intervalo_ms;
+}
+
 void Entidade::AtualizaFumaca(int intervalo_ms) {
   auto& f = vd_.fumaca;
   f.duracao_ms -= intervalo_ms;
@@ -570,6 +586,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaLuzAcao(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
@@ -922,6 +939,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     auto& f = vd_.fumaca;
     f.duracao_ms = 0;
   }
+
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
   // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
@@ -1959,6 +1977,19 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 
 bool Entidade::ImuneVeneno() const {
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
+}
+
+bool Entidade::TemLuz() const {
+  return proto_.has_luz() || vd_.luz_acao.inicio.has_raio_m();
+}
+
+void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
+  auto& luz_acao = vd_.luz_acao;
+  luz_acao.duracao_ms = luz.duracao_ms();
+  luz_acao.tempo_desde_inicio_ms = 0;
+  luz_acao.inicio.set_raio_m(luz.raio_m());
+  *luz_acao.inicio.mutable_cor() = luz.cor();
+  LOG(INFO) << "Luz acao ligada";
 }
 
 }  // namespace ent

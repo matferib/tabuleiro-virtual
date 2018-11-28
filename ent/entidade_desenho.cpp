@@ -466,7 +466,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
-  if (!pd->iluminacao() || !proto_.has_luz()) {
+  if (!pd->iluminacao() || (!proto_.has_luz() && vd_.luz_acao.inicio.raio_m() <= 0)) {
     return;
   }
   if (!proto_.visivel() && !proto_.selecionavel_para_jogador() && !pd->modo_mestre()) {
@@ -500,14 +500,35 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // Objeto de luz. O quarto componente indica que a luz é posicional.
     // Se for 0, a luz é direcional e os componentes indicam sua direção.
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
-    ent::Cor cor = proto_.luz().cor();
-    if (!proto_.luz().has_cor()) {
+    ent::Cor cor;
+    if (proto_.luz().has_cor()) {
+      cor = proto_.luz().cor();
+    } else if (!vd_.luz_acao.inicio.has_raio_m()) {
+      // Luz ligada sem cor, usa branco.
       cor.set_r(1.0f);
       cor.set_g(1.0f);
       cor.set_b(1.0f);
       cor.set_a(1.0f);
+    } else {
+      cor.set_r(0);
+      cor.set_g(0);
+      cor.set_b(0);
     }
-    float raio = (proto_.luz().has_raio_m() ? proto_.luz().raio_m() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
+
+    if (vd_.luz_acao.inicio.has_raio_m()) {
+      CombinaCor(vd_.luz_acao.corrente.cor(), &cor);
+    }
+
+    // O raio usara o maior raio disponivel. Quando a luz nao tem raio, usa 6.0f como padrao.
+    float raio = 0.0f;
+    if (proto_.luz().has_raio_m()) {
+      raio = proto_.luz().raio_m();
+    } else if (vd_.luz_acao.inicio.raio_m() > raio) {
+      raio = vd_.luz_acao.inicio.raio_m();
+    }
+    if (raio == 0) raio = 6.0f;
+    raio += sinf(vd_.angulo_disco_luz_rad) * 0.02;
+
     float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
       raio *= 2.0;

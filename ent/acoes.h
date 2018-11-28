@@ -71,6 +71,8 @@ class Acao {
   // usando disco_alvo_rad_ para manter o estado.
   // Atualiza a direcao de queda do alvo.
   bool AtualizaAlvo(int intervalo_ms);
+  // Pode ser chamado para atualizar a origem de uma acao.
+  void AtualizaLuzOrigem(int intervalo_ms);
 
   // Funcoes auxiliares para atualizacao das direcoes. Baseado em dx_ e dy_.
   void AtualizaRotacaoZFonte(Entidade* entidade);

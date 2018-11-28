@@ -6073,7 +6073,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   std::vector<const Entidade*> entidades_com_luz;
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* e = it->second.get();
-    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->TemLuz()) {
       continue;
     }
     entidades_com_luz.push_back(e);

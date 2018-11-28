@@ -24,6 +24,7 @@ enum TipoConsequencia {
   TC_DESLOCA_ALVO      = 1;
   TC_INFLAMA_ALVO      = 2;
   TC_AGARRA_ALVO       = 3;
+  TC_ILUMINA_ALVO      = 4;
 }
 
 enum GeometriaAcao {
@@ -119,6 +120,8 @@ message AcaoProto {
   optional bool dois_lados = 30;
   // Consequencia da acao.
   optional TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
+  // Consequencia da acao na origem.
+  optional TipoConsequencia consequencia_origem = 53 [default=TC_NENHUMA];
   // Para acoes que afetam multiplos alvos.
   message DeltaPontosVidaPorEntidade {
     optional uint32 id = 1;
@@ -152,13 +155,7 @@ message AcaoProto {
   optional DescritorAtaque elemento = 51;
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque = 52;
-
-  // Iluminacao na origem para ataques que causam iluminacao em quem realizou, ao atacar.
-  optional IluminacaoPontual ilumina_origem = 53;
-  optional Velocidade decaimento_luz_origem = 54;
-  // Iluminacao do alvo durante impacto.
-  optional IluminacaoPontual ilumina_alvo = 55;
-  optional Velocidade decaimento_luz_alvo = 56;
+  optional IluminacaoPontual luz_origem = 54;
 }
 
 // O arquivo de acoes é serializado desta forma.

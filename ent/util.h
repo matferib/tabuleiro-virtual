@@ -67,6 +67,9 @@ void ClareiaCor(Cor* cor);
 void RealcaCor(Cor* cor);
 void RealcaCor(float* cor);
 
+/** Combina as duas cores, maximo 1 em cada componente. Nao usa alfa. */
+void CombinaCor(const Cor& cor_origem, Cor* cor_destino);
+
 // retorna true se o tipo da forma for 2d: circulo, retangulo, triangulo, livre.
 bool EhForma2d(int tipo_forma);
 

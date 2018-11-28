@@ -50,6 +50,11 @@ class Entidade {
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
   void Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer);
 
+  /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
+  bool TemLuz() const;
+  /** Liga a iluminacao por acao da entidade, tipo quando da um tiro. */
+  void AtivaLuzAcao(const IluminacaoPontual& luz);
+
   /** Destroi a entidade. */
   ~Entidade();
 
@@ -371,6 +376,15 @@ class Entidade {
     gl::VbosNaoGravados vbo;
   };
 
+  // Para luzes temporarias, como disparo de arma de fogo.
+  struct DadosLuzAcao {
+    int tempo_desde_inicio_ms = 0;
+    int duracao_ms = 0;
+    // Ativa se inicio.raio_m existir.
+    IluminacaoPontual inicio;
+    IluminacaoPontual corrente;  // funcao de luz inicio e duracao.
+  };
+
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
     VariaveisDerivadas() { }
@@ -398,6 +412,7 @@ class Entidade {
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
     DadosFumaca fumaca;
+    DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
@@ -441,6 +456,8 @@ class Entidade {
   void AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
+  /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaLuzAcao(int intervalo_ms);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);

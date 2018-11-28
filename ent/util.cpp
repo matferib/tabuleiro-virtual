@@ -207,6 +207,18 @@ void RealcaCor(Cor* cor) {
   cor->set_b(RealcaComponente(cor->b()));
 }
 
+namespace {
+float CombinaComponenteCor(float c1, float c2) {
+  return std::min(1.0f, c1 + c2);
+}
+}  // namespace
+
+void CombinaCor(const Cor& cor_origem, Cor* cor_destino) {
+  cor_destino->set_r(CombinaComponenteCor(cor_origem.r(), cor_destino->r()));
+  cor_destino->set_g(CombinaComponenteCor(cor_origem.g(), cor_destino->g()));
+  cor_destino->set_b(CombinaComponenteCor(cor_origem.b(), cor_destino->b()));
+}
+
 float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho) {
   return VetorParaRotacaoGraus(vetor.x(), vetor.y(), tamanho);
 }

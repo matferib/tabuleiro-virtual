@@ -176,6 +176,8 @@ message IluminacaoPontual {
   // Metros. Passar para quadrados.
   optional float raio_m = 2;
   optional float atenuacao = 3 [deprecated=true];
+  // Para luzes de acao.
+  optional float duracao_ms = 4;
 }
 
 message Nevoa {

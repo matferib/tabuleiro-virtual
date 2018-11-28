@@ -638,6 +638,7 @@ class AcaoProjetil : public Acao {
       AtualizaVoo(intervalo_ms);
       // Atualiza depois, para ter dx, e dy.
       AtualizaRotacaoZFonte(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
+      AtualizaLuzOrigem(intervalo_ms);
     } else if (estagio_ == VOO) {
       AtualizaVoo(intervalo_ms);
     } else if (estagio_ == ATINGIU_ALVO) {
@@ -1270,6 +1271,28 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     return true;
   }
   return false;
+}
+
+void Acao::AtualizaLuzOrigem(int intervalo_ms) {
+  if (acao_proto_.consequencia_origem() != TC_ILUMINA_ALVO) return;
+  Entidade* entidade_origem = nullptr;
+  if (!acao_proto_.has_id_entidade_origem() ||
+      (entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem())) == nullptr) {
+    VLOG(1) << "Luz origem nao sera ligada, origem não existe.";
+    return;
+  }
+  if (acao_proto_.has_luz_origem()) {
+    entidade_origem->AtivaLuzAcao(acao_proto_.luz_origem());
+  } else {
+    IluminacaoPontual luz;
+    auto* cor = luz.mutable_cor();
+    cor->set_r(1);
+    cor->set_g(1);
+    cor->set_b(1);
+    luz.set_raio_m(1.5f);
+    luz.set_duracao_ms(500);
+    entidade_origem->AtivaLuzAcao(luz);
+  }
 }
 
 // static
