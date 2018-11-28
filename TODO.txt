@@ -1,9 +1,4 @@
-Agua benta dando dano de fogo (tirar o afeta apenas pra testar)
-Afeta Apenas nao funciona.
-
 Carregamento de armas.
-
-Esquiva automatica ao atacar: conferir e melhorar os logs.
 
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 

@@ -5637,7 +5637,9 @@ void Tabuleiro::AdicionaLogEvento(const std::string& evento) {
   if (evento.empty()) {
     return;
   }
-  log_eventos_.push_front(evento);
+  std::string copia = evento;
+  std::replace(copia.begin(), copia.end(), '\n', ' ');
+  log_eventos_.push_front(copia);
   if (log_eventos_.size() > 30) {
     log_eventos_.pop_back();
   }
