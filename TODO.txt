@@ -1,3 +1,5 @@
+Acelerar: bonus nao esta saindo.
+
 Carregamento de armas.
 
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
@@ -12,8 +14,6 @@ Luz pontual esta estranha em objetos compostos (Ver sofa por exemplo).
 
 
 Feiticos: ao criar bola de fogo, relampago etc, o dano esta vindo vazio. E o descritor nao esta sendo aplicado. Ver RecomputaDependenciasArma em util.cpp.
-
-Modelar tipo de ataque, para imunidades: exemplo monstro imune a ataque de eletricidade.
 
 Veneno:
 - Aplicar bonus de salvacao contra veneno na funcao SalvacaoVeneno de entidade.
