@@ -1212,9 +1212,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     }
   }
 
-  // Imunidade.
-  if (EntidadeImuneElemento(ed.Proto(), da->elemento())) {
-    return std::make_tuple(0, "Defensor imune ao ataque", true);
+  // Imunidade: nao texta resistencia porque aqui eh so pra ver se acertou e como..
+  if (EntidadeImuneElemento(ed.Proto(), ap.elemento())) {
+    return std::make_tuple(0, google::protobuf::StringPrintf("Defensor imune %s", TextoDescritor(ap.elemento())), true);
   }
 
   // Se chegou aqui acertou.
@@ -1861,10 +1861,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
 
   if (da != primeiro && primeiro != nullptr) {
     // municao.
-    if (da->has_municao()) da->set_municao(primeiro->municao());
+    if (primeiro->has_municao()) da->set_municao(primeiro->municao());
     // Elemento.
-    if (primeiro->elemento() == DESC_NENHUM) da->clear_elemento();
-    else da->set_elemento(primeiro->elemento());
+    if (primeiro->has_acao()) *da->mutable_acao() = primeiro->acao();
     // material.
     if (primeiro->material_arma() == DESC_NENHUM) da->clear_material_arma();
     else da->set_material_arma(primeiro->material_arma());
@@ -1877,13 +1876,14 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
   // Descritores de ataque.
 
-  da->clear_descritores_ataque();
-  if (da->material_arma() != DESC_NENHUM) da->add_descritores_ataque(da->material_arma());
-  if (da->alinhamento() != DESC_NENHUM) da->add_descritores_ataque(da->alinhamento());
+  auto* acao = da->mutable_acao();
+  acao->clear_descritores_ataque();
+  if (da->material_arma() != DESC_NENHUM) acao->add_descritores_ataque(da->material_arma());
+  if (da->alinhamento() != DESC_NENHUM) acao->add_descritores_ataque(da->alinhamento());
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
-              google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores_ataque()));
+              google::protobuf::RepeatedFieldBackInserter(acao->mutable_descritores_ataque()));
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
@@ -3192,7 +3192,6 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   } else {
     da->clear_ataque_agarrar();
   }
-  if (da->acao().has_elemento()) da->set_elemento(da->acao().elemento());
 }
 
 std::string StringCritico(const EntidadeProto::DadosAtaque& da) {

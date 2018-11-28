@@ -1270,7 +1270,6 @@ float Tabuleiro::TrataAcaoIndividual(
     if (delta_pontos_vida < 0 &&
         !IgnoraReducaoDano(*acao_proto) && entidade_destino != nullptr) {
       google::protobuf::RepeatedField<int> descritores = acao_proto->descritores_ataque();
-      std::copy(da->descritores_ataque().begin(), da->descritores_ataque().end(), google::protobuf::RepeatedFieldBackInserter(&descritores));
       std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       if (!texto_reducao.empty()) {
         acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), texto_reducao.c_str()));
@@ -1284,7 +1283,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Resistencias e imunidades.
     ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, entidade_destino->Proto(), da->elemento());
+        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, entidade_destino->Proto(), acao_proto->elemento());
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pontos_vida += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, acao_proto);

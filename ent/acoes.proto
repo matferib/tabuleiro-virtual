@@ -150,7 +150,7 @@ message AcaoProto {
   optional bool ignora_resistencia_magia = 48;
   // Ataque elemental.
   optional DescritorAtaque elemento = 51;
-  // Descritores do ataque.
+  // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque = 52;
 
   // Iluminacao na origem para ataques que causam iluminacao em quem realizou, ao atacar.
