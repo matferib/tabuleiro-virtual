@@ -1147,9 +1147,9 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(texto_falha_alcance, realiza_acao, distancia_m) =
           VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
       if (!realiza_acao) {
-        AdicionaLogEvento(RotuloEntidade(entidade) + " " + texto_falha_alcance);
-        acao_proto->set_texto(texto_falha_alcance);
-        vezes = 0;
+        AdicionaAcaoTextoLogado(entidade->Id(), texto_falha_alcance);
+        acao_proto->set_bem_sucedida(false);
+        return atraso_s;
       }
     }
     std::string texto;
@@ -1159,7 +1159,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(vezes, texto, realiza_acao) =
           AtaqueVsDefesa(distancia_m, *acao_proto, *entidade, *entidade_destino, pos_alvo);
       VLOG(1) << "--------------------------";
-      AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + " " + texto);
+      AdicionaLogEvento(entidade->Id(), texto);
       acao_proto->set_texto(texto);
     }
 
@@ -1319,6 +1319,11 @@ float Tabuleiro::TrataAcaoIndividual(
       // Apenas para desfazer.
       PreencheNotificacaoAtualizaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+    }
+    if (entidade != nullptr && entidade_destino != nullptr &&
+        delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
+        PossuiTalento("trespassar", entidade->Proto())) {
+      AdicionaAcaoTexto(entidade->Id(), "trespassar");
     }
   }
 
