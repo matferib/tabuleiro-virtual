@@ -2018,9 +2018,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_ca_normal(CATotal(proto, permite_escudo));
   da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
   da->set_ca_toque(CAToque(proto));
-  if (da->has_acao()) {
-   LOG(INFO) << "da: " << da->DebugString();
-  }
 }
 
 // Aplica o maior contador a todas resistencias do mesmo tipo.
