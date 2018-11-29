@@ -1688,6 +1688,13 @@ int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   }
 }
 
+int Entidade::CAReflexos() const {
+  const auto& dd = proto_.dados_defesa();
+  int modificador_tamanho = BonusIndividualTotal(ent::TB_TAMANHO, dd.ca());
+  int modificador_destreza = proto_.surpreso() ? 0 : BonusIndividualTotal(ent::TB_ATRIBUTO, dd.ca());
+  return 10 + modificador_tamanho + modificador_destreza;
+}
+
 int Entidade::MargemCritico() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {

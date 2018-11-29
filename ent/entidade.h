@@ -253,6 +253,8 @@ class Entidade {
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
   int CA(const ent::Entidade& atacante, TipoCA tipo) const;
+  // Retorna 10 + modificador tamanho + destreza.
+  int CAReflexos() const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   void AtaqueAnterior() {
