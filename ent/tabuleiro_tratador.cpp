@@ -137,7 +137,7 @@ void PreencheNotificacaoRemoverUmReflexo(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   const auto& proto = entidade.Proto();
   const std::vector<const EntidadeProto::Evento*>& eventos = EventosTipo(EFEITO_REFLEXOS, proto);
-  if (eventos.empty()); return;
+  if (eventos.empty()) return;
   const EntidadeProto::Evento* maior_evento = nullptr;
   for (const auto* evento : eventos) {
     if (evento->complementos().empty() || evento->complementos(0) <= 0) continue;
@@ -151,9 +151,10 @@ void PreencheNotificacaoRemoverUmReflexo(
   std::tie(proto_antes, proto_depois) = PreencheNotificacaoEntidade(
       ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   *proto_antes->add_evento() = *maior_evento;
-  *proto_depois->add_evento() = *maior_evento;
-  proto_depois->mutable_evento(0)->mutable_complementos()->Set(0, maior_evento->complementos(0) - 1);
-
+  auto* evento_depois = proto_depois->add_evento();
+  *evento_depois = *maior_evento;
+  evento_depois->mutable_complementos()->Set(0, maior_evento->complementos(0) - 1);
+  
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
   }

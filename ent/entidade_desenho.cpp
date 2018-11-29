@@ -445,6 +445,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
         // So desenha translucido.
         return;
       }
+      if (efeito_proto.complementos().empty() || efeito_proto.complementos(0) <= 0) return;
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz;
       // TODO colocar o numero certo por complemento.
