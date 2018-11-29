@@ -1135,9 +1135,6 @@ float Tabuleiro::TrataAcaoIndividual(
   auto* nd = grupo_desfazer->add_notificacao();
   acao_proto->set_bem_sucedida(true);
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
-    // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
-    // -1 indica falha critica.
-    int vezes = 1;
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
     float distancia_m = 0.0f;
@@ -1152,8 +1149,11 @@ float Tabuleiro::TrataAcaoIndividual(
         return atraso_s;
       }
     }
+    // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
+    // -1 indica falha critica.
+    int vezes = 1;
     std::string texto;
-    if (vezes > 0 && modo_dano_automatico_ && acao_proto->permite_ataque_vs_defesa()) {
+    if (modo_dano_automatico_ && acao_proto->permite_ataque_vs_defesa()) {
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
       std::tie(vezes, texto, realiza_acao) =
