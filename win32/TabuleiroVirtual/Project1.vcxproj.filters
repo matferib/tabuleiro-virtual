@@ -188,6 +188,9 @@
     <ClCompile Include="..\..\ifg\qt\moc_pericias_util.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\moc_evento_util.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
