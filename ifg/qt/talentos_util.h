@@ -274,6 +274,7 @@ class ComplementoTalentoDelegate : public QItemDelegate {
     for (const auto& kv : mapa) {
       combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
     }
+    ExpandeComboBox(combo);
 
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {

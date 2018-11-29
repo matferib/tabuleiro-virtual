@@ -260,11 +260,14 @@ class TipoEfeitoDelegate : public QItemDelegate {
     std::map<std::string, int> efeitos_ordenados;
     for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
-      efeitos_ordenados.insert(std::make_pair(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)), tipo));
+      std::string efeito_str = ent::TipoEfeito_Name(ent::TipoEfeito(tipo));
+      if (efeito_str.find("EFEITO_") == 0) efeito_str = efeito_str.substr(7);
+      efeitos_ordenados.insert(std::make_pair(efeito_str, tipo));
     }
     for (const auto& par_str_id : efeitos_ordenados) {
       combo->addItem(par_str_id.first.c_str(), QVariant(par_str_id.second));
     }
+    ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
       auto* thiz = const_cast<TipoEfeitoDelegate*>(this);

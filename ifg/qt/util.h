@@ -188,4 +188,13 @@ const QColor ProtoParaCor(const ent::Cor& cor);
 /** Funcao faltante para QComboBox. */
 inline QVariant CurrentData(QComboBox* combo) { return combo->itemData(combo->currentIndex()); }
 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
+// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
+// Solucao: https://stackoverflow.com/questions/3151798/how-do-i-set-the-qcombobox-width-to-fit-the-largest-item
+inline void ExpandeComboBox(QComboBox* combo) { 
+#if WIN32 || __APPLE__
+  combo->view()->setMinimumWidth(combo->minimumSizeHint().width());
+#endif
+}
+
 #endif  // IFG_QT_UTIL_H
