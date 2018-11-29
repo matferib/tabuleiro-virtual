@@ -12,6 +12,11 @@
 #include "ent/entidade.pb.h"
 #include "log/log.h"
 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
+// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
+// Solucao: https://stackoverflow.com/questions/3151798/how-do-i-set-the-qcombobox-width-to-fit-the-largest-item
+void ExpandeComboBox(QComboBox* combo); 
+
 
 // Objeto para tratar mudancas de combo.
 class ComboBoxHelper : public QObject {
@@ -160,6 +165,7 @@ class MapaDelegate : public QItemDelegate {
     for (const auto& kv : mapa_) {
       combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
     }
+    ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
       auto* thiz = const_cast<MapaDelegate*>(this);
@@ -187,10 +193,5 @@ const QColor ProtoParaCor(const ent::Cor& cor);
 
 /** Funcao faltante para QComboBox. */
 inline QVariant CurrentData(QComboBox* combo) { return combo->itemData(combo->currentIndex()); }
-
-// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
-// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
-// Solucao: https://stackoverflow.com/questions/3151798/how-do-i-set-the-qcombobox-width-to-fit-the-largest-item
-void ExpandeComboBox(QComboBox* combo); 
 
 #endif  // IFG_QT_UTIL_H
