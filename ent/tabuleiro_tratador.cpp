@@ -42,6 +42,8 @@ namespace ent {
 
 namespace {
 
+using google::protobuf::StringPrintf;
+
 // Concatena 's' ao string alvo. Se o texto era vazio, passa a ser 's'. Caso contrario, adiciona '\n' seguido de 's'.
 void ConcatenaString(const std::string& s, std::string* alvo) {
   if (alvo == nullptr) return;
@@ -131,6 +133,32 @@ void PreencheNotificacaoDerrubaOrigem(
   }
 }
 
+void PreencheNotificacaoRemoverUmReflexo(
+    const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  const auto& proto = entidade.Proto();
+  const std::vector<const EntidadeProto::Evento*>& eventos = EventosTipo(EFEITO_REFLEXOS, proto);
+  if (eventos.empty()); return;
+  const EntidadeProto::Evento* maior_evento = nullptr;
+  for (const auto* evento : eventos) {
+    if (evento->complementos().empty() || evento->complementos(0) <= 0) continue;
+    if (maior_evento == nullptr || evento->complementos(0) > maior_evento->complementos(0)) {
+      maior_evento = evento;
+    }
+  }
+  if (maior_evento == nullptr) return;
+
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = PreencheNotificacaoEntidade(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *proto_antes->add_evento() = *maior_evento;
+  *proto_depois->add_evento() = *maior_evento;
+  proto_depois->mutable_evento(0)->mutable_complementos()->Set(0, maior_evento->complementos(0) - 1);
+
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
 void PreencheNotificacaoAgarrar(
     unsigned int id, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
@@ -175,9 +203,8 @@ void PreencheNotificacaoDesagarrar(
 // Preenche uma notificacao de esquiva contra a entidade de id passado.
 void PreencheNotificacaoEsquiva(
     unsigned int id_entidade_destino, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  std::tie(proto_antes, proto_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   proto_antes->mutable_dados_defesa()->set_entidade_esquiva(
       entidade.Proto().dados_defesa().has_entidade_esquiva() ? entidade.Proto().dados_defesa().entidade_esquiva() : Entidade::IdInvalido);
   proto_depois->mutable_dados_defesa()->set_entidade_esquiva(id_entidade_destino);
@@ -1151,29 +1178,24 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
     // -1 indica falha critica.
-    int vezes = 1;
-    std::string texto;
+    ResultadoAtaqueVsDefesa resultado;
     if (modo_dano_automatico_ && acao_proto->permite_ataque_vs_defesa()) {
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
-      std::tie(vezes, texto, realiza_acao) =
+      resultado =
           AtaqueVsDefesa(distancia_m, *acao_proto, *entidade, *entidade_destino, pos_alvo);
       VLOG(1) << "--------------------------";
-      AdicionaLogEvento(entidade->Id(), texto);
-      acao_proto->set_texto(texto);
+      AdicionaLogEvento(entidade->Id(), resultado.texto);
+      acao_proto->set_texto(resultado.texto);
     }
 
     int delta_pontos_vida = 0;
-    acao_proto->set_bem_sucedida(vezes >= 1);
-    if (vezes < 0 || !realiza_acao) {
-      if (vezes < 0) {
+    acao_proto->set_bem_sucedida(resultado.Sucesso());
+    if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
+      if (resultado.resultado == RA_FALHA_CRITICA) {
         PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
       }
-      AdicionaAcaoTexto(entidade->Id(), acao_proto->texto(), 0);
-      if (realiza_acao) {
-        VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
-        *n->mutable_acao() = *acao_proto;
-      }
+      AdicionaAcaoTexto(entidade->Id(), acao_proto->texto(), atraso_s);
       return atraso_s;
     }
 
@@ -1185,7 +1207,17 @@ float Tabuleiro::TrataAcaoIndividual(
       central_->AdicionaNotificacao(n_consumo.release());
     }
 
-    if (vezes > 0 && !AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+    if (resultado.resultado == RA_FALHA_REFLEXO && entidade_destino != nullptr) {
+      // acao atingiu reflexo.
+      std::unique_ptr<ntf::Notificacao> n_ref(new ntf::Notificacao);
+      PreencheNotificacaoRemoverUmReflexo(*entidade_destino, n_ref.get(), nd);
+      central_->AdicionaNotificacao(n_ref.release());
+      AdicionaAcaoTextoLogado(entidade->Id(), acao_proto->texto(), atraso_s);
+      *n->mutable_acao() = *acao_proto;
+      return atraso_s;
+    }
+
+    if (resultado.Sucesso() && !AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
       acao_proto->set_texto("Tipo de entidade imune ao ataque");
       acao_proto->set_delta_pontos_vida(0);
@@ -1193,17 +1225,17 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
-    // Aplica dano e critico.
-    for (int i = 0; i < vezes; ++i) {
-      delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
-    }
-    if (vezes > 0) {
+    // Aplica dano e critico, furtivo.
+    if (resultado.Sucesso()) {
+      for (int i = 0; i < resultado.vezes; ++i) {
+        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+      }
       delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     std::string veneno_str;
-    if (vezes > 0 && da != nullptr && da->has_veneno()) {
+    if (resultado.Sucesso() && da != nullptr && da->has_veneno()) {
       if (entidade_destino->ImuneVeneno()) {
         veneno_str = "Imune a veneno";
       } else {
@@ -1216,10 +1248,10 @@ float Tabuleiro::TrataAcaoIndividual(
         int total = d20 + bonus;
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
-          veneno_str = google::protobuf::StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+          veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
           PreencheNotificacaoEventoParaVenenoPrimario(*entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno.get(), nullptr);
         } else {
-          veneno_str = google::protobuf::StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+          veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
         // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
         // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
@@ -2413,18 +2445,14 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
       auto* ealvo = BuscaEntidade(id_alvo);
       if (ealvo == nullptr) continue;
       if (modo_dano_automatico_) {
-        int vezes;
-        std::string texto;
-        bool realiza_acao;
+        ResultadoAtaqueVsDefesa resultado;
         AcaoProto acao_proto;
         acao_proto.set_id("Agarrar");
         acao_proto.set_tipo(ACAO_AGARRAR);
-        std::tie(vezes, texto, realiza_acao) =
-            AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, e->DadoAgarrar(), *ealvo, ealvo->Pos());
-        AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(e) + " " + texto);
-        texto = "desagarrar: " + texto;
-        AdicionaAcaoTexto(e->Id(), texto, 0.0f  /*atraso*/);
-        if (vezes < 1) continue;
+        resultado = AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, e->DadoAgarrar(), *ealvo, ealvo->Pos());
+        resultado.texto = "desagarrar: " + resultado.texto;
+        AdicionaAcaoTextoLogado(e->Id(), resultado.texto, 0.0f  /*atraso*/);
+        if (!resultado.Sucesso()) continue;
       }
       PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
       PreencheNotificacaoDesagarrar(e->Id(), *ealvo, grupo->add_notificacao(), grupo_desfazer.add_notificacao());

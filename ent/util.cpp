@@ -30,6 +30,8 @@
 namespace ent {
 
 namespace {
+using google::protobuf::StringPrintf;
+
 const std::map<std::string, std::string> g_mapa_utf8 = {
     { "á", "a" },
     { "ã", "a" },
@@ -1152,32 +1154,38 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   return std::make_tuple(texto, true);
 }
 
-std::tuple<std::string, bool> AtaqueToqueReflexos(int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+enum resultado_ataque_reflexos {
+  RAR_ACERTOU = 0,
+  RAR_FALHA_NORMAL = 1,
+  RAR_FALHA_CRITICA = 2,
+};
+std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
+    int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   const int d20 = RolaDado(20);
+  if (d20 == 1) {
+    return std::make_tuple("falha crítica", RAR_FALHA_CRITICA);
+  }
   const int ca_reflexo = ed.CAReflexos();
   const int ataque = ea.BonusAtaque();
   std::string texto_erro;
   bool acertou;
   std::tie(std::ignore, texto_erro, acertou) =
       ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, ca_reflexo, false, ea.Proto(), ed.Proto());
-  return std::make_tuple(acertou ? "acertou reflexo" : "errou reflexo", acertou);
+  return std::make_tuple(
+    acertou ? "acertou reflexo" : "errou reflexo", 
+    acertou ? RAR_ACERTOU : RAR_FALHA_NORMAL);
 }
-
 
 }  // namespace
 
-// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
-// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
-// Caso haja falha critica, retorna vezes = -1;
-// Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
 }
 
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo) {
   const int ataque_origem = ea.BonusAtaque();
@@ -1187,27 +1195,39 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
 
   const int ca_destino = da->ataque_agarrar() ? d20_agarrar_defesa + bonus_agarrar_defesa : ed.CA(ea, CATipoAtaque(*da));
 
+  ResultadoAtaqueVsDefesa resultado;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
             << ", defesa: " << ca_destino;
-    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
+    resultado.texto = "Ataque sem bonus ou defensor sem armadura";
+    return resultado; 
   }
   if (EmDefesaTotal(ea.Proto())) {
     VLOG(1) << "Ignorando ataque vs defesa por causa de defesa total.";
-    return std::make_tuple(0, "Atacante em defesa total", true);
+    resultado.texto = "Atacante em defesa total";
+    return resultado; 
   }
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
   const int numero_reflexos = NumeroReflexos(ed.Proto());
   if (numero_reflexos > 0) {
-    if (RolaDado(numero_reflexos + 1) != 1) {
-      VLOG(1) << "Ataque acertou reflexo";
+    int num_total = numero_reflexos + 1;
+    int dref = RolaDado(num_total);
+    VLOG(1) << StringPrintf("dado ref: %d em d%d", dref, num_total);
+    if (dref != 1) {
+      VLOG(1) << "Ataque no reflexo";
       // Ataque no reflexo.
-      bool acertou;
-      std::string texto_reflexos;
-      std::tie(texto_reflexos, acertou) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
-      return std::make_tuple(0, texto_reflexos, true);
+      resultado_ataque_reflexos rar;
+      std::string texto_reflexo;
+      std::tie(texto_reflexo, rar) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
+      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo, dref, num_total);
+      if (rar == RAR_ACERTOU) {
+        resultado.resultado = RA_FALHA_REFLEXO;
+      } else {
+        resultado.resultado = (rar == RAR_FALHA_CRITICA) ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+      }
+      return resultado; 
     }
     VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
   }
@@ -1218,7 +1238,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
     bool acertou;
     std::tie(texto_toque_agarrar, acertou) = AtaqueToquePreAgarrar(outros_modificadores, da, ea, ed);
     if (!acertou) {
-      return std::make_tuple(0, texto_toque_agarrar, true);
+      resultado.resultado = RA_FALHA_TOQUE_AGARRAR;
+      resultado.texto = texto_toque_agarrar;
+      return resultado;
     }
   }
 
@@ -1228,50 +1250,52 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
   // Acerto ou erro.
   int total;
   {
-    std::string texto_erro;
     bool acertou;
-    std::tie(total, texto_erro, acertou) =
+    std::tie(total, resultado.texto, acertou) =
         ComputaAcertoOuErro(
             d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
             ea.Proto(), ed.Proto());
     if (!acertou) {
-      return std::make_tuple(total, texto_erro, total == -1 ? false : true);
+      resultado.resultado = total == -1 ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+      return resultado; 
     }
   }
 
   // Chance de falha.
   {
     bool passou_falha;
-    std::string texto_falha;
-    std::tie(texto_falha, passou_falha) = AtaqueVsChanceFalha(ea, ed);
+    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(ea, ed);
     if (!passou_falha) {
-      return std::make_tuple(0, texto_falha, true);
+      resultado.resultado = RA_FALHA_CHANCE_FALHA;
+      return resultado; 
     }
   }
 
   // Imunidade: nao texta resistencia porque aqui eh so pra ver se acertou e como..
   if (EntidadeImuneElemento(ed.Proto(), ap.elemento())) {
-    return std::make_tuple(0, google::protobuf::StringPrintf("Defensor imune %s", TextoDescritor(ap.elemento())), true);
+    resultado.resultado = RA_FALHA_IMUNE;
+    resultado.texto = StringPrintf("defensor imune a %s", TextoDescritor(ap.elemento()));
+    return resultado; 
   }
 
   // Se chegou aqui acertou.
-  int vezes;
+  resultado.resultado = RA_SUCESSO;
   std::string texto_critico;
-  std::tie(vezes, texto_critico) =
+  std::tie(resultado.vezes, texto_critico) =
     ComputaCritico(
         d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
         da, ea, ed);
 
   const std::string str_ca_destino = da->ataque_agarrar()
-      ? google::protobuf::StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
-      : google::protobuf::StringPrintf("%d", ca_destino);
+      ? StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
+      : StringPrintf("%d", ca_destino);
 
-  std::string texto =
-      google::protobuf::StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
+  resultado.texto =
+      StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
            d20, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
            texto_critico.c_str(), str_ca_destino.c_str(), TextoOuNada(texto_toque_agarrar).c_str());
-  VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
-  return std::make_tuple(vezes, texto, true);
+  VLOG(1) << "Resultado ataque vs defesa: " << resultado.texto << ", vezes: " << resultado.vezes;
+  return resultado; 
 }
 
 // Retorna o delta pontos de vida e a string do resultado.
@@ -3125,6 +3149,14 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
   return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
   });
+}
+
+std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& entidade) {
+  std::vector<const EntidadeProto::Evento*> eventos;
+  for (const auto& evento : entidade.evento()) {
+    if (evento.id_efeito() == tipo) eventos.push_back(&evento);
+  }
+  return eventos;
 }
 
 namespace {

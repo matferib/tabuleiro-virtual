@@ -225,13 +225,30 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status.
 int ModificadorDano(const EntidadeProto& ea);
 
+enum resultado_ataque_e {
+  RA_SEM_ACAO = 0,            // acao nao realizada por algum problema com ataque.
+  RA_SUCESSO = 1,             // sucesso normal, ver vezes para saber se eh critico.
+  RA_FALHA_CRITICA = 3,       // falha critica.
+  RA_FALHA_REFLEXO = 4,       // falhou porque acertou reflexo.
+  RA_FALHA_NORMAL = 5,        // falha normal.
+  RA_FALHA_TOQUE_AGARRAR = 6, // falha normal.
+  RA_FALHA_CHANCE_FALHA = 7,  // falha por chance de falha.
+  RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
+};
+struct ResultadoAtaqueVsDefesa {
+  resultado_ataque_e resultado = RA_SEM_ACAO;
+  int vezes = 0;  // para sucesso critico.
+  std::string texto;
+
+  bool Sucesso() const { return resultado == RA_SUCESSO; } 
+};
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo);
 
@@ -345,6 +362,9 @@ bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
 // Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
 bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
+
+// Retorna os eventos do tipo passado.
+std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
