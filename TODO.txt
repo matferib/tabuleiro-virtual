@@ -1,9 +1,8 @@
 Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
-Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
+UI para Ataque poderoso.
 Recarregamento de armas.
 Fazer sucubo 3d.
 Fazer outros demonios.
-UI para Ataque poderoso.
 
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 
