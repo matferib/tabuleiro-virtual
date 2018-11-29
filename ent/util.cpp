@@ -2308,6 +2308,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->set_visivel(true);
     break;
     case EFEITO_COMPETENCIA_PERICIA: {
+      if (evento.complementos_str().empty()) return;
       // Encontra a pericia do efeito.
       auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
       Bonus bonus;
