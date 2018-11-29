@@ -1419,6 +1419,14 @@ void PreencheConfiguraDadosDefesa(
 void ConfiguraComboArma(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto* combo_arma = gerador.combo_arma;
+  std::string maior_string;
+  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
+    if (arma.nome().length() > maior_string.length()) maior_string = arma.nome();
+  }
+  gerador.combo_arma->addItem(QString::fromUtf8(maior_string.c_str()), QVariant(""));
+  ExpandeComboBox(gerador.combo_arma);
+  gerador.combo_arma->clear();
+
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
@@ -1436,7 +1444,6 @@ void ConfiguraComboArma(
     gerador.combo_material_arma->setEnabled(id_arma != "nenhuma");
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
-  ExpandeComboBox(combo_arma);
 }
 
 ent::DescritorAtaque IndiceParaMaterialArma(int indice) {
