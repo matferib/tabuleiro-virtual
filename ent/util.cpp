@@ -1152,6 +1152,18 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   return std::make_tuple(texto, true);
 }
 
+std::tuple<std::string, bool> AtaqueToqueReflexos(int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+  const int d20 = RolaDado(20);
+  const int ca_reflexo = ed.CAReflexos();
+  const int ataque = ea.BonusAtaque();
+  std::string texto_erro;
+  bool acertou;
+  std::tie(std::ignore, texto_erro, acertou) =
+      ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, ca_reflexo, false, ea.Proto(), ed.Proto());
+  return std::make_tuple(acertou ? "acertou reflexo" : "errou reflexo", acertou);
+}
+
+
 }  // namespace
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
@@ -1186,6 +1198,19 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(
   }
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
+
+  const int numero_reflexos = NumeroReflexos(ed.Proto());
+  if (numero_reflexos > 0) {
+    if (RolaDado(numero_reflexos + 1) != 1) {
+      VLOG(1) << "Ataque acertou reflexo";
+      // Ataque no reflexo.
+      bool acertou;
+      std::string texto_reflexos;
+      std::tie(texto_reflexos, acertou) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
+      return std::make_tuple(0, texto_reflexos, true);
+    }
+    VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
+  }
 
   // Realiza um ataque de toque.
   std::string texto_toque_agarrar;
@@ -2179,6 +2204,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       proto->set_visivel(false);
       break;
     case EFEITO_COMPETENCIA_PERICIA: {
+      if (evento.complementos_str().empty()) return;
       // Encontra a pericia do efeito.
       auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
       Bonus bonus;
@@ -2222,9 +2248,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
-      if (evento.complementos_str().empty()) {
-        return;
-      }
+      if (evento.complementos_str().empty()) return; 
       std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(DESC_BEM);
@@ -2232,9 +2256,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     }
     break;
     case EFEITO_ALINHAR_ARMA: {
-      if (evento.complementos_str().size() != 2) {
-        return;
-      }
+      if (evento.complementos_str().size() != 2) return;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
       if (desc == DESC_NENHUM) return;
       std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
@@ -4089,6 +4111,17 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
   return std::any_of(acao_proto.afeta_apenas().begin(), acao_proto.afeta_apenas().end(), [&entidade] (const int tipo) {
     return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
   });
+}
+
+
+int NumeroReflexos(const EntidadeProto& proto) {
+  int num_reflexos = 0;
+  for (const auto& evento : proto.evento()) {
+    if (evento.id_efeito() != EFEITO_REFLEXOS) continue;
+    if (evento.complementos().empty()) continue;
+    num_reflexos = std::max(num_reflexos, evento.complementos(0));
+  }
+  return num_reflexos;
 }
 
 }  // namespace ent
