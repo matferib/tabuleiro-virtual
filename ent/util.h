@@ -615,6 +615,9 @@ inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento(
 // Caso a acao seja generica (nao tem afeta_apenas), retornara true.
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade);
 
+// Retorna o numero de reflexos da entidade (feitico reflexos).
+int NumeroReflexos(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
