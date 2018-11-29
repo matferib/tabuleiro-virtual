@@ -68,6 +68,11 @@ const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(
   return ss;
 }
 
+std::string StringEfeito(ent::TipoEfeito id_efeito) {
+  std::string id_str = ent::TipoEfeito_Name(id_efeito);
+  if (id_str.find("EFEITO_") == 0) id_str = id_str.substr(7);
+  return id_str.c_str();
+}
 
 }  // namespace
 
@@ -147,7 +152,7 @@ class ModeloEvento : public QAbstractTableModel {
     const auto& evento = eventos_->Get(row);
     switch (column) {
       case 0: 
-        return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
+        return role == Qt::DisplayRole ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) : QVariant(evento.id_efeito());
       case 1: return QVariant(ComplementoEventoString(evento) ?
                   ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
@@ -260,8 +265,7 @@ class TipoEfeitoDelegate : public QItemDelegate {
     std::map<std::string, int> efeitos_ordenados;
     for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
-      std::string efeito_str = ent::TipoEfeito_Name(ent::TipoEfeito(tipo));
-      if (efeito_str.find("EFEITO_") == 0) efeito_str = efeito_str.substr(7);
+      std::string efeito_str = StringEfeito(ent::TipoEfeito(tipo));
       efeitos_ordenados.insert(std::make_pair(efeito_str, tipo));
     }
     for (const auto& par_str_id : efeitos_ordenados) {

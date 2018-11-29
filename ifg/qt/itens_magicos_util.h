@@ -129,6 +129,7 @@ class ItemMagicoDelegate : public QItemDelegate {
     for (const auto& par : itens_ordenados) {
       combo->addItem(par.first, QString(par.second.c_str()));
     }
+    ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo] () {
       // Tem que tirar o const aqui, pois quando for executado, o this nao sera const.

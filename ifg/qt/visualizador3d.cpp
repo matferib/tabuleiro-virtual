@@ -1480,6 +1480,7 @@ void PreencheConfiguraComboTipoAtaque(
   for (const auto& id : tipos_acoes) {
     gerador.combo_tipo_ataque->addItem((id.c_str()), QVariant(id.c_str()));
   }
+  ExpandeComboBox(gerador.combo_tipo_ataque);
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
       [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
@@ -1520,6 +1521,11 @@ void PreencheConfiguraDadosAtaque(
   ConfiguraComboMaterial(tabelas, gerador, proto_retornado);
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+
+  // Furtivo
+  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
+
+  ExpandeComboBox(gerador.combo_empunhadura);
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
@@ -1585,8 +1591,6 @@ void PreencheConfiguraDadosAtaque(
     AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_dano());
     EditaAtualizaUIAtaque();
   });
-  // Furtivo
-  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
 }
 
 void PreencheComboSalvacoesFortes(QComboBox* combo) {
@@ -1654,6 +1658,8 @@ void PreencheConfiguraComboClasse(
   for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
     combo->addItem((ic.nome().c_str()), ic.id().c_str());
   }
+  ExpandeComboBox(combo);
+  ExpandeComboBox(gerador.combo_mod_conjuracao);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
     std::vector<QObject*> objs = {
       gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,

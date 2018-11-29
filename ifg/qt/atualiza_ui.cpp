@@ -260,6 +260,7 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   for (const auto& name_id : nome_id_map) {
     gerador.combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
   }
+  ExpandeComboBox(gerador.combo_arma);
 }
 
 int MaterialArmaParaIndice(ent::DescritorAtaque descritor) {
@@ -552,6 +553,7 @@ void PreencheComboParaLancar(
   combo->addItems(lista);
   combo->setCurrentIndex(indice_corrente);
   combo->disconnect();
+  ExpandeComboBox(combo);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [item_feitico, mapa] (int indice) {
       // Trigar apenas 1 evento.
       item_feitico->treeWidget()->blockSignals(true);
