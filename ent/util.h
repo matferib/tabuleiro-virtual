@@ -26,6 +26,16 @@ class Posicao;
 class Tabuleiro;
 class Tabelas;
 
+// Util para rodar codigo ao sair de escopo.
+class RodaNoRetorno {
+ public:
+  explicit RodaNoRetorno(std::function<void()> f) : f(f) {}
+  ~RodaNoRetorno() { f(); }
+  void Cancela() { f = std::function<void()>(); }
+
+  std::function<void()> f;
+};
+
 void IniciaUtil();
 
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
@@ -234,6 +244,7 @@ enum resultado_ataque_e {
   RA_FALHA_TOQUE_AGARRAR = 6, // falha normal.
   RA_FALHA_CHANCE_FALHA = 7,  // falha por chance de falha.
   RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
+  RA_FALHA_REDUCAO = 9,       // falha por reducao de dano (reduzido a zero).
 };
 struct ResultadoAtaqueVsDefesa {
   resultado_ataque_e resultado = RA_SEM_ACAO;
