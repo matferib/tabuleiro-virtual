@@ -3321,14 +3321,10 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
 
   std::string critico = StringCritico(da);
   return google::protobuf::StringPrintf(
-      "%s%s: %+d%s, %s%s%s, CA: %s",
-      da.rotulo().c_str(),
-      da.ataque_toque() ? " (T)" : "",
-      da.bonus_ataque_final(),
-      texto_modificador.c_str(),
-      StringDanoParaAcao(da, proto).c_str(),
-      critico.c_str(),
-      texto_furtivo.c_str(),
+      "%s%s%s: %+d%s, %s%s%s, CA: %s",
+      da.rotulo().c_str(), da.descarregada() ? " [descarregado]" : "", da.ataque_toque() ? " (T)" : "",
+      da.bonus_ataque_final(), texto_modificador.c_str(),
+      StringDanoParaAcao(da, proto).c_str(), critico.c_str(), texto_furtivo.c_str(),
       StringCAParaAcao(da, proto).c_str());
 }
 
