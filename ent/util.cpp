@@ -1221,7 +1221,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
       resultado_ataque_reflexos rar;
       std::string texto_reflexo;
       std::tie(texto_reflexo, rar) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
-      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo, dref, num_total);
+      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo, dref - 1, num_total - 1);
       if (rar == RAR_ACERTOU) {
         resultado.resultado = RA_FALHA_REFLEXO;
       } else {
@@ -1513,6 +1513,18 @@ void PreencheNotificacaoConsumoAtaque(
     }
   }
   *n_desfazer  = *n;
+}
+
+void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito tipo_efeito, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, /*rodadas=*/0, /*continuo*/true, e_depois);
+  auto* evento_antes = e_antes->add_evento();
+  *evento_antes = *evento;
+  evento_antes->set_rodadas(-1);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
 void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
@@ -3692,7 +3704,7 @@ EntidadeProto::Evento* AdicionaEvento(
   uint32_t id_unico = AchaIdUnicoEvento(eventos, proto->evento());
   auto* e = proto->add_evento();
   e->set_id_efeito(id_efeito);
-  e->set_rodadas(rodadas);
+  e->set_rodadas(continuo ? 1 : rodadas);
   e->set_continuo(continuo);
   e->set_id_unico(id_unico);
   return e;

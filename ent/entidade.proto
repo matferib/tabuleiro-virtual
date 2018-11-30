@@ -41,6 +41,23 @@ enum EmpunhaduraArma {
   EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
 }
 
+// Os tipos de movimento, em quadrados, da entidade.
+message Movimento {
+  // valores computados.
+  optional Bonus terrestre_q = 1;
+  optional Bonus aereo_q = 2;
+  optional Bonus aquatico_q = 3;
+  optional Bonus escavando_q = 4;
+  optional Bonus escalando_q = 5;
+  // valores basicos.
+  optional int32 terrestre_basico_q = 10;
+  optional int32 aereo_basico_q = 11;
+  optional int32 aquatico_basico_q = 12;
+  optional int32 escavando_basico_q = 13;
+  optional int32 escalando_basico_q = 14;
+}
+
+// Proximo id: 91.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -48,6 +65,7 @@ message EntidadeProto {
   // O tipo da entidade segundo as regras de dnd.
   repeated TipoDnD tipo_dnd = 86;
   optional TipoForma sub_tipo = 18;
+  optional Movimento movimento = 90;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
@@ -263,6 +281,10 @@ message EntidadeProto {
     repeated DescritorAtaque tipo_ataque_fisico = 47;
     // Bem, mal, caos, leal.
     optional DescritorAtaque alinhamento = 48;
+
+    // Para armas que tem que ser carregadas.
+    optional bool requer_carregamento = 49;
+    optional bool descarregada = 50;
   }
   repeated DadosAtaque dados_ataque = 44;
 

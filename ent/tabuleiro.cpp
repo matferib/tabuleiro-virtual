@@ -174,6 +174,8 @@ Tabuleiro::Tabuleiro(
       arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos);
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << erro.what();
+      // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
+      //central->AdicionaNotificacao(ntf::NovaNotificacaoErro(erro.what()));
     }
     for (const auto& m : modelos.modelo()) {
       mapa_modelos_.insert(std::make_pair(

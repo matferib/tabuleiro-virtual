@@ -495,6 +495,10 @@ modelo {
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' altura: 0.5 translacao_y: 0.35 } cor { r: 0 g: 0 b: 0.5 }
     tamanho: TM_ENORME
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    movimento {
+      escalando_basico_q: 4
+      terrestre_basico_q: 8
+    }
 
     info_classes {
       id: 'extra_planar' nivel: 12
@@ -545,6 +549,13 @@ modelo {
       alcance_m: 10
       dano_basico: '0'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        icone: 'icon_web.png'
+        ataque_toque: true
+        efeitos_adicionais {
+          efeito: EFEITO_ENREDADO
+        }
+      }
     }
 
     dados_defesa {

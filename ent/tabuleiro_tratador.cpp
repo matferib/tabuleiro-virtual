@@ -1268,6 +1268,16 @@ float Tabuleiro::TrataAcaoIndividual(
       AdicionaAcaoTextoLogado(entidade_destino->Id(), veneno_str, atraso_s);
     }
 
+    // Efeitos adicionais.
+    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty()) {
+      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
+        std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+        PreencheNotificacaoEventoContinuo(
+            *entidade_destino, EFEITO_ENREDADO, n_efeito.get(), grupo_desfazer->add_notificacao());
+        central_->AdicionaNotificacao(n_efeito.release());
+      }
+    }
+
     if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
       entidade->ProximoAtaque();
     }

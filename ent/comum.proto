@@ -78,6 +78,7 @@ enum TipoEfeito {
   EFEITO_DANO_ATRIBUTO_VENENO = 39;
   // O complemento é da forma: rotulo, alinhamento.
   EFEITO_ALINHAR_ARMA = 40;
+  EFEITO_ENREDADO = 41;  // entangled.
 }
 
 // Tipo de visao para entidades e camera.
@@ -732,3 +733,4 @@ message VenenoProto {
   optional int32 cd = 10;
   optional int32 preco_po = 11;
 }
+

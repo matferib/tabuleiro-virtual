@@ -979,6 +979,11 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_OUTRO
     categoria_pericia: CATPER_EXOTICA
+    acao {
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+      }
+    }
   }
   armas {
     id: 'shuriken'
@@ -1003,6 +1008,18 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
+    }
+  }
+
+  efeitos {
+    id: EFEITO_ENREDADO
+    nao_cumulativo: true
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'enredado' } } }
+      atributos {
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'enredado' } } }
+      }
+
     }
   }
 
@@ -1105,7 +1122,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       atributos {
-        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
+        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
       }
     }
   }

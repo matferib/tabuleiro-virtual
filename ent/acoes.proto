@@ -55,6 +55,7 @@ message Velocidade {
   optional float maxima_m_s = 5 [default=50.0];
 }
 
+// Proximo id: 56.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -156,6 +157,10 @@ message AcaoProto {
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque = 52;
   optional IluminacaoPontual luz_origem = 54;
+  message EfeitoAdicional {
+    optional TipoEfeito efeito = 1;
+  }
+  repeated EfeitoAdicional efeitos_adicionais = 55;
 }
 
 // O arquivo de acoes é serializado desta forma.
