@@ -546,7 +546,8 @@ modelo {
     dados_ataque {
       grupo: 'teia' rotulo: 'teia' tipo_ataque: 'Ataque a Distância'
       municao: 4
-      alcance_m: 10
+      alcance_m: 3  # 2 quadrados
+      incrementos: 3  # maximo 6 qudrados.
       dano_basico: '0'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
