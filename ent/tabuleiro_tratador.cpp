@@ -1159,7 +1159,6 @@ float Tabuleiro::TrataAcaoIndividual(
   Entidade* entidade_destino =
      id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
   // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
-  bool realiza_acao = true;
   auto* nd = grupo_desfazer->add_notificacao();
   acao_proto->set_bem_sucedida(true);
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
@@ -1168,6 +1167,7 @@ float Tabuleiro::TrataAcaoIndividual(
     float distancia_m = 0.0f;
     // Verifica alcance.
     {
+      bool realiza_acao;
       std::string texto_falha_alcance;
       std::tie(texto_falha_alcance, realiza_acao, distancia_m) =
           VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
@@ -1177,6 +1177,16 @@ float Tabuleiro::TrataAcaoIndividual(
         return atraso_s;
       }
     }
+    // Verifica carregamento.
+    const auto* da = entidade->DadoCorrente();
+    if (da != nullptr && da->requer_carregamento() && da->descarregada()) {
+      std::unique_ptr<ntf::Notificacao> n_carregamento(new ntf::Notificacao);
+      PreencheNotificacaoRecarregamento(*entidade, *da, n_carregamento.get(), grupo_desfazer->add_notificacao());
+      AdicionaAcaoTextoLogado(entidade->Id(), "recarregando");
+      central_->AdicionaNotificacao(n_carregamento.release());
+      return atraso_s;
+    }
+
     // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
     // -1 indica falha critica.
     ResultadoAtaqueVsDefesa resultado;
@@ -1200,9 +1210,12 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
-    const auto* da = entidade->DadoCorrente();
-    if (realiza_acao && da != nullptr && (da->has_municao() || da->has_limite_vezes())) {
-      // Consome vezes e/ou municao.
+    if (da != nullptr && (da->has_municao() || da->has_limite_vezes())) {
+      // Consome vezes e/ou municao e carregamento.
+      if (da->requer_carregamento()) {
+        atraso_s += 0.5f;
+        AdicionaAcaoTextoLogado(entidade->Id(), "descarregada", atraso_s);
+      }
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
       PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_consumo.release());
@@ -1213,7 +1226,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::unique_ptr<ntf::Notificacao> n_ref(new ntf::Notificacao);
       PreencheNotificacaoRemoverUmReflexo(*entidade_destino, n_ref.get(), nd);
       central_->AdicionaNotificacao(n_ref.release());
-      AdicionaAcaoTextoLogado(entidade->Id(), acao_proto->texto(), atraso_s);
+      AdicionaAcaoTextoLogado(entidade_destino->Id(), acao_proto->texto(), atraso_s);
       *n->mutable_acao() = *acao_proto;
       return atraso_s;
     }
@@ -1370,18 +1383,16 @@ float Tabuleiro::TrataAcaoIndividual(
     }
   }
 
-  if (realiza_acao) {
-    if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
-      // Se agarrou, desfaz aqui.
-      auto* no = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
-      nd = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
-    }
-    VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
-    // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
-    *n->mutable_acao() = *acao_proto;
+  if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+    // Se agarrou, desfaz aqui.
+    auto* no = grupo_desfazer->add_notificacao();
+    PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+    nd = grupo_desfazer->add_notificacao();
+    PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
   }
+  VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
+  // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
+  *n->mutable_acao() = *acao_proto;
   return atraso_s;
 }
 

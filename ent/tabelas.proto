@@ -71,6 +71,12 @@ message StringPorTamanho {
   optional string invariavel = 4;
 }
 
+enum TipoCarregamento {
+  TC_LIVRE = 0;
+  TC_MOVIMENTO = 1;
+  TC_RODADA_COMPLETA = 2;
+}
+
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -121,6 +127,15 @@ message ArmaProto {
   }
   // Se a arma for criada por um feitico.
   optional ModeloLimiteVezes modelo_limite_vezes = 23;
+  // Arma requer carregamento.
+  message Carregamento {
+    optional bool requer_carregamento = 1;
+    // O tipo de carregamento da arma.
+    optional TipoCarregamento tipo_carregamento = 2;
+    // A capacidade de carga antes de ter que carregar (besta de repeticao).
+    optional int32 capacidade_carga = 3;
+  }
+  optional Carregamento carregamento = 24;
 }
 
 message TabelaArmaduraOuEscudo {

@@ -1505,6 +1505,9 @@ void PreencheNotificacaoConsumoAtaque(
   *proto->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   auto* da_depois = EncontraAtaque(da, proto);
   if (da_depois != nullptr) {
+    if (da.requer_carregamento()) {
+      da_depois->set_descarregada(true);
+    }
     if (da_depois->has_limite_vezes()) {
       da_depois->set_limite_vezes(da_depois->limite_vezes() - 1);
     }
@@ -1512,7 +1515,25 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
     }
   }
-  *n_desfazer  = *n;
+  if (n_desfazer != nullptr) {
+    *n_desfazer  = *n;
+  }
+}
+
+void PreencheNotificacaoRecarregamento(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *proto = nullptr, *proto_antes = nullptr;
+  std::tie(proto_antes, proto) =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  *proto->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  auto* da_depois = EncontraAtaque(da, proto);
+  if (da_depois != nullptr) {
+    da_depois->set_descarregada(false);
+  }
+  if (n_desfazer != nullptr) {
+    *n_desfazer  = *n;
+  }
 }
 
 void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito tipo_efeito, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
@@ -1869,6 +1890,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
     }
+    da->set_requer_carregamento(arma.carregamento().requer_carregamento());
 
     // tipo certo de ataque.
     const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
@@ -1935,6 +1957,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da != primeiro && primeiro != nullptr) {
     // municao.
     if (primeiro->has_municao()) da->set_municao(primeiro->municao());
+    da->set_descarregada(primeiro->descarregada());
     // Elemento.
     if (primeiro->has_acao()) *da->mutable_acao() = primeiro->acao();
     // material.
@@ -3344,7 +3367,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   }
   std::string string_nome_arma = da.id_arma().empty()
       ? ""
-      : google::protobuf::StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
+      : StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
   char string_alcance[40] = { '\0' };
   if (da.has_alcance_m()) {
     char string_incrementos[40] = { '\0' };
@@ -3356,17 +3379,22 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
 
   std::string texto_municao;
   if (da.has_municao()) texto_municao = google::protobuf::StringPrintf(", municao: %d", da.municao());
+  std::string texto_descarregada;
+  if (da.descarregada()) texto_descarregada = " [descarregada]"; 
 
   std::string texto_elementos;
-  if (da.acao().has_elemento()) texto_elementos = google::protobuf::StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
+  if (da.acao().has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
 
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
-      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(), string_alcance,
-      da.bonus_ataque_final(), da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(),
+      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(),
+      string_alcance,
+      da.bonus_ataque_final(),
+      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(),
       string_escudo.c_str(), da.ca_normal(),
-      da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
+      da.ca_toque(),  
+      string_escudo.c_str(), da.ca_surpreso());
 }
 
 std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {

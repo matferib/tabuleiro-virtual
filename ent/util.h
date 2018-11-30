@@ -284,6 +284,9 @@ void PreencheNotificacaoAtualizaoPontosVida(
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+// Preenche uma notificacao de carregamento da arma.
+void PreencheNotificacaoRecarregamento(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Adiciona um evento do tipo passado a entidade.
 void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);

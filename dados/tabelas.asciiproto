@@ -260,6 +260,10 @@ tabela_armas {
     alcance_quadrados: 24
     peso { medio: '4kg' }
     tipo_dano: TD_PERFURANTE
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_RODADA_COMPLETA
+    }
   }
   armas {
     id: 'besta_leve'
@@ -272,6 +276,10 @@ tabela_armas {
     alcance_quadrados: 16
     peso { medio: '2kg' }
     tipo_dano: TD_PERFURANTE
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_MOVIMENTO
+    }
   }
   armas {
     id: 'dardo'
@@ -930,6 +938,7 @@ tabela_armas {
     peso { medio: '3Kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    # TODO modelar carregamento
   }
   armas {
     id: 'besta_pesada_de_repeticao'
@@ -943,6 +952,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    # TODO modelar carregamento
   }
   armas {
     id: 'besta_de_mao'
@@ -956,6 +966,10 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_MOVIMENTO
+    }
   }
   armas {
     id: 'boleadeira'
