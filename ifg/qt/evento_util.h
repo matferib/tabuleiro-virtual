@@ -19,6 +19,8 @@ bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
     case ent::EFEITO_VENENO:
     case ent::EFEITO_ALINHAR_ARMA:
     case ent::EFEITO_ABENCOAR_ARMA:
+    case ent::EFEITO_SUPORTAR_ELEMENTOS:
+    case ent::EFEITO_RESISTENCIA_ELEMENTOS:
       return true;
     default: return false;
   }
