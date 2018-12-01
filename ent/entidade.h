@@ -327,6 +327,8 @@ class Entidade {
 
   Matrix4 MontaMatrizModelagem(const ParametrosDesenho* pd = nullptr) const;
 
+  // Reinicia os dados de ataque da entidade.
+  void ReiniciaAtaque();
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;

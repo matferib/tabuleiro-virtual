@@ -607,11 +607,11 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
       vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
     }
   }
-  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
-  vd_.ultimo_ataque_ms += intervalo_ms;
-  if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
-    vd_.ataques_na_rodada = 0;
-  }
+  //const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
+  //vd_.ultimo_ataque_ms += intervalo_ms;
+  //if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
+  //  ReiniciaAtaque();
+  //}
 
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
@@ -1114,6 +1114,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
+  }
+  if (proto_.reiniciar_ataque()) {
+    proto_.clear_reiniciar_ataque();
+    ReiniciaAtaque();
   }
   RecomputaDependencias(tabelas_, &proto_);
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
@@ -1997,6 +2001,10 @@ void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
   luz_acao.inicio.set_raio_m(luz.raio_m());
   *luz_acao.inicio.mutable_cor() = luz.cor();
   LOG(INFO) << "Luz acao ligada";
+}
+
+void Entidade::ReiniciaAtaque() {
+  vd_.ataques_na_rodada = 0;
 }
 
 }  // namespace ent
