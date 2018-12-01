@@ -1,12 +1,20 @@
-Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
-UI para Ataque poderoso.
-Recarregamento de armas.
+Projetil de area quando falha esta dando mensagem duas vezes (dano tb?)
+Ataque de area nao aparece pro cliente.
+Dados nao estao aparecendo no log.
+Ao agarrar, ignora reflexos.
+Esquiva automatica nao esta zerando ao matar o personagem.
+Antes de passar rodada, de arco longo vai pra besta.
+Implementar boleadeira (bolas).
+
 Fazer sucubo 3d.
 Fazer outros demonios.
 
+UI para Ataque poderoso.
+Barra de status das entidades.
+
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 
-Dano secundario de fogo grego (fogo alquimico).
+Criar efeito para fogo grego (fogo alquimico).
 
 
 Problema na iluminacao:
