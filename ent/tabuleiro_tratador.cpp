@@ -96,25 +96,6 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
   return true;
 }
 
-void PreencheNotificacaoDanoElementalRodada(
-    const Entidade& entidade, const ResultadoImunidadeOuResistencia& resultado, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  auto* entidade_depois = n->mutable_entidade();
-  entidade_depois->set_id(entidade.Id());
-  auto* resistencia_depois = entidade_depois->mutable_dados_defesa()->add_resistencia_elementos();
-  *resistencia_depois = *resultado.resistencia;
-
-  if (n_desfazer != nullptr) {
-    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    *n_desfazer->mutable_entidade() = *entidade_depois;
-    auto* e_antes = n_desfazer->mutable_entidade_antes();
-    e_antes->set_id(entidade.Id());
-  }
-
-  resistencia_depois->set_contador_rodada(resistencia_depois->contador_rodada() + resultado.resistido);
-}
-
-
 // As funcoes Preenchem assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
 // n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubaOrigem(
@@ -1041,13 +1022,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
         atraso_s += 0.5f;
         ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
         AdicionaLogEvento(id, resultado_elemento.texto);
-        if (resultado_elemento.causa == ALT_RESISTENCIA) {
-          // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
-          std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
-          PreencheNotificacaoDanoElementalRodada(
-              *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
-          central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
-        }
       }
     }
     delta_por_entidade->set_delta(delta_pv);
@@ -1132,14 +1106,28 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       atraso_s += 1.5f;
       ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
       AdicionaLogEvento(entidade->Id(), resultado_elemento.texto);
-      if (resultado_elemento.causa == ALT_RESISTENCIA) {
-        // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
-        std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
-        PreencheNotificacaoDanoElementalRodada(
-            *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
-        central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
+    }
+
+    // Efeitos adicionais.
+    // TODO: ver questao da reducao de dano e rm.
+    if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !acao_proto->efeitos_adicionais().empty()) {
+      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
+        std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+        if (efeito_adicional.has_rodadas()) {
+          PreencheNotificacaoEvento(
+            *entidade_destino, efeito_adicional.efeito(), efeito_adicional.rodadas(), n_efeito.get(), grupo_desfazer->add_notificacao());
+        } else {
+          PreencheNotificacaoEventoContinuo(
+            *entidade_destino, efeito_adicional.efeito(), n_efeito.get(), grupo_desfazer->add_notificacao());
+        }
+        central_->AdicionaNotificacao(n_efeito.release());
+        atraso_s += 0.5f;
+        // TODO criar tabela de nome dos efeitos.
+        std::string nome = TipoEfeito_Name(efeito_adicional.efeito());
+        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, acao_proto);
       }
     }
+
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
     delta_por_entidade->set_id(id);
     delta_por_entidade->set_delta(delta_pv_pos_salvacao);
@@ -1210,6 +1198,12 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
+    RodaNoRetorno roda_no_retorno([entidade, da]() {
+      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
+        entidade->ProximoAtaque();
+      }
+    });
+
     if (da != nullptr && (da->has_municao() || da->has_limite_vezes())) {
       // Consome vezes e/ou municao e carregamento.
       if (da->requer_carregamento()) {
@@ -1277,22 +1271,8 @@ float Tabuleiro::TrataAcaoIndividual(
         }
         central_->AdicionaNotificacao(n_veneno.release());
       }
-      atraso_s += 2.0f + acao_proto->duracao_s();
-      AdicionaAcaoTextoLogado(entidade_destino->Id(), veneno_str, atraso_s);
-    }
-
-    // Efeitos adicionais.
-    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty()) {
-      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
-        std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        PreencheNotificacaoEventoContinuo(
-            *entidade_destino, EFEITO_ENREDADO, n_efeito.get(), grupo_desfazer->add_notificacao());
-        central_->AdicionaNotificacao(n_efeito.release());
-      }
-    }
-
-    if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
-      entidade->ProximoAtaque();
+      atraso_s += 2.0f;
+      ConcatenaString(veneno_str, acao_proto);
     }
 
     if (!acao_proto->ignora_resistencia_magia() &&
@@ -1302,10 +1282,11 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(passou_rm, resultado_rm) =
           AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
       if (!passou_rm) {
-        atraso_s += 0.5f + acao_proto->duracao_s();
+        atraso_s += 0.5f;
         delta_pontos_vida = 0;
         acao_proto->set_delta_pontos_vida(0);
         acao_proto->set_gera_outras_acoes(true);  // para os textos.
+        resultado.resultado = RA_FALHA_IMUNE;
         ConcatenaString(resultado_rm, acao_proto);
       }
     }
@@ -1328,12 +1309,35 @@ float Tabuleiro::TrataAcaoIndividual(
       google::protobuf::RepeatedField<int> descritores = acao_proto->descritores_ataque();
       std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       if (!texto_reducao.empty()) {
-        acao_proto->set_texto(google::protobuf::StringPrintf("%s, %s", acao_proto->texto().c_str(), texto_reducao.c_str()));
+        atraso_s += 0.5f;
+        ConcatenaString(texto_reducao, acao_proto);
       }
       if (delta_pontos_vida == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
         acao_proto->set_delta_pontos_vida(0);
         acao_proto->set_gera_outras_acoes(true);  // para os textos.
+        resultado.resultado = RA_FALHA_REDUCAO;  // dano reduzido para 0.
+      }
+    }
+
+    // Efeitos adicionais.
+    // TODO: ver questao da reducao de dano e rm.
+    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty()) {
+      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
+        std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+        if (efeito_adicional.has_rodadas()) {
+          PreencheNotificacaoEvento(
+            *entidade_destino, efeito_adicional.efeito(), efeito_adicional.rodadas(), n_efeito.get(), grupo_desfazer->add_notificacao());
+        }
+        else {
+          PreencheNotificacaoEventoContinuo(
+            *entidade_destino, efeito_adicional.efeito(), n_efeito.get(), grupo_desfazer->add_notificacao());
+        }
+        central_->AdicionaNotificacao(n_efeito.release());
+        atraso_s += 0.5f;
+        // TODO criar tabela de nome dos efeitos.
+        std::string nome = TipoEfeito_Name(efeito_adicional.efeito());
+        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, acao_proto);
       }
     }
 
@@ -1343,13 +1347,6 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pontos_vida += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, acao_proto);
-      if (resultado_elemento.causa == ALT_RESISTENCIA) {
-        // Cria notificacao de alteracao de dano para a resistencia. Atencao com a logica do delta, negativa.
-        std::unique_ptr<ntf::Notificacao> notificacao_contador_resistencia(new ntf::Notificacao);
-        PreencheNotificacaoDanoElementalRodada(
-            *entidade_destino, resultado_elemento, notificacao_contador_resistencia.get(), grupo_desfazer->add_notificacao());
-        central_->AdicionaNotificacao(notificacao_contador_resistencia.release());
-      }
       if (delta_pontos_vida == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
         acao_proto->set_delta_pontos_vida(0);

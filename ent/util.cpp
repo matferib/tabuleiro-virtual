@@ -2116,19 +2116,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_ca_toque(CAToque(proto));
 }
 
-// Aplica o maior contador a todas resistencias do mesmo tipo.
-void RecomputaDependenciasResistenciaElementos(EntidadeProto* proto) {
-  if (proto->dados_defesa().resistencia_elementos().empty()) return;
-  auto* resistencias = proto->mutable_dados_defesa()->mutable_resistencia_elementos();
-  std::unordered_map<int, int> contador_por_tipo;
-  for (const auto& resistencia : *resistencias) {
-    contador_por_tipo[resistencia.descritor()] = std::max(contador_por_tipo[resistencia.descritor()], resistencia.contador_rodada());
-  }
-  for (auto& resistencia : *resistencias) {
-    resistencia.set_contador_rodada(contador_por_tipo[resistencia.descritor()]);
-  }
-}
-
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
   // Remove ataques cujo numero de vezes exista e seja zero.
   std::vector<int> indices_a_remover;
@@ -2252,6 +2239,19 @@ DescritorAtaque StringParaDescritorAlinhamento(const std::string& alinhamento_st
   return DESC_NENHUM;
 }
 
+
+DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
+  std::string normalizado = elemento_str;
+  std::transform(elemento_str.begin(), elemento_str.end(), normalizado.begin(), ::tolower);
+  if (normalizado == "fogo") return DESC_FOGO;
+  if (normalizado == "frio") return DESC_FRIO;
+  if (normalizado == "acido") return DESC_ACIDO;
+  if (normalizado == "sonico") return DESC_SONICO;
+  if (normalizado == "eletricidade") return DESC_ELETRICIDADE;
+  return DESC_NENHUM;
+
+}
+
 }  // namespace
 
 void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
@@ -2322,6 +2322,38 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       for (auto* da : das) {
         da->set_alinhamento(desc);
       }
+    }
+    break;
+    case EFEITO_SUPORTAR_ELEMENTOS: {
+      if (evento.complementos_str().empty()) return;
+      DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
+      if (descritor == DESC_NENHUM) return; 
+      ResistenciaElementos re;
+      re.set_valor(10);
+      re.set_descritor(descritor);
+      re.set_id_unico(evento.id_unico());
+      auto* re_corrente = AchaResistenciaElemento(evento.id_unico(), proto);
+      if (re_corrente == nullptr) {
+        re_corrente = proto->mutable_dados_defesa()->add_resistencia_elementos();
+      }
+      re_corrente->Swap(&re);
+    }
+    break;
+    case EFEITO_RESISTENCIA_ELEMENTOS: {      
+      if (evento.complementos_str().size() != 2) return;
+      DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
+      if (descritor == DESC_NENHUM) return;
+      int valor = atoi(evento.complementos_str(1).c_str());
+      if (valor <= 0 || valor > 1000) return;
+      ResistenciaElementos re;
+      re.set_valor(valor);
+      re.set_descritor(descritor);
+      re.set_id_unico(evento.id_unico());
+      auto* re_corrente = AchaResistenciaElemento(evento.id_unico(), proto);
+      if (re_corrente == nullptr) {
+        re_corrente = proto->mutable_dados_defesa()->add_resistencia_elementos();
+      }
+      re_corrente->Swap(&re);
     }
     break;
     default: ;
@@ -2408,6 +2440,11 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       if (evento.complementos_str().size() >= 1) {
         AplicaFimAlinhamentoArma(evento.complementos_str(0), proto);
       }
+    }
+    break;
+    case EFEITO_SUPORTAR_ELEMENTOS:
+    case EFEITO_RESISTENCIA_ELEMENTOS: {
+      LimpaResistenciaElemento(evento.id_unico(), proto);
     }
     break;
     default: ;
@@ -2958,8 +2995,6 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   RecomputaDependenciasMagiasConhecidas(tabelas, proto);
   RecomputaDependenciasMagiasPorDia(tabelas, proto);
-
-  RecomputaDependenciasResistenciaElementos(proto);
 
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
@@ -3743,6 +3778,35 @@ void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
   }
 }
 
+EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto) {
+  for (auto& evento : *proto->mutable_evento()) {
+    if (evento.id_unico() == id_unico) {
+      return &evento;
+    }
+  }
+  return nullptr;
+}
+
+ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto) {
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.id_unico() == id_unico) {
+      return &re;
+    }
+  }
+  return nullptr;
+}
+
+void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto) {
+  int i = 0;
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.id_unico() == id_unico) {
+      proto->mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(i, 1);
+      return;
+    }
+    ++i;
+  }
+}
+
 std::vector<int> AdicionaEventoItemMagico(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
@@ -4107,19 +4171,19 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   }
   if (EntidadeImuneElemento(proto, elemento)) {
     resultado.resistido = std::abs(delta_pv);
-    resultado.texto = google::protobuf::StringPrintf("imunidade: %s", TextoDescritor(elemento));
+    resultado.texto = StringPrintf("imunidade: %s", TextoDescritor(elemento));
     resultado.causa = ALT_IMUNIDADE;
     return resultado;
   }
 
   // Resistencia ao tipo de ataque.
   const ResistenciaElementos* resistencia = EntidadeResistenciaElemento(proto, elemento);
-  if ((resistencia == nullptr) || (resistencia->contador_rodada() >= resistencia->valor())) return resultado;
+  if (resistencia == nullptr) return resultado;
 
   resultado.causa = ALT_RESISTENCIA;
-  const int valor_efetivo = resistencia->valor() - resistencia->contador_rodada();
+  const int valor_efetivo = resistencia->valor();
   resultado.resistido = valor_efetivo > std::abs(delta_pv) ? std::abs(delta_pv) : valor_efetivo;
-  resultado.texto = google::protobuf::StringPrintf("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
+  resultado.texto = StringPrintf("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
   resultado.resistencia = resistencia;
   return resultado;
 }
