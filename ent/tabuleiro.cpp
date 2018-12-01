@@ -6838,9 +6838,7 @@ void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Not
   const auto& dd = entidade.Proto().dados_defesa();
   if (!dd.has_entidade_esquiva()) return;
   const auto* entidade_esquivada = BuscaEntidade(dd.entidade_esquiva());
-  // Todo verificar mesmo cenario?
-  // Entidade ainda viva, mantem.
-  if (entidade_esquivada != nullptr && !entidade_esquivada->Morta()) return;
+  if (entidade_esquivada != nullptr && !entidade_esquivada->Morta() && entidade_esquivada->IdCenario() == entidade.IdCenario()) return;
 
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
