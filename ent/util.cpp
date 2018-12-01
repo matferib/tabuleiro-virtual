@@ -3443,6 +3443,12 @@ std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da
   return google::protobuf::StringPrintf("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
 }
 
+std::string StringEfeito(TipoEfeito efeito) {
+  std::string ret = TipoEfeito_Name(efeito);
+  if (ret.find("EFEITO_") == 0) ret = ret.substr(7);
+  return ret;
+}
+
 //--------------------
 // Formas Alternativas
 //--------------------

@@ -291,6 +291,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         if (!e.descricao().empty()) {
           descricao += e.descricao() + "\n";
           ++num_descricoes;
+        } else {
+          descricao += StringEfeito(e.id_efeito()) + "\n";
         }
       }
     }

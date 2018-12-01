@@ -416,6 +416,9 @@ std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
 // Exemplo: '(esc+surp) 16, tq: 12'
 std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
 
+// Retorna a string para o efeito passado.
+std::string StringEfeito(TipoEfeito efeito);
+
 //--------------------
 // Formas Alternativas
 //--------------------

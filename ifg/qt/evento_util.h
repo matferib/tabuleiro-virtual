@@ -70,12 +70,6 @@ const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(
   return ss;
 }
 
-std::string StringEfeito(ent::TipoEfeito id_efeito) {
-  std::string id_str = ent::TipoEfeito_Name(id_efeito);
-  if (id_str.find("EFEITO_") == 0) id_str = id_str.substr(7);
-  return id_str.c_str();
-}
-
 }  // namespace
 
 // Modelo de evento para ser usado pelos views de tabela.
