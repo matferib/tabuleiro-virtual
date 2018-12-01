@@ -80,6 +80,10 @@ tabela_armas {
       cor { r: 1.0 g: 1.0 b: 0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_alchemist_fire.png'
+      efeitos_adicionais {
+        efeito: EFEITO_QUEIMANDO_FOGO_ALQUIMICO
+        rodadas: 1
+      }
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
     }
@@ -1029,7 +1033,7 @@ tabela_efeitos {
     id: EFEITO_ENREDADO
     nao_cumulativo: true
     consequencia {
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'enredado' } } }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'enredado' } } }
       atributos {
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'enredado' } } }
       }
