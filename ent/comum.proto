@@ -79,6 +79,8 @@ enum TipoEfeito {
   // O complemento é da forma: rotulo, alinhamento.
   EFEITO_ALINHAR_ARMA = 40;
   EFEITO_ENREDADO = 41;  // entangled.
+  // Dura 1s.
+  EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
 }
 
 // Tipo de visao para entidades e camera.
@@ -270,6 +272,8 @@ message ResistenciaElementos {
   // Quanto ja recebeu de dano do tipo na rodada. Como podem haver multiplas do mesmo tipo onde so a melhor se aplica,
   // todas do mesmo tipo terao o mesmo valor.
   optional int32 contador_rodada = 3;
+  // Para resistencias criadas por efeitos.
+  optional int32 id_unico = 4;
 }
 
 // Dados de defesa global (independe de ataque).
@@ -455,6 +459,7 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
+  optional string nome_efeito = 5;  // nome do efeito, legibilidade.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
