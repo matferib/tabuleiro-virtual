@@ -57,7 +57,7 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 91.
+// Proximo id: 92.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -412,4 +412,6 @@ message EntidadeProto {
   // Indica a classe de feitico ativa.
   optional string classe_feitico_ativa = 88;
   // Fim feiticos.
+  // Apenas para atualizacao parcial reiniciar os ataques.
+  optional bool reiniciar_ataque = 91;
 }
