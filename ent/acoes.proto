@@ -159,6 +159,8 @@ message AcaoProto {
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
+    // Se presente, setara o valor. Caso contrario fara efeito continuo.
+    optional int32 rodadas = 2;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }
