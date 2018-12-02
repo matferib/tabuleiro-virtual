@@ -1717,7 +1717,10 @@ int Entidade::MultiplicadorCritico() const {
 
 bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico();
+}
 
+bool Entidade::ImuneFurtivo() const {
+  return proto_.dados_defesa().imune_furtivo();
 }
 
 // static
