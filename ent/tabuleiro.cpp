@@ -1653,18 +1653,18 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& p
 
   const auto& ap = acao.Proto();
   // Por padrao, usa delta e pv da acao. Caso seja por entidade, substitui.
-  const int delta_pontos_vida = por_entidade.has_delta() ? por_entidade.delta() : ap.delta_pontos_vida();
+  const int delta = por_entidade.has_delta() ? por_entidade.delta() : ap.delta_pontos_vida();
   std::string texto = por_entidade.has_texto() ? por_entidade.texto() : ap.texto();
 
   // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
-  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta_pontos_vida, texto, atraso_s, /*local_apenas=*/true);
-  atraso_s += 2.0f;
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta, texto, atraso_s, /*local_apenas=*/true);
+  atraso_s += 0.5f;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
+    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
     TrataNotificacao(n);
   }
   return atraso_s;
