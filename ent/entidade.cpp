@@ -1146,6 +1146,10 @@ bool Entidade::ProximaAcao() {
 }
 
 bool Entidade::AcaoAnterior() {
+  if (vd_.ataques_na_rodada > 0) {
+    AtaqueAnterior();
+    return true;
+  }
   if (proto_.dados_ataque().empty()) {
     return false;
   }
