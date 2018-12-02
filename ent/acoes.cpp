@@ -54,25 +54,11 @@ bool TemTextoAcao(const AcaoProto& acao_proto) {
   return acao_proto.has_texto();
 }
 
-const std::string& TextoAcao(const AcaoProto& acao_proto) {
-  if (TemIdDestino(acao_proto) && acao_proto.por_entidade(0).has_texto()) {
-    return acao_proto.por_entidade(0).texto();
-  }
-  return acao_proto.texto();
-}
-
 bool TemDeltaAcao(const AcaoProto& acao_proto) {
   if (TemIdDestino(acao_proto) && acao_proto.por_entidade(0).has_delta()) {
     return true;
   }
   return acao_proto.has_delta_pontos_vida();
-}
-
-int DeltaAcao(const AcaoProto& acao_proto) {
-  if (TemIdDestino(acao_proto) && acao_proto.por_entidade(0).has_delta()) {
-    return acao_proto.por_entidade(0).delta();
-  }
-  return acao_proto.delta_pontos_vida();
 }
 
 // Geometria deve ser do tipo GeometriaAcao. O tamanho sera unitario na unidade da geometria (ou seja, raio para esfera,
@@ -1597,4 +1583,17 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
   }
 }
 
+const std::string& TextoAcao(const AcaoProto& acao_proto) {
+  if (TemIdDestino(acao_proto) && acao_proto.por_entidade(0).has_texto()) {
+    return acao_proto.por_entidade(0).texto();
+  }
+  return acao_proto.texto();
+}
+
+int DeltaAcao(const AcaoProto& acao_proto) {
+  if (TemIdDestino(acao_proto) && acao_proto.por_entidade(0).has_delta()) {
+    return acao_proto.por_entidade(0).delta();
+  }
+  return acao_proto.delta_pontos_vida();
+}
 }  // namespace ent
