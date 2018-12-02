@@ -956,9 +956,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!ha_valor) return atraso_s;
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  const bool acertou_direto = acao_proto->has_delta_pontos_vida();
+  const bool acertou_direto = !acao_proto->por_entidade().empty() && acao_proto->por_entidade(0).has_delta();
   acao_proto->set_bem_sucedida(acertou_direto);
-  acao_proto->set_atraso_s(atraso_s);
   // A acao individual incrementou o ataque.
   if (entidade != nullptr) entidade->AtaqueAnterior();
 
@@ -1018,7 +1017,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
           ImunidadeOuResistenciaParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
       if (resultado_elemento.causa != ALT_NENHUMA) {
         delta_pv += resultado_elemento.resistido;
-        atraso_s += 0.5f;
         ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
         AdicionaLogEvento(id, resultado_elemento.texto);
       }
