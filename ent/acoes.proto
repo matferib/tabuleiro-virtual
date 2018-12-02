@@ -73,8 +73,6 @@ message AcaoProto {
   optional Cor cor = 4;
   // Identificador do causador da acao.
   optional uint32 id_entidade_origem = 10;
-  // Identificador do alvo da acao.
-  repeated uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_tabuleiro = 13;
   // Posicao do clique na entidade, se houver.
@@ -124,13 +122,13 @@ message AcaoProto {
   // Consequencia da acao na origem.
   optional TipoConsequencia consequencia_origem = 53 [default=TC_NENHUMA];
   // Para acoes que afetam multiplos alvos.
-  message DeltaPontosVidaPorEntidade {
-    optional uint32 id = 1;
-    optional int32 delta = 2;
+  message PorEntidade {
+    optional uint32 id = 1;     // id da entidade destino.
+    optional int32 delta = 2;   // delta da entidade.
     optional bool omite_texto = 3 [deprecated=true];
-    optional string texto = 4;
+    optional string texto = 4;  // texto da entidade.
   }
-  repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
+  repeated PorEntidade por_entidade = 35;
   // Indica ataque de toque.
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.

@@ -110,6 +110,10 @@ class Acao {
 // Cria uma nova acao no tabuleiro.
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
 
+// Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
+const std::string& TextoAcao(const AcaoProto& acao_proto);
+int DeltaAcao(const AcaoProto& acao_proto);
+
 }  // namespace ent
 
 #endif  // ENT_ACOES_H

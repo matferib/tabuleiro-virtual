@@ -186,7 +186,7 @@ class Tabuleiro : public ntf::Receptor {
   * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
   * Retorna o atraso atualizado.
   */
-  float GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s);
+  float GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& por_entidade, float atraso_s);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
@@ -1045,6 +1045,8 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
+  void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);
 
   struct DadosFramebuffer {
     ~DadosFramebuffer();

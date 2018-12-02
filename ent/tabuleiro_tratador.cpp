@@ -1006,9 +1006,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
     acao_proto->set_bem_sucedida(true);
     acao_proto->set_afeta_pontos_vida(true);
-    acao_proto->add_id_entidade_destino(id);
-    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
-    delta_por_entidade->set_id(id);
+    auto* por_entidade = acao_proto->add_por_entidade();
+    por_entidade->set_id(id);
 
     int delta_pv = -1;
 
@@ -1020,11 +1019,11 @@ float Tabuleiro::TrataAcaoProjetilArea(
       if (resultado_elemento.causa != ALT_NENHUMA) {
         delta_pv += resultado_elemento.resistido;
         atraso_s += 0.5f;
-        ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
         AdicionaLogEvento(id, resultado_elemento.texto);
       }
     }
-    delta_por_entidade->set_delta(delta_pv);
+    por_entidade->set_delta(delta_pv);
 
     // Para desfazer.
     // Notificacao de desfazer.
@@ -1050,8 +1049,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
   }
-  acao_proto->clear_id_entidade_destino();
+  acao_proto->clear_por_entidade();
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  atraso_s += acao_proto->duracao_s();
   for (auto id : ids_afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
@@ -1063,39 +1063,38 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
-    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
-      VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
-      auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
-      delta_por_entidade->set_id(id);
-      delta_por_entidade->set_delta(0);
-      delta_por_entidade->set_texto("Imune ao ataque devido ao tipo");
-      continue;
-    }
-
-    acao_proto->add_id_entidade_destino(id);
+    auto* por_entidade = acao_proto->add_por_entidade();
+    por_entidade->set_id(id);
+    por_entidade->set_delta(delta_pontos_vida);
     if (delta_pontos_vida == 0) {
       continue;
     }
-    auto* delta_por_entidade = acao_proto->add_delta_por_entidade();
-    int delta_pv_pos_salvacao = delta_pontos_vida;
-    bool passou_rm = true;
-    atraso_s += acao_proto->duracao_s();
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+      VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
+      por_entidade->set_delta(0);
+      por_entidade->set_texto("Imune ao ataque devido ao tipo");
+      continue;
+    }
+    
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
+      bool passou_rm;
       std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
-      ConcatenaString(resultado_rm, delta_por_entidade->mutable_texto());
+      por_entidade->set_texto(resultado_rm);
       AdicionaLogEvento(entidade->Id(), resultado_rm);
       if (!passou_rm) {
-        delta_pv_pos_salvacao = 0;
+        por_entidade->set_delta(0);
+        continue;
       }
     }
-    if (passou_rm && acao_proto->permite_salvacao()) {
+    int delta_pv_pos_salvacao = delta_pontos_vida;
+    if (acao_proto->permite_salvacao()) {
       std::string resultado_salvacao;
       // pega o dano da acao.
       std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       atraso_s += 1.5f;
-      ConcatenaString(resultado_salvacao, delta_por_entidade->mutable_texto());
+      ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade->Id(), resultado_salvacao);
     }
     // Imunidade ao tipo de ataque.
@@ -1104,7 +1103,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
-      ConcatenaString(resultado_elemento.texto, delta_por_entidade->mutable_texto());
+      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade->Id(), resultado_elemento.texto);
     }
 
@@ -1122,15 +1121,13 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         }
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
-        // TODO criar tabela de nome dos efeitos.
-        std::string nome = TipoEfeito_Name(efeito_adicional.efeito());
-        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, acao_proto);
+        ConcatenaString(StringEfeito(efeito_adicional.efeito()), acao_proto);
       }
     }
 
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
-    delta_por_entidade->set_id(id);
-    delta_por_entidade->set_delta(delta_pv_pos_salvacao);
+    por_entidade->set_id(id);
+    por_entidade->set_delta(delta_pv_pos_salvacao);
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
@@ -1161,7 +1158,6 @@ float Tabuleiro::TrataAcaoIndividual(
           VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
       if (!realiza_acao) {
         AdicionaAcaoTextoLogado(entidade->Id(), texto_falha_alcance);
-        acao_proto->set_bem_sucedida(false);
         return atraso_s;
       }
     }
@@ -1175,6 +1171,12 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
+    // Para textos mesmo que de 0 pontos de vida.
+    acao_proto->set_gera_outras_acoes(true);
+    auto* por_entidade = acao_proto->add_por_entidade();
+    por_entidade->set_id(entidade_destino->Id());
+    por_entidade->set_delta(0);
+
     // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
     // -1 indica falha critica.
     ResultadoAtaqueVsDefesa resultado;
@@ -1185,16 +1187,20 @@ float Tabuleiro::TrataAcaoIndividual(
           AtaqueVsDefesa(distancia_m, *acao_proto, *entidade, *entidade_destino, pos_alvo);
       VLOG(1) << "--------------------------";
       AdicionaLogEvento(entidade->Id(), resultado.texto);
-      acao_proto->set_texto(resultado.texto);
+      por_entidade->set_texto(resultado.texto);
+      acao_proto->set_bem_sucedida(resultado.Sucesso());
+    } else {
+      resultado.resultado = RA_SUCESSO;
+      acao_proto->set_bem_sucedida(true);
     }
 
-    int delta_pontos_vida = 0;
-    acao_proto->set_bem_sucedida(resultado.Sucesso());
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
-        PreencheNotificacaoDerrubaOrigem(*entidade, n, nd);
+        std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao); 
+        PreencheNotificacaoDerrubaOrigem(*entidade, n_derrubar.get(), nd);
+        central_->AdicionaNotificacao(n_derrubar.release());
       }
-      AdicionaAcaoTexto(entidade->Id(), acao_proto->texto(), atraso_s);
+      AdicionaAcaoTexto(entidade->Id(), resultado.texto, atraso_s);
       return atraso_s;
     }
 
@@ -1215,30 +1221,32 @@ float Tabuleiro::TrataAcaoIndividual(
       central_->AdicionaNotificacao(n_consumo.release());
     }
 
-    if (resultado.resultado == RA_FALHA_REFLEXO && entidade_destino != nullptr) {
+    if (resultado.resultado == RA_FALHA_REFLEXO) {
       // acao atingiu reflexo.
       std::unique_ptr<ntf::Notificacao> n_ref(new ntf::Notificacao);
       PreencheNotificacaoRemoverUmReflexo(*entidade_destino, n_ref.get(), nd);
       central_->AdicionaNotificacao(n_ref.release());
-      AdicionaAcaoTextoLogado(entidade_destino->Id(), acao_proto->texto(), atraso_s);
+      por_entidade->set_texto(resultado.texto);
       *n->mutable_acao() = *acao_proto;
       return atraso_s;
     }
 
     if (resultado.Sucesso() && !AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
-      acao_proto->set_texto("Tipo de entidade imune ao ataque");
-      acao_proto->set_delta_pontos_vida(0);
+      por_entidade->set_texto("ataque não afeta");
       *n->mutable_acao() = *acao_proto;
       return atraso_s;
     }
 
     // Aplica dano e critico, furtivo.
+    int delta_pontos_vida = 0;
     if (resultado.Sucesso()) {
       for (int i = 0; i < resultado.vezes; ++i) {
         delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
       }
-      delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      if (!entidade_destino->ImuneFurtivo()) {
+        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      }
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
@@ -1272,7 +1280,7 @@ float Tabuleiro::TrataAcaoIndividual(
         central_->AdicionaNotificacao(n_veneno.release());
       }
       atraso_s += 2.0f;
-      ConcatenaString(veneno_str, acao_proto);
+      ConcatenaString(veneno_str, por_entidade->mutable_texto());
     }
 
     if (!acao_proto->ignora_resistencia_magia() &&
@@ -1284,22 +1292,19 @@ float Tabuleiro::TrataAcaoIndividual(
       if (!passou_rm) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;
-        acao_proto->set_delta_pontos_vida(0);
-        acao_proto->set_gera_outras_acoes(true);  // para os textos.
+        por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_IMUNE;
-        ConcatenaString(resultado_rm, acao_proto);
+        ConcatenaString(resultado_rm, por_entidade->mutable_texto());
       }
     }
 
     std::string resultado_salvacao;
     if (delta_pontos_vida < 0 && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
-      acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+      por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, resultado_salvacao) =
           AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
-      ConcatenaString(resultado_salvacao, acao_proto);
-      // Deixa o delta em aberto novamente para ser preenchido pelo valor de delta_pontos_vida.
-      acao_proto->clear_delta_pontos_vida();
+      ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
     }
 
     // Reducao de dano.
@@ -1310,12 +1315,11 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       if (!texto_reducao.empty()) {
         atraso_s += 0.5f;
-        ConcatenaString(texto_reducao, acao_proto);
+        ConcatenaString(texto_reducao, por_entidade->mutable_texto());
       }
       if (delta_pontos_vida == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
-        acao_proto->set_delta_pontos_vida(0);
-        acao_proto->set_gera_outras_acoes(true);  // para os textos.
+        por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_REDUCAO;  // dano reduzido para 0.
       }
     }
@@ -1337,7 +1341,7 @@ float Tabuleiro::TrataAcaoIndividual(
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
         std::string nome = TipoEfeito_Name(efeito_adicional.efeito());
-        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, acao_proto);
+        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, por_entidade->mutable_texto());
       }
     }
 
@@ -1346,10 +1350,10 @@ float Tabuleiro::TrataAcaoIndividual(
         ImunidadeOuResistenciaParaElemento(delta_pontos_vida, entidade_destino->Proto(), acao_proto->elemento());
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pontos_vida += resultado_elemento.resistido;
-      ConcatenaString(resultado_elemento.texto, acao_proto);
+      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
       if (delta_pontos_vida == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
-        acao_proto->set_delta_pontos_vida(0);
+        por_entidade->set_delta(0);
         acao_proto->set_gera_outras_acoes(true);  // para os textos.
       }
     }
@@ -1367,7 +1371,7 @@ float Tabuleiro::TrataAcaoIndividual(
           RotuloEntidade(entidade_destino).c_str(),
           acao_proto->texto().c_str()));
     if (delta_pontos_vida != 0) {
-      acao_proto->set_delta_pontos_vida(delta_pontos_vida);
+      por_entidade->set_delta(delta_pontos_vida);
       acao_proto->set_afeta_pontos_vida(true);
       // Apenas para desfazer.
       PreencheNotificacaoAtualizaoPontosVida(
@@ -1393,6 +1397,27 @@ float Tabuleiro::TrataAcaoIndividual(
   return atraso_s;
 }
 
+void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_entidade_destino, ntf::Notificacao* grupo_desfazer) {
+  if (!PossuiTalento("esquiva", entidade_origem.Proto())) return;
+  const auto& dd = entidade_origem.Proto().dados_defesa();
+  if (dd.has_entidade_esquiva()) {
+    const auto* entidade_esquiva_corrente = BuscaEntidade(dd.entidade_esquiva());
+    if (entidade_esquiva_corrente != nullptr && !entidade_esquiva_corrente->Morta() &&
+      entidade_esquiva_corrente->IdCenario() == entidade_origem.IdCenario()) {
+      // Entidade atual existe, esta viva e no mesmo cenario.
+      return;
+    }
+  }
+
+  const auto* entidade_destino = BuscaEntidade(id_entidade_destino);
+  if (entidade_destino != nullptr && entidade_destino->Tipo() == TE_ENTIDADE) {
+    ntf::Notificacao n;
+    PreencheNotificacaoEsquiva(id_entidade_destino, entidade_origem, &n, grupo_desfazer == nullptr ? nullptr : grupo_desfazer->add_notificacao());
+    AdicionaLogEvento(entidade_origem.Id(), StringPrintf("esquivando de %s", RotuloEntidade(entidade_destino->Proto()).c_str()));
+    TrataNotificacao(n);
+  }
+}
+
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s) {
@@ -1404,28 +1429,8 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
     return atraso_s;
   }
-  if (id_entidade_destino != Entidade::IdInvalido) {
-    acao_proto.add_id_entidade_destino(id_entidade_destino);
-    // Esquiva.
-    if (PossuiTalento("esquiva", entidade->Proto())) {
-      const auto& dd = entidade->Proto().dados_defesa();
-      bool trocar = true;
-      if (dd.has_entidade_esquiva()) {
-        const auto* entidade_esquiva_corrente = BuscaEntidade(dd.entidade_esquiva());
-        if (entidade_esquiva_corrente != nullptr && !entidade_esquiva_corrente->Morta() &&
-            entidade_esquiva_corrente->IdCenario() == entidade->IdCenario()) {
-          trocar = false;
-        }
-      }
-
-      const auto* entidade_alvo = BuscaEntidade(id_entidade_destino);
-      if (trocar && entidade_alvo != nullptr && entidade_alvo->Tipo() == TE_ENTIDADE) {
-        ntf::Notificacao n;
-        PreencheNotificacaoEsquiva(id_entidade_destino, *entidade, &n, grupo_desfazer.add_notificacao());
-        AdicionaLogEvento(entidade->Id(), google::protobuf::StringPrintf("esquivando de %s", RotuloEntidade(entidade_alvo->Proto()).c_str()));
-        TrataNotificacao(n);
-      }
-    }
+  if (id_entidade_destino != Entidade::IdInvalido && entidade != nullptr) {
+    AtualizaEsquivaAoAtacar(*entidade, id_entidade_destino, &grupo_desfazer);
   }
   acao_proto.set_atraso_s(atraso_s);
   *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
@@ -1440,7 +1445,10 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   } else {
     atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
   }
-  TrataNotificacao(n);
+  if (n.has_acao()) {
+    TrataNotificacao(n);
+  }
+  // Mesmo nao havendo acao, tem que desfazer porque ha efeitos que independem disso, como queda.
   AdicionaNotificacaoListaEventos(grupo_desfazer);
   return atraso_s;
 }
@@ -1486,7 +1494,7 @@ void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Pos
   // Sem entidade selecionada, realiza sinalizacao.
   VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
   if (id_entidade_destino != Entidade::IdInvalido) {
-    acao_proto.add_id_entidade_destino(id_entidade_destino);
+    acao_proto.add_por_entidade()->set_id(id_entidade_destino);
   }
   acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
   ntf::Notificacao n;
@@ -1655,7 +1663,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
         texto.append(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
       }
       acao->set_texto(texto);
-      acao->add_id_entidade_destino(receptor->Id());
+      acao->add_por_entidade()->set_id(receptor->Id());
       //*acao->mutable_pos_entidade() = receptor->Pos();
     }
 

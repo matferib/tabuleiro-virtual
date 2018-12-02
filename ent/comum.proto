@@ -276,6 +276,7 @@ message ResistenciaElementos {
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
+  optional bool imune_furtivo = 20;
   optional int32 ca_deprecated = 2 [deprecated=true];
   optional Bonus ca = 4;
   optional Bonus salvacao_fortitude = 5;

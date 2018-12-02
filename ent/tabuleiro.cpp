@@ -1575,7 +1575,9 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
     auto* a = na->mutable_acao();
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-    a->add_id_entidade_destino(entidade_selecionada->Id());
+    auto* por_entidade = a->add_por_entidade();
+    por_entidade->set_id(entidade_selecionada->Id());
+    por_entidade->set_delta(delta_pontos_vida);
     a->set_delta_pontos_vida(delta_pontos_vida);
   }
   TrataNotificacao(grupo_notificacoes);
@@ -1605,9 +1607,10 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->add_id_entidade_destino(id);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_texto(texto);
   a->set_afeta_pontos_vida(false);
-  a->set_texto(texto);
   a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
@@ -1629,9 +1632,10 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, in
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->add_id_entidade_destino(id);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_delta(delta);
   a->set_afeta_pontos_vida(false);
-  a->set_delta_pontos_vida(delta);
   if (!texto.empty()) {
     a->set_texto(texto);
   }
@@ -1640,24 +1644,17 @@ void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, in
   TrataNotificacao(na);
 }
 
-float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s) {
-  auto* entidade = BuscaEntidade(id_entidade);
+float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& por_entidade, float atraso_s) {
+  auto* entidade = BuscaEntidade(por_entidade.id());
   if (entidade == nullptr) {
-    LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
+    LOG(WARNING) << "Entidade nao encontrada: " << por_entidade.id();
     return atraso_s;
   }
 
   const auto& ap = acao.Proto();
   // Por padrao, usa delta e pv da acao. Caso seja por entidade, substitui.
-  int delta_pontos_vida = ap.delta_pontos_vida();
-  std::string texto = ap.texto();
-  for (const auto& delta_por_entidade : ap.delta_por_entidade()) {
-    if (delta_por_entidade.id() == id_entidade) {
-      delta_pontos_vida = delta_por_entidade.delta();
-      texto = delta_por_entidade.texto();
-      break;
-    }
-  }
+  const int delta_pontos_vida = por_entidade.has_delta() ? por_entidade.delta() : ap.delta_pontos_vida();
+  std::string texto = por_entidade.has_texto() ? por_entidade.texto() : ap.texto();
 
   // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
   AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta_pontos_vida, texto, atraso_s, /*local_apenas=*/true);
@@ -2449,10 +2446,11 @@ void Tabuleiro::RolaIniciativasNotificando() {
       n_rotulo->set_tipo(ntf::TN_ADICIONAR_ACAO);
       auto* acao = n_rotulo->mutable_acao();
       acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      acao->add_id_entidade_destino(entidade->Id());
-      char texto[20] = {'\0'};
-      snprintf(texto, 19, "%d+%d= %d", d20, entidade->ModificadorIniciativa(), iniciativa);
-      acao->set_texto(texto);
+      char texto[100] = { '\0' };
+      snprintf(texto, 99, "%d+%d= %d", d20, entidade->ModificadorIniciativa(), iniciativa);
+      auto* por_entidade = acao->add_por_entidade();
+      por_entidade->set_id(entidade->Id());
+      por_entidade->set_texto(texto);
       acao->set_atraso_s(atraso_rotulo_s);
       atraso_rotulo_s += 0.5f;
       if (EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador()) {
@@ -4500,13 +4498,13 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
     if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
-      if (ap.id_entidade_destino_size() > 0 && (ap.afeta_pontos_vida() || ap.gera_outras_acoes())) {
+      if (!ap.por_entidade().empty() && (ap.afeta_pontos_vida() || ap.gera_outras_acoes())) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
         float atraso_s = 0.0f;
-        for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          atraso_s = GeraAcaoFilha(*acao, id_entidade_destino, atraso_s);
+        for (const auto& por_entidade : ap.por_entidade()) {
+          atraso_s = GeraAcaoFilha(*acao, por_entidade, atraso_s);
         }
       }
     }
