@@ -1,5 +1,5 @@
-Fazer 3d: sucubo, vrock.
-
+Mostrar grupo na UI e no ataque. Nao preencher grupo se ja houver.
+Fazer 3d: sucubo.
 
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
