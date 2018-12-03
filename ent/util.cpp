@@ -2112,7 +2112,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
-  da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
+  if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
   bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
@@ -3401,10 +3401,8 @@ std::string StringDescritores(const google::protobuf::RepeatedField<int>& descri
 
 std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
-  char string_rotulo[40] = { '\0' };
-  if (!da.rotulo().empty()) {
-    snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
-  }
+  std::string string_rotulo = StringPrintf("%s (%s), ", da.grupo().c_str(), da.rotulo().c_str());
+
   std::string string_nome_arma = da.id_arma().empty()
       ? ""
       : StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
@@ -3424,10 +3422,10 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
 
   std::string texto_elementos;
   if (da.acao().has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
-
+  
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
-  return google::protobuf::StringPrintf(
-      "rotulo: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+  return StringPrintf(
+      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
