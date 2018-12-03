@@ -1172,12 +1172,12 @@ void Acao::AtualizaDirecaoQuedaAlvoRelativoTabuleiro(Entidade* entidade) {
 }
 
 bool Acao::AtualizaAlvo(int intervalo_ms) {
-  auto* entidade_destino = BuscaEntidadeDestino(acao_proto_, tabuleiro_);
-  if (entidade_destino == nullptr) {
-    VLOG(1) << "Finalizando alvo, destino não existe.";
-    return false;
-  }
   if (acao_proto_.consequencia() == TC_DESLOCA_ALVO) {
+    auto* entidade_destino = BuscaEntidadeDestino(acao_proto_, tabuleiro_);
+    if (entidade_destino == nullptr) {
+      VLOG(1) << "Finalizando alvo, destino nao existe.";
+      return false;
+    }
     if (!acao_proto_.bem_sucedida()) {
       VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
       dx_total_ = dy_total_ = dz_total_ = 0;
@@ -1231,19 +1231,18 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
+      if (por_entidade.delta() == 0) continue;
       const auto id = por_entidade.id();
-      entidade_destino = tabuleiro_->BuscaEntidade(id);
+      auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
         continue;
       }
-      EntidadeProto parcial;
-      parcial.set_fumegando(true);
-      entidade_destino->AtualizaParcial(parcial);
+      entidade_destino->AtivaFumegando(/*duracao_ms*/5000);
     }
     return false;
   } else if (acao_proto_.consequencia() == TC_AGARRA_ALVO) {
-    Entidade* entidade_origem = EntidadeOrigem();
     Entidade* entidade_destino = EntidadeDestino();
+    Entidade* entidade_origem = EntidadeOrigem();
     if (entidade_origem == nullptr || entidade_destino == nullptr) {
       VLOG(1) << "Finalizando alvo, origem ou destino não existe.";
       return false;
