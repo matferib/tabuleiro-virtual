@@ -1,4 +1,4 @@
-Fazer 3d: sucubo, babau, vrock.
+Fazer 3d: sucubo, vrock.
 
 
 Implementar boleadeira (bolas).

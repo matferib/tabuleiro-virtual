@@ -1221,13 +1221,13 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
       resultado_ataque_reflexos rar;
       std::string texto_reflexo;
       std::tie(texto_reflexo, rar) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
-      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo, dref - 1, num_total - 1);
+      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo.c_str(), dref - 1, num_total - 1);
       if (rar == RAR_ACERTOU) {
         resultado.resultado = RA_FALHA_REFLEXO;
       } else {
         resultado.resultado = (rar == RAR_FALHA_CRITICA) ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
       }
-      return resultado; 
+      return resultado;
     }
     VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
   }
