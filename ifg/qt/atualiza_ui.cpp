@@ -8,6 +8,7 @@
 #include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/feiticos_util.h"
 #include "ifg/qt/itens_magicos_util.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/util.h"
@@ -261,14 +262,25 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   }
 }
 
+int MaterialArmaParaIndice(ent::DescritorAtaque descritor) {
+  switch (descritor) {
+    case ent::DESC_ADAMANTE: return 1;
+    case ent::DESC_FERRO_FRIO: return 2;
+    case ent::DESC_MADEIRA_NEGRA: return 3;
+    case ent::DESC_MITRAL: return 4;
+    case ent::DESC_PRATA_ALQUIMICA: return 5;
+    default: return 0;
+  }
+}
+
 }  // namespace
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
-       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
-       gerador.combo_arma, gerador.spin_ordem_ataque };
+       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
+       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Tem que vir antes do clear.
@@ -295,6 +307,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
       tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
   PreencheComboArma(tabelas, gerador, tipo_ataque);
+  gerador.combo_material_arma->setEnabled(
+      tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
   if (!linha_valida) {
     LimpaCamposAtaque(gerador);
     gerador.botao_remover_ataque->setEnabled(!proto.dados_ataque().empty());
@@ -303,7 +317,9 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   }
   const auto& da = proto.dados_ataque(linha);
   gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
+  gerador.combo_material_arma->setCurrentIndex(MaterialArmaParaIndice(da.material_arma()));
   gerador.botao_remover_ataque->setEnabled(true);
+  gerador.linha_grupo_ataque->setText(QString::fromUtf8(da.grupo().c_str()));
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();
   gerador.combo_tipo_ataque->setCurrentIndex(gerador.combo_tipo_ataque->findData(tipo_str.c_str()));
@@ -462,21 +478,23 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
 
 // Feiticos.
 void AdicionaItemFeiticoConhecido(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& nome, const std::string& id_classe, int nivel, int slot,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
+    const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int slot,
     QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  auto* item_feitico = new QTreeWidgetItem(pai);
-  item_feitico->setText(0, QString::fromUtf8(nome.c_str()));
+  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, pai);
+  item_feitico->setIdNome(QString::fromUtf8(id.c_str()), QString::fromUtf8(nome.c_str()));
   item_feitico->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(CONHECIDO));
   item_feitico->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
   item_feitico->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
   item_feitico->setData(TCOL_INDICE, Qt::UserRole, QVariant(slot));
+  item_feitico->setData(TCOL_ID_FEITICO, Qt::UserRole, QVariant(""));
   item_feitico->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   gerador.arvore_feiticos->blockSignals(false);
 }
 
 void AtualizaFeiticosConhecidosNivel(
-    ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, int nivel,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& id_classe, int nivel,
     const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
   auto filhos = pai->takeChildren();
@@ -486,7 +504,7 @@ void AtualizaFeiticosConhecidosNivel(
   const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
-    AdicionaItemFeiticoConhecido(gerador, conhecido.nome(), id_classe, nivel, slot++, pai);
+    AdicionaItemFeiticoConhecido(tabelas, gerador, conhecido.id(), conhecido.nome(), id_classe, nivel, slot++, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
@@ -535,6 +553,7 @@ void PreencheComboParaLancar(
   combo->addItems(lista);
   combo->setCurrentIndex(indice_corrente);
   combo->disconnect();
+  ExpandeComboBox(combo);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [item_feitico, mapa] (int indice) {
       // Trigar apenas 1 evento.
       item_feitico->treeWidget()->blockSignals(true);
@@ -616,7 +635,7 @@ void AtualizaFeiticosClasse(
       item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
       item_conhecidos->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
       item_conhecidos->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
-      AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, proto, item_conhecidos);
+      AtualizaFeiticosConhecidosNivel(tabelas, gerador, id_classe, nivel, proto, item_conhecidos);
       gerador.arvore_feiticos->blockSignals(true);
     }
     {

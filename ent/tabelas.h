@@ -18,6 +18,9 @@ class Tabelas : public ntf::Receptor {
 
   const TodasTabelas& todas() const { return tabelas_; }
 
+  // Retorna os feiticos de uma determinada classe, por nivel.
+  const std::vector<const ArmaProto*> Feiticos(const std::string& id_classe, int nivel) const;
+
   // As funcoes retornam a instancia padrao caso nao encontrem a chave.
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;

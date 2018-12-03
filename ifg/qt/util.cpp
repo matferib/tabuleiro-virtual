@@ -39,3 +39,12 @@ const ent::Cor CorParaProto(const QColor& qcor) {
   cor.set_a(ConverteCor(qcor.alpha()));
   return cor;
 }
+
+// A funcao minimumSizeHint eh lazy, ou seja, computada apenas a primeira vez. Depois impossivel altera-la.
+// Portanto, quando ExpandeComboBox for chamado, todas as possibilidades de combo ja devem ter sido preenchidas.
+void ExpandeComboBox(QComboBox* combo) {
+#if WIN32 || __APPLE__
+  combo->view()->setMinimumWidth(combo->minimumSizeHint().width());
+#endif
+}
+

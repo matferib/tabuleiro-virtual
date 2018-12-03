@@ -49,7 +49,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (notificacao.endereco().empty()) {
       AutoConecta(notificacao.id_rede());
     } else {
-      Conecta(notificacao.id_rede(), notificacao.endereco());
+      Conecta(notificacao.id_rede(), notificacao.endereco(), notificacao.has_porta_local() ? notificacao.porta_local() : 0);
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
@@ -124,14 +124,14 @@ void Cliente::AutoConecta(const std::string& id) {
           endereco_str.append(":");
           endereco_str.append(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes);
         }
-        Conecta(id, endereco_str);
+        Conecta(id, endereco_str, 0);
       }
   );
   //LOG(INFO) << "zerando timer";
   timer_descobrimento_.start();
 }
 
-void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
+void Cliente::Conecta(const std::string& id, const std::string& endereco_str, int porta_local) {
   VLOG(1) << "Tentando conectar como " << id << " em " << endereco_str;
   if (socket_descobrimento_.get() != nullptr) {
     central_->AdicionaNotificacao(
@@ -153,6 +153,9 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   }
   try {
     socket_.reset(new Socket(sincronizador_));
+    if (porta_local > 1024) {
+      socket_->PortaLocal(porta_local);
+    }
     socket_->Conecta(endereco_porta[0], endereco_porta[1]);
 #if 0
     //boost::asio::socket_base::receive_buffer_size option(50000);

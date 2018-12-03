@@ -21,7 +21,8 @@ class Cliente : public ntf::Receptor, public ntf::EmissorRemoto {
 
  private:
   // Conecta o cliente identificado por id ao servidor localizado em endereco, formato: <host:porta>.
-  void Conecta(const std::string& id, const std::string& endereco_str);
+  // Porta local eh para forcar a porta local. Teste de forwarding. Use 0 para nenhum.
+  void Conecta(const std::string& id, const std::string& endereco_str, int porta_local);
 
   // Descobre o endereco do servidor e conecta.
   void AutoConecta(const std::string& id);

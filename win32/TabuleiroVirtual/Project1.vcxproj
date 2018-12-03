@@ -360,9 +360,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
-      <Command>"$(MSBuildStartupDirectory)\protoc.exe" -proto_path=. -Ic:/Users/matheus/Projetos/TabuleiroVirtual ent/acoes.proto ent/controle_virtual.proto ent/entidade.proto ent/tabuleiro.proto ifg/modelos.proto ntf/notificacao.proto --cpp_out=c:/Users/matheus/Projetos/TabuleiroVirtual
-
-</Command>
+      <Command>$(SolutionDir)..\bin\protoc.exe -proto_path=$(SolutionDir).. -I$(SolutionDir).. ent/acoes.proto ent/controle_virtual.proto ent/entidade.proto ent/tabuleiro.proto ifg/modelos.proto ntf/notificacao.proto --cpp_out=$(SolutionDir)..</Command>
     </PreBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

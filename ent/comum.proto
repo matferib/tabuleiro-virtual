@@ -62,7 +62,8 @@ enum TipoEfeito {
   EFEITO_SUPORTAR_ELEMENTOS = 28;     // TODO
   EFEITO_RESISTENCIA_ELEMENTOS = 29;  // TODO
   EFEITO_SANTUARIO = 30;              // TODO
-  EFEITO_ABENCOAR_ARMA = 31;          // TODO
+  // Complemento é o rotulo.
+  EFEITO_ABENCOAR_ARMA = 31;
 
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
@@ -70,6 +71,18 @@ enum TipoEfeito {
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
+  // Indica que entidade esta envenenada.
+  EFEITO_VENENO = 38;
+  // Dano de atributo por causa de veneno.
+  // Os complementos indicam quanto de dano em cada atributo: for, des, con, int, sab, car, nesta ordem.
+  EFEITO_DANO_ATRIBUTO_VENENO = 39;
+  // O complemento é da forma: rotulo, alinhamento.
+  EFEITO_ALINHAR_ARMA = 40;
+  EFEITO_ENREDADO = 41;  // entangled.
+  // Dura 1s.
+  EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
+  // Magia de sono.
+  EFEITO_SONO = 43;
 }
 
 // Tipo de visao para entidades e camera.
@@ -108,7 +121,44 @@ enum TipoDnD {
   TIPO_ANIMAL = 3;
   TIPO_PLANTA = 4;
   TIPO_BESTA_MAGICA = 5; // d10 fortitude, reflexo, bba guerreiro, visao escuro 12q, visao na penumbra.
+  TIPO_EXTRA_PLANAR = 6;
   // TODO outros.
+}
+
+enum DescritorAtaque {
+  // descritores de magia.
+  DESC_NENHUM = 0;
+  DESC_ACIDO = 1;
+  DESC_AR = 2;
+  DESC_CAOS = 3;
+  DESC_FRIO = 4;
+  DESC_ESCURIDAO = 5;
+  DESC_MORTE = 6;
+  DESC_TERRA = 7;
+  DESC_ELETRICIDADE = 8;
+  DESC_MAL = 9;
+  DESC_MEDO = 10;
+  DESC_FOGO = 11;
+  DESC_FORCA = 12;
+  DESC_BEM = 13;
+  DESC_LEAL = 14;
+  DESC_LUZ = 15;
+  DESC_MENTAL = 16;
+  DESC_SONICO = 17;
+  DESC_AGUA = 18;
+  DESC_VENENO = 19;
+  DESC_DEPENDENTE_IDIOMA = 20;
+  // Outras formas de ataque, nao necessariamente descritores mas funcionam como se fosse.
+  DESC_FERRO_FRIO = 21;
+  DESC_MADEIRA_NEGRA = 22;
+  DESC_MITRAL = 23;
+  DESC_ADAMANTE = 24;
+  DESC_PRATA_ALQUIMICA = 25;
+  DESC_COURO_DRAGAO = 26;
+  // tipo de ataque fisico.
+  DESC_PERFURANTE = 27;
+  DESC_CORTANTE = 28;
+  DESC_ESTOURANTE = 29;
 }
 
 // Tambem usado como vetor.
@@ -131,6 +181,8 @@ message IluminacaoPontual {
   // Metros. Passar para quadrados.
   optional float raio_m = 2;
   optional float atenuacao = 3 [deprecated=true];
+  // Para luzes de acao.
+  optional float duracao_ms = 4;
 }
 
 message Nevoa {
@@ -203,10 +255,30 @@ message Atributos {
   optional Bonus carisma = 6;
 }
 
+enum TipoCombinacao {
+  COMB_E = 0;  // todos descritores sao requeridos
+  COMB_OU = 1; // um dos descritores é requerido.
+}
+
+// Reducoes de dano de acordo com descritores.
+message ReducaoDano {
+  repeated DescritorAtaque descritores = 1;
+  optional int32 valor = 2;
+  optional TipoCombinacao tipo_combinacao = 3;
+}
+
+message ResistenciaElementos {
+  optional DescritorAtaque descritor = 1;
+  optional int32 valor = 2;
+  // Para resistencias criadas por efeitos.
+  optional int32 id_unico = 4;
+}
+
 // Dados de defesa global (independe de ataque).
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
+  optional bool imune_furtivo = 20;
   optional int32 ca_deprecated = 2 [deprecated=true];
   optional Bonus ca = 4;
   optional Bonus salvacao_fortitude = 5;
@@ -225,6 +297,11 @@ message DadosDefesa {
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
   optional int32 reducao_dano_barbaro = 15;
   optional int32 resistencia_magia = 16;
+  repeated DescritorAtaque imunidades = 17;
+  // Reduz ataques que nao corresponderem aos descritores.
+  optional ReducaoDano reducao_dano = 18;
+  // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
+  repeated ResistenciaElementos resistencia_elementos = 19;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
@@ -360,8 +437,7 @@ message InfoPericia {
   optional Bonus bonus = 5;
   // As restricoes de sinergia da pericia.
   repeated string restricoes_sinergia = 6;
-  // Para forcar a ser de classe mesmo quando nao eh.
-  optional bool de_classe = 7;
+  // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
 }
 
 message ConsequenciaEvento {
@@ -382,6 +458,7 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
+  optional string nome_efeito = 5;  // nome do efeito, legibilidade.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
@@ -642,18 +719,22 @@ enum TipoDanoVeneno {
   TDV_INTELIGENCIA = 6;
   TDV_SABEDORIA = 7;
   TDV_CARISMA = 8;
+  TDV_INCONSCIENCIA = 9;
 }
 
-message Veneno {
-  optional string nome = 1;
-  optional TipoVeneno tipo = 2;
+message VenenoProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional TipoVeneno tipo = 3;
   // A cardinalidade eh a mesma para cada par. Alguns venenos tem mais de um tipo de dano.
-  repeated string dano_inicial = 3;
-  repeated TipoDanoVeneno tipo_dano = 4;
-  optional bool dano_primario_permanente = 5;
-  repeated string dano_secundario = 6;
-  repeated TipoDanoVeneno tipo_dano_secundario = 7;
-  optional bool dano_secundario_permanente = 8;
+  repeated string dano_inicial = 4;
+  repeated TipoDanoVeneno tipo_dano = 5;
+  optional bool dano_primario_permanente = 6;
+  repeated string dano_secundario = 7;
+  repeated TipoDanoVeneno tipo_dano_secundario = 8;
+  optional bool dano_secundario_permanente = 9;
   // Classe de dificuldade.
-  optional int32 cd = 9;
+  optional int32 cd = 10;
+  optional int32 preco_po = 11;
 }
+

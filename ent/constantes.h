@@ -30,8 +30,8 @@
 #define DISTANCIA_PLANO_CORTE_PROXIMO 2.0f
 #define DISTANCIA_PLANO_CORTE_DISTANTE 80.0f
 #else
-#define DISTANCIA_PLANO_CORTE_PROXIMO 1.0f
-#define DISTANCIA_PLANO_CORTE_DISTANTE 160.0f
+#define DISTANCIA_PLANO_CORTE_PROXIMO 0.5f
+#define DISTANCIA_PLANO_CORTE_DISTANTE 80.0f
 #endif
 #define DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA 0.1f
 
@@ -101,6 +101,8 @@ constexpr float CAMPO_VISAO_MAX = 90.0f;
 
 /** Tempo que o detalhamento mostra os detalhes no hover. */
 constexpr int TEMPO_DETALHAMENTO_MS = 500;
+/** Tempo entre mensagens. */
+constexpr float TEMPO_ENTRE_MENSAGENS_S = 2.0f;
 
 /** Distancia minima entre pontos no desenho livre. */
 constexpr float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
@@ -122,7 +124,7 @@ constexpr double OLHO_ALTURA_INICIAL = 10.0;
 /** altura maxima do olho. */
 constexpr double OLHO_ALTURA_MAXIMA = 45.0;
 /** altura minima do olho. */
-constexpr double OLHO_ALTURA_MINIMA = 1.5;
+constexpr double OLHO_ALTURA_MINIMA = 0.3;
 
 /** raio (distancia) inicial do olho. */
 constexpr double OLHO_RAIO_INICIAL = 20.0;
@@ -138,6 +140,8 @@ constexpr int MINUTOS_PARA_RODADAS = 10;
 constexpr int HORAS_PARA_RODADAS = 60 * MINUTOS_PARA_RODADAS;
 constexpr float QUADRADOS_PARA_METROS = 1.5f;
 constexpr float METROS_PARA_QUADRADOS = 1.0f / 1.5f;
+
+constexpr int DIA_EM_RODADAS = 10 * 60 * 24;
 
 }  // namespace ent
 

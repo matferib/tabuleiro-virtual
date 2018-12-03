@@ -14,11 +14,35 @@ namespace qt {
 
 namespace {
 
+bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
+  switch (evento.id_efeito()) {
+    case ent::EFEITO_VENENO:
+    case ent::EFEITO_ALINHAR_ARMA:
+    case ent::EFEITO_ABENCOAR_ARMA:
+    case ent::EFEITO_SUPORTAR_ELEMENTOS:
+    case ent::EFEITO_RESISTENCIA_ELEMENTOS:
+      return true;
+    default: return false;
+  }
+}
+
 QString ComplementosParaString(const google::protobuf::RepeatedField<int>& complementos) {
   QString s;
   for (int c : complementos) {
     s.append(" ");
     s.append(QString::number(c));
+  }
+  if (!s.isEmpty()) {
+    s.remove(0, 1);
+  }
+  return s;
+}
+
+QString ComplementosStrParaString(const google::protobuf::RepeatedPtrField<std::string>& complementos_str) {
+  QString s;
+  for (const std::string& cs : complementos_str) {
+    s.append(";");
+    s.append(cs.c_str());
   }
   if (!s.isEmpty()) {
     s.remove(0, 1);
@@ -35,6 +59,15 @@ const google::protobuf::RepeatedField<int> StringParaComplementos(const QString&
     if (ok) cs.Add(c);
   }
   return cs;
+}
+
+const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(const QString& complementos) {
+  google::protobuf::RepeatedPtrField<std::string> ss;
+  QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+  for (const auto& s : lista) {
+    *ss.Add() = s.toStdString();
+  }
+  return ss;
 }
 
 }  // namespace
@@ -115,8 +148,9 @@ class ModeloEvento : public QAbstractTableModel {
     const auto& evento = eventos_->Get(row);
     switch (column) {
       case 0: 
-        return role == Qt::DisplayRole ? QVariant(ent::TipoEfeito_Name(evento.id_efeito()).c_str()) : QVariant(evento.id_efeito());
-      case 1: return QVariant(ComplementosParaString(evento.complementos()));
+        return role == Qt::DisplayRole ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) : QVariant(evento.id_efeito());
+      case 1: return QVariant(ComplementoEventoString(evento) ?
+                  ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
     }
@@ -145,7 +179,11 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 1: {
-        *evento->mutable_complementos() = StringParaComplementos(value.toString());
+        if (ComplementoEventoString(*evento)) {
+          *evento->mutable_complementos_str() = StringParaComplementosStr(value.toString());
+        } else {
+          *evento->mutable_complementos() = StringParaComplementos(value.toString());
+        }
         emit dataChanged(index, index);
         return true;
       }
@@ -223,11 +261,13 @@ class TipoEfeitoDelegate : public QItemDelegate {
     std::map<std::string, int> efeitos_ordenados;
     for (int tipo = 0; tipo <= ent::TipoEfeito_MAX; tipo++) {
       if (!ent::TipoEfeito_IsValid(tipo)) continue;
-      efeitos_ordenados.insert(std::make_pair(ent::TipoEfeito_Name(ent::TipoEfeito(tipo)), tipo));
+      std::string efeito_str = StringEfeito(ent::TipoEfeito(tipo));
+      efeitos_ordenados.insert(std::make_pair(efeito_str, tipo));
     }
     for (const auto& par_str_id : efeitos_ordenados) {
       combo->addItem(par_str_id.first.c_str(), QVariant(par_str_id.second));
     }
+    ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
       auto* thiz = const_cast<TipoEfeitoDelegate*>(this);

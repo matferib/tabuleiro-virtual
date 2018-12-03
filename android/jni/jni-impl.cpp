@@ -213,8 +213,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     g_receptor->TrataNotificacao(ninfo);
   }*/
   if (servidor) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
-    g_central->AdicionaNotificacao(n);
+    auto n = ntf::NovaNotificacao(ntf::TN_INICIAR);
+    g_central->AdicionaNotificacao(n.release());
     // TESTE
     try {
       //auto* ntf_tab = new ntf::Notificacao;
@@ -230,10 +230,10 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     __android_log_print(
         ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
 
-    auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
+    auto n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
     n->set_id_rede(nome_nativo);
     n->set_endereco(endereco_nativo);
-    g_central->AdicionaNotificacao(n);
+    g_central->AdicionaNotificacao(n.release());
   }
 }
 
@@ -365,8 +365,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobj
 #if !USAR_QT
   g_interface_android->setEnvThisz(env, thiz);
 #endif
-  auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
-  g_central->AdicionaNotificacao(n);
+  auto n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
+  g_central->AdicionaNotificacao(n.release());
   g_central->Notifica();
 }
 
@@ -376,7 +376,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   std::string mensagem_str;
   mensagem_str.resize(tam_mensagem);
   env->GetByteArrayRegion(mensagem, 0, tam_mensagem, (jbyte*)&mensagem_str[0]);
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade()->ParseFromString(mensagem_str);
   // Desfaz o hack de eventos
   auto evento_deshackeado(ent::LeEventos(n->entidade().evento(0).descricao()));
@@ -386,7 +386,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   }
   n->mutable_entidade()->mutable_evento()->Swap(&evento_deshackeado);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
-  g_central->AdicionaNotificacao(n);
+  g_central->AdicionaNotificacao(n.release());
 }
 
 // Dialogo de mensagem fechado.

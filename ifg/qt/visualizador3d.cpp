@@ -66,21 +66,6 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
-// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
-void ExpandeComboBox(QComboBox* combo) {
-#if WIN32
-  int scroll = combo->count() <= combo->maxVisibleItems() ? 0 :
-      QApplication::style()->pixelMetric(QStyle::PixelMetric::PM_ScrollBarExtent);
-  int max = 0;
-  for (int i = 0; i < combo->count(); i++) {
-    int width = combo->view()->fontMetrics().width(combo->itemText(i));
-    if (max < width) max = width;
-  }
-  combo->view()->setMinimumWidth(scroll + max);
-#endif
-}
-
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -908,6 +893,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
       da.set_margem_critico(dano_arma.margem_critico);
     }
   }
+  da.set_grupo(gerador.linha_grupo_ataque->text().toStdString());
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toStdString());
   da.set_incrementos(gerador.spin_incrementos->value());
   if (gerador.spin_alcance_quad->value() > 0) {
@@ -1024,6 +1010,13 @@ void PreencheConfiguraPericias(
   gerador.tabela_pericias->setModel(modelo);
   gerador.tabela_pericias->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   gerador.tabela_pericias->resizeColumnsToContents();
+  lambda_connect(gerador.tabela_pericias, SIGNAL(resizeEvent(QResizeEvent* event)), [&gerador]() {
+    gerador.tabela_pericias->resizeColumnsToContents();
+  });
+  // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
+  for (int c = 0; c < gerador.tabela_pericias->horizontalHeader()->count(); ++c) {
+    gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+  }
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
     *proto_retornado->mutable_info_pericias() = modelo->Converte();
@@ -1062,6 +1055,11 @@ void PreencheConfiguraTalentos(
     }
   });
   gerador.tabela_talentos->resizeColumnsToContents();
+  // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
+  for (int c = 0; c < gerador.tabela_talentos->horizontalHeader()->count(); ++c) {
+    gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+  }
+
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
     // TODO alterar o delegate do complemento.
@@ -1101,7 +1099,8 @@ void PreencheConfiguraFeiticos(
           int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
           auto* fn = FeiticosNivel(id_classe, nivel, proto_retornado);
           fn->add_conhecidos()->set_nome("");
-          AdicionaItemFeiticoConhecido(gerador, "", id_classe, nivel, fn->conhecidos_size() - 1, item);
+          AdicionaItemFeiticoConhecido(this_->tabelas(), gerador, "", "", id_classe, nivel, fn->conhecidos_size() - 1, item);
+          item->setExpanded(true);
           if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
             AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
           }
@@ -1126,7 +1125,7 @@ void PreencheConfiguraFeiticos(
             return;
           }
           fn->mutable_conhecidos()->DeleteSubrange(indice, 1);
-          AtualizaFeiticosConhecidosNivel(gerador, id_classe, nivel, *proto_retornado, item->parent());
+          AtualizaFeiticosConhecidosNivel(this_->tabelas(), gerador, id_classe, nivel, *proto_retornado, item->parent());
           // aqui tem que corrigir todos para lancar que apontavam para feiticos do mesmo nivel:
           // 1- indice do removido: resetar para primeiro indice.
           // 2- indice > removido: diminuir o indice em 1.
@@ -1162,7 +1161,12 @@ void PreencheConfiguraFeiticos(
     auto* f = FeiticosNivel(id_classe, nivel, proto_retornado);
     if (item->data(0, Qt::UserRole).toInt() == CONHECIDO) {
       if (indice < 0 || indice >= f->conhecidos_size()) return;
-      f->mutable_conhecidos(indice)->set_nome(item->text(0).toUtf8().constData());
+      f->mutable_conhecidos(indice)->set_nome(item->data(TCOL_NOME_FEITICO, Qt::UserRole).toString().toStdString());
+      if (!item->data(TCOL_ID_FEITICO, Qt::UserRole).toString().isEmpty()) {
+        f->mutable_conhecidos(indice)->set_id(item->data(TCOL_ID_FEITICO, Qt::UserRole).toString().toStdString());
+      } else {
+        f->mutable_conhecidos(indice)->clear_id();
+      }
       if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
         AtualizaCombosParaLancar(this_->tabelas(), gerador, id_classe, *proto_retornado);
       }
@@ -1428,6 +1432,14 @@ void PreencheConfiguraDadosDefesa(
 void ConfiguraComboArma(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto* combo_arma = gerador.combo_arma;
+  std::string maior_string;
+  for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
+    if (arma.nome().length() > maior_string.length()) maior_string = arma.nome();
+  }
+  gerador.combo_arma->addItem(QString::fromUtf8(maior_string.c_str()), QVariant(""));
+  ExpandeComboBox(gerador.combo_arma);
+  gerador.combo_arma->clear();
+
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
@@ -1442,9 +1454,40 @@ void ConfiguraComboArma(
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
     gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
+    gerador.combo_material_arma->setEnabled(id_arma != "nenhuma");
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
-  ExpandeComboBox(combo_arma);
+}
+
+ent::DescritorAtaque IndiceParaMaterialArma(int indice) {
+  switch (indice) {
+    case 1: return ent::DESC_ADAMANTE;
+    case 2: return ent::DESC_FERRO_FRIO;
+    case 3: return ent::DESC_MADEIRA_NEGRA;
+    case 4: return ent::DESC_MITRAL;
+    case 5: return ent::DESC_PRATA_ALQUIMICA;
+  }
+  return ent::DESC_NENHUM;
+}
+
+// Preenche o combo de material da arma.
+void ConfiguraComboMaterial(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo_material = gerador.combo_material_arma;
+  lambda_connect(combo_material, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material] () {
+    const int index_lista = gerador.lista_ataques->currentRow();
+    if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
+    auto* da = proto_retornado->mutable_dados_ataque(index_lista);
+    ent::DescritorAtaque desc = IndiceParaMaterialArma(combo_material->currentIndex());
+    if (desc == ent::DESC_NENHUM) {
+      da->clear_material_arma();
+    } else {
+      da->set_material_arma(desc);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+  });
+  ExpandeComboBox(combo_material);
 }
 
 void PreencheConfiguraComboTipoAtaque(
@@ -1457,10 +1500,15 @@ void PreencheConfiguraComboTipoAtaque(
   for (const auto& id : tipos_acoes) {
     gerador.combo_tipo_ataque->addItem((id.c_str()), QVariant(id.c_str()));
   }
+  ExpandeComboBox(gerador.combo_tipo_ataque);
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
       [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
-    gerador.combo_arma->setEnabled(tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
+    gerador.combo_arma->setEnabled(
+        tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
+        tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
+    gerador.combo_material_arma->setEnabled(
+        tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
     EditaAtualizaUIAtaque();
     int indice = gerador.lista_ataques->currentRow();
     if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
@@ -1490,8 +1538,14 @@ void PreencheConfiguraDadosAtaque(
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   PreencheConfiguraComboTipoAtaque(tabelas, gerador, EditaAtualizaUIAtaque, proto_retornado);
   ConfiguraComboArma(tabelas, gerador, proto_retornado);
+  ConfiguraComboMaterial(tabelas, gerador, proto_retornado);
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+
+  // Furtivo
+  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
+
+  ExpandeComboBox(gerador.combo_empunhadura);
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
@@ -1534,6 +1588,7 @@ void PreencheConfiguraDadosAtaque(
     gerador.lista_ataques->setCurrentRow(-1);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
+  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
@@ -1557,8 +1612,6 @@ void PreencheConfiguraDadosAtaque(
     AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_bonus_dano());
     EditaAtualizaUIAtaque();
   });
-  // Furtivo
-  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
 }
 
 void PreencheComboSalvacoesFortes(QComboBox* combo) {
@@ -1626,6 +1679,8 @@ void PreencheConfiguraComboClasse(
   for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
     combo->addItem((ic.nome().c_str()), ic.id().c_str());
   }
+  ExpandeComboBox(combo);
+  ExpandeComboBox(gerador.combo_mod_conjuracao);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
     std::vector<QObject*> objs = {
       gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
@@ -2071,6 +2126,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoEntidade(
   return std::unique_ptr<ent::EntidadeProto>();
 }
 
+// ATENCAO: se mexer aqui, mexa tb em Tabuleiro::DeserializaPropriedades pois os campos sao copiados campo a campo
+// para nao se perder outras coisas importantes do cenario.
 ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
@@ -2138,6 +2195,20 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
   // Mestre apenas.
   gerador.checkbox_mestre_apenas->setCheckState(tab_proto.textura_mestre_apenas() ? Qt::Checked : Qt::Unchecked);
+  // Cor de piso.
+  gerador.checkbox_cor_piso->setCheckState(tab_proto.has_cor_piso() ? Qt::Checked : Qt::Unchecked);
+  ent::Cor cor_piso_proto(tab_proto.cor_piso());
+  gerador.botao_cor_piso->setStyleSheet(CorParaEstilo(cor_piso_proto));
+  lambda_connect(gerador.botao_cor_piso, SIGNAL(clicked()), [this, dialogo, &gerador, &cor_piso_proto] {
+    QColor cor =
+        QColorDialog::getColor(ProtoParaCor(cor_piso_proto), dialogo, QObject::tr("Cor do piso"));
+    if (!cor.isValid()) {
+      return;
+    }
+    gerador.checkbox_cor_piso->setCheckState(Qt::Checked);
+    gerador.botao_cor_piso->setStyleSheet(CorParaEstilo(cor));
+    cor_piso_proto = CorParaProto(cor);
+  });
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -2170,7 +2241,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, proto_retornado] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, proto_retornado] {
     proto_retornado->mutable_luz_direcional()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->mutable_cor()->Swap(&cor_direcional_proto);
@@ -2209,6 +2280,13 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     } else {
       proto_retornado->clear_ladrilho();
     }
+    // Cor piso.
+    if (gerador.checkbox_cor_piso->checkState() == Qt::Checked) {
+      proto_retornado->mutable_cor_piso()->Swap(&cor_piso_proto);
+    } else {
+      proto_retornado->clear_cor_piso();
+    }
+
     // Textura ceu.
     if (gerador.combo_ceu->currentIndex() == 0) {
       proto_retornado->clear_info_textura_ceu();

@@ -174,6 +174,8 @@ Tabuleiro::Tabuleiro(
       arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos);
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << erro.what();
+      // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
+      //central->AdicionaNotificacao(ntf::NovaNotificacaoErro(erro.what()));
     }
     for (const auto& m : modelos.modelo()) {
       mapa_modelos_.insert(std::make_pair(
@@ -1573,7 +1575,9 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
     auto* a = na->mutable_acao();
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-    a->add_id_entidade_destino(entidade_selecionada->Id());
+    auto* por_entidade = a->add_por_entidade();
+    por_entidade->set_id(entidade_selecionada->Id());
+    por_entidade->set_delta(delta_pontos_vida);
     a->set_delta_pontos_vida(delta_pontos_vida);
   }
   TrataNotificacao(grupo_notificacoes);
@@ -1603,61 +1607,64 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->add_id_entidade_destino(id);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_texto(texto);
   a->set_afeta_pontos_vida(false);
-  a->set_texto(texto);
   a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
 }
 
+void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
+  AdicionaAcaoTexto(id, texto, atraso_s, local_apenas);
+  auto* entidade_destino = BuscaEntidade(id);
+  AdicionaLogEvento(google::protobuf::StringPrintf(
+          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
+}
+
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(id, delta, "", atraso_s, local_apenas);
+}
+
+void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s, bool local_apenas) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->add_id_entidade_destino(id);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_delta(delta);
   a->set_afeta_pontos_vida(false);
-  a->set_delta_pontos_vida(delta);
+  if (!texto.empty()) {
+    a->set_texto(texto);
+  }
   a->set_local_apenas(local_apenas);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
   TrataNotificacao(na);
 }
 
-float Tabuleiro::GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s) {
-  auto* entidade = BuscaEntidade(id_entidade);
+float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& por_entidade, float atraso_s) {
+  auto* entidade = BuscaEntidade(por_entidade.id());
   if (entidade == nullptr) {
-    LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
+    LOG(WARNING) << "Entidade nao encontrada: " << por_entidade.id();
     return atraso_s;
   }
 
   const auto& ap = acao.Proto();
-  int delta_pontos_vida = ap.delta_pontos_vida();
-  bool omite_texto = false;
-  for (const auto& delta_por_entidade : ap.delta_por_entidade()) {
-    if (delta_por_entidade.id() == id_entidade) {
-      delta_pontos_vida = delta_por_entidade.delta();
-      omite_texto = delta_por_entidade.omite_texto();
-      break;
-    }
-  }
+  // Por padrao, usa delta e pv da acao. Caso seja por entidade, substitui.
+  const int delta = por_entidade.has_delta() ? por_entidade.delta() : ap.delta_pontos_vida();
+  std::string texto = por_entidade.has_texto() ? por_entidade.texto() : ap.texto();
 
-  // Texto da mensagem, envia apenas localmente para evitar duplicatas.
-  if (!acao.Proto().texto().empty() && !omite_texto) {
-    AdicionaAcaoTexto(entidade->Id(), acao.Proto().texto(), atraso_s, true  /*local apenas*/);
-    atraso_s += 0.75f;
-  }
-
-  // Aqui eh acao para display. Isso vai para todos, porque a acao enviada para clientes nao afeta pontos
-  // de vida.
-  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), delta_pontos_vida, atraso_s, true);
-  atraso_s += 0.5f;
+  // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta, texto, atraso_s, /*local_apenas=*/true);
+  atraso_s += TEMPO_ENTRE_MENSAGENS_S;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
+    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
     TrataNotificacao(n);
   }
   return atraso_s;
@@ -2439,10 +2446,11 @@ void Tabuleiro::RolaIniciativasNotificando() {
       n_rotulo->set_tipo(ntf::TN_ADICIONAR_ACAO);
       auto* acao = n_rotulo->mutable_acao();
       acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      acao->add_id_entidade_destino(entidade->Id());
-      char texto[20] = {'\0'};
-      snprintf(texto, 19, "%d+%d= %d", d20, entidade->ModificadorIniciativa(), iniciativa);
-      acao->set_texto(texto);
+      char texto[100] = { '\0' };
+      snprintf(texto, 99, "%d+%d= %d", d20, entidade->ModificadorIniciativa(), iniciativa);
+      auto* por_entidade = acao->add_por_entidade();
+      por_entidade->set_id(entidade->Id());
+      por_entidade->set_texto(texto);
       acao->set_atraso_s(atraso_rotulo_s);
       atraso_rotulo_s += 0.5f;
       if (EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador()) {
@@ -2720,18 +2728,43 @@ const AcaoProto& Tabuleiro::AcaoDoMapa(TipoAcao id_acao) const {
   return *it->second;
 }
 
+namespace {
+
+EntidadeProto* PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(const Entidade& entidade, ntf::Notificacao* n) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *e_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  e_antes->set_ultima_acao(entidade.Proto().ultima_acao());
+  e_antes->set_ultimo_grupo_acao(entidade.Proto().ultimo_grupo_acao());
+  return e_depois;
+}
+
+void PreencheDadosAtaqueDepois(const Entidade& entidade, EntidadeProto* e_depois) {
+  *e_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  e_depois->set_ultima_acao(entidade.Proto().ultima_acao());
+  e_depois->set_ultimo_grupo_acao(entidade.Proto().ultimo_grupo_acao());
+}
+
+}  // namespace
+
 void Tabuleiro::ProximaAcao() {
   if (id_acoes_.size() == 0) {
     return;
   }
+  std::unique_ptr<ntf::Notificacao> grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
+
   for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
-    if (entidade == nullptr) {
-      continue;
-    }
-    if (entidade->ProximaAcao()) {
-      // entidade possui acao, usa as dela.
-      continue;
+    if (entidade == nullptr) continue;
+
+    {
+      ntf::Notificacao n;
+      auto* e_depois = PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(*entidade, &n);
+      if (entidade->ProximaAcao()) {
+        PreencheDadosAtaqueDepois(*entidade, e_depois);
+        *grupo->add_notificacao() = n;
+        continue;
+      }
     }
     std::string acao_str(entidade->Acao(mapa_acoes_).id());
     if (acao_str.empty()) {
@@ -2749,21 +2782,31 @@ void Tabuleiro::ProximaAcao() {
     entidade->AtualizaAcao(*it);
   }
   modo_clique_ = MODO_ACAO;
+  if (grupo->notificacao().size()) {
+    AdicionaNotificacaoListaEventos(*grupo);
+    central_->AdicionaNotificacaoRemota(grupo.release());
+  }
 }
 
 void Tabuleiro::AcaoAnterior() {
   if (id_acoes_.size() == 0) {
     return;
   }
+  std::unique_ptr<ntf::Notificacao> grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
-    if (entidade == nullptr) {
-      continue;
+    if (entidade == nullptr) continue;
+
+    {
+      ntf::Notificacao n;
+      auto* e_depois = PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(*entidade, &n);
+      if (entidade->AcaoAnterior()) {
+        PreencheDadosAtaqueDepois(*entidade, e_depois);
+        *grupo->add_notificacao() = n;
+        continue;
+      }
     }
-    if (entidade->AcaoAnterior()) {
-      // entidade possui acao, usa as dela.
-      continue;
-    }
+
     std::string acao_str(entidade->Acao(mapa_acoes_).id());
     if (acao_str.empty()) {
       acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
@@ -2780,6 +2823,10 @@ void Tabuleiro::AcaoAnterior() {
     entidade->AtualizaAcao(*it);
   }
   modo_clique_ = MODO_ACAO;
+  if (grupo->notificacao().size()) {
+    AdicionaNotificacaoListaEventos(*grupo);
+    central_->AdicionaNotificacaoRemota(grupo.release());
+  }
 }
 
 // privadas
@@ -3806,7 +3853,12 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(OFFSET_TERRENO_ESCALA_DZ, OFFSET_TERRENO_ESCALA_R);
   V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
-  MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  // Cor.
+  if (proto_corrente_->has_cor_piso()) {
+    MudaCor(proto_corrente_->cor_piso());
+  } else {
+    MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  }
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
                 parametros_desenho_.offset_terreno());
@@ -3902,7 +3954,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
 
 namespace {
 bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
-  if (!proto.faz_sombra() && pd.desenha_mapa_sombras()) {
+  if (!proto.faz_sombra() && (pd.desenha_mapa_sombras() || pd.has_desenha_mapa_luzes())) {
     return true;
   }
   if (!proto.causa_colisao() && pd.desenha_apenas_entidades_colisivas()) {
@@ -4485,13 +4537,13 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
     if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
-      if (ap.id_entidade_destino_size() > 0 && (ap.afeta_pontos_vida() || ap.gera_outras_acoes())) {
+      if (!ap.por_entidade().empty() && (ap.afeta_pontos_vida() || ap.gera_outras_acoes())) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
         float atraso_s = 0.0f;
-        for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          atraso_s = GeraAcaoFilha(*acao, id_entidade_destino, atraso_s);
+        for (const auto& por_entidade : ap.por_entidade()) {
+          atraso_s = GeraAcaoFilha(*acao, por_entidade, atraso_s);
         }
       }
     }
@@ -4728,6 +4780,9 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
   tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
+  if (proto_corrente_->has_cor_piso()) {
+    *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
+  }
   return notificacao.release();
 }
 
@@ -4832,9 +4887,14 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_descricao_cenario();
   }
   if (novo_proto.has_nevoa()) {
-    proto_a_atualizar->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+    *proto_a_atualizar->mutable_nevoa() = novo_proto.nevoa();
   } else {
     proto_a_atualizar->clear_nevoa();
+  }
+  if (novo_proto.has_cor_piso()) {
+    *proto_a_atualizar->mutable_cor_piso() = novo_proto.cor_piso();
+  } else {
+    proto_a_atualizar->clear_cor_piso();
   }
   AtualizaTexturas(novo_proto);
   CorrigeTopologiaAposMudancaTamanho(
@@ -5616,10 +5676,21 @@ void Tabuleiro::AdicionaLogEvento(const std::string& evento) {
   if (evento.empty()) {
     return;
   }
-  log_eventos_.push_front(evento);
+  std::string copia = evento;
+  std::replace(copia.begin(), copia.end(), '\n', ' ');
+  log_eventos_.push_front(copia);
   if (log_eventos_.size() > 30) {
     log_eventos_.pop_back();
   }
+}
+
+void Tabuleiro::AdicionaLogEvento(unsigned int id, const std::string& texto) {
+  if (texto.empty()) {
+    return;
+  }
+  auto* entidade_destino = BuscaEntidade(id);
+  AdicionaLogEvento(google::protobuf::StringPrintf(
+          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
@@ -5669,6 +5740,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_LISTA_INICIATIVA";
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
       *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();
       break;
@@ -5739,6 +5811,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       }
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL";
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
@@ -6039,7 +6112,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   std::vector<const Entidade*> entidades_com_luz;
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* e = it->second.get();
-    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->TemLuz()) {
       continue;
     }
     entidades_com_luz.push_back(e);
@@ -6472,7 +6545,7 @@ void Tabuleiro::DesenhaLogEventos() {
 
   //MudaCor(COR_AMARELA);
   std::vector<std::string> lista;
-  for (const auto& log : log_eventos_) lista.push_back(log);
+  for (const auto& log : log_eventos_) lista.push_back(StringSemUtf8(log));
 
   DesenhaListaGenerica(0, kNumLinhas,
                        pagina_log_eventos_, StringSemUtf8("Log de Eventos Locais").c_str(), COR_AMARELA,
@@ -6750,41 +6823,76 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
-#if 0
-void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
-  if (rodadas < 0) {
-    LOG(ERROR) << "Adicionando rodadas < 0";
-    return;
-  }
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (auto& id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
-    if (entidade_selecionada == nullptr) {
-      continue;
-    }
-    // Para desfazer.
-    EntidadeProto proto_antes;
-    proto_antes.set_id(id);
-    proto_antes.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
-    // Proto depois.
-    EntidadeProto proto_depois;
-    proto_depois.set_id(id);
-    proto_depois.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
-    proto_depois.add_evento()->set_rodadas(rodadas);
 
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n->mutable_entidade_antes()->Swap(&proto_antes);
-    n->mutable_entidade()->Swap(&proto_depois);
+void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  std::vector<const EntidadeProto::Evento*> eventos;
+  for (const auto& evento : entidade.Proto().evento()) {
+    if (evento.rodadas() > 0 && !evento.continuo()) {
+      eventos.push_back(&evento);
+    }
   }
-  if (grupo_notificacoes.notificacao_size() == 0) {
+  if (eventos.empty()) {
     return;
   }
-  TrataNotificacao(grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  float atraso_s = 0.0f;
+  for (const auto& evento : eventos) {
+    *proto_antes->add_evento() = *evento;
+    auto* evento_depois = proto_depois->add_evento();
+    *evento_depois = *evento;
+    evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+    if (evento->rodadas() == 1 && evento->id_efeito() == EFEITO_VENENO) {
+      // Aplica dano secundario do veneno.
+      for (const auto& veneno_proto_str : evento->complementos_str()) {
+        // Parse do efeito.
+        VenenoProto veneno;
+        if (!google::protobuf::TextFormat::ParseFromString(veneno_proto_str, &veneno)) {
+          continue;
+        }
+        std::string veneno_str;
+        auto* n_veneno = grupo->add_notificacao();
+        int d20 = RolaDado(20);
+        int bonus = entidade.SalvacaoVeneno();
+        int total = d20 + bonus;
+        if (total < veneno.cd()) {
+          // nao salvou: criar o efeito do dano.
+          veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
+          PreencheNotificacaoEventoParaVenenoSecundario(entidade, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno, nullptr);
+        } else {
+          // salvou.
+          veneno_str = google::protobuf::StringPrintf("salvou veneno secundario (%d + %d >= %d)", d20, bonus, veneno.cd());
+        }
+        AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
+        atraso_s += 0.5f;
+      }
+    }
+  }
 }
-#endif
+
+void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  const auto& dd = entidade.Proto().dados_defesa();
+  if (!dd.has_entidade_esquiva()) return;
+  const auto* entidade_esquivada = BuscaEntidade(dd.entidade_esquiva());
+  if (entidade_esquivada != nullptr && !entidade_esquivada->Morta() && entidade_esquivada->IdCenario() == entidade.IdCenario()) return;
+
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  proto_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
+  proto_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+}
+
+void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+}
+
+void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  proto_depois->set_reiniciar_ataque(true);
+}
 
 void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
@@ -6794,38 +6902,11 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
-    EntidadeProto proto_antes;
-    EntidadeProto proto_depois;
-    bool havera_mudanca = false;
-    const auto* entidade = id_entidade.second.get();
-    for (const auto& e : entidade->Proto().evento()) {
-      if (e.rodadas() > 0) {
-        havera_mudanca = true;
-      }
-    }
-    if (!havera_mudanca) {
-      continue;
-    }
-    // Desfazer.
-    proto_antes.set_id(id_entidade.first);
-    *proto_antes.mutable_evento() = entidade->Proto().evento();
-    if (proto_antes.evento().empty()) {
-      auto* e = proto_antes.add_evento();
-      e->set_id_efeito(EFEITO_INVALIDO);
-      e->set_rodadas(-1);
-    }
-    // Novo proto.
-    proto_depois.set_id(id_entidade.first);
-    *proto_depois.mutable_evento() = entidade->Proto().evento();
-    for (auto& e : *proto_depois.mutable_evento()) {
-      if (e.rodadas() > 0 && !e.continuo()) {
-        e.set_rodadas(e.rodadas() - 1);
-      }
-    }
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n->mutable_entidade_antes()->Swap(&proto_antes);;
-    n->mutable_entidade()->Swap(&proto_depois);;
+    auto& entidade = *id_entidade.second.get();
+    AtualizaEventosAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
+    ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
@@ -7174,25 +7255,11 @@ void Tabuleiro::SalvaOpcoes() const {
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
-  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  ent::EntidadeProto *e_antes, *e_depois;
+  std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
+  std::tie(e_antes, e_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, notificacao.get());
   const auto& pocao = tabelas_.Pocao(entidade->Proto().tesouro().pocoes(indice_pocao).id());
   {
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
-    *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (indice_efeito < pocao.tipo_efeito().size() && e_antes->evento().empty()) {
-      // dummy pra sinalizar que nao tem nada.
-      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
-      e_antes->add_evento()->set_rodadas(-1);
-    }
-    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
-      e_antes->set_pontos_vida(entidade->PontosVida());
-    }
-  }
-  {
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
     *e_depois->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
     e_depois->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice_pocao, 1);
     if (e_depois->tesouro().pocoes().empty()) {
@@ -7209,10 +7276,24 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indi
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
   }
+  {
+    *e_antes->mutable_tesouro()->mutable_pocoes() = entidade->Proto().tesouro().pocoes();
+    // Os eventos a gente pega do que foi gerado e zera as rodadas para desfazer.
+    if (!e_depois->evento().empty()) {
+      *e_antes->mutable_evento() = e_depois->evento();
+      for (auto& ev : *e_antes->mutable_evento()) {
+        ev.set_rodadas(-1);
+      }
+    }
+    if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
+      e_antes->set_pontos_vida(entidade->PontosVida());
+    }
+  }
+
   // Vai notificar remoto (atualizacao parcial).
-  TrataNotificacao(*n);
+  TrataNotificacao(*notificacao);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(*n);
+  AdicionaNotificacaoListaEventos(*notificacao);
   {
     auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
     n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
@@ -7240,8 +7321,9 @@ void Tabuleiro::AlternaFuria() {
     *e_antes->mutable_evento() = entidade->Proto().evento();
     if (e_antes->evento().empty()) {
       // dummy pra sinalizar que nao tem nada.
-      e_antes->add_evento()->set_id_efeito(EFEITO_INVALIDO);
-      e_antes->add_evento()->set_rodadas(-1);
+      auto* ev = e_antes->add_evento();
+      ev->set_id_efeito(EFEITO_INVALIDO);
+      ev->set_rodadas(-1);
     }
   }
   {

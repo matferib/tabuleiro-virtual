@@ -1,51 +1,66 @@
+Fazer 3d: sucubo, vrock.
+
+
+Implementar boleadeira (bolas).
+Dados rolados para alguns tipos nao estao aparecendo no log.
+Aplicar dano em fim de efeito ao clicar.
+Barra de status das entidades.
+UI para Ataque poderoso.
+Imunidade a ataque furtivo.
+Ao agarrar, ignora reflexos.
+Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
+
+
+
+Problema na iluminacao:
+Luz pontual esta estranha em objetos compostos (Ver sofa do ape, por exemplo).
+
+Feiticos: ao criar bola de fogo, relampago etc, o dano esta vindo vazio. E o descritor nao esta sendo aplicado. Ver RecomputaDependenciasArma em util.cpp.
+
+Veneno:
+- Aplicar bonus de salvacao contra veneno na funcao SalvacaoVeneno de entidade.
+- Outros tipos de veneno que nao afetam atributos.
+- Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
+
+Botao para passar horas.
+
+Colocar outros tipos de tesouro.
 Mais habilidades especiais, especialmente as que se escolhem (como evasao para ladino).
-Fogo grego, crash tabuleiro ao editar.
 Dar um jeito de transmitir as coisas (tabelas por exemplo) nao srd para clientes. Versionar?
 Ordenacao de tabuleiros salvos por data: Procurar funcao last_write_time.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Salvacoes e progressao bba automaticos por tipo de classe de monstro (aberração, por exemplo).
-
-Terminar venenos.
 
 Feiticos:
 - Botao de limpar usados.
 - Botoes de feitico causando acao.
 Automatizar dano de feiticos.
 
-Colocar salvacoes automaticas de veneno.
 Bit para sinalizar que entidade pode cair (por exemplo, tentaculos nao pode).
 Fazer improved grab (ataque que agarra automaticamente alvos menores).
 Agarrar sem afetar alvo quando falha.
 Manobra de derrubar (principalmente em ataques automaticos tipo hiena).
 
-Reducao de dano.
-
-Segunda rodada de dano do fogo quimico.
-
-Recarga de bestas.
 Dominio da conhecimento como de classe.
 Fazer: dominios.
 
 Atualizacao de tabela remota e tabela nao srd.
 
-Colocar arte da fuga no agarrar.
+Agarrar:
+- Colocar arte da fuga no agarrar.
+- Modificadores: 4 patas e outros.
 
-
-Modificadores de grapple: 4 patas e outros.
 Descer iniciativas em 1 para nao baguncar com status.
 Implementar flanquear.
 Munição: implementar direito.
 Implementar bloqueio ambidestro.
-Implementar trespassar: ao derrubar um alvo, dar uma mensagem de ataque extra.
 Pre requisitos de talentos.
-Agarrar: modelar ataque de toque (e agarrar aprimorado). Arte da fuga na defesa.
 Arrumar dados/modelos.asciiproto: dano_basico, bba, bonus etc.
 Implementar dano adicional.
 Modelar dificuldade de acao por classe (por exemplo, coluna de chamas eh 5 clerigo, 4 druida).
 Resistencia a magia.
 UI para aplicacao de efeitos em massa.
 Ataque de multiplos alvos em uma area distribuindo em alvos.
-Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 
 Se possivel, separar armas por classe no combo (simples, comum, exoticas).
 Fazer tabela nao copiavel para evitar copia a toa.
@@ -65,30 +80,22 @@ o estado e chamando atualiza alvo toda hora. Ao inves disso, vai faze-lo apenas 
 
 Transformar a matriz de modelagem em attribute e passar como um VBO com o modelo: http://stackoverflow.com/questions/24627445/how-to-include-model-matrix-to-a-vbo. Requer opengl 3 (para ter o divisor de quando o atributo muda).
 
-Campo para automatico e sem critico nos dados de ataque.
 Mapa de luz no shader simples.
 
 Entidades forma nao tem olho, tratar isso na questao de desenho de luz e oclusao.
-Terminar a oclusao de luz.
 
 Algema no inicio.
 Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
-Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 
 Arrumar a funcao MousePara3dParaleloZero para montar as matrizes baseado na camera.
 
 Versao 2.6.0
-- separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
-- Multiplos ataques;
-- Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
-- Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.
 - Opcao de override de fixa. Ajuda na modelagem.
-- Texturas modo tile.
 - Refazer a extracao de VBOs para mapas de oclusao e sombras.
 - Zfight ipad e mapa oclusao.
 - Pinca: com tres para vertical.
@@ -111,15 +118,10 @@ Versao 2.6.0
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
   mensagem, pois o loop fez a copia).
-- Texturizar outros objetos 3d: esfera, cone, cilindro.
-- Ataque automatico.
-- Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
-- Zoom e rotacao para formas no tablet.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
-- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
@@ -138,7 +140,6 @@ Versao 2.6.0
 - Texturas faltantes.
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
-- Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Android e ipad: voltar para UI principal caso falhe a conexao.
 - Adicionar mais unit tests (comecar pelos simples).
 - Adicionar modelos diversos.
@@ -151,8 +152,6 @@ Algumas ideias loucas.
 - Botao de aplicar mudancas nos dialogos.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
-- Outros tipos de acoes (perfurante, concussao).
-- Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Sons.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.

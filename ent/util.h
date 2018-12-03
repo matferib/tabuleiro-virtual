@@ -26,6 +26,16 @@ class Posicao;
 class Tabuleiro;
 class Tabelas;
 
+// Util para rodar codigo ao sair de escopo.
+class RodaNoRetorno {
+ public:
+  explicit RodaNoRetorno(std::function<void()> f) : f(f) {}
+  ~RodaNoRetorno() { f(); }
+  void Cancela() { f = std::function<void()>(); }
+
+  std::function<void()> f;
+};
+
 void IniciaUtil();
 
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
@@ -67,6 +77,9 @@ void ClareiaCor(Cor* cor);
 void RealcaCor(Cor* cor);
 void RealcaCor(float* cor);
 
+/** Combina as duas cores, maximo 1 em cada componente. Nao usa alfa. */
+void CombinaCor(const Cor& cor_origem, Cor* cor_destino);
+
 // retorna true se o tipo da forma for 2d: circulo, retangulo, triangulo, livre.
 bool EhForma2d(int tipo_forma);
 
@@ -99,6 +112,7 @@ void AtualizaStringDadosVida(int delta, std::string* dados_vida);
 * Da excecao se dados_vida for mal formado.
 */
 std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida);
+inline int RolaValor(const std::string& valor) { return std::get<0>(GeraPontosVida(valor)); }
 
 /** Converte os dados convertido para string. */
 std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados);
@@ -177,7 +191,8 @@ static inline std::string& trim(std::string& s) {
   return ltrim(rtrim(s));
 }
 
-const std::string StringSemUtf8(const std::string& id_acao);
+// Normaliza o texto passado, tirando sequencias UTF-8.
+const std::string StringSemUtf8(const std::string& texto);
 
 // Move o delta para uma entidade, garantindo que ela termine acima do solo.
 void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade);
@@ -220,18 +235,36 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status.
 int ModificadorDano(const EntidadeProto& ea);
 
+enum resultado_ataque_e {
+  RA_SEM_ACAO = 0,            // acao nao realizada por algum problema com ataque.
+  RA_SUCESSO = 1,             // sucesso normal, ver vezes para saber se eh critico.
+  RA_FALHA_CRITICA = 3,       // falha critica.
+  RA_FALHA_REFLEXO = 4,       // falhou porque acertou reflexo.
+  RA_FALHA_NORMAL = 5,        // falha normal.
+  RA_FALHA_TOQUE_AGARRAR = 6, // falha normal.
+  RA_FALHA_CHANCE_FALHA = 7,  // falha por chance de falha.
+  RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
+  RA_FALHA_REDUCAO = 9,       // falha por reducao de dano (reduzido a zero).
+};
+struct ResultadoAtaqueVsDefesa {
+  resultado_ataque_e resultado = RA_SEM_ACAO;
+  int vezes = 0;  // para sucesso critico.
+  std::string texto;
+
+  bool Sucesso() const { return resultado == RA_SUCESSO; } 
+};
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
-std::tuple<int, std::string, bool> AtaqueVsDefesa(
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo);
 
-// Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, texto do resultado.
-std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+// Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 
@@ -258,6 +291,20 @@ enum tipo_dano_e {
 };
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
+// Preenche uma notificacao consumir o dado de ataque e/ou municao.
+void PreencheNotificacaoConsumoAtaque(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+// Preenche uma notificacao de carregamento da arma.
+void PreencheNotificacaoRecarregamento(
+    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
+// Adiciona um evento do tipo passado a entidade.
+void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
@@ -324,10 +371,20 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus = Bonu
 bool ArmaDupla(const ArmaProto& arma);
 bool ArmaDistancia(const ArmaProto& arma);
 
+// Retorna o evento pelo id unico. Retorna nullptr se nao houver.
+EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
-bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade);
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
-bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento);
+bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
+// Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
+bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
+// Retorna a resistencia a elementos gerada pelo evento de id_unico ou nullptr se nao houver.
+ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
+void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
+
+// Retorna os eventos do tipo passado.
+std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
@@ -355,9 +412,12 @@ std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const Entid
 // Exemplo: 1d8(19-20).
 std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
 
-// Retorna a strinf de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
+// Retorna a string de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
 // Exemplo: '(esc+surp) 16, tq: 12'
 std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+
+// Retorna a string para o efeito passado.
+std::string StringEfeito(TipoEfeito efeito);
 
 //--------------------
 // Formas Alternativas
@@ -403,12 +463,19 @@ int Nivel(const std::string& id, const EntidadeProto& proto);
 int Nivel(const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
-int NivelParaFeitico(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
-// Retorna o id de classe para um tipo de ataque. Note que todas variantes de mago (feiticeiro, adepto etc) retornam mago.
-std::string ClasseParaFeitico(const std::string& tipo_ataque);
+int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+// Retorna o id de classe para um tipo de ataque. Por exemplo, 'Feitiço de Mago' retorna 'mago'.
+// Vazio caso contrario.
+std::string TipoAtaqueParaClasse(const Tabelas& tabelas, const std::string& tipo_ataque);
+// Retorna a string de acao para a classe. Por exemplo, se for clerigo, retorna 'Feitiço de Clérigo'.
+std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::string& id_classe);
 // Retorna a classe que melhor casa com o tipo de ataque. Por exemplo, se o personagem tem nivel de feiticeiro,
-// e o tipo eh Feitico de Mago, retorna o info de feiticeiro.
-const InfoClasse& InfoClasseParaFeitico(const std::string& tipo_ataque, const EntidadeProto& proto);
+// e o tipo eh 'Feitico de Mago', retorna o info de feiticeiro.
+const InfoClasse& InfoClasseParaFeitico(
+    const Tabelas& tabelas, const std::string& tipo_ataque, const EntidadeProto& proto);
+// Retorna o id para magia de uma classe. Por exemplo, feiticeiro usa mago. Note que ranger, druida, paladino
+// possuem sua propria lista de magias. Renomear para IdParaConjuracao?
+const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);
@@ -433,12 +500,20 @@ void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf
 template <class T>
 void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
-// Acha um id unico de evento para o proto passado.
-uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos);
+// Acha um id unico de evento para o proto passado. Normalmente o eventos_entidade vem do proto da entidade e o outro vem do proto que esta sendo
+// gerado para atualizar a entidade.
+uint32_t AchaIdUnicoEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_entidade,
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados);
+inline uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
+  return AchaIdUnicoEvento(eventos, google::protobuf::RepeatedPtrField<EntidadeProto::Evento>());
+}
 
-// Adiciona um evento ao proto, gerando o id do efeito automaticamente.
+// Adiciona um evento ao proto, gerando o id do efeito automaticamente. Os eventos devem vir da entidade, para correto preenchimento do id unico
+// (normalmente proto preenchido nao contem tudo).
 EntidadeProto::Evento* AdicionaEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
@@ -527,11 +602,64 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 // Retorna uma notificacao de alterar feitico para um personagem.
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
+// Cria uma notificacao de consequencia de uso do feitico, normalmente a criacao de ataques com limite de vezes
+// para a entidade.
+// Caso feitico nao tenha efeito, retorna nullptr.
+std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe
 // de feitico com todos ate o nivel desejado.
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
+
+// Retorna true se a entidade for imune a todos os descritores do elemento.
+bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
+// Retorna a melhor resistencia da entidade contra o elemento ou nullptr se nao houver.
+const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
+
+// retorna o descritor em formato texto.
+const char* TextoDescritor(int descritor);
+
+enum alteracao_delta_e {
+  ALT_NENHUMA = 0,
+  ALT_IMUNIDADE = 1,
+  ALT_RESISTENCIA = 2,
+};
+struct ResultadoImunidadeOuResistencia {
+  int resistido = 0;  // nunca excedera o valor absoluto de delta_pv.
+  std::string texto;  // texto da alteracao.
+  alteracao_delta_e causa = ALT_NENHUMA;  // o que causou a alteracao (imunidade, resistencia, nenhum).
+  const ResistenciaElementos* resistencia = nullptr;  // qual resistencia barrou.
+};
+// Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento);
+
+// Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
+
+// Altera o delta_pv de acordo com reducoes de barbaro.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(
+    int delta_pv, const EntidadeProto& proto);
+
+// Altera o delta_pv de acordo com a melhor reducao de dano.
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
+
+// Return true se a acao ignora reducao de dano.
+inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
+
+// Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
+// alvos especificos, como agua benta, que afeta apenas mortos-vivos e
+// extraplanares.
+//
+// Caso a acao seja generica (nao tem afeta_apenas), retornara true.
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade);
+
+// Retorna o numero de reflexos da entidade (feitico reflexos).
+int NumeroReflexos(const EntidadeProto& proto);
 
 }  // namespace ent
 

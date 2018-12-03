@@ -50,6 +50,14 @@ class Entidade {
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
   void Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer);
 
+  /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
+  bool TemLuz() const;
+  /** Liga a iluminacao por acao da entidade, tipo quando da um tiro. */
+  void AtivaLuzAcao(const IluminacaoPontual& luz);
+
+  /** faz alvo fumegar. */
+  void AtivaFumegando(int duracao_ms);
+
   /** Destroi a entidade. */
   ~Entidade();
 
@@ -248,7 +256,10 @@ class Entidade {
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
   int CA(const ent::Entidade& atacante, TipoCA tipo) const;
+  // Retorna 10 + modificador tamanho + destreza.
+  int CAReflexos() const;
   bool ImuneCritico() const;
+  bool ImuneFurtivo() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   void AtaqueAnterior() {
     vd_.ataques_na_rodada = std::max(0, vd_.ataques_na_rodada-1); vd_.ultimo_ataque_ms = 0;
@@ -285,6 +296,11 @@ class Entidade {
   bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
   /** Retorna o bonus de salvacao de um tipo para entidade. */
   int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
+  int SalvacaoSemAtacante(TipoSalvacao tipo) const;
+  // TODO colocar bonus raciais de veneno.
+  int SalvacaoVeneno() const { return SalvacaoSemAtacante(TS_FORTITUDE); }
+
+  bool ImuneVeneno() const;
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
@@ -315,6 +331,8 @@ class Entidade {
 
   Matrix4 MontaMatrizModelagem(const ParametrosDesenho* pd = nullptr) const;
 
+  // Reinicia os dados de ataque da entidade.
+  void ReiniciaAtaque();
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
@@ -366,6 +384,15 @@ class Entidade {
     gl::VbosNaoGravados vbo;
   };
 
+  // Para luzes temporarias, como disparo de arma de fogo.
+  struct DadosLuzAcao {
+    int tempo_desde_inicio_ms = 0;
+    int duracao_ms = 0;
+    // Ativa se inicio.raio_m existir.
+    IluminacaoPontual inicio;
+    IluminacaoPontual corrente;  // funcao de luz inicio e duracao.
+  };
+
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
     VariaveisDerivadas() { }
@@ -393,6 +420,7 @@ class Entidade {
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
     DadosFumaca fumaca;
+    DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
@@ -436,6 +464,8 @@ class Entidade {
   void AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
+  /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaLuzAcao(int intervalo_ms);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);

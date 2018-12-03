@@ -38,3 +38,35 @@ tabela_classes {
     # Progressao de feitico: +1 classe anterior.
   }
 }
+tabela_armas {
+  # Projeteis de area.
+  armas {
+    id: 'pistola'
+    nome: 'pistola'
+    categoria: CAT_DISTANCIA
+    preco: '250 PO'
+    dano { medio: '1d10' }
+    multiplicador_critico: 3
+    alcance_quadrados: 10
+    tipo_dano: TD_OUTRO
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_RODADA_COMPLETA
+    }
+    acao {
+      cor { r: 1 g: 0.5 b: 0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_pistol.png'
+      ignora_luz: true  # desenhado claro
+      consequencia_origem: TC_ILUMINA_ALVO
+      velocidade {
+        inicial_m_s: 100
+      }
+      luz_origem {
+        cor { r: 1 g: 0.5 b: 0 }
+        duracao_ms: 250
+        raio_m: 1.5
+      }
+    }
+  }
+}

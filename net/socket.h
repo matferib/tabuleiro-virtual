@@ -4,6 +4,7 @@
 // Representacao da interface de socket independente de plataforma. Interface assincrona por callbacks.
 // O sincronizador garantira que todos os callbacks serao chamados na mesma thread onde Roda eh chamado.
 #include <functional>
+#include <memory>
 
 namespace net {
 
@@ -110,6 +111,9 @@ class Socket {
   // Faz o socket ouvir em determinada porta.
   void Ouve(int porta);
 #endif
+
+  // Faz o socket se ligar em uma porta especifica local. Sem ouvir.
+  void PortaLocal(int porta);
 
   // Conecta o socket a um endereco.
   // Endereco pode ser IP: XXX.XXX.XXX.XXX ou dominio: www.teste.com. Porta eh a representacao string de um numero.

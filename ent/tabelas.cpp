@@ -331,4 +331,17 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   }
 }
 
+const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_classe, int nivel) const {
+  std::vector<const ArmaProto*> feiticos;
+  for (const auto& feitico : tabelas_.tabela_feiticos().armas()) {
+    for (const auto ic : feitico.info_classes()) {
+      if (ic.nivel() == nivel && ic.id() == id_classe) {
+        feiticos.push_back(&feitico);
+        break;
+      }
+    }
+  }
+  return feiticos;
+}
+
 }  // namespace

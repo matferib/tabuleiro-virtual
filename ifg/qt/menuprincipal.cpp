@@ -403,16 +403,25 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     ip_le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
     ql->addWidget(ip_rotulo);
     ql->addWidget(ip_le);
+    auto* porta_local = new QLabel(tr("Forcar porta local:"));
+    auto* porta_local_le = new QLineEdit();
+    porta_local_le->setPlaceholderText(tr("Deixar em branco"));
+    ql->addWidget(porta_local);
+    ql->addWidget(porta_local_le);
+
     const auto& opcoes = tabuleiro_->Opcoes();
     if (!opcoes.ultimo_endereco().empty()) {
       ip_le->setText(QString::fromUtf8(opcoes.ultimo_endereco().c_str()));
     }
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     // Botao OK.
-    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
+    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le, porta_local_le] {
       notificacao = ntf::NovaNotificacao(ntf::TN_CONECTAR);
       notificacao->set_id_rede(nome_le->text().toUtf8().constData());
       notificacao->set_endereco(ip_le->text().toUtf8().constData());
+      if (porta_local_le->text().toInt() > 1024) {
+        notificacao->set_porta_local(porta_local_le->text().toInt());
+      }
       qd->accept();
     });
     // Botao Cancela.
@@ -528,7 +537,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 3.4.1\n"
+        tr("Tabuleiro virtual versão 3.5.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

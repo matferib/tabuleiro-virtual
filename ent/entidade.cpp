@@ -18,6 +18,9 @@ bool ImprimeSeErro();
 }  // namespace gl
 
 namespace ent {
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 // Factory.
 Entidade* NovaEntidade(
@@ -416,13 +419,35 @@ void Entidade::AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemen
   }
 }
 
+void Entidade::AtualizaLuzAcao(int intervalo_ms) {
+  auto& luz = vd_.luz_acao;
+  if (!luz.inicio.has_raio_m()) return;
+  if (luz.tempo_desde_inicio_ms > luz.duracao_ms) {
+    LOG(INFO) << "luz acao desligada";
+    luz.corrente.Clear();
+    luz.inicio.Clear();
+    return;
+  }
+  const float fator_decaimento = (luz.duracao_ms - luz.tempo_desde_inicio_ms) / static_cast<float>(luz.duracao_ms);
+  luz.corrente.mutable_cor()->set_r(luz.inicio.cor().r() * fator_decaimento);
+  luz.corrente.mutable_cor()->set_g(luz.inicio.cor().g() * fator_decaimento);
+  luz.corrente.mutable_cor()->set_b(luz.inicio.cor().b() * fator_decaimento);
+  luz.tempo_desde_inicio_ms += intervalo_ms;
+}
+
 void Entidade::AtualizaFumaca(int intervalo_ms) {
   auto& f = vd_.fumaca;
   f.duracao_ms -= intervalo_ms;
   if (f.duracao_ms < 0) {
     f.duracao_ms = 0;
   }
-  if (f.duracao_ms > 0 && intervalo_ms >= f.proxima_emissao_ms) {
+  bool fim = f.duracao_ms == 0;
+  if (fim && PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_)) {
+    AtivaFumegando(1000);
+    AtualizaFumaca(intervalo_ms);
+    return;
+  }
+  if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
     f.proxima_emissao_ms = f.proxima_emissao_ms;
     // Emite nova particula.
     DadosUmaNuvem nuvem;
@@ -570,6 +595,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaLuzAcao(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
@@ -590,11 +616,11 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
       vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
     }
   }
-  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
-  vd_.ultimo_ataque_ms += intervalo_ms;
-  if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
-    vd_.ataques_na_rodada = 0;
-  }
+  //const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
+  //vd_.ultimo_ataque_ms += intervalo_ms;
+  //if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
+  //  ReiniciaAtaque();
+  //}
 
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
@@ -913,22 +939,14 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     atualizar_vbo = true;
     proto_.clear_cor();
   }
-  if (proto_parcial.fumegando()) {
-    auto& f = vd_.fumaca;
-    f.duracao_ms = 10000;
-    f.intervalo_emissao_ms = 1000;
-    f.duracao_nuvem_ms = 3000;
-  } else if (proto_parcial.has_fumegando()) {
-    auto& f = vd_.fumaca;
-    f.duracao_ms = 0;
-  }
+
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
   // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
   if (proto_parcial.evento_size() > 0) {
     std::vector<int> a_remover;
     int i = 0;
-    for (auto& evento : *proto_.mutable_evento()) {
+    for (const auto& evento : proto_.evento()) {
       if (PossuiEventoEspecifico(proto_parcial, evento)) {
         a_remover.push_back(i);
       }
@@ -939,6 +957,21 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
       proto_.mutable_evento()->DeleteSubrange(*it, 1);
     }
   }
+
+  // Se encontrar alguma resistencia que ja existe, remove pro MergeFromCorrigir.
+  if (!proto_parcial.dados_defesa().resistencia_elementos().empty()) {
+    std::vector<int> a_remover;
+    int i = 0;
+    for (const auto& resistencia : proto_.dados_defesa().resistencia_elementos()) {
+      if (PossuiResistenciaEspecifica(proto_parcial, resistencia)) a_remover.push_back(i);
+      ++i;
+    }
+    // Faz invertido para nao atrapalhar os indices.
+    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+      proto_.mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(*it, 1);
+    }
+  }
+
   if (proto_parcial.tesouro().pocoes_size() > 0) {
     proto_.mutable_tesouro()->clear_pocoes();
   }
@@ -965,7 +998,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.mutable_dados_defesa()->clear_ca();
   }
 
-  auto dados_ataque_antes = proto_parcial.dados_ataque();
   if (!proto_parcial.dados_ataque().empty()) {
     proto_.clear_dados_ataque();
   }
@@ -991,6 +1023,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (proto_.dados_defesa().entidade_esquiva() == IdInvalido) {
+    proto_.mutable_dados_defesa()->clear_entidade_esquiva();
+  }
 
   if (zerar_agarrado_a) {
     proto_.clear_agarrado_a();
@@ -1078,6 +1114,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
   }
+  if (proto_.reiniciar_ataque()) {
+    proto_.clear_reiniciar_ataque();
+    ReiniciaAtaque();
+  }
   RecomputaDependencias(tabelas_, &proto_);
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
@@ -1085,6 +1125,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 // Acao de display.
 void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
+  const auto* dado_corrente = DadoCorrente();
+  if (dado_corrente == nullptr) {
+    proto_.clear_ultimo_grupo_acao();
+  } else {
+    proto_.set_ultimo_grupo_acao(dado_corrente->grupo());
+  }
 }
 
 bool Entidade::ProximaAcao() {
@@ -1101,10 +1147,15 @@ bool Entidade::ProximaAcao() {
     proto_.mutable_dados_ataque()->SwapElements(i, i + 1);
   }
   proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
   return true;
 }
 
 bool Entidade::AcaoAnterior() {
+  if (vd_.ataques_na_rodada > 0) {
+    AtaqueAnterior();
+    return true;
+  }
   if (proto_.dados_ataque().empty()) {
     return false;
   }
@@ -1117,6 +1168,7 @@ bool Entidade::AcaoAnterior() {
     proto_.mutable_dados_ataque()->SwapElements(i, i - 1);
   }
   proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
   return true;
 }
 
@@ -1439,6 +1491,18 @@ int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
   return BonusTotal(b);
 }
 
+int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
+  const auto& dd = proto_.dados_defesa();
+  switch (tipo) {
+    case TS_FORTITUDE: return BonusTotal(dd.salvacao_fortitude());
+    case TS_REFLEXO: return BonusTotal(dd.salvacao_reflexo());
+    case TS_VONTADE: return BonusTotal(dd.salvacao_vontade());
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
+  }
+  return 0;
+}
+
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case ent::TM_MINUSCULO: return 0.4f;
@@ -1492,7 +1556,7 @@ std::string Entidade::DetalhesAcao() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
     std::string sca = StringCAParaAcao();
-    return sca.empty() ? "" : google::protobuf::StringPrintf("CA: %s", sca.c_str());
+    return sca.empty() ? "" : StringPrintf("CA: %s", sca.c_str());
   }
   return StringAtaque(*da, proto_);
 }
@@ -1526,11 +1590,13 @@ float Entidade::Espaco() const {
 const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
+  std::string ultimo_grupo = proto_.ultimo_grupo_acao();
   if (ultima_acao.empty()) {
     ultima_acao = proto_.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto_.dados_ataque(0).tipo_ataque();
+    ultimo_grupo = proto_.dados_ataque().empty() ? "" : proto_.dados_ataque(0).grupo();
   }
   for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
+    if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
       ataques_casados.push_back(&da);
     }
@@ -1639,6 +1705,13 @@ int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   }
 }
 
+int Entidade::CAReflexos() const {
+  const auto& dd = proto_.dados_defesa();
+  int modificador_tamanho = BonusIndividualTotal(ent::TB_TAMANHO, dd.ca());
+  int modificador_destreza = proto_.surpreso() ? 0 : BonusIndividualTotal(ent::TB_ATRIBUTO, dd.ca());
+  return 10 + modificador_tamanho + modificador_destreza;
+}
+
 int Entidade::MargemCritico() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
@@ -1657,7 +1730,10 @@ int Entidade::MultiplicadorCritico() const {
 
 bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico();
+}
 
+bool Entidade::ImuneFurtivo() const {
+  return proto_.dados_defesa().imune_furtivo();
 }
 
 // static
@@ -1924,6 +2000,35 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
     return;
   }
   fn->mutable_para_lancar(indice)->set_usado(usado);
+}
+
+bool Entidade::ImuneVeneno() const {
+  return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
+}
+
+bool Entidade::TemLuz() const {
+  return proto_.has_luz() || vd_.luz_acao.inicio.has_raio_m();
+}
+
+void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
+  auto& luz_acao = vd_.luz_acao;
+  luz_acao.duracao_ms = luz.duracao_ms();
+  luz_acao.tempo_desde_inicio_ms = 0;
+  luz_acao.inicio.set_raio_m(luz.raio_m());
+  *luz_acao.inicio.mutable_cor() = luz.cor();
+  LOG(INFO) << "Luz acao ligada";
+}
+
+void Entidade::AtivaFumegando(int duracao_ms) {
+  auto& f = vd_.fumaca;
+  f.duracao_ms = duracao_ms;
+  f.intervalo_emissao_ms = 1000;
+  f.duracao_nuvem_ms = 3000;
+  f.proxima_emissao_ms = 0;
+}
+
+void Entidade::ReiniciaAtaque() {
+  vd_.ataques_na_rodada = 0;
 }
 
 }  // namespace ent

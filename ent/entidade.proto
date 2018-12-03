@@ -41,6 +41,23 @@ enum EmpunhaduraArma {
   EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
 }
 
+// Os tipos de movimento, em quadrados, da entidade.
+message Movimento {
+  // valores computados.
+  optional Bonus terrestre_q = 1;
+  optional Bonus aereo_q = 2;
+  optional Bonus aquatico_q = 3;
+  optional Bonus escavando_q = 4;
+  optional Bonus escalando_q = 5;
+  // valores basicos.
+  optional int32 terrestre_basico_q = 10;
+  optional int32 aereo_basico_q = 11;
+  optional int32 aquatico_basico_q = 12;
+  optional int32 escavando_basico_q = 13;
+  optional int32 escalando_basico_q = 14;
+}
+
+// Proximo id: 93.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -48,6 +65,7 @@ message EntidadeProto {
   // O tipo da entidade segundo as regras de dnd.
   repeated TipoDnD tipo_dnd = 86;
   optional TipoForma sub_tipo = 18;
+  optional Movimento movimento = 90;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
@@ -149,12 +167,12 @@ message EntidadeProto {
   optional bool surpreso = 64;
   // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
   optional bool furtivo = 62;
-  optional bool fumegando = 67;
   // Ids das entidades agarradas.
   repeated uint32 agarrado_a = 71;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
+  optional string ultimo_grupo_acao = 92;
   // Ultimas acoes executadas da unidade. Funciona como uma fila onde o indice 0 eh a acao mais recente e o
   // tamanho maximo eh dado pela constante MaxNumAcoes.
   repeated string lista_acoes = 38;
@@ -167,11 +185,11 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
-    optional TipoEfeito id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
-    repeated int32 complementos = 3;  // Alguns efeitos tem complementos.
+    optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+    repeated int32 complementos = 3;       // Alguns efeitos tem complementos.
     repeated string complementos_str = 8;  // Complementos na forma de string.
-    optional bool processado = 5;  // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
-    // Identificador unico para o efeito. Util para desfazer fim de efeitos.
+    optional bool processado = 5;          // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+    // Identificador unico para o efeito. Util para desfazer fim de efeitos e mensagens de desfazer.
     optional uint32 id_unico = 6;
     // Indica que efeito nao expira (nao precisa decrementar contador de rodadas).
     optional bool continuo = 7;
@@ -183,7 +201,11 @@ message EntidadeProto {
   // Dados para um ataque especifico.
   // Como depende de AcaoProto, nao movi para comum.
   message DadosAtaque {
+    // O rotulo de um ataque, para identificacao. Identifica uma arma.
     optional string rotulo = 9;
+    // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
+    optional string grupo = 40;
+
     // Deve casar com as strings de id do arquivo de dados das acoes.
     optional string tipo_ataque = 1;
     optional TipoAcao tipo_acao = 39;
@@ -247,10 +269,22 @@ message EntidadeProto {
     optional uint32 id_unico_efeito  = 36;
     // Municao para a arma.
     optional uint32 municao = 38;
-    // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
-    optional string grupo = 40;
     // Para ataques com veneno.
-    optional Veneno veneno = 42;
+    optional VenenoProto veneno = 42;
+    // Se presente, ataque desaparecerá após ser usado esse número de vezes.
+    // É diferente de munição, que permanece após zerar.
+    optional int32 limite_vezes = 43;
+    // TODO: passar isso tudo pra acao? Me parece mais adequado.
+    // Ferro frio, adamante etc.
+    optional DescritorAtaque material_arma = 46;
+    // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
+    repeated DescritorAtaque tipo_ataque_fisico = 47;
+    // Bem, mal, caos, leal.
+    optional DescritorAtaque alinhamento = 48;
+
+    // Para armas que tem que ser carregadas.
+    optional bool requer_carregamento = 49;
+    optional bool descarregada = 50;
   }
   repeated DadosAtaque dados_ataque = 44;
 
@@ -378,4 +412,6 @@ message EntidadeProto {
   // Indica a classe de feitico ativa.
   optional string classe_feitico_ativa = 88;
   // Fim feiticos.
+  // Apenas para atualizacao parcial reiniciar os ataques.
+  optional bool reiniciar_ataque = 91;
 }

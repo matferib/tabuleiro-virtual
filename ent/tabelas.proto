@@ -71,6 +71,12 @@ message StringPorTamanho {
   optional string invariavel = 4;
 }
 
+enum TipoCarregamento {
+  TC_LIVRE = 0;
+  TC_MOVIMENTO = 1;
+  TC_RODADA_COMPLETA = 2;
+}
+
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -113,6 +119,23 @@ message ArmaProto {
     optional int32 nivel = 3;
   }
   repeated InfoClasseParaFeitico info_classes = 21;
+
+  // Quantas vezes o feitico pode ser usado.
+  enum ModeloLimiteVezes {
+    LIMITE_UM = 0;
+    LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
+  }
+  // Se a arma for criada por um feitico.
+  optional ModeloLimiteVezes modelo_limite_vezes = 23;
+  // Arma requer carregamento.
+  message Carregamento {
+    optional bool requer_carregamento = 1;
+    // O tipo de carregamento da arma.
+    optional TipoCarregamento tipo_carregamento = 2;
+    // A capacidade de carga antes de ter que carregar (besta de repeticao).
+    optional int32 capacidade_carga = 3;
+  }
+  optional Carregamento carregamento = 24;
 }
 
 message TabelaArmaduraOuEscudo {
@@ -164,6 +187,10 @@ message TabelaLuvas {
   repeated ItemMagicoProto luvas = 1;
 }
 
+message TabelaVenenos {
+  repeated VenenoProto venenos = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -180,4 +207,5 @@ message TodasTabelas {
   optional TabelaBotas tabela_botas = 54;
   optional TabelaBracadeiras tabela_bracadeiras = 55;
   optional TabelaLuvas tabela_luvas = 56;
+  optional TabelaVenenos tabela_venenos = 57;
 }

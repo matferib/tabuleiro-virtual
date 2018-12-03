@@ -96,6 +96,8 @@ message Notificacao {
   // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco
   // significa, processe e nao repasse.
   optional string endereco = 5;
+  // Para o cliente forcar o endereco local.
+  optional int32 porta_local = 30;
   // Tabuleiro de jogo.
   optional ent.TabuleiroProto tabuleiro = 6;
   // Para desfazer.

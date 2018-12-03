@@ -52,9 +52,10 @@ modelo { id: 'Coruja Gigante'}
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
+  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
+  modelo { id: 'Demônio Glabrezu' texto: 'Glabrezu' }
   modelo { id: 'Demônio Vrock' texto: 'Vrock' }
   modelo { id: 'Demônio Dretch' texto: 'Dretch' }
-  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
   modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
 }
 sub_menu {

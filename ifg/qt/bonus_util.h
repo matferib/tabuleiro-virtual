@@ -223,6 +223,7 @@ class TipoBonusDelegate : public QItemDelegate {
       combo->addItem(NomeBonus(static_cast<ent::TipoBonus>(tipo)).c_str(), QVariant(tipo));
     }
     combo->setCurrentIndex(0);
+    ExpandeComboBox(combo);
     connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commiAndCloseEditor()));
     return combo;
   }

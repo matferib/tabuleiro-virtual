@@ -1,7 +1,23 @@
 #include <cstdio>
+#if USAR_GFLAGS
+#include <gflags/gflags.h>
+#endif
+
 #include "net/util.h"
 
+#if USAR_GFLAGS
+DEFINE_int32(porta_padrao, 11223, "Porta padrao do servidor.");
+#endif
+
 namespace net {
+
+int PortaPadrao() {
+#if USAR_GFLAGS
+  return FLAGS_porta_padrao;
+#else
+  return 11223;
+#endif
+}
 
 const std::string CodificaDados(const std::string& dados) {
   unsigned int tam_dados = static_cast<unsigned int>(dados.size());

@@ -71,6 +71,8 @@ class Acao {
   // usando disco_alvo_rad_ para manter o estado.
   // Atualiza a direcao de queda do alvo.
   bool AtualizaAlvo(int intervalo_ms);
+  // Pode ser chamado para atualizar a origem de uma acao.
+  void AtualizaLuzOrigem(int intervalo_ms);
 
   // Funcoes auxiliares para atualizacao das direcoes. Baseado em dx_ e dy_.
   void AtualizaRotacaoZFonte(Entidade* entidade);
@@ -107,6 +109,10 @@ class Acao {
 
 // Cria uma nova acao no tabuleiro.
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
+
+// Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
+const std::string& TextoAcao(const AcaoProto& acao_proto);
+int DeltaAcao(const AcaoProto& acao_proto);
 
 }  // namespace ent
 

@@ -44,6 +44,7 @@ tabela_armas {
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_holy_water.png'
       afeta_apenas: TIPO_MORTO_VIVO
+      afeta_apenas: TIPO_EXTRA_PLANAR  # TODO afetar apenas os maus.
     }
   }
   armas {
@@ -61,6 +62,7 @@ tabela_armas {
       escala { x: 0.2 y: 0.2 z: 0.2 }
       cor { r: 0.0 g: 0.5 b: 0.0 }
       icone: 'icon_acid.png'
+      elemento: DESC_ACIDO
     }
   }
   armas {
@@ -78,7 +80,12 @@ tabela_armas {
       cor { r: 1.0 g: 1.0 b: 0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_alchemist_fire.png'
+      efeitos_adicionais {
+        efeito: EFEITO_QUEIMANDO_FOGO_ALQUIMICO
+        rodadas: 1
+      }
       consequencia: TC_INFLAMA_ALVO
+      elemento: DESC_FOGO
     }
     # TODO: apos uma rodada de dano direto, mais 1d6 se o alvo nao extinguiu.
   }
@@ -257,6 +264,10 @@ tabela_armas {
     alcance_quadrados: 24
     peso { medio: '4kg' }
     tipo_dano: TD_PERFURANTE
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_RODADA_COMPLETA
+    }
   }
   armas {
     id: 'besta_leve'
@@ -269,6 +280,10 @@ tabela_armas {
     alcance_quadrados: 16
     peso { medio: '2kg' }
     tipo_dano: TD_PERFURANTE
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_MOVIMENTO
+    }
   }
   armas {
     id: 'dardo'
@@ -927,6 +942,7 @@ tabela_armas {
     peso { medio: '3Kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    # TODO modelar carregamento
   }
   armas {
     id: 'besta_pesada_de_repeticao'
@@ -940,6 +956,7 @@ tabela_armas {
     peso { medio: '11kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    # TODO modelar carregamento
   }
   armas {
     id: 'besta_de_mao'
@@ -953,6 +970,10 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_MOVIMENTO
+    }
   }
   armas {
     id: 'boleadeira'
@@ -976,6 +997,11 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_OUTRO
     categoria_pericia: CATPER_EXOTICA
+    acao {
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+      }
+    }
   }
   armas {
     id: 'shuriken'
@@ -1000,6 +1026,18 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
+    }
+  }
+
+  efeitos {
+    id: EFEITO_ENREDADO
+    nao_cumulativo: true
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'enredado' } } }
+      atributos {
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'enredado' } } }
+      }
+
     }
   }
 
@@ -1102,7 +1140,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       atributos {
-        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
+        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
       }
     }
   }
@@ -1227,6 +1265,36 @@ tabela_efeitos {
   efeitos {
     # Chance de falha.
     id: EFEITO_INVISIBILIDADE
+  }
+  efeitos {
+    # Veneno tem um efeito imediato (primario) e um secundario (10 minutos depois).
+    id: EFEITO_VENENO
+  }
+  efeitos {
+    id: EFEITO_DANO_ATRIBUTO_VENENO
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 2 origem: 'veneno' } } }
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 3 origem: 'veneno' } } }
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 4 origem: 'veneno' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 5 origem: 'veneno' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ABENCOAR_ARMA
+    consequencia {
+      usa_complemento: true
+    }
+  }
+  efeitos {
+    id: EFEITO_ALINHAR_ARMA
+    consequencia {
+      usa_complemento: true
+    }
   }
 }
 
@@ -3956,6 +4024,35 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'maos_flamejantes'
+    nome: 'Mãos Flamejantes'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'fogo'
+      dominio: true
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.7 g: 0.7 b: 0 }
+      distancia_quadrados: 3
+      geometria: ACAO_GEO_CONE
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_burning_hands.png'
+      duracao_s: 0.350
+      consequencia: TC_INFLAMA_ALVO
+      resultado_salvacao: RS_MEIO
+      dificuldade_salvacao: 11
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
+    }
+  }
+  armas {
     id: 'coluna_chamas'
     nome: 'Coluna de Chamas'
     alcance_quadrados: 20
@@ -3993,6 +4090,7 @@ tabela_feiticos {
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
     }
   }
   armas {
@@ -4017,10 +4115,11 @@ tabela_feiticos {
       ignora_luz: true
       consequencia: TC_INFLAMA_ALVO
       # Mais modificador de conjurador.
-      dificuldade_salvacao_por_nivel: true 
+      dificuldade_salvacao_por_nivel: true
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
     }
   }
   armas {
@@ -4033,7 +4132,7 @@ tabela_feiticos {
     }
     info_classes {
       id: 'agua'
-      dominio: true 
+      dominio: true
       nivel: 6
     }
     acao {
@@ -4047,10 +4146,11 @@ tabela_feiticos {
       icone: 'icon_ice.png'
       duracao_s: 0.350
       dois_lados: true
-      dificuldade_salvacao_por_nivel: true 
+      dificuldade_salvacao_por_nivel: true
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
+      elemento: DESC_FRIO
     }
   }
   armas {
@@ -4071,10 +4171,11 @@ tabela_feiticos {
       icone: "icon_lightning.png"
       info_textura { id: 'lightning.png' }
       ignora_luz: true
-      dificuldade_salvacao_por_nivel: true 
+      dificuldade_salvacao_por_nivel: true
       resultado_salvacao: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
+      elemento: DESC_ELETRICIDADE
     }
   }
   armas {
@@ -4107,6 +4208,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       ignora_reducao_dano_barbaro: true
+      elemento: DESC_FRIO
     }
   }
   armas {
@@ -4133,6 +4235,50 @@ tabela_feiticos {
       ignora_municao: true
       ignora_reducao_dano_barbaro: true
       consequencia: TC_DESLOCA_ALVO
+      elemento: DESC_FORCA
+    }
+    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+  }
+  armas {
+    id: 'sono'
+    nome: 'Sono'
+    alcance_quadrados: 20  
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    acao {
+      # TODO limitar os HD.
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_sleep.png'
+      duracao_s: 0.350
+      ignora_luz: false 
+      # Mais modificador de conjurador.
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      resultado_salvacao: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_SONO
+        rodadas: 10  # por nivel
+      }
     }
   }
+
 }
+
+#tabela_venenos {
+#  venenos {
+#    id: 'nitharit' nome: 'Nitharit' tipo: TV_CONTATO dano_secondario: '3d6' tipo_dano_secondario: TDV_CONSTITUICAO preco_po: 650
+#  }
+#}

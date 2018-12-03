@@ -1276,7 +1276,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 20; } },
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
-    { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_ESQUIVA; } },
+    { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) {
+      if (modo_clique_ == MODO_ESQUIVA) return true;
+      return entidade->Proto().dados_defesa().has_entidade_esquiva();
+    } },
     { CONTROLE_DEFESA_TOTAL,      [this] (const Entidade* entidade) {
       if (entidade == nullptr) return false;
       return EmDefesaTotal(entidade->Proto());

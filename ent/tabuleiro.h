@@ -186,7 +186,7 @@ class Tabuleiro : public ntf::Receptor {
   * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
   * Retorna o atraso atualizado.
   */
-  float GeraAcaoFilha(const Acao& acao, unsigned int id_entidade, float atraso_s);
+  float GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& por_entidade, float atraso_s);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
@@ -420,6 +420,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona um evento ao log. */
   void AdicionaLogEvento(const std::string& evento);
+  /** Formata a entidade e concatena com texto antes de mandar pro log de eventos. */
+  void AdicionaLogEvento(unsigned int id, const std::string& texto);
 
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();
@@ -492,8 +494,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
-  /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
-  void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
   /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo.
   * Caso grupo nao seja null, a notificacao ira para ele e nao sera executada.
   */
@@ -567,8 +567,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
+  // Junta AdicionaAcaoTexto e AdicionaLogEvento.
+  void AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
   void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
+  void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
 
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
@@ -682,7 +685,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
-      unsigned int id_entidade_destino, float atraso_s, ntf::Notificacao* grupo_desfazer);
+      unsigned int id_entidade_destino, float atraso_s);
   float TrataAcaoEfeitoArea(
       float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
@@ -1035,6 +1038,15 @@ class Tabuleiro : public ntf::Receptor {
   bool IdPresoACamera(unsigned int id) const {
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
+
+  // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
+  void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
+  void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);
 
   struct DadosFramebuffer {
     ~DadosFramebuffer();

@@ -40,28 +40,63 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QLabel" name="label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Fundo</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Piso</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="combo_fundo">
+        <property name="toolTip">
+         <string>Escolha o tipo de piso</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <widget class="QComboBox" name="combo_fundo"/>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QCheckBox" name="checkbox_cor_piso">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Usar cor de piso?</string>
+        </property>
+        <property name="text">
+         <string>Cor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="botao_cor_piso">
+        <property name="text">
+         <string>Cor do Piso</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QCheckBox" name="checkbox_ladrilho">
       <property name="toolTip">
-       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+       <string>Se marcado, aplicará a textura como um ladrilho (por quadrado)</string>
       </property>
       <property name="text">
        <string>Ladrilho</string>
@@ -71,7 +106,7 @@
     <item>
      <widget class="QCheckBox" name="checkbox_mestre_apenas">
       <property name="toolTip">
-       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+       <string>Se marcado, apenas mestre verá o piso</string>
       </property>
       <property name="text">
        <string>Mestre Apenas</string>

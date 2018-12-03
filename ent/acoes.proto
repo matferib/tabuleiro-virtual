@@ -24,6 +24,7 @@ enum TipoConsequencia {
   TC_DESLOCA_ALVO      = 1;
   TC_INFLAMA_ALVO      = 2;
   TC_AGARRA_ALVO       = 3;
+  TC_ILUMINA_ALVO      = 4;
 }
 
 enum GeometriaAcao {
@@ -54,6 +55,7 @@ message Velocidade {
   optional float maxima_m_s = 5 [default=50.0];
 }
 
+// Proximo id: 56.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -71,8 +73,6 @@ message AcaoProto {
   optional Cor cor = 4;
   // Identificador do causador da acao.
   optional uint32 id_entidade_origem = 10;
-  // Identificador do alvo da acao.
-  repeated uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_tabuleiro = 13;
   // Posicao do clique na entidade, se houver.
@@ -119,25 +119,29 @@ message AcaoProto {
   optional bool dois_lados = 30;
   // Consequencia da acao.
   optional TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
+  // Consequencia da acao na origem.
+  optional TipoConsequencia consequencia_origem = 53 [default=TC_NENHUMA];
   // Para acoes que afetam multiplos alvos.
-  message DeltaPontosVidaPorEntidade {
-    optional uint32 id = 1;
-    optional int32 delta = 2;
-    optional bool omite_texto = 3;
+  message PorEntidade {
+    optional uint32 id = 1;     // id da entidade destino.
+    optional int32 delta = 2;   // delta da entidade.
+    optional bool omite_texto = 3 [deprecated=true];
+    optional string texto = 4;  // texto da entidade.
   }
-  repeated DeltaPontosVidaPorEntidade delta_por_entidade = 35;
+  repeated PorEntidade por_entidade = 35;
   // Indica ataque de toque.
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
-  // Indica que a acao foi bem sucedida.
+  // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
+  // de area saber se causa respingo ou nao no alvo.
   optional bool bem_sucedida = 39;
   // Indica dano nao letal.
   optional bool nao_letal = 40;
   // Algumas acoes afetam apenas alguns tipos de entidades.
-  optional TipoDnD afeta_apenas = 44;
+  repeated TipoDnD afeta_apenas = 44;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -147,6 +151,17 @@ message AcaoProto {
   optional string classe_conjuracao = 47;
   // True se a acao ignorar resistencia a magia.
   optional bool ignora_resistencia_magia = 48;
+  // Ataque elemental.
+  optional DescritorAtaque elemento = 51;
+  // Descritores do ataque: computado dinamicamente.
+  repeated DescritorAtaque descritores_ataque = 52;
+  optional IluminacaoPontual luz_origem = 54;
+  message EfeitoAdicional {
+    optional TipoEfeito efeito = 1;
+    // Se presente, setara o valor. Caso contrario fara efeito continuo.
+    optional int32 rodadas = 2;
+  }
+  repeated EfeitoAdicional efeitos_adicionais = 55;
 }
 
 // O arquivo de acoes é serializado desta forma.

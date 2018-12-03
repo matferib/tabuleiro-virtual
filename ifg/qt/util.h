@@ -12,6 +12,37 @@
 #include "ent/entidade.pb.h"
 #include "log/log.h"
 
+// No windows, o drop down do combo aparece do tamanho do combo. Isso aqui tenta corrigir o
+// problema. Ver: https://bugreports.qt.io/browse/QTBUG-3097.
+// Solucao: https://stackoverflow.com/questions/3151798/how-do-i-set-the-qcombobox-width-to-fit-the-largest-item
+void ExpandeComboBox(QComboBox* combo); 
+
+// Objeto para tratar resize events.
+class ResizeHelper : public QObject {
+Q_OBJECT
+ public:
+  ResizeHelper(QObject *parent, const std::function<void(QResizeEvent*)> f)
+      : QObject(parent), function_(f) {}
+
+ public slots:
+  void resized(QResizeEvent* event) {
+    function_(event);
+  }
+
+ private:
+  std::function<void(QResizeEvent*)> function_;
+};
+
+// Lambda connect util para combo boxes.
+inline bool lambda_connect(
+    QObject *sender,
+    const char *signal,
+    const std::function<void(QResizeEvent*)> receiver,
+    Qt::ConnectionType type = Qt::AutoConnection) {
+  return QObject::connect(
+      sender, signal, new ResizeHelper(sender, receiver), SLOT(resized(QResizeEvent*)), type);
+}
+
 
 // Objeto para tratar mudancas de combo.
 class ComboBoxHelper : public QObject {
@@ -160,6 +191,7 @@ class MapaDelegate : public QItemDelegate {
     for (const auto& kv : mapa_) {
       combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
     }
+    ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
       auto* thiz = const_cast<MapaDelegate*>(this);
