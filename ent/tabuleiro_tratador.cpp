@@ -1072,6 +1072,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
+    acao_proto->set_gera_outras_acoes(true);  // mesmo que nao de dano, tem os textos.
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pontos_vida);
@@ -1361,14 +1362,12 @@ float Tabuleiro::TrataAcaoIndividual(
       if (delta_pontos_vida == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
         por_entidade->set_delta(0);
-        acao_proto->set_gera_outras_acoes(true);  // para os textos.
       }
     }
 
     VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     bool nao_letal = da != nullptr && da->nao_letal();
     acao_proto->set_nao_letal(nao_letal);
-    acao_proto->set_gera_outras_acoes(true);  // para os textos.
 
     AdicionaLogEvento(google::protobuf::StringPrintf(
           "entidade %s %s %d em entidade %s. Texto: '%s'",
