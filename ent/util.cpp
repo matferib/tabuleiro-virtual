@@ -3426,7 +3426,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return StringPrintf(
       "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, string_nome_arma.c_str(), da.tipo_ataque().c_str(),
+      string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
       da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(),
