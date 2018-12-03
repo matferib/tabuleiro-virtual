@@ -995,8 +995,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.mutable_dados_defesa()->clear_ca();
   }
 
-  auto dados_ataque_antes = proto_parcial.dados_ataque();
   if (!proto_parcial.dados_ataque().empty()) {
+    std::string s = proto_parcial.DebugString();
+    std::cout << s;
     proto_.clear_dados_ataque();
   }
 

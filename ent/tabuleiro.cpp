@@ -2728,18 +2728,41 @@ const AcaoProto& Tabuleiro::AcaoDoMapa(TipoAcao id_acao) const {
   return *it->second;
 }
 
+namespace {
+
+EntidadeProto* PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(const Entidade& entidade, ntf::Notificacao* n) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *e_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  e_antes->set_ultima_acao(entidade.Proto().ultima_acao());
+  return e_depois;
+}
+
+void PreencheDadosAtaqueDepois(const Entidade& entidade, EntidadeProto* e_depois) {
+  *e_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  e_depois->set_ultima_acao(entidade.Proto().ultima_acao());
+}
+
+}  // namespace
+
 void Tabuleiro::ProximaAcao() {
   if (id_acoes_.size() == 0) {
     return;
   }
+  std::unique_ptr<ntf::Notificacao> grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
+
   for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
-    if (entidade == nullptr) {
-      continue;
-    }
-    if (entidade->ProximaAcao()) {
-      // entidade possui acao, usa as dela.
-      continue;
+    if (entidade == nullptr) continue;
+
+    {
+      ntf::Notificacao n;
+      auto* e_depois = PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(*entidade, &n);
+      if (entidade->ProximaAcao()) {
+        PreencheDadosAtaqueDepois(*entidade, e_depois);
+        *grupo->add_notificacao() = n;
+        continue;
+      }
     }
     std::string acao_str(entidade->Acao(mapa_acoes_).id());
     if (acao_str.empty()) {
@@ -2757,21 +2780,31 @@ void Tabuleiro::ProximaAcao() {
     entidade->AtualizaAcao(*it);
   }
   modo_clique_ = MODO_ACAO;
+  if (grupo->notificacao().size()) {
+    AdicionaNotificacaoListaEventos(*grupo);
+    central_->AdicionaNotificacaoRemota(grupo.release());
+  }
 }
 
 void Tabuleiro::AcaoAnterior() {
   if (id_acoes_.size() == 0) {
     return;
   }
+  std::unique_ptr<ntf::Notificacao> grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
-    if (entidade == nullptr) {
-      continue;
+    if (entidade == nullptr) continue;
+
+    {
+      ntf::Notificacao n;
+      auto* e_depois = PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(*entidade, &n);
+      if (entidade->AcaoAnterior()) {
+        PreencheDadosAtaqueDepois(*entidade, e_depois);
+        *grupo->add_notificacao() = n;
+        continue;
+      }
     }
-    if (entidade->AcaoAnterior()) {
-      // entidade possui acao, usa as dela.
-      continue;
-    }
+
     std::string acao_str(entidade->Acao(mapa_acoes_).id());
     if (acao_str.empty()) {
       acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
@@ -2788,6 +2821,10 @@ void Tabuleiro::AcaoAnterior() {
     entidade->AtualizaAcao(*it);
   }
   modo_clique_ = MODO_ACAO;
+  if (grupo->notificacao().size()) {
+    AdicionaNotificacaoListaEventos(*grupo);
+    central_->AdicionaNotificacaoRemota(grupo.release());
+  }
 }
 
 // privadas
