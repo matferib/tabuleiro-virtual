@@ -4269,7 +4269,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       resultado_salvacao: RS_ANULOU
       efeitos_adicionais {
-        efeito: EFEITO_DORMINDO
+        efeito: EFEITO_SONO
         rodadas: 10  # por nivel
       }
     }

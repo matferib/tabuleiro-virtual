@@ -82,7 +82,7 @@ enum TipoEfeito {
   // Dura 1s.
   EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
   // Magia de sono.
-  EFEITO_DORMINDO = 43;
+  EFEITO_SONO = 43;
 }
 
 // Tipo de visao para entidades e camera.
