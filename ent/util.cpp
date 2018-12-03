@@ -2356,6 +2356,10 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       re_corrente->Swap(&re);
     }
     break;
+    case EFEITO_DORMINDO: {      
+      proto->set_caida(true);
+    }
+    break;
     default: ;
   }
 }
