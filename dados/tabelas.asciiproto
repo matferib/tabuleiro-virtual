@@ -4267,6 +4267,7 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
+      resultado_salvacao: RS_ANULOU
       efeitos_adicionais {
         efeito: EFEITO_DORMINDO
         rodadas: 10  # por nivel
