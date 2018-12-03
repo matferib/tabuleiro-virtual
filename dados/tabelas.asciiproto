@@ -4239,6 +4239,41 @@ tabela_feiticos {
     }
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
+  armas {
+    id: 'sono'
+    nome: 'Sono'
+    alcance_quadrados: 20  
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    acao {
+      # TODO limitar os HD.
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_sleep.png'
+      duracao_s: 0.350
+      ignora_luz: false 
+      # Mais modificador de conjurador.
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_DORMINDO
+        rodadas: 10  # por nivel
+      }
+    }
+  }
+
 }
 
 #tabela_venenos {

@@ -81,6 +81,8 @@ enum TipoEfeito {
   EFEITO_ENREDADO = 41;  // entangled.
   // Dura 1s.
   EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
+  // Magia de sono.
+  EFEITO_DORMINDO = 43;
 }
 
 // Tipo de visao para entidades e camera.
