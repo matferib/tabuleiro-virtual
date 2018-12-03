@@ -593,7 +593,8 @@ modelo {
   id: 'Demônio Babau'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
-    dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
+    dados_vida: '7d8+35'
+    modelo_3d { id: 'babau' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
 
     info_classes {
