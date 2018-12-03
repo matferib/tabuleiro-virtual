@@ -1,4 +1,6 @@
-Fazer 3d: sucubo, vrock.
+Pericias: primeira coluna mostrar tool tip ou fazer mexivel.
+Grupo: nao consigo setar.
+Fazer 3d: sucubo.
 
 
 Implementar boleadeira (bolas).
