@@ -996,8 +996,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
 
   if (!proto_parcial.dados_ataque().empty()) {
-    std::string s = proto_parcial.DebugString();
-    std::cout << s;
     proto_.clear_dados_ataque();
   }
 
@@ -1124,6 +1122,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 // Acao de display.
 void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
+  const auto* dado_corrente = DadoCorrente();
+  if (dado_corrente == nullptr) {
+    proto_.clear_ultimo_grupo_acao();
+  } else {
+    proto_.set_ultimo_grupo_acao(dado_corrente->grupo());
+  }
 }
 
 bool Entidade::ProximaAcao() {
@@ -1140,6 +1144,7 @@ bool Entidade::ProximaAcao() {
     proto_.mutable_dados_ataque()->SwapElements(i, i + 1);
   }
   proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
   return true;
 }
 
@@ -1160,6 +1165,7 @@ bool Entidade::AcaoAnterior() {
     proto_.mutable_dados_ataque()->SwapElements(i, i - 1);
   }
   proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
   return true;
 }
 
@@ -1581,11 +1587,13 @@ float Entidade::Espaco() const {
 const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
+  std::string ultimo_grupo = proto_.ultimo_grupo_acao();
   if (ultima_acao.empty()) {
     ultima_acao = proto_.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto_.dados_ataque(0).tipo_ataque();
+    ultimo_grupo = proto_.dados_ataque().empty() ? "" : proto_.dados_ataque(0).grupo();
   }
   for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
+    if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
       ataques_casados.push_back(&da);
     }

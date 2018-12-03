@@ -57,7 +57,7 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 92.
+// Proximo id: 93.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -172,6 +172,7 @@ message EntidadeProto {
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
+  optional string ultimo_grupo_acao = 92;
   // Ultimas acoes executadas da unidade. Funciona como uma fila onde o indice 0 eh a acao mais recente e o
   // tamanho maximo eh dado pela constante MaxNumAcoes.
   repeated string lista_acoes = 38;

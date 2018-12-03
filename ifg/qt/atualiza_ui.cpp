@@ -279,7 +279,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
-       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques,
+       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -319,6 +319,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
   gerador.combo_material_arma->setCurrentIndex(MaterialArmaParaIndice(da.material_arma()));
   gerador.botao_remover_ataque->setEnabled(true);
+  gerador.linha_grupo_ataque->setText(QString::fromUtf8(da.grupo().c_str()));
   gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
   const auto& tipo_str = da.tipo_ataque();
   gerador.combo_tipo_ataque->setCurrentIndex(gerador.combo_tipo_ataque->findData(tipo_str.c_str()));

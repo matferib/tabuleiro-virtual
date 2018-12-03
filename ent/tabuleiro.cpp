@@ -2735,12 +2735,14 @@ EntidadeProto* PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(const Entidad
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   *e_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   e_antes->set_ultima_acao(entidade.Proto().ultima_acao());
+  e_antes->set_ultimo_grupo_acao(entidade.Proto().ultimo_grupo_acao());
   return e_depois;
 }
 
 void PreencheDadosAtaqueDepois(const Entidade& entidade, EntidadeProto* e_depois) {
   *e_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   e_depois->set_ultima_acao(entidade.Proto().ultima_acao());
+  e_depois->set_ultimo_grupo_acao(entidade.Proto().ultimo_grupo_acao());
 }
 
 }  // namespace

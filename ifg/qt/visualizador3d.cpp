@@ -893,6 +893,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
       da.set_margem_critico(dano_arma.margem_critico);
     }
   }
+  da.set_grupo(gerador.linha_grupo_ataque->text().toStdString());
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toStdString());
   da.set_incrementos(gerador.spin_incrementos->value());
   if (gerador.spin_alcance_quad->value() > 0) {
@@ -1009,6 +1010,13 @@ void PreencheConfiguraPericias(
   gerador.tabela_pericias->setModel(modelo);
   gerador.tabela_pericias->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   gerador.tabela_pericias->resizeColumnsToContents();
+  lambda_connect(gerador.tabela_pericias, SIGNAL(resizeEvent(QResizeEvent* event)), [&gerador]() {
+    gerador.tabela_pericias->resizeColumnsToContents();
+  });
+  // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
+  for (int c = 0; c < gerador.tabela_pericias->horizontalHeader()->count(); ++c) {
+    gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+  }
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
     *proto_retornado->mutable_info_pericias() = modelo->Converte();
@@ -1047,6 +1055,11 @@ void PreencheConfiguraTalentos(
     }
   });
   gerador.tabela_talentos->resizeColumnsToContents();
+  // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
+  for (int c = 0; c < gerador.tabela_talentos->horizontalHeader()->count(); ++c) {
+    gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+  }
+
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
     // TODO alterar o delegate do complemento.
@@ -1575,6 +1588,7 @@ void PreencheConfiguraDadosAtaque(
     gerador.lista_ataques->setCurrentRow(-1);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
+  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
