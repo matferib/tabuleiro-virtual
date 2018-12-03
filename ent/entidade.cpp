@@ -438,7 +438,13 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   if (f.duracao_ms < 0) {
     f.duracao_ms = 0;
   }
-  if (f.duracao_ms > 0 && intervalo_ms >= f.proxima_emissao_ms) {
+  bool fim = f.duracao_ms == 0;
+  if (fim && PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_)) {
+    AtivaFumegando(1000);
+    AtualizaFumaca(intervalo_ms);
+    return;
+  }
+  if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
     f.proxima_emissao_ms = f.proxima_emissao_ms;
     // Emite nova particula.
     DadosUmaNuvem nuvem;
@@ -929,15 +935,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();
-  }
-  if (proto_parcial.fumegando()) {
-    auto& f = vd_.fumaca;
-    f.duracao_ms = 10000;
-    f.intervalo_emissao_ms = 1000;
-    f.duracao_nuvem_ms = 3000;
-  } else if (proto_parcial.has_fumegando()) {
-    auto& f = vd_.fumaca;
-    f.duracao_ms = 0;
   }
 
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
@@ -2008,6 +2005,14 @@ void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
   luz_acao.inicio.set_raio_m(luz.raio_m());
   *luz_acao.inicio.mutable_cor() = luz.cor();
   LOG(INFO) << "Luz acao ligada";
+}
+
+void Entidade::AtivaFumegando(int duracao_ms) {
+  auto& f = vd_.fumaca;
+  f.duracao_ms = duracao_ms;
+  f.intervalo_emissao_ms = 1000;
+  f.duracao_nuvem_ms = 3000;
+  f.proxima_emissao_ms = 0;
 }
 
 void Entidade::ReiniciaAtaque() {

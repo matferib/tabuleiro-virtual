@@ -2361,7 +2361,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       re_corrente->Swap(&re);
     }
     break;
-    case EFEITO_DORMINDO: {      
+    case EFEITO_SONO: {      
       proto->set_caida(true);
     }
     break;

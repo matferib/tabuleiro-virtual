@@ -167,7 +167,6 @@ message EntidadeProto {
   optional bool surpreso = 64;
   // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
   optional bool furtivo = 62;
-  optional bool fumegando = 67;
   // Ids das entidades agarradas.
   repeated uint32 agarrado_a = 71;
 

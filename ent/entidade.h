@@ -55,6 +55,9 @@ class Entidade {
   /** Liga a iluminacao por acao da entidade, tipo quando da um tiro. */
   void AtivaLuzAcao(const IluminacaoPontual& luz);
 
+  /** faz alvo fumegar. */
+  void AtivaFumegando(int duracao_ms);
+
   /** Destroi a entidade. */
   ~Entidade();
 
