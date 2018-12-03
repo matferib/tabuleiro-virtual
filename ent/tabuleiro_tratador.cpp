@@ -956,8 +956,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!ha_valor) return atraso_s;
 
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  const bool acertou_direto = !acao_proto->por_entidade().empty() && acao_proto->por_entidade(0).has_delta();
-  acao_proto->set_bem_sucedida(acertou_direto);
+  const bool acertou_direto = acao_proto->bem_sucedida();
+
   // A acao individual incrementou o ataque.
   if (entidade != nullptr) entidade->AtaqueAnterior();
 
@@ -999,13 +999,24 @@ float Tabuleiro::TrataAcaoProjetilArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area em projetil de area";
       continue;
     }
-    if (id == id_entidade_destino && acertou_direto) {
-      continue;
+
+    AcaoProto::PorEntidade* por_entidade = nullptr;
+    if (id == id_entidade_destino) {
+      if (acertou_direto) {
+        continue;
+      } else {
+        auto find_result = std::find_if(acao_proto->mutable_por_entidade()->begin(), acao_proto->mutable_por_entidade()->end(), 
+            [id_entidade_destino](AcaoProto::PorEntidade& po) { return po.id() == id_entidade_destino; });
+        if (find_result == acao_proto->mutable_por_entidade()->end()) continue;
+        por_entidade = &(*find_result);
+      }
+    } else {
+       por_entidade = acao_proto->add_por_entidade();
     }
+    if (por_entidade == nullptr) continue;
 
     acao_proto->set_bem_sucedida(true);
     acao_proto->set_afeta_pontos_vida(true);
-    auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
 
     int delta_pv = -1;

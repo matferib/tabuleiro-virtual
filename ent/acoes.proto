@@ -135,7 +135,8 @@ message AcaoProto {
   optional bool ataque_distancia = 37;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
-  // Indica que a acao foi bem sucedida.
+  // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
+  // de area saber se causa respingo ou nao no alvo.
   optional bool bem_sucedida = 39;
   // Indica dano nao letal.
   optional bool nao_letal = 40;
