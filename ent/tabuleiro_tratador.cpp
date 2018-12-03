@@ -1064,13 +1064,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pontos_vida);
-    if (delta_pontos_vida == 0) {
-      continue;
-    }
+
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
       por_entidade->set_delta(0);
-      por_entidade->set_texto("Imune ao ataque devido ao tipo");
+      por_entidade->set_texto("não afetado pelo ataque");
       continue;
     }
     
@@ -1086,14 +1084,14 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       }
     }
     int delta_pv_pos_salvacao = delta_pontos_vida;
+    bool salvou = false;
     if (acao_proto->permite_salvacao()) {
-      std::string resultado_salvacao;
+      std::string texto_salvacao;
       // pega o dano da acao.
-      std::tie(delta_pv_pos_salvacao, resultado_salvacao) =
-          AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       atraso_s += 1.5f;
-      ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade->Id(), resultado_salvacao);
+      ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade->Id(), texto_salvacao);
     }
     // Imunidade ao tipo de ataque.
     ResultadoImunidadeOuResistencia resultado_elemento =
@@ -1107,7 +1105,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
-    if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !acao_proto->efeitos_adicionais().empty()) {
+    if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         if (efeito_adicional.has_rodadas()) {
@@ -1297,11 +1295,11 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     std::string resultado_salvacao;
+    bool salvou = false;
     if (delta_pontos_vida < 0 && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       por_entidade->set_delta(delta_pontos_vida);
-      std::tie(delta_pontos_vida, resultado_salvacao) =
-          AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
     }
 
@@ -1324,7 +1322,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
-    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty()) {
+    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty() && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         if (efeito_adicional.has_rodadas()) {

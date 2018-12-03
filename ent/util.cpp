@@ -1300,20 +1300,24 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
 
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
-std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
   int delta_pontos_vida = ap.delta_pontos_vida();
+  bool salvou = false;
 
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
       descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/2: dano %d", -delta_pontos_vida);
+      salvou = true;
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
       descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/4: dano %d", -delta_pontos_vida);
+      salvou = true;
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
       descricao_resultado = "salvacao manual anulou";
+      salvou = true;
     } else {
       descricao_resultado = "salvacao manual falhou";
     }
@@ -1323,6 +1327,7 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
     int total = d20 + bonus;
     std::string str_evasao;
     if (total >= ap.dificuldade_salvacao()) {
+      salvou = true;
       if (ap.resultado_salvacao() == RS_MEIO) {
         if (ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao", ed.Proto())) {
           delta_pontos_vida = 0;
@@ -1338,7 +1343,6 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
       descricao_resultado = google::protobuf::StringPrintf(
           "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      str_evasao = " (sem evasão aprimorada)";
       if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
@@ -1347,9 +1351,10 @@ std::tuple<int, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidad
           "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
+    salvou = true;
     descricao_resultado = google::protobuf::StringPrintf("salvacao: acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
   }
-  return std::make_tuple(delta_pontos_vida, descricao_resultado);
+  return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
 
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
