@@ -1,7 +1,5 @@
 Pericias: primeira coluna mostrar tool tip ou fazer mexivel.
-Grupo: nao consigo setar.
 Fazer 3d: sucubo.
-
 
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.

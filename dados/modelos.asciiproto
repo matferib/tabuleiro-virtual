@@ -384,8 +384,9 @@ modelo {
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
     dados_vida: '10d8+70' tamanho: TM_GRANDE
-    info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    modelo_3d { id: 'vrock' }
+    posicao_acao { x: 0.5 y: 0 z: 0.75 }
 
     info_classes {
       id: 'extra_planar' nivel: 10
