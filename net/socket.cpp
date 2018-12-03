@@ -231,6 +231,19 @@ void Socket::Ouve(int porta) {
 #endif
 }
 
+void Socket::PortaLocal(int porta) {
+  struct addrinfo hints, *res;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;  // use IPv4 or IPv6, whichever
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
+  getaddrinfo(NULL, to_string(porta).c_str(), &hints, &res);
+  if (bind(interno_->socket_, res->ai_addr, res->ai_addrlen) == -1) {
+    throw std::logic_error("Erro no bind TCP");
+  }
+  freeaddrinfo(res);
+}
+
 void Socket::Conecta(const std::string& endereco, const std::string& porta) {
   struct addrinfo hints, *res;
   memset(&hints, 0, sizeof(hints));
@@ -527,12 +540,16 @@ void Sincronizador::AlternaHackAndroid() {
 #include <functional>
 #include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
+#include "goog/stringprintf.h"
 
 #include "log/log.h"
 #include "net/socket.h"
 #include "net/util.h"
 
 namespace net {
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 //-----
 // Erro
@@ -664,6 +681,15 @@ void Socket::Conecta(const std::string& endereco, const std::string& porta) {
 
 void Socket::Fecha() {
   interno_->socket->close();
+}
+
+void Socket::PortaLocal(int porta_local) {
+  interno_->socket->open(boost::asio::ip::tcp::v4());
+  boost::system::error_code ec;
+  interno_->socket->bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta_local), ec);
+  if (ec) {
+    throw std::logic_error(StringPrintf("Erro no bind do cliente na porta %d", porta_local));
+  }
 }
 
 void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_cliente) {

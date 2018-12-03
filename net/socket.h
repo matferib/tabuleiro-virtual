@@ -112,6 +112,9 @@ class Socket {
   void Ouve(int porta);
 #endif
 
+  // Faz o socket se ligar em uma porta especifica local. Sem ouvir.
+  void PortaLocal(int porta);
+
   // Conecta o socket a um endereco.
   // Endereco pode ser IP: XXX.XXX.XXX.XXX ou dominio: www.teste.com. Porta eh a representacao string de um numero.
   // @throws std::exception em caso de erro.

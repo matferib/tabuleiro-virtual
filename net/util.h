@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#if USAR_GFLAGS
+#include <gflags/gflags.h>
+#endif
 
 namespace net {
 
@@ -12,8 +15,7 @@ const std::string CodificaDados(const std::string& dados);
 unsigned int DecodificaTamanho(const std::string::iterator& string);
 
 // Porta para aceitar conexoes http.
-//inline int PortaPadrao() { return 22113; }
-inline int PortaPadrao() { return 11223; }
+int PortaPadrao();
 
 // Porta de anuncio (broadcast) do endereco do servidor.
 //inline int PortaAnuncio() { return 22114; }
