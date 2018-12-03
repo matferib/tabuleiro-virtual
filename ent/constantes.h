@@ -102,7 +102,7 @@ constexpr float CAMPO_VISAO_MAX = 90.0f;
 /** Tempo que o detalhamento mostra os detalhes no hover. */
 constexpr int TEMPO_DETALHAMENTO_MS = 500;
 /** Tempo entre mensagens. */
-constexpr float TEMPO_ENTRE_MENSAGEM_S = 2.0f;
+constexpr float TEMPO_ENTRE_MENSAGENS_S = 2.0f;
 
 /** Distancia minima entre pontos no desenho livre. */
 constexpr float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
