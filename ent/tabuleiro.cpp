@@ -1658,7 +1658,7 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& p
 
   // Aqui eh acao para display, local apenas, cada cliente reproduzira a sua.
   AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade->Id(), delta, texto, atraso_s, /*local_apenas=*/true);
-  atraso_s += 1.5f;
+  atraso_s += TEMPO_ENTRE_MENSAGENS_S;
 
   if (acao.Proto().afeta_pontos_vida()) {
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
