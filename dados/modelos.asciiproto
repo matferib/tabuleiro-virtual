@@ -2432,8 +2432,8 @@ modelo {
       terrestre_basico_q: 12
     }
     tipo_dnd: TIPO_EXTRA_PLANAR
-    sub_tipo: SUBTIPO_MAL
-    sub_tipo: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_CAOS
     info_classes {
       id: 'extraplanar' nivel: 6
       salvacoes_fortes: TS_FORTITUDE
