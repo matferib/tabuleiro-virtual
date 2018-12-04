@@ -2011,7 +2011,7 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
-  if (TemTipo(TIPO_MORTO_VIVO) || TemTipo(TIPO_ELEMENTAL) || TemTipo(TIPO_LIMO) || TemTipo(PLANTA) || TemTipo(TIPO_CONSTRUCTO)) {
+  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO)) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
