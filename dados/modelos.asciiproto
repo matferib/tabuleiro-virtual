@@ -173,6 +173,68 @@ modelo {
   }
 }
 modelo {
+  id: 'Bodak'
+  entidade {
+    tipo_dnd: TIPO_MORTO_VIVO
+    dados_vida: '9d12'
+    info_classes {
+      id: 'morto vivo' nivel: 9 salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_MEIO
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    info_textura { id: 'bodak.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    aura_m: 9  # 1 quadrado de raio
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'pancada' dano_basico: '1d8' id_arma: 'pancada' # para talento funcionar.
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'olhar morte' tipo_ataque: 'Raio' rotulo: 'olhar da morte' dano: 'X' alcance_m: 9
+      acao_fixa {
+        cor { r: 0 b: 0 g: 0 } ignora_resistencia_magia: true consequencia: TC_NENHUMA elemento: DESC_MORTE
+        permite_salvacao: true
+        efeitos_adicionais {
+          efeito: EFEITO_MORTE
+        }
+        resultado_salvacao: RS_ANULOU
+      }
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } }
+      }
+      reducao_dano { descritores: DESC_FERRO_FRIO valor: 10 }
+      imunidades: DESC_ELETRICIDADE
+      resistencia_elementos { descritor: DESC_ACIDO valor: 10 }
+      resistencia_elementos { descritor: DESC_FOGO valor: 10 }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'foco_em_arma' complemento: 'pancada' }
+    }
+    info_pericias { id: 'esconderse' pontos: 8 }
+    info_pericias { id: 'furtividade' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 8 }
+
+    movimento {
+      terrestre_basico_q: 4
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Bulette'
   entidade {
     tipo_dnd: TIPO_BESTA_MAGICA
