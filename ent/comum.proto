@@ -83,6 +83,8 @@ enum TipoEfeito {
   EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
   // Magia de sono.
   EFEITO_SONO = 43;
+  // Morto por efeito de morte.
+  EFEITO_MORTE = 44;
 }
 
 // Tipo de visao para entidades e camera.
@@ -123,6 +125,9 @@ enum TipoDnD {
   TIPO_BESTA_MAGICA = 5; // d10 fortitude, reflexo, bba guerreiro, visao escuro 12q, visao na penumbra.
   TIPO_EXTRA_PLANAR = 6;
   TIPO_ABERRACAO = 7;
+  TIPO_CONSTRUCTO = 8;
+  TIPO_ELEMENTAL = 9;
+  TIPO_LIMO = 10;
   // TODO outros.
 }
 
@@ -761,4 +766,3 @@ message VenenoProto {
   optional int32 cd = 10;
   optional int32 preco_po = 11;
 }
-
