@@ -2668,7 +2668,7 @@ tabela_talentos {
     bonus_pericias { id: 'intimidacao' valor: 2 }
   }
   talentos {
-    id: 'prontidao'
+    id: 'prontidao'  # alertness
     nome: 'Prontidão'
     bonus_pericias { id: 'ouvir' valor: 2 }
     bonus_pericias { id: 'observar' valor: 2 }
