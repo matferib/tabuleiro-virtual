@@ -2427,7 +2427,76 @@ modelo {
   id: 'Uivante'
   entidade {
     dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 }
-    modificador_iniciativa: 7
+    rotulo_especial: 'Apenas 1d4 espinhas por rodada podem ser usados\nuivo por uma hora Cd 12 vontade ou 1 ponto de sabedoria'
+    movimento {
+      terrestre_basico_q: 12
+    }
+    tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo: SUBTIPO_MAL
+    sub_tipo: SUBTIPO_CAOS
+    info_classes {
+      id: 'extraplanar' nivel: 6
+      salvacoes_fortes: TS_FORTITUDE
+      salvacoes_fortes: TS_REFLEXO
+      salvacoes_fortes: TS_VONTADE
+      progressao_bba: PBBA_UM
+
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'procurar'
+      pericias_monstro: 'observar'
+    }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d8'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    # TODO a cada rodada, apenas 1d4 podem ser usados.
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'espinha' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      # Efeito adicional: espinho encravado. -1 ataque, saves, testes por espinha.
+      # Cura CD 20 remove, out 1d6 de dano.
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'espinha' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'espinha' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'espinha' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'reflexos_combate' }
+      gerais { id: 'iniciativa_aprimorada' }
+    }
+    info_pericias { id: 'escalar' pontos: 9 }
+    info_pericias { id: 'esconderse' pontos: 9 }
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'furtividade' pontos: 9 }
+    info_pericias { id: 'procurar' pontos: 9 }
+    info_pericias { id: 'observar' pontos: 9 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
