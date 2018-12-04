@@ -1622,7 +1622,7 @@ const EntidadeProto::DadosAtaque* Entidade::DadoAgarrar() const {
       return &da;
     }
   }
-  return nullptr; 
+  return nullptr;
 }
 
 std::string Entidade::TipoAtaque() const {
@@ -1734,7 +1734,10 @@ int Entidade::MultiplicadorCritico() const {
 }
 
 bool Entidade::ImuneCritico() const {
-  return proto_.dados_defesa().imune_critico();
+  return proto_.dados_defesa().imune_critico() || TemTipoDnD(TIPO_MORTO_VIVO) ||
+         TemTipoDnD(TIPO_CONSTRUCTO) || TemTipoDnD(TIPO_PLANTA) ||
+         TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) ||
+         TemSubTipoDnD(SUBTIPO_ENXAME);
 }
 
 bool Entidade::ImuneFurtivo() const {
@@ -2008,6 +2011,9 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
+  if (TemTipo(TIPO_MORTO_VIVO) || TemTipo(TIPO_ELEMENTAL) || TemTipo(TIPO_LIMO) || TemTipo(PLANTA) || TemTipo(TIPO_CONSTRUCTO)) {
+    return true;
+  }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
 }
 
