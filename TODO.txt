@@ -1,4 +1,4 @@
-Fazer 3d: sucubo.
+Fazer 3d: sucubo, bodak.
 
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
@@ -9,7 +9,7 @@ Imunidade a ataque furtivo.
 Ao agarrar, ignora reflexos.
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 
-
+Aura do mestre apenas: para ver efeitos do monstor, como alcance de olhar e medo.
 
 Problema na iluminacao:
 Luz pontual esta estranha em objetos compostos (Ver sofa do ape, por exemplo).
