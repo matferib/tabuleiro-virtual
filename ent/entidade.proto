@@ -57,14 +57,16 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 93.
+// Proximo id: 94.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
   optional TipoEntidade tipo = 1;
+  optional TipoForma sub_tipo = 18;
+
   // O tipo da entidade segundo as regras de dnd.
   repeated TipoDnD tipo_dnd = 86;
-  optional TipoForma sub_tipo = 18;
+  repeated SubTipoDnD sub_tipo_dnd = 93;
   optional Movimento movimento = 90;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
@@ -288,6 +290,18 @@ message EntidadeProto {
   }
   repeated DadosAtaque dados_ataque = 44;
 
+  // Por enquanto, apenas para ranger.
+  message InimigoPredileto {
+    // ranger.
+    optional string classe = 1;
+    // Quantas vezes foi escolhido.
+    optional int32 vezes = 2;
+    // Qual o tipo.
+    optional TipoDnD tipo = 3;
+    // E o subtipo, se houver.
+    optional SubTipoDnD sub_tipo = 4;
+  }
+
   // Independe de ataque especifico.
   message DadosAtaqueGlobal {
     optional string dano_furtivo = 1;
@@ -316,6 +330,7 @@ message EntidadeProto {
     // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
+    repeated InimigoPredileto inimigos_prediletos = 26;
   }
   optional DadosAtaqueGlobal dados_ataque_global = 73;
 

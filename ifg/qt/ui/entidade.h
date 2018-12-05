@@ -199,9 +199,17 @@ public:
     QPushButton *botao_adicionar_talento;
     QPushButton *botao_remover_talento;
     QWidget *tab_5;
-    QGridLayout *gridLayout_14;
+    QVBoxLayout *verticalLayout_18;
+    QHBoxLayout *horizontalLayout_6;
     QLabel *label_38;
     QLineEdit *linha_furtivo;
+    QVBoxLayout *verticalLayout_17;
+    QLabel *label_94;
+    QHBoxLayout *horizontalLayout_29;
+    QTableView *tabela_inimigos_prediletos;
+    QVBoxLayout *verticalLayout_2;
+    QPushButton *botao_adicionar_inimigo_predileto;
+    QPushButton *botao_remover_inimigo_predileto;
     QWidget *tab_estatisticas;
     QCheckBox *checkbox_imune_critico;
     QGroupBox *groupBox_3;
@@ -1355,22 +1363,69 @@ public:
         tabs->addTab(tab_3, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QStringLiteral("tab_5"));
-        gridLayout_14 = new QGridLayout(tab_5);
-        gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
+        verticalLayout_18 = new QVBoxLayout(tab_5);
+        verticalLayout_18->setObjectName(QStringLiteral("verticalLayout_18"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
         label_38 = new QLabel(tab_5);
         label_38->setObjectName(QStringLiteral("label_38"));
         sizePolicy2.setHeightForWidth(label_38->sizePolicy().hasHeightForWidth());
         label_38->setSizePolicy(sizePolicy2);
         label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_14->addWidget(label_38, 0, 0, 1, 1);
+        horizontalLayout_6->addWidget(label_38);
 
         linha_furtivo = new QLineEdit(tab_5);
         linha_furtivo->setObjectName(QStringLiteral("linha_furtivo"));
         sizePolicy2.setHeightForWidth(linha_furtivo->sizePolicy().hasHeightForWidth());
         linha_furtivo->setSizePolicy(sizePolicy2);
 
-        gridLayout_14->addWidget(linha_furtivo, 0, 1, 1, 1);
+        horizontalLayout_6->addWidget(linha_furtivo);
+
+
+        verticalLayout_18->addLayout(horizontalLayout_6);
+
+        verticalLayout_17 = new QVBoxLayout();
+        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
+        label_94 = new QLabel(tab_5);
+        label_94->setObjectName(QStringLiteral("label_94"));
+        QFont font;
+        font.setPointSize(11);
+        font.setBold(true);
+        font.setWeight(75);
+        label_94->setFont(font);
+
+        verticalLayout_17->addWidget(label_94);
+
+        horizontalLayout_29 = new QHBoxLayout();
+        horizontalLayout_29->setObjectName(QStringLiteral("horizontalLayout_29"));
+        tabela_inimigos_prediletos = new QTableView(tab_5);
+        tabela_inimigos_prediletos->setObjectName(QStringLiteral("tabela_inimigos_prediletos"));
+        sizePolicy8.setHeightForWidth(tabela_inimigos_prediletos->sizePolicy().hasHeightForWidth());
+        tabela_inimigos_prediletos->setSizePolicy(sizePolicy8);
+
+        horizontalLayout_29->addWidget(tabela_inimigos_prediletos);
+
+        verticalLayout_2 = new QVBoxLayout();
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        botao_adicionar_inimigo_predileto = new QPushButton(tab_5);
+        botao_adicionar_inimigo_predileto->setObjectName(QStringLiteral("botao_adicionar_inimigo_predileto"));
+
+        verticalLayout_2->addWidget(botao_adicionar_inimigo_predileto);
+
+        botao_remover_inimigo_predileto = new QPushButton(tab_5);
+        botao_remover_inimigo_predileto->setObjectName(QStringLiteral("botao_remover_inimigo_predileto"));
+
+        verticalLayout_2->addWidget(botao_remover_inimigo_predileto);
+
+
+        horizontalLayout_29->addLayout(verticalLayout_2);
+
+
+        verticalLayout_17->addLayout(horizontalLayout_29);
+
+
+        verticalLayout_18->addLayout(verticalLayout_17);
 
         tabs->addTab(tab_5, QString());
         tab_estatisticas = new QWidget();
@@ -1399,11 +1454,11 @@ public:
 
         label_57 = new QLabel(gridLayoutWidget_3);
         label_57->setObjectName(QStringLiteral("label_57"));
-        QFont font;
-        font.setFamily(QStringLiteral("Noto Sans [unknown]"));
-        font.setBold(true);
-        font.setWeight(75);
-        label_57->setFont(font);
+        QFont font1;
+        font1.setFamily(QStringLiteral("Noto Sans [unknown]"));
+        font1.setBold(true);
+        font1.setWeight(75);
+        label_57->setFont(font1);
         label_57->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_57, 0, 7, 1, 1);
@@ -1422,14 +1477,14 @@ public:
 
         label_58 = new QLabel(gridLayoutWidget_3);
         label_58->setObjectName(QStringLiteral("label_58"));
-        label_58->setFont(font);
+        label_58->setFont(font1);
         label_58->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_58, 0, 8, 1, 1);
 
         label_59 = new QLabel(gridLayoutWidget_3);
         label_59->setObjectName(QStringLiteral("label_59"));
-        label_59->setFont(font);
+        label_59->setFont(font1);
         label_59->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_59, 0, 9, 1, 1);
@@ -1645,7 +1700,7 @@ public:
         label_63->setObjectName(QStringLiteral("label_63"));
         sizePolicy7.setHeightForWidth(label_63->sizePolicy().hasHeightForWidth());
         label_63->setSizePolicy(sizePolicy7);
-        label_63->setFont(font);
+        label_63->setFont(font1);
         label_63->setAlignment(Qt::AlignCenter);
 
         gridLayout_2->addWidget(label_63, 0, 2, 1, 1);
@@ -1704,7 +1759,7 @@ public:
         label_70->setObjectName(QStringLiteral("label_70"));
         sizePolicy7.setHeightForWidth(label_70->sizePolicy().hasHeightForWidth());
         label_70->setSizePolicy(sizePolicy7);
-        label_70->setFont(font);
+        label_70->setFont(font1);
         label_70->setAlignment(Qt::AlignCenter);
 
         gridLayout_4->addWidget(label_70, 0, 1, 1, 1);
@@ -1727,14 +1782,14 @@ public:
 
         label_69 = new QLabel(gridLayoutWidget_5);
         label_69->setObjectName(QStringLiteral("label_69"));
-        label_69->setFont(font);
+        label_69->setFont(font1);
         label_69->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_69, 0, 2, 1, 1);
 
         label_54 = new QLabel(gridLayoutWidget_5);
         label_54->setObjectName(QStringLiteral("label_54"));
-        label_54->setFont(font);
+        label_54->setFont(font1);
         label_54->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_54, 0, 0, 1, 1);
@@ -1747,14 +1802,14 @@ public:
 
         label_56 = new QLabel(gridLayoutWidget_5);
         label_56->setObjectName(QStringLiteral("label_56"));
-        label_56->setFont(font);
+        label_56->setFont(font1);
         label_56->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_56, 0, 1, 1, 1);
 
         label_71 = new QLabel(gridLayoutWidget_5);
         label_71->setObjectName(QStringLiteral("label_71"));
-        label_71->setFont(font);
+        label_71->setFont(font1);
 
         gridLayout_5->addWidget(label_71, 0, 3, 1, 1);
 
@@ -1996,9 +2051,9 @@ public:
         label_36->setObjectName(QStringLiteral("label_36"));
         sizePolicy1.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
         label_36->setSizePolicy(sizePolicy1);
-        QFont font1;
-        font1.setKerning(false);
-        label_36->setFont(font1);
+        QFont font2;
+        font2.setKerning(false);
+        label_36->setFont(font2);
         label_36->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_13->addWidget(label_36, 0, 2, 1, 1);
@@ -2665,11 +2720,14 @@ public:
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", Q_NULLPTR));
-        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Furtivo", Q_NULLPTR));
+        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Furtivo", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         linha_furtivo->setText(QString());
+        label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", Q_NULLPTR));
+        botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", Q_NULLPTR));
+        botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", Q_NULLPTR));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", Q_NULLPTR));
         groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados de CA", Q_NULLPTR));

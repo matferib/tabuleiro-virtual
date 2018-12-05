@@ -30,6 +30,7 @@
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
+#include "ifg/qt/inimigo_predileto_util.h"
 #include "ifg/qt/itens_magicos_util.h"
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/pocoes_util.h"
@@ -1070,6 +1071,46 @@ void PreencheConfiguraTalentos(
   });
 }
 
+void PreencheConfiguraInimigosPrediletos(
+	  Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+	  ent::EntidadeProto* proto_retornado) {
+  const ent::Tabelas& tabelas = this_->tabelas();
+
+  auto* modelo(new ModeloInimigoPredileto(tabelas, *proto_retornado, gerador.tabela_inimigos_prediletos));
+	std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_inimigos_prediletos->selectionModel());
+
+	TrocaDelegateColuna(2, new TipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
+	TrocaDelegateColuna(3, new SubTipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
+
+	gerador.tabela_inimigos_prediletos->setModel(modelo);
+	lambda_connect(gerador.botao_adicionar_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
+		const int linha = modelo->rowCount();
+		modelo->insertRows(linha, 1, QModelIndex());
+		gerador.tabela_inimigos_prediletos->selectRow(linha);
+	});
+	lambda_connect(gerador.botao_remover_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
+		std::set<int, std::greater<int>> linhas;
+		for (const QModelIndex& index : gerador.tabela_inimigos_prediletos->selectionModel()->selectedIndexes()) {
+			linhas.insert(index.row());
+		}
+		for (int linha : linhas) {
+			modelo->removeRows(linha, 1, QModelIndex());
+		}
+	});
+
+	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+
+	lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+		[&tabelas, &gerador, proto_retornado, modelo]() {
+		*proto_retornado->mutable_dados_ataque_global()->mutable_inimigos_prediletos() = modelo->Converte();
+		ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraFeiticos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
@@ -1841,6 +1882,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Pericias e Talentos.
   PreencheConfiguraPericias(this, gerador, entidade, proto_retornado);
   PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
+
+  // Inimigos Prediletos.
+  PreencheConfiguraInimigosPrediletos(this, gerador, entidade, proto_retornado);
 
   // Feiticos.
   PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);

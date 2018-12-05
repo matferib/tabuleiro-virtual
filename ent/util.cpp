@@ -934,7 +934,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   return modificador;
 }
 
-int ModificadorDano(const EntidadeProto& ea) {
+int ModificadorDano(const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   if (ea.dados_ataque_global().dano_menos_1()) {
     modificador -= 1;
@@ -3436,7 +3436,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
 }
 
 std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador_dano = ModificadorDano(proto);
+  int modificador_dano = ModificadorDano(proto, EntidadeProto());
   return google::protobuf::StringPrintf(
       "%s%s",
       da.dano().c_str(),

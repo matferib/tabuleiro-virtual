@@ -122,7 +122,31 @@ enum TipoDnD {
   TIPO_PLANTA = 4;
   TIPO_BESTA_MAGICA = 5; // d10 fortitude, reflexo, bba guerreiro, visao escuro 12q, visao na penumbra.
   TIPO_EXTRA_PLANAR = 6;
+  TIPO_ABERRACAO = 7;
   // TODO outros.
+}
+
+enum SubTipoDnD {
+  SUBTIPO_AQUATICO = 0;
+  SUBTIPO_ANAO = 1;
+  SUBTIPO_ELFO = 2;
+  SUBTIPO_GOBLINOIDE = 3;
+  SUBTIPO_GNOLL = 4;
+  SUBTIPO_GNOMO = 5;
+  SUBTIPO_HALFLING = 6;
+  SUBTIPO_HUMANO = 7;
+  SUBTIPO_ORC = 8;
+  SUBTIPO_REPTILIANO = 9;
+  SUBTIPO_AR = 10;
+  SUBTIPO_CAOS = 11;
+  SUBTIPO_TERRA = 12;
+  SUBTIPO_MAL = 13;
+  SUBTIPO_FOGO = 14;
+  SUBTIPO_BEM = 15;
+  SUBTIPO_ORDEM = 16;
+  SUBTIPO_NATIVO = 17;
+  SUBTIPO_AGUA = 18;
+  SUBTIPO_ENXAME = 19;
 }
 
 enum DescritorAtaque {

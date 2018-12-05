@@ -56,9 +56,9 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     if (role == Qt::DisplayRole) {
       switch (section) {
         case 0: return QVariant(QString::fromUtf8("Classe"));
-        case 1: return QVariant(QString::fromUtf8("Tipo"));
-        case 2: return QVariant(QString::fromUtf8("Sub-Tipo"));
-        case 3: return QVariant(QString::fromUtf8("Vezes"));
+        case 1: return QVariant(QString::fromUtf8("Vezes"));
+        case 2: return QVariant(QString::fromUtf8("Tipo"));
+        case 3: return QVariant(QString::fromUtf8("Sub-Tipo"));
         default: ;
       }
     }
@@ -77,8 +77,12 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     switch (column) {
       case 0: return QVariant(modelo_[row].classe().c_str());
       case 1: return QVariant(modelo_[row].vezes());
-	  case 2: return role == Qt::EditRole ? QVariant(modelo_[row].tipo()) : QVariant(ent::TipoDnD_Name(modelo_[row].tipo()));
-      case 3: return role == Qt::EditRole ? QVariant(modelo_[row].sub_tipo()) : QVariant(ent::SubTipoDnD_Name(modelo_[row].sub_tipo()));
+	    case 2: return role == Qt::EditRole 
+        ? QVariant(modelo_[row].has_tipo() ? modelo_[row].has_tipo() : -1) 
+        : QVariant(QString::fromUtf8(modelo_[row].has_tipo() ? ent::TipoDnD_Name(modelo_[row].tipo()).c_str() : ""));
+      case 3: return role == Qt::EditRole 
+        ? QVariant(modelo_[row].has_sub_tipo() ? modelo_[row].sub_tipo() : -1)
+        : QVariant(QString::fromUtf8(modelo_[row].has_sub_tipo() ? ent::SubTipoDnD_Name(modelo_[row].sub_tipo()).c_str() : ""));
       default: ;
     }
     // Nunca deveria chegar aqui.
@@ -110,19 +114,25 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
       }
       case 2: {
         int t = value.toInt();
-        if (!ent::TipoDnD_IsValid(t)) return false;
-        modelo_[row].set_tipo(ent::TipoDnD(t));
+        if (!ent::TipoDnD_IsValid(t)) {
+          modelo_[row].clear_tipo();
+        } else {
+          modelo_[row].set_tipo(ent::TipoDnD(t));
+        }
         emit dataChanged(index, index);
         return true;
       }
       case 3: {
         int st = value.toInt();
-        if (ent::SubTipoDnd_IsValid(st)) return false;
-        modelo_[row].set_tipo(ent::SubTipoDnD(st));
+        if (!ent::SubTipoDnD_IsValid(st)) {
+          modelo_[row].clear_sub_tipo();
+        } else {
+          modelo_[row].set_sub_tipo(ent::SubTipoDnD(st));
+        }
         emit dataChanged(index, index);
         return true;
       }
-
+      default: ;
     }
     return false;
   }
@@ -133,7 +143,9 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
 
   google::protobuf::RepeatedPtrField<InimigoPredileto> Converte() const {
     google::protobuf::RepeatedPtrField<InimigoPredileto> ret;
-    std::copy(modelo_.begin(), modelo_.end(), google::protobuf::RepeatedPtrFieldBackInserter(ret));
+    std::copy_if(modelo_.begin(), modelo_.end(), google::protobuf::RepeatedPtrFieldBackInserter(&ret), [](const InimigoPredileto& ip) {
+      return ip.has_tipo();
+    });
     return ret;
   }
 
@@ -178,7 +190,7 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
   }
  
  protected:
-  virtual std::map<std::string, int> CriaMapa() = 0;
+  virtual std::map<std::string, int> CriaMapa() const = 0;
 
  private:
   void commitAndCloseEditor(QComboBox* combo) {
@@ -189,13 +201,13 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
   // Preenche o combo box de bonus.
   QComboBox* PreencheConfiguraCombo(const std::map<std::string, int>& mapa, QComboBox* combo) const {
     for (const auto& kv : mapa) {
-      combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second.c_str()));
+      combo->addItem(QString::fromUtf8(kv.first.c_str()), QVariant(kv.second));
     }
     ExpandeComboBox(combo);
 
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
     lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [this, combo]() {
-      auto* thiz = const_cast<TipoDnDDelegate*>(this);
+      auto* thiz = const_cast<TipoSubTipoDelegateBase*>(this);
       thiz->commitAndCloseEditor(combo);
     });
     return combo;
@@ -206,18 +218,18 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
 };
 
 // Delegado de tipo.
-class TipoDnDDelegate : public TipoSubTipoDnDDelegate {
+class TipoDnDDelegate : public TipoSubTipoDelegateBase {
  public:
   TipoDnDDelegate(const ent::Tabelas& tabelas,  QAbstractTableModel* modelo, QObject* parent)
-      : TipoSubTipoDnDDelegate(tabelas, modelo, parent) {}
+      : TipoSubTipoDelegateBase(tabelas, modelo, parent) {}
 
  protected:
-  virtual std::map<std::string, int> CriaMapa() override {
+  virtual std::map<std::string, int> CriaMapa() const override {
     std::map<std::string, int> mapa;
     mapa.insert(std::make_pair("Nenhum", -1));
     for (int i = ent::TipoDnD_MIN; i < ent::TipoDnD_MAX; ++i) {
       if (!ent::TipoDnD_IsValid(i)) continue;
-      mapa.insert(std::make_pair(ent::TipoDnD_Name(i), i));
+      mapa.insert(std::make_pair(ent::TipoDnD_Name((ent::TipoDnD)i), i));
     }
     return mapa; 
   }
@@ -227,15 +239,15 @@ class TipoDnDDelegate : public TipoSubTipoDnDDelegate {
 class SubTipoDnDDelegate : public TipoSubTipoDelegateBase {
  public:
   SubTipoDnDDelegate(const ent::Tabelas& tabelas, QAbstractTableModel* modelo, QObject* parent)
-      : TipoSubTipoDnDDelegate(tabelas, modelo, parent) {}
+      : TipoSubTipoDelegateBase(tabelas, modelo, parent) {}
 
  protected:
-  virtual std::map<std::string, int> CriaMapa() override {
+  virtual std::map<std::string, int> CriaMapa() const override {
     std::map<std::string, int> mapa;
     mapa.insert(std::make_pair("Nenhum", -1));
     for (int i = ent::SubTipoDnD_MIN; i < ent::SubTipoDnD_MAX; ++i) {
       if (!ent::SubTipoDnD_IsValid(i)) continue;
-      mapa.insert(std::make_pair(ent::TipoDnD_Name(i), i));
+      mapa.insert(std::make_pair(ent::SubTipoDnD_Name((ent::SubTipoDnD)i), i));
     }
     return mapa; 
   }
