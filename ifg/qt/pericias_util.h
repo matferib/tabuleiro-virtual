@@ -92,7 +92,7 @@ class ModeloPericias : public QAbstractTableModel {
       return QVariant(qs);
     }
 
-    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::BackgroundRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::BackgroundRole && role != Qt::ToolTipRole) {
       return QVariant();
     }
 
@@ -102,7 +102,7 @@ class ModeloPericias : public QAbstractTableModel {
     switch (column) {
       case 0: {
         const auto& pt = tabelas_.Pericia(modelo_[row].id());
-        if (role == Qt::DisplayRole) {
+        if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
           return QVariant(QString::fromUtf8(pt.nome().c_str()));
         } else if (role == Qt::BackgroundRole) {
           bool pode_usar = pt.sem_treinamento();

@@ -1009,14 +1009,16 @@ void PreencheConfiguraPericias(
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_pericias->selectionModel());
   gerador.tabela_pericias->setModel(modelo);
   gerador.tabela_pericias->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  gerador.tabela_pericias->resizeColumnsToContents();
-  lambda_connect(gerador.tabela_pericias, SIGNAL(resizeEvent(QResizeEvent* event)), [&gerador]() {
-    gerador.tabela_pericias->resizeColumnsToContents();
-  });
+  //gerador.tabela_pericias->resizeColumnsToContents();
+  //lambda_connect(gerador.tabela_pericias, SIGNAL(resizeEvent(QResizeEvent* event)), [&gerador]() {
+  //  gerador.tabela_pericias->resizeColumnsToContents();
+  //});
   // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
   for (int c = 0; c < gerador.tabela_pericias->horizontalHeader()->count(); ++c) {
     gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
   }
+  gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+  gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
     *proto_retornado->mutable_info_pericias() = modelo->Converte();
@@ -1054,11 +1056,10 @@ void PreencheConfiguraTalentos(
       modelo->removeRows(linha, 1, QModelIndex());
     }
   });
-  gerador.tabela_talentos->resizeColumnsToContents();
-  // Todas as colunas de mesmo tamanho... foi o melhor que consegui.
-  for (int c = 0; c < gerador.tabela_talentos->horizontalHeader()->count(); ++c) {
-    gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
-  }
+
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
