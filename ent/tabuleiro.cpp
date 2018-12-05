@@ -1729,7 +1729,7 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
     std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
     delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
-    AdicionaLogEvento(std::string("entidade ") + RotuloEntidade(entidade) + ": " + texto_pontos_vida);
+    AdicionaLogEvento(entidade->Id(), texto_pontos_vida);
     return delta_pontos_vida;
   } else {
     int delta_pontos_vida;

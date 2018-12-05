@@ -90,6 +90,11 @@ bool Entidade::TemTipoDnD(TipoDnD tipo) const {
       [tipo] (const int t) { return t == tipo; });
 }
 
+bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
+  return std::any_of(proto_.sub_tipo_dnd().begin(), proto_.sub_tipo_dnd().end(),
+      [sub_tipo] (const int st) { return st == sub_tipo; });
+}
+
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
   Matrix4 m;
   m.translate(-proto.pos().x(), -proto.pos().y(), -proto.pos().z());

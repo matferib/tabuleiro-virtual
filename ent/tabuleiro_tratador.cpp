@@ -1255,6 +1255,17 @@ float Tabuleiro::TrataAcaoIndividual(
       if (!entidade_destino->ImuneFurtivo()) {
         delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
       }
+      int max_predileto = 0;
+      for (const auto& ip : entidade->Proto().dados_ataque_global().inimigos_prediletos()) {
+        if (entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
+          max_predileto = std::max(2 * ip.vezes(), max_predileto);
+        }
+      }
+      if (max_predileto > 0) {
+        ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
+      }
+      delta_pontos_vida -= max_predileto;
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
