@@ -70,3 +70,11 @@ tabela_armas {
     }
   }
 }
+tabela_talentos {
+  talentos {
+    id: 'sorte_dos_herois'
+    nome: 'Sorte dos Herois'
+    # guerreiro: true Ataque Poderoso
+    descricao: '+1 sorte todas salvacoes e +1 sorte na CA.'
+  }
+}
