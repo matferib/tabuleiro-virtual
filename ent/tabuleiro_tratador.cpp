@@ -44,6 +44,14 @@ namespace {
 
 using google::protobuf::StringPrintf;
 
+std::string StringTipoCarregamento(TipoCarregamento tc) {
+  switch (tc) {
+    case TC_RODADA_COMPLETA: return "rodada";
+    case TC_MOVIMENTO: return "movimento";
+    default: return "livre";
+  }
+}
+
 // Concatena 's' ao string alvo. Se o texto era vazio, passa a ser 's'. Caso contrario, adiciona '\n' seguido de 's'.
 void ConcatenaString(const std::string& s, std::string* alvo) {
   if (alvo == nullptr) return;
@@ -1172,9 +1180,12 @@ float Tabuleiro::TrataAcaoIndividual(
     // Verifica carregamento.
     const auto* da = entidade->DadoCorrente();
     if (da != nullptr && da->requer_carregamento() && da->descarregada()) {
+      const auto& arma = tabelas_.Arma(da->id_arma());
       std::unique_ptr<ntf::Notificacao> n_carregamento(new ntf::Notificacao);
       PreencheNotificacaoRecarregamento(*entidade, *da, n_carregamento.get(), grupo_desfazer->add_notificacao());
-      AdicionaAcaoTextoLogado(entidade->Id(), "recarregando");
+      AdicionaAcaoTextoLogado(
+          entidade->Id(),
+          StringPrintf("recarregando (%s)", StringTipoCarregamento(arma.carregamento().tipo_carregamento()).c_str()));
       central_->AdicionaNotificacao(n_carregamento.release());
       return atraso_s;
     }
