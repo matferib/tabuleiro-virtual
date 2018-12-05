@@ -1,4 +1,6 @@
 Fazer 3d: sucubo, bodak.
+Colocar outros aneis e mantos com efeitos (especialmente em pericias).
+Sorte dos herois: tabelar talentos para ficar mais facil de fazer. Ta hardcoded no tabuleiro.
 
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
@@ -27,7 +29,6 @@ Colocar outros tipos de tesouro.
 Mais habilidades especiais, especialmente as que se escolhem (como evasao para ladino).
 Dar um jeito de transmitir as coisas (tabelas por exemplo) nao srd para clientes. Versionar?
 Ordenacao de tabuleiros salvos por data: Procurar funcao last_write_time.
-Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Salvacoes e progressao bba automaticos por tipo de classe de monstro (aberração, por exemplo).
 
 Feiticos:

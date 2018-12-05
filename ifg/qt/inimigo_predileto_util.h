@@ -17,7 +17,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
   using InimigoPredileto = ent::EntidadeProto::InimigoPredileto;
 
   ModeloInimigoPredileto(const ent::Tabelas& tabelas, const ent::EntidadeProto& proto, QTableView* tabela)
-      : QAbstractTableModel(tabela), proto_(proto), tabelas_(tabelas) {
+      : QAbstractTableModel(tabela), tabelas_(tabelas) {
     for (const auto& ip : proto.dados_ataque_global().inimigos_prediletos()) {
       modelo_.push_back(ip);
     }
@@ -152,7 +152,6 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
  private:
   const ent::Tabelas& tabelas_;
   std::vector<InimigoPredileto> modelo_;
-  const ent::EntidadeProto& proto_;
 };
 
 // Classe base para delegados de enumeracao.
