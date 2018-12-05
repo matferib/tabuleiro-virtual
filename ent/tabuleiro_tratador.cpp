@@ -1249,12 +1249,6 @@ float Tabuleiro::TrataAcaoIndividual(
     // Aplica dano e critico, furtivo.
     int delta_pontos_vida = 0;
     if (resultado.Sucesso()) {
-      for (int i = 0; i < resultado.vezes; ++i) {
-        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
-      }
-      if (!entidade_destino->ImuneFurtivo()) {
-        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
-      }
       int max_predileto = 0;
       for (const auto& ip : entidade->Proto().dados_ataque_global().inimigos_prediletos()) {
         if (entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
@@ -1262,10 +1256,17 @@ float Tabuleiro::TrataAcaoIndividual(
         }
       }
       if (max_predileto > 0) {
+        max_predileto *= resultado.vezes;
         ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
         AdicionaLogEvento(entidade->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
       }
       delta_pontos_vida -= max_predileto;
+      for (int i = 0; i < resultado.vezes; ++i) {
+        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+      }
+      if (!entidade_destino->ImuneFurtivo()) {
+        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+      }      
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
