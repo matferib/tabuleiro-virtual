@@ -1,4 +1,3 @@
-Pericias: primeira coluna mostrar tool tip ou fazer mexivel.
 Fazer 3d: sucubo.
 
 Implementar boleadeira (bolas).
