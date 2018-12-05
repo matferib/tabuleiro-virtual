@@ -36,6 +36,17 @@ class RodaNoRetorno {
   std::function<void()> f;
 };
 
+template <class C, class F>
+bool c_any_of(const C& c, const F& f) {
+  return std::any_of(c.begin(), c.end(), f);
+}
+
+template <class C, class T>
+bool c_any(const C& c, const T& t) {
+  return std::find(c.begin(), c.end(), t) != c.end();
+}
+
+
 void IniciaUtil();
 
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
@@ -375,6 +386,7 @@ bool ArmaDistancia(const ArmaProto& arma);
 EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
+bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
 // Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.

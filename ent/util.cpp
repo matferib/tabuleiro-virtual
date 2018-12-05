@@ -1081,34 +1081,39 @@ std::string TextoOuNada(const std::string& texto) {
   return texto;
 }
 
+bool ArmaAbencoada(const EntidadeProto::DadosAtaque* da, const Entidade& ea) {
+  return PossuiEvento(EFEITO_ABENCOAR_ARMA, da->rotulo(), ea.Proto());
+}
+
 // Retorna o numero de vezes que o critico da dano e o texto para o critico.
 std::tuple<int, std::string> ComputaCritico(
     int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
     const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   assert(modificador_incrementos <= 0);
-  int vezes = 1;
-  std::string texto_critico;
-  if (d20 >= ea.MargemCritico() && !agarrar) {
-    if (ed.ImuneCritico()) {
-      texto_critico = ", imune a critico";
-    } else {
-      int d20_critico = RolaDado(20);
-      int total_critico = ataque_origem + d20_critico + modificador_incrementos + outros_modificadores;
-      if (d20 == 1) {
-        texto_critico = google::protobuf::StringPrintf(", critico falhou: 1");
-      } else if (total_critico >= ca_destino) {
-        texto_critico = google::protobuf::StringPrintf(
-            ", critico %d+%d%s%s= %d",
-            d20_critico, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total_critico);
-        vezes = ea.MultiplicadorCritico();
-      } else {
-        texto_critico = google::protobuf::StringPrintf(
-            ", critico falhou: %d+%d%s%s= %d",
-            d20_critico, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total_critico);
-      }
-    }
+  if (d20 < ea.MargemCritico() || agarrar) return std::make_tuple(1, "");
+  if (ed.ImuneCritico()) {
+    return std::make_tuple(1, ", imune a critico");
   }
-  return std::make_tuple(vezes, texto_critico);
+  std::string texto_critico;
+  if (ArmaAbencoada(da, ea)) {
+    texto_critico = ", critico: arma abençoada";
+  } else {
+    int d20_critico = RolaDado(20);
+    int total_critico = ataque_origem + d20_critico + modificador_incrementos + outros_modificadores;
+    if (d20 == 1) return std::make_tuple(1, ", critico falhou: 1");
+    if (total_critico < ca_destino) {
+      return std::make_tuple(
+          1, StringPrintf(", critico falhou: %d+%d%s%s= %d < %d",
+                          d20_critico, ataque_origem,
+                          TextoOuNada(modificador_incrementos).c_str(),
+                          TextoOuNada(outros_modificadores).c_str(),
+                          total_critico, ca_destino));
+    }
+    texto_critico = google::protobuf::StringPrintf(
+        ", critico %d+%d%s%s= %d",
+        d20_critico, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total_critico);
+  }
+  return std::make_tuple(ea.MultiplicadorCritico(), texto_critico);
 }
 
 // Retorna -1 para falha critica, 0, para falha e total para sucesso.
@@ -1172,7 +1177,7 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
   std::tie(std::ignore, texto_erro, acertou) =
       ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, ca_reflexo, false, ea.Proto(), ed.Proto());
   return std::make_tuple(
-    acertou ? "acertou reflexo" : "errou reflexo", 
+    acertou ? "acertou reflexo" : "errou reflexo",
     acertou ? RAR_ACERTOU : RAR_FALHA_NORMAL);
 }
 
@@ -1200,12 +1205,12 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
             << ", defesa: " << ca_destino;
     resultado.texto = "Ataque sem bonus ou defensor sem armadura";
-    return resultado; 
+    return resultado;
   }
   if (EmDefesaTotal(ea.Proto())) {
     VLOG(1) << "Ignorando ataque vs defesa por causa de defesa total.";
     resultado.texto = "Atacante em defesa total";
-    return resultado; 
+    return resultado;
   }
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
@@ -1257,7 +1262,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
             ea.Proto(), ed.Proto());
     if (!acertou) {
       resultado.resultado = total == -1 ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
-      return resultado; 
+      return resultado;
     }
   }
 
@@ -1267,7 +1272,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(ea, ed);
     if (!passou_falha) {
       resultado.resultado = RA_FALHA_CHANCE_FALHA;
-      return resultado; 
+      return resultado;
     }
   }
 
@@ -1275,7 +1280,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   if (EntidadeImuneElemento(ed.Proto(), ap.elemento())) {
     resultado.resultado = RA_FALHA_IMUNE;
     resultado.texto = StringPrintf("defensor imune a %s", TextoDescritor(ap.elemento()));
-    return resultado; 
+    return resultado;
   }
 
   // Se chegou aqui acertou.
@@ -1295,7 +1300,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
            d20, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
            texto_critico.c_str(), str_ca_destino.c_str(), TextoOuNada(texto_toque_agarrar).c_str());
   VLOG(1) << "Resultado ataque vs defesa: " << resultado.texto << ", vezes: " << resultado.vezes;
-  return resultado; 
+  return resultado;
 }
 
 // Retorna o delta pontos de vida e a string do resultado.
@@ -2779,11 +2784,11 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
 }  // namespace
 
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma) {
-  return std::any_of(arma.categoria().begin(), arma.categoria().end(), [categoria] (int c) { return c == categoria; });
+  return c_any(arma.categoria(), categoria);
 }
 
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic) {
-  return std::any_of(ic.salvacoes_fortes().begin(), ic.salvacoes_fortes().end(), [ts] (int icts) { return icts == ts; });
+  return c_any(ic.salvacoes_fortes(), ts);
 }
 
 void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
@@ -3020,7 +3025,7 @@ int BonusTotal(const Bonus& bonus) {
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos) {
   int total = 0;
   for (const auto& bi : bonus.bonus_individual()) {
-    if (std::any_of(bonus_excluidos.begin(), bonus_excluidos.end(), [&bi](ent::TipoBonus tipo) { return tipo == bi.tipo(); })) {
+    if (c_any_of(bonus_excluidos, [&bi](ent::TipoBonus tipo) { return tipo == bi.tipo(); })) {
       continue;
     }
     total += BonusIndividualTotal(bi);
@@ -3225,8 +3230,16 @@ int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
 }
 
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
-  return std::any_of(entidade.evento().begin(), entidade.evento().end(), [tipo] (const EntidadeProto::Evento& evento) {
+  return c_any_of(entidade.evento(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
+  });
+}
+
+bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& entidade) {
+  return c_any_of(entidade.evento(), [tipo, &complemento] (const EntidadeProto::Evento& evento) {
+    return
+        evento.id_efeito() == tipo &&
+        c_any(evento.complementos_str(), complemento);
   });
 }
 
@@ -3253,7 +3266,7 @@ bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const Entid
 }  // namespace
 
 bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::Evento& evento) {
-  return std::any_of(entidade.evento().begin(), entidade.evento().end(), [&evento] (const EntidadeProto::Evento& evento_entidade) {
+  return c_any_of(entidade.evento(), [&evento] (const EntidadeProto::Evento& evento_entidade) {
     if (evento.has_id_unico()) {
       return evento.id_unico() == evento_entidade.id_unico();
     }
@@ -3262,7 +3275,7 @@ bool PossuiEventoEspecifico(const EntidadeProto& entidade, const EntidadeProto::
 }
 
 bool PossuiResistenciaEspecifica(const EntidadeProto& entidade, const ResistenciaElementos& resistencia) {
-  return std::any_of(entidade.dados_defesa().resistencia_elementos().begin(), entidade.dados_defesa().resistencia_elementos().end(),
+  return c_any_of(entidade.dados_defesa().resistencia_elementos(),
       [&resistencia] (const ResistenciaElementos& resistencia_entidade) {
       return resistencia.valor() == resistencia_entidade.valor() && resistencia.descritor() == resistencia_entidade.descritor();
     });
@@ -3557,12 +3570,10 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
     const auto& ct = tabelas.Classe(ic.id());
-    if (std::any_of(ct.pericias().begin(), ct.pericias().end(),
-          [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
+    if (c_any(ct.pericias(), chave_pericia)) {
       return true;
     }
-    if (std::any_of(ic.pericias_monstro().begin(), ic.pericias_monstro().end(),
-          [&chave_pericia] (const std::string& id) { return id == chave_pericia;} )) {
+    if (c_any(ic.pericias_monstro(), chave_pericia)) {
       return true;
     }
   }
@@ -3755,8 +3766,8 @@ uint32_t AchaIdUnicoEvento(
   bool existe = false;
   auto EhCandidato = [&candidato] (const EntidadeProto::Evento& evento) { return candidato == evento.id_unico(); };
   do {
-    existe = std::any_of(eventos.begin(), eventos.end(), EhCandidato) ||
-             std::any_of(eventos_sendo_gerados.begin(), eventos_sendo_gerados.end(), EhCandidato);
+    existe = c_any_of(eventos, EhCandidato) ||
+             c_any_of(eventos_sendo_gerados, EhCandidato);
     if (!existe) break;
     ++candidato;
     if (candidato == 0) {
@@ -3886,9 +3897,8 @@ const InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto) {
 }
 
 bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
-  return std::any_of(proto.agarrado_a().begin(), proto.agarrado_a().end(), [id] (unsigned int tid) { return id == tid; });
+  return c_any(proto.agarrado_a(), id);
 }
-
 
 // ---------
 // Feiticos.
@@ -4132,7 +4142,7 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   if (elemento == DESC_NENHUM) return false;
   const auto& dd = proto.dados_defesa();
-  return std::any_of(dd.imunidades().begin(), dd.imunidades().end(), [elemento](int descritor_imunidade) { return elemento == descritor_imunidade; });
+  return c_any(dd.imunidades(), elemento);
 }
 
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento) {
@@ -4218,7 +4228,7 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
     return std::make_tuple(delta_pv, "redução de dano: não aplicada");
   } else {
     for (const auto& descritor : rd.descritores()) {
-      if (std::any_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
+      if (c_any(descritores, descritor)) {
         return std::make_tuple(delta_pv, "redução de dano: não aplicada");
       }
     }
@@ -4254,7 +4264,7 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
   if (acao_proto.afeta_apenas().empty()) return true;
-  return std::any_of(acao_proto.afeta_apenas().begin(), acao_proto.afeta_apenas().end(), [&entidade] (const int tipo) {
+  return c_any_of(acao_proto.afeta_apenas(), [&entidade] (const int tipo) {
     return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
   });
 }
