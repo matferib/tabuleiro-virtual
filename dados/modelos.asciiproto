@@ -383,6 +383,8 @@ modelo {
   id: 'Demônio Vrock'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '10d8+70' tamanho: TM_GRANDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     modelo_3d { id: 'vrock' }
@@ -493,6 +495,8 @@ modelo {
   id: 'Demônio Bebilith'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' altura: 0.5 translacao_y: 0.35 } cor { r: 0 g: 0 b: 0.5 }
     tamanho: TM_ENORME
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -594,6 +598,8 @@ modelo {
   id: 'Demônio Babau'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '7d8+35'
     modelo_3d { id: 'babau' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -693,6 +699,8 @@ modelo {
   id: 'Demônio Dretch'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
 
@@ -2029,6 +2037,8 @@ modelo {
   id: 'Demônio Súcubo'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     tamanho: TM_MEDIO
@@ -2119,6 +2129,8 @@ modelo {
   id: 'Demônio Glabrezu'
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '12d8+120' modelo_3d { id: 'glabrezu' }
     tamanho: TM_ENORME
     info_classes {

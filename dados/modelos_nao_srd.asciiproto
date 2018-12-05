@@ -17,7 +17,12 @@ modelo {
 }
 modelo {
   id: 'Demônio Flecha'  # MM3
-  entidade { dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' }
+  entidade { 
+    tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_CAOS
+    sub_tipo_dnd: SUBTIPO_MAL
+    dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' 
+  }
 }
 modelo {
   id: 'Dragontino'  # Monstros de faerun.
