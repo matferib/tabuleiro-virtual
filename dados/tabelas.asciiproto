@@ -1863,6 +1863,14 @@ tabela_pocoes {
     custo_po: 50
   }
   pocoes {
+    id: 'acelerar'
+    nome: 'Acelerar'
+    duracao_rodadas: 5
+    tipo_efeito: EFEITO_ACELERAR
+    descricao: 'Acelera o personagem'
+    custo_po: 750
+  }
+  pocoes {
     id: 'aumentar_pessoa'
     nome: 'Aumentar Pessoa'
     tipo_efeito: EFEITO_AUMENTAR_PESSOA
