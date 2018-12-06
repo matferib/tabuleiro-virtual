@@ -8,7 +8,6 @@ if sistema not in ['win32', 'linux', 'apple']:
   sys.exit('Sistema invalido: ' + sistema)
 print 'Usando sistema: ' + sistema
 
-env.Tool('qt')
 if sistema == 'win32':
   env.Tool('mingw')
 else:
@@ -16,14 +15,17 @@ else:
   env['CXX'] = 'clang++'
 
 # qt
+env.SConscript('localqt.SConscript', exports = 'env')
 env['QT_MOCHSUFFIX'] = '.cpp'
 if sistema == 'win32':
-  env['QTDIR'] = 'd:/Qt/'
+  if 'QTDIR' not in env:
+	  env['QTDIR'] = 'd:/Qt/'
   #env['QT_LIBPATH'] = 'win32/lib'
   env['QT_LIBPATH'] = 'd:/Qt/lib'
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore']
 elif sistema == 'apple':
-  env['QTDIR'] = '/usr/local/Cellar/qt5/5.9.1/'
+  if 'QTDIR' not in env:
+    env['QTDIR'] = '/usr/local/Cellar/qt5/5.9.1/'
   env['FRAMEWORKPATH'] = ['/usr/local/Cellar/qt5/5.9.1/lib']
   frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'OpenGL']
   env['FRAMEWORKS'] = frameworks
@@ -32,12 +34,14 @@ elif sistema == 'apple':
                        ['/usr/local/Cellar/qt5/5.9.1/include/'])
   env['QT_LIB'] = []
 else:
-  env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
-  print 'QTCPPPATH: ' + env['QTDIR']
+  if 'QTDIR' not in env:
+    env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
   env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets']
   env['RPATH'] = [env['QT_LIBPATH']]
+qt = Tool('qt')
+qt(env)
 
 # protobuffer.
 env['PROTOCOUTDIR'] = './'
@@ -62,10 +66,13 @@ elif sistema == 'apple':
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 else:
   # linux.
-  env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src']
+  env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC', '-Wno-unused-lambda-capture']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_chrono', 'pthread']
+# Configuracoes locais.
+env.SConscript('local.SConscript', exports = 'env')
+
 
 if (debug == '1'):
   env['CXXFLAGS'] += ['-g']
@@ -73,6 +80,8 @@ if (debug == '1'):
 else:
   env['CXXFLAGS'] += ['-O2']
   env['CPPDEFINES']['RELEASE'] = '1'
+
+#print env.Dump()
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
 print 'usar_opengl_es : %r' % usar_opengl_es
@@ -96,9 +105,6 @@ else:
 env['CPPDEFINES']['GL_GLEXT_PROTOTYPES'] = 1
 env['CPPDEFINES']['USAR_QT'] = 1
 env['CPPDEFINES']['USAR_QT5'] = 1
-
-# Configuracoes locais.
-env.SConscript('local.SConscript', exports = 'env')
 
 # Daqui pra baixo eh tudo comum.
 

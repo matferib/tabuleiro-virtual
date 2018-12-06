@@ -2719,12 +2719,12 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
       ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
 
-  for (const auto& talento : tabelas.tabela_talentos().talentos()) {
+  for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
     if (talento.has_bonus_ca()) {
       if (PossuiTalento(talento.id(), *proto_retornado)) {
-        CombinaBonus(bonus_salvacao.bonus(), proto_retornado->mutable_ca());
+        CombinaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
       } else {
-        LimpaBonus(bonus_salvacao.bonus(), proto_retornado->mutable_ca());
+        LimpaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
       }
     }
   }
@@ -2740,7 +2740,7 @@ void RecomputaDependenciasSalvacoes(
   AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
 
   // Percorre todos os talentos que dao bonus em salvacao.
-  for (const auto& talento : tabelas.tabela_talentos().talentos()) {
+  for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
     for (const auto& bonus_salvacao : talento.bonus_salvacao()) {
       if (PossuiTalento(talento.id(), *proto_retornado)) {
         CombinaBonus(bonus_salvacao.bonus(), BonusSalvacao(bonus_salvacao.tipo(), proto_retornado));
@@ -3070,7 +3070,7 @@ void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
 void LimpaBonus(const Bonus& bonus_a_remover, Bonus* bonus) {
   for (const auto& bi : bonus_a_remover.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
-      LimpaBonus(bi.tipo(), por.origem(), bonus);
+      LimpaBonus(bi.tipo(), po.origem(), bonus);
     }
   }
 }

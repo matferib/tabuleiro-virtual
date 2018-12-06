@@ -711,7 +711,7 @@ void FinalizaChar() {}
 }  // namespace interno.
 
 void DesenhaCaractere(char character) {
-  if (!(character >= 1) && (character < 256)) return;
+  if (character < 1) return;
   const auto& face = g_face_infos[(int)character];
 #if VERSAO_PONTOS
   if (face.vertices.empty()) return;
