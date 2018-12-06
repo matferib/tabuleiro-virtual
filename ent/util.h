@@ -332,6 +332,8 @@ BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::s
 void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
+// Limpa todos os bonus individuais presentes em bonus.
+void LimpaBonus(const Bonus& bonus_a_remover, Bonus* bonus);
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
 // Acesso a bonus individual e origem. nullptr se nao achar.

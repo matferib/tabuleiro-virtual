@@ -2317,7 +2317,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
-      if (evento.complementos_str().empty()) return; 
+      if (evento.complementos_str().empty()) return;
       std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(DESC_BEM);
@@ -2337,7 +2337,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_SUPORTAR_ELEMENTOS: {
       if (evento.complementos_str().empty()) return;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
-      if (descritor == DESC_NENHUM) return; 
+      if (descritor == DESC_NENHUM) return;
       ResistenciaElementos re;
       re.set_valor(10);
       re.set_descritor(descritor);
@@ -2349,7 +2349,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       re_corrente->Swap(&re);
     }
     break;
-    case EFEITO_RESISTENCIA_ELEMENTOS: {      
+    case EFEITO_RESISTENCIA_ELEMENTOS: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
       if (descritor == DESC_NENHUM) return;
@@ -2366,7 +2366,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       re_corrente->Swap(&re);
     }
     break;
-    case EFEITO_SONO: {      
+    case EFEITO_SONO: {
       proto->set_caida(true);
     }
     break;
@@ -2718,6 +2718,16 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
       ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
+
+  for (const auto& talento : tabelas.tabela_talentos().talentos()) {
+    if (talento.has_bonus_ca()) {
+      if (PossuiTalento(talento.id(), *proto_retornado)) {
+        CombinaBonus(bonus_salvacao.bonus(), proto_retornado->mutable_ca());
+      } else {
+        LimpaBonus(bonus_salvacao.bonus(), proto_retornado->mutable_ca());
+      }
+    }
+  }
 }
 
 void RecomputaDependenciasSalvacoes(
@@ -2729,9 +2739,16 @@ void RecomputaDependenciasSalvacoes(
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
   AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
 
-  // Talentos: tem que ser dessa forma (manual por talento), porque se nao ao retirar um talento do personagem tem que descobrir o que
-  // foi tirado para remover os bonus. E isso eh bem mais complicado.
-  // OBS: nao sao cumulativos.
+  // Percorre todos os talentos que dao bonus em salvacao.
+  for (const auto& talento : tabelas.tabela_talentos().talentos()) {
+    for (const auto& bonus_salvacao : talento.bonus_salvacao()) {
+      if (PossuiTalento(talento.id(), *proto_retornado)) {
+        CombinaBonus(bonus_salvacao.bonus(), BonusSalvacao(bonus_salvacao.tipo(), proto_retornado));
+      } else {
+        LimpaBonus(bonus_salvacao.bonus(), BonusSalvacao(bonus_salvacao.tipo(), proto_retornado));
+      }
+    }
+  }
   AtribuiOuRemoveBonus(PossuiTalento("fortitude_maior", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "fortitude_maior", dd->mutable_salvacao_fortitude());
   AtribuiOuRemoveBonus(PossuiTalento("reflexos_rapidos", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "reflexos_rapidos", dd->mutable_salvacao_reflexo());
   AtribuiOuRemoveBonus(PossuiTalento("vontade_ferro", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "vontade_ferro", dd->mutable_salvacao_vontade());
@@ -3047,6 +3064,14 @@ void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
       bonus->mutable_bonus_individual()->DeleteSubrange(ib, 1);
     }
     break;
+  }
+}
+
+void LimpaBonus(const Bonus& bonus_a_remover, Bonus* bonus) {
+  for (const auto& bi : bonus_a_remover.bonus_individual()) {
+    for (const auto& po : bi.por_origem()) {
+      LimpaBonus(bi.tipo(), por.origem(), bonus);
+    }
   }
 }
 
@@ -3431,11 +3456,11 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   std::string texto_municao;
   if (da.has_municao()) texto_municao = google::protobuf::StringPrintf(", municao: %d", da.municao());
   std::string texto_descarregada;
-  if (da.descarregada()) texto_descarregada = " [descarregada]"; 
+  if (da.descarregada()) texto_descarregada = " [descarregada]";
 
   std::string texto_elementos;
   if (da.acao().has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
-  
+
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   return StringPrintf(
       "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
@@ -3444,7 +3469,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
       da.bonus_ataque_final(),
       da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(),
       string_escudo.c_str(), da.ca_normal(),
-      da.ca_toque(),  
+      da.ca_toque(),
       string_escudo.c_str(), da.ca_surpreso());
 }
 
