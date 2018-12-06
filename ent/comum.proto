@@ -560,6 +560,15 @@ message TalentoProto {
     optional int32 valor = 2;
   }
   repeated BonusPericia bonus_pericias = 8;
+
+  // Bonus de testes de resistencia (salvacao).
+  message BonusSalvacao {
+    optional TipoSalvacao tipo = 1;
+    optional Bonus bonus = 2;
+  }
+  repeated BonusSalvacao bonus_salvacao = 9;
+
+  optional Bonus bonus_ca = 10;
 }
 
 message HabilidadeEspecialProto {

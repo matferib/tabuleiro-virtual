@@ -76,5 +76,20 @@ tabela_talentos {
     nome: 'Sorte dos Herois'
     # guerreiro: true Ataque Poderoso
     descricao: '+1 sorte todas salvacoes e +1 sorte na CA.'
+    bonus_salvacao {
+      tipo: TS_REFLEXO
+      bonus { bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } } }
+    }
+    bonus_salvacao {
+      tipo: TS_VONTADE
+      bonus { bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } } }
+    }
+    bonus_salvacao {
+      tipo: TS_FORTITUDE
+      bonus { bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } } }
+    }
+    bonus_ca {
+      bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } }
+    }
   }
 }

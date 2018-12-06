@@ -2557,6 +2557,10 @@ tabela_talentos {
     id: 'fortitude_maior'
     nome: 'Fortitude Maior'
     descricao: '+2 de bônus nos teste de resistência de Fortitude.'
+    bonus_salvacao {
+      tipo: TS_FORTITUDE
+      bonus { bonus_individual { tipo: TB_TALENTO por_origem { origem: 'fortitude_maior' valor: 2 } } }
+    }
   }
   talentos {
     id: 'fraudulento'
@@ -2698,6 +2702,10 @@ tabela_talentos {
     id: 'reflexos_rapidos'
     nome: 'Reflexos Rápidos'
     descricao: '+2 de bônus nos testes de resistência de Reflexos.'
+    bonus_salvacao {
+      tipo: TS_REFLEXO
+      bonus { bonus_individual { tipo: TB_TALENTO por_origem { origem: 'reflexos_rapidos' valor: 2 } } }
+    }
   }
   talentos {
     id: 'saque_rapido'
@@ -2821,6 +2829,10 @@ tabela_talentos {
   talentos {
     id: 'vontade_ferro'
     nome: 'Vontade de Ferro'
+    bonus_salvacao {
+      tipo: TS_VONTADE
+      bonus { bonus_individual { tipo: TB_TALENTO por_origem { origem: 'vontade_ferro' valor: 2 } } }
+    }
     descricao: '+2 de bônus nos testes de resistência de Vontade.'
   }
   talentos {
