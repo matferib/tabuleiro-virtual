@@ -932,6 +932,26 @@ void PreencheConfiguraTendencia(
   AtualizaUITendencia(this_->tabelas(), gerador, *proto_retornado);
 }
 
+ent::DescritorAtaque IndiceParaMaterialArmadura(int indice) {
+  switch (indice) {
+    case 1: return ent::DESC_ADAMANTE;
+    case 2: return ent::DESC_COURO_DRAGAO;
+    case 3: return ent::DESC_MITRAL;
+  }
+  return ent::DESC_NENHUM;
+}
+
+ent::DescritorAtaque IndiceParaMaterialEscudo(int indice) {
+  switch (indice) {
+    case 1: return ent::DESC_ADAMANTE;
+    case 2: return ent::DESC_COURO_DRAGAO;
+    case 3: return ent::DESC_MADEIRA_NEGRA;
+    case 4: return ent::DESC_MITRAL;
+  }
+  return ent::DESC_NENHUM;
+}
+
+
 void PreencheConfiguraComboArmaduraEscudo(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   QComboBox* combo_armadura = gerador.combo_armadura;
@@ -951,6 +971,15 @@ void PreencheConfiguraComboArmaduraEscudo(
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
+  auto* combo_material_armadura = gerador.combo_material_armadura;
+  lambda_connect(combo_material_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_armadura] () {
+    proto_retornado->mutable_dados_defesa()->set_material_armadura(IndiceParaMaterialArmadura(combo_material_armadura->currentIndex()));
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
+    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
+  });
+
   lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo] () {
     QVariant id = combo_escudo->itemData(combo_escudo->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_id_escudo(id.toString().toStdString());
@@ -959,6 +988,15 @@ void PreencheConfiguraComboArmaduraEscudo(
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
+  auto* combo_material_escudo = gerador.combo_material_escudo;
+  lambda_connect(combo_material_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_escudo] () {
+    proto_retornado->mutable_dados_defesa()->set_material_escudo(IndiceParaMaterialEscudo(combo_material_escudo->currentIndex()));
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
+    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
+  });
+
   ExpandeComboBox(combo_armadura);
   ExpandeComboBox(combo_escudo);
 }

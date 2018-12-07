@@ -273,6 +273,25 @@ int MaterialArmaParaIndice(ent::DescritorAtaque descritor) {
   }
 }
 
+int MaterialArmaduraParaIndice(ent::DescritorAtaque descritor) {
+  switch (descritor) {
+    case ent::DESC_ADAMANTE: return 1;
+    case ent::DESC_COURO_DRAGAO: return 2;
+    case ent::DESC_MITRAL: return 3;
+    default: return 0;
+  }
+}
+
+int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
+  switch (descritor) {
+    case ent::DESC_ADAMANTE: return 1;
+    case ent::DESC_COURO_DRAGAO: return 2;
+    case ent::DESC_MADEIRA_NEGRA: return 3;
+    case ent::DESC_MITRAL: return 4;
+    default: return 0;
+  }
+}
+
 }  // namespace
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -353,6 +372,7 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
       break;
     }
   }
+  gerador.combo_material_armadura->setCurrentIndex(MaterialArmaduraParaIndice(dd.material_armadura()));
   // combo escudo.
   for (int i = 0; dd.has_id_escudo() && i < gerador.combo_escudo->count(); ++i) {
     QVariant dados_escudo = gerador.combo_escudo->itemData(i);
@@ -361,6 +381,7 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
       break;
     }
   }
+  gerador.combo_material_escudo->setCurrentIndex(MaterialEscudoParaIndice(dd.material_escudo()));
   const int modificador_destreza = proto.atributos().has_destreza() ?
       ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza())) : 0;
   const auto& ca = dd.ca();

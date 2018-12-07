@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created by: Qt User Interface Compiler version 5.9.1
+** Created by: Qt User Interface Compiler version 5.11.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,9 +10,7 @@
 #define ENTIDADE_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
@@ -213,9 +211,9 @@ public:
     QWidget *tab_estatisticas;
     QCheckBox *checkbox_imune_critico;
     QGroupBox *groupBox_3;
-    QLabel *label_25;
-    QWidget *gridLayoutWidget_3;
+    QGridLayout *gridLayout_14;
     QGridLayout *gridLayout_3;
+    QLabel *label_95;
     QLabel *label_52;
     QLabel *label_57;
     QSpinBox *spin_ca_escudo_melhoria;
@@ -232,6 +230,9 @@ public:
     QComboBox *combo_escudo;
     QLabel *spin_bonus_escudo;
     QLabel *spin_bonus_escudo_2;
+    QComboBox *combo_material_armadura;
+    QLabel *label_96;
+    QComboBox *combo_material_escudo;
     QGroupBox *groupBox_4;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_2;
@@ -263,7 +264,7 @@ public:
     QLabel *label_63;
     QLabel *label_62;
     QGroupBox *groupBox_5;
-    QWidget *gridLayoutWidget_4;
+    QGridLayout *gridLayout_16;
     QGridLayout *gridLayout_4;
     QLabel *label_65;
     QLabel *label_66;
@@ -273,7 +274,7 @@ public:
     QPushButton *botao_bonus_salvacao_reflexo;
     QLabel *label_70;
     QGroupBox *groupBox_6;
-    QWidget *gridLayoutWidget_5;
+    QGridLayout *gridLayout_15;
     QGridLayout *gridLayout_5;
     QLabel *label_bba_agarrar;
     QLabel *label_69;
@@ -385,7 +386,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QStringLiteral("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(1070, 632);
+        ifg__qt__DialogoEntidade->resize(1265, 632);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -812,6 +813,9 @@ public:
         horizontalLayout_20->addWidget(label_13);
 
         combo_visao = new QComboBox(tab_geral);
+        combo_visao->addItem(QString());
+        combo_visao->addItem(QString());
+        combo_visao->addItem(QString());
         combo_visao->setObjectName(QStringLiteral("combo_visao"));
 
         horizontalLayout_20->addWidget(combo_visao);
@@ -850,6 +854,10 @@ public:
         horizontalLayout_16->addWidget(checkbox_salvacao);
 
         combo_salvacao = new QComboBox(tab_geral);
+        combo_salvacao->addItem(QString());
+        combo_salvacao->addItem(QString());
+        combo_salvacao->addItem(QString());
+        combo_salvacao->addItem(QString());
         combo_salvacao->setObjectName(QStringLiteral("combo_salvacao"));
 
         horizontalLayout_16->addWidget(combo_salvacao);
@@ -1238,6 +1246,12 @@ public:
         horizontalLayout->addWidget(label_44);
 
         combo_mod_conjuracao = new QComboBox(horizontalLayoutWidget);
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
         combo_mod_conjuracao->setObjectName(QStringLiteral("combo_mod_conjuracao"));
 
         horizontalLayout->addWidget(combo_mod_conjuracao);
@@ -1435,24 +1449,26 @@ public:
         checkbox_imune_critico->setGeometry(QRect(20, 460, 121, 22));
         groupBox_3 = new QGroupBox(tab_estatisticas);
         groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
-        groupBox_3->setGeometry(QRect(280, 90, 511, 71));
-        label_25 = new QLabel(groupBox_3);
-        label_25->setObjectName(QStringLiteral("label_25"));
-        label_25->setGeometry(QRect(10, 10, 31, 34));
-        label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        gridLayoutWidget_3 = new QWidget(groupBox_3);
-        gridLayoutWidget_3->setObjectName(QStringLiteral("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(0, 10, 497, 61));
-        gridLayout_3 = new QGridLayout(gridLayoutWidget_3);
+        groupBox_3->setGeometry(QRect(280, 90, 861, 76));
+        gridLayout_14 = new QGridLayout(groupBox_3);
+        gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
+        gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        gridLayout_3->setContentsMargins(0, 0, 0, 0);
-        label_52 = new QLabel(gridLayoutWidget_3);
+        label_95 = new QLabel(groupBox_3);
+        label_95->setObjectName(QStringLiteral("label_95"));
+        sizePolicy7.setHeightForWidth(label_95->sizePolicy().hasHeightForWidth());
+        label_95->setSizePolicy(sizePolicy7);
+        label_95->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_95, 0, 2, 1, 1);
+
+        label_52 = new QLabel(groupBox_3);
         label_52->setObjectName(QStringLiteral("label_52"));
         label_52->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_52, 0, 1, 1, 1);
 
-        label_57 = new QLabel(gridLayoutWidget_3);
+        label_57 = new QLabel(groupBox_3);
         label_57->setObjectName(QStringLiteral("label_57"));
         QFont font1;
         font1.setFamily(QStringLiteral("Noto Sans [unknown]"));
@@ -1461,90 +1477,124 @@ public:
         label_57->setFont(font1);
         label_57->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_57, 0, 7, 1, 1);
+        gridLayout_3->addWidget(label_57, 0, 9, 1, 1);
 
-        spin_ca_escudo_melhoria = new QSpinBox(gridLayoutWidget_3);
+        spin_ca_escudo_melhoria = new QSpinBox(groupBox_3);
         spin_ca_escudo_melhoria->setObjectName(QStringLiteral("spin_ca_escudo_melhoria"));
         spin_ca_escudo_melhoria->setMinimum(-99);
 
-        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 4, 1, 1);
+        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 6, 1, 1);
 
-        spin_ca_armadura_melhoria = new QSpinBox(gridLayoutWidget_3);
+        spin_ca_armadura_melhoria = new QSpinBox(groupBox_3);
         spin_ca_armadura_melhoria->setObjectName(QStringLiteral("spin_ca_armadura_melhoria"));
         spin_ca_armadura_melhoria->setMinimum(-99);
 
-        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 2, 1, 1);
+        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 3, 1, 1);
 
-        label_58 = new QLabel(gridLayoutWidget_3);
+        label_58 = new QLabel(groupBox_3);
         label_58->setObjectName(QStringLiteral("label_58"));
         label_58->setFont(font1);
         label_58->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_58, 0, 8, 1, 1);
+        gridLayout_3->addWidget(label_58, 0, 10, 1, 1);
 
-        label_59 = new QLabel(gridLayoutWidget_3);
+        label_59 = new QLabel(groupBox_3);
         label_59->setObjectName(QStringLiteral("label_59"));
         label_59->setFont(font1);
         label_59->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_59, 0, 9, 1, 1);
+        gridLayout_3->addWidget(label_59, 0, 11, 1, 1);
 
-        label_53 = new QLabel(gridLayoutWidget_3);
+        label_53 = new QLabel(groupBox_3);
         label_53->setObjectName(QStringLiteral("label_53"));
         label_53->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_53, 0, 0, 1, 1);
 
-        label_60 = new QLabel(gridLayoutWidget_3);
+        label_60 = new QLabel(groupBox_3);
         label_60->setObjectName(QStringLiteral("label_60"));
         label_60->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(label_60, 1, 0, 1, 1);
 
-        label_61 = new QLabel(gridLayoutWidget_3);
+        label_61 = new QLabel(groupBox_3);
         label_61->setObjectName(QStringLiteral("label_61"));
         label_61->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_61, 1, 6, 1, 1);
+        gridLayout_3->addWidget(label_61, 1, 8, 1, 1);
 
-        label_ca_surpreso = new QLabel(gridLayoutWidget_3);
+        label_ca_surpreso = new QLabel(groupBox_3);
         label_ca_surpreso->setObjectName(QStringLiteral("label_ca_surpreso"));
         label_ca_surpreso->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_ca_surpreso, 1, 9, 1, 1);
+        gridLayout_3->addWidget(label_ca_surpreso, 1, 11, 1, 1);
 
-        botao_bonus_ca = new QPushButton(gridLayoutWidget_3);
+        botao_bonus_ca = new QPushButton(groupBox_3);
         botao_bonus_ca->setObjectName(QStringLiteral("botao_bonus_ca"));
 
-        gridLayout_3->addWidget(botao_bonus_ca, 1, 7, 1, 1);
+        gridLayout_3->addWidget(botao_bonus_ca, 1, 9, 1, 1);
 
-        label_ca_toque = new QLabel(gridLayoutWidget_3);
+        label_ca_toque = new QLabel(groupBox_3);
         label_ca_toque->setObjectName(QStringLiteral("label_ca_toque"));
         label_ca_toque->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_ca_toque, 1, 8, 1, 1);
+        gridLayout_3->addWidget(label_ca_toque, 1, 10, 1, 1);
 
-        combo_armadura = new QComboBox(gridLayoutWidget_3);
+        combo_armadura = new QComboBox(groupBox_3);
         combo_armadura->setObjectName(QStringLiteral("combo_armadura"));
 
         gridLayout_3->addWidget(combo_armadura, 1, 1, 1, 1);
 
-        combo_escudo = new QComboBox(gridLayoutWidget_3);
+        combo_escudo = new QComboBox(groupBox_3);
         combo_escudo->setObjectName(QStringLiteral("combo_escudo"));
 
-        gridLayout_3->addWidget(combo_escudo, 1, 3, 1, 1);
+        gridLayout_3->addWidget(combo_escudo, 1, 4, 1, 1);
 
-        spin_bonus_escudo = new QLabel(gridLayoutWidget_3);
+        spin_bonus_escudo = new QLabel(groupBox_3);
         spin_bonus_escudo->setObjectName(QStringLiteral("spin_bonus_escudo"));
         spin_bonus_escudo->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(spin_bonus_escudo, 0, 3, 1, 1);
+        gridLayout_3->addWidget(spin_bonus_escudo, 0, 4, 1, 1);
 
-        spin_bonus_escudo_2 = new QLabel(gridLayoutWidget_3);
+        spin_bonus_escudo_2 = new QLabel(groupBox_3);
         spin_bonus_escudo_2->setObjectName(QStringLiteral("spin_bonus_escudo_2"));
         spin_bonus_escudo_2->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(spin_bonus_escudo_2, 0, 4, 1, 1);
+        gridLayout_3->addWidget(spin_bonus_escudo_2, 0, 6, 1, 1);
+
+        combo_material_armadura = new QComboBox(groupBox_3);
+        combo_material_armadura->addItem(QString());
+        combo_material_armadura->addItem(QString());
+        combo_material_armadura->addItem(QString());
+        combo_material_armadura->addItem(QString());
+        combo_material_armadura->setObjectName(QStringLiteral("combo_material_armadura"));
+        sizePolicy1.setHeightForWidth(combo_material_armadura->sizePolicy().hasHeightForWidth());
+        combo_material_armadura->setSizePolicy(sizePolicy1);
+
+        gridLayout_3->addWidget(combo_material_armadura, 1, 2, 1, 1);
+
+        label_96 = new QLabel(groupBox_3);
+        label_96->setObjectName(QStringLiteral("label_96"));
+        sizePolicy7.setHeightForWidth(label_96->sizePolicy().hasHeightForWidth());
+        label_96->setSizePolicy(sizePolicy7);
+        label_96->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_3->addWidget(label_96, 0, 5, 1, 1);
+
+        combo_material_escudo = new QComboBox(groupBox_3);
+        combo_material_escudo->addItem(QString());
+        combo_material_escudo->addItem(QString());
+        combo_material_escudo->addItem(QString());
+        combo_material_escudo->addItem(QString());
+        combo_material_escudo->addItem(QString());
+        combo_material_escudo->setObjectName(QStringLiteral("combo_material_escudo"));
+        sizePolicy1.setHeightForWidth(combo_material_escudo->sizePolicy().hasHeightForWidth());
+        combo_material_escudo->setSizePolicy(sizePolicy1);
+
+        gridLayout_3->addWidget(combo_material_escudo, 1, 5, 1, 1);
+
+
+        gridLayout_14->addLayout(gridLayout_3, 0, 0, 1, 1);
 
         groupBox_4 = new QGroupBox(tab_estatisticas);
         groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
@@ -1715,47 +1765,45 @@ public:
 
         groupBox_5 = new QGroupBox(tab_estatisticas);
         groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
-        groupBox_5->setGeometry(QRect(0, 270, 171, 141));
-        gridLayoutWidget_4 = new QWidget(groupBox_5);
-        gridLayoutWidget_4->setObjectName(QStringLiteral("gridLayoutWidget_4"));
-        gridLayoutWidget_4->setGeometry(QRect(-1, 19, 161, 118));
-        gridLayout_4 = new QGridLayout(gridLayoutWidget_4);
+        groupBox_5->setGeometry(QRect(0, 270, 231, 141));
+        gridLayout_16 = new QGridLayout(groupBox_5);
+        gridLayout_16->setObjectName(QStringLiteral("gridLayout_16"));
+        gridLayout_4 = new QGridLayout();
         gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
-        gridLayout_4->setContentsMargins(0, 0, 0, 0);
-        label_65 = new QLabel(gridLayoutWidget_4);
+        label_65 = new QLabel(groupBox_5);
         label_65->setObjectName(QStringLiteral("label_65"));
         label_65->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_4->addWidget(label_65, 2, 0, 1, 1);
 
-        label_66 = new QLabel(gridLayoutWidget_4);
+        label_66 = new QLabel(groupBox_5);
         label_66->setObjectName(QStringLiteral("label_66"));
         label_66->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_4->addWidget(label_66, 3, 0, 1, 1);
 
-        botao_bonus_salvacao_fortitude = new QPushButton(gridLayoutWidget_4);
+        botao_bonus_salvacao_fortitude = new QPushButton(groupBox_5);
         botao_bonus_salvacao_fortitude->setObjectName(QStringLiteral("botao_bonus_salvacao_fortitude"));
 
         gridLayout_4->addWidget(botao_bonus_salvacao_fortitude, 1, 1, 1, 1);
 
-        botao_bonus_salvacao_vontade = new QPushButton(gridLayoutWidget_4);
+        botao_bonus_salvacao_vontade = new QPushButton(groupBox_5);
         botao_bonus_salvacao_vontade->setObjectName(QStringLiteral("botao_bonus_salvacao_vontade"));
 
         gridLayout_4->addWidget(botao_bonus_salvacao_vontade, 3, 1, 1, 1);
 
-        label_67 = new QLabel(gridLayoutWidget_4);
+        label_67 = new QLabel(groupBox_5);
         label_67->setObjectName(QStringLiteral("label_67"));
         label_67->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_4->addWidget(label_67, 1, 0, 1, 1);
 
-        botao_bonus_salvacao_reflexo = new QPushButton(gridLayoutWidget_4);
+        botao_bonus_salvacao_reflexo = new QPushButton(groupBox_5);
         botao_bonus_salvacao_reflexo->setObjectName(QStringLiteral("botao_bonus_salvacao_reflexo"));
 
         gridLayout_4->addWidget(botao_bonus_salvacao_reflexo, 2, 1, 1, 1);
 
-        label_70 = new QLabel(gridLayoutWidget_4);
+        label_70 = new QLabel(groupBox_5);
         label_70->setObjectName(QStringLiteral("label_70"));
         sizePolicy7.setHeightForWidth(label_70->sizePolicy().hasHeightForWidth());
         label_70->setSizePolicy(sizePolicy7);
@@ -1764,66 +1812,70 @@ public:
 
         gridLayout_4->addWidget(label_70, 0, 1, 1, 1);
 
+
+        gridLayout_16->addLayout(gridLayout_4, 0, 0, 1, 1);
+
         groupBox_6 = new QGroupBox(tab_estatisticas);
         groupBox_6->setObjectName(QStringLiteral("groupBox_6"));
-        groupBox_6->setGeometry(QRect(670, 10, 281, 71));
+        groupBox_6->setGeometry(QRect(670, 10, 471, 68));
         groupBox_6->setStyleSheet(QStringLiteral(""));
-        gridLayoutWidget_5 = new QWidget(groupBox_6);
-        gridLayoutWidget_5->setObjectName(QStringLiteral("gridLayoutWidget_5"));
-        gridLayoutWidget_5->setGeometry(QRect(0, 20, 281, 42));
-        gridLayout_5 = new QGridLayout(gridLayoutWidget_5);
+        gridLayout_15 = new QGridLayout(groupBox_6);
+        gridLayout_15->setObjectName(QStringLiteral("gridLayout_15"));
+        gridLayout_5 = new QGridLayout();
         gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
-        gridLayout_5->setContentsMargins(0, 0, 0, 0);
-        label_bba_agarrar = new QLabel(gridLayoutWidget_5);
+        label_bba_agarrar = new QLabel(groupBox_6);
         label_bba_agarrar->setObjectName(QStringLiteral("label_bba_agarrar"));
         label_bba_agarrar->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_bba_agarrar, 1, 1, 1, 1);
 
-        label_69 = new QLabel(gridLayoutWidget_5);
+        label_69 = new QLabel(groupBox_6);
         label_69->setObjectName(QStringLiteral("label_69"));
         label_69->setFont(font1);
         label_69->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_69, 0, 2, 1, 1);
 
-        label_54 = new QLabel(gridLayoutWidget_5);
+        label_54 = new QLabel(groupBox_6);
         label_54->setObjectName(QStringLiteral("label_54"));
         label_54->setFont(font1);
         label_54->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_54, 0, 0, 1, 1);
 
-        label_bba_base = new QLabel(gridLayoutWidget_5);
+        label_bba_base = new QLabel(groupBox_6);
         label_bba_base->setObjectName(QStringLiteral("label_bba_base"));
         label_bba_base->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_bba_base, 1, 0, 1, 1);
 
-        label_56 = new QLabel(gridLayoutWidget_5);
+        label_56 = new QLabel(groupBox_6);
         label_56->setObjectName(QStringLiteral("label_56"));
         label_56->setFont(font1);
         label_56->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_56, 0, 1, 1, 1);
 
-        label_71 = new QLabel(gridLayoutWidget_5);
+        label_71 = new QLabel(groupBox_6);
         label_71->setObjectName(QStringLiteral("label_71"));
         label_71->setFont(font1);
 
         gridLayout_5->addWidget(label_71, 0, 3, 1, 1);
 
-        label_bba_cac = new QLabel(gridLayoutWidget_5);
+        label_bba_cac = new QLabel(groupBox_6);
         label_bba_cac->setObjectName(QStringLiteral("label_bba_cac"));
         label_bba_cac->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_bba_cac, 1, 2, 1, 1);
 
-        label_bba_distancia = new QLabel(gridLayoutWidget_5);
+        label_bba_distancia = new QLabel(groupBox_6);
         label_bba_distancia->setObjectName(QStringLiteral("label_bba_distancia"));
         label_bba_distancia->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_bba_distancia, 1, 3, 1, 1);
+
+
+        gridLayout_15->addLayout(gridLayout_5, 0, 0, 1, 1);
 
         groupBox_7 = new QGroupBox(tab_estatisticas);
         groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
@@ -1866,7 +1918,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(tab_estatisticas);
         horizontalLayoutWidget_8->setObjectName(QStringLiteral("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(10, 420, 161, 31));
+        horizontalLayoutWidget_8->setGeometry(QRect(10, 420, 221, 31));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -1910,6 +1962,12 @@ public:
         gridLayout_13->addWidget(label_82, 3, 9, 1, 1);
 
         combo_material_arma = new QComboBox(tab_6);
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
         combo_material_arma->setObjectName(QStringLiteral("combo_material_arma"));
         sizePolicy1.setHeightForWidth(combo_material_arma->sizePolicy().hasHeightForWidth());
         combo_material_arma->setSizePolicy(sizePolicy1);
@@ -1965,6 +2023,13 @@ public:
         gridLayout_13->addWidget(label_73, 0, 7, 1, 1);
 
         combo_empunhadura = new QComboBox(tab_6);
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
         combo_empunhadura->setObjectName(QStringLiteral("combo_empunhadura"));
         sizePolicy2.setHeightForWidth(combo_empunhadura->sizePolicy().hasHeightForWidth());
         combo_empunhadura->setSizePolicy(sizePolicy2);
@@ -2526,453 +2591,461 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoEntidade)
     {
-        ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", Q_NULLPTR));
+        ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", nullptr));
 #ifndef QT_NO_TOOLTIP
         ifg__qt__DialogoEntidade->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
-        label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", Q_NULLPTR));
-        label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", Q_NULLPTR));
-        label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", Q_NULLPTR));
+        label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", nullptr));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", nullptr));
+        label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", nullptr));
 #ifndef QT_NO_TOOLTIP
-        lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", Q_NULLPTR));
+        lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", Q_NULLPTR));
-        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", Q_NULLPTR));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", nullptr));
+        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", nullptr));
         checkbox_cor->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        botao_cor->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cor da entidade.", Q_NULLPTR));
+        botao_cor->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cor da entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", Q_NULLPTR));
-        label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", Q_NULLPTR));
-        label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", Q_NULLPTR));
+        botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", nullptr));
+        label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", nullptr));
+        label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", nullptr));
 #ifndef QT_NO_TOOLTIP
-        slider_tamanho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da entidade", Q_NULLPTR));
+        slider_tamanho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da entidade", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", Q_NULLPTR));
+        label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_raio_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da luz, em metros.", Q_NULLPTR));
+        spin_raio_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da luz, em metros.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_31->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", Q_NULLPTR));
-        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", Q_NULLPTR));
-        label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PV", Q_NULLPTR));
+        label_31->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", nullptr));
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", nullptr));
+        label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PV", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_pontos_vida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", Q_NULLPTR));
+        spin_pontos_vida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", Q_NULLPTR));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_max_pontos_vida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de pontos de vida para entidade.", Q_NULLPTR));
+        spin_max_pontos_vida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de pontos de vida para entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_26->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Temp", Q_NULLPTR));
+        label_26->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Temp", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_bonus_pv_temporario->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida tempor\303\241rios.", Q_NULLPTR));
+        botao_bonus_pv_temporario->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida tempor\303\241rios.", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_pv_temporario->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        label_79->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\243o letal", Q_NULLPTR));
+        botao_bonus_pv_temporario->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        label_79->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\243o letal", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_dano_nao_letal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de dano n\303\243o letal.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, jogadores poder\303\243o ver as propriedades e controlar a entidade.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Selecion\303\241vel", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_voadora->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade flutuar\303\241.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_visibilidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade ser\303\241 vista para jogadores. Caso seja selecion\303\241vel, a entidade ficar\303\241 transl\303\272cida.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_caida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade cair\303\241.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_caida->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ca\303\255da", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_morta->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade estar\303\241 morta.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", Q_NULLPTR));
-        label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_aura_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_35->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", Q_NULLPTR));
-        label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Deslocamento Vertical", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_translacao_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para colocar a entidade acima do plano do tabuleiro.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_34->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", Q_NULLPTR));
-        label_13->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o", Q_NULLPTR));
-        combo_visao->clear();
-        combo_visao->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Normal", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o na Penumbra", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o no Escuro", Q_NULLPTR)
-        );
-#ifndef QT_NO_TOOLTIP
-        combo_visao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de vis\303\243o da entidade.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_14->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_raio_visao_escuro_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_33->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Marcar, se a entidade tiver rolado a pr\303\263xima salva\303\247\303\243o.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_salvacao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pr\303\263xima Salva\303\247\303\243o", Q_NULLPTR));
-        combo_salvacao->clear();
-        combo_salvacao->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Falha", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Meio Dano", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Um Quarto de Dano", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Dano Anulado", Q_NULLPTR)
-        );
-#ifndef QT_NO_TOOLTIP
-        combo_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano que a entidade receber\303\241 na pr\303\263xima a\303\247\303\243o de \303\241rea.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_19->setText(QApplication::translate("ifg::qt::DialogoEntidade", "trans x", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_trans_x->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_20->setText(QApplication::translate("ifg::qt::DialogoEntidade", "trans y", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_trans_y->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Largura da textura, de 0 a 1", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_17->setText(QApplication::translate("ifg::qt::DialogoEntidade", "altura", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_altura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Altura da textura, de 0 a 1", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", Q_NULLPTR));
-        label_16->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modelo 3D", Q_NULLPTR));
-        label_68->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Formas Alternativas", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        lista_formas_alternativas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de formas alternativas, clique duplo para editar.", Q_NULLPTR));
+        spin_dano_nao_letal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de dano n\303\243o letal.", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        botao_adicionar_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Adiciona uma forma alternativa", Q_NULLPTR));
+        checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, jogadores poder\303\243o ver as propriedades e controlar a entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_adicionar_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
+        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Selecion\303\241vel", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_remover_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Remove a forma alternativa selecionada", Q_NULLPTR));
+        checkbox_voadora->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade flutuar\303\241.", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", Q_NULLPTR));
-        label_84->setText(QApplication::translate("ifg::qt::DialogoEntidade", "XP", Q_NULLPTR));
+        checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_xp->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Experi\303\252ncia do personagem.", Q_NULLPTR));
+        checkbox_visibilidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade ser\303\241 vista para jogadores. Caso seja selecion\303\241vel, a entidade ficar\303\241 transl\303\272cida.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_46->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
+        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque Total", Q_NULLPTR));
+        checkbox_caida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade cair\303\241.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", Q_NULLPTR));
+        checkbox_caida->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ca\303\255da", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", Q_NULLPTR));
+        checkbox_morta->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade estar\303\241 morta.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", Q_NULLPTR));
-        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", Q_NULLPTR));
-        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", Q_NULLPTR));
-        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", Q_NULLPTR));
-        label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", Q_NULLPTR));
+        checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", nullptr));
+        label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", Q_NULLPTR));
+        spin_aura_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados N\303\255vel", Q_NULLPTR));
-        label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", Q_NULLPTR));
+        label_35->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", nullptr));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Deslocamento Vertical", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador da Classe", Q_NULLPTR));
+        spin_translacao_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para colocar a entidade acima do plano do tabuleiro.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", Q_NULLPTR));
+        label_34->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", nullptr));
+        label_13->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o", nullptr));
+        combo_visao->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Normal", nullptr));
+        combo_visao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o na Penumbra", nullptr));
+        combo_visao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o no Escuro", nullptr));
+
 #ifndef QT_NO_TOOLTIP
-        spin_nivel_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel da Classe", Q_NULLPTR));
+        combo_visao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de vis\303\243o da entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_43->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
+        label_14->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", Q_NULLPTR));
+        spin_raio_visao_escuro_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", Q_NULLPTR));
+        label_33->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", Q_NULLPTR));
+        checkbox_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Marcar, se a entidade tiver rolado a pr\303\263xima salva\303\247\303\243o.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", Q_NULLPTR));
-        combo_mod_conjuracao->clear();
-        combo_mod_conjuracao->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", Q_NULLPTR)
-        );
-        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", Q_NULLPTR));
-        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", Q_NULLPTR));
-        botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", Q_NULLPTR));
-        botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", Q_NULLPTR));
-        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", Q_NULLPTR));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", Q_NULLPTR));
-        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", Q_NULLPTR));
-        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Furtivo", Q_NULLPTR));
+        checkbox_salvacao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pr\303\263xima Salva\303\247\303\243o", nullptr));
+        combo_salvacao->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Falha", nullptr));
+        combo_salvacao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Meio Dano", nullptr));
+        combo_salvacao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Um Quarto de Dano", nullptr));
+        combo_salvacao->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Dano Anulado", nullptr));
+
 #ifndef QT_NO_TOOLTIP
-        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", Q_NULLPTR));
+        combo_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano que a entidade receber\303\241 na pr\303\263xima a\303\247\303\243o de \303\241rea.", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_19->setText(QApplication::translate("ifg::qt::DialogoEntidade", "trans x", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_trans_x->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_20->setText(QApplication::translate("ifg::qt::DialogoEntidade", "trans y", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_trans_y->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Largura da textura, de 0 a 1", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_17->setText(QApplication::translate("ifg::qt::DialogoEntidade", "altura", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_altura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Altura da textura, de 0 a 1", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", nullptr));
+        label_16->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modelo 3D", nullptr));
+        label_68->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Formas Alternativas", nullptr));
+#ifndef QT_NO_TOOLTIP
+        lista_formas_alternativas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de formas alternativas, clique duplo para editar.", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        botao_adicionar_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Adiciona uma forma alternativa", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_adicionar_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_remover_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Remove a forma alternativa selecionada", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", nullptr));
+        label_84->setText(QApplication::translate("ifg::qt::DialogoEntidade", "XP", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_xp->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Experi\303\252ncia do personagem.", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_46->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", nullptr));
+#ifndef QT_NO_TOOLTIP
+        linha_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque Total", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", nullptr));
+        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", nullptr));
+        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", nullptr));
+        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", nullptr));
+        label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", nullptr));
+#ifndef QT_NO_TOOLTIP
+        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", nullptr));
+#endif // QT_NO_TOOLTIP
+        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados N\303\255vel", nullptr));
+        label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", nullptr));
+#ifndef QT_NO_TOOLTIP
+        linha_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador da Classe", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel da Classe", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_43->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", nullptr));
+        combo_mod_conjuracao->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", nullptr));
+        combo_mod_conjuracao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", nullptr));
+        combo_mod_conjuracao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", nullptr));
+        combo_mod_conjuracao->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", nullptr));
+        combo_mod_conjuracao->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", nullptr));
+        combo_mod_conjuracao->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", nullptr));
+
+        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", nullptr));
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", nullptr));
+        botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", nullptr));
+        botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", nullptr));
+        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
+        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", nullptr));
+        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Furtivo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", nullptr));
 #endif // QT_NO_TOOLTIP
         linha_furtivo->setText(QString());
-        label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", Q_NULLPTR));
-        botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", Q_NULLPTR));
-        botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", Q_NULLPTR));
-        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", Q_NULLPTR));
-        groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados de CA", Q_NULLPTR));
-        label_25->setText(QString());
-        label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", Q_NULLPTR));
-        label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
+        label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", nullptr));
+        botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", nullptr));
+        botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", nullptr));
+        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", nullptr));
+        groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados de CA", nullptr));
+        label_95->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", nullptr));
+        label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", nullptr));
+        label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria Escudo", Q_NULLPTR));
+        spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria Escudo", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria armadura", Q_NULLPTR));
+        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria armadura", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", Q_NULLPTR));
-        label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", Q_NULLPTR));
-        label_53->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", Q_NULLPTR));
-        label_60->setText(QApplication::translate("ifg::qt::DialogoEntidade", "10+", Q_NULLPTR));
-        label_61->setText(QApplication::translate("ifg::qt::DialogoEntidade", "=", Q_NULLPTR));
-        label_ca_surpreso->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        botao_bonus_ca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_ca_toque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        spin_bonus_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo", Q_NULLPTR));
+        label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", nullptr));
+        label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", nullptr));
+        label_53->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", nullptr));
+        label_60->setText(QApplication::translate("ifg::qt::DialogoEntidade", "10+", nullptr));
+        label_61->setText(QApplication::translate("ifg::qt::DialogoEntidade", "=", nullptr));
+        label_ca_surpreso->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        botao_bonus_ca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_ca_toque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        spin_bonus_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo", nullptr));
         spin_bonus_escudo_2->setText(QString());
-        groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Atributos", Q_NULLPTR));
-        botao_bonus_constituicao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_47->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Int", Q_NULLPTR));
+        combo_material_armadura->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
+        combo_material_armadura->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
+        combo_material_armadura->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Couro de Drag\303\243o", nullptr));
+        combo_material_armadura->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", nullptr));
+
 #ifndef QT_NO_TOOLTIP
-        spin_destreza->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", Q_NULLPTR));
+        combo_material_armadura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_49->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Sab", Q_NULLPTR));
-        label_51->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Car", Q_NULLPTR));
-        botao_bonus_destreza->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_50->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Con", Q_NULLPTR));
+        label_96->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", nullptr));
+        combo_material_escudo->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
+        combo_material_escudo->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
+        combo_material_escudo->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Couro de Drag\303\243o", nullptr));
+        combo_material_escudo->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Madeira Negra", nullptr));
+        combo_material_escudo->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", nullptr));
+
 #ifndef QT_NO_TOOLTIP
-        label_mod_destreza->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
+        combo_material_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_mod_destreza->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
+        groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Atributos", nullptr));
+        botao_bonus_constituicao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_47->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Int", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_carisma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", Q_NULLPTR));
+        spin_destreza->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_forca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
+        label_49->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Sab", nullptr));
+        label_51->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Car", nullptr));
+        botao_bonus_destreza->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_50->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Con", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_sabedoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", Q_NULLPTR));
+        label_mod_destreza->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
 #endif // QT_NO_TOOLTIP
+        label_mod_destreza->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_inteligencia->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", Q_NULLPTR));
+        spin_carisma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", nullptr));
 #endif // QT_NO_TOOLTIP
+        botao_bonus_forca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_forca->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_27->setText(QApplication::translate("ifg::qt::DialogoEntidade", "For", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_constituicao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        label_mod_forca->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_mod_forca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        label_mod_sabedoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_mod_sabedoria->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
-        botao_bonus_sabedoria->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_48->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Des", Q_NULLPTR));
-        botao_bonus_inteligencia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        label_mod_inteligencia->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_mod_inteligencia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
-        botao_bonus_carisma->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        label_mod_constituicao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_mod_constituicao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        label_mod_carisma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_mod_carisma->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", Q_NULLPTR));
-        label_28->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", Q_NULLPTR));
-        label_63->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
-        label_62->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", Q_NULLPTR));
-        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es", Q_NULLPTR));
-        label_65->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Reflexos", Q_NULLPTR));
-        label_66->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vontade", Q_NULLPTR));
-        botao_bonus_salvacao_fortitude->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        botao_bonus_salvacao_vontade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_67->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Fortitude", Q_NULLPTR));
-        botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
-        groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque", Q_NULLPTR));
-        label_bba_agarrar->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        label_69->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Corpo a Corpo", Q_NULLPTR));
-        label_54->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", Q_NULLPTR));
-        label_bba_base->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        label_56->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Agarrar", Q_NULLPTR));
-        label_71->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", Q_NULLPTR));
-        label_bba_cac->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        label_bba_distancia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Iniciativa", Q_NULLPTR));
-        label_22->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        botao_bonus_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificadores de iniciativa.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        botao_bonus_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ligado?   Valor", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "RM", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        tabs->setTabText(tabs->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        label_23->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", Q_NULLPTR));
-        label_82->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Muni\303\247\303\243o", Q_NULLPTR));
-        combo_material_arma->clear();
-        combo_material_arma->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Ferro Frio", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Madeira Negra", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Prata Alqu\303\255mica", Q_NULLPTR)
-        );
-#ifndef QT_NO_TOOLTIP
-        combo_material_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_92->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (ataque)", Q_NULLPTR));
-        label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", Q_NULLPTR));
-        combo_empunhadura->clear();
-        combo_empunhadura->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", Q_NULLPTR)
-        );
-#ifndef QT_NO_TOOLTIP
-        spin_ordem_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem do ataque (1 para primeiro, 2 para segundo etc)", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_93->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Arma", Q_NULLPTR));
-        label_83->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem Ataque", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        botao_bonus_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de ataque.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        botao_bonus_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_municao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de muni\303\247\303\243o da arma.", Q_NULLPTR));
+        spin_sabedoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", Q_NULLPTR));
+        spin_inteligencia->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", Q_NULLPTR));
+        spin_forca->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_27->setText(QApplication::translate("ifg::qt::DialogoEntidade", "For", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_constituicao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        linha_grupo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", Q_NULLPTR));
+        label_mod_forca->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max incrementos", Q_NULLPTR));
-        label_91->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Grupo", Q_NULLPTR));
-        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance (quads)", Q_NULLPTR));
-        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", Q_NULLPTR));
-        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", Q_NULLPTR));
-        botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", Q_NULLPTR));
-        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", Q_NULLPTR));
-        label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", Q_NULLPTR));
-        botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        label_87->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mantos", Q_NULLPTR));
+        label_mod_forca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_usar_manto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", Q_NULLPTR));
+        label_mod_sabedoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_mod_sabedoria->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
+        botao_bonus_sabedoria->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_48->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Des", nullptr));
+        botao_bonus_inteligencia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+#ifndef QT_NO_TOOLTIP
+        label_mod_inteligencia->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_mod_inteligencia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
+        botao_bonus_carisma->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+#ifndef QT_NO_TOOLTIP
+        label_mod_constituicao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_mod_constituicao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
+#ifndef QT_NO_TOOLTIP
+        label_mod_carisma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_mod_carisma->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", nullptr));
+        label_28->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", nullptr));
+        label_63->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", nullptr));
+        label_62->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", nullptr));
+        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es", nullptr));
+        label_65->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Reflexos", nullptr));
+        label_66->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vontade", nullptr));
+        botao_bonus_salvacao_fortitude->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        botao_bonus_salvacao_vontade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_67->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Fortitude", nullptr));
+        botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", nullptr));
+        groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque", nullptr));
+        label_bba_agarrar->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        label_69->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Corpo a Corpo", nullptr));
+        label_54->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", nullptr));
+        label_bba_base->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        label_56->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Agarrar", nullptr));
+        label_71->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", nullptr));
+        label_bba_cac->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        label_bba_distancia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", nullptr));
+        groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Iniciativa", nullptr));
+        label_22->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificadores de iniciativa.", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ligado?   Valor", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Resist\303\252ncia a Magia", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", nullptr));
+#endif // QT_NO_TOOLTIP
+        tabs->setTabText(tabs->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", nullptr));
+#ifndef QT_NO_TOOLTIP
+        label_23->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
+        label_82->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Muni\303\247\303\243o", nullptr));
+        combo_material_arma->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
+        combo_material_arma->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
+        combo_material_arma->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Ferro Frio", nullptr));
+        combo_material_arma->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Madeira Negra", nullptr));
+        combo_material_arma->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", nullptr));
+        combo_material_arma->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Prata Alqu\303\255mica", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_material_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_92->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (ataque)", nullptr));
+        label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", nullptr));
+        combo_empunhadura->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", nullptr));
+        combo_empunhadura->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", nullptr));
+        combo_empunhadura->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", nullptr));
+        combo_empunhadura->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", nullptr));
+        combo_empunhadura->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", nullptr));
+        combo_empunhadura->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", nullptr));
+        combo_empunhadura->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        spin_ordem_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem do ataque (1 para primeiro, 2 para segundo etc)", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_93->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Arma", nullptr));
+        label_83->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem Ataque", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de ataque.", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_municao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de muni\303\247\303\243o da arma.", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        linha_grupo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max incrementos", nullptr));
+        label_91->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Grupo", nullptr));
+        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance (quads)", nullptr));
+        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", nullptr));
+        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", nullptr));
+        botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", nullptr));
+        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", nullptr));
+        label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", nullptr));
+        botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_87->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mantos", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_usar_manto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_usar_manto->setText(QString());
-        botao_adicionar_manto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_manto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        label_86->setText(QApplication::translate("ifg::qt::DialogoEntidade", "An\303\251is", Q_NULLPTR));
+        botao_adicionar_manto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_manto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_86->setText(QApplication::translate("ifg::qt::DialogoEntidade", "An\303\251is", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_usar_anel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", Q_NULLPTR));
+        botao_usar_anel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_usar_anel->setText(QString());
-        botao_adicionar_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
+        botao_adicionar_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         label_88->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Luvas e\n"
-" Manoplas", Q_NULLPTR));
+" Manoplas", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_usar_luvas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", Q_NULLPTR));
+        botao_usar_luvas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_usar_luvas->setText(QString());
-        botao_adicionar_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", Q_NULLPTR));
+        botao_adicionar_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_luvas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
-        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", Q_NULLPTR));
+        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_89->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bra\303\247adeiras", Q_NULLPTR));
+        label_89->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bra\303\247adeiras", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_usar_bracadeiras->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", Q_NULLPTR));
+        botao_usar_bracadeiras->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Usar/retirar anel", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_usar_bracadeiras->setText(QString());
-        botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", Q_NULLPTR));
+        botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        tabs->setTabText(tabs->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", Q_NULLPTR));
+        botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_renovar_feiticos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Renovar Feiti\303\247os", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_4), QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247os", Q_NULLPTR));
-        label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", Q_NULLPTR));
+        botao_renovar_feiticos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Renovar Feiti\303\247os", nullptr));
+        tabs->setTabText(tabs->indexOf(tab_4), QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247os", nullptr));
+        label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", nullptr));
 #ifndef QT_NO_TOOLTIP
-        texto_notas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", Q_NULLPTR));
+        texto_notas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
 #endif // QT_NO_TOOLTIP
-        tabs->setTabText(tabs->indexOf(tab_2), QApplication::translate("ifg::qt::DialogoEntidade", "Notas", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_2), QApplication::translate("ifg::qt::DialogoEntidade", "Notas", nullptr));
     } // retranslateUi
 
 };
