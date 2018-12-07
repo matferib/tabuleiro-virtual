@@ -158,6 +158,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPers
     case ent::TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
     case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
+    default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto.tesouro().aneis();
@@ -170,6 +171,7 @@ inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagem
     case ent::TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case ent::TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
+    default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto->mutable_tesouro()->mutable_aneis();

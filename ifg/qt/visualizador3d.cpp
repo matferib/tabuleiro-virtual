@@ -1337,16 +1337,8 @@ void ConfiguraListaItensMagicos(
             QObject::tr(google::protobuf::StringPrintf("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
         return;
       }
-      const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item->id());
-      for (int id_unico : AdicionaEventoItemMagicoContinuo(proto_retornado->evento(), item_tabela, proto_retornado)) {
-        item->add_ids_efeitos(id_unico);
-      }
       item->set_em_uso(true);
     } else {
-      for (uint32_t id_unico : item->ids_efeitos()) {
-        ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
-      }
-      item->clear_ids_efeitos();
       item->set_em_uso(false);
     }
     ent::RecomputaDependencias(tabelas, proto_retornado);
@@ -1365,9 +1357,6 @@ void ConfiguraListaItensMagicos(
       return;
     }
     auto* item = itens->Mutable(indice);
-    for (uint32_t id_unico : item->ids_efeitos()) {
-      ent::ExpiraEventoItemMagico(id_unico, proto_retornado);
-    }
     if (indice >= 0 && indice < itens->size()) {
       itens->DeleteSubrange(indice, 1);
     }

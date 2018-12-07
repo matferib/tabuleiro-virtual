@@ -1886,15 +1886,15 @@ google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::pro
   return tipos_ataque_fisico;
 }
 
-int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
-  const auto& dd = proto.dados_defesa();
-  // Valor eh negativo.
-  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
-  if (dd.armadura_obra_prima()) ++penalidade;
-  if (dd.material_armadura() == DESC_ADAMANTE) ++penalidade;
-  if (dd.material_armadura() == DESC_MITRAL) penalidade += 3;
-  return std::min(0, penalidade);
-}
+//int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
+//  const auto& dd = proto.dados_defesa();
+//  // Valor eh negativo.
+//  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
+//  if (dd.armadura_obra_prima()) ++penalidade;
+//  if (dd.material_armadura() == DESC_ADAMANTE) ++penalidade;
+//  if (dd.material_armadura() == DESC_MITRAL) penalidade += 3;
+//  return std::min(0, penalidade);
+//}
 
 int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
   const auto& dd = proto.dados_defesa();
@@ -1916,7 +1916,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
   const bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.
-  const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
+  //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
   const int penalidade_ataque_escudo = permite_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
@@ -2603,20 +2603,37 @@ void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeP
 
 // Adicina eventos nao presentes.
 void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* proto) {
-  std::vector<ItemMagicoProto*> itens;
+  // TODO So pra garantir pros itens criados antes da tabela ter tipo. Depois rola de remover.
   for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) item.set_tipo(TIPO_ANEL);
   for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) item.set_tipo(TIPO_MANTO);
   for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) item.set_tipo(TIPO_LUVAS);
   for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) item.set_tipo(TIPO_BRACADEIRAS);
+  for (auto& item : *proto->mutable_tesouro()->mutable_pocoes()) item.set_tipo(TIPO_POCAO);
 
-  for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-  for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-  for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-  for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+  // Adiciona efeitos nao existentes e expira os que ja foram.
+  std::vector<ItemMagicoProto*> itens;
+  std::vector<ItemMagicoProto*> itens_a_expirar;
+  for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
+  for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
+  for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
+  for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
+  for (auto* item : itens_a_expirar) {
+    ExpiraEventosItemMagico(item, proto);
+  }
   for (auto* item : itens) {
-    for (int id_unico : AdicionaEventoItemMagicoContinuo(proto->evento(), ItemTabela(tabelas, *item), proto)) {
-      item->add_ids_efeitos(id_unico);
-    }
+    AdicionaEventosItemMagicoContinuo(tabelas, proto->evento(), item, proto);
   }
 }
 
@@ -3887,6 +3904,13 @@ void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
   }
 }
 
+void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto) {
+  for (int id_unico : item->ids_efeitos()) {
+    ExpiraEventoItemMagico(id_unico, proto);
+  }
+  item->clear_ids_efeitos();
+}
+
 EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto) {
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.id_unico() == id_unico) {
@@ -4372,12 +4396,20 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
     case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
     case TipoItem::TIPO_BRACADEIRAS: return tabelas.Bracadeiras(id);
+    case TipoItem::TIPO_POCAO: return tabelas.Pocao(id);
   }
   return ItemMagicoProto::default_instance();
 }
 
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item) {
   return ItemTabela(tabelas, item.tipo(), item.id());
+}
+
+void AdicionaEventosItemMagicoContinuo(
+    const Tabelas& tabelas, const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto) {
+  for (int id_unico : AdicionaEventoItemMagicoContinuo(eventos, ItemTabela(tabelas, *item), proto)) {
+    item->add_ids_efeitos(id_unico);
+  }
 }
 
 }  // namespace ent

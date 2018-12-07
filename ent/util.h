@@ -534,19 +534,24 @@ EntidadeProto::Evento* AdicionaEvento(
 // TODO: rodadas automatico?
 std::vector<int> AdicionaEventoItemMagico(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto_retornado);
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
 inline std::vector<int> AdicionaEventoItemMagico(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto_retornado) {
-  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto_retornado);
+    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
+  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto);
 }
 inline std::vector<int> AdicionaEventoItemMagicoContinuo(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto_retornado) {
-  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto_retornado);
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto) {
+  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto);
 }
+// Aqui o item eh do proto, e nao da tabela.
+void AdicionaEventosItemMagicoContinuo(
+    const Tabelas& tabelas, const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto);
 
 // Marca a duracao do evento para -1.
 void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto);
+// Expira todos os eventos do item.
+void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto);
 
 // Retorna todos os talentos da entidade em um vector, para facilitar.
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
