@@ -2749,9 +2749,6 @@ void RecomputaDependenciasSalvacoes(
       }
     }
   }
-  AtribuiOuRemoveBonus(PossuiTalento("fortitude_maior", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "fortitude_maior", dd->mutable_salvacao_fortitude());
-  AtribuiOuRemoveBonus(PossuiTalento("reflexos_rapidos", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "reflexos_rapidos", dd->mutable_salvacao_reflexo());
-  AtribuiOuRemoveBonus(PossuiTalento("vontade_ferro", *proto_retornado) ? 2 : 0, TB_SEM_NOME, "vontade_ferro", dd->mutable_salvacao_vontade());
 
   const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
   AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
