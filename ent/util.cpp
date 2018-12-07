@@ -1885,20 +1885,54 @@ google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::pro
   }
   return tipos_ataque_fisico;
 }
+
+int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  // Valor eh negativo.
+  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
+  if (dd.armadura_obra_prima()) ++penalidade;
+  if (dd.material_armadura() == DESC_ADAMANTE) ++penalidade;
+  if (dd.material_armadura() == DESC_MITRAL) penalidade += 3;
+  return std::min(0, penalidade);
+}
+
+int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  // Valor eh negativo.
+  int penalidade = tabelas.Escudo(dd.id_escudo()).penalidade_armadura();
+  if (dd.escudo_obra_prima()) ++penalidade;
+  if (dd.material_escudo() == DESC_ADAMANTE) ++penalidade;
+  if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade += 2;
+  if (dd.material_escudo() == DESC_MITRAL) penalidade += 3;
+  return std::min(0, penalidade);
+}
+
 }  // namespace
+
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
+  const bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+  // TODO verificar pericias nas armaduras e escudos.
+  const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
+  const int penalidade_ataque_escudo = permite_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
+  auto* bonus_ataque = da->mutable_bonus_ataque();
+  LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
+  LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+  const int bba_cac = proto.bba().cac();
+  const int bba_distancia = proto.bba().distancia();
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
     da->set_nao_letal(arma.nao_letal());
     if (PossuiTalento("acuidade_arma", proto) &&
+        bba_distancia > bba_cac &&
         (PossuiCategoria(CAT_LEVE, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
+      AtribuiBonus(penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
 
@@ -2021,8 +2055,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
 
   int bba = 0;
-  const int bba_cac = proto.bba().cac();
-  const int bba_distancia = proto.bba().distancia();
   const std::string& tipo_str = da->tipo_ataque();
   bool usar_forca_dano = false;
   const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
@@ -2041,14 +2073,13 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     bba = proto.bba().agarrar();
     usar_forca_dano = true;
   } else if (tipo_str == "Ataque Corpo a Corpo") {
-    bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
+    bba = da->acuidade() ? bba_distancia : bba_cac;
     usar_forca_dano = true;
   } else if (da->ataque_toque()) {
-    bba = PossuiTalento("acuidade_arma", proto) && bba_distancia > bba_cac ? bba_distancia : bba_cac;
+    bba = PossuiTalento("acuidade_arma", proto) ? std::max(bba_distancia, bba_cac) : bba_cac;
   }
 
   {
-    auto* bonus_ataque = da->mutable_bonus_ataque();
     auto* bonus_dano = da->mutable_bonus_dano();
     // Obra prima e bonus magico.
     AtribuiBonus(bba, TB_BASE, "base", bonus_ataque);
@@ -2120,7 +2151,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
-  bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   da->set_ca_normal(CATotal(proto, permite_escudo));
   da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
   da->set_ca_toque(CAToque(proto));

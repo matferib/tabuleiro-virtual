@@ -304,6 +304,7 @@ message ResistenciaElementos {
 }
 
 // Dados de defesa global (independe de ataque).
+// Proximo id: 23.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -321,6 +322,8 @@ message DadosDefesa {
   optional bool escudo_obra_prima = 11;
   optional int32 bonus_magico_armadura = 12;
   optional int32 bonus_magico_escudo = 13;
+  optional DescritorAtaque material_armadura = 21;
+  optional DescritorAtaque material_escudo = 22;
   // Aplicar esquiva contra essa entidade.
   optional uint32 entidade_esquiva = 14;
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
@@ -370,6 +373,8 @@ enum TipoBonus {
   // Cumulativo.
   TB_SEM_NOME = 29;
   TB_ARMADURA_NATURAL_MELHORIA = 30;
+  TB_PENALIDADE_ARMADURA = 31;
+  TB_PENALIDADE_ESCUDO = 32;
 }
 
 
