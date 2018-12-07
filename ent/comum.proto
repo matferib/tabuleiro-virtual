@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
 // Outros sao hardcoded.
-// Proximo id: 47.
+// Proximo id: 49.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -60,8 +60,8 @@ enum TipoEfeito {
   // fim furia.
   EFEITO_INVISIBILIDADE = 26;
   EFEITO_AJUDA = 27;
-  EFEITO_SUPORTAR_ELEMENTOS = 28;     // TODO
-  EFEITO_RESISTENCIA_ELEMENTOS = 29;  // TODO
+  EFEITO_SUPORTAR_ELEMENTOS = 28;
+  EFEITO_RESISTENCIA_ELEMENTOS = 29;
   EFEITO_SANTUARIO = 30;              // TODO
   // Complemento é o rotulo.
   EFEITO_ABENCOAR_ARMA = 31;
@@ -89,6 +89,9 @@ enum TipoEfeito {
   EFEITO_MORTE = 44;
   // Complementos informam valor para ataque e dano respectivamente para arcos.
   EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA = 45;
+  // Complemento eh o quanto fica magico. Complemento str eh o rotulo.
+  EFEITO_ARMA_MAGICA = 47;
+  EFEITO_PRESA_MAGICA = 48;
 }
 
 // Tipo de visao para entidades e camera.

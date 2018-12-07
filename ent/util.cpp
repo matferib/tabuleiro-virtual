@@ -2364,6 +2364,15 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     }
     break;
+    case EFEITO_PRESA_MAGICA:
+    case EFEITO_ARMA_MAGICA: {
+      if (evento.complementos_str().empty()) return;
+      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      for (auto* da : das) {
+        AtribuiBonus(1, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+      }
+    }
+    break;
     case EFEITO_ALINHAR_ARMA: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
@@ -2493,6 +2502,15 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     case EFEITO_ALINHAR_ARMA: {
       if (evento.complementos_str().size() >= 1) {
         AplicaFimAlinhamentoArma(evento.complementos_str(0), proto);
+      }
+    }
+    break;
+    case EFEITO_PRESA_MAGICA:
+    case EFEITO_ARMA_MAGICA: {
+      if (evento.complementos_str().empty()) return;
+      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      for (auto* da : das) {
+        LimpaBonus(TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
     }
     break;

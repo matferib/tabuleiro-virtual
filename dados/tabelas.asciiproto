@@ -1304,6 +1304,20 @@ tabela_efeitos {
       usa_complemento: true
     }
   }
+  efeitos {
+    id: EFEITO_ARMA_MAGICA
+    consequencia {
+      usa_complemento: true
+    }
+  }
+  efeitos {
+    id: EFEITO_PRESA_MAGICA
+    consequencia {
+      usa_complemento: true
+    }
+  }
+
+
 }
 
 tabela_aneis {
@@ -2180,10 +2194,20 @@ tabela_pocoes {
   pocoes {
     id: 'arma_magica'
     nome: 'Arma Mágica'
-    tipo_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
     custo_po: 50
     duracao_rodadas: 10
     descricao: 'Arma Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'presa_magica'
+    nome: 'Presa Mágica'
+    tipo_efeito: EFEITO_PRESA_MAGICA
+    complementos_str: ''
+    custo_po: 50
+    duracao_rodadas: 10
+    descricao: 'Presa Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
   }
   pocoes {
     id: 'suportar_elementos'
