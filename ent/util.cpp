@@ -2615,19 +2615,19 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   std::vector<ItemMagicoProto*> itens_a_expirar;
   for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) {
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
   for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) {
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
   for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) {
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
   for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) {
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
-    else if (item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
   for (auto* item : itens_a_expirar) {
     ExpiraEventosItemMagico(item, proto);

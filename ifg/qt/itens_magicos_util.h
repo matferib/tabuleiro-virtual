@@ -146,6 +146,8 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
     case ent::TipoItem::TIPO_MANTO: return tabelas.todas().tabela_mantos().mantos();
     case ent::TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return tabelas.todas().tabela_bracadeiras().bracadeiras();
+    case ent::TipoItem::TIPO_POCAO: return tabelas.todas().tabela_pocoes().pocoes();
+    default: ;
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
   return tabelas.todas().tabela_aneis().aneis();
@@ -158,6 +160,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPers
     case ent::TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
     case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
+    case ent::TipoItem::TIPO_POCAO: return proto.tesouro().pocoes();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";

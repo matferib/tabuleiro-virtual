@@ -1357,6 +1357,10 @@ void ConfiguraListaItensMagicos(
       return;
     }
     auto* item = itens->Mutable(indice);
+    item->set_em_uso(false);
+    // Tira o efeito do personagem.
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    // Tira o item do personagem.
     if (indice >= 0 && indice < itens->size()) {
       itens->DeleteSubrange(indice, 1);
     }

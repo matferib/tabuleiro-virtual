@@ -17,7 +17,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
   using InimigoPredileto = ent::EntidadeProto::InimigoPredileto;
 
   ModeloInimigoPredileto(const ent::Tabelas& tabelas, const ent::EntidadeProto& proto, QTableView* tabela)
-      : QAbstractTableModel(tabela), tabelas_(tabelas) {
+      : QAbstractTableModel(tabela)/*, tabelas_(tabelas)*/ {
     for (const auto& ip : proto.dados_ataque_global().inimigos_prediletos()) {
       modelo_.push_back(ip);
     }
@@ -151,7 +151,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
   }
 
  private:
-  const ent::Tabelas& tabelas_;
+  //const ent::Tabelas& tabelas_;
   std::vector<InimigoPredileto> modelo_;
 };
 
@@ -159,7 +159,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
 class TipoSubTipoDelegateBase : public QItemDelegate {
  public:
   TipoSubTipoDelegateBase(const ent::Tabelas& tabelas, QAbstractTableModel* modelo, QObject* parent)
-      : QItemDelegate(), tabelas_(tabelas), modelo_(modelo) {}
+      : QItemDelegate(), /*tabelas_(tabelas),*/ modelo_(modelo) {}
 
 
   QWidget* createEditor(
@@ -213,7 +213,7 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
     return combo;
   }
 
-  const ent::Tabelas& tabelas_;
+  //const ent::Tabelas& tabelas_;
   QAbstractTableModel* modelo_;
 };
 
