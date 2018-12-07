@@ -1682,7 +1682,7 @@ modelo {
     dados_defesa { id_armadura: 'armadura_batalha' }
 
     info_talentos {
-      gerais { id: 'reflexos_combate' }
+      gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'trespassar' }
       outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
