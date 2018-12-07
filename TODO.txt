@@ -1,5 +1,7 @@
 Fazer 3d: sucubo, bodak.
+Ao aplicar fim do efeito deve-se usar os complementos originais e nao os modificados.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
+
 
 Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
