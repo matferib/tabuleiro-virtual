@@ -47,6 +47,7 @@ class ModeloTalentos : public QAbstractTableModel {
     beginRemoveRows(parent, row, row + count - 1);
     modelo_.erase(modelo_.begin() + row, modelo_.begin() + row + count);
     endRemoveRows();
+    emit dataChanged(parent, parent);
     return true;
   }
 
