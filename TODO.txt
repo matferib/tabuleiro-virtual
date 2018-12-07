@@ -1,8 +1,7 @@
 Fazer 3d: sucubo, bodak.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
-Sorte dos herois: tabelar talentos para ficar mais facil de fazer. Ta hardcoded no tabuleiro.
-Acuidade com arma: penalidade de escudo.
 
+Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
 Aplicar dano em fim de efeito ao clicar.
