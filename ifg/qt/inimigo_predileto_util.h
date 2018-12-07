@@ -45,6 +45,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     beginRemoveRows(parent, row, row + count - 1);
     modelo_.erase(modelo_.begin() + row, modelo_.begin() + row + count);
     endRemoveRows();
+    emit dataChanged(parent, parent);
     return true;
   }
 
@@ -77,10 +78,10 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     switch (column) {
       case 0: return QVariant(modelo_[row].classe().c_str());
       case 1: return QVariant(modelo_[row].vezes());
-	    case 2: return role == Qt::EditRole 
-        ? QVariant(modelo_[row].has_tipo() ? modelo_[row].has_tipo() : -1) 
+	    case 2: return role == Qt::EditRole
+        ? QVariant(modelo_[row].has_tipo() ? modelo_[row].has_tipo() : -1)
         : QVariant(QString::fromUtf8(modelo_[row].has_tipo() ? ent::TipoDnD_Name(modelo_[row].tipo()).c_str() : ""));
-      case 3: return role == Qt::EditRole 
+      case 3: return role == Qt::EditRole
         ? QVariant(modelo_[row].has_sub_tipo() ? modelo_[row].sub_tipo() : -1)
         : QVariant(QString::fromUtf8(modelo_[row].has_sub_tipo() ? ent::SubTipoDnD_Name(modelo_[row].sub_tipo()).c_str() : ""));
       default: ;
@@ -187,7 +188,7 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
     }
     modelo_->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
   }
- 
+
  protected:
   virtual std::map<std::string, int> CriaMapa() const = 0;
 
@@ -212,8 +213,8 @@ class TipoSubTipoDelegateBase : public QItemDelegate {
     return combo;
   }
 
-  QAbstractTableModel* modelo_;
   const ent::Tabelas& tabelas_;
+  QAbstractTableModel* modelo_;
 };
 
 // Delegado de tipo.
@@ -230,7 +231,7 @@ class TipoDnDDelegate : public TipoSubTipoDelegateBase {
       if (!ent::TipoDnD_IsValid(i)) continue;
       mapa.insert(std::make_pair(ent::TipoDnD_Name((ent::TipoDnD)i), i));
     }
-    return mapa; 
+    return mapa;
   }
 };
 
