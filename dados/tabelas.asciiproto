@@ -1030,6 +1030,15 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_COMPETENCIA por_origem { indice_complemento: 0  origem: 'competencia ataque dano' } } }
+      jogada_dano { bonus_individual { tipo: TB_COMPETENCIA por_origem { indice_complemento: 1  origem: 'competencia ataque dano' } } }
+      restricao_arma { prefixo_arma: 'arco' }
+    }
+  }
+
+  efeitos {
     id: EFEITO_ENREDADO
     nao_cumulativo: true
     consequencia {
@@ -1037,7 +1046,6 @@ tabela_efeitos {
       atributos {
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'enredado' } } }
       }
-
     }
   }
 
@@ -1681,13 +1689,19 @@ tabela_bracadeiras {
     custo_po: 25000
     # Se nao souber usar o arco, usa sem penalidade.
     # Caso contrario, +2 ataque, +1 de dano (competencia)
+    tipo_efeito: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
+    complementos: 1
+    complementos: 2
   }
   bracadeiras {
     id: 'bracadeira_arqueiro_menor'
     nome: 'Braçadeiras do Arqueiro (menores)'
     custo_po: 5000
+    tipo_efeito: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
+    complementos: 1
+    complementos: 0
     # Se nao souber usar o arco, usa sem penalidade.
-    # Caso contrario, +1 ataque.
+    # Caso contrario, +1 ataque (competencia).
   }
 }
 
@@ -1758,7 +1772,9 @@ tabela_mantos {
     id: 'manto_elfico'
     nome: 'Manto élfico'
     custo_po: 2500
-    # propriedades: { pericias: { esconderse: { competencia: 5 } } }
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos_str: "esconderse"
+    complementos: 5
   }
   mantos {
     id: 'manto_carisma_2'

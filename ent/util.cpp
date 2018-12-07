@@ -2215,6 +2215,13 @@ void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   }
 }
 
+bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const EntidadeProto::DadosAtaque& da) {
+  if (!consequencia.has_restricao_arma()) return true;
+  const auto& ra = consequencia.restricao_arma();
+  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0) return true;
+  return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
+}
+
 // Aplica o efeito. Alguns especificos serao feitos aqui. Alguns efeitos sao aplicados apenas uma vez e usam processado como controle.
 void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
@@ -2228,8 +2235,11 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   for (auto& da : *proto->mutable_dados_ataque()) {
+    if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
     AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
+
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
 }
 
@@ -2522,7 +2532,8 @@ void PreencheOrigemZeraValor(int id_unico, Bonus* bonus) {
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
 ConsequenciaEvento PreencheConsequencia(
     int id_unico,
-    const google::protobuf::RepeatedField<int>& complementos, const ConsequenciaEvento& consequencia_original) {
+    const google::protobuf::RepeatedField<int>& complementos,
+    const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
   if (c.atributos().has_forca())        PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_forca());
   if (c.atributos().has_destreza())     PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_destreza());
@@ -2535,6 +2546,7 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.has_jogada_ataque())            PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_ataque());
+  if (c.has_jogada_dano())              PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(id_unico, complementos, c.mutable_tamanho());
   return c;
 }
@@ -2553,6 +2565,7 @@ ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvent
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
+  if (c.has_jogada_dano())              PreencheOrigemZeraValor(id_unico, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
   return c;
 }

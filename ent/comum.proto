@@ -27,6 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
 // Outros sao hardcoded.
+// Proximo id: 47.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -68,6 +69,7 @@ enum TipoEfeito {
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
   EFEITO_RESISTENCIA_SALVACAO = 34;
+  // Complemento str 0: pericia. Complemento 0: valor.
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
@@ -85,6 +87,8 @@ enum TipoEfeito {
   EFEITO_SONO = 43;
   // Morto por efeito de morte.
   EFEITO_MORTE = 44;
+  // Complementos informam valor para ataque e dano respectivamente para arcos.
+  EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA = 45;
 }
 
 // Tipo de visao para entidades e camera.
@@ -474,6 +478,11 @@ message InfoPericia {
   // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
 }
 
+message RestricaoArma {
+  optional string prefixo_arma = 1;
+  repeated string id_arma = 2;
+}
+
 message ConsequenciaEvento {
   // Afeta todos atributos.
   optional Atributos atributos = 1;
@@ -481,6 +490,9 @@ message ConsequenciaEvento {
   optional DadosDefesa dados_defesa = 2;
   // Afeta o bonus das jogadas de ataque.
   optional Bonus jogada_ataque = 3;
+  optional Bonus jogada_dano = 6;
+  // Efeito so vale para algumas armas.
+  optional RestricaoArma restricao_arma = 7;
   // Alteracao no tamanho da entidade.
   optional Bonus tamanho = 4;
   // Alteracao na pericia.
