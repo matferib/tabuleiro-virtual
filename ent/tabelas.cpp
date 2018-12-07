@@ -181,22 +181,27 @@ void Tabelas::RecarregaMapas() {
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 75, Arma("arco_curto_composto"));
   for (int i = 1; i < 10; ++i) CriaArcoComposto(i, 100, Arma("arco_longo_composto"));
 
-  for (const auto& pocao : tabelas_.tabela_pocoes().pocoes()) {
+  for (auto& pocao : *tabelas_.mutable_tabela_pocoes()->mutable_pocoes()) {
+    pocao.set_tipo(TIPO_POCAO);
     pocoes_[pocao.id()] = &pocao;
   }
-  for (const auto& anel : tabelas_.tabela_aneis().aneis()) {
+  for (auto& anel : *tabelas_.mutable_tabela_aneis()->mutable_aneis()) {
+    anel.set_tipo(TIPO_ANEL);
     aneis_[anel.id()] = &anel;
   }
 
-  for (const auto& manto : tabelas_.tabela_mantos().mantos()) {
+  for (auto& manto : *tabelas_.mutable_tabela_mantos()->mutable_mantos()) {
+    manto.set_tipo(TIPO_MANTO);
     mantos_[manto.id()] = &manto;
   }
 
-  for (const auto& luvas : tabelas_.tabela_luvas().luvas()) {
+  for (auto& luvas : *tabelas_.mutable_tabela_luvas()->mutable_luvas()) {
+    luvas.set_tipo(TIPO_LUVAS);
     luvas_[luvas.id()] = &luvas;
   }
 
-  for (const auto& bracadeiras : tabelas_.tabela_bracadeiras().bracadeiras()) {
+  for (auto& bracadeiras : *tabelas_.mutable_tabela_bracadeiras()->mutable_bracadeiras()) {
+    bracadeiras.set_tipo(TIPO_BRACADEIRAS);
     bracadeiras_[bracadeiras.id()] = &bracadeiras;
   }
 

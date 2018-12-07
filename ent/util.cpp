@@ -2601,6 +2601,25 @@ void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeP
   VLOG(1) << "pv modificado: " << proto->pontos_vida();
 }
 
+// Adicina eventos nao presentes.
+void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* proto) {
+  std::vector<ItemMagicoProto*> itens;
+  for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) item.set_tipo(TIPO_ANEL);
+  for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) item.set_tipo(TIPO_MANTO);
+  for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) item.set_tipo(TIPO_LUVAS);
+  for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) item.set_tipo(TIPO_BRACADEIRAS);
+
+  for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+  for (auto& item : *proto->mutable_tesouro()->mutable_mantos()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+  for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+  for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+  for (auto* item : itens) {
+    for (int id_unico : AdicionaEventoItemMagicoContinuo(proto->evento(), ItemTabela(tabelas, *item), proto)) {
+      item->add_ids_efeitos(id_unico);
+    }
+  }
+}
+
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
   int i = 0;
@@ -3021,6 +3040,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
+  RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
@@ -4343,6 +4363,21 @@ int NumeroReflexos(const EntidadeProto& proto) {
     num_reflexos = std::max(num_reflexos, evento.complementos(0));
   }
   return num_reflexos;
+}
+
+const ItemMagicoProto& ItemTabela(
+    const Tabelas& tabelas, TipoItem tipo, const std::string& id) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
+    case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
+    case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
+    case TipoItem::TIPO_BRACADEIRAS: return tabelas.Bracadeiras(id);
+  }
+  return ItemMagicoProto::default_instance();
+}
+
+const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item) {
+  return ItemTabela(tabelas, item.tipo(), item.id());
 }
 
 }  // namespace ent

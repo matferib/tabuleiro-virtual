@@ -11,36 +11,26 @@
 namespace ifg {
 namespace qt {
 
-enum class TipoItem {
-  TIPO_ANEL,
-  TIPO_MANTO,
-  TIPO_LUVAS,
-  TIPO_BRACADEIRAS,
-};
-
 // Retorna o maximo de itens em uso pelo tipo.
-int MaximoEmUso(TipoItem tipo);
+int MaximoEmUso(ent::TipoItem tipo);
 
-// Retorna o item da tabela por tipo.
-const ent::ItemMagicoProto& ItemTabela(
-    const ent::Tabelas& tabelas, TipoItem tipo, const std::string& id);
 // Retorna os itens da tabela.
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
-    const ent::Tabelas& tabelas, TipoItem tipo);
+    const ent::Tabelas& tabelas, ent::TipoItem tipo);
 
 // Retorna o item do personagem de acordo com tipo.
-const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(TipoItem tipo, const ent::EntidadeProto& proto);
-google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(TipoItem tipo, ent::EntidadeProto* proto);
+const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(ent::TipoItem tipo, const ent::EntidadeProto& proto);
+google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(ent::TipoItem tipo, ent::EntidadeProto* proto);
 
 // Retorna o nome do item seguido por 'em uso' ou 'não usado'.
 std::string NomeParaLista(
-    const ent::Tabelas& tabelas, TipoItem tipo, const ent::ItemMagicoProto& item_pc);
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
 
 // Responsavel por tratar a edicao do tipo de efeito.
 class ItemMagicoDelegate : public QItemDelegate {
  public:
   ItemMagicoDelegate(
-      const ent::Tabelas& tabelas, TipoItem tipo,
+      const ent::Tabelas& tabelas, ent::TipoItem tipo,
       QListWidget* lista, ent::EntidadeProto* proto)
       : QItemDelegate(lista), tabelas_(tabelas), lista_(lista), proto_(proto), tipo_(tipo) {}
 
@@ -146,51 +136,40 @@ class ItemMagicoDelegate : public QItemDelegate {
   const ent::Tabelas& tabelas_;
   QListWidget* lista_;
   ent::EntidadeProto* proto_;
-  TipoItem tipo_;
+  ent::TipoItem tipo_;
 };
 
-inline const ent::ItemMagicoProto& ItemTabela(
-    const ent::Tabelas& tabelas, TipoItem tipo, const std::string& id) {
-  switch (tipo) {
-    case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
-    case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
-    case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
-    case TipoItem::TIPO_BRACADEIRAS: return tabelas.Bracadeiras(id);
-  }
-  return ent::ItemMagicoProto::default_instance();
-}
-
 inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
-    const ent::Tabelas& tabelas, TipoItem tipo) {
+    const ent::Tabelas& tabelas, ent::TipoItem tipo) {
   switch (tipo) {
-    case TipoItem::TIPO_ANEL: return tabelas.todas().tabela_aneis().aneis();
-    case TipoItem::TIPO_MANTO: return tabelas.todas().tabela_mantos().mantos();
-    case TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();
-    case TipoItem::TIPO_BRACADEIRAS: return tabelas.todas().tabela_bracadeiras().bracadeiras();
+    case ent::TipoItem::TIPO_ANEL: return tabelas.todas().tabela_aneis().aneis();
+    case ent::TipoItem::TIPO_MANTO: return tabelas.todas().tabela_mantos().mantos();
+    case ent::TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();
+    case ent::TipoItem::TIPO_BRACADEIRAS: return tabelas.todas().tabela_bracadeiras().bracadeiras();
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
   return tabelas.todas().tabela_aneis().aneis();
 }
 
 inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(
-    TipoItem tipo, const ent::EntidadeProto& proto) {
+    ent::TipoItem tipo, const ent::EntidadeProto& proto) {
   switch (tipo) {
-    case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
-    case TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
-    case TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
-    case TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
+    case ent::TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
+    case ent::TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
+    case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
+    case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto.tesouro().aneis();
 }
 
 inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(
-    TipoItem tipo, ent::EntidadeProto* proto) {
+    ent::TipoItem tipo, ent::EntidadeProto* proto) {
   switch (tipo) {
-    case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
-    case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
-    case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
-    case TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
+    case ent::TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
+    case ent::TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
+    case ent::TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
+    case ent::TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto->mutable_tesouro()->mutable_aneis();
@@ -198,7 +177,7 @@ inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagem
 
 // Retorna o nome do item seguido por em uso ou nao usado.
 inline std::string NomeParaLista(
-    const ent::Tabelas& tabelas, TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ItemTabela(tabelas, tipo, item_pc.id());
   return google::protobuf::StringPrintf(
       "%s%s",
@@ -206,9 +185,9 @@ inline std::string NomeParaLista(
       item_pc.em_uso() ? " (em uso)" : " (não usado)");
 }
 
-inline int MaximoEmUso(TipoItem tipo) {
+inline int MaximoEmUso(ent::TipoItem tipo) {
   switch (tipo) {
-    case TipoItem::TIPO_ANEL: return 2;
+    case ent::TipoItem::TIPO_ANEL: return 2;
     default: return 1;
   }
 }

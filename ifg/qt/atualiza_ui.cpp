@@ -442,7 +442,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
   gerador.lista_formas_alternativas->blockSignals(false);
 }
 
-void AtualizaListaItemMagico(const ent::Tabelas& tabelas, TipoItem tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
+void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
   for (const auto& item : ItensPersonagem(tipo, proto)) {
@@ -471,10 +471,10 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
     gerador.lista_pocoes->setCurrentRow(indice);
   }
 
-  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_ANEL, gerador.lista_aneis, proto);
-  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_LUVAS, gerador.lista_luvas, proto);
-  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_MANTO, gerador.lista_mantos, proto);
-  AtualizaListaItemMagico(tabelas, TipoItem::TIPO_BRACADEIRAS, gerador.lista_bracadeiras, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ANEL, gerador.lista_aneis, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_LUVAS, gerador.lista_luvas, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_MANTO, gerador.lista_mantos, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BRACADEIRAS, gerador.lista_bracadeiras, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }

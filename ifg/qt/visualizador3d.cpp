@@ -1300,7 +1300,7 @@ void PreencheConfiguraFormasAlternativas(
 }
 
 void ConfiguraListaItensMagicos(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, TipoItem tipo,
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::TipoItem tipo,
     QListWidget* lista, QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_remover,
     ent::EntidadeProto* proto_retornado) {
   // Delegado.
@@ -1337,7 +1337,7 @@ void ConfiguraListaItensMagicos(
             QObject::tr(google::protobuf::StringPrintf("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
         return;
       }
-      const auto& item_tabela = ItemTabela(tabelas, tipo, item->id());
+      const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item->id());
       for (int id_unico : AdicionaEventoItemMagicoContinuo(proto_retornado->evento(), item_tabela, proto_retornado)) {
         item->add_ids_efeitos(id_unico);
       }
@@ -1407,21 +1407,21 @@ void PreencheConfiguraTesouro(
 
   // Aneis.
   ConfiguraListaItensMagicos(
-      tabelas, gerador, TipoItem::TIPO_ANEL,
+      tabelas, gerador, ent::TipoItem::TIPO_ANEL,
       gerador.lista_aneis, gerador.botao_usar_anel, gerador.botao_adicionar_anel, gerador.botao_remover_anel,
       proto_retornado);
   // Luvas.
   ConfiguraListaItensMagicos(
-      tabelas, gerador, TipoItem::TIPO_LUVAS,
+      tabelas, gerador, ent::TipoItem::TIPO_LUVAS,
       gerador.lista_luvas, gerador.botao_usar_luvas, gerador.botao_adicionar_luvas, gerador.botao_remover_luvas,
       proto_retornado);
   // Mantos.
   ConfiguraListaItensMagicos(
-      tabelas, gerador, TipoItem::TIPO_MANTO,
+      tabelas, gerador, ent::TipoItem::TIPO_MANTO,
       gerador.lista_mantos, gerador.botao_usar_manto, gerador.botao_adicionar_manto, gerador.botao_remover_manto,
       proto_retornado);
   ConfiguraListaItensMagicos(
-      tabelas, gerador, TipoItem::TIPO_BRACADEIRAS,
+      tabelas, gerador, ent::TipoItem::TIPO_BRACADEIRAS,
       gerador.lista_bracadeiras, gerador.botao_usar_bracadeiras, gerador.botao_adicionar_bracadeiras, gerador.botao_remover_bracadeiras,
       proto_retornado);
 

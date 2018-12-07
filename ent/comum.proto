@@ -596,10 +596,20 @@ message HabilidadeEspecialProto {
   optional string descricao = 5;
 }
 
+enum TipoItem {
+  TIPO_ANEL = 0;
+  TIPO_MANTO = 1;
+  TIPO_LUVAS = 2;
+  TIPO_BRACADEIRAS = 3;
+  TIPO_POCAO = 4;
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
   optional string id = 1;
+  // O tipo do item, para buscar na tabela (usando id tipo).
+  optional TipoItem tipo = 17;
   // Nome legivel.
   optional string nome = 2;
   // Tipo do efeito do item (se causar algum).

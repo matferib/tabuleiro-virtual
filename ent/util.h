@@ -675,6 +675,12 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade);
 // Retorna o numero de reflexos da entidade (feitico reflexos).
 int NumeroReflexos(const EntidadeProto& proto);
 
+// Retorna o item tabelado pelo tipo e id.
+const ItemMagicoProto& ItemTabela(
+    const Tabelas& tabelas, TipoItem tipo, const std::string& id);
+const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
+
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
