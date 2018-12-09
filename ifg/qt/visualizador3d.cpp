@@ -1007,6 +1007,10 @@ void PreencheConfiguraEventos(
   auto* modelo(new ModeloEvento(proto_retornado->evento(), gerador.tabela_lista_eventos));
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
   gerador.tabela_lista_eventos->setModel(modelo);
+  gerador.tabela_lista_eventos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  gerador.tabela_lista_eventos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+  gerador.tabela_lista_eventos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  gerador.tabela_lista_eventos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
   lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
     const int linha = modelo->rowCount();
     modelo->insertRows(linha, 1, modelo->index(linha, 0).parent());
