@@ -532,7 +532,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'trespassar' }
-      gerais { id: 'reflexos_combate' }
+      gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'ataques_multiplos' }
     }
@@ -2480,7 +2480,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'reflexos_combate' }
+      gerais { id: 'reflexos_em_combate' }
       gerais { id: 'iniciativa_aprimorada' }
     }
     info_pericias { id: 'escalar' pontos: 9 }
