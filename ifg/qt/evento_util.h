@@ -139,7 +139,7 @@ class ModeloEvento : public QAbstractTableModel {
 
   // Dado de cada celula.
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::ToolTipRole) {
       return QVariant();
     }
 
@@ -152,7 +152,9 @@ class ModeloEvento : public QAbstractTableModel {
     const auto& evento = eventos_.Get(row);
     switch (column) {
       case 0: 
-        return role == Qt::DisplayRole ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) : QVariant(evento.id_efeito());
+        return role == Qt::DisplayRole || role == Qt::ToolTipRole
+            ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) 
+            : QVariant(evento.id_efeito());
       case 1: return QVariant(ComplementoEventoString(evento) ?
                   ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
       case 2: return QVariant(evento.rodadas());
