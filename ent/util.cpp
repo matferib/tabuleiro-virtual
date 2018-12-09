@@ -3879,6 +3879,10 @@ void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
   while (c->size() < tam) c->Add();
 }
 
+bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs) {
+  return lhs.SerializeAsString() == rhs.SerializeAsString();
+}
+
 uint32_t AchaIdUnicoEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados) {
@@ -3931,6 +3935,15 @@ void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto) {
 
 EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto) {
   for (auto& evento : *proto->mutable_evento()) {
+    if (evento.id_unico() == id_unico) {
+      return &evento;
+    }
+  }
+  return nullptr;
+}
+
+const EntidadeProto::Evento* AchaEvento(uint32_t id_unico, const EntidadeProto& proto) {
+  for (auto& evento : proto.evento()) {
     if (evento.id_unico() == id_unico) {
       return &evento;
     }

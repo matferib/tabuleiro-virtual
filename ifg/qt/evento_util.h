@@ -81,12 +81,12 @@ class ModeloEvento : public QAbstractTableModel {
   using Evento = ent::EntidadeProto::Evento;
   using Eventos = google::protobuf::RepeatedPtrField<Evento>;
 
-  ModeloEvento(Eventos* eventos, QTableView* tabela)
+  ModeloEvento(const Eventos& eventos, QTableView* tabela)
       : QAbstractTableModel(tabela), eventos_(eventos) {}
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
-    return eventos_->size();
+    return eventos_.size();
   }
 
   // 0: id efeito. 1: complemento. 2: rodadas. 3. descricao.
@@ -97,19 +97,21 @@ class ModeloEvento : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    auto* e = eventos_->Add();
-    e->set_id_unico(AchaIdUnicoEvento(*eventos_));
+    auto* e = eventos_.Add();
+    e->set_id_unico(AchaIdUnicoEvento(eventos_));
     endInsertRows();
     emit dataChanged(parent, parent);
     return true;
   }
 
   bool removeRows(int row, int count, const QModelIndex& parent) override {
-    beginRemoveRows(parent, row, eventos_->size() - 1);
     for (int i = 0; i < count; ++i ) {
-      if (row + i < 0 || row + i >= eventos_->size()) break;
-      eventos_->Mutable(row + i)->set_rodadas(-1);
+      if (row + i < 0 || row + i >= eventos_.size()) break;
+      eventos_.Mutable(row + i)->set_rodadas(-1);
     }
+    emit dataChanged(parent, parent);
+    beginRemoveRows(parent, row, eventos_.size() - 1);
+    eventos_.DeleteSubrange(row, count);
     endRemoveRows();
     emit dataChanged(parent, parent);
     return true;
@@ -142,12 +144,12 @@ class ModeloEvento : public QAbstractTableModel {
     }
 
     const int row = index.row();
-    if (row < 0 || row >= eventos_->size()) {
+    if (row < 0 || row >= eventos_.size()) {
       LOG(INFO) << "Linha invalida " << row;
       return QVariant();
     }
     const int column = index.column();
-    const auto& evento = eventos_->Get(row);
+    const auto& evento = eventos_.Get(row);
     switch (column) {
       case 0: 
         return role == Qt::DisplayRole ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) : QVariant(evento.id_efeito());
@@ -167,30 +169,41 @@ class ModeloEvento : public QAbstractTableModel {
     }
 
     const int row = index.row();
-    if (row < 0 || row >= eventos_->size()) {
+    if (row < 0 || row >= eventos_.size()) {
       LOG(INFO) << "Linha invalida " << row;
       return false;
     }
     const int column = index.column();
-    auto* evento = eventos_->Mutable(row);
+    auto* evento = eventos_.Mutable(row);
+    const int rodadas = evento->rodadas();
     switch (column) {
       case 0: {
         if (!ent::TipoEfeito_IsValid(value.toInt())) return false;
+        // Anula o efeito anterior primeiro, depois aplica o novo.
+        evento->set_rodadas(-1);
+        emit dataChanged(index, index);
         evento->set_id_efeito(ent::TipoEfeito(value.toInt()));
+        evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;
       }
       case 1: {
+        evento->set_rodadas(-1);
+        emit dataChanged(index, index);
         if (ComplementoEventoString(*evento)) {
           *evento->mutable_complementos_str() = StringParaComplementosStr(value.toString());
         } else {
           *evento->mutable_complementos() = StringParaComplementos(value.toString());
         }
+        evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;
       }
       case 2: {
+        evento->set_rodadas(-1);
+        emit dataChanged(index, index);
         evento->set_rodadas(value.toInt());
+        evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;
       }
@@ -213,8 +226,10 @@ class ModeloEvento : public QAbstractTableModel {
     endResetModel();
   }
 
+  Eventos LeEventos() const { return eventos_; }
+
  private:
-  Eventos* eventos_;
+  Eventos eventos_;
 };
 
 // Responsavel por tratar a edicao do tipo de efeito.

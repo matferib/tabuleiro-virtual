@@ -331,10 +331,13 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
     std::vector<int> a_remover;
     int i = 0;
     for (auto& evento : *proto_original.mutable_evento()) {
-      if (!PossuiEventoEspecifico(novo_proto, evento)) {
+      const auto* novo_evento = AchaEvento(evento.id_unico(), novo_proto);
+      if (novo_evento == nullptr || !EventosIguais(*novo_evento, evento)) {
+        // no novo proto, nao ha evento, entao vamos anular esse. Ou entao, eles diferem e tem que remover da mesma forma.
+        // Apos o merge, os anulados ficarao antes para a recomputacao tira-los e depois aplica-los novamente.
         evento.set_rodadas(-1);
       } else {
-        // Remove porque estas virao do proto novo.
+        // Tira o evento, pois no novo ja existe.
         a_remover.push_back(i);
       }
       ++i;

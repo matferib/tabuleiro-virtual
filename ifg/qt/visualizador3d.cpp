@@ -1004,7 +1004,7 @@ void PreencheConfiguraComboArmaduraEscudo(
 void PreencheConfiguraEventos(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   *proto_retornado->mutable_evento() = proto.evento();
-  auto* modelo(new ModeloEvento(proto_retornado->mutable_evento(), gerador.tabela_lista_eventos));
+  auto* modelo(new ModeloEvento(proto_retornado->evento(), gerador.tabela_lista_eventos));
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
   gerador.tabela_lista_eventos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador, modelo] () {
@@ -1013,11 +1013,11 @@ void PreencheConfiguraEventos(
     gerador.tabela_lista_eventos->selectRow(linha);
   });
   lambda_connect(gerador.botao_remover_evento, SIGNAL(clicked()), [&gerador, modelo] () {
-    std::set<int, std::greater<int>> linhas;
+    std::set<int, std::greater<int>> linhas_a_remover;
     for (const QModelIndex& index : gerador.tabela_lista_eventos->selectionModel()->selectedIndexes()) {
-      linhas.insert(index.row());
+      linhas_a_remover.insert(index.row());
     }
-    for (int linha : linhas) {
+    for (int linha : linhas_a_remover) {
       modelo->removeRows(linha, 1, modelo->index(linha, 0).parent());
     }
   });
@@ -1027,7 +1027,8 @@ void PreencheConfiguraEventos(
   delegado->deleteLater();
   gerador.tabela_lista_eventos->resizeColumnsToContents();
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [this_, proto_retornado, &gerador] () {
+                 [this_, proto_retornado, &gerador, modelo] () {
+    *proto_retornado->mutable_evento() = modelo->LeEventos();
     RecomputaDependencias(this_->tabelas(), proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
   });

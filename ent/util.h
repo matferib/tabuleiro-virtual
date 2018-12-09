@@ -384,8 +384,12 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus = Bonu
 bool ArmaDupla(const ArmaProto& arma);
 bool ArmaDistancia(const ArmaProto& arma);
 
+// Retorna true se os eventos forem identicos (campo a campo).
+bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs);
+
 // Retorna o evento pelo id unico. Retorna nullptr se nao houver.
 EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto);
+const EntidadeProto::Evento* AchaEvento(uint32_t id_unico, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
 bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);
