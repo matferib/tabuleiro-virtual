@@ -651,8 +651,7 @@ void AtualizaFeiticosClasse(
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
     {
-      auto* item_conhecidos = new QTreeWidgetItem(item_nivel);
-      item_conhecidos->setText(0, "Conhecidos");
+      auto* item_conhecidos = new ItemConhecidos(id_classe, nivel, item_nivel);
       item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
       item_conhecidos->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
       item_conhecidos->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));

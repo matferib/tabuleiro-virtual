@@ -11,6 +11,27 @@
 namespace ifg {
 namespace qt {
 
+// Item para conhecido (a barra com texto conhcido).
+class ItemConhecidos : public QTreeWidgetItem {
+ public:
+  ItemConhecidos(const std::string& id_classe, int nivel, QTreeWidgetItem* pai)
+      : QTreeWidgetItem(pai, QTreeWidgetItem::UserType) {
+    auto* hwidget = new QWidget;
+    auto* layout = new QHBoxLayout;
+    QLabel* label = new QLabel("Conhecidos");
+    auto* botao_mais = new QPushButton("+");
+    lambda_connect(botao_mais, SIGNAL(clicked()), [this]() {
+      emitDataChanged();
+    });
+    layout->addWidget(label, 0, Qt::AlignLeft);
+    layout->addWidget(botao_mais, 0, Qt::AlignLeft);
+
+    hwidget->setLayout(layout);
+    treeWidget()->setItemWidget(this, 0, hwidget);
+  }
+};
+
+// Item para feiticos conhecidos.
 class ItemFeiticoConhecido : public QTreeWidgetItem {
  public:
   ItemFeiticoConhecido(const ent::Tabelas& tabelas, const std::string& id_classe, int nivel, QTreeWidgetItem* pai)
