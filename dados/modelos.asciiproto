@@ -537,8 +537,8 @@ modelo {
       gerais { id: 'ataques_multiplos' }
     }
     info_pericias { id: 'concentracao' pontos: 13 }
-    info_pericias { id: 'diplomacia' pontos: 13 }
-    info_pericias { id: 'esconderse' pontos: 13 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 9 }
     info_pericias { id: 'intimidacao' pontos: 13 }
     info_pericias { id: 'conhecimento_planos' pontos: 13 }
     info_pericias { id: 'ouvir' pontos: 13 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
@@ -643,7 +643,7 @@ modelo {
       gerais { id: 'rastrear' }
     }
     info_pericias { id: 'escalar' pontos: 15 }
-    info_pericias { id: 'esconderse' pontos: 15 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'esconderse' pontos: 7 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'saltar' pontos: 15 }
     info_pericias { id: 'ouvir' pontos: 15 }
     info_pericias { id: 'furtividade' pontos: 15 }
