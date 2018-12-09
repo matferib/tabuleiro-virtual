@@ -31,6 +31,12 @@
     <Filter Include="log">
       <UniqueIdentifier>{138e4987-5bbc-4c91-832d-aecf4c410db2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ifg\Headers">
+      <UniqueIdentifier>{e5f96ab7-8e39-4736-bbc6-7bf924be4a4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ent\Headers">
+      <UniqueIdentifier>{c2526040-da97-48be-913d-b94021836ae4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -198,6 +204,54 @@
     </ClInclude>
     <ClInclude Include="..\..\log\log.h">
       <Filter>log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\evento_util.h">
+      <Filter>ifg\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\atualiza_ui.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\bonus_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\constantes.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\feiticos_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\inimigo_predileto_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\itens_magicos_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\menuprincipal.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\pericias_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\pocoes_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\principal.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\qt_interface.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\talentos_util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\texturas.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\util.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\visualizador3d.h">
+      <Filter>ent\Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
