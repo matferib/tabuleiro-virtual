@@ -1,11 +1,7 @@
-Fazer 3d: bodak.
-raio flamejante: nao pega AC de toque nem destreza. Ta mudando tipo sozinho.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
-Botao de remover feitico na UI.
-Adicionar Hipogrifo celestial.
 Colocar arte da fuga no agarrar.
 
-
+Botao de remover feitico na UI.
 Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
