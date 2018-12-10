@@ -2020,6 +2020,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   acao->clear_descritores_ataque();
   if (da->material_arma() != DESC_NENHUM) acao->add_descritores_ataque(da->material_arma());
   if (da->alinhamento() != DESC_NENHUM) acao->add_descritores_ataque(da->alinhamento());
+  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_ataque()) > 0) acao->add_descritores_ataque(DESC_MAGICO);
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
