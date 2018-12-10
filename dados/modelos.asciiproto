@@ -449,6 +449,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '10d8+70' tamanho: TM_GRANDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    cor { r: 0.8 g: 0.8 b: 1 }
     modelo_3d { id: 'vrock' }
     posicao_acao { x: 0.5 y: 0 z: 0.75 }
 
@@ -2101,9 +2102,15 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
-    dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
+    dados_vida: '6d8+6' 
+    modelo_3d { id: 'succubus' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6 
+      aereo_basico_q: 10
+    }
+
     info_classes {
       id: 'extra_planar' nivel: 6 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_UM
       progressao_conjurador: PCONJ_UM
@@ -2171,20 +2178,20 @@ modelo {
     }
     info_pericias { id: 'blefar' pontos: 9 }
     info_pericias { id: 'concentracao' pontos: 9 }
-    info_pericias { id: 'diplomacia' pontos: 9 }
-    info_pericias { id: 'disfarces' pontos: 9 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'disfarces' pontos: 7 }
     info_pericias { id: 'arte_da_fuga' pontos: 9 }
     info_pericias { id: 'esconderse' pontos: 9 }
-    info_pericias { id: 'intimidacao' pontos: 9 }
+    info_pericias { id: 'intimidacao' pontos: 7 }
     info_pericias { id: 'conhecimento_planos' pontos: 9 }
-    info_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } pontos: 9 }
+    info_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } pontos: 8 }
     info_pericias { id: 'furtividade' pontos: 9 }
     info_pericias { id: 'procurar' pontos: 9 }
-    info_pericias { id: 'observar' pontos: 9 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 9 } } } }
+    info_pericias { id: 'observar' pontos: 9 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
 
     tendencia { simples: TD_CAOTICO_MAU }
 
-    rotulo_especial: 'reducao dano 10/bem ou ferro frio\nresistencias: acido 10, frio 10, fogo 10\ntelepatia 30m (20q), idiomas sempre ativo\n visao verdadeira\nmovimento: 8 quadrados'
+    rotulo_especial: 'telepatia 30m (20q), idiomas sempre ativo\n visao verdadeira\nA vontade CD 22: encantar monstro\nCD 20 detectar bem, detectar pensamentos\nCD 21: thereal jaunt, sugestao\nteleportar maior. Nivel conjurador 12.'
   }
 }
 modelo {
