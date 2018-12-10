@@ -4216,7 +4216,6 @@ tabela_feiticos {
   armas {
     id: 'raio_flamejante'
     nome: 'Raio Flamejante'
-    categoria: CAT_DISTANCIA
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     dano { invariavel: '4d6' }

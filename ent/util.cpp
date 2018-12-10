@@ -1941,23 +1941,25 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
 
     // tipo certo de ataque.
     const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma) || da->tipo_acao() == ACAO_RAIO || da->tipo_acao() == ACAO_PROJETIL;
     const bool cac = PossuiCategoria(CAT_CAC, arma);
-    if (distancia && cac) {
-      // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
-      if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
+    if (da->tipo_ataque().empty()) {
+      if (distancia && cac) {
+        // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
+        if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
+          da->set_tipo_ataque("Ataque a Distância");
+          da->set_tipo_acao(ACAO_PROJETIL);
+        }
+      } else if (cac) {
+        da->set_tipo_ataque("Ataque Corpo a Corpo");
+        da->set_tipo_acao(ACAO_CORPO_A_CORPO);
+      } else if (projetil_area) {
+        da->set_tipo_ataque("Projétil de Área");
+        da->set_tipo_acao(ACAO_PROJETIL_AREA);
+      } else if (distancia) {
         da->set_tipo_ataque("Ataque a Distância");
         da->set_tipo_acao(ACAO_PROJETIL);
       }
-    } else if (cac) {
-      da->set_tipo_ataque("Ataque Corpo a Corpo");
-      da->set_tipo_acao(ACAO_CORPO_A_CORPO);
-    } else if (projetil_area) {
-      da->set_tipo_ataque("Projétil de Área");
-      da->set_tipo_acao(ACAO_PROJETIL_AREA);
-    } else if (distancia) {
-      da->set_tipo_ataque("Ataque a Distância");
-      da->set_tipo_acao(ACAO_PROJETIL);
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
@@ -3467,10 +3469,8 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
         ? ACAO_PROJETIL_AREA
         : PossuiCategoria(CAT_DISTANCIA, arma) ? ACAO_PROJETIL : ACAO_CORPO_A_CORPO);
   }
-  if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+  if (PossuiCategoria(CAT_PROJETIL_AREA, arma) || acao_proto.ataque_toque() || da->acao().ataque_toque()) {
     da->set_ataque_toque(true);
-  } else if (acao_proto.has_ataque_toque()) {
-    da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
     da->clear_ataque_toque();
   }
