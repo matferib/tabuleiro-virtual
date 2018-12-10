@@ -178,10 +178,29 @@ Tabuleiro::Tabuleiro(
       LOG(ERROR) << erro.what();
       // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
     }
+    // Mapa de modelos por id.
+    std::unordered_map<std::string, const Modelo*> modelos_por_id;
     for (const auto& m : modelos.modelo()) {
-      mapa_modelos_.insert(std::make_pair(
-            m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
-      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
+      modelos_por_id[m.id()] = &m;
+    }
+    for (const auto& m : modelos.modelo()) {
+      std::unique_ptr<EntidadeProto> entidade(new EntidadeProto());
+      if (m.id_entidade_base().empty()) {
+        *entidade = m.entidade();
+        mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
+      } else {
+        auto it = modelos_por_id.find(m.id_entidade_base());
+        if (it == modelos_por_id.end()) {
+          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << m.id_entidade_base();
+          continue;
+        }
+        *entidade = it->second->entidade();
+        entidade->MergeFrom(m.entidade());
+        std::unique_ptr<Modelo> mp(new Modelo(m));
+        *mp->mutable_entidade() = *entidade;
+        mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::move(mp)));
+      }
+      mapa_modelos_.insert(std::make_pair(m.id(), std::move(entidade)));
     }
   }
   // Acoes.
@@ -5838,6 +5857,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_REMOVER_ENTIDADE sem proto da entidade";
         break;
       }
+      VLOG(1) << "Invertendo TN_REMOVER_ENTIDADE";
       n_inversa.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade());
       break;

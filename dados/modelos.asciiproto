@@ -1470,32 +1470,10 @@ modelo {
 }
 modelo {
   id: 'Goblin Demoníaco'
+  id_entidade_base: 'Goblin'
   entidade {
-    dados_vida: '1d8+1' 
-    tamanho: TM_PEQUENO cor 
-    { r: 0.745 g: 0.596 b: 0.388 }
-    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque {
-      rotulo: 'maça estrela' id_arma: 'maca_estrela'
-    }
-    dados_ataque {
-      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia'
-    }
-    info_classes { id: 'combatente' nivel: 1 }
-    atributos {
-      # Usa o array nao elite: 13 12 11 10 9 8, porque eh combatente. -2 for car, +2 des.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
-    }
     dados_defesa {
       resistencia_magia: 6
-      id_armadura: 'couro'
-      id_escudo: 'leve_madeira'
       resistencia_elementos {
         descritor: DESC_FRIO
         valor: 5 
@@ -1505,18 +1483,7 @@ modelo {
         valor: 5
       }
     }
-
-    info_talentos {
-      gerais { id: 'prontidao' }
-    }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'furtividade' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'cavalgar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'saltar' pontos: 4 }
-
     rotulo_especial: 'destruir o bem 1/dia +1 dano'
-    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 
@@ -1679,35 +1646,10 @@ modelo {
 }
 modelo {
   id: 'Hipogrifo Celestial'
+  id_entidade_base: 'Hipogrifo'
   entidade {
-    info_classes {
-      id: 'besta_magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
-      pericias_monstro: 'ouvir'
-      pericias_monstro: 'observar'
-    }
-    dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    rotulo_especial: 'possui faro, destruir o mal 1xdia +3 dano'
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18 # tb tem penumbra
-    movimento {
-      terrestre_basico_q: 10
-      aereo_basico_q: 20 # medio.
-    }
-    info_talentos {
-      gerais { id: 'esquiva' }
-      gerais { id: 'pairar' }
-    }
-    atributos {
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-    }
+    rotulo_especial: 'destruir o mal 1/dia +3 dano'
     dados_defesa {
-      ca {
-        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
-      }
       resistencia_elementos {
         descritor: DESC_FRIO
         valor: 5
@@ -1722,23 +1664,6 @@ modelo {
       }
       resistencia_magia: 8
     }
-    dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-    }
-    dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-    }
-    dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'mordida'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
-    }
-    info_pericias { id: 'ouvir' pontos: 3 }
-    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
   }
 }
 
