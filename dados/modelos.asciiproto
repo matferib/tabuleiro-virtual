@@ -396,6 +396,59 @@ modelo {
   }
 }
 modelo {
+  # Huge.
+  id: 'Centopéia Enorme Demoníaca'
+  entidade {
+    dados_vida: '6d8+6' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
+    info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    rotulo_especial: 'movimento: 8 quadrados, escalar 8\nveneno fort 14, 1d6 des/1d6 des\nDestruir o mal 1/dia 6 dano'
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
+      alcance_m: 3 dano_basico: '2d6'
+      empunhadura: EA_2_MAOS
+    }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      alcance_m: 3 dano_basico: '1d6'
+      empunhadura: EA_2_MAOS
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
+      alcance_m: 3 dano_basico: '2d6'
+      empunhadura: EA_2_MAOS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+      resistencia_magia: 11
+      resistencia_elementos {
+        descritor: DESC_FRIO
+        valor: 5
+      }
+      resistencia_elementos {
+        descritor: DESC_FOGO
+        valor: 5
+      }
+      reducao_dano {
+        descritores: DESC_MAGICO
+        valor: 10
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+
+modelo {
   # Gargantuan.
   id: 'Centopéia Imensa'
   entidade {

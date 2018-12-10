@@ -1046,7 +1046,9 @@ int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& e
 namespace {
 
 Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  return da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
+  auto tipo = da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
+  VLOG(1) << "tipo CA: " << tipo;
+  return tipo;
 }
 
 // Retorna true se o ataque for bem sucedido, false com string caso contrario.
@@ -1186,6 +1188,7 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
+  LOG(INFO) << "da: " << da->DebugString();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
 }
@@ -2036,6 +2039,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         break;
       case ArmaProto::MOD_8_QUAD_NIVEL:
         mod_distancia_quadrados = 8 * nivel;
+        break;
+      case ArmaProto::MOD_1_QUAD_CADA_2_NIVEIS:
+        mod_distancia_quadrados = nivel / 2;
         break;
       default:
         ;

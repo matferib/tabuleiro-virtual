@@ -1326,8 +1326,8 @@ float Tabuleiro::TrataAcaoIndividual(
         delta_pontos_vida = 0;
         por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_IMUNE;
-        ConcatenaString(resultado_rm, por_entidade->mutable_texto());
       }
+      ConcatenaString(resultado_rm, por_entidade->mutable_texto());
     }
 
     std::string resultado_salvacao;

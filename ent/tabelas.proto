@@ -93,6 +93,7 @@ message ArmaProto {
     MOD_NENHUM = 0;
     MOD_2_QUAD_NIVEL = 1;
     MOD_8_QUAD_NIVEL = 2;
+    MOD_1_QUAD_CADA_2_NIVEIS = 3;
   }
   optional ModificadorAlcance modificador_alcance = 22;
   optional int32 margem_critico = 7 [default=20];

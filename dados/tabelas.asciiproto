@@ -4214,6 +4214,33 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'raio_flamejante'
+    nome: 'Raio Flamejante'
+    categoria: CAT_DISTANCIA
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '4d6' }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      ataque_distancia: true
+    }
+  }
+  armas {
     id: 'relampago'
     nome: 'Relâmpago'
     alcance_quadrados: 24

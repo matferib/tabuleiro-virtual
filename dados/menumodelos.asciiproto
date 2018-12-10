@@ -188,6 +188,7 @@ sub_menu {
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
   modelo { id: 'Centopéia Enorme' }
+  modelo { id: 'Centopéia Enorme Demoníaca' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
