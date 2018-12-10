@@ -1,4 +1,6 @@
-Fazer 3d: sucubo, bodak.
+Fazer 3d: bodak.
+Misseis magicos parou de funcionar.
+Adicionar raio flamejante.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Botao de remover feitico na UI.
 
