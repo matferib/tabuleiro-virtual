@@ -116,10 +116,10 @@
     <ClCompile Include="..\..\tex\texturas.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ent\constantes.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />
-    <ClInclude Include="..\..\ifg\qt\constantes.h" />
     <ClInclude Include="..\..\ifg\qt\evento_util.h" />
     <ClInclude Include="..\..\ifg\qt\feiticos_util.h" />
     <ClInclude Include="..\..\ifg\qt\inimigo_predileto_util.h" />
@@ -130,7 +130,6 @@
     <ClInclude Include="..\..\ifg\qt\principal.h" />
     <ClInclude Include="..\..\ifg\qt\qt_interface.h" />
     <ClInclude Include="..\..\ifg\qt\talentos_util.h" />
-    <ClInclude Include="..\..\ifg\qt\texturas.h" />
     <ClInclude Include="..\..\ifg\qt\util.h" />
     <ClInclude Include="..\..\ifg\qt\visualizador3d.h" />
     <ClInclude Include="..\..\log\log.h" />
