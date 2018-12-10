@@ -101,6 +101,7 @@ sub_menu {
 }
 modelo { id: 'Grifo' }
 modelo { id: 'Hipogrifo' }
+modelo { id: 'Hipogrifo Celestial' }
 modelo { id: 'Manto Negro' }
 modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }

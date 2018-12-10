@@ -3006,6 +3006,12 @@ tabela_talentos {
     monstro: true
     # Pre requisito: 3 ou mais ataques naturais.
   }
+  talentos {
+    id: 'pairar'  # wingover
+    nome: 'Pairar'
+    descricao: 'A criatura pode fazer um retorno de 180 graus independente de sua classificação de manobra. Custa 2 quadrados de movimento e não pode ganhar altitude.'
+    # Pre requisito: voar.
+  }
 }
 
 # Lista de pericias na ordem em ingles para faciliar.
