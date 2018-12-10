@@ -986,6 +986,10 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    acao {
+      ataque_toque: true
+      ataque_distancia: true
+    }
   }
   armas {
     id: 'rede'
