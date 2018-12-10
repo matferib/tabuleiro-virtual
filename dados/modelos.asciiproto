@@ -184,7 +184,8 @@ modelo {
       pericias_monstro: 'observar'
     }
     modelo_3d { id: 'bodak' }
-    aura_m: 9  # 1 quadrado de raio
+    aura_m: 9  # 6 quadrado de raio
+    aura_mestre_apenas: true
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
       grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'pancada' dano_basico: '1d8' id_arma: 'pancada' # para talento funcionar.

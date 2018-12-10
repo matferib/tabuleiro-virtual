@@ -57,7 +57,7 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 94.
+// Proximo id: 95.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -135,6 +135,7 @@ message EntidadeProto {
   // BITS DAS ENTIDADE.
   optional int32 aura = 9 [deprecated=true];
   optional float aura_m = 41;
+  optional bool aura_mestre_apenas = 94;  // Apenas o mestre ve.
   // Visibilidade. Apenas o dono pode ver.
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.

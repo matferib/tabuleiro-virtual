@@ -547,7 +547,8 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
-  if (!pd->desenha_aura() || proto_.aura_m() == 0) {
+  if (!pd->desenha_aura() || proto_.aura_m() == 0 ||
+      (proto_.aura_mestre_apenas() && !pd->modo_mestre())) {
     return;
   }
   gl::MatrizEscopo salva_matriz;
