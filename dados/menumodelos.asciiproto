@@ -4,6 +4,7 @@ sub_menu {
   id: 'Mortos-Vivos'
   modelo { id: 'Allip' }
   modelo { id: 'Aparição' }
+  modelo { id: 'Bodak' }
   modelo { id: 'Carneçal' }
   modelo { id: 'Carniçal' }
   sub_menu {

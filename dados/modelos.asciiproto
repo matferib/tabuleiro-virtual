@@ -183,7 +183,7 @@ modelo {
       pericias_monstro: 'furtividade'
       pericias_monstro: 'observar'
     }
-    info_textura { id: 'bodak.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    modelo_3d { id: 'bodak' }
     aura_m: 9  # 1 quadrado de raio
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
