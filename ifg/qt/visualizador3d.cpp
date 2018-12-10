@@ -2185,6 +2185,10 @@ void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
   std::unique_ptr<QItemSelectionModel> delete_model(gerador.tabela_bonus->selectionModel());
   std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(*bonus, gerador.tabela_bonus));
   gerador.tabela_bonus->setModel(modelo.get());
+  gerador.tabela_bonus->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  gerador.tabela_bonus->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+  gerador.tabela_bonus->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+
   lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&gerador, &modelo] () {
     const int linha = modelo->rowCount();
     modelo->insertRows(linha, 1, QModelIndex());
