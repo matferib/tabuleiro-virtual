@@ -5441,6 +5441,23 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   }
 }
 
+// https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+Vector3 RotationMatrixToAngles(const Matrix3& matrix) {
+  float sy = sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+  const bool singular = sy < 1e-6; // If
+  float x, y, z;
+  if (!singular) {
+    x = atan2(matrix[5], matrix[8]);
+    y = atan2(-matrix[2], sy);
+    z = atan2(matrix[1], matrix[0]);
+  } else {
+    x = atan2(-matrix[7], matrix[4]);
+    y = atan2(-matrix[2], sy);
+    z = 0;
+  }
+  return Vector3(x, y, z);
+}
+
 void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Estado invalido para desagrupar: " << estado_;
@@ -5452,36 +5469,67 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   unsigned int num_adicionados = 0;
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* e = BuscaEntidade(id);
-    if (e == nullptr) {
-      continue;
-    }
+    if (e == nullptr) continue;
+
     const auto& proto_composto = e->Proto();
+    if (proto_composto.sub_forma().size() < 2) continue;
+
+    Matrix4  m_translacao_proto;
+    m_translacao_proto.translate(proto_composto.pos().x(), proto_composto.pos().y(), proto_composto.pos().z());
+    Matrix4 m_rotacao_proto;
+    m_rotacao_proto.rotateX(proto_composto.rotacao_x_graus());
+    m_rotacao_proto.rotateY(proto_composto.rotacao_y_graus());
+    m_rotacao_proto.rotateZ(proto_composto.rotacao_z_graus());
+    Matrix4 m_escala_proto;
+    m_escala_proto.scale(proto_composto.escala().x(), proto_composto.escala().y(), proto_composto.escala().z());
+
+    const auto& pos_antigo = proto_composto.pos();
     for (const auto& sub_entidade : proto_composto.sub_forma()) {
       auto* notificacao_adicao = grupo_notificacoes.add_notificacao();
       notificacao_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
       auto* nova_entidade = notificacao_adicao->mutable_entidade();
-      nova_entidade->CopyFrom(sub_entidade);
+      *nova_entidade = sub_entidade;
       nova_entidade->clear_id();
+
+      // https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati
+      Matrix4 m_translacao_sub;
+      m_translacao_sub.translate(nova_entidade->pos().x(), nova_entidade->pos().y(), nova_entidade->pos().z());
+      Matrix4 m_rotacao_sub;
+      m_rotacao_sub.rotateX(nova_entidade->rotacao_x_graus());
+      m_rotacao_sub.rotateY(nova_entidade->rotacao_y_graus());
+      m_rotacao_sub.rotateZ(nova_entidade->rotacao_z_graus());
+      Matrix4 m_escala_sub;
+      m_escala_sub.scale(nova_entidade->escala().x(), nova_entidade->escala().y(), nova_entidade->escala().z());
+
+      // A ordem de desenho é diferente (TSR ao inves de TRS), mas para a equacao funcionar tem que ser desse jeito.
+      // Eu acho que pode dar algo errado ainda, mas como funcionou assim, vou deixar desse jeito.
+      Matrix4 m_final = m_translacao_proto * m_rotacao_proto * m_escala_proto  * m_translacao_sub * m_rotacao_sub * m_escala_sub ;
+
       auto* pos = nova_entidade->mutable_pos();
-      Vector4 vetor_pos(pos->x() * proto_composto.escala().x(),
-                        pos->y() * proto_composto.escala().y(),
-                        pos->z() * proto_composto.escala().z(),
-                        1.0f);
-      Matrix4 rotacao;
-      rotacao.rotateZ(proto_composto.rotacao_z_graus());
-      rotacao.rotateY(proto_composto.rotacao_y_graus());
-      rotacao.rotateX(proto_composto.rotacao_x_graus());
-      vetor_pos = rotacao * vetor_pos;
-      pos->set_x(vetor_pos.x + proto_composto.pos().x());
-      pos->set_y(vetor_pos.y + proto_composto.pos().y());
-      pos->set_z(vetor_pos.z + proto_composto.pos().z());
+      pos->set_x(m_final[12]);
+      pos->set_y(m_final[13]);
+      pos->set_z(m_final[14]);
       auto* escala = nova_entidade->mutable_escala();
-      escala->set_x(escala->x() * proto_composto.escala().x());
-      escala->set_y(escala->y() * proto_composto.escala().y());
-      escala->set_z(escala->z() * proto_composto.escala().z());
-      nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
-      nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
-      nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
+      escala->set_x(Vector3(m_final[0], m_final[1], m_final[2]).length());
+      escala->set_y(Vector3(m_final[4], m_final[5], m_final[6]).length());
+      escala->set_z(Vector3(m_final[8], m_final[9], m_final[10]).length());
+
+      Matrix3 m_final_rotacao;
+      m_final_rotacao[0] = m_final[0] / escala->x();
+      m_final_rotacao[1] = m_final[1] / escala->x();
+      m_final_rotacao[2] = m_final[2] / escala->x();
+      m_final_rotacao[3] = m_final[4] / escala->y();
+      m_final_rotacao[4] = m_final[5] / escala->y();
+      m_final_rotacao[5] = m_final[6] / escala->y();
+      m_final_rotacao[6] = m_final[8] / escala->z();
+      m_final_rotacao[7] = m_final[9] / escala->z();
+      m_final_rotacao[8] = m_final[10] / escala->z();
+
+      Vector3 vr = RotationMatrixToAngles(m_final_rotacao);
+      nova_entidade->set_rotacao_x_graus(vr.x * RAD_PARA_GRAUS);
+      nova_entidade->set_rotacao_y_graus(vr.y * RAD_PARA_GRAUS);
+      nova_entidade->set_rotacao_z_graus(vr.z * RAD_PARA_GRAUS);
+
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();
