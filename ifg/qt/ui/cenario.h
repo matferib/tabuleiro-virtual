@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'cenario.ui'
 **
-** Created by: Qt User Interface Compiler version 5.9.1
+** Created by: Qt User Interface Compiler version 5.10.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -412,76 +412,76 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoIluminacao)
     {
-        ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Propriedades Tabuleiro", Q_NULLPTR));
-        label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Piso", Q_NULLPTR));
+        ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Propriedades Tabuleiro", nullptr));
+        label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Piso", nullptr));
 #ifndef QT_NO_TOOLTIP
-        combo_fundo->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolha o tipo de piso", Q_NULLPTR));
+        combo_fundo->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolha o tipo de piso", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        checkbox_cor_piso->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Usar cor de piso?", Q_NULLPTR));
+        checkbox_cor_piso->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Usar cor de piso?", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor", Q_NULLPTR));
-        botao_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor do Piso", Q_NULLPTR));
+        checkbox_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor", nullptr));
+        botao_cor_piso->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor do Piso", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, aplicar\303\241 a textura como um ladrilho (por quadrado)", Q_NULLPTR));
+        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, aplicar\303\241 a textura como um ladrilho (por quadrado)", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Ladrilho", Q_NULLPTR));
+        checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Ladrilho", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_mestre_apenas->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, apenas mestre ver\303\241 o piso", Q_NULLPTR));
+        checkbox_mestre_apenas->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, apenas mestre ver\303\241 o piso", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_mestre_apenas->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Mestre Apenas", Q_NULLPTR));
-        label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", Q_NULLPTR));
+        checkbox_mestre_apenas->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Mestre Apenas", nullptr));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_largura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "largura", Q_NULLPTR));
+        linha_largura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "largura", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_10->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "x", Q_NULLPTR));
+        label_10->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "x", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_altura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "altura", Q_NULLPTR));
+        linha_altura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "altura", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        checkbox_tamanho_automatico->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", Q_NULLPTR));
+        checkbox_tamanho_automatico->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_tamanho_automatico->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Autom\303\241tico", Q_NULLPTR));
+        checkbox_tamanho_automatico->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Autom\303\241tico", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_grade->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", Q_NULLPTR));
+        checkbox_grade->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Grade", Q_NULLPTR));
-        botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", Q_NULLPTR));
-        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", Q_NULLPTR));
-        botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", Q_NULLPTR));
+        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Grade", nullptr));
+        botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", nullptr));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", nullptr));
+        botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", nullptr));
 #ifndef QT_NO_TOOLTIP
-        dial_inclinacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Inclina\303\247\303\243o da Luz", Q_NULLPTR));
+        dial_inclinacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Inclina\303\247\303\243o da Luz", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_3->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "S", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "S", nullptr));
 #ifndef QT_NO_TOOLTIP
-        dial_posicao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Posi\303\247\303\243o da fonte de luz", Q_NULLPTR));
+        dial_posicao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Posi\303\247\303\243o da fonte de luz", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", Q_NULLPTR));
-        label_5->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "W", Q_NULLPTR));
-        label_6->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "E", Q_NULLPTR));
-        label_7->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Poente", Q_NULLPTR));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", Q_NULLPTR));
-        label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", Q_NULLPTR));
-        label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", Q_NULLPTR));
-        checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", Q_NULLPTR));
-        label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", Q_NULLPTR));
+        label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", nullptr));
+        label_5->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "W", nullptr));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "E", nullptr));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Poente", nullptr));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", nullptr));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", nullptr));
+        label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", nullptr));
+        checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", nullptr));
+        label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_nevoa_min->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia m\303\255nma da n\303\251voa, em m.", Q_NULLPTR));
+        linha_nevoa_min->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia m\303\255nma da n\303\251voa, em m.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_13->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Max", Q_NULLPTR));
+        label_13->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Max", nullptr));
 #ifndef QT_NO_TOOLTIP
-        linha_nevoa_max->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia onde o efeito m\303\241ximo da n\303\251voa \303\251 aplicado.", Q_NULLPTR));
+        linha_nevoa_max->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia onde o efeito m\303\241ximo da n\303\251voa \303\251 aplicado.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", Q_NULLPTR));
+        label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_luz_ceu->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", Q_NULLPTR));
+        checkbox_luz_ceu->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_luz_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Aplicar luz ambiente", Q_NULLPTR));
-        label_15->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Id", Q_NULLPTR));
-        campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", Q_NULLPTR));
-        label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", Q_NULLPTR));
-        label_17->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Clonar", Q_NULLPTR));
-        botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", Q_NULLPTR));
+        checkbox_luz_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Aplicar luz ambiente", nullptr));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Id", nullptr));
+        campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", nullptr));
+        label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", nullptr));
+        label_17->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Clonar", nullptr));
+        botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", nullptr));
     } // retranslateUi
 
 };

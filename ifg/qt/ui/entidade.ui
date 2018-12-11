@@ -3273,7 +3273,7 @@ QGroupBox::title {
          <item>
           <widget class="QLabel" name="label_74">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -3395,7 +3395,7 @@ QGroupBox::title {
          <item>
           <widget class="QLabel" name="label_86">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -3493,33 +3493,6 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_30">
-         <item>
-          <widget class="QLabel" name="label_37">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Tesouro</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="lista_tesouro">
-           <property name="toolTip">
-            <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item row="2" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_42">
          <item>
@@ -3568,6 +3541,72 @@ QGroupBox::title {
             </widget>
            </item>
           </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_98">
+           <property name="text">
+            <string>Amuletos</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lista_amuletos"/>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_19">
+           <item>
+            <widget class="QPushButton" name="botao_usar_amuleto">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_adicionar_amuleto">
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_remover_amuleto">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_30">
+         <item>
+          <widget class="QLabel" name="label_37">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Tesouro</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="lista_tesouro">
+           <property name="toolTip">
+            <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
