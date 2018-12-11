@@ -116,7 +116,9 @@
     <ClCompile Include="..\..\tex\texturas.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\arq\arquivo.h" />
     <ClInclude Include="..\..\ent\constantes.h" />
+    <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />

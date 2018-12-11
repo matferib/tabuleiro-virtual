@@ -37,6 +37,9 @@
     <Filter Include="ent\Headers">
       <UniqueIdentifier>{c2526040-da97-48be-913d-b94021836ae4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="arq\arq_headers">
+      <UniqueIdentifier>{e6dff8b7-3fea-4554-ac0b-662aeaaf8a0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -249,6 +252,12 @@
     </ClInclude>
     <ClInclude Include="..\..\ifg\qt\feiticos_util.h">
       <Filter>ifg\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arq\arquivo.h">
+      <Filter>arq\arq_headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ent\util.h">
+      <Filter>ent\Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
