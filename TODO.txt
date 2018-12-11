@@ -1,4 +1,5 @@
 Fazer mais monstros: slaad vermelho e verde, demonio flecha, mortos de bane.
+modelo3d demonio flecha.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias), amuleto de saude, chapeu de carisma.
 
 Sugestao: desfazer dar mensagem.
