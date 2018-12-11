@@ -1428,11 +1428,17 @@ void PreencheConfiguraTesouro(
       tabelas, gerador, ent::TipoItem::TIPO_LUVAS,
       gerador.lista_luvas, gerador.botao_usar_luvas, gerador.botao_adicionar_luvas, gerador.botao_remover_luvas,
       proto_retornado);
+  // Amuletos.
+  ConfiguraListaItensMagicos(
+      tabelas, gerador, ent::TipoItem::TIPO_AMULETO,
+      gerador.lista_amuletos, gerador.botao_usar_amuleto, gerador.botao_adicionar_amuleto, gerador.botao_remover_amuleto,
+      proto_retornado);
   // Mantos.
   ConfiguraListaItensMagicos(
       tabelas, gerador, ent::TipoItem::TIPO_MANTO,
       gerador.lista_mantos, gerador.botao_usar_manto, gerador.botao_adicionar_manto, gerador.botao_remover_manto,
       proto_retornado);
+  // Bracadeiras.
   ConfiguraListaItensMagicos(
       tabelas, gerador, ent::TipoItem::TIPO_BRACADEIRAS,
       gerador.lista_bracadeiras, gerador.botao_usar_bracadeiras, gerador.botao_adicionar_bracadeiras, gerador.botao_remover_bracadeiras,

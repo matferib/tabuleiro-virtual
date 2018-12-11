@@ -68,6 +68,7 @@ enum TipoEfeito {
 
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
+  // Complemento eh o valor do bonus.
   EFEITO_RESISTENCIA_SALVACAO = 34;
   // Complemento str 0: pericia. Complemento 0: valor.
   EFEITO_COMPETENCIA_PERICIA = 35;
@@ -606,6 +607,7 @@ enum TipoItem {
   TIPO_LUVAS = 2;
   TIPO_BRACADEIRAS = 3;
   TIPO_POCAO = 4;
+  TIPO_AMULETO = 5;
 }
 
 // Vale para anel, pocao etc.

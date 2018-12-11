@@ -2706,6 +2706,7 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto& item : *proto->mutable_tesouro()->mutable_luvas()) item.set_tipo(TIPO_LUVAS);
   for (auto& item : *proto->mutable_tesouro()->mutable_bracadeiras()) item.set_tipo(TIPO_BRACADEIRAS);
   for (auto& item : *proto->mutable_tesouro()->mutable_pocoes()) item.set_tipo(TIPO_POCAO);
+  for (auto& item : *proto->mutable_tesouro()->mutable_amuletos()) item.set_tipo(TIPO_AMULETO);
 
   // Adiciona efeitos nao existentes e expira os que ja foram.
   std::vector<ItemMagicoProto*> itens;
@@ -2726,6 +2727,11 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
     else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
+  for (auto& item : *proto->mutable_tesouro()->mutable_amuletos()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
+
   for (auto* item : itens_a_expirar) {
     ExpiraEventosItemMagico(item, proto);
   }
@@ -4514,6 +4520,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
     case TipoItem::TIPO_BRACADEIRAS: return tabelas.Bracadeiras(id);
     case TipoItem::TIPO_POCAO: return tabelas.Pocao(id);
+    case TipoItem::TIPO_AMULETO: return tabelas.Amuleto(id);
   }
   return ItemMagicoProto::default_instance();
 }

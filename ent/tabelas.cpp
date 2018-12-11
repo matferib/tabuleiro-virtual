@@ -11,6 +11,7 @@
 namespace ent {
 
 namespace {
+using google::protobuf::StringPrintf;
 
 void ConverteDano(ArmaProto* arma) {
   if (PossuiCategoria(CAT_PROJETIL_AREA, *arma)) {
@@ -68,7 +69,7 @@ void ConverteDano(ArmaProto* arma) {
     auto it = mapa_danos.find(arma->dano().medio());
     if (it == mapa_danos.end()) {
       if (!arma->dano().medio().empty()) {
-        LOG(ERROR) << google::protobuf::StringPrintf("Dano nao encontrado: %s", arma->dano().medio().c_str());
+        LOG(ERROR) << StringPrintf("Dano nao encontrado: %s", arma->dano().medio().c_str());
       }
       return;
     }
@@ -80,7 +81,7 @@ void ConverteDano(ArmaProto* arma) {
     auto it = mapa_danos.find(arma->dano_secundario().medio());
     if (it == mapa_danos.end()) {
       if (!arma->dano_secundario().medio().empty()) {
-        LOG(ERROR) << google::protobuf::StringPrintf("Dano nao encontrado: %s", arma->dano_secundario().medio().c_str());
+        LOG(ERROR) << StringPrintf("Dano nao encontrado: %s", arma->dano_secundario().medio().c_str());
       }
       return;
     }
@@ -97,6 +98,10 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
+  } catch (const arq::ParseProtoException & e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
+    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+        StringPrintf("Erro lendo tabela: tabelas_nao_srd.asciiproto: %s", e.what())));
   } catch (const std::exception& e) {
     LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
   }
@@ -104,12 +109,16 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     TodasTabelas tabelas_padroes;
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
     tabelas_.MergeFrom(tabelas_padroes);
+  } catch (const arq::ParseProtoException& e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
+    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+        StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            google::protobuf::StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
+            StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
     }
   }
   try {
@@ -200,6 +209,11 @@ void Tabelas::RecarregaMapas() {
     luvas_[luvas.id()] = &luvas;
   }
 
+  for (auto& amuleto : *tabelas_.mutable_tabela_amuletos()->mutable_amuletos()) {
+    amuleto.set_tipo(TIPO_AMULETO);
+    amuletos_[amuleto.id()] = &amuleto;
+  }
+
   for (auto& bracadeiras : *tabelas_.mutable_tabela_bracadeiras()->mutable_bracadeiras()) {
     bracadeiras.set_tipo(TIPO_BRACADEIRAS);
     bracadeiras_[bracadeiras.id()] = &bracadeiras;
@@ -279,6 +293,11 @@ const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Luvas(const std::string& id) const {
   auto it = luvas_.find(id);
   return it == luvas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Amuleto(const std::string& id) const {
+  auto it = amuletos_.find(id);
+  return it == amuletos_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const ItemMagicoProto& Tabelas::Bracadeiras(const std::string& id) const {

@@ -147,6 +147,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
     case ent::TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return tabelas.todas().tabela_bracadeiras().bracadeiras();
     case ent::TipoItem::TIPO_POCAO: return tabelas.todas().tabela_pocoes().pocoes();
+    case ent::TipoItem::TIPO_AMULETO: return tabelas.todas().tabela_amuletos().amuletos();
     default: ;
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
@@ -161,6 +162,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPers
     case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
     case ent::TipoItem::TIPO_POCAO: return proto.tesouro().pocoes();
+    case ent::TipoItem::TIPO_AMULETO: return proto.tesouro().amuletos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -174,6 +176,7 @@ inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagem
     case ent::TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case ent::TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
     case ent::TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
+    case ent::TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -183,7 +186,7 @@ inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagem
 // Retorna o nome do item seguido por em uso ou nao usado.
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
-  const auto& item_tabela = ItemTabela(tabelas, tipo, item_pc.id());
+  const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
   return google::protobuf::StringPrintf(
       "%s%s",
       item_tabela.nome().c_str(),

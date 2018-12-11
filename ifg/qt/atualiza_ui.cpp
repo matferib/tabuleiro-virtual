@@ -27,7 +27,6 @@ void AtualizaUIEventos(
 
 
 void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  const auto& a = proto.atributos();
   const auto& mov = proto.movimento();
   std::vector<std::tuple<QSpinBox*, int, const ent::Bonus*>> tuplas = {
     std::make_tuple(gerador.spin_mov_terrestre, mov.terrestre_basico_q(), &proto.movimento().terrestre_q()),
@@ -472,7 +471,9 @@ void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QL
 
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QWidget*> objs = {
-      gerador.lista_tesouro, gerador.lista_pocoes, gerador.lista_aneis, gerador.lista_mantos, gerador.lista_luvas, gerador.lista_bracadeiras
+      gerador.lista_tesouro,  gerador.lista_pocoes, gerador.lista_aneis,
+      gerador.lista_mantos,   gerador.lista_luvas,  gerador.lista_bracadeiras,
+      gerador.lista_amuletos,
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -492,6 +493,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_LUVAS, gerador.lista_luvas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_MANTO, gerador.lista_mantos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BRACADEIRAS, gerador.lista_bracadeiras, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_AMULETO, gerador.lista_amuletos, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
@@ -803,4 +805,3 @@ void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
 
 }  // namespace qt
 }  // namespace ifg
-
