@@ -917,12 +917,27 @@ TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
   return TipoAtaque::CORPO_A_CORPO;
 }
 
+float DistanciaMetros(const Posicao& pos_acao_a, const Posicao& pos_acao_d) {
+  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+  Vector3 vd;
+  float distancia_m = 0;
+  vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+  distancia_m += (va - vd).length();
+  VLOG(1) << "distancia_m: " << distancia_m;
+  return distancia_m;
+}
+
 // Pode ser chamado com ed == default para ver alguns modificadores do atacante.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   // ataque.
   if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
+  } 
+  if (tipo_ataque == TipoAtaque::DISTANCIA) {
+    if (PossuiTalento("tiro_queima_roupa", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+      modificador += 1;
+    }
   }
   if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
     modificador += 2;
@@ -963,7 +978,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (ea.dados_ataque_global().ataque_mais_16()) {
     modificador += 16;
   }
-
+  
   // Defesa.
   if (ed.caida()) {
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
@@ -972,8 +987,14 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   return modificador;
 }
 
-int ModificadorDano(const EntidadeProto& ea, const EntidadeProto& ed) {
+int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
+  if (tipo_ataque == TipoAtaque::DISTANCIA) {
+    if (PossuiTalento("tiro_queima_roupa", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+      modificador += 1;
+    }
+  }
+
   if (ea.dados_ataque_global().dano_menos_1()) {
     modificador -= 1;
   }
@@ -2000,12 +2021,19 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
+    // Aplica diferenca de tamanho de arma.
+    int tamanho = proto.tamanho();
+    if (da->has_tamanho()) {
+      tamanho += (da->tamanho() - proto.tamanho());
+    }
+    if (tamanho < 0) tamanho = 0;
+    if (tamanho > TM_COLOSSAL) tamanho = TM_COLOSSAL;
     if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano_secundario()));
+      da->set_dano_basico(DanoBasicoPorTamanho(static_cast<TamanhoEntidade>(tamanho), arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico_secundario());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
     } else if (arma.has_dano()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(proto.tamanho(), arma.dano()));
+      da->set_dano_basico(DanoBasicoPorTamanho(static_cast<TamanhoEntidade>(tamanho), arma.dano()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
@@ -3622,7 +3650,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
 }
 
 std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador_dano = ModificadorDano(proto, EntidadeProto());
+  int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, EntidadeProto());
   return google::protobuf::StringPrintf(
       "%s%s",
       da.dano().c_str(),

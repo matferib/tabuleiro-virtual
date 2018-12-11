@@ -72,6 +72,8 @@ namespace ent {
 
 namespace {
 
+using google::protobuf::StringPrintf;
+
 /** expessura da linha da grade do tabuleiro. */
 const float EXPESSURA_LINHA = 0.1f;
 const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
@@ -173,7 +175,7 @@ Tabuleiro::Tabuleiro(
     try {
       arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos);
     } catch (const arq::ParseProtoException& ppe) {
-      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(ppe.what()));
+      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(StringPrintf("%s: %s", nome_arquivo_modelo.c_str(), ppe.what())));
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << erro.what();
       // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
