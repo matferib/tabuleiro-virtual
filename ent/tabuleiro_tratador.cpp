@@ -143,7 +143,7 @@ void PreencheNotificacaoRemoverUmReflexo(
   auto* evento_depois = proto_depois->add_evento();
   *evento_depois = *maior_evento;
   evento_depois->mutable_complementos()->Set(0, maior_evento->complementos(0) - 1);
-  
+
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
   }
@@ -1013,7 +1013,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
       if (acertou_direto) {
         continue;
       } else {
-        auto find_result = std::find_if(acao_proto->mutable_por_entidade()->begin(), acao_proto->mutable_por_entidade()->end(), 
+        auto find_result = std::find_if(acao_proto->mutable_por_entidade()->begin(), acao_proto->mutable_por_entidade()->end(),
             [id_entidade_destino](AcaoProto::PorEntidade& po) { return po.id() == id_entidade_destino; });
         if (find_result == acao_proto->mutable_por_entidade()->end()) continue;
         por_entidade = &(*find_result);
@@ -1061,7 +1061,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   }
   int delta_pontos_vida = 0;
   if (HaValorListaPontosVida()) {
-    delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto->id());
+    delta_pontos_vida =
+        LeValorListaPontosVida(entidade, EntidadeProto(), acao_proto->id());
     entidade->ProximoAtaque();
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
@@ -1091,7 +1092,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       por_entidade->set_texto("não afetado pelo ataque");
       continue;
     }
-    
+
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool passou_rm;
@@ -1274,7 +1275,8 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       delta_pontos_vida -= max_predileto;
       for (int i = 0; i < resultado.vezes; ++i) {
-        delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto->id());
+        delta_pontos_vida += LeValorListaPontosVida(
+            entidade, entidade_destino->Proto(), acao_proto->id());
       }
       if (!entidade_destino->ImuneFurtivo()) {
         delta_pontos_vida += LeValorAtaqueFurtivo(entidade);

@@ -250,10 +250,11 @@ enum class TipoAtaque {
   DISTANCIA,
   AGARRAR
 };
+TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
-int ModificadorDano(const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 
 enum resultado_ataque_e {
   RA_SEM_ACAO = 0,            // acao nao realizada por algum problema com ataque.
@@ -434,7 +435,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
 // Retorna a string de dano para o ataque, sem critico e com modificadores.
 // Exemplo: 1d8+5+2.
 // Usado para gerar dano.
-std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
 
 // Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
 // Exemplo: 1d8(19-20).

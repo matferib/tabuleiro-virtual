@@ -1219,166 +1219,171 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  bool atualizar_mapa_luzes = false;
   for (unsigned int id : ids_entidades_selecionadas_) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    auto* entidade_selecionada = BuscaEntidade(id);
-    const auto& proto_original = entidade_selecionada->Proto();
-    // Para desfazer.
-    auto* proto_antes = n->mutable_entidade_antes();
-    auto* proto_depois = n->mutable_entidade();
-    if ((bits & BIT_VISIBILIDADE) > 0 &&
-        (EmModoMestreIncluindoSecundario() || proto_original.selecionavel_para_jogador())) {
-      // Apenas modo mestre ou para selecionaveis.
-      proto_antes->set_visivel(proto_original.visivel());
-      proto_depois->set_visivel(valor);
-      if (proto_original.tipo() != TE_ENTIDADE) {
-        atualizar_mapa_luzes = true;
-      }
-    }
-    if ((bits & BIT_ILUMINACAO) > 0) {
-      // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
-      if (proto_original.has_luz()) {
-        proto_antes->mutable_luz()->CopyFrom(proto_original.luz());
-        if (valor) {
-          proto_depois->mutable_luz()->CopyFrom(proto_original.luz());
-        } else {
-          auto* luz_depois = proto_depois->mutable_luz()->mutable_cor();
-          luz_depois->set_r(0);
-          luz_depois->set_g(0);
-          luz_depois->set_b(0);
-        }
-      } else {
-        auto* luz_antes = proto_antes->mutable_luz()->mutable_cor();
-        luz_antes->set_r(0);
-        luz_antes->set_g(0);
-        luz_antes->set_b(0);
-        if (valor) {
-          auto* luz = proto_depois->mutable_luz()->mutable_cor();
-          luz->set_r(1.0f);
-          luz->set_g(1.0f);
-          luz->set_b(1.0f);
-        } else {
-          proto_depois->mutable_luz()->CopyFrom(proto_antes->luz());
-        }
-
-      }
-    }
-    if ((bits & BIT_VOO) > 0) {
-      proto_antes->set_voadora(proto_original.voadora());
-      proto_depois->set_voadora(valor);
-    }
-    if (bits & BIT_CAIDA) {
-      proto_antes->set_caida(proto_original.caida());
-      proto_depois->set_caida(valor);
-    }
-    if (bits & BIT_MORTA) {
-      proto_antes->set_morta(proto_original.morta());
-      proto_depois->set_morta(valor);
-    }
-    if (bits & BIT_SELECIONAVEL) {
-      proto_antes->set_selecionavel_para_jogador(proto_original.selecionavel_para_jogador());
-      proto_depois->set_selecionavel_para_jogador(valor);
-    }
-    if (bits & BIT_FIXA) {
-      if (entidade_selecionada->Tipo() != TE_ENTIDADE) {
-        proto_antes->set_fixa(proto_original.fixa());
-        proto_depois->set_fixa(valor);
-      }
-    }
-    if (bits & BIT_SURPRESO) {
-      proto_antes->set_surpreso(proto_original.surpreso());
-      proto_depois->set_surpreso(valor);
-    }
-    if (bits & BIT_FURTIVO) {
-      proto_antes->set_furtivo(proto_original.furtivo());
-      proto_depois->set_furtivo(valor);
-    }
-    if (bits & BIT_ATAQUE_MAIS_1) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_1(valor);
-    }
-    if (bits & BIT_ATAQUE_MAIS_2) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_2(proto_original.dados_ataque_global().ataque_mais_2());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_2(valor);
-    }
-    if (bits & BIT_ATAQUE_MAIS_4) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_4(proto_original.dados_ataque_global().ataque_mais_4());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_4(valor);
-    }
-    if (bits & BIT_ATAQUE_MAIS_8) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(valor);
-    }
-    if (bits & BIT_ATAQUE_MAIS_16) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_16(proto_original.dados_ataque_global().ataque_mais_16());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_16(valor);
-    }
-
-    if (bits & BIT_ATAQUE_MENOS_1) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_1(proto_original.dados_ataque_global().ataque_menos_1());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_1(valor);
-    }
-    if (bits & BIT_ATAQUE_MENOS_2) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_2(proto_original.dados_ataque_global().ataque_menos_2());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_2(valor);
-    }
-    if (bits & BIT_ATAQUE_MENOS_4) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_4(proto_original.dados_ataque_global().ataque_menos_4());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_4(valor);
-    }
-    if (bits & BIT_ATAQUE_MENOS_8) {
-      proto_antes->mutable_dados_ataque_global()->set_ataque_menos_8(proto_original.dados_ataque_global().ataque_menos_8());
-      proto_depois->mutable_dados_ataque_global()->set_ataque_menos_8(valor);
-    }
-
-    if (bits & BIT_DANO_MAIS_1) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_1(proto_original.dados_ataque_global().dano_mais_1());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_1(valor);
-    }
-    if (bits & BIT_DANO_MAIS_2) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_2(proto_original.dados_ataque_global().dano_mais_2());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_2(valor);
-    }
-    if (bits & BIT_DANO_MAIS_4) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_4(proto_original.dados_ataque_global().dano_mais_4());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_4(valor);
-    }
-    if (bits & BIT_DANO_MAIS_8) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_8(proto_original.dados_ataque_global().dano_mais_8());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_8(valor);
-    }
-    if (bits & BIT_DANO_MAIS_16) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_16(proto_original.dados_ataque_global().dano_mais_16());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_16(valor);
-    }
-    if (bits & BIT_DANO_MAIS_32) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_mais_32(proto_original.dados_ataque_global().dano_mais_32());
-      proto_depois->mutable_dados_ataque_global()->set_dano_mais_32(valor);
-    }
-    if (bits & BIT_DANO_MENOS_1) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_menos_1(proto_original.dados_ataque_global().dano_menos_1());
-      proto_depois->mutable_dados_ataque_global()->set_dano_menos_1(valor);
-    }
-    if (bits & BIT_DANO_MENOS_2) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_menos_2(proto_original.dados_ataque_global().dano_menos_2());
-      proto_depois->mutable_dados_ataque_global()->set_dano_menos_2(valor);
-    }
-    if (bits & BIT_DANO_MENOS_4) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_menos_4(proto_original.dados_ataque_global().dano_menos_4());
-      proto_depois->mutable_dados_ataque_global()->set_dano_menos_4(valor);
-    }
-    if (bits & BIT_DANO_MENOS_8) {
-      proto_antes->mutable_dados_ataque_global()->set_dano_menos_8(proto_original.dados_ataque_global().dano_menos_8());
-      proto_depois->mutable_dados_ataque_global()->set_dano_menos_8(valor);
-    }
-    proto_antes->set_id(id);
-    proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    const auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr) continue;
+    PreencheAtualizacaoBitsEntidade(*entidade, bits, valor, grupo_notificacoes.add_notificacao());
   }
   TrataNotificacao(grupo_notificacoes);
-  // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* n) {
+  // TODO isso deve ficar aqui?
+  bool atualizar_mapa_luzes = false;
+
+  const auto& proto_original = entidade.Proto();
+  // Para desfazer.
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  auto* proto_antes = n->mutable_entidade_antes();
+  auto* proto_depois = n->mutable_entidade();
+  if ((bits & BIT_VISIBILIDADE) > 0 &&
+      (EmModoMestreIncluindoSecundario() || proto_original.selecionavel_para_jogador())) {
+    // Apenas modo mestre ou para selecionaveis.
+    proto_antes->set_visivel(proto_original.visivel());
+    proto_depois->set_visivel(valor);
+    if (proto_original.tipo() != TE_ENTIDADE) {
+      atualizar_mapa_luzes = true;
+    }
+  }
+  if ((bits & BIT_ILUMINACAO) > 0) {
+    // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
+    if (proto_original.has_luz()) {
+      proto_antes->mutable_luz()->CopyFrom(proto_original.luz());
+      if (valor) {
+        proto_depois->mutable_luz()->CopyFrom(proto_original.luz());
+      } else {
+        auto* luz_depois = proto_depois->mutable_luz()->mutable_cor();
+        luz_depois->set_r(0);
+        luz_depois->set_g(0);
+        luz_depois->set_b(0);
+      }
+    } else {
+      auto* luz_antes = proto_antes->mutable_luz()->mutable_cor();
+      luz_antes->set_r(0);
+      luz_antes->set_g(0);
+      luz_antes->set_b(0);
+      if (valor) {
+        auto* luz = proto_depois->mutable_luz()->mutable_cor();
+        luz->set_r(1.0f);
+        luz->set_g(1.0f);
+        luz->set_b(1.0f);
+      } else {
+        proto_depois->mutable_luz()->CopyFrom(proto_antes->luz());
+      }
+    }
+  }
+  if ((bits & BIT_VOO) > 0) {
+    proto_antes->set_voadora(proto_original.voadora());
+    proto_depois->set_voadora(valor);
+  }
+  if (bits & BIT_CAIDA) {
+    proto_antes->set_caida(proto_original.caida());
+    proto_depois->set_caida(valor);
+  }
+  if (bits & BIT_MORTA) {
+    proto_antes->set_morta(proto_original.morta());
+    proto_depois->set_morta(valor);
+  }
+  if (bits & BIT_SELECIONAVEL) {
+    proto_antes->set_selecionavel_para_jogador(proto_original.selecionavel_para_jogador());
+    proto_depois->set_selecionavel_para_jogador(valor);
+  }
+  if (bits & BIT_FIXA) {
+    if (entidade.Tipo() != TE_ENTIDADE) {
+      proto_antes->set_fixa(proto_original.fixa());
+      proto_depois->set_fixa(valor);
+    }
+  }
+  if (bits & BIT_SURPRESO) {
+    proto_antes->set_surpreso(proto_original.surpreso());
+    proto_depois->set_surpreso(valor);
+  }
+  if (bits & BIT_FURTIVO) {
+    proto_antes->set_furtivo(proto_original.furtivo());
+    proto_depois->set_furtivo(valor);
+  }
+  if (bits & BIT_ATAQUE_MAIS_1) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_mais_1(valor);
+  }
+  if (bits & BIT_ATAQUE_MAIS_2) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_mais_2(proto_original.dados_ataque_global().ataque_mais_2());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_mais_2(valor);
+  }
+  if (bits & BIT_ATAQUE_MAIS_4) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_mais_4(proto_original.dados_ataque_global().ataque_mais_4());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_mais_4(valor);
+  }
+  if (bits & BIT_ATAQUE_MAIS_8) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(valor);
+  }
+  if (bits & BIT_ATAQUE_MAIS_16) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_mais_16(proto_original.dados_ataque_global().ataque_mais_16());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_mais_16(valor);
+  }
+
+  if (bits & BIT_ATAQUE_MENOS_1) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_menos_1(proto_original.dados_ataque_global().ataque_menos_1());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_menos_1(valor);
+  }
+  if (bits & BIT_ATAQUE_MENOS_2) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_menos_2(proto_original.dados_ataque_global().ataque_menos_2());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_menos_2(valor);
+  }
+  if (bits & BIT_ATAQUE_MENOS_4) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_menos_4(proto_original.dados_ataque_global().ataque_menos_4());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_menos_4(valor);
+  }
+  if (bits & BIT_ATAQUE_MENOS_8) {
+    proto_antes->mutable_dados_ataque_global()->set_ataque_menos_8(proto_original.dados_ataque_global().ataque_menos_8());
+    proto_depois->mutable_dados_ataque_global()->set_ataque_menos_8(valor);
+  }
+
+  if (bits & BIT_DANO_MAIS_1) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_1(proto_original.dados_ataque_global().dano_mais_1());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_1(valor);
+  }
+  if (bits & BIT_DANO_MAIS_2) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_2(proto_original.dados_ataque_global().dano_mais_2());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_2(valor);
+  }
+  if (bits & BIT_DANO_MAIS_4) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_4(proto_original.dados_ataque_global().dano_mais_4());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_4(valor);
+  }
+  if (bits & BIT_DANO_MAIS_8) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_8(proto_original.dados_ataque_global().dano_mais_8());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_8(valor);
+  }
+  if (bits & BIT_DANO_MAIS_16) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_16(proto_original.dados_ataque_global().dano_mais_16());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_16(valor);
+  }
+  if (bits & BIT_DANO_MAIS_32) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_mais_32(proto_original.dados_ataque_global().dano_mais_32());
+    proto_depois->mutable_dados_ataque_global()->set_dano_mais_32(valor);
+  }
+  if (bits & BIT_DANO_MENOS_1) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_menos_1(proto_original.dados_ataque_global().dano_menos_1());
+    proto_depois->mutable_dados_ataque_global()->set_dano_menos_1(valor);
+  }
+  if (bits & BIT_DANO_MENOS_2) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_menos_2(proto_original.dados_ataque_global().dano_menos_2());
+    proto_depois->mutable_dados_ataque_global()->set_dano_menos_2(valor);
+  }
+  if (bits & BIT_DANO_MENOS_4) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_menos_4(proto_original.dados_ataque_global().dano_menos_4());
+    proto_depois->mutable_dados_ataque_global()->set_dano_menos_4(valor);
+  }
+  if (bits & BIT_DANO_MENOS_8) {
+    proto_antes->mutable_dados_ataque_global()->set_dano_menos_8(proto_original.dados_ataque_global().dano_menos_8());
+    proto_depois->mutable_dados_ataque_global()->set_dano_menos_8(valor);
+  }
+  proto_antes->set_id(entidade.Id());
+  proto_depois->set_id(entidade.Id());
+
   if (atualizar_mapa_luzes) {
     luzes_pontuais_.clear();
   }
@@ -1749,7 +1754,7 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   modo_clique_ = MODO_ACAO;
 }
 
-int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao) {
+int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
   if (modo_dano_automatico_) {
     if (entidade == nullptr) {
       LOG(WARNING) << "entidade eh nula";
@@ -1757,7 +1762,7 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
     }
     int delta_pontos_vida;
     std::string texto_pontos_vida;
-    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
+    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao, alvo);
     delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
     AdicionaLogEvento(entidade->Id(), texto_pontos_vida);

@@ -166,6 +166,8 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaBitsEntidadeNotificando(int bits);
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
+  /** Ao inves de notificar, apenas preenche grupo. */
+  void PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* grupo);
 
   /** Desagarra as entidades selecionadas. */
   void DesagarraEntidadesSelecionadasNotificando();
@@ -205,7 +207,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna true se houver valor na lista ou se for automatico e a entidade tiver os dados necessarios. */
   bool HaValorListaPontosVida();
   /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
-  int LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao);
+  int LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao);
   /** Retorna o valor de ataque furtivo, se estiver ligado e houver. */
   int LeValorAtaqueFurtivo(const Entidade* entidade);
 

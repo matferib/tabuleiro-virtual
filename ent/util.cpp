@@ -130,7 +130,7 @@ void AplicaNevoa(float* cor, const ParametrosDesenho* pd) {
   float distancia = DistanciaPontoCorrenteParaNevoa(pd);
   if (distancia > pd->nevoa().maximo()) {
      cor[0] = pd->nevoa().cor().r();
-     cor[1] = pd->nevoa().cor().g(); 
+     cor[1] = pd->nevoa().cor().g();
      cor[2] = pd->nevoa().cor().b();
      return;
   }
@@ -933,7 +933,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   // ataque.
   if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
-  } 
+  }
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
     if (PossuiTalento("tiro_queima_roupa", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
       modificador += 1;
@@ -978,7 +978,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (ea.dados_ataque_global().ataque_mais_16()) {
     modificador += 16;
   }
-  
+
   // Defesa.
   if (ed.caida()) {
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
@@ -990,7 +990,8 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
 int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
-    if (PossuiTalento("tiro_queima_roupa", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+    // Se houver alvo, verifica possibilidade de queima roupa.
+    if (PossuiTalento("tiro_queima_roupa", ea) && ed.has_id() && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
       modificador += 1;
     }
   }
@@ -1311,11 +1312,11 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   }
 
   // Rola o dado de ataque!
-  int d20 = RolaDado(20);
-
+  int d20 = 0;
   // Acerto ou erro.
   int total = 1;
   if (ap.permite_ataque_vs_defesa()) {
+    d20 = RolaDado(20);
     bool acertou;
     std::tie(total, resultado.texto, acertou) =
         ComputaAcertoOuErro(
@@ -1356,10 +1357,14 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
       ? StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
       : StringPrintf("%d", ca_destino);
 
-  resultado.texto =
-      StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
-           d20, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
-           texto_critico.c_str(), str_ca_destino.c_str(), TextoOuNada(texto_toque_agarrar).c_str());
+  if (ap.permite_ataque_vs_defesa()) {
+    resultado.texto =
+        StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
+             d20, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
+             texto_critico.c_str(), str_ca_destino.c_str(), TextoOuNada(texto_toque_agarrar).c_str());
+  } else {
+    resultado.texto = "acertou (automático)";
+  }
   VLOG(1) << "Resultado ataque vs defesa: " << resultado.texto << ", vezes: " << resultado.vezes;
   return resultado;
 }
@@ -3582,7 +3587,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
       "%s (%s)%s%s: %+d%s, %s%s%s, CA: %s",
       da.grupo().c_str(), da.rotulo().c_str(), da.descarregada() ? " [descarregado]" : "", da.ataque_toque() ? " (T)" : "",
       da.bonus_ataque_final(), texto_modificador.c_str(),
-      StringDanoParaAcao(da, proto).c_str(), critico.c_str(), texto_furtivo.c_str(),
+      StringDanoParaAcao(da, proto, EntidadeProto()).c_str(), critico.c_str(), texto_furtivo.c_str(),
       StringCAParaAcao(da, proto).c_str());
 }
 
@@ -3649,8 +3654,8 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
       string_escudo.c_str(), da.ca_surpreso());
 }
 
-std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, EntidadeProto());
+std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
+  int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, alvo);
   return google::protobuf::StringPrintf(
       "%s%s",
       da.dano().c_str(),

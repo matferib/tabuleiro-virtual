@@ -1535,8 +1535,8 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   proto_.mutable_direcao_queda()->Swap(&v);
 }
 
-std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao) const {
-  std::string s = StringDanoParaAcao();
+std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const {
+  std::string s = StringDanoParaAcao(alvo);
   if (s.empty()) {
     VLOG(1) << "Acao nao encontrada: " << id_acao;
     return std::make_tuple(0, "ação não encontrada");
@@ -1569,12 +1569,12 @@ std::string Entidade::DetalhesAcao() const {
   return StringAtaque(*da, proto_);
 }
 
-std::string Entidade::StringDanoParaAcao() const {
+std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
    return "";
   }
-  return ent::StringDanoParaAcao(*da, proto_);
+  return ent::StringDanoParaAcao(*da, proto_, alvo);
 }
 
 std::string Entidade::StringCAParaAcao() const {
