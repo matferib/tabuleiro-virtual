@@ -4,7 +4,8 @@ Mortos de bane.
 Bonus de esconder por tamanho.
 
 Colocar botao de carga (+2 ataque, -2 CA)
-Mostrar total de pontos de pericia gastos na UI.
+Colocar outros aneis e mantos com efeitos (especialmente em pericias).
+Colocar arte da fuga no agarrar.
 Botao de remover feitico na UI.
 Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
@@ -52,7 +53,6 @@ Fazer: dominios.
 Atualizacao de tabela remota e tabela nao srd.
 
 Agarrar:
-- Colocar arte da fuga no agarrar.
 - Modificadores: 4 patas e outros.
 
 Descer iniciativas em 1 para nao baguncar com status.

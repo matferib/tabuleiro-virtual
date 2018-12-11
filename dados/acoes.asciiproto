@@ -78,22 +78,6 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
-  id: 'Mãos Flamejantes'
-  tipo: ACAO_DISPERSAO
-  cor { r: 0.7 g: 0.7 b: 0 }
-  distancia_quadrados: 3  # quadrados
-  geometria: ACAO_GEO_CONE
-  efeito_area: true
-	permite_salvacao: true
-  icone: 'icon_burning_hands.png'
-  duracao_s: 0.350
-  consequencia: TC_INFLAMA_ALVO
-  resultado_salvacao: RS_MEIO
-  dificuldade_salvacao: 11
-  tipo_salvacao: TS_REFLEXO
-  ignora_reducao_dano_barbaro: true
-}
-acao {
   id: 'Pedrada (gigante)'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_ESFERA

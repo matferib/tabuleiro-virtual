@@ -382,8 +382,6 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
     }
   }
   gerador.combo_material_escudo->setCurrentIndex(MaterialEscudoParaIndice(dd.material_escudo()));
-  const int modificador_destreza = proto.atributos().has_destreza() ?
-      ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza())) : 0;
   const auto& ca = dd.ca();
   gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
@@ -392,13 +390,9 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   gerador.spin_ca_armadura_melhoria->setValue(ent::BonusIndividualTotal(ent::TB_ARMADURA_MELHORIA, ca));
   gerador.spin_ca_escudo_melhoria->setValue(ent::BonusIndividualTotal(ent::TB_ESCUDO_MELHORIA, ca));
   for (auto* obj : objs) obj->blockSignals(false);
-  const int bonus_ca_total = ent::BonusTotal(ca);
-  gerador.botao_bonus_ca->setText(QString::number(bonus_ca_total));
-  gerador.label_ca_toque->setText(QString::number(
-      ent::BonusTotalExcluindo(
-        ca,
-        { ent::TB_ARMADURA, ent::TB_ESCUDO, ent::TB_ARMADURA_NATURAL, ent::TB_ARMADURA_MELHORIA, ent::TB_ESCUDO_MELHORIA })));
-  gerador.label_ca_surpreso->setText(QString::number(bonus_ca_total - std::max(modificador_destreza, 0)));
+  gerador.botao_bonus_ca->setText(QString::number(ent::CATotal(proto, /*permite_escudo=*/true)));
+  gerador.label_ca_toque->setText(QString::number(ent::CAToque(proto)));
+  gerador.label_ca_surpreso->setText(QString::number(ent::CASurpreso(proto, /*permite_escudo=*/true)));
 }
 
 void AtualizaUIAtaquesDefesa(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {

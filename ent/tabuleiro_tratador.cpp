@@ -1210,12 +1210,13 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_proto->set_bem_sucedida(resultado.Sucesso());
     } else {
       resultado.resultado = RA_SUCESSO;
+      resultado.vezes = 1;
       acao_proto->set_bem_sucedida(true);
     }
 
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
-        std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao); 
+        std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
         PreencheNotificacaoDerrubaOrigem(*entidade, n_derrubar.get(), nd);
         central_->AdicionaNotificacao(n_derrubar.release());
       }
@@ -1277,7 +1278,7 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       if (!entidade_destino->ImuneFurtivo()) {
         delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
-      }      
+      }
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
@@ -1325,8 +1326,8 @@ float Tabuleiro::TrataAcaoIndividual(
         delta_pontos_vida = 0;
         por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_IMUNE;
-        ConcatenaString(resultado_rm, por_entidade->mutable_texto());
       }
+      ConcatenaString(resultado_rm, por_entidade->mutable_texto());
     }
 
     std::string resultado_salvacao;

@@ -183,7 +183,7 @@ modelo {
       pericias_monstro: 'furtividade'
       pericias_monstro: 'observar'
     }
-    info_textura { id: 'bodak.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    modelo_3d { id: 'bodak' }
     aura_m: 9  # 1 quadrado de raio
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
@@ -395,6 +395,59 @@ modelo {
     }
   }
 }
+modelo {
+  # Huge.
+  id: 'Centopéia Enorme Demoníaca'
+  entidade {
+    dados_vida: '6d8+6' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
+    info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    rotulo_especial: 'movimento: 8 quadrados, escalar 8\nveneno fort 14, 1d6 des/1d6 des\nDestruir o mal 1/dia 6 dano'
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
+      alcance_m: 3 dano_basico: '2d6'
+      empunhadura: EA_2_MAOS
+    }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      alcance_m: 3 dano_basico: '1d6'
+      empunhadura: EA_2_MAOS
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
+      alcance_m: 3 dano_basico: '2d6'
+      empunhadura: EA_2_MAOS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+      resistencia_magia: 11
+      resistencia_elementos {
+        descritor: DESC_FRIO
+        valor: 5
+      }
+      resistencia_elementos {
+        descritor: DESC_FOGO
+        valor: 5
+      }
+      reducao_dano {
+        descritores: DESC_MAGICO
+        valor: 10
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+
 modelo {
   # Gargantuan.
   id: 'Centopéia Imensa'
@@ -1576,13 +1629,118 @@ modelo {
   id: 'Hipogrifo'
   entidade {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    rotulo_especial: 'talentos: esquiva e wingover'
-    modificador_iniciativa: 2
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d8+2' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    info_classes {
+      id: 'besta_magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    rotulo_especial: 'possui faro'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18 # tb tem penumbra
+    movimento {
+      terrestre_basico_q: 10
+      aereo_basico_q: 20 # medio.
+    }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'pairar' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
   }
 }
+modelo {
+  id: 'Hipogrifo Celestial'
+  entidade {
+    info_classes {
+      id: 'besta_magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'possui faro, destruir o mal 1xdia +3 dano'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18 # tb tem penumbra
+    movimento {
+      terrestre_basico_q: 10
+      aereo_basico_q: 20 # medio.
+    }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'pairar' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+      resistencia_elementos {
+        descritor: DESC_FRIO
+        valor: 5
+      }
+      resistencia_elementos {
+        descritor: DESC_ACIDO
+        valor: 5
+      }
+      resistencia_elementos {
+        descritor: DESC_ELETRICIDADE
+        valor: 5
+      }
+      resistencia_magia: 8
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+  }
+}
+
 modelo {
   id: 'Hobgoblin'
   entidade {

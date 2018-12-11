@@ -4,6 +4,7 @@ sub_menu {
   id: 'Mortos-Vivos'
   modelo { id: 'Allip' }
   modelo { id: 'Aparição' }
+  modelo { id: 'Bodak' }
   modelo { id: 'Carneçal' }
   modelo { id: 'Carniçal' }
   sub_menu {
@@ -101,6 +102,7 @@ sub_menu {
 }
 modelo { id: 'Grifo' }
 modelo { id: 'Hipogrifo' }
+modelo { id: 'Hipogrifo Celestial' }
 modelo { id: 'Manto Negro' }
 modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
@@ -188,6 +190,7 @@ sub_menu {
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
   modelo { id: 'Centopéia Enorme' }
+  modelo { id: 'Centopéia Enorme Demoníaca' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }

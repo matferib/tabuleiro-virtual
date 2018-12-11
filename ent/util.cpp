@@ -1046,7 +1046,9 @@ int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& e
 namespace {
 
 Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  return da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
+  auto tipo = da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
+  VLOG(1) << "tipo CA: " << tipo;
+  return tipo;
 }
 
 // Retorna true se o ataque for bem sucedido, false com string caso contrario.
@@ -1186,6 +1188,7 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
+  LOG(INFO) << "da: " << da->DebugString();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
 }
@@ -1938,23 +1941,25 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
 
     // tipo certo de ataque.
     const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma);
+    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma) || da->tipo_acao() == ACAO_RAIO || da->tipo_acao() == ACAO_PROJETIL;
     const bool cac = PossuiCategoria(CAT_CAC, arma);
-    if (distancia && cac) {
-      // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
-      if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
+    if (da->tipo_ataque().empty()) {
+      if (distancia && cac) {
+        // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
+        if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
+          da->set_tipo_ataque("Ataque a Distância");
+          da->set_tipo_acao(ACAO_PROJETIL);
+        }
+      } else if (cac) {
+        da->set_tipo_ataque("Ataque Corpo a Corpo");
+        da->set_tipo_acao(ACAO_CORPO_A_CORPO);
+      } else if (projetil_area) {
+        da->set_tipo_ataque("Projétil de Área");
+        da->set_tipo_acao(ACAO_PROJETIL_AREA);
+      } else if (distancia) {
         da->set_tipo_ataque("Ataque a Distância");
         da->set_tipo_acao(ACAO_PROJETIL);
       }
-    } else if (cac) {
-      da->set_tipo_ataque("Ataque Corpo a Corpo");
-      da->set_tipo_acao(ACAO_CORPO_A_CORPO);
-    } else if (projetil_area) {
-      da->set_tipo_ataque("Projétil de Área");
-      da->set_tipo_acao(ACAO_PROJETIL_AREA);
-    } else if (distancia) {
-      da->set_tipo_ataque("Ataque a Distância");
-      da->set_tipo_acao(ACAO_PROJETIL);
     }
     da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
@@ -2020,6 +2025,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   acao->clear_descritores_ataque();
   if (da->material_arma() != DESC_NENHUM) acao->add_descritores_ataque(da->material_arma());
   if (da->alinhamento() != DESC_NENHUM) acao->add_descritores_ataque(da->alinhamento());
+  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_ataque()) > 0) acao->add_descritores_ataque(DESC_MAGICO);
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
@@ -2035,6 +2041,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         break;
       case ArmaProto::MOD_8_QUAD_NIVEL:
         mod_distancia_quadrados = 8 * nivel;
+        break;
+      case ArmaProto::MOD_1_QUAD_CADA_2_NIVEIS:
+        mod_distancia_quadrados = nivel / 2;
         break;
       default:
         ;
@@ -3460,10 +3469,8 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
         ? ACAO_PROJETIL_AREA
         : PossuiCategoria(CAT_DISTANCIA, arma) ? ACAO_PROJETIL : ACAO_CORPO_A_CORPO);
   }
-  if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+  if (PossuiCategoria(CAT_PROJETIL_AREA, arma) || acao_proto.ataque_toque() || da->acao().ataque_toque()) {
     da->set_ataque_toque(true);
-  } else if (acao_proto.has_ataque_toque()) {
-    da->set_ataque_toque(acao_proto.ataque_toque());
   } else {
     da->clear_ataque_toque();
   }

@@ -3006,6 +3006,12 @@ tabela_talentos {
     monstro: true
     # Pre requisito: 3 ou mais ataques naturais.
   }
+  talentos {
+    id: 'pairar'  # wingover
+    nome: 'Pairar'
+    descricao: 'A criatura pode fazer um retorno de 180 graus independente de sua classificação de manobra. Custa 2 quadrados de movimento e não pode ganhar altitude.'
+    # Pre requisito: voar.
+  }
 }
 
 # Lista de pericias na ordem em ingles para faciliar.
@@ -4211,6 +4217,32 @@ tabela_feiticos {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FRIO
+    }
+  }
+  armas {
+    id: 'raio_flamejante'
+    nome: 'Raio Flamejante'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '4d6' }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      ataque_distancia: true
     }
   }
   armas {

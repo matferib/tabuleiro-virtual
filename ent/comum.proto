@@ -195,6 +195,7 @@ enum DescritorAtaque {
   DESC_PERFURANTE = 27;
   DESC_CORTANTE = 28;
   DESC_ESTOURANTE = 29;
+  DESC_MAGICO = 30;
 }
 
 // Tambem usado como vetor.

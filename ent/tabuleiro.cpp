@@ -5484,7 +5484,6 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     Matrix4 m_escala_proto;
     m_escala_proto.scale(proto_composto.escala().x(), proto_composto.escala().y(), proto_composto.escala().z());
 
-    const auto& pos_antigo = proto_composto.pos();
     for (const auto& sub_entidade : proto_composto.sub_forma()) {
       auto* notificacao_adicao = grupo_notificacoes.add_notificacao();
       notificacao_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
