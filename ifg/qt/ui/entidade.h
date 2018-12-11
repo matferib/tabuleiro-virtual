@@ -131,6 +131,103 @@ public:
     QHBoxLayout *horizontalLayout_24;
     QLabel *label_15;
     QComboBox *combo_textura;
+    QWidget *tab_estatisticas;
+    QGridLayout *gridLayout_17;
+    QGroupBox *groupBox_5;
+    QGridLayout *gridLayout_16;
+    QGridLayout *gridLayout_4;
+    QLabel *label_65;
+    QLabel *label_66;
+    QPushButton *botao_bonus_salvacao_fortitude;
+    QPushButton *botao_bonus_salvacao_vontade;
+    QLabel *label_67;
+    QPushButton *botao_bonus_salvacao_reflexo;
+    QLabel *label_70;
+    QGroupBox *groupBox_4;
+    QGridLayout *gridLayout_18;
+    QGridLayout *gridLayout_2;
+    QPushButton *botao_bonus_constituicao;
+    QLabel *label_47;
+    QSpinBox *spin_destreza;
+    QLabel *label_49;
+    QLabel *label_51;
+    QPushButton *botao_bonus_destreza;
+    QLabel *label_50;
+    QLabel *label_mod_destreza;
+    QSpinBox *spin_carisma;
+    QPushButton *botao_bonus_forca;
+    QSpinBox *spin_sabedoria;
+    QSpinBox *spin_inteligencia;
+    QSpinBox *spin_forca;
+    QLabel *label_27;
+    QSpinBox *spin_constituicao;
+    QLabel *label_mod_forca;
+    QLabel *label_mod_sabedoria;
+    QPushButton *botao_bonus_sabedoria;
+    QLabel *label_48;
+    QPushButton *botao_bonus_inteligencia;
+    QLabel *label_mod_inteligencia;
+    QPushButton *botao_bonus_carisma;
+    QLabel *label_mod_constituicao;
+    QLabel *label_mod_carisma;
+    QLabel *label_28;
+    QLabel *label_63;
+    QLabel *label_62;
+    QGroupBox *groupBox_7;
+    QWidget *layoutWidget_3;
+    QHBoxLayout *horizontalLayout_28;
+    QLabel *label_22;
+    QPushButton *botao_bonus_iniciativa;
+    QCheckBox *checkbox_iniciativa;
+    QSpinBox *spin_iniciativa;
+    QGroupBox *groupBox_6;
+    QGridLayout *gridLayout_15;
+    QGridLayout *gridLayout_5;
+    QLabel *label_bba_agarrar;
+    QLabel *label_69;
+    QLabel *label_54;
+    QLabel *label_bba_base;
+    QLabel *label_56;
+    QLabel *label_71;
+    QLabel *label_bba_cac;
+    QLabel *label_bba_distancia;
+    QGroupBox *groupBox_3;
+    QGridLayout *gridLayout_14;
+    QGridLayout *gridLayout_3;
+    QLabel *label_95;
+    QLabel *label_52;
+    QLabel *label_57;
+    QSpinBox *spin_ca_escudo_melhoria;
+    QSpinBox *spin_ca_armadura_melhoria;
+    QLabel *label_58;
+    QLabel *label_59;
+    QLabel *label_53;
+    QLabel *label_60;
+    QLabel *label_61;
+    QLabel *label_ca_surpreso;
+    QPushButton *botao_bonus_ca;
+    QLabel *label_ca_toque;
+    QComboBox *combo_armadura;
+    QComboBox *combo_escudo;
+    QLabel *spin_bonus_escudo;
+    QLabel *spin_bonus_escudo_2;
+    QComboBox *combo_material_armadura;
+    QLabel *label_96;
+    QComboBox *combo_material_escudo;
+    QHBoxLayout *horizontalLayout_11;
+    QLabel *label_85;
+    QSpinBox *spin_rm;
+    QCheckBox *checkbox_imune_critico;
+    QGroupBox *groupBox;
+    QGridLayout *gridLayout_19;
+    QLabel *label_25;
+    QLabel *label_90;
+    QLabel *label_32;
+    QSpinBox *spin_mov_aereo;
+    QSpinBox *spin_mov_nadando;
+    QSpinBox *spin_mov_terrestre;
+    QSpinBox *spin_mov_escavando;
+    QLabel *label_97;
     QWidget *tab_7;
     QHBoxLayout *horizontalLayout_34;
     QHBoxLayout *horizontalLayout_19;
@@ -211,93 +308,6 @@ public:
     QVBoxLayout *verticalLayout_2;
     QPushButton *botao_adicionar_inimigo_predileto;
     QPushButton *botao_remover_inimigo_predileto;
-    QWidget *tab_estatisticas;
-    QGridLayout *gridLayout_17;
-    QGroupBox *groupBox_4;
-    QGridLayout *gridLayout_18;
-    QGridLayout *gridLayout_2;
-    QPushButton *botao_bonus_constituicao;
-    QLabel *label_47;
-    QSpinBox *spin_destreza;
-    QLabel *label_49;
-    QLabel *label_51;
-    QPushButton *botao_bonus_destreza;
-    QLabel *label_50;
-    QLabel *label_mod_destreza;
-    QSpinBox *spin_carisma;
-    QPushButton *botao_bonus_forca;
-    QSpinBox *spin_sabedoria;
-    QSpinBox *spin_inteligencia;
-    QSpinBox *spin_forca;
-    QLabel *label_27;
-    QSpinBox *spin_constituicao;
-    QLabel *label_mod_forca;
-    QLabel *label_mod_sabedoria;
-    QPushButton *botao_bonus_sabedoria;
-    QLabel *label_48;
-    QPushButton *botao_bonus_inteligencia;
-    QLabel *label_mod_inteligencia;
-    QPushButton *botao_bonus_carisma;
-    QLabel *label_mod_constituicao;
-    QLabel *label_mod_carisma;
-    QLabel *label_28;
-    QLabel *label_63;
-    QLabel *label_62;
-    QGroupBox *groupBox_7;
-    QWidget *layoutWidget_3;
-    QHBoxLayout *horizontalLayout_28;
-    QLabel *label_22;
-    QPushButton *botao_bonus_iniciativa;
-    QCheckBox *checkbox_iniciativa;
-    QSpinBox *spin_iniciativa;
-    QGroupBox *groupBox_6;
-    QGridLayout *gridLayout_15;
-    QGridLayout *gridLayout_5;
-    QLabel *label_bba_agarrar;
-    QLabel *label_69;
-    QLabel *label_54;
-    QLabel *label_bba_base;
-    QLabel *label_56;
-    QLabel *label_71;
-    QLabel *label_bba_cac;
-    QLabel *label_bba_distancia;
-    QGroupBox *groupBox_3;
-    QGridLayout *gridLayout_14;
-    QGridLayout *gridLayout_3;
-    QLabel *label_95;
-    QLabel *label_52;
-    QLabel *label_57;
-    QSpinBox *spin_ca_escudo_melhoria;
-    QSpinBox *spin_ca_armadura_melhoria;
-    QLabel *label_58;
-    QLabel *label_59;
-    QLabel *label_53;
-    QLabel *label_60;
-    QLabel *label_61;
-    QLabel *label_ca_surpreso;
-    QPushButton *botao_bonus_ca;
-    QLabel *label_ca_toque;
-    QComboBox *combo_armadura;
-    QComboBox *combo_escudo;
-    QLabel *spin_bonus_escudo;
-    QLabel *spin_bonus_escudo_2;
-    QComboBox *combo_material_armadura;
-    QLabel *label_96;
-    QComboBox *combo_material_escudo;
-    QGroupBox *groupBox_5;
-    QGridLayout *gridLayout_16;
-    QGridLayout *gridLayout_4;
-    QLabel *label_65;
-    QLabel *label_66;
-    QPushButton *botao_bonus_salvacao_fortitude;
-    QPushButton *botao_bonus_salvacao_vontade;
-    QLabel *label_67;
-    QPushButton *botao_bonus_salvacao_reflexo;
-    QLabel *label_70;
-    QHBoxLayout *horizontalLayout_11;
-    QLabel *label_85;
-    QSpinBox *spin_rm;
-    QCheckBox *checkbox_imune_critico;
     QWidget *tab_6;
     QGridLayout *gridLayout_13;
     QCheckBox *checkbox_op;
@@ -989,6 +999,554 @@ public:
         gridLayout_8->addLayout(gridLayout, 2, 1, 4, 1);
 
         tabs->addTab(tab_geral, QString());
+        tab_estatisticas = new QWidget();
+        tab_estatisticas->setObjectName(QStringLiteral("tab_estatisticas"));
+        gridLayout_17 = new QGridLayout(tab_estatisticas);
+        gridLayout_17->setObjectName(QStringLiteral("gridLayout_17"));
+        groupBox_5 = new QGroupBox(tab_estatisticas);
+        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        gridLayout_16 = new QGridLayout(groupBox_5);
+        gridLayout_16->setObjectName(QStringLiteral("gridLayout_16"));
+        gridLayout_4 = new QGridLayout();
+        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
+        label_65 = new QLabel(groupBox_5);
+        label_65->setObjectName(QStringLiteral("label_65"));
+        label_65->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_4->addWidget(label_65, 2, 0, 1, 1);
+
+        label_66 = new QLabel(groupBox_5);
+        label_66->setObjectName(QStringLiteral("label_66"));
+        label_66->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_4->addWidget(label_66, 3, 0, 1, 1);
+
+        botao_bonus_salvacao_fortitude = new QPushButton(groupBox_5);
+        botao_bonus_salvacao_fortitude->setObjectName(QStringLiteral("botao_bonus_salvacao_fortitude"));
+
+        gridLayout_4->addWidget(botao_bonus_salvacao_fortitude, 1, 1, 1, 1);
+
+        botao_bonus_salvacao_vontade = new QPushButton(groupBox_5);
+        botao_bonus_salvacao_vontade->setObjectName(QStringLiteral("botao_bonus_salvacao_vontade"));
+
+        gridLayout_4->addWidget(botao_bonus_salvacao_vontade, 3, 1, 1, 1);
+
+        label_67 = new QLabel(groupBox_5);
+        label_67->setObjectName(QStringLiteral("label_67"));
+        label_67->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_4->addWidget(label_67, 1, 0, 1, 1);
+
+        botao_bonus_salvacao_reflexo = new QPushButton(groupBox_5);
+        botao_bonus_salvacao_reflexo->setObjectName(QStringLiteral("botao_bonus_salvacao_reflexo"));
+
+        gridLayout_4->addWidget(botao_bonus_salvacao_reflexo, 2, 1, 1, 1);
+
+        label_70 = new QLabel(groupBox_5);
+        label_70->setObjectName(QStringLiteral("label_70"));
+        sizePolicy7.setHeightForWidth(label_70->sizePolicy().hasHeightForWidth());
+        label_70->setSizePolicy(sizePolicy7);
+        QFont font;
+        font.setFamily(QStringLiteral("Noto Sans [unknown]"));
+        font.setBold(true);
+        font.setWeight(75);
+        label_70->setFont(font);
+        label_70->setAlignment(Qt::AlignCenter);
+
+        gridLayout_4->addWidget(label_70, 0, 1, 1, 1);
+
+
+        gridLayout_16->addLayout(gridLayout_4, 0, 0, 1, 1);
+
+
+        gridLayout_17->addWidget(groupBox_5, 2, 0, 2, 1);
+
+        groupBox_4 = new QGroupBox(tab_estatisticas);
+        groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
+        groupBox_4->setStyleSheet(QStringLiteral(""));
+        gridLayout_18 = new QGridLayout(groupBox_4);
+        gridLayout_18->setObjectName(QStringLiteral("gridLayout_18"));
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+        botao_bonus_constituicao = new QPushButton(groupBox_4);
+        botao_bonus_constituicao->setObjectName(QStringLiteral("botao_bonus_constituicao"));
+
+        gridLayout_2->addWidget(botao_bonus_constituicao, 3, 2, 1, 1);
+
+        label_47 = new QLabel(groupBox_4);
+        label_47->setObjectName(QStringLiteral("label_47"));
+        label_47->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_47, 4, 0, 1, 1);
+
+        spin_destreza = new QSpinBox(groupBox_4);
+        spin_destreza->setObjectName(QStringLiteral("spin_destreza"));
+
+        gridLayout_2->addWidget(spin_destreza, 2, 1, 1, 1);
+
+        label_49 = new QLabel(groupBox_4);
+        label_49->setObjectName(QStringLiteral("label_49"));
+        label_49->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_49, 5, 0, 1, 1);
+
+        label_51 = new QLabel(groupBox_4);
+        label_51->setObjectName(QStringLiteral("label_51"));
+        label_51->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_51, 6, 0, 1, 1);
+
+        botao_bonus_destreza = new QPushButton(groupBox_4);
+        botao_bonus_destreza->setObjectName(QStringLiteral("botao_bonus_destreza"));
+
+        gridLayout_2->addWidget(botao_bonus_destreza, 2, 2, 1, 1);
+
+        label_50 = new QLabel(groupBox_4);
+        label_50->setObjectName(QStringLiteral("label_50"));
+        label_50->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_50, 3, 0, 1, 1);
+
+        label_mod_destreza = new QLabel(groupBox_4);
+        label_mod_destreza->setObjectName(QStringLiteral("label_mod_destreza"));
+        label_mod_destreza->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_destreza, 2, 3, 1, 1);
+
+        spin_carisma = new QSpinBox(groupBox_4);
+        spin_carisma->setObjectName(QStringLiteral("spin_carisma"));
+
+        gridLayout_2->addWidget(spin_carisma, 6, 1, 1, 1);
+
+        botao_bonus_forca = new QPushButton(groupBox_4);
+        botao_bonus_forca->setObjectName(QStringLiteral("botao_bonus_forca"));
+
+        gridLayout_2->addWidget(botao_bonus_forca, 1, 2, 1, 1);
+
+        spin_sabedoria = new QSpinBox(groupBox_4);
+        spin_sabedoria->setObjectName(QStringLiteral("spin_sabedoria"));
+
+        gridLayout_2->addWidget(spin_sabedoria, 5, 1, 1, 1);
+
+        spin_inteligencia = new QSpinBox(groupBox_4);
+        spin_inteligencia->setObjectName(QStringLiteral("spin_inteligencia"));
+
+        gridLayout_2->addWidget(spin_inteligencia, 4, 1, 1, 1);
+
+        spin_forca = new QSpinBox(groupBox_4);
+        spin_forca->setObjectName(QStringLiteral("spin_forca"));
+
+        gridLayout_2->addWidget(spin_forca, 1, 1, 1, 1);
+
+        label_27 = new QLabel(groupBox_4);
+        label_27->setObjectName(QStringLiteral("label_27"));
+        label_27->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_27, 1, 0, 1, 1);
+
+        spin_constituicao = new QSpinBox(groupBox_4);
+        spin_constituicao->setObjectName(QStringLiteral("spin_constituicao"));
+
+        gridLayout_2->addWidget(spin_constituicao, 3, 1, 1, 1);
+
+        label_mod_forca = new QLabel(groupBox_4);
+        label_mod_forca->setObjectName(QStringLiteral("label_mod_forca"));
+        label_mod_forca->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_forca, 1, 3, 1, 1);
+
+        label_mod_sabedoria = new QLabel(groupBox_4);
+        label_mod_sabedoria->setObjectName(QStringLiteral("label_mod_sabedoria"));
+        label_mod_sabedoria->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_sabedoria, 5, 3, 1, 1);
+
+        botao_bonus_sabedoria = new QPushButton(groupBox_4);
+        botao_bonus_sabedoria->setObjectName(QStringLiteral("botao_bonus_sabedoria"));
+
+        gridLayout_2->addWidget(botao_bonus_sabedoria, 5, 2, 1, 1);
+
+        label_48 = new QLabel(groupBox_4);
+        label_48->setObjectName(QStringLiteral("label_48"));
+        label_48->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_48, 2, 0, 1, 1);
+
+        botao_bonus_inteligencia = new QPushButton(groupBox_4);
+        botao_bonus_inteligencia->setObjectName(QStringLiteral("botao_bonus_inteligencia"));
+
+        gridLayout_2->addWidget(botao_bonus_inteligencia, 4, 2, 1, 1);
+
+        label_mod_inteligencia = new QLabel(groupBox_4);
+        label_mod_inteligencia->setObjectName(QStringLiteral("label_mod_inteligencia"));
+        label_mod_inteligencia->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_inteligencia, 4, 3, 1, 1);
+
+        botao_bonus_carisma = new QPushButton(groupBox_4);
+        botao_bonus_carisma->setObjectName(QStringLiteral("botao_bonus_carisma"));
+
+        gridLayout_2->addWidget(botao_bonus_carisma, 6, 2, 1, 1);
+
+        label_mod_constituicao = new QLabel(groupBox_4);
+        label_mod_constituicao->setObjectName(QStringLiteral("label_mod_constituicao"));
+        label_mod_constituicao->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_constituicao, 3, 3, 1, 1);
+
+        label_mod_carisma = new QLabel(groupBox_4);
+        label_mod_carisma->setObjectName(QStringLiteral("label_mod_carisma"));
+        label_mod_carisma->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_mod_carisma, 6, 3, 1, 1);
+
+        label_28 = new QLabel(groupBox_4);
+        label_28->setObjectName(QStringLiteral("label_28"));
+        sizePolicy7.setHeightForWidth(label_28->sizePolicy().hasHeightForWidth());
+        label_28->setSizePolicy(sizePolicy7);
+        label_28->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_28, 0, 3, 1, 1);
+
+        label_63 = new QLabel(groupBox_4);
+        label_63->setObjectName(QStringLiteral("label_63"));
+        sizePolicy7.setHeightForWidth(label_63->sizePolicy().hasHeightForWidth());
+        label_63->setSizePolicy(sizePolicy7);
+        label_63->setFont(font);
+        label_63->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_63, 0, 2, 1, 1);
+
+        label_62 = new QLabel(groupBox_4);
+        label_62->setObjectName(QStringLiteral("label_62"));
+        sizePolicy7.setHeightForWidth(label_62->sizePolicy().hasHeightForWidth());
+        label_62->setSizePolicy(sizePolicy7);
+        label_62->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_62, 0, 1, 1, 1);
+
+
+        gridLayout_18->addLayout(gridLayout_2, 0, 0, 1, 1);
+
+
+        gridLayout_17->addWidget(groupBox_4, 0, 0, 2, 1);
+
+        groupBox_7 = new QGroupBox(tab_estatisticas);
+        groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
+        groupBox_7->setStyleSheet(QStringLiteral(""));
+        layoutWidget_3 = new QWidget(groupBox_7);
+        layoutWidget_3->setObjectName(QStringLiteral("layoutWidget_3"));
+        layoutWidget_3->setGeometry(QRect(0, 10, 341, 33));
+        horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
+        horizontalLayout_28->setObjectName(QStringLiteral("horizontalLayout_28"));
+        horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
+        label_22 = new QLabel(layoutWidget_3);
+        label_22->setObjectName(QStringLiteral("label_22"));
+        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
+        label_22->setSizePolicy(sizePolicy);
+        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_28->addWidget(label_22);
+
+        botao_bonus_iniciativa = new QPushButton(layoutWidget_3);
+        botao_bonus_iniciativa->setObjectName(QStringLiteral("botao_bonus_iniciativa"));
+
+        horizontalLayout_28->addWidget(botao_bonus_iniciativa);
+
+        checkbox_iniciativa = new QCheckBox(layoutWidget_3);
+        checkbox_iniciativa->setObjectName(QStringLiteral("checkbox_iniciativa"));
+        sizePolicy1.setHeightForWidth(checkbox_iniciativa->sizePolicy().hasHeightForWidth());
+        checkbox_iniciativa->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_28->addWidget(checkbox_iniciativa);
+
+        spin_iniciativa = new QSpinBox(layoutWidget_3);
+        spin_iniciativa->setObjectName(QStringLiteral("spin_iniciativa"));
+        sizePolicy1.setHeightForWidth(spin_iniciativa->sizePolicy().hasHeightForWidth());
+        spin_iniciativa->setSizePolicy(sizePolicy1);
+        spin_iniciativa->setMinimum(-100);
+        spin_iniciativa->setMaximum(999);
+
+        horizontalLayout_28->addWidget(spin_iniciativa);
+
+
+        gridLayout_17->addWidget(groupBox_7, 0, 1, 1, 1);
+
+        groupBox_6 = new QGroupBox(tab_estatisticas);
+        groupBox_6->setObjectName(QStringLiteral("groupBox_6"));
+        groupBox_6->setStyleSheet(QStringLiteral(""));
+        gridLayout_15 = new QGridLayout(groupBox_6);
+        gridLayout_15->setObjectName(QStringLiteral("gridLayout_15"));
+        gridLayout_5 = new QGridLayout();
+        gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
+        label_bba_agarrar = new QLabel(groupBox_6);
+        label_bba_agarrar->setObjectName(QStringLiteral("label_bba_agarrar"));
+        label_bba_agarrar->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_agarrar, 1, 1, 1, 1);
+
+        label_69 = new QLabel(groupBox_6);
+        label_69->setObjectName(QStringLiteral("label_69"));
+        label_69->setFont(font);
+        label_69->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_69, 0, 2, 1, 1);
+
+        label_54 = new QLabel(groupBox_6);
+        label_54->setObjectName(QStringLiteral("label_54"));
+        label_54->setFont(font);
+        label_54->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_54, 0, 0, 1, 1);
+
+        label_bba_base = new QLabel(groupBox_6);
+        label_bba_base->setObjectName(QStringLiteral("label_bba_base"));
+        label_bba_base->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_base, 1, 0, 1, 1);
+
+        label_56 = new QLabel(groupBox_6);
+        label_56->setObjectName(QStringLiteral("label_56"));
+        label_56->setFont(font);
+        label_56->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_56, 0, 1, 1, 1);
+
+        label_71 = new QLabel(groupBox_6);
+        label_71->setObjectName(QStringLiteral("label_71"));
+        label_71->setFont(font);
+
+        gridLayout_5->addWidget(label_71, 0, 3, 1, 1);
+
+        label_bba_cac = new QLabel(groupBox_6);
+        label_bba_cac->setObjectName(QStringLiteral("label_bba_cac"));
+        label_bba_cac->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_cac, 1, 2, 1, 1);
+
+        label_bba_distancia = new QLabel(groupBox_6);
+        label_bba_distancia->setObjectName(QStringLiteral("label_bba_distancia"));
+        label_bba_distancia->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_distancia, 1, 3, 1, 1);
+
+
+        gridLayout_15->addLayout(gridLayout_5, 0, 0, 1, 1);
+
+
+        gridLayout_17->addWidget(groupBox_6, 0, 2, 1, 1);
+
+        groupBox_3 = new QGroupBox(tab_estatisticas);
+        groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
+        gridLayout_14 = new QGridLayout(groupBox_3);
+        gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
+        gridLayout_3 = new QGridLayout();
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        label_95 = new QLabel(groupBox_3);
+        label_95->setObjectName(QStringLiteral("label_95"));
+        sizePolicy7.setHeightForWidth(label_95->sizePolicy().hasHeightForWidth());
+        label_95->setSizePolicy(sizePolicy7);
+        label_95->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_95, 0, 2, 1, 1);
+
+        label_52 = new QLabel(groupBox_3);
+        label_52->setObjectName(QStringLiteral("label_52"));
+        label_52->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_52, 0, 1, 1, 1);
+
+        label_57 = new QLabel(groupBox_3);
+        label_57->setObjectName(QStringLiteral("label_57"));
+        label_57->setFont(font);
+        label_57->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_57, 0, 9, 1, 1);
+
+        spin_ca_escudo_melhoria = new QSpinBox(groupBox_3);
+        spin_ca_escudo_melhoria->setObjectName(QStringLiteral("spin_ca_escudo_melhoria"));
+        spin_ca_escudo_melhoria->setMinimum(-99);
+
+        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 6, 1, 1);
+
+        spin_ca_armadura_melhoria = new QSpinBox(groupBox_3);
+        spin_ca_armadura_melhoria->setObjectName(QStringLiteral("spin_ca_armadura_melhoria"));
+        spin_ca_armadura_melhoria->setMinimum(-99);
+
+        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 3, 1, 1);
+
+        label_58 = new QLabel(groupBox_3);
+        label_58->setObjectName(QStringLiteral("label_58"));
+        label_58->setFont(font);
+        label_58->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_58, 0, 10, 1, 1);
+
+        label_59 = new QLabel(groupBox_3);
+        label_59->setObjectName(QStringLiteral("label_59"));
+        label_59->setFont(font);
+        label_59->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_59, 0, 11, 1, 1);
+
+        label_53 = new QLabel(groupBox_3);
+        label_53->setObjectName(QStringLiteral("label_53"));
+        label_53->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_53, 0, 0, 1, 1);
+
+        label_60 = new QLabel(groupBox_3);
+        label_60->setObjectName(QStringLiteral("label_60"));
+        label_60->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_60, 1, 0, 1, 1);
+
+        label_61 = new QLabel(groupBox_3);
+        label_61->setObjectName(QStringLiteral("label_61"));
+        label_61->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_61, 1, 8, 1, 1);
+
+        label_ca_surpreso = new QLabel(groupBox_3);
+        label_ca_surpreso->setObjectName(QStringLiteral("label_ca_surpreso"));
+        label_ca_surpreso->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_ca_surpreso, 1, 11, 1, 1);
+
+        botao_bonus_ca = new QPushButton(groupBox_3);
+        botao_bonus_ca->setObjectName(QStringLiteral("botao_bonus_ca"));
+
+        gridLayout_3->addWidget(botao_bonus_ca, 1, 9, 1, 1);
+
+        label_ca_toque = new QLabel(groupBox_3);
+        label_ca_toque->setObjectName(QStringLiteral("label_ca_toque"));
+        label_ca_toque->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_ca_toque, 1, 10, 1, 1);
+
+        combo_armadura = new QComboBox(groupBox_3);
+        combo_armadura->setObjectName(QStringLiteral("combo_armadura"));
+
+        gridLayout_3->addWidget(combo_armadura, 1, 1, 1, 1);
+
+        combo_escudo = new QComboBox(groupBox_3);
+        combo_escudo->setObjectName(QStringLiteral("combo_escudo"));
+
+        gridLayout_3->addWidget(combo_escudo, 1, 4, 1, 1);
+
+        spin_bonus_escudo = new QLabel(groupBox_3);
+        spin_bonus_escudo->setObjectName(QStringLiteral("spin_bonus_escudo"));
+        spin_bonus_escudo->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(spin_bonus_escudo, 0, 4, 1, 1);
+
+        spin_bonus_escudo_2 = new QLabel(groupBox_3);
+        spin_bonus_escudo_2->setObjectName(QStringLiteral("spin_bonus_escudo_2"));
+        spin_bonus_escudo_2->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(spin_bonus_escudo_2, 0, 6, 1, 1);
+
+        combo_material_armadura = new QComboBox(groupBox_3);
+        combo_material_armadura->setObjectName(QStringLiteral("combo_material_armadura"));
+        sizePolicy1.setHeightForWidth(combo_material_armadura->sizePolicy().hasHeightForWidth());
+        combo_material_armadura->setSizePolicy(sizePolicy1);
+
+        gridLayout_3->addWidget(combo_material_armadura, 1, 2, 1, 1);
+
+        label_96 = new QLabel(groupBox_3);
+        label_96->setObjectName(QStringLiteral("label_96"));
+        sizePolicy7.setHeightForWidth(label_96->sizePolicy().hasHeightForWidth());
+        label_96->setSizePolicy(sizePolicy7);
+        label_96->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_3->addWidget(label_96, 0, 5, 1, 1);
+
+        combo_material_escudo = new QComboBox(groupBox_3);
+        combo_material_escudo->setObjectName(QStringLiteral("combo_material_escudo"));
+        sizePolicy1.setHeightForWidth(combo_material_escudo->sizePolicy().hasHeightForWidth());
+        combo_material_escudo->setSizePolicy(sizePolicy1);
+
+        gridLayout_3->addWidget(combo_material_escudo, 1, 5, 1, 1);
+
+
+        gridLayout_14->addLayout(gridLayout_3, 0, 0, 1, 1);
+
+
+        gridLayout_17->addWidget(groupBox_3, 1, 1, 1, 2);
+
+        horizontalLayout_11 = new QHBoxLayout();
+        horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
+        label_85 = new QLabel(tab_estatisticas);
+        label_85->setObjectName(QStringLiteral("label_85"));
+        label_85->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_11->addWidget(label_85);
+
+        spin_rm = new QSpinBox(tab_estatisticas);
+        spin_rm->setObjectName(QStringLiteral("spin_rm"));
+
+        horizontalLayout_11->addWidget(spin_rm);
+
+
+        gridLayout_17->addLayout(horizontalLayout_11, 4, 0, 1, 1);
+
+        checkbox_imune_critico = new QCheckBox(tab_estatisticas);
+        checkbox_imune_critico->setObjectName(QStringLiteral("checkbox_imune_critico"));
+
+        gridLayout_17->addWidget(checkbox_imune_critico, 4, 1, 1, 1);
+
+        groupBox = new QGroupBox(tab_estatisticas);
+        groupBox->setObjectName(QStringLiteral("groupBox"));
+        gridLayout_19 = new QGridLayout(groupBox);
+        gridLayout_19->setObjectName(QStringLiteral("gridLayout_19"));
+        label_25 = new QLabel(groupBox);
+        label_25->setObjectName(QStringLiteral("label_25"));
+        label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_19->addWidget(label_25, 0, 0, 1, 1);
+
+        label_90 = new QLabel(groupBox);
+        label_90->setObjectName(QStringLiteral("label_90"));
+        label_90->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_19->addWidget(label_90, 2, 0, 1, 1);
+
+        label_32 = new QLabel(groupBox);
+        label_32->setObjectName(QStringLiteral("label_32"));
+        label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_19->addWidget(label_32, 1, 0, 1, 1);
+
+        spin_mov_aereo = new QSpinBox(groupBox);
+        spin_mov_aereo->setObjectName(QStringLiteral("spin_mov_aereo"));
+
+        gridLayout_19->addWidget(spin_mov_aereo, 1, 1, 1, 1);
+
+        spin_mov_nadando = new QSpinBox(groupBox);
+        spin_mov_nadando->setObjectName(QStringLiteral("spin_mov_nadando"));
+
+        gridLayout_19->addWidget(spin_mov_nadando, 2, 1, 1, 1);
+
+        spin_mov_terrestre = new QSpinBox(groupBox);
+        spin_mov_terrestre->setObjectName(QStringLiteral("spin_mov_terrestre"));
+
+        gridLayout_19->addWidget(spin_mov_terrestre, 0, 1, 1, 1);
+
+        spin_mov_escavando = new QSpinBox(groupBox);
+        spin_mov_escavando->setObjectName(QStringLiteral("spin_mov_escavando"));
+
+        gridLayout_19->addWidget(spin_mov_escavando, 3, 1, 1, 1);
+
+        label_97 = new QLabel(groupBox);
+        label_97->setObjectName(QStringLiteral("label_97"));
+        label_97->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_19->addWidget(label_97, 3, 0, 1, 1);
+
+
+        gridLayout_17->addWidget(groupBox, 2, 1, 1, 1);
+
+        tabs->addTab(tab_estatisticas, QString());
         tab_7 = new QWidget();
         tab_7->setObjectName(QStringLiteral("tab_7"));
         horizontalLayout_34 = new QHBoxLayout(tab_7);
@@ -1393,11 +1951,11 @@ public:
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
         label_94 = new QLabel(tab_5);
         label_94->setObjectName(QStringLiteral("label_94"));
-        QFont font;
-        font.setPointSize(11);
-        font.setBold(true);
-        font.setWeight(75);
-        label_94->setFont(font);
+        QFont font1;
+        font1.setPointSize(11);
+        font1.setBold(true);
+        font1.setWeight(75);
+        label_94->setFont(font1);
 
         verticalLayout_17->addWidget(label_94);
 
@@ -1432,503 +1990,6 @@ public:
         verticalLayout_18->addLayout(verticalLayout_17);
 
         tabs->addTab(tab_5, QString());
-        tab_estatisticas = new QWidget();
-        tab_estatisticas->setObjectName(QStringLiteral("tab_estatisticas"));
-        gridLayout_17 = new QGridLayout(tab_estatisticas);
-        gridLayout_17->setObjectName(QStringLiteral("gridLayout_17"));
-        groupBox_4 = new QGroupBox(tab_estatisticas);
-        groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
-        groupBox_4->setStyleSheet(QStringLiteral(""));
-        gridLayout_18 = new QGridLayout(groupBox_4);
-        gridLayout_18->setObjectName(QStringLiteral("gridLayout_18"));
-        gridLayout_2 = new QGridLayout();
-        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        botao_bonus_constituicao = new QPushButton(groupBox_4);
-        botao_bonus_constituicao->setObjectName(QStringLiteral("botao_bonus_constituicao"));
-
-        gridLayout_2->addWidget(botao_bonus_constituicao, 3, 2, 1, 1);
-
-        label_47 = new QLabel(groupBox_4);
-        label_47->setObjectName(QStringLiteral("label_47"));
-        label_47->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_47, 4, 0, 1, 1);
-
-        spin_destreza = new QSpinBox(groupBox_4);
-        spin_destreza->setObjectName(QStringLiteral("spin_destreza"));
-
-        gridLayout_2->addWidget(spin_destreza, 2, 1, 1, 1);
-
-        label_49 = new QLabel(groupBox_4);
-        label_49->setObjectName(QStringLiteral("label_49"));
-        label_49->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_49, 5, 0, 1, 1);
-
-        label_51 = new QLabel(groupBox_4);
-        label_51->setObjectName(QStringLiteral("label_51"));
-        label_51->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_51, 6, 0, 1, 1);
-
-        botao_bonus_destreza = new QPushButton(groupBox_4);
-        botao_bonus_destreza->setObjectName(QStringLiteral("botao_bonus_destreza"));
-
-        gridLayout_2->addWidget(botao_bonus_destreza, 2, 2, 1, 1);
-
-        label_50 = new QLabel(groupBox_4);
-        label_50->setObjectName(QStringLiteral("label_50"));
-        label_50->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_50, 3, 0, 1, 1);
-
-        label_mod_destreza = new QLabel(groupBox_4);
-        label_mod_destreza->setObjectName(QStringLiteral("label_mod_destreza"));
-        label_mod_destreza->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_destreza, 2, 3, 1, 1);
-
-        spin_carisma = new QSpinBox(groupBox_4);
-        spin_carisma->setObjectName(QStringLiteral("spin_carisma"));
-
-        gridLayout_2->addWidget(spin_carisma, 6, 1, 1, 1);
-
-        botao_bonus_forca = new QPushButton(groupBox_4);
-        botao_bonus_forca->setObjectName(QStringLiteral("botao_bonus_forca"));
-
-        gridLayout_2->addWidget(botao_bonus_forca, 1, 2, 1, 1);
-
-        spin_sabedoria = new QSpinBox(groupBox_4);
-        spin_sabedoria->setObjectName(QStringLiteral("spin_sabedoria"));
-
-        gridLayout_2->addWidget(spin_sabedoria, 5, 1, 1, 1);
-
-        spin_inteligencia = new QSpinBox(groupBox_4);
-        spin_inteligencia->setObjectName(QStringLiteral("spin_inteligencia"));
-
-        gridLayout_2->addWidget(spin_inteligencia, 4, 1, 1, 1);
-
-        spin_forca = new QSpinBox(groupBox_4);
-        spin_forca->setObjectName(QStringLiteral("spin_forca"));
-
-        gridLayout_2->addWidget(spin_forca, 1, 1, 1, 1);
-
-        label_27 = new QLabel(groupBox_4);
-        label_27->setObjectName(QStringLiteral("label_27"));
-        label_27->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_27, 1, 0, 1, 1);
-
-        spin_constituicao = new QSpinBox(groupBox_4);
-        spin_constituicao->setObjectName(QStringLiteral("spin_constituicao"));
-
-        gridLayout_2->addWidget(spin_constituicao, 3, 1, 1, 1);
-
-        label_mod_forca = new QLabel(groupBox_4);
-        label_mod_forca->setObjectName(QStringLiteral("label_mod_forca"));
-        label_mod_forca->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_forca, 1, 3, 1, 1);
-
-        label_mod_sabedoria = new QLabel(groupBox_4);
-        label_mod_sabedoria->setObjectName(QStringLiteral("label_mod_sabedoria"));
-        label_mod_sabedoria->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_sabedoria, 5, 3, 1, 1);
-
-        botao_bonus_sabedoria = new QPushButton(groupBox_4);
-        botao_bonus_sabedoria->setObjectName(QStringLiteral("botao_bonus_sabedoria"));
-
-        gridLayout_2->addWidget(botao_bonus_sabedoria, 5, 2, 1, 1);
-
-        label_48 = new QLabel(groupBox_4);
-        label_48->setObjectName(QStringLiteral("label_48"));
-        label_48->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_48, 2, 0, 1, 1);
-
-        botao_bonus_inteligencia = new QPushButton(groupBox_4);
-        botao_bonus_inteligencia->setObjectName(QStringLiteral("botao_bonus_inteligencia"));
-
-        gridLayout_2->addWidget(botao_bonus_inteligencia, 4, 2, 1, 1);
-
-        label_mod_inteligencia = new QLabel(groupBox_4);
-        label_mod_inteligencia->setObjectName(QStringLiteral("label_mod_inteligencia"));
-        label_mod_inteligencia->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_inteligencia, 4, 3, 1, 1);
-
-        botao_bonus_carisma = new QPushButton(groupBox_4);
-        botao_bonus_carisma->setObjectName(QStringLiteral("botao_bonus_carisma"));
-
-        gridLayout_2->addWidget(botao_bonus_carisma, 6, 2, 1, 1);
-
-        label_mod_constituicao = new QLabel(groupBox_4);
-        label_mod_constituicao->setObjectName(QStringLiteral("label_mod_constituicao"));
-        label_mod_constituicao->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_constituicao, 3, 3, 1, 1);
-
-        label_mod_carisma = new QLabel(groupBox_4);
-        label_mod_carisma->setObjectName(QStringLiteral("label_mod_carisma"));
-        label_mod_carisma->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_mod_carisma, 6, 3, 1, 1);
-
-        label_28 = new QLabel(groupBox_4);
-        label_28->setObjectName(QStringLiteral("label_28"));
-        sizePolicy7.setHeightForWidth(label_28->sizePolicy().hasHeightForWidth());
-        label_28->setSizePolicy(sizePolicy7);
-        label_28->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_28, 0, 3, 1, 1);
-
-        label_63 = new QLabel(groupBox_4);
-        label_63->setObjectName(QStringLiteral("label_63"));
-        sizePolicy7.setHeightForWidth(label_63->sizePolicy().hasHeightForWidth());
-        label_63->setSizePolicy(sizePolicy7);
-        QFont font1;
-        font1.setFamily(QStringLiteral("Noto Sans [unknown]"));
-        font1.setBold(true);
-        font1.setWeight(75);
-        label_63->setFont(font1);
-        label_63->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_63, 0, 2, 1, 1);
-
-        label_62 = new QLabel(groupBox_4);
-        label_62->setObjectName(QStringLiteral("label_62"));
-        sizePolicy7.setHeightForWidth(label_62->sizePolicy().hasHeightForWidth());
-        label_62->setSizePolicy(sizePolicy7);
-        label_62->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_62, 0, 1, 1, 1);
-
-
-        gridLayout_18->addLayout(gridLayout_2, 0, 0, 1, 1);
-
-
-        gridLayout_17->addWidget(groupBox_4, 0, 0, 2, 1);
-
-        groupBox_7 = new QGroupBox(tab_estatisticas);
-        groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
-        groupBox_7->setStyleSheet(QStringLiteral(""));
-        layoutWidget_3 = new QWidget(groupBox_7);
-        layoutWidget_3->setObjectName(QStringLiteral("layoutWidget_3"));
-        layoutWidget_3->setGeometry(QRect(0, 10, 341, 33));
-        horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
-        horizontalLayout_28->setObjectName(QStringLiteral("horizontalLayout_28"));
-        horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
-        label_22 = new QLabel(layoutWidget_3);
-        label_22->setObjectName(QStringLiteral("label_22"));
-        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
-        label_22->setSizePolicy(sizePolicy);
-        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_28->addWidget(label_22);
-
-        botao_bonus_iniciativa = new QPushButton(layoutWidget_3);
-        botao_bonus_iniciativa->setObjectName(QStringLiteral("botao_bonus_iniciativa"));
-
-        horizontalLayout_28->addWidget(botao_bonus_iniciativa);
-
-        checkbox_iniciativa = new QCheckBox(layoutWidget_3);
-        checkbox_iniciativa->setObjectName(QStringLiteral("checkbox_iniciativa"));
-        sizePolicy1.setHeightForWidth(checkbox_iniciativa->sizePolicy().hasHeightForWidth());
-        checkbox_iniciativa->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_28->addWidget(checkbox_iniciativa);
-
-        spin_iniciativa = new QSpinBox(layoutWidget_3);
-        spin_iniciativa->setObjectName(QStringLiteral("spin_iniciativa"));
-        sizePolicy1.setHeightForWidth(spin_iniciativa->sizePolicy().hasHeightForWidth());
-        spin_iniciativa->setSizePolicy(sizePolicy1);
-        spin_iniciativa->setMinimum(-100);
-        spin_iniciativa->setMaximum(999);
-
-        horizontalLayout_28->addWidget(spin_iniciativa);
-
-
-        gridLayout_17->addWidget(groupBox_7, 0, 1, 1, 1);
-
-        groupBox_6 = new QGroupBox(tab_estatisticas);
-        groupBox_6->setObjectName(QStringLiteral("groupBox_6"));
-        groupBox_6->setStyleSheet(QStringLiteral(""));
-        gridLayout_15 = new QGridLayout(groupBox_6);
-        gridLayout_15->setObjectName(QStringLiteral("gridLayout_15"));
-        gridLayout_5 = new QGridLayout();
-        gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
-        label_bba_agarrar = new QLabel(groupBox_6);
-        label_bba_agarrar->setObjectName(QStringLiteral("label_bba_agarrar"));
-        label_bba_agarrar->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_bba_agarrar, 1, 1, 1, 1);
-
-        label_69 = new QLabel(groupBox_6);
-        label_69->setObjectName(QStringLiteral("label_69"));
-        label_69->setFont(font1);
-        label_69->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_69, 0, 2, 1, 1);
-
-        label_54 = new QLabel(groupBox_6);
-        label_54->setObjectName(QStringLiteral("label_54"));
-        label_54->setFont(font1);
-        label_54->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_54, 0, 0, 1, 1);
-
-        label_bba_base = new QLabel(groupBox_6);
-        label_bba_base->setObjectName(QStringLiteral("label_bba_base"));
-        label_bba_base->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_bba_base, 1, 0, 1, 1);
-
-        label_56 = new QLabel(groupBox_6);
-        label_56->setObjectName(QStringLiteral("label_56"));
-        label_56->setFont(font1);
-        label_56->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_56, 0, 1, 1, 1);
-
-        label_71 = new QLabel(groupBox_6);
-        label_71->setObjectName(QStringLiteral("label_71"));
-        label_71->setFont(font1);
-
-        gridLayout_5->addWidget(label_71, 0, 3, 1, 1);
-
-        label_bba_cac = new QLabel(groupBox_6);
-        label_bba_cac->setObjectName(QStringLiteral("label_bba_cac"));
-        label_bba_cac->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_bba_cac, 1, 2, 1, 1);
-
-        label_bba_distancia = new QLabel(groupBox_6);
-        label_bba_distancia->setObjectName(QStringLiteral("label_bba_distancia"));
-        label_bba_distancia->setAlignment(Qt::AlignCenter);
-
-        gridLayout_5->addWidget(label_bba_distancia, 1, 3, 1, 1);
-
-
-        gridLayout_15->addLayout(gridLayout_5, 0, 0, 1, 1);
-
-
-        gridLayout_17->addWidget(groupBox_6, 0, 2, 1, 1);
-
-        groupBox_3 = new QGroupBox(tab_estatisticas);
-        groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
-        gridLayout_14 = new QGridLayout(groupBox_3);
-        gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
-        gridLayout_3 = new QGridLayout();
-        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        label_95 = new QLabel(groupBox_3);
-        label_95->setObjectName(QStringLiteral("label_95"));
-        sizePolicy7.setHeightForWidth(label_95->sizePolicy().hasHeightForWidth());
-        label_95->setSizePolicy(sizePolicy7);
-        label_95->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_95, 0, 2, 1, 1);
-
-        label_52 = new QLabel(groupBox_3);
-        label_52->setObjectName(QStringLiteral("label_52"));
-        label_52->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_52, 0, 1, 1, 1);
-
-        label_57 = new QLabel(groupBox_3);
-        label_57->setObjectName(QStringLiteral("label_57"));
-        label_57->setFont(font1);
-        label_57->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_57, 0, 9, 1, 1);
-
-        spin_ca_escudo_melhoria = new QSpinBox(groupBox_3);
-        spin_ca_escudo_melhoria->setObjectName(QStringLiteral("spin_ca_escudo_melhoria"));
-        spin_ca_escudo_melhoria->setMinimum(-99);
-
-        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 6, 1, 1);
-
-        spin_ca_armadura_melhoria = new QSpinBox(groupBox_3);
-        spin_ca_armadura_melhoria->setObjectName(QStringLiteral("spin_ca_armadura_melhoria"));
-        spin_ca_armadura_melhoria->setMinimum(-99);
-
-        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 3, 1, 1);
-
-        label_58 = new QLabel(groupBox_3);
-        label_58->setObjectName(QStringLiteral("label_58"));
-        label_58->setFont(font1);
-        label_58->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_58, 0, 10, 1, 1);
-
-        label_59 = new QLabel(groupBox_3);
-        label_59->setObjectName(QStringLiteral("label_59"));
-        label_59->setFont(font1);
-        label_59->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_59, 0, 11, 1, 1);
-
-        label_53 = new QLabel(groupBox_3);
-        label_53->setObjectName(QStringLiteral("label_53"));
-        label_53->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_53, 0, 0, 1, 1);
-
-        label_60 = new QLabel(groupBox_3);
-        label_60->setObjectName(QStringLiteral("label_60"));
-        label_60->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_60, 1, 0, 1, 1);
-
-        label_61 = new QLabel(groupBox_3);
-        label_61->setObjectName(QStringLiteral("label_61"));
-        label_61->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_61, 1, 8, 1, 1);
-
-        label_ca_surpreso = new QLabel(groupBox_3);
-        label_ca_surpreso->setObjectName(QStringLiteral("label_ca_surpreso"));
-        label_ca_surpreso->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_ca_surpreso, 1, 11, 1, 1);
-
-        botao_bonus_ca = new QPushButton(groupBox_3);
-        botao_bonus_ca->setObjectName(QStringLiteral("botao_bonus_ca"));
-
-        gridLayout_3->addWidget(botao_bonus_ca, 1, 9, 1, 1);
-
-        label_ca_toque = new QLabel(groupBox_3);
-        label_ca_toque->setObjectName(QStringLiteral("label_ca_toque"));
-        label_ca_toque->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_ca_toque, 1, 10, 1, 1);
-
-        combo_armadura = new QComboBox(groupBox_3);
-        combo_armadura->setObjectName(QStringLiteral("combo_armadura"));
-
-        gridLayout_3->addWidget(combo_armadura, 1, 1, 1, 1);
-
-        combo_escudo = new QComboBox(groupBox_3);
-        combo_escudo->setObjectName(QStringLiteral("combo_escudo"));
-
-        gridLayout_3->addWidget(combo_escudo, 1, 4, 1, 1);
-
-        spin_bonus_escudo = new QLabel(groupBox_3);
-        spin_bonus_escudo->setObjectName(QStringLiteral("spin_bonus_escudo"));
-        spin_bonus_escudo->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(spin_bonus_escudo, 0, 4, 1, 1);
-
-        spin_bonus_escudo_2 = new QLabel(groupBox_3);
-        spin_bonus_escudo_2->setObjectName(QStringLiteral("spin_bonus_escudo_2"));
-        spin_bonus_escudo_2->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(spin_bonus_escudo_2, 0, 6, 1, 1);
-
-        combo_material_armadura = new QComboBox(groupBox_3);
-        combo_material_armadura->setObjectName(QStringLiteral("combo_material_armadura"));
-        sizePolicy1.setHeightForWidth(combo_material_armadura->sizePolicy().hasHeightForWidth());
-        combo_material_armadura->setSizePolicy(sizePolicy1);
-
-        gridLayout_3->addWidget(combo_material_armadura, 1, 2, 1, 1);
-
-        label_96 = new QLabel(groupBox_3);
-        label_96->setObjectName(QStringLiteral("label_96"));
-        sizePolicy7.setHeightForWidth(label_96->sizePolicy().hasHeightForWidth());
-        label_96->setSizePolicy(sizePolicy7);
-        label_96->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_3->addWidget(label_96, 0, 5, 1, 1);
-
-        combo_material_escudo = new QComboBox(groupBox_3);
-        combo_material_escudo->setObjectName(QStringLiteral("combo_material_escudo"));
-        sizePolicy1.setHeightForWidth(combo_material_escudo->sizePolicy().hasHeightForWidth());
-        combo_material_escudo->setSizePolicy(sizePolicy1);
-
-        gridLayout_3->addWidget(combo_material_escudo, 1, 5, 1, 1);
-
-
-        gridLayout_14->addLayout(gridLayout_3, 0, 0, 1, 1);
-
-
-        gridLayout_17->addWidget(groupBox_3, 1, 1, 1, 2);
-
-        groupBox_5 = new QGroupBox(tab_estatisticas);
-        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
-        gridLayout_16 = new QGridLayout(groupBox_5);
-        gridLayout_16->setObjectName(QStringLiteral("gridLayout_16"));
-        gridLayout_4 = new QGridLayout();
-        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
-        label_65 = new QLabel(groupBox_5);
-        label_65->setObjectName(QStringLiteral("label_65"));
-        label_65->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_4->addWidget(label_65, 2, 0, 1, 1);
-
-        label_66 = new QLabel(groupBox_5);
-        label_66->setObjectName(QStringLiteral("label_66"));
-        label_66->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_4->addWidget(label_66, 3, 0, 1, 1);
-
-        botao_bonus_salvacao_fortitude = new QPushButton(groupBox_5);
-        botao_bonus_salvacao_fortitude->setObjectName(QStringLiteral("botao_bonus_salvacao_fortitude"));
-
-        gridLayout_4->addWidget(botao_bonus_salvacao_fortitude, 1, 1, 1, 1);
-
-        botao_bonus_salvacao_vontade = new QPushButton(groupBox_5);
-        botao_bonus_salvacao_vontade->setObjectName(QStringLiteral("botao_bonus_salvacao_vontade"));
-
-        gridLayout_4->addWidget(botao_bonus_salvacao_vontade, 3, 1, 1, 1);
-
-        label_67 = new QLabel(groupBox_5);
-        label_67->setObjectName(QStringLiteral("label_67"));
-        label_67->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_4->addWidget(label_67, 1, 0, 1, 1);
-
-        botao_bonus_salvacao_reflexo = new QPushButton(groupBox_5);
-        botao_bonus_salvacao_reflexo->setObjectName(QStringLiteral("botao_bonus_salvacao_reflexo"));
-
-        gridLayout_4->addWidget(botao_bonus_salvacao_reflexo, 2, 1, 1, 1);
-
-        label_70 = new QLabel(groupBox_5);
-        label_70->setObjectName(QStringLiteral("label_70"));
-        sizePolicy7.setHeightForWidth(label_70->sizePolicy().hasHeightForWidth());
-        label_70->setSizePolicy(sizePolicy7);
-        label_70->setFont(font1);
-        label_70->setAlignment(Qt::AlignCenter);
-
-        gridLayout_4->addWidget(label_70, 0, 1, 1, 1);
-
-
-        gridLayout_16->addLayout(gridLayout_4, 0, 0, 1, 1);
-
-
-        gridLayout_17->addWidget(groupBox_5, 2, 0, 1, 1);
-
-        horizontalLayout_11 = new QHBoxLayout();
-        horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
-        label_85 = new QLabel(tab_estatisticas);
-        label_85->setObjectName(QStringLiteral("label_85"));
-        label_85->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_11->addWidget(label_85);
-
-        spin_rm = new QSpinBox(tab_estatisticas);
-        spin_rm->setObjectName(QStringLiteral("spin_rm"));
-
-        horizontalLayout_11->addWidget(spin_rm);
-
-
-        gridLayout_17->addLayout(horizontalLayout_11, 3, 0, 1, 1);
-
-        checkbox_imune_critico = new QCheckBox(tab_estatisticas);
-        checkbox_imune_critico->setObjectName(QStringLiteral("checkbox_imune_critico"));
-
-        gridLayout_17->addWidget(checkbox_imune_critico, 3, 1, 1, 1);
-
-        tabs->addTab(tab_estatisticas, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QStringLiteral("tab_6"));
         gridLayout_13 = new QGridLayout(tab_6);
@@ -2757,76 +2818,14 @@ public:
 #endif // QT_NO_TOOLTIP
         label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", Q_NULLPTR));
-        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", Q_NULLPTR));
-        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_7), QApplication::translate("ifg::qt::DialogoEntidade", "Efeitos", Q_NULLPTR));
-        label_84->setText(QApplication::translate("ifg::qt::DialogoEntidade", "XP", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_xp->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Experi\303\252ncia do personagem.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_46->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        linha_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque Total", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", Q_NULLPTR));
-        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", Q_NULLPTR));
-        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", Q_NULLPTR));
-        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", Q_NULLPTR));
-        label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados N\303\255vel", Q_NULLPTR));
-        label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        linha_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador da Classe", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_nivel_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel da Classe", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_43->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", Q_NULLPTR));
-        combo_mod_conjuracao->clear();
-        combo_mod_conjuracao->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", Q_NULLPTR)
-        );
-        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", Q_NULLPTR));
-        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", Q_NULLPTR));
-        botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", Q_NULLPTR));
-        botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", Q_NULLPTR));
-        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", Q_NULLPTR));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", Q_NULLPTR));
-        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
-        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", Q_NULLPTR));
-        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Furtivo", Q_NULLPTR));
-#ifndef QT_NO_TOOLTIP
-        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        linha_furtivo->setText(QString());
-        label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", Q_NULLPTR));
-        botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", Q_NULLPTR));
-        botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
-        tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", Q_NULLPTR));
+        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es", Q_NULLPTR));
+        label_65->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Reflexos", Q_NULLPTR));
+        label_66->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vontade", Q_NULLPTR));
+        botao_bonus_salvacao_fortitude->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
+        botao_bonus_salvacao_vontade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
+        label_67->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Fortitude", Q_NULLPTR));
+        botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
+        label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
         groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Atributos", Q_NULLPTR));
         botao_bonus_constituicao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
         label_47->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Int", Q_NULLPTR));
@@ -2949,20 +2948,87 @@ public:
 #ifndef QT_NO_TOOLTIP
         combo_material_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es", Q_NULLPTR));
-        label_65->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Reflexos", Q_NULLPTR));
-        label_66->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vontade", Q_NULLPTR));
-        botao_bonus_salvacao_fortitude->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        botao_bonus_salvacao_vontade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_67->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Fortitude", Q_NULLPTR));
-        botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
         label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Resist\303\252ncia a Magia", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", Q_NULLPTR));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Movimento", Q_NULLPTR));
+        label_25->setText(QApplication::translate("ifg::qt::DialogoEntidade", "terrestre", Q_NULLPTR));
+        label_90->setText(QApplication::translate("ifg::qt::DialogoEntidade", "nadando", Q_NULLPTR));
+        label_32->setText(QApplication::translate("ifg::qt::DialogoEntidade", "a\303\251reo", Q_NULLPTR));
+        label_97->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escavando", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", Q_NULLPTR));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", Q_NULLPTR));
+        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
+        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_7), QApplication::translate("ifg::qt::DialogoEntidade", "Efeitos", Q_NULLPTR));
+        label_84->setText(QApplication::translate("ifg::qt::DialogoEntidade", "XP", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_xp->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Experi\303\252ncia do personagem.", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_46->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        linha_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque Total", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_80->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis Negativos", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_niveis_negativos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255veis negativos.", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_76->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Caos", Q_NULLPTR));
+        label_77->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem", Q_NULLPTR));
+        label_75->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mal", Q_NULLPTR));
+        label_78->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bem", Q_NULLPTR));
+        label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados N\303\255vel", Q_NULLPTR));
+        label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        linha_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador da Classe", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel da Classe", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_43->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", Q_NULLPTR));
+        combo_mod_conjuracao->clear();
+        combo_mod_conjuracao->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", Q_NULLPTR)
+        );
+        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", Q_NULLPTR));
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", Q_NULLPTR));
+        botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", Q_NULLPTR));
+        botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel e Tend\303\252ncia", Q_NULLPTR));
+        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", Q_NULLPTR));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", Q_NULLPTR));
+        botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
+        botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", Q_NULLPTR));
+        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Furtivo", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        linha_furtivo->setText(QString());
+        label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", Q_NULLPTR));
+        botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", Q_NULLPTR));
+        botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
