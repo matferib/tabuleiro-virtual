@@ -2349,6 +2349,12 @@ tabela_talentos {
     #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
     descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
   }
+  talentos {
+    id: 'tiro_queima_roupa'
+    nome: 'Tiro Queima Roupa'
+    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
+    descricao: '+1 ataque da no para tiros até 6 quadrados.'
+  }
 
   talentos {
     id: 'acrobatico'

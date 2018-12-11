@@ -16,12 +16,215 @@ modelo {
   }
 }
 modelo {
-  id: 'Demônio Flecha'  # MM3
+  id: 'Demônio Flecha'  # MM3 http://archive.wizards.com/default.asp?x=dnd/iw/20040815b&page=4
   entidade { 
+    
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
-    dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' 
+    dados_vida: '10d8+90' tamanho: TM_MEDIO
+    info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } 
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    movimento {
+      terrestre_basico_q: 8
+    }
+
+    info_classes {
+      id: 'extra_planar' nivel: 10
+      salvacoes_fortes: TS_FORTITUDE
+      salvacoes_fortes: TS_REFLEXO
+      salvacoes_fortes: TS_VONTADE
+      progressao_bba: PBBA_UM
+      pericias_monstro: 'equilibrio'
+      pericias_monstro: 'blefar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'concentracao'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 29 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+    # Normal.
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'arco 1#1' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'arco 2#1' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'arco 1#2' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'arco 2#2' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
+      tamanho: TM_GRANDE
+      ordem_ataque: 1
+    }
+    # Tiro rapido.
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 1#1 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque { 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 2#1 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque { 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 1#2 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 2#2 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 0
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 1#3 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 1
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'ataque total tiro rapido' rotulo: 'arco 2#3 rapido' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'arco_longo_composto_5' bonus_magico: 1
+      ordem_ataque: 1
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      }
+      tamanho: TM_GRANDE
+      empunhadura: EA_ARMA_APENAS
+    }
+    # Corpo a corpo.
+    dados_ataque {
+      grupo: 'ataque total 2' rotulo: 'garra 1' tipo_ataque: 'Ataque Corpo a Corpo'
+      dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total 2' rotulo: 'garra 2' tipo_ataque: 'Ataque Corpo a Corpo'
+      dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total 2' rotulo: 'garra 3' tipo_ataque: 'Ataque Corpo a Corpo'
+      dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total 2' rotulo: 'garra 4' tipo_ataque: 'Ataque Corpo a Corpo'
+      dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+
+    dados_defesa {
+      resistencia_magia: 18
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+      imunidades: DESC_ELETRICIDADE
+      imunidades: DESC_VENENO
+      resistencia_elementos {
+        descritor: DESC_ACIDO
+        valor: 10
+      }
+      resistencia_elementos {
+        descritor: DESC_FRIO
+        valor: 10
+      }
+      resistencia_elementos {
+        descritor: DESC_FOGO
+        valor: 10
+      }
+      reducao_dano {
+        descritores: DESC_BEM
+        valor: 5
+      }
+    }
+    info_talentos {
+      gerais { id: 'tiro_queima_roupa' }
+      gerais { id: 'tiro_preciso' }
+      gerais { id: 'tiro_rapido' }
+      gerais { id: 'foco_em_arma' complemento: 'arco_longo_composto_5' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 13 }
+    info_pericias { id: 'blefar' pontos: 13 }
+    info_pericias { id: 'escalar' pontos: 13 }
+    info_pericias { id: 'concentracao' pontos: 13 }
+    info_pericias { id: 'esconderse' pontos: 13 }
+    info_pericias { id: 'saltar' pontos: 13 }
+    info_pericias { id: 'ouvir' pontos: 13 }
+    info_pericias { id: 'furtividade' pontos: 13 }
+    info_pericias { id: 'procurar' pontos: 13 }
+    info_pericias { id: 'sentir_motivacao' pontos: 13 }
+    info_pericias { id: 'observar' pontos: 13 }
+
+    tendencia { simples: TD_CAOTICO_MAU }
+
+    rotulo_especial: 'telepatia 30m (20q)'
+    rotulo_especial: 'na vontade: porta dimensional'
+    rotulo_especial: 'conjurar 1d6 dretches ou outro flecha 35%'
+    rotulo_especial: 'arquearia simetrica'
+    rotulo_especial: 'arma maior sem penalidade'
   }
 }
 modelo {
