@@ -22,6 +22,16 @@ class Message;
 
 namespace arq {
 
+class ParseProtoException : std::exception {
+ public:
+  ParseProtoException(const std::string& reason) : std::exception(), reason_(reason) {}
+  const char* what() const noexcept override {
+    return reason_.c_str();
+  }
+ private:
+  std::string reason_;
+};
+
 enum tipo_e {
   TIPO_MODELOS_3D,
   TIPO_MODELOS_3D_BAIXADOS,

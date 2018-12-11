@@ -10,8 +10,9 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 #include <stdexcept>
-#include "arq/arquivo.h"
 
+#include "arq/arquivo.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 
 namespace arq {
@@ -168,20 +169,36 @@ void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados)
   }
 }
 
+void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
+  throw ParseProtoException(google::protobuf::StringPrintf("Erro lendo arquivo: %s", message.c_str()));
+}
+
+struct ScopedLogHandler {
+ public:
+  ScopedLogHandler() {
+    old = google::protobuf::SetLogHandler(&LogHandler);
+  }
+  ~ScopedLogHandler() {
+    google::protobuf::SetLogHandler(old);
+  }
+
+  google::protobuf::LogHandler* old;
+};
+
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::string dados;
   LeArquivo(tipo, nome_arquivo, &dados);
-  if (!google::protobuf::TextFormat::ParseFromString(dados, mensagem)) {
-    throw std::logic_error(std::string("Erro de parse do arquivo ") + nome_arquivo);
-  }
+
+  ScopedLogHandler slh;
+  google::protobuf::TextFormat::ParseFromString(dados, mensagem);
 }
 
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::string dados;
   LeArquivo(tipo, nome_arquivo, &dados);
-  if (!mensagem->ParseFromString(dados)) {
-    throw std::logic_error(std::string("Erro de parse do arquivo ") + nome_arquivo);
-  }
+  
+  ScopedLogHandler slh;
+  mensagem->ParseFromString(dados);
 }
 
 }  // namespace arq
