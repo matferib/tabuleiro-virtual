@@ -17,13 +17,12 @@ modelo {
 }
 modelo {
   id: 'Demônio Flecha'  # MM3 http://archive.wizards.com/default.asp?x=dnd/iw/20040815b&page=4
-  entidade { 
-    
+  entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '10d8+90' tamanho: TM_MEDIO
-    info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } 
+    info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     movimento {
       terrestre_basico_q: 8
@@ -56,7 +55,7 @@ modelo {
     }
     # Normal.
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'arco 1#1' tipo_ataque: 'Ataque a Distância'
+      grupo: 'ataque total' rotulo: 'arco 1' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
@@ -64,7 +63,7 @@ modelo {
       empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'arco 2#1' tipo_ataque: 'Ataque a Distância'
+      grupo: 'ataque total' rotulo: 'arco 2' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
@@ -72,7 +71,7 @@ modelo {
       empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'arco 1#2' tipo_ataque: 'Ataque a Distância'
+      grupo: 'ataque total' rotulo: 'arco 1' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
@@ -80,7 +79,7 @@ modelo {
       empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'arco 2#2' tipo_ataque: 'Ataque a Distância'
+      grupo: 'ataque total' rotulo: 'arco 2' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } }
@@ -92,9 +91,9 @@ modelo {
       grupo: 'ataque total tiro rapido' rotulo: 'arco 1#1 rapido' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
-      bonus_ataque { 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
@@ -103,9 +102,9 @@ modelo {
       grupo: 'ataque total tiro rapido' rotulo: 'arco 2#1 rapido' tipo_ataque: 'Ataque a Distância'
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
-      bonus_ataque { 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+      bonus_ataque {
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
@@ -115,8 +114,8 @@ modelo {
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
       bonus_ataque {
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
@@ -126,8 +125,8 @@ modelo {
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 0
       bonus_ataque {
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
@@ -137,8 +136,8 @@ modelo {
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 1
       bonus_ataque {
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
@@ -148,8 +147,8 @@ modelo {
       id_arma: 'arco_longo_composto_5' bonus_magico: 1
       ordem_ataque: 1
       bonus_ataque {
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } } 
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } } 
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'arquearia_simetrica' valor: -2 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro_rapido' valor: -2 } }
       }
       tamanho: TM_GRANDE
       empunhadura: EA_ARMA_APENAS
