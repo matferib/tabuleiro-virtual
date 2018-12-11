@@ -1388,6 +1388,10 @@ modelo {
     dados_ataque {
       rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia'
     }
+    dados_defesa {
+      id_armadura: 'couro'
+      id_escudo: 'leve_madeira'
+    }
     info_classes { id: 'combatente' nivel: 1 }
     atributos {
       # Usa o array nao elite: 13 12 11 10 9 8, porque eh combatente. -2 for car, +2 des.
@@ -1401,9 +1405,67 @@ modelo {
     info_talentos {
       gerais { id: 'prontidao' }
     }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'furtividade' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'cavalgar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'saltar' pontos: 4 }
+
     tendencia { simples: TD_NEUTRO_MAU }
   }
 }
+modelo {
+  id: 'Goblin Demoníaco'
+  entidade {
+    dados_vida: '1d8+1' 
+    tamanho: TM_PEQUENO cor 
+    { r: 0.745 g: 0.596 b: 0.388 }
+    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      rotulo: 'maça estrela' id_arma: 'maca_estrela'
+    }
+    dados_ataque {
+      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia'
+    }
+    info_classes { id: 'combatente' nivel: 1 }
+    atributos {
+      # Usa o array nao elite: 13 12 11 10 9 8, porque eh combatente. -2 for car, +2 des.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      resistencia_magia: 6
+      id_armadura: 'couro'
+      id_escudo: 'leve_madeira'
+      resistencia_elementos {
+        descritor: DESC_FRIO
+        valor: 5 
+      }
+      resistencia_elementos {
+        descritor: DESC_FOGO
+        valor: 5
+      }
+    }
+
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'furtividade' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'cavalgar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'saltar' pontos: 4 }
+
+    rotulo_especial: 'destruir o bem 1/dia +1 dano'
+    tendencia { simples: TD_NEUTRO_MAU }
+  }
+}
+
 modelo {
   # Baseado em:
   # http://d20npcs.wikia.com/wiki/Goblin_Warrior_3
