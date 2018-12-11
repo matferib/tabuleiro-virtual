@@ -2998,6 +2998,11 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     // Atributo.
     AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
 
+    if (pt.id() == "esconderse") {
+      // Bonus de tamanho.
+      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto->mutable_bonus());
+    }
+
     // Talento.
     auto par_pericia_talentos = talentos_por_pericia.find(pt.id());
     if (par_pericia_talentos != talentos_por_pericia.end()) {
@@ -3312,6 +3317,10 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
     case TM_COLOSSAL: return 16;
   }
   return 0;
+}
+
+int ModificadorTamanhoEsconderse(TamanhoEntidade tamanho) {
+  return -ModificadorTamanhoAgarrar(tamanho);
 }
 
 std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho) {

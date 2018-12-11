@@ -369,6 +369,7 @@ void AtribuiBaseAtributo(int valor, TipoAtributo ta, EntidadeProto* proto);
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
+int ModificadorTamanhoEsconderse(TamanhoEntidade tamanho);
 // Dano da entidade por tamanho.
 std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho);
 
