@@ -93,3 +93,12 @@ tabela_talentos {
     }
   }
 }
+tabela_amuletos {
+  amuletos {
+    id: 'amuleto_saude_1'
+    nome: 'Amuleto da Saúde +1'
+    custo_po: 2000
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    complementos: 1
+  }
+}

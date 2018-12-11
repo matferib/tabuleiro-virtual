@@ -1724,6 +1724,30 @@ tabela_bracadeiras {
   }
 }
 
+tabela_amuletos {
+  amuletos {
+    id: 'amuleto_saude_2'
+    nome: 'Amuleto da Saúde +2'
+    custo_po: 4000
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    complementos: 2
+  }
+  amuletos {
+    id: 'amuleto_saude_4'
+    nome: 'Amuleto da Saúde +4'
+    custo_po: 16000
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    complementos: 4
+  }
+  amuletos {
+    id: 'amuleto_saude_6'
+    nome: 'Amuleto da Saúde +6'
+    custo_po: 36000
+    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    complementos: 6
+  }
+}
+
 tabela_luvas {
   luvas {
     id: 'luvas_apanhar_flechas'
