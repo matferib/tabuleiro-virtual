@@ -2142,6 +2142,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           }
           arq::LeArquivoBinProto(tipo, nome_arquivo, &nt_tabuleiro);
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
+        } catch (const arq::ParseProtoException& e) {
+          central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErro(StringPrintf("Erro lendo arquivo: %s: %s", notificacao.endereco().c_str(), e.what())));
+          return true;
         } catch (std::logic_error&) {
           central_->AdicionaNotificacao(
               ntf::NovaNotificacaoErro(std::string("Erro lendo arquivo: ") + notificacao.endereco()));
