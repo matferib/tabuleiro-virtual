@@ -608,6 +608,7 @@ enum TipoItem {
   TIPO_BRACADEIRAS = 3;
   TIPO_POCAO = 4;
   TIPO_AMULETO = 5;
+  TIPO_BOTAS = 6;
 }
 
 // Vale para anel, pocao etc.

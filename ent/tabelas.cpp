@@ -145,6 +145,8 @@ void Tabelas::RecarregaMapas() {
   mantos_.clear();
   luvas_.clear();
   bracadeiras_.clear();
+  amuletos_.clear();
+  botas_.clear();
   talentos_.clear();
   pericias_.clear();
   classes_.clear();
@@ -217,6 +219,11 @@ void Tabelas::RecarregaMapas() {
   for (auto& bracadeiras : *tabelas_.mutable_tabela_bracadeiras()->mutable_bracadeiras()) {
     bracadeiras.set_tipo(TIPO_BRACADEIRAS);
     bracadeiras_[bracadeiras.id()] = &bracadeiras;
+  }
+
+  for (auto& botas : *tabelas_.mutable_tabela_botas()->mutable_botas()) {
+    botas.set_tipo(TIPO_BOTAS);
+    botas_[botas.id()] = &botas;
   }
 
   for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
@@ -293,6 +300,11 @@ const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Luvas(const std::string& id) const {
   auto it = luvas_.find(id);
   return it == luvas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Botas(const std::string& id) const {
+  auto it = botas_.find(id);
+  return it == botas_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const ItemMagicoProto& Tabelas::Amuleto(const std::string& id) const {

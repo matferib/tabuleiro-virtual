@@ -1,3 +1,11 @@
+Pontos raciais de elfo.
+Modelar multishot (tiro multiplo).
+Penalidade de escudo e armadura reduzida em 1 para obras primas.
+Nos complmentos, ignorar case.
+Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
+Colocar evasao e evasao aprimorada na UI.
+Tooltip de descricao de talentos na UI.
+Eventos nao aparecem na UI ao vestir/tirar items.
 Fazer mais monstros: slaad vermelho e verde, demonio flecha, mortos de bane.
 modelo3d demonio flecha.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias), amuleto de saude, chapeu de carisma.

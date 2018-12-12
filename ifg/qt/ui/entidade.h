@@ -391,6 +391,13 @@ public:
     QHBoxLayout *horizontalLayout_30;
     QLabel *label_37;
     QPlainTextEdit *lista_tesouro;
+    QHBoxLayout *horizontalLayout_44;
+    QLabel *label_99;
+    QListWidget *lista_botas;
+    QVBoxLayout *verticalLayout_22;
+    QPushButton *botao_usar_botas;
+    QPushButton *botao_adicionar_botas;
+    QPushButton *botao_remover_botas;
     QWidget *tab_4;
     QVBoxLayout *verticalLayout_4;
     QPushButton *botao_renovar_feiticos;
@@ -2311,7 +2318,7 @@ public:
         horizontalLayout_36->addLayout(verticalLayout_6);
 
 
-        gridLayout_7->addLayout(horizontalLayout_36, 0, 0, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_36, 0, 1, 1, 1);
 
         horizontalLayout_40 = new QHBoxLayout();
         horizontalLayout_40->setObjectName(QStringLiteral("horizontalLayout_40"));
@@ -2355,7 +2362,7 @@ public:
         horizontalLayout_40->addLayout(verticalLayout_9);
 
 
-        gridLayout_7->addLayout(horizontalLayout_40, 0, 1, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_40, 0, 2, 1, 1);
 
         horizontalLayout_17 = new QHBoxLayout();
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
@@ -2393,7 +2400,7 @@ public:
         horizontalLayout_17->addLayout(verticalLayout_10);
 
 
-        gridLayout_7->addLayout(horizontalLayout_17, 1, 0, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_17, 1, 1, 1, 1);
 
         horizontalLayout_41 = new QHBoxLayout();
         horizontalLayout_41->setObjectName(QStringLiteral("horizontalLayout_41"));
@@ -2431,7 +2438,7 @@ public:
         horizontalLayout_41->addLayout(verticalLayout_8);
 
 
-        gridLayout_7->addLayout(horizontalLayout_41, 1, 1, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_41, 1, 2, 1, 1);
 
         horizontalLayout_42 = new QHBoxLayout();
         horizontalLayout_42->setObjectName(QStringLiteral("horizontalLayout_42"));
@@ -2469,7 +2476,7 @@ public:
         horizontalLayout_42->addLayout(verticalLayout_7);
 
 
-        gridLayout_7->addLayout(horizontalLayout_42, 2, 1, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_42, 2, 2, 1, 1);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
@@ -2504,7 +2511,7 @@ public:
         horizontalLayout_3->addLayout(verticalLayout_19);
 
 
-        gridLayout_7->addLayout(horizontalLayout_3, 2, 0, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_3, 2, 1, 1, 1);
 
         horizontalLayout_30 = new QHBoxLayout();
         horizontalLayout_30->setObjectName(QStringLiteral("horizontalLayout_30"));
@@ -2522,7 +2529,45 @@ public:
         horizontalLayout_30->addWidget(lista_tesouro);
 
 
-        gridLayout_7->addLayout(horizontalLayout_30, 3, 0, 1, 2);
+        gridLayout_7->addLayout(horizontalLayout_30, 3, 2, 1, 1);
+
+        horizontalLayout_44 = new QHBoxLayout();
+        horizontalLayout_44->setObjectName(QStringLiteral("horizontalLayout_44"));
+        label_99 = new QLabel(tab);
+        label_99->setObjectName(QStringLiteral("label_99"));
+        sizePolicy1.setHeightForWidth(label_99->sizePolicy().hasHeightForWidth());
+        label_99->setSizePolicy(sizePolicy1);
+        label_99->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_44->addWidget(label_99);
+
+        lista_botas = new QListWidget(tab);
+        lista_botas->setObjectName(QStringLiteral("lista_botas"));
+
+        horizontalLayout_44->addWidget(lista_botas);
+
+        verticalLayout_22 = new QVBoxLayout();
+        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
+        botao_usar_botas = new QPushButton(tab);
+        botao_usar_botas->setObjectName(QStringLiteral("botao_usar_botas"));
+
+        verticalLayout_22->addWidget(botao_usar_botas);
+
+        botao_adicionar_botas = new QPushButton(tab);
+        botao_adicionar_botas->setObjectName(QStringLiteral("botao_adicionar_botas"));
+
+        verticalLayout_22->addWidget(botao_adicionar_botas);
+
+        botao_remover_botas = new QPushButton(tab);
+        botao_remover_botas->setObjectName(QStringLiteral("botao_remover_botas"));
+
+        verticalLayout_22->addWidget(botao_remover_botas);
+
+
+        horizontalLayout_44->addLayout(verticalLayout_22);
+
+
+        gridLayout_7->addLayout(horizontalLayout_44, 3, 1, 1, 1);
 
         tabs->addTab(tab, QString());
         tab_4 = new QWidget();
@@ -3191,6 +3236,10 @@ public:
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
+        label_99->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Botas", Q_NULLPTR));
+        botao_usar_botas->setText(QString());
+        botao_adicionar_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", Q_NULLPTR));
+        botao_remover_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", Q_NULLPTR));

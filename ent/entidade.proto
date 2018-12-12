@@ -347,6 +347,7 @@ message EntidadeProto {
     repeated ItemMagicoProto luvas = 5;
     repeated ItemMagicoProto bracadeiras = 6;
     repeated ItemMagicoProto amuletos = 7;
+    repeated ItemMagicoProto botas = 8;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
