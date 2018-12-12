@@ -818,7 +818,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
-    dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
+    dados_vida: '2d8+4' modelo_3d { id: 'dretch' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
 
     info_classes {
@@ -2703,15 +2703,26 @@ modelo {
   entidade {
     tipo_dnd: TIPO_BESTA_MAGICA
     dados_vida: '4d10+8' tamanho: TM_MEDIO
-    info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     info_classes {
-      id: 'besta magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO bba: 3
+      id: 'besta_magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM 
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'rastrear' }
     }
     rotulo_especial: 'derrubar como ação livre se acertar mordida +3 mod'
     dados_ataque {
       rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'furtividade' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
