@@ -105,15 +105,13 @@ class ModeloEvento : public QAbstractTableModel {
   }
 
   bool removeRows(int row, int count, const QModelIndex& parent) override {
+    beginRemoveRows(parent, row, eventos_.size() - 1);
     for (int i = 0; i < count; ++i ) {
       if (row + i < 0 || row + i >= eventos_.size()) break;
       eventos_.Mutable(row + i)->set_rodadas(-1);
     }
     emit dataChanged(parent, parent);
-    beginRemoveRows(parent, row, eventos_.size() - 1);
-    eventos_.DeleteSubrange(row, count);
     endRemoveRows();
-    emit dataChanged(parent, parent);
     return true;
   }
 
@@ -138,7 +136,8 @@ class ModeloEvento : public QAbstractTableModel {
   }
 
   // Dado de cada celula.
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+  QVariant data(const QModelIndex& index,
+                int role = Qt::DisplayRole) const override {
     if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::ToolTipRole) {
       return QVariant();
     }
@@ -151,7 +150,7 @@ class ModeloEvento : public QAbstractTableModel {
     const int column = index.column();
     const auto& evento = eventos_.Get(row);
     switch (column) {
-      case 0: 
+      case 0:
         return role == Qt::DisplayRole || role == Qt::ToolTipRole
             ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) 
             : QVariant(evento.id_efeito());
@@ -181,17 +180,14 @@ class ModeloEvento : public QAbstractTableModel {
     switch (column) {
       case 0: {
         if (!ent::TipoEfeito_IsValid(value.toInt())) return false;
-        // Anula o efeito anterior primeiro, depois aplica o novo.
-        evento->set_rodadas(-1);
-        emit dataChanged(index, index);
+        AnulaEfeitoEmitindoMudanca(index, evento);
         evento->set_id_efeito(ent::TipoEfeito(value.toInt()));
         evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;
       }
       case 1: {
-        evento->set_rodadas(-1);
-        emit dataChanged(index, index);
+        AnulaEfeitoEmitindoMudanca(index, evento);
         if (ComplementoEventoString(*evento)) {
           *evento->mutable_complementos_str() = StringParaComplementosStr(value.toString());
         } else {
@@ -202,8 +198,7 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 2: {
-        evento->set_rodadas(-1);
-        emit dataChanged(index, index);
+        AnulaEfeitoEmitindoMudanca(index, evento);
         evento->set_rodadas(value.toInt());
         emit dataChanged(index, index);
         return true;
@@ -221,9 +216,20 @@ class ModeloEvento : public QAbstractTableModel {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
+  // Necessario para que o efeito anterior seja desaplicado antes de aplicar o
+  // novo.
+  void AnulaEfeitoEmitindoMudanca(const QModelIndex& index, Evento* evento) {
+    evento->set_rodadas(-1);
+    ignora_alteracoes_ = true;
+    emit dataChanged(index, index);
+    ignora_alteracoes_ = false;
+  }
+
   // Sinaliza que o modelo foi atualizado externamente.
-  void ModeloAtualizado() {
+  void AtualizaModelo(const ent::EntidadeProto& proto) {
+    if (ignora_alteracoes_) return;
     beginResetModel();
+    eventos_ = proto.evento();
     endResetModel();
   }
 
@@ -231,6 +237,12 @@ class ModeloEvento : public QAbstractTableModel {
 
  private:
   Eventos eventos_;
+  // Quando verdadeiro, alteracoes do modelo serao ignoradas. Isso ocorre
+  // porque as alteracoes na verdade setam a duracao para -1 para anular o
+  // efeito corrente e depois mudam o efeito com o valor correto. Ao chamar
+  // emitData, a funcao AtualizaModelo sera chamada entre os emits e o evento
+  // sera perdido.
+  bool ignora_alteracoes_ = false;
 };
 
 // Responsavel por tratar a edicao do tipo de efeito.

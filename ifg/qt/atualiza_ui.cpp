@@ -22,9 +22,10 @@ void AtualizaUIEventos(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   auto* model = qobject_cast<ModeloEvento*>(gerador.tabela_lista_eventos->model());
   if (model == nullptr) return;
-  model->ModeloAtualizado();
+  gerador.tabela_lista_eventos->blockSignals(true);
+  model->AtualizaModelo(proto);
+  gerador.tabela_lista_eventos->blockSignals(false);
 }
-
 
 void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& mov = proto.movimento();
