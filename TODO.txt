@@ -1,12 +1,16 @@
-Fazer 3d: bodak, goblins demoniacos.
-Colocar outros aneis e mantos com efeitos (especialmente em pericias).
+UI de eventos nao permite mudar rodada.
+Fazer mais monstros: slaad vermelho e verde, demonio flecha.
+Colocar outros aneis e mantos com efeitos (especialmente em pericias), amuleto de saude, chapeu de carisma.
 Mortos de bane.
-Bonus de esconder por tamanho.
+Misseis magicos nao acerta reflexos.
+Colocar botao +16 ataque. Zerar botoes ao passar rodada.
+Sugestao: desfazer dar mensagem.
+
 
 Colocar botao de carga (+2 ataque, -2 CA)
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Colocar arte da fuga no agarrar.
-Botao de remover feitico na UI.
+Botao de remover feitico na UI de feiticos.
 Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
 Dados rolados para alguns tipos nao estao aparecendo no log.
