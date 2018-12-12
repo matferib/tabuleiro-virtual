@@ -2822,7 +2822,7 @@ tabela_talentos {
   talentos {
     id: 'tolerancia'
     nome: 'Tolerância'  # Endurance.
-    descricao: '+4 de bônus nos testes para resistir a danos não letais (nadar, correr marcha forçada, respiração, fome e sede, frio, calor e sufocamento. Pode dormir em armadura leve ou média sem fatigar.'
+    descricao: '+4 de bônus nos testes para resistir a danos não letais (nadar, correr marcha forçada, respiração, fome e sede, frio, calor e sufocamento). Pode dormir em armadura leve ou média sem fatigar.'
   }
   talentos {
     id: 'trespassar'

@@ -605,7 +605,7 @@ modelo {
 
     tendencia { simples: TD_CAOTICO_MAU }
 
-    rotulo_especial: 'telepatia 30m (20q), movimento: t: 6q v: 10q\na vontade: reflexos, telekinesia, teleportar maior\nheroismo 1xdia\nesporos e danca da ruina e grito estridentei\nconjurar 2d10 dretches ou vrock 35%'
+    rotulo_especial: 'telepatia 30m (20q), movimento: t: 6q v: 10q\na vontade: reflexos, telekinesia, teleportar maior\nheroismo 1xdia\nesporos e danca da ruina e grito estridente\nconjurar 2d10 dretches ou vrock 35%'
   }
 }
 modelo {
