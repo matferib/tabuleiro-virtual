@@ -1290,8 +1290,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   int d20 = RolaDado(20);
 
   // Acerto ou erro.
-  int total;
-  {
+  int total = 1;
+  if (ap.permite_ataque_vs_defesa()) {
     bool acertou;
     std::tie(total, resultado.texto, acertou) =
         ComputaAcertoOuErro(

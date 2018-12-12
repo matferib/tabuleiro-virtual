@@ -1199,7 +1199,7 @@ float Tabuleiro::TrataAcaoIndividual(
     // Quantas vezes o ataque acertou. Por exemplo: 2 para dano duplo.
     // -1 indica falha critica.
     ResultadoAtaqueVsDefesa resultado;
-    if (modo_dano_automatico_ && acao_proto->permite_ataque_vs_defesa()) {
+    if (modo_dano_automatico_) {
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
       resultado =
