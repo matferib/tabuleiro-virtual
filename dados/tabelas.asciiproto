@@ -174,6 +174,7 @@ tabela_armas {
   armas {
     id: 'clava'
     categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
     preco: '0 PO'
     dano { medio: '1d6'  }
     multiplicador_critico: 2
@@ -3011,11 +3012,18 @@ tabela_talentos {
     # Pre requisito: 3 ou mais ataques naturais.
   }
   talentos {
-    id: 'pairar'  # wingover
-    nome: 'Pairar'
+    id: 'inversao'  # wingover
+    nome: 'Inversão'
     descricao: 'A criatura pode fazer um retorno de 180 graus independente de sua classificação de manobra. Custa 2 quadrados de movimento e não pode ganhar altitude.'
     # Pre requisito: voar.
   }
+  talentos {
+    id: 'pairar'  # hover 
+    nome: 'Pairar'
+    descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
+    # Pre requisito: voar.
+  }
+
 }
 
 # Lista de pericias na ordem em ingles para faciliar.

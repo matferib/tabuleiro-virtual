@@ -1610,7 +1610,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'esquiva' }
-      gerais { id: 'pairar' }
+      gerais { id: 'inversao' }
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
@@ -2579,7 +2579,8 @@ modelo {
 modelo {
   id: 'Uivante'
   entidade {
-    dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 }
+    dados_vida: '6d8+12' tamanho: TM_GRANDE 
+    modelo_3d { id: 'howler'}
     rotulo_especial: 'Apenas 1d4 espinhas por rodada podem ser usados\nuivo por uma hora Cd 12 vontade ou 1 ponto de sabedoria'
     movimento {
       terrestre_basico_q: 12
