@@ -1954,7 +1954,6 @@ google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::pro
 
 //int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
 //  const auto& dd = proto.dados_defesa();
-//  // Valor eh negativo.
 //  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
 //  if (dd.armadura_obra_prima()) ++penalidade;
 //  if (dd.material_armadura() == DESC_ADAMANTE) ++penalidade;
@@ -1962,15 +1961,15 @@ google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::pro
 //  return std::min(0, penalidade);
 //}
 
+// Retorna a penalidade do escudo de acordo com seu material. A penalidade é positiva (ou seja, penalidade 1 da -1).
 int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
   const auto& dd = proto.dados_defesa();
-  // Valor eh negativo.
   int penalidade = tabelas.Escudo(dd.id_escudo()).penalidade_armadura();
-  if (dd.escudo_obra_prima()) ++penalidade;
-  if (dd.material_escudo() == DESC_ADAMANTE) ++penalidade;
-  if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade += 2;
-  if (dd.material_escudo() == DESC_MITRAL) penalidade += 3;
-  return std::min(0, penalidade);
+  if (dd.escudo_obra_prima()) --penalidade;
+  if (dd.material_escudo() == DESC_ADAMANTE) --penalidade;
+  if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade -= 2;
+  if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
+  return std::max(0, penalidade);
 }
 
 }  // namespace
@@ -1998,7 +1997,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         (PossuiCategoria(CAT_LEVE, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
-      AtribuiBonus(penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+      AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
 
@@ -2902,9 +2901,15 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
   AtribuiOuRemoveBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, ent::TB_ARMADURA, "armadura", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_armadura()
       ? dd->bonus_magico_armadura() : 0, ent::TB_ARMADURA_MELHORIA, "armadura_melhoria", dd->mutable_ca());
+  if (dd->bonus_magico_armadura() > 0) {
+    dd->set_armadura_obra_prima(true);
+  }
   AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
       ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
+  if (dd->bonus_magico_escudo() > 0) {
+    dd->set_escudo_obra_prima(true);
+  }
 
   for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
     if (talento.has_bonus_ca()) {
@@ -3970,7 +3975,7 @@ template <class T>
 void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
   if (tam == c->size()) return;
   if (tam < c->size()) {
-    c->DeleteSubrange(tam, c->size());
+    c->DeleteSubrange(tam, c->size() - tam);
     return;
   }
   while (c->size() < tam) c->Add();
