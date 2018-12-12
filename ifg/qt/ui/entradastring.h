@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entradastring.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.0
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -56,8 +56,8 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__EntradaString)
     {
-        ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", nullptr));
-        label_titulo->setText(QApplication::translate("ifg::qt::EntradaString", "TextLabel", nullptr));
+        ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", Q_NULLPTR));
+        label_titulo->setText(QApplication::translate("ifg::qt::EntradaString", "TextLabel", Q_NULLPTR));
     } // retranslateUi
 
 };
