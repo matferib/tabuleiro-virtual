@@ -200,7 +200,7 @@ inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 #else
 #endif
-void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b);
+void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b, GLfloat a = 1.0f);
 void LeCorMisturaPreNevoa(GLfloat* rgb);
 inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }

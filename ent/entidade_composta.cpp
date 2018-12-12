@@ -47,7 +47,11 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  AlteraBlendEscopo blend_escopo(pd, proto.cor());
+  //AlteraBlendEscopo blend_escopo(pd, proto.cor());
+  std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
+  if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos()) {
+    blend_escopo.reset(new MisturaPreNevoaEscopo(proto.cor(), pd));
+  }
 #if !VBO_COM_MODELAGEM
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());

@@ -219,8 +219,7 @@ bool FiltroTexturaEntidade(const std::string& textura);
 bool FiltroTexturaCaixaCeu(const std::string& textura);
 bool FiltroTexturaTabuleiro(const std::string& textura);
 
-// Blend de entidades compostas e modelos3d. O blend deve ser restaurado para o valor padrao depois para nao
-// avacalhar os proximos.
+// DEPRECATED
 class AlteraBlendEscopo {
  public:
   // O valor alfa, se menor que 1.0, sera usado na transparencia no lugar do alfa_translucidos de pd.
@@ -234,6 +233,16 @@ class AlteraBlendEscopo {
 
   const ParametrosDesenho* pd_;
   bool restaurar_;
+};
+
+// Blend de entidades compostas e modelos3d. O blend deve ser restaurado para o valor padrao depois para nao
+// avacalhar os proximos.
+struct MisturaPreNevoaEscopo {
+  MisturaPreNevoaEscopo(const Cor& cor, const ParametrosDesenho* pd);
+  MisturaPreNevoaEscopo(float r, float g, float b, float a);
+  ~MisturaPreNevoaEscopo();
+
+  float salvo_[4];
 };
 
 enum class TipoAtaque {

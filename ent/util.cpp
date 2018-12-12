@@ -123,6 +123,25 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
   }
 }
 
+void AplicaNevoa(float* cor, const ParametrosDesenho* pd) {
+  if (!pd->has_nevoa()) {
+    return;
+  }
+  float distancia = DistanciaPontoCorrenteParaNevoa(pd);
+  if (distancia > pd->nevoa().maximo()) {
+     cor[0] = pd->nevoa().cor().r();
+     cor[1] = pd->nevoa().cor().g(); 
+     cor[2] = pd->nevoa().cor().b();
+     return;
+  }
+  if (distancia > pd->nevoa().minimo()) {
+    float escala = (distancia - pd->nevoa().minimo()) / (pd->nevoa().maximo() - pd->nevoa().minimo());
+    cor[0] = (pd->nevoa().cor().r() * escala + cor[0] * (1.0f - escala));
+    cor[1] = (pd->nevoa().cor().g() * escala + cor[1] * (1.0f - escala));
+    cor[2] = (pd->nevoa().cor().b() * escala + cor[2] * (1.0f - escala));
+  }
+}
+
 void ConfiguraNevoa(float min, float max, float r, float g, float b, float* pos, ParametrosDesenho* pd) {
   // A funcao nevoa ja converte a posicao para olho.
   gl::Nevoa(min, max, r, g, b, pos);
@@ -834,6 +853,7 @@ bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd,
     rgb[2] = cor.has_b() ? cor.b() : 1.0f;
     misturar_cor_raiz = true;
   }
+  //AplicaNevoa(rgb, pd);
   if (pd->has_picking_x()) {
     // Durante picking, nao altera o blending.
     return false;
@@ -874,6 +894,21 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
     gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
   }
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+MisturaPreNevoaEscopo::MisturaPreNevoaEscopo(float r, float g, float b, float a) {
+  gl::LeCorMisturaPreNevoa(salvo_);
+  gl::CorMisturaPreNevoa(r, g, b, a);
+}
+
+MisturaPreNevoaEscopo::MisturaPreNevoaEscopo(const Cor& cor, const ParametrosDesenho* pd)
+    : MisturaPreNevoaEscopo(cor.has_r() ? cor.r() : 1.0f,
+                            cor.has_g() ? cor.g() : 1.0f,
+                            cor.has_b() ? cor.b() : 1.0f,
+                            cor.a() < 1.0f ? cor.a() : pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f) {}
+
+MisturaPreNevoaEscopo::~MisturaPreNevoaEscopo() {
+  gl::CorMisturaPreNevoa(salvo_[0], salvo_[1], salvo_[2], salvo_[3]);
 }
 
 TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
