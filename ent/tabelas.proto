@@ -23,6 +23,7 @@ message ArmaduraOuEscudoProto {
   optional int32 falha_arcana = 6;  // de 0 a 100.
   optional bool reduz_movimento = 7;
   optional int32 peso_kg = 8;
+  // Valor eh positivo.
   optional int32 penalidade_armadura = 9;
   // Identificador unico, sem caracteres especiais para mapeamento em tabelas.
   optional string id = 10;
