@@ -259,5 +259,8 @@
     <ClInclude Include="..\..\ent\util.h">
       <Filter>ent\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ent\tabelas.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
