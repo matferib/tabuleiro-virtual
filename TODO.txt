@@ -1,12 +1,9 @@
-UI de eventos nao permite mudar rodada.
-Fazer mais monstros: slaad vermelho e verde, demonio flecha.
+Fazer mais monstros: slaad vermelho e verde, demonio flecha, mortos de bane.
 Colocar outros aneis e mantos com efeitos (especialmente em pericias), amuleto de saude, chapeu de carisma.
-Mortos de bane.
-Misseis magicos nao acerta reflexos.
-Colocar botao +16 ataque. Zerar botoes ao passar rodada.
+
 Sugestao: desfazer dar mensagem.
-
-
+Zerar botoes ao passar rodada.
+Reflexos some no inicio da acao.
 Colocar botao de carga (+2 ataque, -2 CA)
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Colocar arte da fuga no agarrar.
