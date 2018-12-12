@@ -1188,7 +1188,6 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
-  LOG(INFO) << "da: " << da->DebugString();
   if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
 }
