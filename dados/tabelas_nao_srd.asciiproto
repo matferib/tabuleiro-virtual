@@ -104,7 +104,7 @@ tabela_amuletos {
 }
 tabela_luvas {
   luvas {
-    id: 'manoplas_poder_ogro'
+    id: 'manoplas_poder_ogro_1'
     nome: 'Manoplas do Poder do Ogro +1'
     custo_po: 2000
     tipo_efeito: EFEITO_MELHORIA_FORCA
