@@ -923,6 +923,21 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
+    coluna: 8
+    rotulo: "16"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MAIS_16
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador +16 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
     coluna: 4
     rotulo: "-1"
     cor_rotulo { r: 1 }

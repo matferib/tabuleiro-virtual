@@ -960,6 +960,9 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (ea.dados_ataque_global().ataque_mais_8()) {
     modificador += 8;
   }
+  if (ea.dados_ataque_global().ataque_mais_16()) {
+    modificador += 16;
+  }
 
   // Defesa.
   if (ed.caida()) {

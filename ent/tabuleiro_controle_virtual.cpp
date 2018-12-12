@@ -417,6 +417,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ATAQUE_MAIS_8:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_8);
       break;
+    case CONTROLE_ATAQUE_MAIS_16:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_16);
+      break;
     case CONTROLE_ATAQUE_MENOS_1:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
       break;
@@ -1336,7 +1339,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ATAQUE_MAIS_8,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_8();
     } },
-
+    { CONTROLE_ATAQUE_MAIS_16,     [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_mais_16();
+    } },
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_global().ataque_menos_1();
     } },

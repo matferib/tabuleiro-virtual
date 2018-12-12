@@ -1308,6 +1308,11 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
       proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(valor);
     }
+    if (bits & BIT_ATAQUE_MAIS_16) {
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_16(proto_original.dados_ataque_global().ataque_mais_16());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_16(valor);
+    }
+
     if (bits & BIT_ATAQUE_MENOS_1) {
       proto_antes->mutable_dados_ataque_global()->set_ataque_menos_1(proto_original.dados_ataque_global().ataque_menos_1());
       proto_depois->mutable_dados_ataque_global()->set_ataque_menos_1(valor);
@@ -1492,6 +1497,10 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
     if (bits & BIT_ATAQUE_MAIS_8) {
       proto_antes->mutable_dados_ataque_global()->set_ataque_mais_8(proto_original.dados_ataque_global().ataque_mais_8());
       proto_depois->mutable_dados_ataque_global()->set_ataque_mais_8(!proto_original.dados_ataque_global().ataque_mais_8());
+    }
+    if (bits & BIT_ATAQUE_MAIS_16) {
+      proto_antes->mutable_dados_ataque_global()->set_ataque_mais_16(proto_original.dados_ataque_global().ataque_mais_16());
+      proto_depois->mutable_dados_ataque_global()->set_ataque_mais_16(!proto_original.dados_ataque_global().ataque_mais_16());
     }
 
     if (bits & BIT_ATAQUE_MENOS_1) {

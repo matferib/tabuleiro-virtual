@@ -316,6 +316,7 @@ message EntidadeProto {
     optional bool ataque_mais_2 = 6;
     optional bool ataque_mais_4 = 7;
     optional bool ataque_mais_8 = 15;
+    optional bool ataque_mais_16 = 27;
     // Dano generico.
     optional bool dano_menos_1 = 8;
     optional bool dano_menos_2 = 9;
