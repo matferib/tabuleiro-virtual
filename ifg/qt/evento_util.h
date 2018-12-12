@@ -205,7 +205,6 @@ class ModeloEvento : public QAbstractTableModel {
         evento->set_rodadas(-1);
         emit dataChanged(index, index);
         evento->set_rodadas(value.toInt());
-        evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;
       }
