@@ -194,26 +194,28 @@ public:
     QGroupBox *groupBox_3;
     QGridLayout *gridLayout_14;
     QGridLayout *gridLayout_3;
+    QSpinBox *spin_ca_escudo_melhoria;
+    QComboBox *combo_material_escudo;
+    QLabel *spin_bonus_escudo;
+    QComboBox *combo_escudo;
+    QCheckBox *checkbox_escudo_obra_prima;
+    QLabel *label_ca_toque;
     QLabel *label_95;
     QLabel *label_52;
     QLabel *label_57;
-    QSpinBox *spin_ca_escudo_melhoria;
     QSpinBox *spin_ca_armadura_melhoria;
     QLabel *label_58;
     QLabel *label_59;
-    QLabel *label_53;
-    QLabel *label_60;
-    QLabel *label_61;
     QLabel *label_ca_surpreso;
     QPushButton *botao_bonus_ca;
-    QLabel *label_ca_toque;
     QComboBox *combo_armadura;
-    QComboBox *combo_escudo;
-    QLabel *spin_bonus_escudo;
     QLabel *spin_bonus_escudo_2;
     QComboBox *combo_material_armadura;
-    QLabel *label_96;
-    QComboBox *combo_material_escudo;
+    QLabel *label_100;
+    QCheckBox *checkbox_armadura_obra_prima;
+    QLabel *label_61;
+    QLabel *label_53;
+    QLabel *label_60;
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_85;
     QSpinBox *spin_rm;
@@ -1356,6 +1358,44 @@ public:
         gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        spin_ca_escudo_melhoria = new QSpinBox(groupBox_3);
+        spin_ca_escudo_melhoria->setObjectName(QStringLiteral("spin_ca_escudo_melhoria"));
+        spin_ca_escudo_melhoria->setMinimum(0);
+
+        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 2, 4, 1, 1);
+
+        combo_material_escudo = new QComboBox(groupBox_3);
+        combo_material_escudo->setObjectName(QStringLiteral("combo_material_escudo"));
+        sizePolicy1.setHeightForWidth(combo_material_escudo->sizePolicy().hasHeightForWidth());
+        combo_material_escudo->setSizePolicy(sizePolicy1);
+
+        gridLayout_3->addWidget(combo_material_escudo, 2, 2, 1, 1);
+
+        spin_bonus_escudo = new QLabel(groupBox_3);
+        spin_bonus_escudo->setObjectName(QStringLiteral("spin_bonus_escudo"));
+        spin_bonus_escudo->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(spin_bonus_escudo, 2, 0, 1, 1);
+
+        combo_escudo = new QComboBox(groupBox_3);
+        combo_escudo->setObjectName(QStringLiteral("combo_escudo"));
+
+        gridLayout_3->addWidget(combo_escudo, 2, 1, 1, 1);
+
+        checkbox_escudo_obra_prima = new QCheckBox(groupBox_3);
+        checkbox_escudo_obra_prima->setObjectName(QStringLiteral("checkbox_escudo_obra_prima"));
+        sizePolicy1.setHeightForWidth(checkbox_escudo_obra_prima->sizePolicy().hasHeightForWidth());
+        checkbox_escudo_obra_prima->setSizePolicy(sizePolicy1);
+        checkbox_escudo_obra_prima->setLayoutDirection(Qt::LeftToRight);
+
+        gridLayout_3->addWidget(checkbox_escudo_obra_prima, 2, 3, 1, 1);
+
+        label_ca_toque = new QLabel(groupBox_3);
+        label_ca_toque->setObjectName(QStringLiteral("label_ca_toque"));
+        label_ca_toque->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_ca_toque, 1, 10, 1, 1);
+
         label_95 = new QLabel(groupBox_3);
         label_95->setObjectName(QStringLiteral("label_95"));
         sizePolicy7.setHeightForWidth(label_95->sizePolicy().hasHeightForWidth());
@@ -1368,7 +1408,7 @@ public:
         label_52->setObjectName(QStringLiteral("label_52"));
         label_52->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_52, 0, 1, 1, 1);
+        gridLayout_3->addWidget(label_52, 1, 0, 1, 1);
 
         label_57 = new QLabel(groupBox_3);
         label_57->setObjectName(QStringLiteral("label_57"));
@@ -1377,17 +1417,11 @@ public:
 
         gridLayout_3->addWidget(label_57, 0, 9, 1, 1);
 
-        spin_ca_escudo_melhoria = new QSpinBox(groupBox_3);
-        spin_ca_escudo_melhoria->setObjectName(QStringLiteral("spin_ca_escudo_melhoria"));
-        spin_ca_escudo_melhoria->setMinimum(-99);
-
-        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 6, 1, 1);
-
         spin_ca_armadura_melhoria = new QSpinBox(groupBox_3);
         spin_ca_armadura_melhoria->setObjectName(QStringLiteral("spin_ca_armadura_melhoria"));
-        spin_ca_armadura_melhoria->setMinimum(-99);
+        spin_ca_armadura_melhoria->setMinimum(0);
 
-        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 3, 1, 1);
+        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 4, 1, 1);
 
         label_58 = new QLabel(groupBox_3);
         label_58->setObjectName(QStringLiteral("label_58"));
@@ -1403,24 +1437,6 @@ public:
 
         gridLayout_3->addWidget(label_59, 0, 11, 1, 1);
 
-        label_53 = new QLabel(groupBox_3);
-        label_53->setObjectName(QStringLiteral("label_53"));
-        label_53->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_53, 0, 0, 1, 1);
-
-        label_60 = new QLabel(groupBox_3);
-        label_60->setObjectName(QStringLiteral("label_60"));
-        label_60->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_60, 1, 0, 1, 1);
-
-        label_61 = new QLabel(groupBox_3);
-        label_61->setObjectName(QStringLiteral("label_61"));
-        label_61->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_61, 1, 8, 1, 1);
-
         label_ca_surpreso = new QLabel(groupBox_3);
         label_ca_surpreso->setObjectName(QStringLiteral("label_ca_surpreso"));
         label_ca_surpreso->setAlignment(Qt::AlignCenter);
@@ -1432,27 +1448,10 @@ public:
 
         gridLayout_3->addWidget(botao_bonus_ca, 1, 9, 1, 1);
 
-        label_ca_toque = new QLabel(groupBox_3);
-        label_ca_toque->setObjectName(QStringLiteral("label_ca_toque"));
-        label_ca_toque->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(label_ca_toque, 1, 10, 1, 1);
-
         combo_armadura = new QComboBox(groupBox_3);
         combo_armadura->setObjectName(QStringLiteral("combo_armadura"));
 
         gridLayout_3->addWidget(combo_armadura, 1, 1, 1, 1);
-
-        combo_escudo = new QComboBox(groupBox_3);
-        combo_escudo->setObjectName(QStringLiteral("combo_escudo"));
-
-        gridLayout_3->addWidget(combo_escudo, 1, 4, 1, 1);
-
-        spin_bonus_escudo = new QLabel(groupBox_3);
-        spin_bonus_escudo->setObjectName(QStringLiteral("spin_bonus_escudo"));
-        spin_bonus_escudo->setAlignment(Qt::AlignCenter);
-
-        gridLayout_3->addWidget(spin_bonus_escudo, 0, 4, 1, 1);
 
         spin_bonus_escudo_2 = new QLabel(groupBox_3);
         spin_bonus_escudo_2->setObjectName(QStringLiteral("spin_bonus_escudo_2"));
@@ -1467,20 +1466,36 @@ public:
 
         gridLayout_3->addWidget(combo_material_armadura, 1, 2, 1, 1);
 
-        label_96 = new QLabel(groupBox_3);
-        label_96->setObjectName(QStringLiteral("label_96"));
-        sizePolicy7.setHeightForWidth(label_96->sizePolicy().hasHeightForWidth());
-        label_96->setSizePolicy(sizePolicy7);
-        label_96->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_100 = new QLabel(groupBox_3);
+        label_100->setObjectName(QStringLiteral("label_100"));
+        label_100->setAlignment(Qt::AlignCenter);
 
-        gridLayout_3->addWidget(label_96, 0, 5, 1, 1);
+        gridLayout_3->addWidget(label_100, 0, 4, 1, 1);
 
-        combo_material_escudo = new QComboBox(groupBox_3);
-        combo_material_escudo->setObjectName(QStringLiteral("combo_material_escudo"));
-        sizePolicy1.setHeightForWidth(combo_material_escudo->sizePolicy().hasHeightForWidth());
-        combo_material_escudo->setSizePolicy(sizePolicy1);
+        checkbox_armadura_obra_prima = new QCheckBox(groupBox_3);
+        checkbox_armadura_obra_prima->setObjectName(QStringLiteral("checkbox_armadura_obra_prima"));
+        sizePolicy1.setHeightForWidth(checkbox_armadura_obra_prima->sizePolicy().hasHeightForWidth());
+        checkbox_armadura_obra_prima->setSizePolicy(sizePolicy1);
 
-        gridLayout_3->addWidget(combo_material_escudo, 1, 5, 1, 1);
+        gridLayout_3->addWidget(checkbox_armadura_obra_prima, 1, 3, 1, 1);
+
+        label_61 = new QLabel(groupBox_3);
+        label_61->setObjectName(QStringLiteral("label_61"));
+        label_61->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_61, 1, 6, 1, 1);
+
+        label_53 = new QLabel(groupBox_3);
+        label_53->setObjectName(QStringLiteral("label_53"));
+        label_53->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_53, 0, 1, 1, 1);
+
+        label_60 = new QLabel(groupBox_3);
+        label_60->setObjectName(QStringLiteral("label_60"));
+        label_60->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_60, 0, 3, 1, 1);
 
 
         gridLayout_14->addLayout(gridLayout_3, 0, 0, 1, 1);
@@ -1558,7 +1573,7 @@ public:
         gridLayout_19->addWidget(label_97, 3, 0, 1, 1);
 
 
-        gridLayout_17->addWidget(groupBox, 2, 1, 1, 1);
+        gridLayout_17->addWidget(groupBox, 3, 1, 1, 1);
 
         tabs->addTab(tab_estatisticas, QString());
         tab_7 = new QWidget();
@@ -2707,10 +2722,7 @@ public:
         QWidget::setTabOrder(spin_iniciativa, combo_armadura);
         QWidget::setTabOrder(combo_armadura, combo_material_armadura);
         QWidget::setTabOrder(combo_material_armadura, spin_ca_armadura_melhoria);
-        QWidget::setTabOrder(spin_ca_armadura_melhoria, combo_escudo);
-        QWidget::setTabOrder(combo_escudo, combo_material_escudo);
-        QWidget::setTabOrder(combo_material_escudo, spin_ca_escudo_melhoria);
-        QWidget::setTabOrder(spin_ca_escudo_melhoria, botao_bonus_ca);
+        QWidget::setTabOrder(spin_ca_armadura_melhoria, botao_bonus_ca);
         QWidget::setTabOrder(botao_bonus_ca, linha_grupo_ataque);
         QWidget::setTabOrder(linha_grupo_ataque, linha_rotulo_ataque);
         QWidget::setTabOrder(linha_rotulo_ataque, spin_ordem_ataque);
@@ -2991,36 +3003,9 @@ public:
         label_bba_cac->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
         label_bba_distancia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
         groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados de CA", Q_NULLPTR));
-        label_95->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", Q_NULLPTR));
-        label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", Q_NULLPTR));
-        label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria Escudo", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria armadura", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", Q_NULLPTR));
-        label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", Q_NULLPTR));
-        label_53->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", Q_NULLPTR));
-        label_60->setText(QApplication::translate("ifg::qt::DialogoEntidade", "10+", Q_NULLPTR));
-        label_61->setText(QApplication::translate("ifg::qt::DialogoEntidade", "=", Q_NULLPTR));
-        label_ca_surpreso->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        botao_bonus_ca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
-        label_ca_toque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
-        spin_bonus_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo", Q_NULLPTR));
-        spin_bonus_escudo_2->setText(QString());
-        combo_material_armadura->clear();
-        combo_material_armadura->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Couro de Drag\303\243o", Q_NULLPTR)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", Q_NULLPTR)
-        );
-#ifndef QT_NO_TOOLTIP
-        combo_material_armadura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", Q_NULLPTR));
-#endif // QT_NO_TOOLTIP
-        label_96->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", Q_NULLPTR));
         combo_material_escudo->clear();
         combo_material_escudo->insertItems(0, QStringList()
          << QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", Q_NULLPTR)
@@ -3032,6 +3017,38 @@ public:
 #ifndef QT_NO_TOOLTIP
         combo_material_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
+        spin_bonus_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo", Q_NULLPTR));
+        checkbox_escudo_obra_prima->setText(QString());
+        label_ca_toque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
+        label_95->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", Q_NULLPTR));
+        label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", Q_NULLPTR));
+        label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria armadura", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", Q_NULLPTR));
+        label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", Q_NULLPTR));
+        label_ca_surpreso->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", Q_NULLPTR));
+        botao_bonus_ca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", Q_NULLPTR));
+        spin_bonus_escudo_2->setText(QString());
+        combo_material_armadura->clear();
+        combo_material_armadura->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Couro de Drag\303\243o", Q_NULLPTR)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Mitral", Q_NULLPTR)
+        );
+#ifndef QT_NO_TOOLTIP
+        combo_material_armadura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        label_100->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        checkbox_armadura_obra_prima->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "armadura obra prima", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        checkbox_armadura_obra_prima->setText(QString());
+        label_61->setText(QApplication::translate("ifg::qt::DialogoEntidade", "=", Q_NULLPTR));
+        label_53->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", Q_NULLPTR));
+        label_60->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Obra Prima", Q_NULLPTR));
         label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Resist\303\252ncia a Magia", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", Q_NULLPTR));

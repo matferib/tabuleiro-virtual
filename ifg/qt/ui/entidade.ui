@@ -1605,6 +1605,93 @@ QGroupBox::title {
          <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_3">
+            <item row="2" column="4">
+             <widget class="QSpinBox" name="spin_ca_escudo_melhoria">
+              <property name="toolTip">
+               <string>Melhoria Escudo</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QComboBox" name="combo_material_escudo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Tipo do material da arma</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Nenhum</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Adamante</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Couro de Dragão</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Madeira Negra</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Mitral</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="spin_bonus_escudo">
+              <property name="text">
+               <string>Escudo</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="combo_escudo"/>
+            </item>
+            <item row="2" column="3">
+             <widget class="QCheckBox" name="checkbox_escudo_obra_prima">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="10">
+             <widget class="QLabel" name="label_ca_toque">
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="2">
              <widget class="QLabel" name="label_95">
               <property name="sizePolicy">
@@ -1621,7 +1708,7 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_52">
               <property name="text">
                <string>Armadura</string>
@@ -1648,23 +1735,13 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="1" column="6">
-             <widget class="QSpinBox" name="spin_ca_escudo_melhoria">
-              <property name="toolTip">
-               <string>Melhoria Escudo</string>
-              </property>
-              <property name="minimum">
-               <number>-99</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
+            <item row="1" column="4">
              <widget class="QSpinBox" name="spin_ca_armadura_melhoria">
               <property name="toolTip">
                <string>Melhoria armadura</string>
               </property>
               <property name="minimum">
-               <number>-99</number>
+               <number>0</number>
               </property>
              </widget>
             </item>
@@ -1702,36 +1779,6 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_53">
-              <property name="text">
-               <string>Base</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_60">
-              <property name="text">
-               <string>10+</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="8">
-             <widget class="QLabel" name="label_61">
-              <property name="text">
-               <string>=</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="11">
              <widget class="QLabel" name="label_ca_surpreso">
               <property name="text">
@@ -1749,31 +1796,8 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="1" column="10">
-             <widget class="QLabel" name="label_ca_toque">
-              <property name="text">
-               <string>0</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1">
              <widget class="QComboBox" name="combo_armadura"/>
-            </item>
-            <item row="1" column="4">
-             <widget class="QComboBox" name="combo_escudo"/>
-            </item>
-            <item row="0" column="4">
-             <widget class="QLabel" name="spin_bonus_escudo">
-              <property name="text">
-               <string>Escudo</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
             </item>
             <item row="0" column="6">
              <widget class="QLabel" name="spin_bonus_escudo_2">
@@ -1818,24 +1842,18 @@ QGroupBox::title {
               </item>
              </widget>
             </item>
-            <item row="0" column="5">
-             <widget class="QLabel" name="label_96">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="0" column="4">
+             <widget class="QLabel" name="label_100">
               <property name="text">
-               <string>Material</string>
+               <string>Bônus Mágico</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
-            <item row="1" column="5">
-             <widget class="QComboBox" name="combo_material_escudo">
+            <item row="1" column="3">
+             <widget class="QCheckBox" name="checkbox_armadura_obra_prima">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1843,33 +1861,41 @@ QGroupBox::title {
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>Tipo do material da arma</string>
+               <string>armadura obra prima</string>
               </property>
-              <item>
-               <property name="text">
-                <string>Nenhum</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Adamante</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Couro de Dragão</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Madeira Negra</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Mitral</string>
-               </property>
-              </item>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="6">
+             <widget class="QLabel" name="label_61">
+              <property name="text">
+               <string>=</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_53">
+              <property name="text">
+               <string>Nome</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLabel" name="label_60">
+              <property name="text">
+               <string>Obra Prima</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1905,7 +1931,7 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Movimento</string>
@@ -3836,9 +3862,6 @@ QGroupBox::title {
   <tabstop>combo_armadura</tabstop>
   <tabstop>combo_material_armadura</tabstop>
   <tabstop>spin_ca_armadura_melhoria</tabstop>
-  <tabstop>combo_escudo</tabstop>
-  <tabstop>combo_material_escudo</tabstop>
-  <tabstop>spin_ca_escudo_melhoria</tabstop>
   <tabstop>botao_bonus_ca</tabstop>
   <tabstop>linha_grupo_ataque</tabstop>
   <tabstop>linha_rotulo_ataque</tabstop>

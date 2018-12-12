@@ -1521,38 +1521,47 @@ void PreencheConfiguraDadosDefesa(
     }
   });
 
-  auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
+  auto* mdd = proto_retornado->mutable_dados_defesa();
+  auto* mca = mdd->mutable_ca();
   const ent::Tabelas& tabelas = this_->tabelas();
   lambda_connect(gerador.combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
     QComboBox* combo = gerador.combo_armadura;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
     proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
     ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
-    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(gerador.combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
     QComboBox* combo = gerador.combo_escudo;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
     proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
     ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
-    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_ca_armadura_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mca] () {
-    ent::AtribuiBonus(gerador.spin_ca_armadura_melhoria->value(), ent::TB_ARMADURA_MELHORIA, "armadura", mca);
+  lambda_connect(gerador.spin_ca_armadura_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd] () {
+    mdd->set_bonus_magico_armadura(gerador.spin_ca_armadura_melhoria->value());
     ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_ca_escudo_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mca] () {
-    ent::AtribuiBonus(gerador.spin_ca_escudo_melhoria->value(), ent::TB_ESCUDO_MELHORIA, "escudo", mca);
+  lambda_connect(gerador.checkbox_armadura_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd]() {
+    mdd->set_armadura_obra_prima(gerador.checkbox_armadura_obra_prima->checkState() == Qt::Checked);
     ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.spin_ca_escudo_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd] () {
+    mdd->set_bonus_magico_escudo(gerador.spin_ca_escudo_melhoria->value());
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.checkbox_escudo_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd]() {
+    mdd->set_escudo_obra_prima(gerador.checkbox_escudo_obra_prima->checkState() == Qt::Checked);
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(gerador.botao_bonus_ca, SIGNAL(clicked()), [tabelas, this_, &gerador, proto_retornado, mca] () {
     AbreDialogoBonus(this_, mca);
     ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 

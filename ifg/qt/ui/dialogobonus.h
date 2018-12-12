@@ -15,9 +15,11 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableView>
+#include <QtWidgets/QVBoxLayout>
 
 namespace ifg {
 namespace qt {
@@ -25,34 +27,58 @@ namespace qt {
 class Ui_DialogoBonus
 {
 public:
-    QDialogButtonBox *botoes_ok_cancela;
+    QGridLayout *gridLayout;
+    QTableView *tabela_bonus;
+    QVBoxLayout *verticalLayout;
     QPushButton *botao_adicionar_bonus;
     QPushButton *botao_remover_bonus;
-    QTableView *tabela_bonus;
+    QDialogButtonBox *botoes_ok_cancela;
 
     void setupUi(QDialog *ifg__qt__DialogoBonus)
     {
         if (ifg__qt__DialogoBonus->objectName().isEmpty())
             ifg__qt__DialogoBonus->setObjectName(QStringLiteral("ifg__qt__DialogoBonus"));
         ifg__qt__DialogoBonus->resize(564, 371);
-        botoes_ok_cancela = new QDialogButtonBox(ifg__qt__DialogoBonus);
-        botoes_ok_cancela->setObjectName(QStringLiteral("botoes_ok_cancela"));
-        botoes_ok_cancela->setGeometry(QRect(270, 320, 221, 41));
-        botoes_ok_cancela->setOrientation(Qt::Horizontal);
-        botoes_ok_cancela->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-        botao_adicionar_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_adicionar_bonus->setObjectName(QStringLiteral("botao_adicionar_bonus"));
-        botao_adicionar_bonus->setGeometry(QRect(500, 120, 31, 27));
-        botao_adicionar_bonus->setStyleSheet(QLatin1String("color: green;\n"
-"font: bold;"));
-        botao_remover_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_remover_bonus->setObjectName(QStringLiteral("botao_remover_bonus"));
-        botao_remover_bonus->setGeometry(QRect(500, 150, 31, 27));
-        botao_remover_bonus->setStyleSheet(QLatin1String("color: red;\n"
-"font: bold;"));
+        gridLayout = new QGridLayout(ifg__qt__DialogoBonus);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
         tabela_bonus = new QTableView(ifg__qt__DialogoBonus);
         tabela_bonus->setObjectName(QStringLiteral("tabela_bonus"));
-        tabela_bonus->setGeometry(QRect(10, 20, 481, 291));
+
+        gridLayout->addWidget(tabela_bonus, 0, 0, 1, 1);
+
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        botao_adicionar_bonus = new QPushButton(ifg__qt__DialogoBonus);
+        botao_adicionar_bonus->setObjectName(QStringLiteral("botao_adicionar_bonus"));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(botao_adicionar_bonus->sizePolicy().hasHeightForWidth());
+        botao_adicionar_bonus->setSizePolicy(sizePolicy);
+        botao_adicionar_bonus->setStyleSheet(QLatin1String("color: green;\n"
+"font: bold;"));
+
+        verticalLayout->addWidget(botao_adicionar_bonus);
+
+        botao_remover_bonus = new QPushButton(ifg__qt__DialogoBonus);
+        botao_remover_bonus->setObjectName(QStringLiteral("botao_remover_bonus"));
+        sizePolicy.setHeightForWidth(botao_remover_bonus->sizePolicy().hasHeightForWidth());
+        botao_remover_bonus->setSizePolicy(sizePolicy);
+        botao_remover_bonus->setStyleSheet(QLatin1String("color: red;\n"
+"font: bold;"));
+
+        verticalLayout->addWidget(botao_remover_bonus);
+
+
+        gridLayout->addLayout(verticalLayout, 0, 1, 1, 1);
+
+        botoes_ok_cancela = new QDialogButtonBox(ifg__qt__DialogoBonus);
+        botoes_ok_cancela->setObjectName(QStringLiteral("botoes_ok_cancela"));
+        botoes_ok_cancela->setOrientation(Qt::Horizontal);
+        botoes_ok_cancela->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        gridLayout->addWidget(botoes_ok_cancela, 1, 0, 1, 1);
+
 
         retranslateUi(ifg__qt__DialogoBonus);
         QObject::connect(botoes_ok_cancela, SIGNAL(accepted()), ifg__qt__DialogoBonus, SLOT(accept()));
