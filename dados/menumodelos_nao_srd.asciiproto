@@ -51,5 +51,6 @@ sub_menu {
 sub_menu {
   id: 'Mortos-Vivos'
   modelo { id: 'Guarda de Bane' }
+  modelo { id: 'Guarda de Bane Atroz' }
   modelo { id: 'Morto de Bane' }
 }

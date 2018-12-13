@@ -328,6 +328,20 @@ modelo {
   }
 }
 modelo {
+  id: 'Guarda de Bane Atroz'  # Monstros de Faerun
+  id_entidade_base: 'Guarda de Bane'
+  entidade {
+    modelo_3d { id: 'direguard' }
+    rotulo_especial: 'ver invisibilidade'
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_DEFLEXAO por_origem { origem: 'armadura_espectral' valor: 1 } }
+      }
+    }
+  }
+}
+
+modelo {
   id: 'Morcego (Caçador Noturno)'  # Monstros de faerun
   entidade { max_pontos_vida: 13 tamanho: TM_MEDIO voadora: true info_textura { id: 'bat_deep_hunter.png' } cor { r: 0 g: 0 b: 0 } }
 }
