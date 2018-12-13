@@ -1,8 +1,6 @@
-Eventos nao aparecem na UI ao vestir/tirar items.
-Fazer mais monstros: slaad vermelho e verde, demonio flecha, mortos de bane.
-modelo3d demonio flecha.
-Colocar outros aneis e mantos com efeitos (especialmente em pericias), chapeu de carisma.
+Colocar outros aneis e mantos com efeitos, chapeu de carisma.
 
+Eventos nao estao sendo regerados ao tirar um efeito na mao.
 Tooltip de descricao de talentos na UI.
 Colocar evasao e evasao aprimorada na UI.
 Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
