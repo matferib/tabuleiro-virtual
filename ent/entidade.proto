@@ -425,6 +425,7 @@ message EntidadeProto {
   }
   message InfoFeiticosClasse {
     optional string id_classe = 1;
+    // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;

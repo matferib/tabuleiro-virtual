@@ -324,6 +324,7 @@ void PreencheNotificacaoRecarregamento(
 void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEvento(const Entidade& entidade, const AcaoProto::EfeitoAdicional& efeito_adicional, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
@@ -542,6 +543,9 @@ inline uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<Entid
 // (normalmente proto preenchido nao contem tudo).
 EntidadeProto::Evento* AdicionaEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const AcaoProto::EfeitoAdicional& efeito_adicional, EntidadeProto* proto);
+
 
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.

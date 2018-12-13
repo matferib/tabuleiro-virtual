@@ -160,6 +160,8 @@ message AcaoProto {
     optional TipoEfeito efeito = 1;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
     optional int32 rodadas = 2;
+    repeated int32 complementos = 3;
+    repeated string complementos_str = 4;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }

@@ -1129,13 +1129,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        if (efeito_adicional.has_rodadas()) {
-          PreencheNotificacaoEvento(
-            *entidade_destino, efeito_adicional.efeito(), efeito_adicional.rodadas(), n_efeito.get(), grupo_desfazer->add_notificacao());
-        } else {
-          PreencheNotificacaoEventoContinuo(
-            *entidade_destino, efeito_adicional.efeito(), n_efeito.get(), grupo_desfazer->add_notificacao());
-        }
+        PreencheNotificacaoEvento(
+            *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         ConcatenaString(StringEfeito(efeito_adicional.efeito()), acao_proto);
@@ -1363,14 +1358,8 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty() && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        if (efeito_adicional.has_rodadas()) {
-          PreencheNotificacaoEvento(
-            *entidade_destino, efeito_adicional.efeito(), efeito_adicional.rodadas(), n_efeito.get(), grupo_desfazer->add_notificacao());
-        }
-        else {
-          PreencheNotificacaoEventoContinuo(
-            *entidade_destino, efeito_adicional.efeito(), n_efeito.get(), grupo_desfazer->add_notificacao());
-        }
+        PreencheNotificacaoEvento(
+            *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
@@ -1467,6 +1456,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   acao_proto.set_atraso_s(atraso_s);
   *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
   acao_proto.set_id_entidade_origem(entidade->Id());
+  VLOG(1) << "acao proto: " << acao_proto.DebugString();
 
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);

@@ -16,6 +16,7 @@
 #include <tuple>
 #include <unordered_map>
 #include "ent/acoes.h"
+#include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
@@ -30,6 +31,7 @@
 namespace ent {
 
 namespace {
+using EfeitoAdicional = ent::AcaoProto::EfeitoAdicional;
 using google::protobuf::StringPrintf;
 
 const std::map<std::string, std::string> g_mapa_utf8 = {
@@ -1628,6 +1630,18 @@ void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito,
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
+  auto* evento_antes = e_antes->add_evento();
+  *evento_antes = *evento;
+  evento_antes->set_rodadas(-1);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
+void PreencheNotificacaoEvento(const Entidade& entidade, const EfeitoAdicional& efeito_adicional, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* evento = AdicionaEvento(entidade.Proto().evento(), efeito_adicional, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -4016,6 +4030,16 @@ EntidadeProto::Evento* AdicionaEvento(
   e->set_rodadas(continuo ? 1 : rodadas);
   e->set_continuo(continuo);
   e->set_id_unico(id_unico);
+  return e;
+}
+
+EntidadeProto::Evento* AdicionaEvento(
+    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const EfeitoAdicional& efeito_adicional, EntidadeProto* proto) {
+  const bool continuo = !efeito_adicional.has_rodadas();
+  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), efeito_adicional.rodadas(), continuo, proto);
+  *e->mutable_complementos() = efeito_adicional.complementos();
+  *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;
 }
 

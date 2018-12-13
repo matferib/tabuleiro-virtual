@@ -431,7 +431,7 @@ void Entidade::AtualizaLuzAcao(int intervalo_ms) {
   auto& luz = vd_.luz_acao;
   if (!luz.inicio.has_raio_m()) return;
   if (luz.tempo_desde_inicio_ms > luz.duracao_ms) {
-    LOG(INFO) << "luz acao desligada";
+    VLOG(1) << "luz acao desligada";
     luz.corrente.Clear();
     luz.inicio.Clear();
     return;

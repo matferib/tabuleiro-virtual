@@ -149,6 +149,10 @@ message TabelaArmas {
   repeated ArmaProto armas = 1;
 }
 
+message TabelaFeiticos {
+  repeated ArmaProto armas = 1;
+}
+
 message TabelaEfeitos {
   repeated EfeitoProto efeitos = 1;
 }
@@ -205,7 +209,7 @@ message TodasTabelas {
   optional TabelaEfeitos tabela_efeitos = 4;
   optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPericias tabela_pericias =  6;
-  optional TabelaArmas tabela_feiticos = 7;
+  optional TabelaFeiticos tabela_feiticos = 7;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
