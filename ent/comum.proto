@@ -93,6 +93,7 @@ enum TipoEfeito {
   // Complemento eh o quanto fica magico. Complemento str eh o rotulo.
   EFEITO_ARMA_MAGICA = 47;
   EFEITO_PRESA_MAGICA = 48;
+  EFEITO_ATORDOADO = 49;
 }
 
 // Tipo de visao para entidades e camera.
