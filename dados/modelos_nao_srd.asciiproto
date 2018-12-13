@@ -22,7 +22,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
     dados_vida: '10d8+90' tamanho: TM_MEDIO
-    info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 }
+    modelo_3d { id: 'arrow_demon' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     movimento {
       terrestre_basico_q: 8
@@ -275,7 +275,56 @@ modelo {
   id: 'Guarda de Bane'  # Monstros de Faerun
   entidade {
     tipo_dnd: TIPO_MORTO_VIVO
-    dados_vida: '4d12' info_textura { id: 'baneguard.png' } cor: { r: 0 g: 0 b: 0 }
+    dados_vida: '4d12' modelo_3d { id: 'baneguard' }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    movimento {
+      terrestre_basico_q: 6
+    }
+    rotulo_especial: 'misseis magicos a cada 3 rodadas'
+    rotulo_especial: 'piscar por 4 rodadas'
+    info_classes {
+      id: 'morto vivo' nivel: 4 salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_MEIO
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+    dados_defesa {
+      reducao_dano { descritores: DESC_ESTOURANTE valor: 5 }
+      imunidades: DESC_FRIO
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'misseis magicos' tipo_ataque: 'Feitiço de Mago' id_arma: 'missil_magico'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'misseis magicos' tipo_ataque: 'Feitiço de Mago' id_arma: 'missil_magico'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'espada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'espada_longa'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    info_talentos {
+      gerais { id: 'lutas_as_cegas' }
+    }
+    evento {
+      id_efeito: EFEITO_PISCAR
+      rodadas: 4
+    }
   }
 }
 modelo {

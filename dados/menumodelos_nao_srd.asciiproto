@@ -48,5 +48,8 @@ sub_menu {
   modelo { id: 'Slaad Vermelho' texto: 'Vermelho' }
   modelo { id: 'Slaad Verde' texto: 'Verde' }
 }
-modelo { id: 'Guarda de Bane' }
-modelo { id: 'Morto de Bane' }
+sub_menu {
+  id: 'Mortos-Vivos'
+  modelo { id: 'Guarda de Bane' }
+  modelo { id: 'Morto de Bane' }
+}
