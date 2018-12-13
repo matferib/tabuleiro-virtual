@@ -1133,7 +1133,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
             *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
-        ConcatenaString(StringEfeito(efeito_adicional.efeito()), acao_proto);
+        ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
       }
     }
 
