@@ -594,7 +594,7 @@ modelo {
       alcance_m: 0.5
       acao_fixa {
         tipo: ACAO_DISPERSAO
-        cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+        cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
         raio_quadrados: 6
         geometria: ACAO_GEO_ESFERA
         ignora_resistencia_magia: true
@@ -2303,12 +2303,12 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
-    dados_vida: '6d8+6' 
+    dados_vida: '6d8+6'
     modelo_3d { id: 'succubus' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     tamanho: TM_MEDIO
     movimento {
-      terrestre_basico_q: 6 
+      terrestre_basico_q: 6
       aereo_basico_q: 10
     }
 
@@ -2706,6 +2706,7 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {
@@ -2760,7 +2761,7 @@ modelo {
     tipo_dnd: TIPO_BESTA_MAGICA
     dados_vida: '4d10+8' tamanho: TM_MEDIO
     info_classes {
-      id: 'besta_magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM 
+      id: 'besta_magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
       pericias_monstro: 'saltar'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'

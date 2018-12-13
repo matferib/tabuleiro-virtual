@@ -337,6 +337,7 @@ modelo {
     info_talentos {
       gerais { id: 'lutas_as_cegas' }
     }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
