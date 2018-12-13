@@ -284,6 +284,9 @@ modelo {
     rotulo_especial: 'piscar por 4 rodadas'
     info_classes {
       id: 'morto vivo' nivel: 4 salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_MEIO
+      progressao_conjurador: PCONJ_UM
+      id_para_magia: 'mago'
+      id_para_progressao_de_magia: 'feiticeiro'
       pericias_monstro: 'esconderse'
       pericias_monstro: 'furtividade'
       pericias_monstro: 'observar'
@@ -318,12 +321,21 @@ modelo {
       grupo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
+    dados_ataque {
+      grupo: 'piscar' tipo_ataque: 'Feitiço de Mago' id_arma: 'piscar'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        icone: 'icon_touch.png'
+        efeitos_adicionais {
+          efeito: EFEITO_PISCAR
+          rodadas: 4
+        }
+      }
+    }
     info_talentos {
       gerais { id: 'lutas_as_cegas' }
-    }
-    evento {
-      id_efeito: EFEITO_PISCAR
-      rodadas: 4
     }
   }
 }

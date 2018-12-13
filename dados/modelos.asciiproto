@@ -561,6 +561,31 @@ modelo {
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
+    dados_ataque {
+      grupo: 'reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      acao_fixa {
+        ignora_resistencia_magia: true
+        descritores_ataque: DESC_BEM  # hack para funcionar.
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 12
+          complementos: 6  # 1d4+4
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'heroismo' rotulo: 'heroismo' tipo_ataque: 'Feitiço de Mago' id_arma: 'heroismo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      acao_fixa {
+        ignora_resistencia_magia: true
+        descritores_ataque: DESC_BEM  # hack para funcionar.
+        efeitos_adicionais {
+          efeito: EFEITO_HEROISMO
+          rodadas: 120
+        }
+      }
+    }
     dados_defesa {
       resistencia_magia: 17
       ca {
@@ -605,7 +630,13 @@ modelo {
 
     tendencia { simples: TD_CAOTICO_MAU }
 
-    rotulo_especial: 'telepatia 30m (20q), movimento: t: 6q v: 10q\na vontade: reflexos, telekinesia, teleportar maior\nheroismo 1xdia\nesporos e danca da ruina e grito estridente\nconjurar 2d10 dretches ou vrock 35%'
+    rotulo_especial: 'telepatia 30m (20q), movimento: t: 6q v: 10q'
+    rotulo_especial: 'a vontade: reflexos, telekinesia, teleportar maior'
+    rotulo_especial: 'a cada 3 rodadas: acao livre: esporos'
+    rotulo_especial: '1/hora: grito estridente'
+    rotulo_especial: '1/dia: heroismo'
+    rotulo_especial: '1/dia: conjurar 2d10 dretches ou vrock 35%'
+    rotulo_especial: 'dança da ruina'
   }
 }
 modelo {
@@ -1005,7 +1036,7 @@ modelo {
     dados_ataque {
       rotulo: 'enxame' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico_fixo: '2d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao {
+      acao_fixa {
         permite_ataque_vs_defesa: false
       }
     }
@@ -1043,7 +1074,7 @@ modelo {
     dados_ataque {
       rotulo: 'enxame' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico_fixo: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao {
+      acao_fixa {
         permite_ataque_vs_defesa: false
       }
     }

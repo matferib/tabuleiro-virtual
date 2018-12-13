@@ -4231,6 +4231,27 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'heroismo'
+    nome: 'Heroismo'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_HEROISMO
+        rodadas: 100  # por nivel
+      }
+    }
+  }
+  armas {
     id: 'cone_de_gelo'
     nome: 'Cone de Gelo'
     alcance_quadrados: 12
@@ -4374,9 +4395,54 @@ tabela_feiticos {
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
   armas {
+    id: 'piscar'
+    nome: 'Piscar'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      # TODO limitar os HD.
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      # Mais modificador de conjurador.
+      efeitos_adicionais {
+        efeito: EFEITO_PISCAR
+        rodadas: 1  # por nivel
+      }
+    }
+  }
+  armas {
+    id: 'reflexos'
+    nome: 'Reflexos'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_REFLEXOS
+        rodadas: 10  # por nivel
+      }
+    }
+  }
+ 
+  armas {
     id: 'sono'
     nome: 'Sono'
-    alcance_quadrados: 20  
+    alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'mago'
