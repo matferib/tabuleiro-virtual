@@ -563,8 +563,9 @@ modelo {
     }
     dados_ataque {
       grupo: 'reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         descritores_ataque: DESC_BEM  # hack para funcionar.
         efeitos_adicionais {
@@ -575,14 +576,37 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'heroismo' rotulo: 'heroismo' tipo_ataque: 'Feitiço de Mago' id_arma: 'heroismo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      grupo: 'heroismo' rotulo: 'heroismo 1/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'heroismo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         descritores_ataque: DESC_BEM  # hack para funcionar.
         efeitos_adicionais {
           efeito: EFEITO_HEROISMO
           rodadas: 120
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'grito' rotulo: 'grito 1/hora nao afeta demonios' tipo_ataque: 'Feitiço de Mago'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_m: 0.5
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+        raio_quadrados: 6
+        geometria: ACAO_GEO_ESFERA
+        ignora_resistencia_magia: true
+        dificuldade_salvacao_base: 19
+        tipo_salvacao: TS_FORTITUDE
+        resultado_salvacao: RS_ANULOU
+        icone: 'icon_shatter.png'
+        elemento: DESC_SONICO
+        efeitos_adicionais {
+          efeito: EFEITO_ATORDOADO
+          rodadas: 1
+          # TODO nao afeta demonios.
         }
       }
     }

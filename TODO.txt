@@ -1,5 +1,7 @@
 Colocar outros aneis e mantos com efeitos, chapeu de carisma.
+Fazer grito vrock funcionar. Adicionar esporos.
 
+Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
 Eventos nao estao sendo regerados ao tirar um efeito na mao.
 Tooltip de descricao de talentos na UI.
 Colocar evasao e evasao aprimorada na UI.
