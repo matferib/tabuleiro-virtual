@@ -161,6 +161,7 @@ enum SubTipoDnD {
   SUBTIPO_NATIVO = 17;
   SUBTIPO_AGUA = 18;
   SUBTIPO_ENXAME = 19;
+  SUBTIPO_DEMONIO = 20;
 }
 
 enum DescritorAtaque {

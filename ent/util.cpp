@@ -4038,6 +4038,7 @@ EntidadeProto::Evento* AdicionaEvento(
     const EfeitoAdicional& efeito_adicional, EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas();
   auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), efeito_adicional.rodadas(), continuo, proto);
+  if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;
@@ -4529,6 +4530,21 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
+  if (acao_proto.nao_afeta_origem() && entidade.Id() == acao_proto.id_entidade_origem()) {
+    return false;
+  }
+  if (c_any_of(acao_proto.nao_afeta_tipo(), [&entidade](const int tipo) {
+    return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));
+  })) {
+    return false;
+  }
+  if (c_any_of(acao_proto.nao_afeta_sub_tipo(), [&entidade](const int sub_tipo) {
+    return entidade.TemSubTipoDnD(static_cast<SubTipoDnD>(sub_tipo));
+  })) {
+    return false;
+  }
+  // Aqui tem que testar o vazio pra afetar, caso contrario o return da false e
+  // nao afeta ninguem.
   if (acao_proto.afeta_apenas().empty()) return true;
   return c_any_of(acao_proto.afeta_apenas(), [&entidade] (const int tipo) {
     return entidade.TemTipoDnD(static_cast<TipoDnD>(tipo));

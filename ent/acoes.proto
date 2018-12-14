@@ -55,7 +55,7 @@ message Velocidade {
   optional float maxima_m_s = 5 [default=50.0];
 }
 
-// Proximo id: 56.
+// Proximo id: 59.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -142,6 +142,9 @@ message AcaoProto {
   optional bool nao_letal = 40;
   // Algumas acoes afetam apenas alguns tipos de entidades.
   repeated TipoDnD afeta_apenas = 44;
+  repeated TipoDnD nao_afeta_tipo = 56;
+  repeated SubTipoDnD nao_afeta_sub_tipo = 57;
+  optional bool nao_afeta_origem = 58;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -162,6 +165,7 @@ message AcaoProto {
     optional int32 rodadas = 2;
     repeated int32 complementos = 3;
     repeated string complementos_str = 4;
+    optional string descricao = 5;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }
