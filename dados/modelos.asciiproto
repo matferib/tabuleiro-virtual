@@ -568,7 +568,7 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
-        descritores_ataque: DESC_BEM  # hack para funcionar.
+        nao_afeta_origem: true
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
           rodadas: 12
@@ -582,7 +582,7 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
-        descritores_ataque: DESC_BEM  # hack para funcionar.
+        nao_afeta_origem: true
         efeitos_adicionais {
           efeito: EFEITO_HEROISMO
           rodadas: 120
@@ -2379,6 +2379,30 @@ modelo {
       grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
+    dados_ataque {
+      grupo: 'Encantar Monstro' rotulo: 'encantar_monstro' tipo_ataque: 'Feitiço de Mago' id_arma: 'enfeiticar_monstro'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        dificuldade_salvacao_base: 14
+        efeitos_adicionais {
+          efeito: EFEITO_ENFEITICADO
+          rodadas: 14400  # * 12, mas assim ta bao.
+          descricao: 'enfeiticado'
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'Sugestão' rotulo: 'sugestão' tipo_ataque: 'Feitiço de Mago' id_arma: 'sugestao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        dificuldade_salvacao_base: 14
+        efeitos_adicionais {
+          efeito: EFEITO_SUGESTAO
+          rodadas: 7200  # * 12 horas.
+          descricao: 'sugestão'
+        }
+      }
+    }
     dados_defesa {
       resistencia_magia: 18
       ca {
@@ -2425,7 +2449,7 @@ modelo {
 
     tendencia { simples: TD_CAOTICO_MAU }
 
-    rotulo_especial: 'telepatia 30m (20q), idiomas sempre ativo\n visao verdadeira\nA vontade CD 22: encantar monstro\nCD 20 detectar bem, detectar pensamentos\nCD 21: thereal jaunt, sugestao\nteleportar maior. Nivel conjurador 12.'
+    rotulo_especial: 'telepatia 30m (20q), idiomas sempre ativo\n visao verdadeira\nA vontade CD 22: encantar monstro\nCD 20 detectar bem, detectar pensamentos\nCD 21: passeio etereo, sugestao\nteleportar maior. Nivel conjurador 12.\nbeijo que drena'
   }
 }
 modelo {

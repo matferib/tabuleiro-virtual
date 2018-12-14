@@ -4231,27 +4231,6 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'heroismo'
-    nome: 'Heroismo'
-    info_classes {
-      id: 'mago'
-      nivel: 3
-    }
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      efeitos_adicionais {
-        efeito: EFEITO_HEROISMO
-        rodadas: 100  # por nivel
-      }
-    }
-  }
-  armas {
     id: 'cone_de_gelo'
     nome: 'Cone de Gelo'
     alcance_quadrados: 12
@@ -4280,6 +4259,58 @@ tabela_feiticos {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FRIO
+    }
+  }
+  armas {
+    id: 'enfeiticar_monstro'
+    nome: 'Enfeitiçar Monstro'
+    alcance_quadrados: 12
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'encantamento'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE 
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      resultado_salvacao: RS_ANULOU
+      icone: 'icon_heart.png'
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+  armas {
+    id: 'heroismo'
+    nome: 'Heroismo'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_HEROISMO
+        rodadas: 100  # por nivel
+      }
     }
   }
   armas {
@@ -4331,6 +4362,37 @@ tabela_feiticos {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_ELETRICIDADE
+    }
+  }
+  armas {
+    id: 'sugestao'
+    nome: 'Sugestão'
+    alcance_quadrados: 5  # 1/2 niveis
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'encantamento'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE 
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      resultado_salvacao: RS_ANULOU
+      icone: 'icon_heart.png'
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
     }
   }
   armas {
