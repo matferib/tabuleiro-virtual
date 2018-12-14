@@ -1333,9 +1333,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
-      LOG(INFO) << "la";
     }
-    LOG(INFO) << "acola";
 
     // Reducao de dano.
     std::string texto_reducao;
