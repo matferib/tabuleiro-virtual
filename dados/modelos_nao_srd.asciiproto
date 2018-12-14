@@ -21,6 +21,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '10d8+90' tamanho: TM_MEDIO
     modelo_3d { id: 'arrow_demon' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18

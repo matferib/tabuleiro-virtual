@@ -501,6 +501,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '10d8+70' tamanho: TM_GRANDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     cor { r: 0.8 g: 0.8 b: 1 }
@@ -594,7 +595,7 @@ modelo {
       alcance_m: 0.0
       acao_fixa {
         tipo: ACAO_DISPERSAO
-        cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+        cor { r: 1.0 g: 1.0 b: 1.0 a: 0.8 }
         raio_quadrados: 6
         geometria: ACAO_GEO_ESFERA
         ignora_resistencia_magia: true
@@ -605,6 +606,7 @@ modelo {
         elemento: DESC_SONICO
         duracao_s: 0.250
         efeito_area: true
+        nao_afeta_sub_tipo: SUBTIPO_DEMONIO
         efeitos_adicionais {
           efeito: EFEITO_ATORDOADO
           rodadas: 1
@@ -612,6 +614,31 @@ modelo {
         }
       }
     }
+    dados_ataque {
+      grupo: 'esporos' rotulo: 'esporos a cada 3 rodadas' tipo_ataque: 'Feitiço de Mago'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano: '1d8'
+      alcance_m: 0.0
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        cor { r: 0.3 g: 1.0 b: 0.3 a: 0.8 }
+        raio_quadrados: 2
+        geometria: ACAO_GEO_ESFERA
+        ignora_resistencia_magia: true
+        permite_salvacao: false
+        icone: 'icon_touch.png'
+        elemento: DESC_VENENO
+        duracao_s: 0.250
+        efeito_area: true
+        nao_afeta_origem: true
+        efeitos_adicionais {
+          efeito: EFEITO_OUTRO
+          rodadas: 10
+          descricao: 'esporos, 1d4 dano/rodada'
+        }
+      }
+    }
+
     dados_defesa {
       resistencia_magia: 17
       ca {
@@ -671,6 +698,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' altura: 0.5 translacao_y: 0.35 } cor { r: 0 g: 0 b: 0.5 }
     tamanho: TM_ENORME
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -774,6 +802,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '7d8+35'
     modelo_3d { id: 'babau' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -875,6 +904,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '2d8+4' modelo_3d { id: 'dretch' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
 
@@ -2305,6 +2335,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '6d8+6'
     modelo_3d { id: 'succubus' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -2403,6 +2434,7 @@ modelo {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_CAOS
     sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_DEMONIO
     dados_vida: '12d8+120' modelo_3d { id: 'glabrezu' }
     tamanho: TM_ENORME
     info_classes {
