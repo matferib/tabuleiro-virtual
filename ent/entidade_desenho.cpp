@@ -126,8 +126,8 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
   bool achatar = Achatar(proto, pd);
   std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
   if (proto.has_modelo_3d()) {
-    if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos()) {
-      blend_escopo.reset(new MisturaPreNevoaEscopo(proto.cor(), pd));
+    if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos() || pd->entidade_selecionada()) {
+      blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
     }
   } else {
     AjustaCor(proto, pd);

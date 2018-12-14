@@ -227,7 +227,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   }
   Cor c;
   c.set_a(proto.cor().a());  // a gente so quer o alfa aqui.
-  AlteraBlendEscopo blend_escopo(pd, c);
+  //AlteraBlendEscopo blend_escopo(pd, c);
+  MisturaPreNevoaEscopo blend_escopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd);
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {

@@ -230,6 +230,17 @@ void RealcaCor(Cor* cor) {
   cor->set_b(RealcaComponente(cor->b()));
 }
 
+Cor CorRealcada(const Cor& cor) {
+  Cor cr = cor;
+  if (!cr.has_r()) {
+    cr.set_r(1);
+    cr.set_g(1);
+    cr.set_b(1);
+  }
+  RealcaCor(&cr);
+  return cr;
+}
+
 namespace {
 float CombinaComponenteCor(float c1, float c2) {
   return std::min(1.0f, c1 + c2);

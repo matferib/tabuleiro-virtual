@@ -87,6 +87,7 @@ void ClareiaCor(Cor* cor);
 /** Muda cada componente RGB de forma notavel. */
 void RealcaCor(Cor* cor);
 void RealcaCor(float* cor);
+Cor CorRealcada(const Cor& cor);
 
 /** Combina as duas cores, maximo 1 em cada componente. Nao usa alfa. */
 void CombinaCor(const Cor& cor_origem, Cor* cor_destino);
