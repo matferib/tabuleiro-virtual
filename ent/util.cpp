@@ -2390,6 +2390,7 @@ DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
   if (normalizado == "acido") return DESC_ACIDO;
   if (normalizado == "sonico") return DESC_SONICO;
   if (normalizado == "eletricidade") return DESC_ELETRICIDADE;
+  if (normalizado == "veneno") return DESC_VENENO;
   return DESC_NENHUM;
 
 }
@@ -4468,7 +4469,9 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
 
   // Resistencia ao tipo de ataque.
   const ResistenciaElementos* resistencia = EntidadeResistenciaElemento(proto, elemento);
-  if (resistencia == nullptr) return resultado;
+  if (resistencia == nullptr) {
+    return resultado;
+  }
 
   resultado.causa = ALT_RESISTENCIA;
   const int valor_efetivo = resistencia->valor();
