@@ -263,12 +263,15 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   // Eventos.
   if (pd->desenha_eventos_entidades()) {
     bool santuario = false;
+    bool coracao = false;
     bool ha_evento = false;
     std::string descricao;
     int num_descricoes = 0;
     for (auto& e : *proto_.mutable_evento()) {
       if (e.id_efeito() == EFEITO_SANTUARIO) {
         santuario = true;
+      } else if (e.id_efeito() == EFEITO_ENFEITICADO || e.id_efeito() == EFEITO_SUGESTAO) {
+        coracao = true;
       }
       if (e.rodadas() == 0) {
         ha_evento = true;
@@ -292,6 +295,20 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         // Hack para ajustar a aureola. O centro de gravidade dela eh um pouco desviado.
         gl::Translada(-0.1f, 0.0f, ALTURA * 1.5f);
         aureola->vbos_gravados.Desenha();
+      }
+    }
+    if (coracao) {
+      const auto* coracao = vd_.m3d->Modelo("heart");
+      if (coracao != nullptr) {
+        // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+        gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+        gl::CarregaNome(Id());
+        gl::DesabilitaEscopo de(GL_LIGHTING);
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+        gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
+        MisturaPreNevoaEscopo blend_escopo(CorParaProto(COR_VERMELHA), pd);
+        coracao->vbos_gravados.Desenha();
       }
     }
 

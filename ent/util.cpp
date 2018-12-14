@@ -186,6 +186,14 @@ void CorParaProto(const float* cor, Cor* proto_cor) {
   proto_cor->clear_a();
 }
 
+Cor CorParaProto(const float* cor) {
+  Cor proto_cor;
+  proto_cor.set_r(cor[0]);
+  proto_cor.set_g(cor[1]);
+  proto_cor.set_b(cor[2]);
+  return proto_cor;
+}
+
 void EscureceCor(Cor* cor) {
   cor->set_r(std::max(cor->r() - 0.5f, 0.0f));
   cor->set_g(std::max(cor->g() - 0.5f, 0.0f));

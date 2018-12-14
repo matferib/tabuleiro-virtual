@@ -1764,11 +1764,18 @@ std::vector<gl::VboGravado> Entidade::g_vbos;
 // static
 void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
+  // VBOs de efeitos.
   {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
     n->mutable_entidade()->mutable_modelo_3d()->set_id("halo");
     central->AdicionaNotificacao(n.release());
   }
+  {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id("heart");
+    central->AdicionaNotificacao(n.release());
+  }
+
   // Vbo peao.
   {
     auto& vbo = vbos_nao_gravados[VBO_PEAO];

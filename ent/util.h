@@ -75,6 +75,7 @@ void CorAlfaParaProto(const float* cor, Cor* cor_proto);
 
 /** Igual CorAlfaParaProto mas para 3 componentes. */
 void CorParaProto(const float* cor, Cor* cor_proto);
+Cor CorParaProto(const float* cor);
 
 /** Reduz cada componente RGB em 0.5f. */
 const Cor EscureceCor(const Cor& cor);
