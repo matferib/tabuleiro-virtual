@@ -59,11 +59,6 @@ void ConcatenaString(const std::string& s, std::string* alvo) {
   else *alvo = google::protobuf::StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
 }
 
-void ConcatenaString(const std::string& s, AcaoProto* acao_proto) {
-  if (acao_proto == nullptr) return;
-  ConcatenaString(s, acao_proto->mutable_texto());
-}
-
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -1326,16 +1321,21 @@ float Tabuleiro::TrataAcaoIndividual(
         resultado.resultado = RA_FALHA_IMUNE;
       }
       ConcatenaString(resultado_rm, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), resultado_rm);
     }
 
     std::string resultado_salvacao;
     bool salvou = false;
-    if (delta_pontos_vida < 0 && acao_proto->permite_salvacao()) {
+    LOG(INFO) << "aqui";
+    if ((delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
+      LOG(INFO) << "la";
     }
+    LOG(INFO) << "acola";
 
     // Reducao de dano.
     std::string texto_reducao;
