@@ -51,6 +51,7 @@ std::vector<std::string> Modelos3d::ModelosDisponiveis(bool global) {
     std::vector<std::string> ret = arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d);
     ret.push_back("builtin:esfera");
     ret.push_back("builtin:cilindro");
+    ret.push_back("builtin:piramide");
     return ret;
   } else {
     return arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d);
@@ -159,6 +160,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 const Modelo3d* Modelos3d::Modelo(const std::string& id) const {
   auto it = interno_->modelos.find(id);
   if (it == interno_->modelos.end()) {
+    VLOG(3) << "nao achei: " << id;
     return nullptr;
   } else {
     return &(it->second);
@@ -195,6 +197,8 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
       vbo_nao_gravado = gl::VboEsferaSolida(0.75f, 12, 12);
     } else if (id_interno == "builtin:cilindro") {
       vbo_nao_gravado = gl::VboCilindroSolido(0.75f, 1.0f, 12, 1);
+    } else if (id_interno == "builtin:piramide") {
+      vbo_nao_gravado = gl::VboPiramideSolida(0.75f, 1.0f);
     } else {
       LOG(ERROR) << "modelo desconhecido: " << id_interno;
       return;
