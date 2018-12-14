@@ -2397,7 +2397,7 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_m: 31
       acao_fixa {
-        dificuldade_salvacao_base: 14
+        dificuldade_salvacao_base: 13
         efeitos_adicionais {
           efeito: EFEITO_SUGESTAO
           rodadas: 7200  # * 12 horas.
