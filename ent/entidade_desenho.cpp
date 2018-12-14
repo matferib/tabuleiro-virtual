@@ -264,6 +264,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_eventos_entidades()) {
     bool santuario = false;
     bool coracao = false;
+    bool enredado = false;
     bool ha_evento = false;
     std::string descricao;
     int num_descricoes = 0;
@@ -272,6 +273,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         santuario = true;
       } else if (e.id_efeito() == EFEITO_ENFEITICADO || e.id_efeito() == EFEITO_SUGESTAO) {
         coracao = true;
+      } else if (e.id_efeito() == EFEITO_ENREDADO) {
+        enredado = true;
       }
       if (e.rodadas() == 0) {
         ha_evento = true;
@@ -309,6 +312,18 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
         MisturaPreNevoaEscopo blend_escopo(CorParaProto(COR_VERMELHA), pd);
         coracao->vbos_gravados.Desenha();
+      }
+    }
+    if (enredado) {
+      const auto* rede = vd_.m3d->Modelo("builtin:piramide");
+      if (rede != nullptr) {
+        // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+        gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+        gl::CarregaNome(Id());
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+        gl::Escala(1.5f, 1.5f, 1.0f);
+        rede->vbos_gravados.Desenha();
       }
     }
 
