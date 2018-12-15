@@ -2069,7 +2069,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
-      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
+      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro(true));
       if (notificacao.has_endereco()) {
         // Salvar com nome corrente se endereco for vazio, caso contrario usar o nome da notificacao.
         std::string caminho_str;
@@ -2155,12 +2155,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
-        central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
+        central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
       } else {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
       }
       return true;
+    }
+    case ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO: {
+      DeserializaTabuleiro(notificacao);
+      central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
     }
     case ntf::TN_CRIAR_CENARIO: {
       CriaSubCenarioNotificando(notificacao);
@@ -4953,7 +4957,7 @@ void Tabuleiro::DeserializaRelevoCenario(const TabuleiroProto& novo_proto) {
   RegeraVboTabuleiro();
 }
 
-ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
+ntf::Notificacao* Tabuleiro::SerializaTabuleiro(bool salvar_versoes, const std::string& nome) {
   auto* notificacao = new ntf::Notificacao;
   try {
     // O tipo é TN_DESERIALIZAR_TABULEIRO para que os clientes possam receber essa notificacao.
@@ -4972,6 +4976,16 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     if (!nome.empty()) {
       t->set_nome(nome);
     }
+    if (salvar_versoes) {
+      auto* versoes = proto_.mutable_versoes();
+      *versoes->Add() = *t;
+      *t->mutable_versoes() = *versoes;
+      // Pra evitar que as versoes tenham versoes. So pode haver uma, no principal.
+      for (auto& tv : *t->mutable_versoes()) {
+        tv.clear_versoes();
+      }
+    }
+
     VLOG(1) << "Serializando tabuleiro " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {

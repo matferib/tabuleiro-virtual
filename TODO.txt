@@ -1,4 +1,5 @@
 Anotacoes da sessao:
+- Versionar tabuleiro ao salvar: TOP
 - Atordoar vrock nao esta rolando salvacao;
 - Alinhar arma: tendencia em arma.
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
@@ -6,7 +7,8 @@ Anotacoes da sessao:
 - Forma alternativa: ataques de agarrar duplicados.
 - Normalizacao de elementos: tirar acentos.
 - Ataques naturais nao funcionam.
-- Protecao contra o mal nao esta funcionando.
+- Protecao contra o mal nao esta funcionando em salvacoes (+2).
+- UI para horas.
 
 
 Colocar outros aneis e mantos com efeitos, chapeu de carisma.

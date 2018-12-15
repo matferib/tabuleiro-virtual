@@ -832,7 +832,7 @@ class Tabuleiro : public ntf::Receptor {
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
   * @param nome um tabuleiro com nome pode ser salvo diretamente, sem dialogo de nome
   **/
-  ntf::Notificacao* SerializaTabuleiro(const std::string& nome = "");
+  ntf::Notificacao* SerializaTabuleiro(bool salvar_versoes, const std::string& nome = "");
 
   /** @return uma notificacao do tipo TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS preenchida.
   * O motivo de ser TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS eh para os clientes poderem receber
