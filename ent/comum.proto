@@ -96,6 +96,7 @@ enum TipoEfeito {
   EFEITO_ATORDOADO = 49;
   EFEITO_ENFEITICADO = 50;  // charmed.
   EFEITO_SUGESTAO = 51;
+  EFEITO_NAUSEA = 52;
 }
 
 // Tipo de visao para entidades e camera.

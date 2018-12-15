@@ -1,4 +1,17 @@
+Anotacoes da sessao:
+- Atordoar vrock nao esta rolando salvacao;
+- Alinhar arma: tendencia em arma.
+- Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
+- Forma alternativa: itens continuam a fazer efeito.
+- Forma alternativa: ataques de agarrar duplicados.
+- Normalizacao de elementos: tirar acentos.
+- Ataques naturais nao funcionam.
+- Protecao contra o mal nao esta funcionando.
+
+
 Colocar outros aneis e mantos com efeitos, chapeu de carisma.
+
+
 
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
 Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
