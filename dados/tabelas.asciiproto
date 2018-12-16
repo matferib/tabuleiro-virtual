@@ -1078,6 +1078,17 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_INVESTIDA
+    nao_cumulativo: true
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'investida' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'carga' } } }
+    }
+  }
+
+  efeitos {
     id: EFEITO_RESISTENCIA_SALVACAO
     consequencia {
       usa_complemento: true
