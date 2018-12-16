@@ -1033,7 +1033,6 @@ tabela_efeitos {
       # TODO: faltando skills.
     }
   }
-
   efeitos {
     id: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
     consequencia {
@@ -1044,6 +1043,9 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_COMPETENCIA_PERICIA
+  }
+  efeitos {
     id: EFEITO_ENREDADO
     nao_cumulativo: true
     consequencia {
@@ -1053,9 +1055,7 @@ tabela_efeitos {
       }
     }
   }
-
   efeitos {
-    # TODO: faltando skills.
     id: EFEITO_HEROISMO
     consequencia {
       dados_defesa {
@@ -1065,10 +1065,6 @@ tabela_efeitos {
       }
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
     }
-  }
-
-  efeitos {
-    id: EFEITO_COMPETENCIA_PERICIA
   }
 
   efeitos {
