@@ -3109,6 +3109,8 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
 
   // Iteracao.
+  const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
+ 
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto* pericia_proto = mapa_pericias_proto[pt.id()];
@@ -3140,7 +3142,10 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
         AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
       }
     }
-    //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
+
+    // Heroismo
+    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto->mutable_bonus());
+   //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
   }
   // TODO sinergia e talentos.
 }
