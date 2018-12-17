@@ -2485,7 +2485,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     }
     break;
-    case EFEITO_ALINHAR_ARMA: {
+    case EFEITO_TENDENCIA_EM_ARMA: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
       if (desc == DESC_NENHUM) return;
@@ -2611,7 +2611,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       AplicaFimPedraEncantada(evento.id_unico(), proto);
     break;
     case EFEITO_ABENCOAR_ARMA:
-    case EFEITO_ALINHAR_ARMA: {
+    case EFEITO_TENDENCIA_EM_ARMA: {
       if (evento.complementos_str().size() >= 1) {
         AplicaFimAlinhamentoArma(evento.complementos_str(0), proto);
       }

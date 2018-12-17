@@ -1245,6 +1245,7 @@ tabela_efeitos {
   efeitos {
     # Primeiro complemento: forca e con. Segundo: vontade.
     id: EFEITO_FURIA
+    nome: 'fúria'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1260,6 +1261,7 @@ tabela_efeitos {
   efeitos {
     # É identico a furia, mas tem outros efeitos especificos como fadiga.
     id: EFEITO_FURIA_BARBARO
+    nome: 'fúria de bárbaro'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1275,6 +1277,7 @@ tabela_efeitos {
   efeitos {
     # Nao pode correr nem cargar.
     id: EFEITO_FADIGA
+    nome: 'fadiga'
     consequencia {
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'fadiga' } } }
@@ -1285,13 +1288,16 @@ tabela_efeitos {
   efeitos {
     # Chance de falha.
     id: EFEITO_INVISIBILIDADE
+    nome: 'invisibilidade'
   }
   efeitos {
     # Veneno tem um efeito imediato (primario) e um secundario (10 minutos depois).
     id: EFEITO_VENENO
+    nome: 'veneno'
   }
   efeitos {
     id: EFEITO_DANO_ATRIBUTO_VENENO
+    nome: 'dano de atributo por veneno'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1306,24 +1312,28 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_ABENCOAR_ARMA
+    nome: 'abençoar arma'
     consequencia {
       usa_complemento: true
     }
   }
   efeitos {
-    id: EFEITO_ALINHAR_ARMA
+    id: EFEITO_TENDENCIA_EM_ARMA
+    nome: 'tendência em arma'
     consequencia {
       usa_complemento: true
     }
   }
   efeitos {
     id: EFEITO_ARMA_MAGICA
+    nome: 'arma mágica'
     consequencia {
       usa_complemento: true
     }
   }
   efeitos {
     id: EFEITO_PRESA_MAGICA
+    nome: 'presa mágica'
     consequencia {
       usa_complemento: true
     }

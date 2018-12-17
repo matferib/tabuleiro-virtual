@@ -959,7 +959,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
 
   EntidadeProto proto_ataque;
   auto* evento = proto_ataque.add_evento();
-  evento->set_id_efeito(EFEITO_ALINHAR_ARMA);
+  evento->set_id_efeito(EFEITO_TENDENCIA_EM_ARMA);
   evento->add_complementos_str("rotulo_teste");
   evento->add_complementos_str("bem");
   evento->set_rodadas(1);
@@ -986,7 +986,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 
   EntidadeProto proto_ataque;
   auto* evento = proto_ataque.add_evento();
-  evento->set_id_efeito(EFEITO_ALINHAR_ARMA);
+  evento->set_id_efeito(EFEITO_TENDENCIA_EM_ARMA);
   evento->add_complementos_str("rotulo_teste");
   evento->add_complementos_str("mau");
   evento->set_rodadas(1);

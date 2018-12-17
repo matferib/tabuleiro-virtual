@@ -80,7 +80,7 @@ enum TipoEfeito {
   // Os complementos indicam quanto de dano em cada atributo: for, des, con, int, sab, car, nesta ordem.
   EFEITO_DANO_ATRIBUTO_VENENO = 39;
   // O complemento é da forma: rotulo, alinhamento.
-  EFEITO_ALINHAR_ARMA = 40;
+  EFEITO_TENDENCIA_EM_ARMA = 40;
   EFEITO_ENREDADO = 41;  // entangled.
   // Dura 1s.
   EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
@@ -515,7 +515,7 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
-  optional string nome_efeito = 5;  // nome do efeito, legibilidade.
+  optional string nome = 5;  // nome do efeito, legibilidade.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
