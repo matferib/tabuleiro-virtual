@@ -1024,9 +1024,35 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
-    id: EFEITO_AJUDA
+    id: EFEITO_ABENCOAR_ARMA
+    nome: 'abençoar arma'
+    formato_complementos: 'nome da arma que foi abençoada, igual ao que está nos dados de ataque (exemplo: espada longa)'
     consequencia {
-      # Complemento usado para adicionar aos PV (1d8+complemento).
+      usa_complemento: true
+    }
+  }
+  efeitos {
+    id: EFEITO_ACELERAR
+    nome: 'acelerar'
+    nao_cumulativo: true
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar' } } }
+    }
+  }
+  efeitos {
+    id: EFEITO_AGILIDADE_GATO
+    nome: 'agilidade do gato'
+    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
+  }
+  efeitos {
+    id: EFEITO_AJUDA
+    nome: 'ajuda'
+    formato_complementos: 'adicionar aos PV (1d8+complemento)'
+    consequencia {
       usa_complemento: true
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
@@ -1034,19 +1060,57 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_ARMA_MAGICA
+    nome: 'arma mágica'
+    formato_complementos: 'nome da arma que foi encantada, igual ao que está nos dados de ataque (exemplo: espada longa)'
+    consequencia {
+      usa_complemento: true
+    }
+  }
+  efeitos {
     id: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
+    nome: 'competência em ataque e dano para arquearia'
+    formato_complementos: 'primeiro em ataque, segundo em dano'
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_COMPETENCIA por_origem { indice_complemento: 0  origem: 'competencia ataque dano' } } }
       jogada_dano { bonus_individual { tipo: TB_COMPETENCIA por_origem { indice_complemento: 1  origem: 'competencia ataque dano' } } }
       restricao_arma { prefixo_arma: 'arco' }
     }
   }
-
   efeitos {
     id: EFEITO_COMPETENCIA_PERICIA
+    nome: 'competência em perícia'
+    formato_complementos: 'primeiro em ataque, segundo em dano'
+  }
+  efeitos {
+    id: EFEITO_DANO_ATRIBUTO_VENENO
+    nome: 'dano de atributo por veneno'
+    formato_complementos: 'as 6 mudancas de atributo na ordem: for, des, con, int, sab, car (exemplo: 2 0 0 3 0 0)'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 2 origem: 'veneno' } } }
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 3 origem: 'veneno' } } }
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 4 origem: 'veneno' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 5 origem: 'veneno' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_DEFLEXAO_CA
+    nome: 'deflexão CA'
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'deflexao_ca' } } }
+      }
+    }
   }
   efeitos {
     id: EFEITO_ENREDADO
+    nome: 'enredado'
     nao_cumulativo: true
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'enredado' } } }
@@ -1057,6 +1121,7 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_HEROISMO
+    nome: 'heroísmo'
     consequencia {
       dados_defesa {
         salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
@@ -1066,19 +1131,9 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'heroismo' } } }
     }
   }
-
-  efeitos {
-    id: EFEITO_DEFLEXAO_CA
-    consequencia {
-      usa_complemento: true
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'deflexao_ca' } } }
-      }
-    }
-  }
-
   efeitos {
     id: EFEITO_INVESTIDA
+    nome: 'investida'
     nao_cumulativo: true
     consequencia {
       dados_defesa {
@@ -1087,9 +1142,21 @@ tabela_efeitos {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'carga' } } }
     }
   }
-
+  efeitos {
+    id: EFEITO_PELE_ARVORE
+    nome: 'pele de árvore'
+    formato_complementos: 'bônus de melhoria em armadura natural'
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
+      }
+    }
+  }
   efeitos {
     id: EFEITO_RESISTENCIA_SALVACAO
+    nome: 'resistência em salvação'
+    formato_complementos: 'bônus aplicado em todos os testes de resistência (salvação)'
     consequencia {
       usa_complemento: true
       dados_defesa {
@@ -1105,18 +1172,10 @@ tabela_efeitos {
       }
     }
   }
-
-  efeitos {
-    id: EFEITO_PELE_ARVORE
-    consequencia {
-      usa_complemento: true
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
-      }
-    }
-  }
   efeitos {
     id: EFEITO_ROUPA_ENCANTADA
+    nome: 'roupa encantada'
+    formato_complementos: 'bônus de melhoria em armadura'
     consequencia {
       usa_complemento: true
       dados_defesa {
@@ -1126,15 +1185,19 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_ESCUDO_ENCANTADO
+    nome: 'escudo encantado'
+    formato_complementos: 'bônus de melhoria em escudo'
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'roupa_encantada' } } }
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantada' } } }
       }
     }
   }
   efeitos {
     id: EFEITO_ARMADURA
+    nome: 'armadura'
+    formato_complementos: 'bônus de armadura'
     consequencia {
       usa_complemento: true
       dados_defesa {
@@ -1144,10 +1207,13 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_FORCA_TOURO
+    nome: 'força do touro'
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
   }
   efeitos {
     id: EFEITO_MELHORIA_FORCA
+    nome: 'melhoria em força'
+    formato_complementos: 'bônus de melhoria em força'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1157,6 +1223,8 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_MELHORIA_DESTREZA
+    nome: 'melhoria em destreza'
+    formato_complementos: 'bônus de melhoria em destreza'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1165,38 +1233,29 @@ tabela_efeitos {
     }
   }
   efeitos {
-    id: EFEITO_AGILIDADE_GATO
-    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
-  }
-  efeitos {
     id: EFEITO_VIGOR_URSO
+    nome: 'vigor do urso'
     consequencia { atributos { constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'vigor_urso' } } } } }
   }
   efeitos {
     id: EFEITO_SABEDORIA_CORUJA
+    nome: 'sabedoria da coruja'
     consequencia { atributos { sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'sabedoria_coruja' } } } } }
   }
   efeitos {
     id: EFEITO_ASTUCIA_RAPOSA
+    nome: 'astúcia da raposa'
     consequencia { atributos { inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'astucia_raposa' } } } } }
   }
   efeitos {
     id: EFEITO_ESPLENDOR_AGUIA
+    nome: 'esplendor da águia'
     consequencia { atributos { carisma { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'esplendor_aguia' } } } } }
   }
   efeitos {
-    id: EFEITO_ACELERAR
-    nao_cumulativo: true
-    consequencia {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 1 origem: 'acelerar' } } }
-      }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'acelerar' } } }
-    }
-  }
-  efeitos {
     id: EFEITO_ESCUDO_FE
+    nome: 'escudo da fé'
+    formato_complementos: 'bônus de deflexão'
     consequencia {
       usa_complemento: true
       dados_defesa {
@@ -1206,6 +1265,7 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_AUMENTAR_PESSOA
+    nome: 'aumentar pessoa'
     consequencia {
       tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 1 origem: 'aumentar_pessoa' } } }
       atributos {
@@ -1216,6 +1276,7 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_REDUZIR_PESSOA
+    nome: 'reduzir pessoa'
     consequencia {
       tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'diminuir_pessoa' } } }
       atributos {
@@ -1230,15 +1291,19 @@ tabela_efeitos {
   # Imune a ataques naturais de criaturas conjuradas de acordo com alinhamento.
   efeitos {
     id: EFEITO_PROTECAO_CONTRA_MAL
+    nome: 'proteção contra o mal'
   }
   efeitos {
     id: EFEITO_PROTECAO_CONTRA_BEM
+    nome: 'proteção contra o bem'
   }
   efeitos {
     id: EFEITO_PROTECAO_CONTRA_ORDEM
+    nome: 'proteção contra a ordem'
   }
   efeitos {
     id: EFEITO_PROTECAO_CONTRA_CAOS
+    nome: 'proteção contra o caos'
   }
   # Fim protecao contra tendencia.
 
@@ -1246,6 +1311,7 @@ tabela_efeitos {
     # Primeiro complemento: forca e con. Segundo: vontade.
     id: EFEITO_FURIA
     nome: 'fúria'
+    formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1262,6 +1328,7 @@ tabela_efeitos {
     # É identico a furia, mas tem outros efeitos especificos como fadiga.
     id: EFEITO_FURIA_BARBARO
     nome: 'fúria de bárbaro'
+    formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
       usa_complemento: true
       atributos {
@@ -1296,52 +1363,27 @@ tabela_efeitos {
     nome: 'veneno'
   }
   efeitos {
-    id: EFEITO_DANO_ATRIBUTO_VENENO
-    nome: 'dano de atributo por veneno'
+    id: EFEITO_PRESA_MAGICA
+    nome: 'presa mágica'
+    formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra)'
     consequencia {
       usa_complemento: true
-      atributos {
-        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
-        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
-        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 2 origem: 'veneno' } } }
-        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 3 origem: 'veneno' } } }
-        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 4 origem: 'veneno' } } }
-        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 5 origem: 'veneno' } } }
-      }
     }
   }
   efeitos {
-    id: EFEITO_ABENCOAR_ARMA
-    nome: 'abençoar arma'
-    consequencia {
-      usa_complemento: true
-    }
+    id: EFEITO_RESISTENCIA_ELEMENTOS
+    nome: 'resistência a elementos'
+    formato_complementos: 'descritor;valor da resistência'
   }
   efeitos {
     id: EFEITO_TENDENCIA_EM_ARMA
     nome: 'tendência em arma'
+    formato_complementos: 'nome da arma que foi alinhada, igual ao que está nos dados de ataque e a tendência aplicada (exemplo: espada longa;bem)'
     consequencia {
       usa_complemento: true
     }
   }
-  efeitos {
-    id: EFEITO_ARMA_MAGICA
-    nome: 'arma mágica'
-    consequencia {
-      usa_complemento: true
-    }
-  }
-  efeitos {
-    id: EFEITO_PRESA_MAGICA
-    nome: 'presa mágica'
-    consequencia {
-      usa_complemento: true
-    }
-  }
-
-
 }
-
 tabela_aneis {
   aneis {
     id: 'protecao_1'

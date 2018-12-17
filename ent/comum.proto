@@ -516,6 +516,7 @@ message ConsequenciaEvento {
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
   optional string nome = 5;  // nome do efeito, legibilidade.
+  optional string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
