@@ -1,10 +1,8 @@
 Anotacoes da sessao:
 - Problema do grupo de ataque vazio recomputando na UI. Fazer a mudanca apenas ao final da edicao e nao durante.
 - Versionar tabuleiro ao salvar: permitir apagar versoes.
-- Atordoar vrock nao esta rolando salvacao;
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - Forma alternativa: itens continuam a fazer efeito.
-- Ataques naturais nao funcionam.
 - UI para horas.
 - Permitir multiplas selecoes de ataques, para remove-las de uma vez so.
 
