@@ -599,14 +599,15 @@ modelo {
         raio_quadrados: 6
         geometria: ACAO_GEO_ESFERA
         ignora_resistencia_magia: true
+        permite_salvacao: true
         dificuldade_salvacao_base: 19
         tipo_salvacao: TS_FORTITUDE
         resultado_salvacao: RS_ANULOU
-        icone: 'icon_shatter.png'
         elemento: DESC_SONICO
         duracao_s: 0.250
         efeito_area: true
         nao_afeta_sub_tipo: SUBTIPO_DEMONIO
+        nao_afeta_origem: true
         efeitos_adicionais {
           efeito: EFEITO_ATORDOADO
           rodadas: 1
