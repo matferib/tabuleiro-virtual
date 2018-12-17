@@ -1389,6 +1389,34 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
   }
 }
 
+void Tabuleiro::AlternaInvestida() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+    const auto& proto = entidade_selecionada->Proto();
+    EntidadeProto *e_antes, *e_depois;
+    auto* n = grupo_notificacoes.add_notificacao();
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_selecionada, n);
+    if (PossuiEvento(EFEITO_INVESTIDA, proto)) {
+      for (const auto& evento : proto.evento()) {
+        if (evento.id_efeito() == EFEITO_INVESTIDA) {
+          *e_antes->add_evento() = evento;
+          auto* evento_depois = e_depois->add_evento();
+          *evento_depois = evento;
+          evento_depois->set_rodadas(-1);
+        }
+      }
+    } else {
+      PreencheNotificacaoEvento(*entidade_selecionada, EFEITO_INVESTIDA, /*rodadas=*/1, n, nullptr);
+    }
+  }
+  if (grupo_notificacoes.notificacao().empty()) return;
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);

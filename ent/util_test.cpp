@@ -216,6 +216,27 @@ TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
   EXPECT_EQ(5, proto.dados_defesa().reducao_dano_barbaro());
 }
 
+TEST(TesteDependencias, TesteInvestida) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  // Ataques.
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+  }
+  // Eventos.
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_INVESTIDA);
+  }
+
+  RecomputaDependencias(tabelas, &proto);
+  // 0 + 2.
+  EXPECT_EQ(2, proto.dados_ataque(0).bonus_ataque_final());
+  // 10 - 2.
+  EXPECT_EQ(8, BonusTotal(proto.dados_defesa().ca()));
+}
+
 TEST(TesteDependencias, TesteDependencias) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
@@ -1003,12 +1024,11 @@ TEST(TesteImunidades, TesteResistencia) {
   EntidadeProto proto;
   auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
   resistencia->set_valor(10);
-  resistencia->set_contador_rodada(4);
   resistencia->set_descritor(DESC_ACIDO);
   RecomputaDependencias(tabelas, &proto);
   auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
-  EXPECT_EQ(resultado.resistido, 6);
+  EXPECT_EQ(resultado.resistido, 10);
 }
 
 TEST(TesteImunidades, TesteMultiplasResistencia) {
@@ -1016,17 +1036,15 @@ TEST(TesteImunidades, TesteMultiplasResistencia) {
   EntidadeProto proto;
   auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
   resistencia->set_valor(10);
-  resistencia->set_contador_rodada(4);
   resistencia->set_descritor(DESC_ACIDO);
   auto* resistencia2 = proto.mutable_dados_defesa()->add_resistencia_elementos();
   resistencia2->set_valor(12);
-  resistencia2->set_contador_rodada(4);
   resistencia2->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-15, proto, DESC_ACIDO);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
-  EXPECT_EQ(resultado.resistido, 8);
+  EXPECT_EQ(resultado.resistido, 12);
 }
 
 TEST(TesteImunidades, TesteResistenciaNaoBate) {
@@ -1034,7 +1052,6 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   EntidadeProto proto;
   auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
   resistencia->set_valor(10);
-  resistencia->set_contador_rodada(4);
   resistencia->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(tabelas, &proto);

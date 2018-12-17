@@ -1033,18 +1033,6 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
-    coluna: 13
-    rotulo: "S"
-    cor_rotulo {}
-    textura: "icon_surprise.png"
-    id: CONTROLE_SURPRESO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Surpreso."
-  }
-  dados_botoes {
-    tamanho: 1
     linha: 1
     coluna: 12
     rotulo: "LD"
@@ -1064,6 +1052,30 @@ pagina {
     id: CONTROLE_DEFESA_TOTAL
     forma: FORMA_RETANGULO
     dica: "Entra em defesa total."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 10
+    rotulo: "S"
+    cor_rotulo {}
+    textura: "icon_surprise.png"
+    id: CONTROLE_SURPRESO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Surpreso."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 11
+    rotulo: "I"
+    cor_rotulo {}
+    textura: "icon_charge.png"
+    id: CONTROLE_INVESTIDA
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Investida (carga)."
   }
   dados_botoes {
     tamanho: 1
@@ -1098,7 +1110,6 @@ pagina {
     forma: FORMA_RETANGULO
     dica: "Chance de falha de 50%."
   }
-
   dados_botoes {
     tamanho: 1
     linha: 1

@@ -405,6 +405,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_SURPRESO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SURPRESO);
       break;
+    case CONTROLE_INVESTIDA:
+      AlternaInvestida();
+      break;
     case CONTROLE_ATAQUE_MAIS_1:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
       break;
@@ -1322,6 +1325,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();
+    } },
+    { CONTROLE_INVESTIDA,          [this] (const Entidade* entidade) {
+      return entidade != nullptr && PossuiEvento(EFEITO_INVESTIDA, entidade->Proto());
     } },
     { CONTROLE_ILUMINACAO_MESTRE,  [this] (const Entidade* entidade) {
       return !opcoes_.iluminacao_mestre_igual_jogadores();

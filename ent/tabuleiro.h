@@ -166,6 +166,10 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaBitsEntidadeNotificando(int bits);
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
+
+  /** Liga/desliga evento de investida do personagem. */
+  void AlternaInvestida();
+
   /** Ao inves de notificar, apenas preenche grupo. */
   void PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* grupo);
 
