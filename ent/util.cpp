@@ -2746,6 +2746,7 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto& item : *proto->mutable_tesouro()->mutable_pocoes()) item.set_tipo(TIPO_POCAO);
   for (auto& item : *proto->mutable_tesouro()->mutable_amuletos()) item.set_tipo(TIPO_AMULETO);
   for (auto& item : *proto->mutable_tesouro()->mutable_botas()) item.set_tipo(TIPO_BOTAS);
+  for (auto& item : *proto->mutable_tesouro()->mutable_chapeus()) item.set_tipo(TIPO_CHAPEU);
 
   // Adiciona efeitos nao existentes e expira os que ja foram.
   std::vector<ItemMagicoProto*> itens;
@@ -4604,6 +4605,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_POCAO: return tabelas.Pocao(id);
     case TipoItem::TIPO_AMULETO: return tabelas.Amuleto(id);
     case TipoItem::TIPO_BOTAS: return tabelas.Botas(id);
+    case TipoItem::TIPO_CHAPEU: return tabelas.Botas(id);
   }
   return ItemMagicoProto::default_instance();
 }

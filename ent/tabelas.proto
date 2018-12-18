@@ -197,6 +197,10 @@ message TabelaAmuletos {
   repeated ItemMagicoProto amuletos = 1;
 }
 
+message TabelaChapeus {
+  repeated ItemMagicoProto chapeus = 1;
+}
+
 message TabelaVenenos {
   repeated VenenoProto venenos = 1;
 }
@@ -218,5 +222,6 @@ message TodasTabelas {
   optional TabelaBracadeiras tabela_bracadeiras = 55;
   optional TabelaLuvas tabela_luvas = 56;
   optional TabelaAmuletos tabela_amuletos = 58;
+  optional TabelaChapeus tabela_chapeus = 59;
   optional TabelaVenenos tabela_venenos = 57;
 }
