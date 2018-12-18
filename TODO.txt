@@ -1,11 +1,10 @@
 Anotacoes da sessao:
-- Terminar selecoes multiplas de ataque: ao remover, ainda mantem selecionado e deveria zerar.
-- Adicionar chapeus de tesouro na tabela.
 - Versionar tabuleiro ao salvar: permitir apagar versoes.
+- Criar uma tabela homebrew (coisas que fizemos e que podemos distribuir).
+- Adicionar chapeus de tesouro na tabela.
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - Forma alternativa: itens continuam a fazer efeito.
 - UI para horas.
-
 
 
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
