@@ -93,30 +93,3 @@ tabela_talentos {
     }
   }
 }
-tabela_amuletos {
-  amuletos {
-    id: 'amuleto_saude_1'
-    nome: 'Amuleto da Saúde +1'
-    custo_po: 1500
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
-    complementos: 1
-  }
-}
-tabela_luvas {
-  luvas {
-    id: 'manoplas_poder_ogro_1'
-    nome: 'Manoplas do Poder do Ogro +1'
-    custo_po: 1500
-    tipo_efeito: EFEITO_MELHORIA_FORCA
-    complementos: 1
-  }
-}
-tabela_chapeus {
-  chapeus {
-    id: 'chapeu_esplendor_1'
-    nome: 'Chapéu do Esplendor +1'
-    custo_po: 2000
-    tipo_efeito: EFEITO_MELHORIA_CARISMA
-    complementos: 1
-  }
-}
