@@ -1,6 +1,7 @@
 #include "ifg/qt/atualiza_ui.h"
 
 #include <QHBoxLayout>
+#include <unordered_set>
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
@@ -327,12 +328,23 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   // Tem que vir antes do clear.
   const int linha = gerador.lista_ataques->currentRow();
+  auto lista_itens = gerador.lista_ataques->selectedItems();
+  std::unordered_set<int> selecionados;
+  for (const auto* item : lista_itens) {
+    selecionados.insert(gerador.lista_ataques->row(item));
+  }
+ 
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
     gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(tabelas, da).c_str()));
   }
   // Restaura a linha.
   gerador.lista_ataques->setCurrentRow(linha);
+  for (int indice : selecionados) {
+    if (indice == -1 || indice >= proto.dados_ataque().size()) continue;
+    gerador.lista_ataques->item(indice)->setSelected(true);
+  }
+ 
   // BBA.
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
@@ -476,7 +488,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   std::vector<QWidget*> objs = {
       gerador.lista_tesouro,  gerador.lista_pocoes, gerador.lista_aneis,
       gerador.lista_mantos,   gerador.lista_luvas,  gerador.lista_bracadeiras,
-      gerador.lista_amuletos, gerador.lista_botas
+      gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -498,6 +510,7 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BRACADEIRAS, gerador.lista_bracadeiras, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_AMULETO, gerador.lista_amuletos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BOTAS, gerador.lista_botas, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_CHAPEU, gerador.lista_chapeus, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
