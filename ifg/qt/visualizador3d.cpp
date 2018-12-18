@@ -1668,7 +1668,7 @@ void PreencheConfiguraDadosAtaque(
     if (indice_antes < proto_retornado->dados_ataque().size()) {
       gerador.lista_ataques->setCurrentRow(indice_antes);
     } else {
-      gerador.lista_ataques->setCurrentRow(-1);
+      gerador.lista_ataques->setCurrentRow(-1, QItemSelectionModel::Clear);
     }
   };
 
@@ -1718,12 +1718,9 @@ void PreencheConfiguraDadosAtaque(
   });
 
   lambda_connect(gerador.botao_remover_ataque, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-    gerador.lista_ataques->blockSignals(true);
     auto lista_itens = gerador.lista_ataques->selectedItems();
     std::set<int, std::greater<int>> a_remover;
     for (auto* item : lista_itens) {
-      item->setSelected(false);
-      LOG(INFO) << "item 1: " << (unsigned long long)item;
       const int indice = gerador.lista_ataques->row(item);
       if (indice == -1 || indice >= proto_retornado->dados_ataque().size()) continue;
       a_remover.insert(indice);
@@ -1731,8 +1728,7 @@ void PreencheConfiguraDadosAtaque(
     for (int indice : a_remover) {
       proto_retornado->mutable_dados_ataque()->DeleteSubrange(indice, 1);
     }
-    gerador.lista_ataques->blockSignals(false);
-    gerador.lista_ataques->setCurrentRow(-1);
+    gerador.lista_ataques->setCurrentRow(-1, QItemSelectionModel::Clear);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
   lambda_connect(gerador.linha_grupo_ataque, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
