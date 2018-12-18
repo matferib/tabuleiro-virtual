@@ -111,3 +111,12 @@ tabela_luvas {
     complementos: 1
   }
 }
+tabela_chapeus {
+  chapeus {
+    id: 'chapeu_esplendor_1'
+    nome: 'Chapéu do Esplendor +1'
+    custo_po: 2000
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 1
+  }
+}
