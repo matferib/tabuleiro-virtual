@@ -262,5 +262,11 @@
     <ClInclude Include="..\..\ent\tabelas.h">
       <Filter>ent\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ifg\interface.h">
+      <Filter>ifg\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ent\tabuleiro.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
