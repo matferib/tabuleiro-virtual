@@ -10,6 +10,7 @@
 #include <QString>
 
 #include "arq/arquivo.h"
+#include "goog/stringprintf.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/qt/qt_interface.h"
 #include "ifg/qt/ui/entradastring.h"
@@ -19,6 +20,10 @@
 
 namespace ifg {
 namespace qt {
+
+namespace {
+using google::protobuf::StringPrintf;
+}
 
 void InterfaceGraficaQt::MostraMensagem(
     bool erro, const std::string& mensagem, std::function<void()> funcao_volta) {
@@ -59,6 +64,34 @@ void InterfaceGraficaQt::EscolheItemLista(
   delete dialogo;
 }
 
+void InterfaceGraficaQt::EscolheVersaoTabuleiro(std::function<void(int versao)> funcao_volta) {
+  ifg::qt::Ui::ListaPaginada gerador;
+  auto* dialogo = new QDialog(pai_);
+  gerador.setupUi(dialogo);
+  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
+    new QListWidgetItem(QString(StringPrintf("versão %d", i + 1).c_str()), gerador.lista);
+  }
+  gerador.lista->setFocus();
+  auto lambda_aceito = [this, &gerador, dialogo, funcao_volta]() {
+    int indice = gerador.lista->currentRow();
+    if (indice < 0 || indice >= tabuleiro_->Proto().versoes().size()) {
+      funcao_volta(-1);
+      return;
+    }
+    funcao_volta(indice);
+    dialogo->accept();
+  };
+  auto lambda_rejeitado = [dialogo, funcao_volta]() {
+    funcao_volta(-1);
+    dialogo->reject();
+  };
+  lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
+  dialogo->setWindowTitle(QString::fromUtf8("Escolha Versão a ser Restaurada"));
+  dialogo->exec();
+  delete dialogo;
+}
 
 void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,

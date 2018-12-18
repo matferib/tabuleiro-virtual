@@ -5,6 +5,7 @@
 #include <string>
 
 #include "arq/arquivo.h"
+#include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
 
 namespace ent {
@@ -54,6 +55,9 @@ class InterfaceGrafica : public ntf::Receptor {
   // Mostra dialogo para salvar tabuleiro, chamando a funcao de volta ao terminar.
   virtual void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) = 0;
+  
+  // Dialogo com as versões do tabuleiro.
+  virtual void EscolheVersaoTabuleiro(std::function<void(int versao)> funcao_volta) = 0;
 
   // Mostra o dialogo para escolher um modelo de entidade.
   virtual void EscolheModeloEntidade(
@@ -99,6 +103,9 @@ class InterfaceGrafica : public ntf::Receptor {
 
   void TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao);
   void VoltaEscolherModeloEntidade(const std::string& nome);
+
+  void TrataEscolherVersao();
+  void VoltaEscolherVersao(int versao);
 };
 
 }  // namespace ifg

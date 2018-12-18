@@ -72,6 +72,9 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataMostraMensagem(notificacao.tipo() == ntf::TN_ERRO, notificacao.erro());
       break;
     }
+    case ntf::TN_ABRIR_DIALOGO_ABRIR_VERSAO: {
+      TrataEscolherVersao();
+    }
     default:
       break;
   }
@@ -286,6 +289,25 @@ void InterfaceGrafica::VoltaEscolherModeloEntidade(
     const std::string& nome) {
   tabuleiro_->SelecionaModeloEntidade(nome);
   tabuleiro_->ReativaWatchdogSeMestre();
+}
+
+//----------------
+// Escolher versao
+//----------------
+void InterfaceGrafica::TrataEscolherVersao() {
+  if (tabuleiro_->Proto().versoes().empty()) {
+    return;
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheVersaoTabuleiro([this](int versao) {
+    if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
+      auto notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO);
+      *notificacao->mutable_tabuleiro() = tabuleiro_->Proto().versoes(versao);
+      *notificacao->mutable_tabuleiro()->mutable_versoes() = tabuleiro_->Proto().versoes();
+      central_->AdicionaNotificacao(notificacao.release());
+    }
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
 }
 
 //-----------------
