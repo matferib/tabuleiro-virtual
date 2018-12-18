@@ -1725,8 +1725,8 @@ void PreencheConfiguraDadosAtaque(
     gerador.lista_ataques->setCurrentRow(-1);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
-  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
-  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_municao, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
