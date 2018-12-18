@@ -18,7 +18,7 @@ class MenuModelos;
 class TratadorTecladoMouse;
 
 // Funcao auxiliar para misturar protos de menu de tipos diferentes (srd e nao srd).
-void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida); 
+void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida);
 
 class InterfaceGrafica : public ntf::Receptor {
  public:
@@ -55,9 +55,9 @@ class InterfaceGrafica : public ntf::Receptor {
   // Mostra dialogo para salvar tabuleiro, chamando a funcao de volta ao terminar.
   virtual void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) = 0;
-  
+
   // Dialogo com as versões do tabuleiro.
-  virtual void EscolheVersaoTabuleiro(std::function<void(int versao)> funcao_volta) = 0;
+  virtual void EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int versao)> funcao_volta) = 0;
 
   // Mostra o dialogo para escolher um modelo de entidade.
   virtual void EscolheModeloEntidade(
@@ -105,7 +105,7 @@ class InterfaceGrafica : public ntf::Receptor {
   void VoltaEscolherModeloEntidade(const std::string& nome);
 
   void TrataEscolherVersao();
-  void VoltaEscolherVersao(int versao);
+  void TrataEscolherVersaoParaRemocao();
 };
 
 }  // namespace ifg

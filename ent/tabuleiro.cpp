@@ -7601,4 +7601,12 @@ bool Tabuleiro::HaEntidadesSelecionaveis() const {
   return false;
 }
 
+void Tabuleiro::RemoveVersao(int versao) {
+  if (versao < 0 || versao >= proto_.versoes().size()) {
+    LOG(ERROR) << "versao invalida: " << versao;
+    return;
+  }
+  proto_.mutable_versoes()->DeleteSubrange(versao, 1);
+}
+
 }  // namespace ent

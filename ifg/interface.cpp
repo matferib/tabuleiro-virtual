@@ -74,6 +74,11 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ABRIR_DIALOGO_ABRIR_VERSAO: {
       TrataEscolherVersao();
+      break;
+    }
+    case ntf::TN_ABRIR_DIALOGO_REMOVER_VERSAO: {
+      TrataEscolherVersaoParaRemocao();
+      break;
     }
     default:
       break;
@@ -299,12 +304,25 @@ void InterfaceGrafica::TrataEscolherVersao() {
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheVersaoTabuleiro([this](int versao) {
+  EscolheVersaoTabuleiro("Escolha versão a ser restaurada", [this](int versao) {
     if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
       auto notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO);
       *notificacao->mutable_tabuleiro() = tabuleiro_->Proto().versoes(versao);
       *notificacao->mutable_tabuleiro()->mutable_versoes() = tabuleiro_->Proto().versoes();
       central_->AdicionaNotificacao(notificacao.release());
+    }
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
+}
+
+void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
+  if (tabuleiro_->Proto().versoes().empty()) {
+    return;
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheVersaoTabuleiro("Escolha versão a ser removida", [this](int versao) {
+    if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
+      tabuleiro_->RemoveVersao(versao);
     }
     tabuleiro_->ReativaWatchdogSeMestre();
   });

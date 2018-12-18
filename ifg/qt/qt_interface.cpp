@@ -64,7 +64,7 @@ void InterfaceGraficaQt::EscolheItemLista(
   delete dialogo;
 }
 
-void InterfaceGraficaQt::EscolheVersaoTabuleiro(std::function<void(int versao)> funcao_volta) {
+void InterfaceGraficaQt::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int versao)> funcao_volta) {
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
@@ -88,7 +88,7 @@ void InterfaceGraficaQt::EscolheVersaoTabuleiro(std::function<void(int versao)> 
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
-  dialogo->setWindowTitle(QString::fromUtf8("Escolha Versão a ser Restaurada"));
+  dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
   dialogo->exec();
   delete dialogo;
 }
@@ -222,4 +222,3 @@ void InterfaceGraficaQt::EscolheCor(
 
 }  // namespace qt
 }  // namespace ent
-
