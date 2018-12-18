@@ -4598,6 +4598,9 @@ tabela_feiticos {
 
 }
 
+tabela_chapeus {
+}
+
 #tabela_venenos {
 #  venenos {
 #    id: 'nitharit' nome: 'Nitharit' tipo: TV_CONTATO dano_secondario: '3d6' tipo_dano_secondario: TDV_CONSTITUICAO preco_po: 650
