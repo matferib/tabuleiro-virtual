@@ -34,6 +34,7 @@ class Tabelas : public ntf::Receptor {
   const ItemMagicoProto& Manto(const std::string& id) const;
   const ItemMagicoProto& Luvas(const std::string& id) const;
   const ItemMagicoProto& Amuleto(const std::string& id) const;
+  const ItemMagicoProto& Chapeu(const std::string& id) const;
   const ItemMagicoProto& Bracadeiras(const std::string& id) const;
   const ItemMagicoProto& Botas(const std::string& id) const;
   const TalentoProto& Talento(const std::string& id) const;
@@ -60,6 +61,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const ItemMagicoProto*> luvas_;
   std::unordered_map<std::string, const ItemMagicoProto*> bracadeiras_;
   std::unordered_map<std::string, const ItemMagicoProto*> amuletos_;
+  std::unordered_map<std::string, const ItemMagicoProto*> chapeus_;
   std::unordered_map<std::string, const ItemMagicoProto*> botas_;
   std::unordered_map<std::string, const TalentoProto*> talentos_;
   std::unordered_map<std::string, const PericiaProto*> pericias_;

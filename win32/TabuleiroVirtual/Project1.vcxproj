@@ -119,8 +119,10 @@
     <ClInclude Include="..\..\arq\arquivo.h" />
     <ClInclude Include="..\..\ent\constantes.h" />
     <ClInclude Include="..\..\ent\tabelas.h" />
+    <ClInclude Include="..\..\ent\tabuleiro.h" />
     <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
+    <ClInclude Include="..\..\ifg\interface.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />
     <ClInclude Include="..\..\ifg\qt\evento_util.h" />

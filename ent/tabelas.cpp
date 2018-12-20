@@ -106,6 +106,15 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
   }
   try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_homebrew.asciiproto", &tabelas_);
+  } catch (const arq::ParseProtoException & e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
+    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+        StringPrintf("Erro lendo tabela: tabelas_homebrew.asciiproto: %s", e.what())));
+  } catch (const std::exception& e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
+  }
+  try {
     TodasTabelas tabelas_padroes;
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
     tabelas_.MergeFrom(tabelas_padroes);
@@ -146,6 +155,7 @@ void Tabelas::RecarregaMapas() {
   luvas_.clear();
   bracadeiras_.clear();
   amuletos_.clear();
+  chapeus_.clear();
   botas_.clear();
   talentos_.clear();
   pericias_.clear();
@@ -214,6 +224,11 @@ void Tabelas::RecarregaMapas() {
   for (auto& amuleto : *tabelas_.mutable_tabela_amuletos()->mutable_amuletos()) {
     amuleto.set_tipo(TIPO_AMULETO);
     amuletos_[amuleto.id()] = &amuleto;
+  }
+
+  for (auto& chapeu : *tabelas_.mutable_tabela_chapeus()->mutable_chapeus()) {
+    chapeu.set_tipo(TIPO_CHAPEU);
+    chapeus_[chapeu.id()] = &chapeu;
   }
 
   for (auto& bracadeiras : *tabelas_.mutable_tabela_bracadeiras()->mutable_bracadeiras()) {
@@ -310,6 +325,11 @@ const ItemMagicoProto& Tabelas::Botas(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Amuleto(const std::string& id) const {
   auto it = amuletos_.find(id);
   return it == amuletos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Chapeu(const std::string& id) const {
+  auto it = chapeus_.find(id);
+  return it == chapeus_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const ItemMagicoProto& Tabelas::Bracadeiras(const std::string& id) const {

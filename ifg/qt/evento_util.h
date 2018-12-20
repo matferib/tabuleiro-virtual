@@ -17,7 +17,7 @@ namespace {
 bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
   switch (evento.id_efeito()) {
     case ent::EFEITO_VENENO:
-    case ent::EFEITO_ALINHAR_ARMA:
+    case ent::EFEITO_TENDENCIA_EM_ARMA:
     case ent::EFEITO_ABENCOAR_ARMA:
     case ent::EFEITO_SUPORTAR_ELEMENTOS:
     case ent::EFEITO_RESISTENCIA_ELEMENTOS:

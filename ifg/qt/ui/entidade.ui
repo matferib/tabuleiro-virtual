@@ -3163,6 +3163,12 @@ QGroupBox::title {
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectItems</enum>
+         </property>
         </widget>
        </item>
        <item row="5" column="9">
@@ -3347,7 +3353,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="0" column="2">
+       <item row="0" column="3">
         <layout class="QHBoxLayout" name="horizontalLayout_40">
          <item>
           <widget class="QLabel" name="label_87">
@@ -3416,7 +3422,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="1" column="1">
+       <item row="0" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_17">
          <item>
           <widget class="QLabel" name="label_86">
@@ -3458,6 +3464,93 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="botao_remover_anel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_98">
+           <property name="text">
+            <string>Amuletos</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lista_amuletos"/>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_19">
+           <item>
+            <widget class="QPushButton" name="botao_usar_amuleto">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_adicionar_amuleto">
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_remover_amuleto">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_44">
+         <item>
+          <widget class="QLabel" name="label_99">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Botas</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lista_botas"/>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <item>
+            <widget class="QPushButton" name="botao_usar_botas">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_adicionar_botas">
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="botao_remover_botas">
              <property name="text">
               <string>-</string>
              </property>
@@ -3570,46 +3663,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="label_98">
-           <property name="text">
-            <string>Amuletos</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QListWidget" name="lista_amuletos"/>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_19">
-           <item>
-            <widget class="QPushButton" name="botao_usar_amuleto">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="botao_adicionar_amuleto">
-             <property name="text">
-              <string>+</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="botao_remover_amuleto">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item row="3" column="2">
+       <item row="2" column="3">
         <layout class="QHBoxLayout" name="horizontalLayout_30">
          <item>
           <widget class="QLabel" name="label_37">
@@ -3636,45 +3690,36 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="3" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_44">
+       <item row="1" column="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_45">
          <item>
-          <widget class="QLabel" name="label_99">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QLabel" name="label_96">
            <property name="text">
-            <string>Botas</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <string>Chapéus</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="lista_botas"/>
+          <widget class="QListWidget" name="lista_chapeus"/>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_22">
+          <layout class="QVBoxLayout" name="verticalLayout_20">
            <item>
-            <widget class="QPushButton" name="botao_usar_botas">
+            <widget class="QPushButton" name="botao_vestir_chapeu">
              <property name="text">
               <string/>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="botao_adicionar_botas">
+            <widget class="QPushButton" name="botao_adicionar_chapeu">
              <property name="text">
               <string>+</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="botao_remover_botas">
+            <widget class="QPushButton" name="botao_remover_chapeu">
              <property name="text">
               <string>-</string>
              </property>

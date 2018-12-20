@@ -1668,7 +1668,7 @@ void PreencheConfiguraDadosAtaque(
     if (indice_antes < proto_retornado->dados_ataque().size()) {
       gerador.lista_ataques->setCurrentRow(indice_antes);
     } else {
-      gerador.lista_ataques->setCurrentRow(-1);
+      gerador.lista_ataques->setCurrentRow(-1, QItemSelectionModel::Clear);
     }
   };
 
@@ -1718,15 +1718,21 @@ void PreencheConfiguraDadosAtaque(
   });
 
   lambda_connect(gerador.botao_remover_ataque, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
-      return;
+    auto lista_itens = gerador.lista_ataques->selectedItems();
+    std::set<int, std::greater<int>> a_remover;
+    for (auto* item : lista_itens) {
+      const int indice = gerador.lista_ataques->row(item);
+      if (indice == -1 || indice >= proto_retornado->dados_ataque().size()) continue;
+      a_remover.insert(indice);
     }
-    proto_retornado->mutable_dados_ataque()->DeleteSubrange(gerador.lista_ataques->currentRow(), 1);
-    gerador.lista_ataques->setCurrentRow(-1);
+    for (int indice : a_remover) {
+      proto_retornado->mutable_dados_ataque()->DeleteSubrange(indice, 1);
+    }
+    gerador.lista_ataques->setCurrentRow(-1, QItemSelectionModel::Clear);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
-  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
-  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.linha_grupo_ataque, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_municao, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );

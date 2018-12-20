@@ -25,9 +25,9 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
-// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
-// Outros sao hardcoded.
-// Proximo id: 49.
+// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
+// que cada um faz. Outros sao hardcoded.
+// Proximo id: 58.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -74,13 +74,17 @@ enum TipoEfeito {
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
+  EFEITO_MELHORIA_CONSTITUICAO = 54;
+  EFEITO_MELHORIA_INTELIGENCIA = 55;
+  EFEITO_MELHORIA_SABEDORIA = 56;
+  EFEITO_MELHORIA_CARISMA = 57;
   // Indica que entidade esta envenenada.
   EFEITO_VENENO = 38;
   // Dano de atributo por causa de veneno.
   // Os complementos indicam quanto de dano em cada atributo: for, des, con, int, sab, car, nesta ordem.
   EFEITO_DANO_ATRIBUTO_VENENO = 39;
   // O complemento é da forma: rotulo, alinhamento.
-  EFEITO_ALINHAR_ARMA = 40;
+  EFEITO_TENDENCIA_EM_ARMA = 40;
   EFEITO_ENREDADO = 41;  // entangled.
   // Dura 1s.
   EFEITO_QUEIMANDO_FOGO_ALQUIMICO = 42;
@@ -96,6 +100,8 @@ enum TipoEfeito {
   EFEITO_ATORDOADO = 49;
   EFEITO_ENFEITICADO = 50;  // charmed.
   EFEITO_SUGESTAO = 51;
+  EFEITO_NAUSEA = 52;
+  EFEITO_INVESTIDA = 53;
 }
 
 // Tipo de visao para entidades e camera.
@@ -513,7 +519,8 @@ message ConsequenciaEvento {
 
 message EfeitoProto {
   optional TipoEfeito id = 1;  // id do efeito.
-  optional string nome_efeito = 5;  // nome do efeito, legibilidade.
+  optional string nome = 5;  // nome do efeito, legibilidade.
+  optional string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
@@ -613,6 +620,7 @@ enum TipoItem {
   TIPO_POCAO = 4;
   TIPO_AMULETO = 5;
   TIPO_BOTAS = 6;
+  TIPO_CHAPEU = 7;
 }
 
 // Vale para anel, pocao etc.

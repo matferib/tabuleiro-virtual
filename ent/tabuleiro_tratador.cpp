@@ -1326,7 +1326,6 @@ float Tabuleiro::TrataAcaoIndividual(
 
     std::string resultado_salvacao;
     bool salvou = false;
-    LOG(INFO) << "aqui";
     if ((delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       por_entidade->set_delta(delta_pontos_vida);

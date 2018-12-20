@@ -2391,8 +2391,8 @@ void InsereInicio(T* e, google::protobuf::RepeatedPtrField<T>* rf) {
 
 namespace {
 DescritorAtaque StringParaDescritorAlinhamento(const std::string& alinhamento_str) {
-  std::string normalizado = alinhamento_str;
-  std::transform(alinhamento_str.begin(), alinhamento_str.end(), normalizado.begin(), ::tolower);
+  std::string normalizado = StringSemUtf8(alinhamento_str);
+  std::transform(normalizado.begin(), normalizado.end(), normalizado.begin(), ::tolower);
   if (normalizado == "bom" || normalizado == "bem") return DESC_BEM;
   if (normalizado == "mal" || normalizado == "mau") return DESC_MAL;
   if (normalizado == "caos") return DESC_CAOS;
@@ -2402,8 +2402,8 @@ DescritorAtaque StringParaDescritorAlinhamento(const std::string& alinhamento_st
 
 
 DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
-  std::string normalizado = elemento_str;
-  std::transform(elemento_str.begin(), elemento_str.end(), normalizado.begin(), ::tolower);
+  std::string normalizado = StringSemUtf8(elemento_str);
+  std::transform(normalizado.begin(), normalizado.end(), normalizado.begin(), ::tolower);
   if (normalizado == "fogo") return DESC_FOGO;
   if (normalizado == "frio") return DESC_FRIO;
   if (normalizado == "acido") return DESC_ACIDO;
@@ -2411,7 +2411,6 @@ DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
   if (normalizado == "eletricidade") return DESC_ELETRICIDADE;
   if (normalizado == "veneno") return DESC_VENENO;
   return DESC_NENHUM;
-
 }
 
 }  // namespace
@@ -2485,7 +2484,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     }
     break;
-    case EFEITO_ALINHAR_ARMA: {
+    case EFEITO_TENDENCIA_EM_ARMA: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
       if (desc == DESC_NENHUM) return;
@@ -2498,7 +2497,10 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_SUPORTAR_ELEMENTOS: {
       if (evento.complementos_str().empty()) return;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
-      if (descritor == DESC_NENHUM) return;
+      if (descritor == DESC_NENHUM) {
+        LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
+        return;
+      }
       ResistenciaElementos re;
       re.set_valor(10);
       re.set_descritor(descritor);
@@ -2513,7 +2515,10 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_RESISTENCIA_ELEMENTOS: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
-      if (descritor == DESC_NENHUM) return;
+      if (descritor == DESC_NENHUM) {
+        LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
+        return;
+      }
       int valor = atoi(evento.complementos_str(1).c_str());
       if (valor <= 0 || valor > 1000) return;
       ResistenciaElementos re;
@@ -2611,7 +2616,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       AplicaFimPedraEncantada(evento.id_unico(), proto);
     break;
     case EFEITO_ABENCOAR_ARMA:
-    case EFEITO_ALINHAR_ARMA: {
+    case EFEITO_TENDENCIA_EM_ARMA: {
       if (evento.complementos_str().size() >= 1) {
         AplicaFimAlinhamentoArma(evento.complementos_str(0), proto);
       }
@@ -2741,6 +2746,7 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto& item : *proto->mutable_tesouro()->mutable_pocoes()) item.set_tipo(TIPO_POCAO);
   for (auto& item : *proto->mutable_tesouro()->mutable_amuletos()) item.set_tipo(TIPO_AMULETO);
   for (auto& item : *proto->mutable_tesouro()->mutable_botas()) item.set_tipo(TIPO_BOTAS);
+  for (auto& item : *proto->mutable_tesouro()->mutable_chapeus()) item.set_tipo(TIPO_CHAPEU);
 
   // Adiciona efeitos nao existentes e expira os que ja foram.
   std::vector<ItemMagicoProto*> itens;
@@ -3109,6 +3115,8 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
 
   // Iteracao.
+  const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
+ 
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto* pericia_proto = mapa_pericias_proto[pt.id()];
@@ -3140,7 +3148,10 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
         AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
       }
     }
-    //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
+
+    // Heroismo
+    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto->mutable_bonus());
+   //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
   }
   // TODO sinergia e talentos.
 }
@@ -4594,6 +4605,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_POCAO: return tabelas.Pocao(id);
     case TipoItem::TIPO_AMULETO: return tabelas.Amuleto(id);
     case TipoItem::TIPO_BOTAS: return tabelas.Botas(id);
+    case TipoItem::TIPO_CHAPEU: return tabelas.Botas(id);
   }
   return ItemMagicoProto::default_instance();
 }

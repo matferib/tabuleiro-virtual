@@ -369,6 +369,20 @@ public:
     QPushButton *botao_usar_anel;
     QPushButton *botao_adicionar_anel;
     QPushButton *botao_remover_anel;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_98;
+    QListWidget *lista_amuletos;
+    QVBoxLayout *verticalLayout_19;
+    QPushButton *botao_usar_amuleto;
+    QPushButton *botao_adicionar_amuleto;
+    QPushButton *botao_remover_amuleto;
+    QHBoxLayout *horizontalLayout_44;
+    QLabel *label_99;
+    QListWidget *lista_botas;
+    QVBoxLayout *verticalLayout_22;
+    QPushButton *botao_usar_botas;
+    QPushButton *botao_adicionar_botas;
+    QPushButton *botao_remover_botas;
     QHBoxLayout *horizontalLayout_41;
     QLabel *label_88;
     QListWidget *lista_luvas;
@@ -383,23 +397,16 @@ public:
     QPushButton *botao_usar_bracadeiras;
     QPushButton *botao_adicionar_bracadeiras;
     QPushButton *botao_remover_bracadeiras;
-    QHBoxLayout *horizontalLayout_3;
-    QLabel *label_98;
-    QListWidget *lista_amuletos;
-    QVBoxLayout *verticalLayout_19;
-    QPushButton *botao_usar_amuleto;
-    QPushButton *botao_adicionar_amuleto;
-    QPushButton *botao_remover_amuleto;
     QHBoxLayout *horizontalLayout_30;
     QLabel *label_37;
     QPlainTextEdit *lista_tesouro;
-    QHBoxLayout *horizontalLayout_44;
-    QLabel *label_99;
-    QListWidget *lista_botas;
-    QVBoxLayout *verticalLayout_22;
-    QPushButton *botao_usar_botas;
-    QPushButton *botao_adicionar_botas;
-    QPushButton *botao_remover_botas;
+    QHBoxLayout *horizontalLayout_45;
+    QLabel *label_96;
+    QListWidget *lista_chapeus;
+    QVBoxLayout *verticalLayout_20;
+    QPushButton *botao_vestir_chapeu;
+    QPushButton *botao_adicionar_chapeu;
+    QPushButton *botao_remover_chapeu;
     QWidget *tab_4;
     QVBoxLayout *verticalLayout_4;
     QPushButton *botao_renovar_feiticos;
@@ -2265,6 +2272,8 @@ public:
         sizePolicy9.setVerticalStretch(0);
         sizePolicy9.setHeightForWidth(lista_ataques->sizePolicy().hasHeightForWidth());
         lista_ataques->setSizePolicy(sizePolicy9);
+        lista_ataques->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        lista_ataques->setSelectionBehavior(QAbstractItemView::SelectItems);
 
         gridLayout_13->addWidget(lista_ataques, 4, 0, 1, 10);
 
@@ -2412,7 +2421,7 @@ public:
         horizontalLayout_40->addLayout(verticalLayout_9);
 
 
-        gridLayout_7->addLayout(horizontalLayout_40, 0, 2, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_40, 0, 3, 1, 1);
 
         horizontalLayout_17 = new QHBoxLayout();
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
@@ -2450,7 +2459,80 @@ public:
         horizontalLayout_17->addLayout(verticalLayout_10);
 
 
-        gridLayout_7->addLayout(horizontalLayout_17, 1, 1, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_17, 0, 2, 1, 1);
+
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        label_98 = new QLabel(tab);
+        label_98->setObjectName(QStringLiteral("label_98"));
+
+        horizontalLayout_3->addWidget(label_98);
+
+        lista_amuletos = new QListWidget(tab);
+        lista_amuletos->setObjectName(QStringLiteral("lista_amuletos"));
+
+        horizontalLayout_3->addWidget(lista_amuletos);
+
+        verticalLayout_19 = new QVBoxLayout();
+        verticalLayout_19->setObjectName(QStringLiteral("verticalLayout_19"));
+        botao_usar_amuleto = new QPushButton(tab);
+        botao_usar_amuleto->setObjectName(QStringLiteral("botao_usar_amuleto"));
+
+        verticalLayout_19->addWidget(botao_usar_amuleto);
+
+        botao_adicionar_amuleto = new QPushButton(tab);
+        botao_adicionar_amuleto->setObjectName(QStringLiteral("botao_adicionar_amuleto"));
+
+        verticalLayout_19->addWidget(botao_adicionar_amuleto);
+
+        botao_remover_amuleto = new QPushButton(tab);
+        botao_remover_amuleto->setObjectName(QStringLiteral("botao_remover_amuleto"));
+
+        verticalLayout_19->addWidget(botao_remover_amuleto);
+
+
+        horizontalLayout_3->addLayout(verticalLayout_19);
+
+
+        gridLayout_7->addLayout(horizontalLayout_3, 1, 1, 1, 1);
+
+        horizontalLayout_44 = new QHBoxLayout();
+        horizontalLayout_44->setObjectName(QStringLiteral("horizontalLayout_44"));
+        label_99 = new QLabel(tab);
+        label_99->setObjectName(QStringLiteral("label_99"));
+        sizePolicy1.setHeightForWidth(label_99->sizePolicy().hasHeightForWidth());
+        label_99->setSizePolicy(sizePolicy1);
+        label_99->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_44->addWidget(label_99);
+
+        lista_botas = new QListWidget(tab);
+        lista_botas->setObjectName(QStringLiteral("lista_botas"));
+
+        horizontalLayout_44->addWidget(lista_botas);
+
+        verticalLayout_22 = new QVBoxLayout();
+        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
+        botao_usar_botas = new QPushButton(tab);
+        botao_usar_botas->setObjectName(QStringLiteral("botao_usar_botas"));
+
+        verticalLayout_22->addWidget(botao_usar_botas);
+
+        botao_adicionar_botas = new QPushButton(tab);
+        botao_adicionar_botas->setObjectName(QStringLiteral("botao_adicionar_botas"));
+
+        verticalLayout_22->addWidget(botao_adicionar_botas);
+
+        botao_remover_botas = new QPushButton(tab);
+        botao_remover_botas->setObjectName(QStringLiteral("botao_remover_botas"));
+
+        verticalLayout_22->addWidget(botao_remover_botas);
+
+
+        horizontalLayout_44->addLayout(verticalLayout_22);
+
+
+        gridLayout_7->addLayout(horizontalLayout_44, 2, 1, 1, 1);
 
         horizontalLayout_41 = new QHBoxLayout();
         horizontalLayout_41->setObjectName(QStringLiteral("horizontalLayout_41"));
@@ -2528,41 +2610,6 @@ public:
 
         gridLayout_7->addLayout(horizontalLayout_42, 2, 2, 1, 1);
 
-        horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        label_98 = new QLabel(tab);
-        label_98->setObjectName(QStringLiteral("label_98"));
-
-        horizontalLayout_3->addWidget(label_98);
-
-        lista_amuletos = new QListWidget(tab);
-        lista_amuletos->setObjectName(QStringLiteral("lista_amuletos"));
-
-        horizontalLayout_3->addWidget(lista_amuletos);
-
-        verticalLayout_19 = new QVBoxLayout();
-        verticalLayout_19->setObjectName(QStringLiteral("verticalLayout_19"));
-        botao_usar_amuleto = new QPushButton(tab);
-        botao_usar_amuleto->setObjectName(QStringLiteral("botao_usar_amuleto"));
-
-        verticalLayout_19->addWidget(botao_usar_amuleto);
-
-        botao_adicionar_amuleto = new QPushButton(tab);
-        botao_adicionar_amuleto->setObjectName(QStringLiteral("botao_adicionar_amuleto"));
-
-        verticalLayout_19->addWidget(botao_adicionar_amuleto);
-
-        botao_remover_amuleto = new QPushButton(tab);
-        botao_remover_amuleto->setObjectName(QStringLiteral("botao_remover_amuleto"));
-
-        verticalLayout_19->addWidget(botao_remover_amuleto);
-
-
-        horizontalLayout_3->addLayout(verticalLayout_19);
-
-
-        gridLayout_7->addLayout(horizontalLayout_3, 2, 1, 1, 1);
-
         horizontalLayout_30 = new QHBoxLayout();
         horizontalLayout_30->setObjectName(QStringLiteral("horizontalLayout_30"));
         label_37 = new QLabel(tab);
@@ -2579,45 +2626,42 @@ public:
         horizontalLayout_30->addWidget(lista_tesouro);
 
 
-        gridLayout_7->addLayout(horizontalLayout_30, 3, 2, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_30, 2, 3, 1, 1);
 
-        horizontalLayout_44 = new QHBoxLayout();
-        horizontalLayout_44->setObjectName(QStringLiteral("horizontalLayout_44"));
-        label_99 = new QLabel(tab);
-        label_99->setObjectName(QStringLiteral("label_99"));
-        sizePolicy1.setHeightForWidth(label_99->sizePolicy().hasHeightForWidth());
-        label_99->setSizePolicy(sizePolicy1);
-        label_99->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        horizontalLayout_45 = new QHBoxLayout();
+        horizontalLayout_45->setObjectName(QStringLiteral("horizontalLayout_45"));
+        label_96 = new QLabel(tab);
+        label_96->setObjectName(QStringLiteral("label_96"));
 
-        horizontalLayout_44->addWidget(label_99);
+        horizontalLayout_45->addWidget(label_96);
 
-        lista_botas = new QListWidget(tab);
-        lista_botas->setObjectName(QStringLiteral("lista_botas"));
+        lista_chapeus = new QListWidget(tab);
+        lista_chapeus->setObjectName(QStringLiteral("lista_chapeus"));
 
-        horizontalLayout_44->addWidget(lista_botas);
+        horizontalLayout_45->addWidget(lista_chapeus);
 
-        verticalLayout_22 = new QVBoxLayout();
-        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
-        botao_usar_botas = new QPushButton(tab);
-        botao_usar_botas->setObjectName(QStringLiteral("botao_usar_botas"));
+        verticalLayout_20 = new QVBoxLayout();
+        verticalLayout_20->setObjectName(QStringLiteral("verticalLayout_20"));
+        botao_vestir_chapeu = new QPushButton(tab);
+        botao_vestir_chapeu->setObjectName(QStringLiteral("botao_vestir_chapeu"));
 
-        verticalLayout_22->addWidget(botao_usar_botas);
+        verticalLayout_20->addWidget(botao_vestir_chapeu);
 
-        botao_adicionar_botas = new QPushButton(tab);
-        botao_adicionar_botas->setObjectName(QStringLiteral("botao_adicionar_botas"));
+        botao_adicionar_chapeu = new QPushButton(tab);
+        botao_adicionar_chapeu->setObjectName(QStringLiteral("botao_adicionar_chapeu"));
 
-        verticalLayout_22->addWidget(botao_adicionar_botas);
+        verticalLayout_20->addWidget(botao_adicionar_chapeu);
 
-        botao_remover_botas = new QPushButton(tab);
-        botao_remover_botas->setObjectName(QStringLiteral("botao_remover_botas"));
+        botao_remover_chapeu = new QPushButton(tab);
+        botao_remover_chapeu->setObjectName(QStringLiteral("botao_remover_chapeu"));
 
-        verticalLayout_22->addWidget(botao_remover_botas);
+        verticalLayout_20->addWidget(botao_remover_chapeu);
 
 
-        horizontalLayout_44->addLayout(verticalLayout_22);
+        horizontalLayout_45->addLayout(verticalLayout_20);
 
 
-        gridLayout_7->addLayout(horizontalLayout_44, 3, 1, 1, 1);
+        gridLayout_7->addLayout(horizontalLayout_45, 1, 3, 1, 1);
 
         tabs->addTab(tab, QString());
         tab_4 = new QWidget();
@@ -3251,6 +3295,14 @@ public:
         botao_usar_anel->setText(QString());
         botao_adicionar_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_98->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Amuletos", nullptr));
+        botao_usar_amuleto->setText(QString());
+        botao_adicionar_amuleto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_amuleto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_99->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Botas", nullptr));
+        botao_usar_botas->setText(QString());
+        botao_adicionar_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         label_88->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Luvas e\n"
 " Manoplas", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -3266,18 +3318,14 @@ public:
         botao_usar_bracadeiras->setText(QString());
         botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
-        label_98->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Amuletos", nullptr));
-        botao_usar_amuleto->setText(QString());
-        botao_adicionar_amuleto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
-        botao_remover_amuleto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_99->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Botas", nullptr));
-        botao_usar_botas->setText(QString());
-        botao_adicionar_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
-        botao_remover_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        label_96->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Chap\303\251us", nullptr));
+        botao_vestir_chapeu->setText(QString());
+        botao_adicionar_chapeu->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_remover_chapeu->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         tabs->setTabText(tabs->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_renovar_feiticos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Deixa todos os feiti\303\247os dispon\303\255veis para uso.", nullptr));

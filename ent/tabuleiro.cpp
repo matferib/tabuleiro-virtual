@@ -1389,6 +1389,34 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
   }
 }
 
+void Tabuleiro::AlternaInvestida() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+    const auto& proto = entidade_selecionada->Proto();
+    EntidadeProto *e_antes, *e_depois;
+    auto* n = grupo_notificacoes.add_notificacao();
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_selecionada, n);
+    if (PossuiEvento(EFEITO_INVESTIDA, proto)) {
+      for (const auto& evento : proto.evento()) {
+        if (evento.id_efeito() == EFEITO_INVESTIDA) {
+          *e_antes->add_evento() = evento;
+          auto* evento_depois = e_depois->add_evento();
+          *evento_depois = evento;
+          evento_depois->set_rodadas(-1);
+        }
+      }
+    } else {
+      PreencheNotificacaoEvento(*entidade_selecionada, EFEITO_INVESTIDA, /*rodadas=*/1, n, nullptr);
+    }
+  }
+  if (grupo_notificacoes.notificacao().empty()) return;
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -2069,7 +2097,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
-      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
+      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro(true));
       if (notificacao.has_endereco()) {
         // Salvar com nome corrente se endereco for vazio, caso contrario usar o nome da notificacao.
         std::string caminho_str;
@@ -2155,12 +2183,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
-        central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
+        central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
       } else {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
       }
       return true;
+    }
+    case ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO: {
+      DeserializaTabuleiro(notificacao);
+      central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
     }
     case ntf::TN_CRIAR_CENARIO: {
       CriaSubCenarioNotificando(notificacao);
@@ -4953,7 +4985,7 @@ void Tabuleiro::DeserializaRelevoCenario(const TabuleiroProto& novo_proto) {
   RegeraVboTabuleiro();
 }
 
-ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
+ntf::Notificacao* Tabuleiro::SerializaTabuleiro(bool salvar_versoes, const std::string& nome) {
   auto* notificacao = new ntf::Notificacao;
   try {
     // O tipo é TN_DESERIALIZAR_TABULEIRO para que os clientes possam receber essa notificacao.
@@ -4972,6 +5004,16 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     if (!nome.empty()) {
       t->set_nome(nome);
     }
+    if (salvar_versoes) {
+      auto* versoes = proto_.mutable_versoes();
+      *versoes->Add() = *t;
+      *t->mutable_versoes() = *versoes;
+      // Pra evitar que as versoes tenham versoes. So pode haver uma, no principal.
+      for (auto& tv : *t->mutable_versoes()) {
+        tv.clear_versoes();
+      }
+    }
+
     VLOG(1) << "Serializando tabuleiro " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {
@@ -7557,6 +7599,14 @@ bool Tabuleiro::HaEntidadesSelecionaveis() const {
     if (kv.second->SelecionavelParaJogador()) return true;
   }
   return false;
+}
+
+void Tabuleiro::RemoveVersao(int versao) {
+  if (versao < 0 || versao >= proto_.versoes().size()) {
+    LOG(ERROR) << "versao invalida: " << versao;
+    return;
+  }
+  proto_.mutable_versoes()->DeleteSubrange(versao, 1);
 }
 
 }  // namespace ent

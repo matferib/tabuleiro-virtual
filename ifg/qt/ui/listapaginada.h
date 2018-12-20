@@ -15,6 +15,7 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QListWidget>
 
@@ -24,22 +25,29 @@ namespace qt {
 class Ui_ListaPaginada
 {
 public:
-    QDialogButtonBox *botoes;
+    QGridLayout *gridLayout;
     QListWidget *lista;
+    QDialogButtonBox *botoes;
 
     void setupUi(QDialog *ifg__qt__ListaPaginada)
     {
         if (ifg__qt__ListaPaginada->objectName().isEmpty())
             ifg__qt__ListaPaginada->setObjectName(QStringLiteral("ifg__qt__ListaPaginada"));
         ifg__qt__ListaPaginada->resize(400, 300);
-        botoes = new QDialogButtonBox(ifg__qt__ListaPaginada);
-        botoes->setObjectName(QStringLiteral("botoes"));
-        botoes->setGeometry(QRect(30, 240, 341, 32));
-        botoes->setOrientation(Qt::Horizontal);
-        botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+        gridLayout = new QGridLayout(ifg__qt__ListaPaginada);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
         lista = new QListWidget(ifg__qt__ListaPaginada);
         lista->setObjectName(QStringLiteral("lista"));
-        lista->setGeometry(QRect(20, 20, 351, 211));
+
+        gridLayout->addWidget(lista, 0, 0, 1, 1);
+
+        botoes = new QDialogButtonBox(ifg__qt__ListaPaginada);
+        botoes->setObjectName(QStringLiteral("botoes"));
+        botoes->setOrientation(Qt::Horizontal);
+        botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        gridLayout->addWidget(botoes, 1, 0, 1, 1);
+
 
         retranslateUi(ifg__qt__ListaPaginada);
 

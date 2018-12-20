@@ -104,6 +104,8 @@ message TabuleiroProto {
   repeated TabuleiroProto sub_cenario = 18;
   // Para atualizacao de iniciativa.
   optional int32 indice_iniciativa = 22;
+  // Cada vez que salva, uma versao do tabuleiro é salva para poder ser restaurada.
+  repeated TabuleiroProto versoes = 24;
 }
 
 // Para copiar e colar.
