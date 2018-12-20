@@ -1232,6 +1232,63 @@ tabela_efeitos {
       }
     }
   }
+
+  efeitos {
+    id: EFEITO_MELHORIA_CONSTITUICAO
+    nome: 'melhoria em constituição'
+    formato_complementos: 'bônus de melhoria em constituição'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_constituicao' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_INTELIGENCIA
+    nome: 'melhoria em inteligência'
+    formato_complementos: 'bônus de melhoria em inteligência'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_inteligencia' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_SABEDORIA
+    nome: 'melhoria em sabedoria'
+    formato_complementos: 'bônus de melhoria em sabedoria'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_sabedoria' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_CARISMA
+    nome: 'melhoria em carisma'
+    formato_complementos: 'bônus de melhoria em carisma'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        carisma { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_carisma' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_DESTREZA
+    nome: 'melhoria em destreza'
+    formato_complementos: 'bônus de melhoria em destreza'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
+      }
+    }
+  }
+
   efeitos {
     id: EFEITO_VIGOR_URSO
     nome: 'vigor do urso'

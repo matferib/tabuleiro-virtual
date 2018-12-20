@@ -556,6 +556,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return o proto do sub cenario, ou nullptr se nao houver. Versao const. */
   const TabuleiroProto* BuscaSubCenario(int id_cenario) const;
 
+  /** Remove a versao passada. Nao salva, nem nada. */
+  void RemoveVersao(int versao);
+
  private:
   struct DadosIniciativa {
     unsigned int id;

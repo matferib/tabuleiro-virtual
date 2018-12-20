@@ -106,6 +106,15 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
   }
   try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_homebrew.asciiproto", &tabelas_);
+  } catch (const arq::ParseProtoException & e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
+    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+        StringPrintf("Erro lendo tabela: tabelas_homebrew.asciiproto: %s", e.what())));
+  } catch (const std::exception& e) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
+  }
+  try {
     TodasTabelas tabelas_padroes;
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
     tabelas_.MergeFrom(tabelas_padroes);

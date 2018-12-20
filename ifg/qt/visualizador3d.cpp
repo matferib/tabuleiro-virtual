@@ -1448,6 +1448,11 @@ void PreencheConfiguraTesouro(
       tabelas, gerador, ent::TipoItem::TIPO_BRACADEIRAS,
       gerador.lista_bracadeiras, gerador.botao_usar_bracadeiras, gerador.botao_adicionar_bracadeiras, gerador.botao_remover_bracadeiras,
       proto_retornado);
+  // Chapeu.
+  ConfiguraListaItensMagicos(
+      tabelas, gerador, ent::TipoItem::TIPO_CHAPEU,
+      gerador.lista_chapeus, gerador.botao_vestir_chapeu, gerador.botao_adicionar_chapeu, gerador.botao_remover_chapeu,
+      proto_retornado);
 
   AtualizaUITesouro(tabelas, gerador, proto);
   gerador.lista_tesouro->setPlainText((proto.tesouro().tesouro().c_str()));

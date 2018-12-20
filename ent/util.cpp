@@ -2775,6 +2775,10 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
     else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
   }
+  for (auto& item : *proto->mutable_tesouro()->mutable_chapeus()) {
+    if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
+    else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
+  }
 
   for (auto* item : itens_a_expirar) {
     ExpiraEventosItemMagico(item, proto);
@@ -4605,7 +4609,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_POCAO: return tabelas.Pocao(id);
     case TipoItem::TIPO_AMULETO: return tabelas.Amuleto(id);
     case TipoItem::TIPO_BOTAS: return tabelas.Botas(id);
-    case TipoItem::TIPO_CHAPEU: return tabelas.Botas(id);
+    case TipoItem::TIPO_CHAPEU: return tabelas.Chapeu(id);
   }
   return ItemMagicoProto::default_instance();
 }

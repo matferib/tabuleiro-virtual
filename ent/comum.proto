@@ -25,9 +25,9 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
-// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o que cada um faz.
-// Outros sao hardcoded.
-// Proximo id: 54.
+// Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
+// que cada um faz. Outros sao hardcoded.
+// Proximo id: 58.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -74,6 +74,10 @@ enum TipoEfeito {
   EFEITO_COMPETENCIA_PERICIA = 35;
   EFEITO_MELHORIA_FORCA = 36;
   EFEITO_MELHORIA_DESTREZA = 37;
+  EFEITO_MELHORIA_CONSTITUICAO = 54;
+  EFEITO_MELHORIA_INTELIGENCIA = 55;
+  EFEITO_MELHORIA_SABEDORIA = 56;
+  EFEITO_MELHORIA_CARISMA = 57;
   // Indica que entidade esta envenenada.
   EFEITO_VENENO = 38;
   // Dano de atributo por causa de veneno.

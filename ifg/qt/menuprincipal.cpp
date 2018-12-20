@@ -58,8 +58,11 @@ const char* g_menuitem_strs[] = {
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar Versão"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versão"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
@@ -329,7 +332,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR_PROXY, MI_CONECTAR });
-    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
+    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, MI_RESTAURAR_VERSAO, MI_REMOVER_VERSAO });
     EstadoItemMenu(false, ME_ENTIDADES, { MI_SALVAR_MODELO_3D, MI_RESTAURAR_MODELO_3D, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
@@ -500,6 +503,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       n->mutable_tabuleiro()->set_manter_entidades(true);
     }
     central_->AdicionaNotificacao(n.release());
+  } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_VERSAO]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_VERSAO);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_VERSAO]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_REMOVER_VERSAO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
