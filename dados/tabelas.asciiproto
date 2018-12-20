@@ -4430,6 +4430,70 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'martelo_caos'
+    nome: 'Martelo do Caos'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    # dano { invariavel: '1d8' }
+    # 1d8 a cada 2 nivels, max 5d8 e da efeito de lentidão.
+    # Se for neutro, eh metade do dano e nao tem lentidao.
+    info_classes {
+      id: 'caos'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 4  # quadrados.
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_chaos_hammer'
+      duracao_s: 0.350
+      ignora_luz: false
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      resultado_salvacao: RS_MEIO
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        # Apenas em criaturas leais.
+        rodadas: 3  # 1d6 rodadas
+      }
+    }
+  }
+
+  armas {
+    id: 'missil_magico'
+    nome: 'Míssil Mágico'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    dano { invariavel: '1d4+1' }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_PROJETIL
+      geometria: ACAO_GEO_ESFERA
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      cor { r: 0.0 g: 0.0 b: 1.0 }
+      velocidade {
+        tipo_aceleracao: ACAO_ACEL_CONSTANTE
+        aceleracao_m_s_2: 0.04
+      }
+      icone: 'icon_magic_missile.png'
+      ignora_luz: true
+      ignora_municao: true
+      ignora_reducao_dano_barbaro: true
+      consequencia: TC_DESLOCA_ALVO
+      elemento: DESC_FORCA
+    }
+    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+  }
+
+  armas {
     id: 'raio_flamejante'
     nome: 'Raio Flamejante'
     alcance_quadrados: 5
@@ -4481,98 +4545,6 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'sugestao'
-    nome: 'Sugestão'
-    alcance_quadrados: 5  # 1/2 niveis
-    info_classes {
-      id: 'mago'
-      nivel: 3
-    }
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'encantamento'
-      nivel: 3
-      dominio: true
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE 
-      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
-      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
-      permite_ataque_vs_defesa: false
-      permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
-      icone: 'icon_heart.png'
-      duracao_s: 0.350
-      dificuldade_salvacao_por_nivel: true
-      tipo_salvacao: TS_VONTADE
-      ignora_reducao_dano_barbaro: true
-    }
-  }
-  armas {
-    id: 'tempestade_glacial'
-    nome: 'Tempestade Glacial'
-    alcance_quadrados: 80
-    modificador_alcance: MOD_8_QUAD_NIVEL
-    info_classes {
-      id: 'druida'
-      nivel: 4
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 4
-    }
-    info_classes {
-      id: 'agua'
-      dominio: true
-      nivel: 5
-    }
-    acao {
-      tipo: ACAO_DISPERSAO
-      cor { r: 1 g: 1 b: 1 a: 0.5 }
-      raio_quadrados: 4  # quadrados.
-      geometria: ACAO_GEO_CILINDRO
-      efeito_area: true
-      permite_salvacao: false
-      icone: 'icon_ice.png'
-      info_textura { id: 'ice.png' }
-      duracao_s: 0.350
-      dois_lados: true
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_FRIO
-    }
-  }
-  armas {
-    id: 'missil_magico'
-    nome: 'Míssil Mágico'
-    alcance_quadrados: 20
-    modificador_alcance: MOD_2_QUAD_NIVEL
-    dano { invariavel: '1d4+1' }
-    info_classes {
-      id: 'mago'
-      nivel: 1
-    }
-    acao {
-      tipo: ACAO_PROJETIL
-      geometria: ACAO_GEO_ESFERA
-      escala { x: 0.2 y: 0.2 z: 0.2 }
-      cor { r: 0.0 g: 0.0 b: 1.0 }
-      velocidade {
-        tipo_aceleracao: ACAO_ACEL_CONSTANTE
-        aceleracao_m_s_2: 0.04
-      }
-      icone: 'icon_magic_missile.png'
-      ignora_luz: true
-      ignora_municao: true
-      ignora_reducao_dano_barbaro: true
-      consequencia: TC_DESLOCA_ALVO
-      elemento: DESC_FORCA
-    }
-    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
-  }
-  armas {
     id: 'piscar'
     nome: 'Piscar'
     info_classes {
@@ -4616,7 +4588,7 @@ tabela_feiticos {
       }
     }
   }
- 
+
   armas {
     id: 'sono'
     nome: 'Sono'
@@ -4650,6 +4622,72 @@ tabela_feiticos {
         efeito: EFEITO_SONO
         rodadas: 10  # por nivel
       }
+    }
+  }
+
+  armas {
+    id: 'sugestao'
+    nome: 'Sugestão'
+    alcance_quadrados: 5  # 1/2 niveis
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'encantamento'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      resultado_salvacao: RS_ANULOU
+      icone: 'icon_heart.png'
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+    }
+  }
+
+  armas {
+    id: 'tempestade_glacial'
+    nome: 'Tempestade Glacial'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'agua'
+      dominio: true
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_CILINDRO
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_ice.png'
+      info_textura { id: 'ice.png' }
+      duracao_s: 0.350
+      dois_lados: true
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_FRIO
     }
   }
 

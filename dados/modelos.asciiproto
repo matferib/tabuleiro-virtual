@@ -2512,6 +2512,9 @@ modelo {
       grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
+    dados_ataque {
+      grupo: 'martelo_caos' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'martelo_caos'
+    }
     dados_defesa {
       resistencia_magia: 21
       ca {
