@@ -1,10 +1,10 @@
 Anotacoes da sessao:
-- Terminar selecoes multiplas de ataque: ao remover, ainda mantem selecionado e deveria zerar.
 - Adicionar chapeus de tesouro na tabela.
 - Versionar tabuleiro ao salvar: permitir apagar versoes.
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - Forma alternativa: itens continuam a fazer efeito.
 - UI para horas.
+- Adicionar ataques de glabrezu nas tabelas.
 
 
 
