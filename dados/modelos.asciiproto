@@ -568,7 +568,6 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
-        nao_afeta_origem: true
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
           rodadas: 12
