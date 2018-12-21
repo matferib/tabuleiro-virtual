@@ -332,6 +332,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_PISCAR
           rodadas: 4
+          combinar_com: 0
         }
       }
     }

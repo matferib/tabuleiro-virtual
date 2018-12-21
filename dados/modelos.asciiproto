@@ -572,6 +572,7 @@ modelo {
           efeito: EFEITO_REFLEXOS
           rodadas: 12
           complementos: 6  # 1d4+4
+          combinar_com: 0
         }
       }
     }
@@ -581,15 +582,15 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
-        nao_afeta_origem: true
         efeitos_adicionais {
           efeito: EFEITO_HEROISMO
           rodadas: 120
+          combinar_com: 0
         }
       }
     }
     dados_ataque {
-      grupo: 'grito' rotulo: 'grito 1/hora nao afeta demonios' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'grito' rotulo: '1/hora nao afeta demonios' tipo_ataque: 'Feitiço de Mago'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_m: 0.0
       acao_fixa {
@@ -615,7 +616,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'esporos' rotulo: 'esporos a cada 3 rodadas' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'esporos' rotulo: 'a cada 3 rodadas' tipo_ataque: 'Feitiço de Mago'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       dano: '1d8'
       alcance_m: 0.0
@@ -2389,6 +2390,7 @@ modelo {
           efeito: EFEITO_ENFEITICADO
           rodadas: 172800  # * 12, mas assim ta bao.
           descricao: 'enfeiticado'
+          combinar_com: 0
         }
       }
     }
@@ -2402,6 +2404,7 @@ modelo {
           efeito: EFEITO_SUGESTAO
           rodadas: 7200  # * 12 horas.
           descricao: 'sugestão'
+          combinar_com: 0
         }
       }
     }
