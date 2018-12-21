@@ -1,9 +1,10 @@
+#include "ent/entidade.h"
 #include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+#include "ent/acoes.h"
 #include "ent/constantes.h"
-#include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -1200,7 +1201,7 @@ AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   AcaoProto acao = *it->second;
   if (da != nullptr && da->has_acao()) {
     // Merge das informacoes dos DadosAtaque.
-    acao.MergeFrom(da->acao());
+    CombinaAcoes(da->acao(), &acao);
   }
   return acao;
 }
