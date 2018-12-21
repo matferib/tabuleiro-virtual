@@ -2516,7 +2516,77 @@ modelo {
     }
     dados_ataque {
       grupo: 'martelo_caos' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'martelo_caos'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14
+      }
     }
+    dados_ataque {
+      grupo: 'confusao' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'confusao'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14
+        efeitos_adicionais {
+          combinar_com: 0
+          rodadas: 14
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'dissipar magia' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+    }
+    dados_ataque {
+      grupo: 'reflexos' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 14
+          complementos: 6  # 1d4+4
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'reverter gravidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 17
+      }
+    }
+    dados_ataque {
+      grupo: 'reverter gravidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 17
+      }
+    }
+    dados_ataque {
+      grupo: 'teletransporte maior' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+    }
+    dados_ataque {
+      grupo: 'Nuvem Profana' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14
+      }
+    }
+    dados_ataque {
+      grupo: 'Palavra do poder: atordoar' rotulo: '1/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'palavra_poder_atordoar'
+      acao_fixa {
+        cor { r: 1 b: 1 g: 1 }
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14
+      }
+    }
+
     dados_defesa {
       resistencia_magia: 21
       ca {

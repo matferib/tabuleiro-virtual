@@ -1082,6 +1082,12 @@ tabela_efeitos {
     nome: 'competência em perícia'
     formato_complementos: 'primeiro em ataque, segundo em dano'
   }
+
+  efeitos {
+    id: EFEITO_CONFUSAO
+    nome: 'confusão'
+  }
+
   efeitos {
     id: EFEITO_DANO_ATRIBUTO_VENENO
     nome: 'dano de atributo por veneno'
@@ -4347,6 +4353,41 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'confusao'
+    nome: 'Confusão'
+    alcance_quadrados: 20  # +2/niveis
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      distancia_quadrados: 20  # quadrados + 2 / nivel
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_ANULOU
+      icone: 'icon_confusion'
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      efeitos_adicionais {
+        efeito: EFEITO_CONFUSAO
+        rodadas: 1 # por nivel
+      }
+    }
+  }
+
+  armas {
     id: 'cone_de_gelo'
     nome: 'Cone de Gelo'
     alcance_quadrados: 12
@@ -4465,6 +4506,42 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'nuvem_profana'
+    nome: 'Nuvem Profana'
+    # Unholy blight
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    # dano 1d8 a cada 2 niveis, maximo 5d8 criaturas boas.
+    # dano 1d6 por nivel se for extra planar bom + doenca por 1d4 rodadas.
+    # Se for neutro, dano eh metade e 1/4 sem doenca.
+    info_classes {
+      id: 'mal'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 4  # quadrados.
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_chaos_hammer'
+      duracao_s: 0.350
+      ignora_luz: false
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_MEIO
+      ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        # Apenas em criaturas boas.
+        rodadas: 3  # 1d4 rodadas
+      }
+    }
+  }
+
+  armas {
     id: 'missil_magico'
     nome: 'Míssil Mágico'
     alcance_quadrados: 20
@@ -4543,6 +4620,29 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_ELETRICIDADE
     }
+  }
+  armas {
+    id: 'palavra_poder_atordoar'
+    nome: 'Palavra do Poder: Atordoar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 8
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: "icon_power_word.png"
+    }
+    # afeta apenas se tiver menos de 150 PV.
+    # duracao variavel por PV.
   }
   armas {
     id: 'piscar'
