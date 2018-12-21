@@ -1,7 +1,7 @@
 Anotacoes da sessao:
-- Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos.
-- Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - Forma alternativa: itens continuam a fazer efeito.
+- Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
+- Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - UI para horas.
 
 
