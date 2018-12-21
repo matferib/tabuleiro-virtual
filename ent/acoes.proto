@@ -166,6 +166,9 @@ message AcaoProto {
     repeated int32 complementos = 3;
     repeated string complementos_str = 4;
     optional string descricao = 5;
+    // Se presente, ao inves de fazer merge com repeated, ira combinar com o
+    // efeito ja existente no indice passado.
+    optional int32 combinar_com = 6;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }

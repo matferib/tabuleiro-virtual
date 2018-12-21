@@ -1074,7 +1074,7 @@ void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDese
     return;
   }
   if (IdCenario() != pd->pos_olho().id_cenario()) {
-    VLOG(1) << "Nao desenhando acao pois id cenario: " << IdCenario() 
+    VLOG(1) << "Nao desenhando acao pois id cenario: " << IdCenario()
             << " vs olho id: " << pd->pos_olho().id_cenario();
     return;
   }
@@ -1595,4 +1595,25 @@ int DeltaAcao(const AcaoProto& acao_proto) {
   }
   return acao_proto.delta_pontos_vida();
 }
+
+void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino) {
+  acao_destino->MergeFrom(acao);
+  std::set<int, std::greater<int>> a_remover;
+  for (int i = 0; i < acao_destino->efeitos_adicionais_size(); ++i) {
+    auto* ea = acao_destino->mutable_efeitos_adicionais(i);
+    if (ea->has_combinar_com()) {
+      if (ea->combinar_com() >= 0 && ea->combinar_com() < acao_destino->efeitos_adicionais_size()) {
+        acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
+      } else {
+        LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
+                   << ", tamanho: " << acao_destino->efeitos_adicionais_size();
+      }
+      a_remover.insert(i);
+    }
+  }
+  for (int i : a_remover) {
+    acao_destino->mutable_efeitos_adicionais()->DeleteSubrange(i, 1);
+  }
+}
+
 }  // namespace ent

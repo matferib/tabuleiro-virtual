@@ -113,6 +113,9 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
 // Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
 const std::string& TextoAcao(const AcaoProto& acao_proto);
 int DeltaAcao(const AcaoProto& acao_proto);
+// Combina acao em acao_destino. Faz o merge mas trata alguns campos de forma
+// especial (por exemplo, efeitos_adicionais).
+void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino);
 
 }  // namespace ent
 
