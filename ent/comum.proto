@@ -146,6 +146,7 @@ enum TipoDnD {
   TIPO_CONSTRUCTO = 8;
   TIPO_ELEMENTAL = 9;
   TIPO_LIMO = 10;
+  TIPO_GIGANTE = 11;
   // TODO outros.
 }
 
@@ -478,6 +479,10 @@ message InfoClasse {
     optional int32 nivel = 2;
   }
   repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
+  // Indica que na verdade eh uma progressao de classe de monstro.
+  optional bool monstro = 21;
+  // Se presente, faz merge com classe ja existente ao inves de criar.
+  optional int32 combinar_com = 22;
 }
 
 // Informacao sobre a pericia do personagem.

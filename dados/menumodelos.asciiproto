@@ -98,6 +98,7 @@ sub_menu {
   id: 'Gigantes'
   modelo { id: 'Gigante das Colinas' }
   modelo { id: 'Gigante das Pedras' }
+  modelo { id: 'Gigante das Pedras, Ancião' }
   modelo { id: 'Gigante das Tempestades' }
 }
 modelo { id: 'Grifo' }

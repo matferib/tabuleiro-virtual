@@ -1366,13 +1366,74 @@ modelo {
 modelo {
   id: 'Gigante das Pedras'
   entidade {
+    tipo_dnd: TIPO_GIGANTE
     dados_vida: '14d8+56' tamanho: TM_GRANDE info_textura { id: 'giant_stone.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
-    rotulo_especial: 'ini +2\nat: +17/+12 2d8+12\npedra: +11 2d8+12\nca:25'
-    lista_acoes: 'Ataque Corpo a Corpo'
-    lista_acoes: 'Pedrada (gigante)'
-    modificador_iniciativa: 2
+    rotulo_especial: ''
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'gigante' nivel: 14 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    dados_defesa {
+      id_armadura: 'gibao_peles'
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 11 } } }
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'clava' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'clava_grande' empunhadura: EA_2_MAOS ordem_ataque: 0
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'clava' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'clava_grande' empunhadura: EA_2_MAOS ordem_ataque: 1
+    }
+    dados_ataque {
+      grupo: 'ataque total pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'pedrada' rotulo: 'pedrada' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d8' alcance_m: 54 incrementos: 5 empunhadura: EA_2_MAOS ordem_ataque: 0
+    }
+    info_talentos {
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'tiro_queima_roupa' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'tiro_preciso' }
+    }
   }
 }
+modelo {
+  id: 'Gigante das Pedras, Ancião'
+  id_entidade_base: 'Gigante das Pedras'
+  entidade {
+    info_classes {
+      combinar_com: 0
+      nivel_conjurador: 10
+      atributo_conjuracao: TA_CARISMA
+    }
+    rotulo_especial: '1 dia: forma de pedra, stone tell, transmute rock to mud, transmute mud to rock'
+    atributos {
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+    }
+    dados_ataque {
+      grupo: 'pedra para lama' rotulo: '1/dia' tipo_ataque: 'Feitiço de Druida' id_arma: 'pedra_para_lama'
+    }
+    dados_ataque {
+      grupo: 'lama para pedra' rotulo: '1/dia' tipo_ataque: 'Feitiço de Druida' id_arma: 'lama_para_pedra'
+    }
+    dados_ataque {
+      grupo: 'moldar rochas' rotulo: '1/dia' tipo_ataque: 'Feitiço de Druida' id_arma: 'moldar_rochas'
+    }
+  }
+}
+
 modelo {
   id: 'Gigante das Tempestades'
   entidade {
