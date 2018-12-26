@@ -556,14 +556,15 @@ EntidadeProto::Evento* AdicionaEvento(
 std::vector<int> AdicionaEventoItemMagico(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
+
 inline std::vector<int> AdicionaEventoItemMagico(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto);
+  return AdicionaEventoItemMagico(eventos, item, /*indice=*/-1, rodadas, continuo, proto);
 }
 inline std::vector<int> AdicionaEventoItemMagicoContinuo(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto);
+  return AdicionaEventoItemMagico(eventos, item, /*indice=*/-1, /*rodadas=*/1, /*continuo=*/true, proto);
 }
 // Aqui o item eh do proto, e nao da tabela.
 void AdicionaEventosItemMagicoContinuo(
