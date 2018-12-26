@@ -90,6 +90,8 @@ acao {
   icone: 'icon_stone.png'
   ataque_distancia: true
   ignora_resistencia_magia: true
+  permite_ataque_vs_defesa: true
+  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Projétil de Área'
