@@ -152,11 +152,16 @@ class ModeloEvento : public QAbstractTableModel {
     switch (column) {
       case 0:
         return role == Qt::DisplayRole || role == Qt::ToolTipRole
-            ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str())) 
+            ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str()))
             : QVariant(evento.id_efeito());
       case 1: return QVariant(ComplementoEventoString(evento) ?
                   ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
-      case 2: return QVariant(evento.rodadas());
+      case 2: {
+        if (evento.continuo() && (role == Qt::DisplayRole || role == Qt::ToolTipRole)) {
+          return QVariant("n/a");
+        }
+        return QVariant(evento.rodadas());
+      }
       case 3: return QVariant(QString::fromUtf8(evento.descricao().c_str()));
     }
     // Nunca deveria chegar aqui.
@@ -198,6 +203,7 @@ class ModeloEvento : public QAbstractTableModel {
         return true;
       }
       case 2: {
+        if (evento->continuo()) return false;
         AnulaEfeitoEmitindoMudanca(index, evento);
         evento->set_rodadas(value.toInt());
         emit dataChanged(index, index);
