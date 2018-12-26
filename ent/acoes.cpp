@@ -1604,6 +1604,7 @@ void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino) {
     if (ea->has_combinar_com()) {
       if (ea->combinar_com() >= 0 && ea->combinar_com() < acao_destino->efeitos_adicionais_size()) {
         acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
+        acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
       } else {
         LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
                    << ", tamanho: " << acao_destino->efeitos_adicionais_size();
