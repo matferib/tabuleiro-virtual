@@ -3865,6 +3865,9 @@ tabela_classes {
 
     salvacoes_fortes: TS_VONTADE
   }
+  info_classes {
+    id: 'gigante' nome: 'Gigante' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
+  }
 }
 
 tabela_pericias {
