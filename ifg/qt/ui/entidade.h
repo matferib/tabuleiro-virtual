@@ -259,7 +259,7 @@ public:
     QLabel *label_39;
     QLineEdit *linha_nivel;
     QGroupBox *groupBox_2;
-    QWidget *horizontalLayoutWidget;
+    QHBoxLayout *horizontalLayout_46;
     QHBoxLayout *horizontalLayout;
     QLabel *label_40;
     QComboBox *combo_classe;
@@ -1766,25 +1766,23 @@ public:
 
         groupBox_2 = new QGroupBox(tab_nivel);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        horizontalLayoutWidget = new QWidget(groupBox_2);
-        horizontalLayoutWidget->setObjectName(QStringLiteral("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(9, 20, 941, 41));
-        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
+        horizontalLayout_46 = new QHBoxLayout(groupBox_2);
+        horizontalLayout_46->setObjectName(QStringLiteral("horizontalLayout_46"));
+        horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        label_40 = new QLabel(horizontalLayoutWidget);
+        label_40 = new QLabel(groupBox_2);
         label_40->setObjectName(QStringLiteral("label_40"));
         sizePolicy6.setHeightForWidth(label_40->sizePolicy().hasHeightForWidth());
         label_40->setSizePolicy(sizePolicy6);
 
         horizontalLayout->addWidget(label_40);
 
-        combo_classe = new QComboBox(horizontalLayoutWidget);
+        combo_classe = new QComboBox(groupBox_2);
         combo_classe->setObjectName(QStringLiteral("combo_classe"));
 
         horizontalLayout->addWidget(combo_classe);
 
-        linha_classe = new QLineEdit(horizontalLayoutWidget);
+        linha_classe = new QLineEdit(groupBox_2);
         linha_classe->setObjectName(QStringLiteral("linha_classe"));
         sizePolicy1.setHeightForWidth(linha_classe->sizePolicy().hasHeightForWidth());
         linha_classe->setSizePolicy(sizePolicy1);
@@ -1795,13 +1793,13 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer);
 
-        label_41 = new QLabel(horizontalLayoutWidget);
+        label_41 = new QLabel(groupBox_2);
         label_41->setObjectName(QStringLiteral("label_41"));
         label_41->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_41);
 
-        spin_nivel_classe = new QSpinBox(horizontalLayoutWidget);
+        spin_nivel_classe = new QSpinBox(groupBox_2);
         spin_nivel_classe->setObjectName(QStringLiteral("spin_nivel_classe"));
         spin_nivel_classe->setMinimum(1);
 
@@ -1811,13 +1809,13 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_4);
 
-        label_43 = new QLabel(horizontalLayoutWidget);
+        label_43 = new QLabel(groupBox_2);
         label_43->setObjectName(QStringLiteral("label_43"));
         label_43->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_43);
 
-        spin_bba = new QSpinBox(horizontalLayoutWidget);
+        spin_bba = new QSpinBox(groupBox_2);
         spin_bba->setObjectName(QStringLiteral("spin_bba"));
         spin_bba->setMinimum(-1);
 
@@ -1827,13 +1825,13 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_7);
 
-        label_42 = new QLabel(horizontalLayoutWidget);
+        label_42 = new QLabel(groupBox_2);
         label_42->setObjectName(QStringLiteral("label_42"));
         label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_42);
 
-        spin_nivel_conjurador = new QSpinBox(horizontalLayoutWidget);
+        spin_nivel_conjurador = new QSpinBox(groupBox_2);
         spin_nivel_conjurador->setObjectName(QStringLiteral("spin_nivel_conjurador"));
         spin_nivel_conjurador->setMinimum(-1);
 
@@ -1843,13 +1841,13 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_8);
 
-        label_44 = new QLabel(horizontalLayoutWidget);
+        label_44 = new QLabel(groupBox_2);
         label_44->setObjectName(QStringLiteral("label_44"));
         label_44->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_44);
 
-        combo_mod_conjuracao = new QComboBox(horizontalLayoutWidget);
+        combo_mod_conjuracao = new QComboBox(groupBox_2);
         combo_mod_conjuracao->addItem(QString());
         combo_mod_conjuracao->addItem(QString());
         combo_mod_conjuracao->addItem(QString());
@@ -1860,7 +1858,7 @@ public:
 
         horizontalLayout->addWidget(combo_mod_conjuracao);
 
-        label_mod_conjuracao = new QLabel(horizontalLayoutWidget);
+        label_mod_conjuracao = new QLabel(groupBox_2);
         label_mod_conjuracao->setObjectName(QStringLiteral("label_mod_conjuracao"));
         sizePolicy6.setHeightForWidth(label_mod_conjuracao->sizePolicy().hasHeightForWidth());
         label_mod_conjuracao->setSizePolicy(sizePolicy6);
@@ -1872,16 +1870,19 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_9);
 
-        label_64 = new QLabel(horizontalLayoutWidget);
+        label_64 = new QLabel(groupBox_2);
         label_64->setObjectName(QStringLiteral("label_64"));
         label_64->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout->addWidget(label_64);
 
-        combo_salvacoes_fortes = new QComboBox(horizontalLayoutWidget);
+        combo_salvacoes_fortes = new QComboBox(groupBox_2);
         combo_salvacoes_fortes->setObjectName(QStringLiteral("combo_salvacoes_fortes"));
 
         horizontalLayout->addWidget(combo_salvacoes_fortes);
+
+
+        horizontalLayout_46->addLayout(horizontalLayout);
 
 
         gridLayout_9->addWidget(groupBox_2, 2, 0, 1, 6);
