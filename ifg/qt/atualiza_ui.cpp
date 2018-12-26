@@ -476,7 +476,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
-  for (const auto& item : ItensPersonagem(tipo, proto)) {
+  for (const auto& item : ent::ItensProto(tipo, proto)) {
     auto* wi = new QListWidgetItem(QString::fromUtf8(
           NomeParaLista(tabelas, tipo, item).c_str()), lista);
     wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);

@@ -1331,16 +1331,16 @@ void ConfiguraListaItensMagicos(
   // Sinal de alteracao.
   lambda_connect(lista, SIGNAL(currentRowChanged(int)), [tipo, lista, botao_usar, &tabelas, proto_retornado] () {
     int row = lista->currentRow();
-    if (row < 0 || row >= lista->count() || row >= ItensPersonagem(tipo, *proto_retornado).size()) {
+    if (row < 0 || row >= lista->count() || row >= ItensProto(tipo, *proto_retornado).size()) {
       botao_usar->setText("Vestir");
     } else {
-      botao_usar->setText(ItensPersonagem(tipo, *proto_retornado).Get(row).em_uso() ? "Tirar" : "Vestir");
+      botao_usar->setText(ItensProto(tipo, *proto_retornado).Get(row).em_uso() ? "Tirar" : "Vestir");
     }
   });
   // Botao de usar.
   lambda_connect(botao_usar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
     const int indice = lista->currentRow();
-    auto* itens_personagem = ItensPersonagemMutavel(tipo, proto_retornado);
+    auto* itens_personagem = ent::ItensProtoMutavel(tipo, proto_retornado);
     if (indice < 0 || indice >= itens_personagem->size()) {
       return;
     }
@@ -1365,14 +1365,14 @@ void ConfiguraListaItensMagicos(
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
-    auto* itens = ItensPersonagemMutavel(tipo, proto_retornado);
+    auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
     itens->Add();
     AtualizaUITesouro(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(itens->size() - 1);
   });
   lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
     const int indice = lista->currentRow();
-    auto* itens = ItensPersonagemMutavel(tipo, proto_retornado);
+    auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
     if (indice < 0 || indice >= itens->size()) {
       return;
     }

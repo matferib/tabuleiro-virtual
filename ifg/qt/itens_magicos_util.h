@@ -18,10 +18,6 @@ int MaximoEmUso(ent::TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo);
 
-// Retorna o item do personagem de acordo com tipo.
-const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(ent::TipoItem tipo, const ent::EntidadeProto& proto);
-google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(ent::TipoItem tipo, ent::EntidadeProto* proto);
-
 // Retorna o nome do item seguido por 'em uso' ou 'não usado'.
 std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
@@ -80,11 +76,11 @@ class ItemMagicoDelegate : public QItemDelegate {
   }
 
   const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem() const {
-    return ifg::qt::ItensPersonagem(tipo_, *proto_);
+    return ent::ItensProto(tipo_, *proto_);
   }
 
   google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel() const {
-    return ifg::qt::ItensPersonagemMutavel(tipo_, proto_);
+    return ent::ItensProtoMutavel(tipo_, proto_);
   }
 
   // Retorna o item do personagem.
@@ -154,39 +150,6 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
   return tabelas.todas().tabela_aneis().aneis();
-}
-
-inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(
-    ent::TipoItem tipo, const ent::EntidadeProto& proto) {
-  switch (tipo) {
-    case ent::TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
-    case ent::TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
-    case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
-    case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
-    case ent::TipoItem::TIPO_POCAO: return proto.tesouro().pocoes();
-    case ent::TipoItem::TIPO_AMULETO: return proto.tesouro().amuletos();
-    case ent::TipoItem::TIPO_BOTAS: return proto.tesouro().botas();
-    case ent::TipoItem::TIPO_CHAPEU: return proto.tesouro().chapeus();
-    default: ;
-  }
-  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
-  return proto.tesouro().aneis();
-}
-
-inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(
-    ent::TipoItem tipo, ent::EntidadeProto* proto) {
-  switch (tipo) {
-    case ent::TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
-    case ent::TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
-    case ent::TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
-    case ent::TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
-    case ent::TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
-    case ent::TipoItem::TIPO_BOTAS: return proto->mutable_tesouro()->mutable_botas();
-    case ent::TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
-    default: ;
-  }
-  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
-  return proto->mutable_tesouro()->mutable_aneis();
 }
 
 // Retorna o nome do item seguido por em uso ou nao usado.
