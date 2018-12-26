@@ -62,10 +62,11 @@ class Visualizador3d :
   const ent::Tabelas& tabelas() const { return tabelas_; }
 
   // Abre o dialogo de entidade para o subtipo TE_ENTIDADE. Retorna null se cancelado.
-  // Parametros forma_primaria indica que o dialogo se refere a forma primaria. Parametro pai
-  // eh usado para indicar o pai do dialogo. Se nullptr, usa this.
+  // Parametro forma_em_uso indica que o dialogo se refere a forma que esta em uso. Por exemplo, clicar duas vezes no tabuleiro.
+  // Ja quando se esta editando uma das formas alternativas, ele eh false (por exemplo, na UI, ao clicar duas vezes na forma alternativa ou criar uma nova).
+  // Parametro pai eh usado para indicar o pai do dialogo. Se nullptr, usa this.
   std::unique_ptr<ent::EntidadeProto> AbreDialogoTipoEntidade(
-      const ntf::Notificacao& notificacao, bool forma_primaria = true, QWidget* pai = nullptr);
+      const ntf::Notificacao& notificacao, bool forma_em_uso = true, QWidget* pai = nullptr);
 
  private:
   // Dialogos.
