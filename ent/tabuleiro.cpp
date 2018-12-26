@@ -1197,12 +1197,14 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
       *proto_antes = ProtoFormaAlternativa(proto);
       proto_antes->set_forma_alternativa_corrente(indice);
       proto_antes->set_id(id);
+      PreencheComTesourosEmUso(proto, /*manter_uso=*/true, proto_antes);
     }
     {
       auto* proto_depois = n->mutable_entidade();
       *proto_depois = ProtoFormaAlternativa(proto.formas_alternativas(proximo_indice));
       proto_depois->set_forma_alternativa_corrente(proximo_indice);
       proto_depois->set_id(id);
+      PreencheComTesourosEmUso(proto, /*manter_uso=*/false, proto_depois);
       VLOG(1) << "Alterando para forma " << proximo_indice
               << ", entidade " << id << ", proto: " << proto_depois->DebugString();
     }

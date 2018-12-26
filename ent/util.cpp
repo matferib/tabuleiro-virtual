@@ -33,6 +33,7 @@ namespace ent {
 namespace {
 using EfeitoAdicional = ent::AcaoProto::EfeitoAdicional;
 using google::protobuf::StringPrintf;
+using google::protobuf::RepeatedPtrField;
 
 const std::map<std::string, std::string> g_mapa_utf8 = {
     { "á", "a" },
@@ -348,11 +349,11 @@ void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura) {
   DesenhaLinha3dBase(pontos, largura);
 }
 
-void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura) {
+void DesenhaLinha3d(const RepeatedPtrField<Posicao>& pontos, float largura) {
   DesenhaLinha3dBase(pontos, largura);
 }
 
-void LimitesLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura, float* xi, float* yi, float *xs, float *ys) {
+void LimitesLinha3d(const RepeatedPtrField<Posicao>& pontos, float largura, float* xi, float* yi, float *xs, float *ys) {
   *xi = std::numeric_limits<float>::max();
   *xs = std::numeric_limits<float>::lowest();
   *yi = std::numeric_limits<float>::max();
@@ -2384,7 +2385,7 @@ bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
 
 // Poe e na primeira posicao de rf, movendo todos uma posicao para tras. Parametro 'e' fica invalido.
 template <class T>
-void InsereInicio(T* e, google::protobuf::RepeatedPtrField<T>* rf) {
+void InsereInicio(T* e, RepeatedPtrField<T>* rf) {
   rf->Add()->Swap(e);
   for (int i = static_cast<int>(rf->size()) - 1; i > 0; --i) {
     rf->SwapElements(i, i-1);
@@ -2788,18 +2789,6 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto* item : itens) {
     AdicionaEventosItemMagicoContinuo(tabelas, proto->evento(), item, proto);
   }
-}
-
-std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
-  const auto& tesouro = proto.tesouro();
-  std::vector<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
-    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus()
-  };
-  std::vector<const ItemMagicoProto*> itens;
-  for (const auto* itens_grupo : itens_agrupados) {
-    std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
-  }
-  return itens;
 }
 
 std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) {
@@ -3917,8 +3906,8 @@ TipoEfeito StringParaEfeito(const std::string& s) {
 
 // Ta quebrado!!!!! Nao tem o id do efeito.
 // Funcao hack do android.
-google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
-  google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
+RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
+  RepeatedPtrField<EntidadeProto::Evento> ret;
   std::istringstream ss(eventos_str);
   while (1) {
     std::string linha;
@@ -4068,14 +4057,14 @@ bool LutandoDefensivamente(const EntidadeProto& proto) {
 }
 
 template <class T>
-void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c) {
+void RemoveSe(const std::function<bool(const T& t)>& predicado, RepeatedPtrField<T>* c) {
   for (int i = c->size() - 1; i >= 0; --i) {
     if (predicado(c->Get(i))) c->DeleteSubrange(i, 1);
   }
 }
 
 template <class T>
-void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c) {
+void Redimensiona(int tam, RepeatedPtrField<T>* c) {
   if (tam == c->size()) return;
   if (tam < c->size()) {
     c->DeleteSubrange(tam, c->size() - tam);
@@ -4089,8 +4078,8 @@ bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento
 }
 
 uint32_t AchaIdUnicoEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados) {
+    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados) {
   uint32_t candidato = 0;
   bool existe = false;
   auto EhCandidato = [&candidato] (const EntidadeProto::Evento& evento) { return candidato == evento.id_unico(); };
@@ -4110,7 +4099,7 @@ uint32_t AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   // Pega antes de criar o evento.
   uint32_t id_unico = AchaIdUnicoEvento(eventos, proto->evento());
@@ -4123,7 +4112,7 @@ EntidadeProto::Evento* AdicionaEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const EfeitoAdicional& efeito_adicional, EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas();
   auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), efeito_adicional.rodadas(), continuo, proto);
@@ -4188,7 +4177,7 @@ void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto) {
 }
 
 std::vector<int> AdicionaEventoItemMagico(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
+    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
   std::vector<int> ids_unicos;
   std::vector<TipoEfeito> efeitos;
@@ -4673,10 +4662,96 @@ const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto&
 }
 
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto) {
+    const Tabelas& tabelas, const RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto) {
   for (int id_unico : AdicionaEventoItemMagicoContinuo(eventos, ItemTabela(tabelas, *item), proto)) {
     item->add_ids_efeitos(id_unico);
   }
+}
+
+void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo) {
+  const std::vector<const ItemMagicoProto*> todos_itens = TodosItensExcetoPocoes(proto);
+  for (const auto* item : todos_itens) {
+    if (!item->em_uso()) continue;
+    auto* item_novo = ItensProtoMutavel(item->tipo(), proto_alvo)->Add();
+    *item_novo = *item;
+    item_novo->set_em_uso(manter_uso);
+  }
+}
+
+const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
+    TipoItem tipo, const EntidadeProto& proto) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
+    case TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
+    case TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
+    case TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
+    case TipoItem::TIPO_POCAO: return proto.tesouro().pocoes();
+    case TipoItem::TIPO_AMULETO: return proto.tesouro().amuletos();
+    case TipoItem::TIPO_BOTAS: return proto.tesouro().botas();
+    case TipoItem::TIPO_CHAPEU: return proto.tesouro().chapeus();
+    default: ;
+  }
+  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
+  return proto.tesouro().aneis();
+}
+
+RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
+    TipoItem tipo, EntidadeProto* proto) {
+  switch (tipo) {
+    case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
+    case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
+    case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
+    case TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
+    case TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
+    case TipoItem::TIPO_BOTAS: return proto->mutable_tesouro()->mutable_botas();
+    case TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
+    default: ;
+  }
+  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
+  return proto->mutable_tesouro()->mutable_aneis();
+}
+
+// Retorna true se os itens forem do mesmo tipo, tiverem os mesmos efeitos e complementos.
+bool MesmoItem(const ItemMagicoProto& item1, const ItemMagicoProto& item2) {
+  if (item1.id() != item2.id() || item1.tipo() != item2.tipo() ||
+      item1.ids_efeitos().size() != item2.ids_efeitos().size() ||
+      item1.complementos().size() != item2.complementos().size() ||
+      item1.complementos_str().size() != item2.complementos_str().size()) {
+    return false;
+  }
+  for (int i = 0; i < item1.ids_efeitos().size(); ++i) {
+    if (item1.ids_efeitos(i) != item2.ids_efeitos(i)) return false;
+  }
+  for (int i = 0; i < item1.complementos().size(); ++i) {
+    if (item1.complementos(i) != item2.complementos(i)) return false;
+  }
+  for (int i = 0; i < item1.complementos_str().size(); ++i) {
+    if (item1.complementos_str(i) != item2.complementos_str(i)) return false;
+  }
+  return true;
+}
+
+void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
+  auto* itens_do_tipo = ItensProtoMutavel(item.tipo(), proto);
+  for (int i = 0; i < itens_do_tipo->size(); ++i) {
+    const auto& item_proto = itens_do_tipo->Get(i);
+    if (MesmoItem(item_proto, item)) {
+      itens_do_tipo->DeleteSubrange(i, 1);
+      return;
+    }
+  }
+}
+
+std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
+  const auto& tesouro = proto.tesouro();
+  std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus()
+  };
+  std::vector<const ItemMagicoProto*> itens;
+  for (const auto* itens_grupo : itens_agrupados) {
+    std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
+  }
+  return itens;
 }
 
 }  // namespace ent

@@ -335,6 +335,9 @@ void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, con
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
 
+// Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
+void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
+
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 
@@ -707,6 +710,13 @@ const ItemMagicoProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id);
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
 
+// Retorna o repeated do tipo passado para o proto.
+const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
+google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
+// Retorna todos os itens do proto, exceto pocoes.
+std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
+// Remove o item de proto.
+void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 
 }  // namespace ent
 

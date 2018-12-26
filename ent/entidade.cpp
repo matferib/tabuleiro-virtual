@@ -984,6 +984,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.tesouro().pocoes_size() > 0) {
     proto_.mutable_tesouro()->clear_pocoes();
   }
+  // Limpa itens que vierem no parcial, pois serao mergeados.
+  for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
+    RemoveItem(*item, &proto_);
+  }
+
   if (proto_parcial.lista_acoes_size() > 0) {
     // repeated.
     proto_.clear_lista_acoes();
