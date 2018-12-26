@@ -2179,6 +2179,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       }
     } else if (PossuiCategoria(CAT_ARREMESSO, arma)) {
       usar_forca_dano = true;
+    } else if (tipo_str == "Pedrada (gigante)") {
+      usar_forca_dano = true;
     }
   } else if (da->ataque_agarrar()) {
     bba = proto.bba().agarrar();
@@ -2788,13 +2790,42 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   }
 }
 
+std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
+  const auto& tesouro = proto.tesouro();
+  std::vector<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus()
+  };
+  std::vector<const ItemMagicoProto*> itens;
+  for (const auto* itens_grupo : itens_agrupados) {
+    std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
+  }
+  return itens;
+}
+
+std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) {
+  std::unordered_set<unsigned int> ids;
+  std::vector<const ItemMagicoProto*> itens = TodosItensExcetoPocoes(proto);
+  for (const auto* item : itens) {
+    for (unsigned int id_efeito : item->ids_efeitos()) {
+      ids.insert(id_efeito);
+    }
+  }
+  return ids;
+}
+
+// Retorna true se o item que criou o evento nao existe mais.
+bool EventoOrfao(const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens) {
+  return evento.continuo() && ids_itens.find(evento.id_unico()) == ids_itens.end();
+}
+
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
   std::set<int, std::greater<int>> eventos_a_remover;
+  const std::unordered_set<unsigned int> ids_itens = IdsItensComEfeitos(*proto);
   int i = 0;
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (auto& evento : *proto->mutable_evento()) {
-    if (evento.rodadas() < 0) {
+    if (evento.rodadas() < 0 || EventoOrfao(evento, ids_itens)) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
@@ -2869,6 +2900,22 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   // Para evitar recomputar quando nao tiver base.
   bool recomputa_base = false;
   proto->mutable_dados_defesa()->clear_reducao_dano_barbaro();
+  std::set<int, std::greater<int>> a_remover;
+  for (int i = 0; i < proto->info_classes_size(); ++i) {
+    const auto& ic = proto->info_classes(i);
+    if (ic.has_combinar_com()) {
+      a_remover.insert(i);
+      if (ic.combinar_com() >= 0 && ic.combinar_com() < proto->info_classes_size()) {
+        proto->mutable_info_classes(ic.combinar_com())->MergeFrom(ic);
+        proto->mutable_info_classes(ic.combinar_com())->clear_combinar_com();
+      } else {
+        LOG(ERROR) << "Combinar com invalido: " << ic.combinar_com() << ", tamanho: " << proto->info_classes_size();
+      }
+    }
+  }
+  for (int i : a_remover) {
+    proto->mutable_info_classes()->DeleteSubrange(i, 1);
+  }
   for (auto& ic : *proto->mutable_info_classes()) {
     {
       const auto& classe_tabelada = tabelas.Classe(ic.id());
@@ -3778,9 +3825,16 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   const int ca_natural = BonusIndividualPorOrigem(TB_ARMADURA_NATURAL, "racial", proto.dados_defesa().ca());
   AtribuiBonus(ca_natural, TB_ARMADURA_NATURAL, "racial", ret.mutable_dados_defesa()->mutable_ca());
   ret.mutable_dados_defesa()->set_id_armadura(proto.dados_defesa().id_armadura());
+  ret.mutable_dados_defesa()->set_armadura_obra_prima(proto.dados_defesa().armadura_obra_prima());
   ret.mutable_dados_defesa()->set_bonus_magico_armadura(proto.dados_defesa().bonus_magico_armadura());
+  ret.mutable_dados_defesa()->set_material_armadura(proto.dados_defesa().material_armadura());
   ret.mutable_dados_defesa()->set_id_escudo(proto.dados_defesa().id_escudo());
+  ret.mutable_dados_defesa()->set_escudo_obra_prima(proto.dados_defesa().escudo_obra_prima());
   ret.mutable_dados_defesa()->set_bonus_magico_escudo(proto.dados_defesa().bonus_magico_escudo());
+  ret.mutable_dados_defesa()->set_material_escudo(proto.dados_defesa().material_escudo());
+
+  // Itens magicos: isso eh bem mais complicado, porque depende da forma original (para desativar e ativar) da forma corrente (idem) e
+  // sao campos repeated (nao da pra simplesmente fazer merge). Deixar essa responsabilidade pro cliente.
   return ret;
 }
 
