@@ -1367,7 +1367,7 @@ modelo {
   id: 'Gigante das Pedras'
   entidade {
     tipo_dnd: TIPO_GIGANTE
-    dados_vida: '14d8+56' tamanho: TM_GRANDE info_textura { id: 'giant_stone.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    dados_vida: '14d8+56' tamanho: TM_GRANDE modelo_3d { id: 'giant_stone' }
     rotulo_especial: ''
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes {
