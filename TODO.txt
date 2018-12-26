@@ -1,6 +1,6 @@
 Anotacoes da sessao:
 - Ao passar ataque para cima na UI, estao ficando 2 selecionados.
-- Forma alternativa: itens continuam a fazer efeito.
+- Forma alternativa: itens continuam a fazer efeito. Arrumar um jeito de salvar os tesouros da forma original.
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
 - UI para horas.
