@@ -2813,7 +2813,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   int i = 0;
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
-  for (auto& evento : *proto->mutable_evento()) {
+  for (const auto& evento : proto->evento()) {
     if (evento.rodadas() < 0 || EventoOrfao(evento, ids_itens)) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
@@ -2826,6 +2826,14 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
     }
     ++i;
   }
+  // Modelos desativados.
+  for (auto& modelo : *proto->mutable_modelos()) {
+    if (modelo.ativo()) continue;
+    const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
+    VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
+    AplicaEfeitoComum(PreencheConsequenciaFim(-1, efeito.consequencia()), proto);
+  }
+
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
   }
@@ -2843,6 +2851,15 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
     AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }
+  // Efeito de modelos.
+  for (auto& modelo : *proto->mutable_modelos()) {
+    if (!modelo.ativo()) continue;
+    const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
+    //VLOG(1) << "aplicando efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
+    VLOG(1) << "aplicando efeito de modelo: " << efeito.DebugString();
+    AplicaEfeitoComum(efeito.consequencia(), proto);
+  }
+
   const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
 }
