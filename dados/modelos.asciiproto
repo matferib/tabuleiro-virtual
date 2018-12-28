@@ -1370,6 +1370,9 @@ modelo {
     dados_vida: '14d8+56' tamanho: TM_GRANDE modelo_3d { id: 'giant_stone' }
     rotulo_especial: ''
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 6  # seriam 8, mas cai pra 6 por causa da armadura.
+    }
     info_classes {
       id: 'gigante' nivel: 14 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
     }
@@ -1976,7 +1979,6 @@ modelo {
     dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
     dados_defesa { id_armadura: 'armadura_batalha' }
-
     info_talentos {
       gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
