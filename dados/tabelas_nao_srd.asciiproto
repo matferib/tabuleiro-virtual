@@ -93,3 +93,35 @@ tabela_talentos {
     }
   }
 }
+tabela_efeitos_modelos {
+  efeitos {
+    id: EFEITO_MODELO_VULTO
+    nome: 'modelo de vulto'
+    consequencia {
+      atributos {
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
+      }
+      # visao no escuro. 18m
+      #dados_ataque {
+      # reflexos 3/dia
+      # invisibilidade a vontade
+      # controlar luz
+      # cura acelerada 2.
+      # atravessar sombras se > 8 nivel
+      # viajar pelas sombras. se > 12 nivel
+      #}
+      jogada_ataque { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
+      jogada_dano { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        # resistencia magia 11 + nivel PC
+        # pericias: +4 racial esconderse e furtividade.
+      }
+    }
+  }
+}  # tabela efeito de modelos.
+
