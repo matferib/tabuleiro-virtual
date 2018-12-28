@@ -157,6 +157,10 @@ message TabelaEfeitos {
   repeated EfeitoProto efeitos = 1;
 }
 
+message TabelaEfeitosModelos {
+  repeated EfeitoModeloProto efeitos = 1;
+}
+
 message TabelaPocoes {
   repeated ItemMagicoProto pocoes = 1;
 }
@@ -214,6 +218,7 @@ message TodasTabelas {
   optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPericias tabela_pericias =  6;
   optional TabelaFeiticos tabela_feiticos = 7;
+  optional TabelaEfeitosModelos tabela_efeitos_modelos = 8;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
