@@ -1700,7 +1700,7 @@ void PreencheConfiguraDadosAtaque(
       *proto_retornado->mutable_dados_ataque()->Add() = proto_retornado->dados_ataque(indice);
     }
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
-    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
+    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1, QItemSelectionModel::Clear);
   });
 
   lambda_connect(gerador.botao_ataque_cima, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
@@ -1710,7 +1710,7 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice - 1));
-    gerador.lista_ataques->setCurrentRow(indice - 1);
+    gerador.lista_ataques->setCurrentRow(indice - 1, QItemSelectionModel::Clear);
   });
   lambda_connect(gerador.botao_ataque_baixo, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
     int indice = gerador.lista_ataques->currentRow();
@@ -1719,7 +1719,7 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice + 1));
-    gerador.lista_ataques->setCurrentRow(indice + 1);
+    gerador.lista_ataques->setCurrentRow(indice + 1, QItemSelectionModel::Clear);
   });
 
   lambda_connect(gerador.botao_remover_ataque, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
