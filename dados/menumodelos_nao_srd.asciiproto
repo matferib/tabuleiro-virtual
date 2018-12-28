@@ -54,3 +54,7 @@ sub_menu {
   modelo { id: 'Guarda de Bane Atroz' }
   modelo { id: 'Morto de Bane' }
 }
+sub_menu {
+  id: 'Vultos'
+  modelo { id: 'Vulto Guerreiro 5' }
+}

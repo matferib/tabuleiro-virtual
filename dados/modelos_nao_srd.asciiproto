@@ -572,3 +572,11 @@ modelo {
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }
+modelo {
+  id: 'Vulto Guerreiro 5'
+  id_entidade_base: 'Humano Guerreiro 5'
+  entidade {
+    rotulo: 'forma normal'
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+  }
+}
