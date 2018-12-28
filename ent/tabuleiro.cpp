@@ -173,38 +173,43 @@ Tabuleiro::Tabuleiro(
   const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
   for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
     try {
-      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos);
+      Modelos modelos_do_arquivo;
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos_do_arquivo);
+      modelos.MergeFrom(modelos_do_arquivo);
     } catch (const arq::ParseProtoException& ppe) {
       central->AdicionaNotificacao(ntf::NovaNotificacaoErro(StringPrintf("%s: %s", nome_arquivo_modelo.c_str(), ppe.what())));
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << erro.what();
       // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
     }
-    // Mapa de modelos por id.
-    std::unordered_map<std::string, const Modelo*> modelos_por_id;
-    for (const auto& m : modelos.modelo()) {
-      modelos_por_id[m.id()] = &m;
-    }
-    for (const auto& m : modelos.modelo()) {
-      std::unique_ptr<EntidadeProto> entidade(new EntidadeProto());
-      if (m.id_entidade_base().empty()) {
-        *entidade = m.entidade();
-        mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
-      } else {
-        auto it = modelos_por_id.find(m.id_entidade_base());
-        if (it == modelos_por_id.end()) {
-          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << m.id_entidade_base();
-          continue;
-        }
-        *entidade = it->second->entidade();
-        entidade->MergeFrom(m.entidade());
-        std::unique_ptr<Modelo> mp(new Modelo(m));
-        *mp->mutable_entidade() = *entidade;
-        mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::move(mp)));
-      }
-      mapa_modelos_.insert(std::make_pair(m.id(), std::move(entidade)));
-    }
   }
+
+  // Mapa de modelos por id.
+  std::unordered_map<std::string, const Modelo*> modelos_por_id;
+  for (const auto& m : modelos.modelo()) {
+    modelos_por_id[m.id()] = &m;
+  }
+
+  for (const auto& m : modelos.modelo()) {
+    std::unique_ptr<EntidadeProto> entidade(new EntidadeProto());
+    if (m.id_entidade_base().empty()) {
+      *entidade = m.entidade();
+      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
+    } else {
+      auto it = modelos_por_id.find(m.id_entidade_base());
+      if (it == modelos_por_id.end()) {
+        LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << m.id_entidade_base();
+        continue;
+      }
+      *entidade = it->second->entidade();
+      entidade->MergeFrom(m.entidade());
+      std::unique_ptr<Modelo> mp(new Modelo(m));
+      *mp->mutable_entidade() = *entidade;
+      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::move(mp)));
+    }
+    mapa_modelos_.insert(std::make_pair(m.id(), std::move(entidade)));
+  }
+
   // Acoes.
   Acoes acoes;
   try {
