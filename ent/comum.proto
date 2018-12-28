@@ -105,6 +105,10 @@ enum TipoEfeito {
   EFEITO_CONFUSAO = 58;
 }
 
+enum TipoEfeitoModelo {
+  EFEITO_MODELO_VULTO = 1;
+}
+
 // Tipo de visao para entidades e camera.
 enum TipoVisao {
   VISAO_NORMAL = 0;
@@ -518,6 +522,7 @@ message ConsequenciaEvento {
   optional Bonus tamanho = 4;
   // Alteracao na pericia.
   optional InfoPericia dados_pericia = 5;
+  //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
 
   // se verdadeiro, usara complemento ao inves do valor passado.
   optional bool usa_complemento = 10;
@@ -535,6 +540,13 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
   optional ConsequenciaEvento consequencia_fim = 3;
+}
+
+message EfeitoModeloProto {
+  optional TipoEfeitoModelo id = 1;  // id do efeito.
+  optional string nome = 5;  // nome do efeito, legibilidade.
+  // O que ocorre com a entidade quando efeito comeca.
+  optional ConsequenciaEvento consequencia = 2;
 }
 
 // Como os efeitos de uma pocao se combinam.
@@ -826,4 +838,11 @@ message VenenoProto {
   // Classe de dificuldade.
   optional int32 cd = 10;
   optional int32 preco_po = 11;
+}
+
+// Os templates de D&D.
+message ModeloDnD {
+  optional string descricao = 1;
+  optional TipoEfeitoModelo id_efeito = 2;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+  optional bool ativo = 3;                     // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
 }
