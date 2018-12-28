@@ -96,40 +96,28 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   if (central_ != nullptr) {
     central_->RegistraReceptor(this);
   }
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
-  } catch (const arq::ParseProtoException & e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas_nao_srd.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
-  }
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_homebrew.asciiproto", &tabelas_);
-  } catch (const arq::ParseProtoException & e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas_homebrew.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
-  }
-  try {
-    TodasTabelas tabelas_padroes;
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
-    tabelas_.MergeFrom(tabelas_padroes);
-  } catch (const arq::ParseProtoException& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
-    if (central_ != nullptr) {
-      central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
+
+  std::vector<const char*> arquivos_tabelas = {"tabelas_nao_srd.asciiproto", "tabelas_homebrew.asciiproto", "tabelas.asciiproto"};
+  // Tabelas.
+  for (const char* arquivo : arquivos_tabelas) {
+    try {
+      TodasTabelas tabelas;
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, arquivo, &tabelas);
+      tabelas_.MergeFrom(tabelas);
+    } catch (const arq::ParseProtoException& e) {
+      LOG(WARNING) << "Erro lendo tabela: " << arquivo << ": " << e.what();
+      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+          StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Erro lendo tabela: " << arquivo << ": " << e.what();
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErro(
+              StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+      }
     }
   }
+  // Acoes.
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
   } catch (const std::exception& e) {
@@ -149,6 +137,7 @@ void Tabelas::RecarregaMapas() {
   armas_.clear();
   feiticos_.clear();
   efeitos_.clear();
+  efeitos_modelos_.clear();
   pocoes_.clear();
   aneis_.clear();
   mantos_.clear();
@@ -249,6 +238,12 @@ void Tabelas::RecarregaMapas() {
     efeitos_[efeito.id()] = &efeito;
   }
 
+    LOG(ERROR) << "aqui1";
+  for (const auto& efeito : tabelas_.tabela_efeitos_modelos().efeitos()) {
+    LOG(ERROR) << "aqui";
+    efeitos_modelos_[efeito.id()] = &efeito;
+  }
+
   for (const auto& classe : tabelas_.tabela_classes().info_classes()) {
     classes_[classe.id()] = &classe;
   }
@@ -290,6 +285,11 @@ const ArmaProto& Tabelas::ArmaOuFeitico(const std::string& id) const {
 const EfeitoProto& Tabelas::Efeito(TipoEfeito tipo) const {
   auto it = efeitos_.find(tipo);
   return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
+}
+
+const EfeitoModeloProto& Tabelas::EfeitoModelo(TipoEfeitoModelo tipo) const {
+  auto it = efeitos_modelos_.find(tipo);
+  return it == efeitos_modelos_.end() ? EfeitoModeloProto::default_instance() : *it->second;
 }
 
 const AcaoProto& Tabelas::Acao(const std::string& id) const {

@@ -28,6 +28,7 @@ class Tabelas : public ntf::Receptor {
   const ArmaProto& Feitico(const std::string& id) const;
   const ArmaProto& ArmaOuFeitico(const std::string& id) const;
   const EfeitoProto& Efeito(TipoEfeito tipo) const;
+  const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
@@ -55,6 +56,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const ArmaProto*> armas_;
   std::unordered_map<std::string, const ArmaProto*> feiticos_;
   std::unordered_map<int, const EfeitoProto*> efeitos_;
+  std::unordered_map<int, const EfeitoModeloProto*> efeitos_modelos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;
   std::unordered_map<std::string, const ItemMagicoProto*> aneis_;
   std::unordered_map<std::string, const ItemMagicoProto*> mantos_;
