@@ -248,7 +248,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
-      float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
+      float porcentagem = static_cast<float>(PontosVida()) / MaximoPontosVida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       gl::Translada(0, 0, delta);

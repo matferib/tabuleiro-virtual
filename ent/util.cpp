@@ -1567,6 +1567,42 @@ void PreencheNotificacaoAtualizaoPontosVida(
   }
 }
 
+void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n) {
+  const auto& proto = entidade.Proto();
+  int cura = CuraAcelerada(proto);
+
+  EntidadeProto *entidade_antes, *entidade_depois;
+  std::tie(entidade_antes, entidade_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+
+  if (proto.dano_nao_letal() > 0) {
+    if (cura >= proto.dano_nao_letal()) {
+      // Cura tirou tudo e pode ate sobrar.
+      cura -= proto.dano_nao_letal();
+      entidade_depois->set_dano_nao_letal(0);
+      VLOG(2) << "curando todo dano nao letal, sobra: " << cura;
+    } else {
+      // Cura so dano nao letal.
+      entidade_depois->set_dano_nao_letal(proto.dano_nao_letal() - cura);
+      cura = 0;
+      VLOG(2) << "curando apenas dano nao letal";
+    }
+    entidade_antes->set_dano_nao_letal(proto.dano_nao_letal());
+  }
+  const int dano = entidade.MaximoPontosVida() - entidade.PontosVida();
+  if (dano > 0 && cura > 0) {
+    // Ainda sobrou cura, cura parte letal.
+    if (cura >= dano) {
+      entidade_depois->set_pontos_vida(entidade.MaximoPontosVida());
+      VLOG(2) << "curando todo dano letal";
+    } else {
+      entidade_depois->set_pontos_vida(proto.pontos_vida() + cura);
+      VLOG(2) << "curando parte do dano letal: " << cura;
+    }
+    entidade_antes->set_pontos_vida(proto.pontos_vida());
+  }
+}
+
+
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n) {
   n->set_tipo(tipo);

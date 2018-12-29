@@ -7025,12 +7025,8 @@ void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::N
 }
 
 void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
-  if (entidade.PontosVida() >= entidade.MaximoPontosVida()) return;
-  int cura = CuraAcelerada(entidade.Proto());
-  int diff = entidade.MaximoPontosVida() - entidade.PontosVida();
-  if (diff < cura) cura = diff;
-  auto* n = grupo->add_notificacao();
-  PreencheNotificacaoAtualizaoPontosVida(entidade, cura, TD_LETAL, n, n);
+  if (entidade.PontosVida() >= entidade.MaximoPontosVida() && entidade.DanoNaoLetal() == 0) return;
+  PreencheNotificacaoCuraAcelerada(entidade, grupo->add_notificacao());
 }
 
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {

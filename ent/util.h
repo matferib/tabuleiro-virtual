@@ -314,6 +314,7 @@ enum tipo_dano_e {
 };
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
 
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
