@@ -7024,6 +7024,15 @@ void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Not
 void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
 }
 
+void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  if (entidade.PontosVida() >= entidade.MaximoPontosVida()) return;
+  int cura = CuraAcelerada(entidade.Proto());
+  int diff = entidade.MaximoPontosVida() - entidade.PontosVida();
+  if (diff < cura) cura = diff;
+  auto* n = grupo->add_notificacao();
+  PreencheNotificacaoAtualizaoPontosVida(entidade, cura, TD_LETAL, n, n);
+}
+
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
@@ -7043,6 +7052,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
     AtualizaEventosAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
+    AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
     ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
   }
   auto* nr = grupo_notificacoes.add_notificacao();
