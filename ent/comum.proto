@@ -329,7 +329,7 @@ message ResistenciaElementos {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 23.
+// Proximo id: 24.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -359,6 +359,14 @@ message DadosDefesa {
   optional ReducaoDano reducao_dano = 18;
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
   repeated ResistenciaElementos resistencia_elementos = 19;
+  // A maior cura acelerada é a que vale.
+  message CuraAcelerada {
+    // Base do personagem.
+    optional int32 base = 1;
+    // Computado: pega de todas as origens.
+    repeated int32 computado = 2; 
+  }
+  optional CuraAcelerada cura_acelerada = 23;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
@@ -547,6 +555,8 @@ message EfeitoModeloProto {
   optional string nome = 5;  // nome do efeito, legibilidade.
   // O que ocorre com a entidade quando efeito comeca.
   optional ConsequenciaEvento consequencia = 2;
+  // Indica que o template pode ser desligado, tipo vulto com luz.
+  optional bool desligavel = 3;
 }
 
 // Como os efeitos de uma pocao se combinam.
