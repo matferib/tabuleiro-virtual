@@ -4820,6 +4820,19 @@ std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& 
   return itens;
 }
 
+std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
+  auto* tesouro = proto->mutable_tesouro();
+  std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+    tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
+    tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus()
+  };
+  std::vector<ItemMagicoProto*> itens;
+  for (auto* itens_grupo : itens_agrupados) {
+    std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
+  }
+  return itens;
+}
+
 int CuraAcelerada(const EntidadeProto& proto) {
   const auto& cura_acelerada = proto.dados_defesa().cura_acelerada();
   int maior = 0;

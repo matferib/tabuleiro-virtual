@@ -951,6 +951,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
+  // Formas alternativa: atualiza todas ou nada.
+  if (!proto_parcial.formas_alternativas().empty()) {
+    proto_.clear_formas_alternativas();
+  }
+
   // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
   if (proto_parcial.evento_size() > 0) {
     std::vector<int> a_remover;

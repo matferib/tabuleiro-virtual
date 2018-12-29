@@ -716,6 +716,7 @@ const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoI
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes.
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
+std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
 // Remove o item de proto.
 void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 

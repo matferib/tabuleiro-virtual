@@ -1209,7 +1209,21 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
       *proto_depois = ProtoFormaAlternativa(proto.formas_alternativas(proximo_indice));
       proto_depois->set_forma_alternativa_corrente(proximo_indice);
       proto_depois->set_id(id);
-      PreencheComTesourosEmUso(proto, /*manter_uso=*/false, proto_depois);
+      if (indice == 0) {
+        // saindo da forma principal. Salva os tesouros em uso.
+        *proto_depois->mutable_formas_alternativas() = proto.formas_alternativas();
+        PreencheComTesourosEmUso(proto, /*manter_uso=*/true, proto_depois->mutable_formas_alternativas(0));
+        // Como os itens serao desativados, limpa os ids para casar com MesmoItem na atualizacao parcial de volta.
+        for (auto* item : TodosItensExcetoPocoes(proto_depois->mutable_formas_alternativas(0))) {
+          item->clear_ids_efeitos();
+        }
+        PreencheComTesourosEmUso(proto, /*manter_uso=*/false, proto_depois);
+      } else if (proximo_indice == 0) {
+        // Restaura tesouros em uso.
+        *proto_depois->mutable_formas_alternativas() = proto.formas_alternativas();
+        PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, proto_depois);
+      }
+
       VLOG(1) << "Alterando para forma " << proximo_indice
               << ", entidade " << id << ", proto: " << proto_depois->DebugString();
     }
