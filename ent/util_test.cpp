@@ -29,6 +29,7 @@ TEST(TesteVazamento, TesteVazamento) {
   auto* ic = proto.add_info_classes();
   ic->set_id("monge");
   ic->set_nivel(2);
+  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
   RecomputaDependencias(tabelas, &proto);
   int tamanho = proto.ByteSize();
   for (int i = 0; i < 100; ++i) {
