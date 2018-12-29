@@ -4784,4 +4784,13 @@ std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& 
   return itens;
 }
 
+int CuraAcelerada(const EntidadeProto& proto) {
+  const auto& cura_acelerada = proto.dados_defesa().cura_acelerada();
+  int maior = 0;
+  for (int c : cura_acelerada.computado()) {
+    maior = std::max(c, maior);
+  }
+  return maior;
+}
+
 }  // namespace ent

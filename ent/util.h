@@ -718,6 +718,9 @@ std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& 
 // Remove o item de proto.
 void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 
+// Retorna a cura acelerada do alvo, ou 0 se houver.
+int CuraAcelerada(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

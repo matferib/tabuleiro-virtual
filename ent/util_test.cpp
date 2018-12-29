@@ -1093,6 +1093,14 @@ TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
   EXPECT_TRUE(AcaoAfetaAlvo(acao, *e));
 }
 
+TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(5, CuraAcelerada(proto));
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
