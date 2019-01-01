@@ -62,7 +62,7 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar Versão"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versão"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versões"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.

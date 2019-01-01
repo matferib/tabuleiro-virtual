@@ -64,31 +64,36 @@ void InterfaceGraficaQt::EscolheItemLista(
   delete dialogo;
 }
 
-void InterfaceGraficaQt::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int versao)> funcao_volta) {
+void InterfaceGraficaQt::EscolheItemsLista(
+    const std::string& titulo,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, std::vector<int>)> funcao_volta) {
+  // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
-  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
-    new QListWidgetItem(QString(StringPrintf("versão %d", i + 1).c_str()), gerador.lista);
+  dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
+  for (const auto& item : lista) {
+    new QListWidgetItem(QString::fromUtf8(item.c_str()), gerador.lista);
   }
+  gerador.lista->setSelectionMode(QAbstractItemView::ExtendedSelection);
   gerador.lista->setFocus();
-  auto lambda_aceito = [this, &gerador, dialogo, funcao_volta]() {
-    int indice = gerador.lista->currentRow();
-    if (indice < 0 || indice >= tabuleiro_->Proto().versoes().size()) {
-      funcao_volta(-1);
-      return;
+  auto lambda_aceito = [this, &gerador, dialogo, lista, funcao_volta] () {
+    std::vector<int> selecionados;
+    for (const auto* item : gerador.lista->selectedItems()) {
+      selecionados.push_back(gerador.lista->row(item));
     }
-    funcao_volta(indice);
+    funcao_volta(!selecionados.empty(), selecionados);
     dialogo->accept();
   };
-  auto lambda_rejeitado = [dialogo, funcao_volta]() {
-    funcao_volta(-1);
+  auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
+    funcao_volta(false, {});
     dialogo->reject();
   };
+
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
-  dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
   dialogo->exec();
   delete dialogo;
 }

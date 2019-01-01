@@ -15,7 +15,7 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 using std::placeholders::_5;
-
+using google::protobuf::StringPrintf;
 
 namespace ifg {
 
@@ -320,10 +320,8 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheVersaoTabuleiro("Escolha versão a ser removida", [this](int versao) {
-    if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
-      tabuleiro_->RemoveVersao(versao);
-    }
+  EscolheVersoesTabuleiro("Escolha versões a serem removida", [this](const std::vector<int>& versoes) {
+    tabuleiro_->RemoveVersoes(versoes);
     tabuleiro_->ReativaWatchdogSeMestre();
   });
 }
@@ -351,12 +349,12 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       if (pl.usado()) continue;
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
-      lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, c.nome().c_str()));
+      lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, c.nome().c_str()));
       items.push_back(std::make_pair(nivel_gasto, indice));
     }
     if (lista.empty()) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
   } else {
@@ -364,14 +362,14 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int indice_gasto = ent::IndiceFeiticoDisponivel(id_classe, nivel_gasto, notificacao.entidade());
     if (indice_gasto == -1) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
     for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
       const auto& fn = fc.feiticos_por_nivel(nivel);
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
-        lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel, indice, c.nome().c_str()));
+        lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, c.nome().c_str()));
         // Gasta do nivel certo.
         items.push_back(std::make_pair(nivel_gasto, indice_gasto));
       }
@@ -406,6 +404,34 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
     central_->AdicionaNotificacao(n_alteracao_feitico.release());
+  });
+}
+
+void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
+  std::vector<std::string> items;
+  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
+    items.push_back(StringPrintf("versão %d", i + 1));
+  }
+  EscolheItemLista(titulo, items, [this, funcao_volta](bool aceito, int indice) {
+    if (aceito && indice >= 0 && indice < tabuleiro_->Proto().versoes().size()) {
+      funcao_volta(indice);
+    } else {
+      funcao_volta(-1);
+    }
+  });
+}
+
+void InterfaceGrafica::EscolheVersoesTabuleiro(const std::string& titulo, std::function<void(const std::vector<int>&)> funcao_volta) {
+  std::vector<std::string> items;
+  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
+    items.push_back(StringPrintf("versão %d", i + 1));
+  }
+  EscolheItemsLista(titulo, items, [this, funcao_volta](bool aceito, const std::vector<int>& indices) {
+    if (aceito && !indices.empty()) {
+      funcao_volta(indices);
+    } else {
+      funcao_volta({});
+    }
   });
 }
 

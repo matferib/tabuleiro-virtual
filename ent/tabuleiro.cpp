@@ -7629,12 +7629,15 @@ bool Tabuleiro::HaEntidadesSelecionaveis() const {
   return false;
 }
 
-void Tabuleiro::RemoveVersao(int versao) {
-  if (versao < 0 || versao >= proto_.versoes().size()) {
-    LOG(ERROR) << "versao invalida: " << versao;
-    return;
+void Tabuleiro::RemoveVersoes(const std::vector<int>& versoes) {
+  std::set<int, std::greater<int>> versoes_ordenadas(versoes.begin(), versoes.end());
+  for (int versao : versoes_ordenadas) {
+    if (versao < 0 || versao >= proto_.versoes().size()) {
+      LOG(ERROR) << "versao invalida: " << versao;
+      return;
+    }
+    proto_.mutable_versoes()->DeleteSubrange(versao, 1);
   }
-  proto_.mutable_versoes()->DeleteSubrange(versao, 1);
 }
 
 }  // namespace ent

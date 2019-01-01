@@ -45,6 +45,13 @@ class InterfaceGrafica : public ntf::Receptor {
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) = 0;
 
+  // Funcao generica para retorno da escolha de um ou mais items da lista. funcao_volta eh chamada com false
+  // em caso de cancelamento, ou com os indices escolhidos caso contrario.
+  virtual void EscolheItemsLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, std::vector<int>)> funcao_volta) = 0;
+
   // Mostra dialogo para escolher um item entre tab_estaticos e tab_dinamicos, chamando
   // a funcao de volta ao terminar.
   virtual void EscolheArquivoAbrirTabuleiro(
@@ -57,7 +64,8 @@ class InterfaceGrafica : public ntf::Receptor {
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
   // Dialogo com as versões do tabuleiro.
-  virtual void EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int versao)> funcao_volta) = 0;
+  void EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta);
+  void EscolheVersoesTabuleiro(const std::string& titulo, std::function<void(const std::vector<int>&)> funcao_volta);
 
   // Mostra o dialogo para escolher um modelo de entidade.
   virtual void EscolheModeloEntidade(
