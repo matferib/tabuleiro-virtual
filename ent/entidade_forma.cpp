@@ -81,6 +81,10 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
       vbo = gl::VboEsferaSolida(0.5f, 24, 12);
     }
     break;
+    case TF_HEMISFERIO: {
+      vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
+    }
+    break;
     case TF_LIVRE: {
       // Livre eh um pouco diferente por causa da escala. Isso vai dar problema de se concatenar com
       // outros tipos de objeto. Por enquanto, fica assim.
@@ -158,6 +162,10 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
     }
     break;
     case TF_ESFERA: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_HEMISFERIO: {
       matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
     }
     break;
@@ -257,7 +265,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
                       (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
                        proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO || proto.sub_tipo() == TF_ESFERA ||
-                       proto.sub_tipo() == TF_CILINDRO || proto.sub_tipo() == TF_CONE);
+                       proto.sub_tipo() == TF_CILINDRO || proto.sub_tipo() == TF_CONE || proto.sub_tipo() == TF_HEMISFERIO);
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
   if (id_textura != GL_INVALID_VALUE) {
@@ -311,6 +319,11 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     case TF_ESFERA: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
+    }
+    break;
+    case TF_HEMISFERIO: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_HEMISFERIO]);
     }
     break;
     case TF_LIVRE: {

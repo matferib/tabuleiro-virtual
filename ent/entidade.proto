@@ -21,6 +21,7 @@ enum TipoForma {
   TF_PIRAMIDE = 6;
   TF_RETANGULO = 7;
   TF_TRIANGULO = 8;
+  TF_HEMISFERIO = 9;
 }
 
 // Como uma arma esta empunhada.

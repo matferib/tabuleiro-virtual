@@ -1883,6 +1883,15 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     vbo.Nomeia("Esfera unitaria");
   }
 
+  // Hemisferio.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_HEMISFERIO];
+    vbo = gl::VboHemisferioSolido(0.5f, /*fatias=*/24, /*tocos=*/12);
+    // O hemisferio tem altura propria, nao igual ao raio.
+    vbo.Escala(1.0f, 1.0f, 2.0f);
+    vbo.Nomeia("Hemisferio unitario");
+  }
+
   // Piramide.
   {
     auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE];

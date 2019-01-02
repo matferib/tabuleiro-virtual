@@ -3,6 +3,7 @@ package ent;
 import "ent/comum.proto";
 import "ent/entidade.proto";
 
+// Proximo id: 139, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -43,6 +44,7 @@ enum IdBotao {
   CONTROLE_DESENHO_CIRCULO = 33;
   CONTROLE_DESENHO_TRIANGULO = 34;
   CONTROLE_DESENHO_ESFERA = 35;
+  CONTROLE_DESENHO_HEMISFERIO = 138;
   CONTROLE_DESENHO_PIRAMIDE = 36;
   CONTROLE_DESENHO_CUBO = 37;
   CONTROLE_DESENHO_CILINDRO = 38;
