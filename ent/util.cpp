@@ -1567,6 +1567,42 @@ void PreencheNotificacaoAtualizaoPontosVida(
   }
 }
 
+void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n) {
+  const auto& proto = entidade.Proto();
+  int cura = CuraAcelerada(proto);
+
+  EntidadeProto *entidade_antes, *entidade_depois;
+  std::tie(entidade_antes, entidade_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+
+  if (proto.dano_nao_letal() > 0) {
+    if (cura >= proto.dano_nao_letal()) {
+      // Cura tirou tudo e pode ate sobrar.
+      cura -= proto.dano_nao_letal();
+      entidade_depois->set_dano_nao_letal(0);
+      VLOG(2) << "curando todo dano nao letal, sobra: " << cura;
+    } else {
+      // Cura so dano nao letal.
+      entidade_depois->set_dano_nao_letal(proto.dano_nao_letal() - cura);
+      cura = 0;
+      VLOG(2) << "curando apenas dano nao letal";
+    }
+    entidade_antes->set_dano_nao_letal(proto.dano_nao_letal());
+  }
+  const int dano = entidade.MaximoPontosVida() - entidade.PontosVida();
+  if (dano > 0 && cura > 0) {
+    // Ainda sobrou cura, cura parte letal.
+    if (cura >= dano) {
+      entidade_depois->set_pontos_vida(entidade.MaximoPontosVida());
+      VLOG(2) << "curando todo dano letal";
+    } else {
+      entidade_depois->set_pontos_vida(proto.pontos_vida() + cura);
+      VLOG(2) << "curando parte do dano letal: " << cura;
+    }
+    entidade_antes->set_pontos_vida(proto.pontos_vida());
+  }
+}
+
+
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n) {
   n->set_tipo(tipo);
@@ -2348,6 +2384,9 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (consequencia.dados_defesa().cura_acelerada().base() > 0) {
+    proto->mutable_dados_defesa()->mutable_cura_acelerada()->add_computado(consequencia.dados_defesa().cura_acelerada().base());
+  }
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
     AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
@@ -2702,6 +2741,7 @@ ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvent
   if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.dados_defesa().has_cura_acelerada())     c.mutable_dados_defesa()->clear_cura_acelerada();
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(id_unico, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
@@ -3275,8 +3315,17 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
   }
 }
 
+// Reseta todos os campos computados que tem que ser feito no inicio.
+void ResetComputados(EntidadeProto* proto) {
+  auto* cura_acelerada = proto->mutable_dados_defesa()->mutable_cura_acelerada();
+  cura_acelerada->clear_computado();
+  cura_acelerada->add_computado(cura_acelerada->base());
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
+  ResetComputados(proto);
+
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
@@ -4769,6 +4818,28 @@ std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& 
     std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
   }
   return itens;
+}
+
+std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
+  auto* tesouro = proto->mutable_tesouro();
+  std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+    tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
+    tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus()
+  };
+  std::vector<ItemMagicoProto*> itens;
+  for (auto* itens_grupo : itens_agrupados) {
+    std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
+  }
+  return itens;
+}
+
+int CuraAcelerada(const EntidadeProto& proto) {
+  const auto& cura_acelerada = proto.dados_defesa().cura_acelerada();
+  int maior = 0;
+  for (int c : cura_acelerada.computado()) {
+    maior = std::max(c, maior);
+  }
+  return maior;
 }
 
 }  // namespace ent

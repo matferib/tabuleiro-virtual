@@ -29,6 +29,7 @@ TEST(TesteVazamento, TesteVazamento) {
   auto* ic = proto.add_info_classes();
   ic->set_id("monge");
   ic->set_nivel(2);
+  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
   RecomputaDependencias(tabelas, &proto);
   int tamanho = proto.ByteSize();
   for (int i = 0; i < 100; ++i) {
@@ -1090,6 +1091,34 @@ TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
   AcaoProto acao;
 
   EXPECT_TRUE(AcaoAfetaAlvo(acao, *e));
+}
+
+TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(5, CuraAcelerada(proto));
+}
+
+TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  // Vai dar max de 15 PV. 2 de dano temporario, 10 de dano normal.
+  proto.set_niveis_negativos(1);
+  proto.set_max_pontos_vida(20);
+  proto.set_pontos_vida(13);
+  proto.set_dano_nao_letal(2);
+
+  ntf::Notificacao n;
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  PreencheNotificacaoCuraAcelerada(*e, &n);
+  e->AtualizaParcial(n.entidade());
+
+  EXPECT_EQ(e->DanoNaoLetal(), 0);
+  EXPECT_EQ(e->PontosVida(), 15);
+  EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
 }  // namespace ent.

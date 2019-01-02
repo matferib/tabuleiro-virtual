@@ -97,6 +97,7 @@ tabela_efeitos_modelos {
   efeitos {
     id: EFEITO_MODELO_VULTO
     nome: 'modelo de vulto'
+    desligavel: true
     consequencia {
       atributos {
         constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
@@ -107,7 +108,6 @@ tabela_efeitos_modelos {
       # reflexos 3/dia
       # invisibilidade a vontade
       # controlar luz
-      # cura acelerada 2.
       # atravessar sombras se > 8 nivel
       # viajar pelas sombras. se > 12 nivel
       #}
@@ -118,6 +118,7 @@ tabela_efeitos_modelos {
         salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        cura_acelerada { base: 2 }
         # resistencia magia 11 + nivel PC
         # pericias: +4 racial esconderse e furtividade.
       }

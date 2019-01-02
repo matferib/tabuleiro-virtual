@@ -314,6 +314,7 @@ enum tipo_dano_e {
 };
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
 
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
@@ -715,8 +716,12 @@ const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoI
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes.
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
+std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
 // Remove o item de proto.
 void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
+
+// Retorna a cura acelerada do alvo, ou 0 se houver.
+int CuraAcelerada(const EntidadeProto& proto);
 
 }  // namespace ent
 
