@@ -262,6 +262,11 @@ inline void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   DesenhaVbo(VboEsferaSolida(raio, num_fatias, num_tocos));
 }
 
+VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos);
+inline void HemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+  DesenhaVbo(VboHemisferioSolido(raio, num_fatias, num_tocos));
+}
+
 VboNaoGravado VboCuboSolido(GLfloat tam_lado);
 inline void CuboSolido(GLfloat tam_lado) {
   DesenhaVbo(VboCuboSolido(tam_lado));

@@ -2491,7 +2491,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento.processado()) {
-        const auto& funda = DadosAtaque("funda", *proto);
+        const auto* funda = DadosAtaque("funda", *proto);
         EntidadeProto::DadosAtaque da;
         da.set_id_unico_efeito(evento.id_unico());
         da.set_bonus_magico(1);

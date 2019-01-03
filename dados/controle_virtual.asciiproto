@@ -1429,6 +1429,17 @@ pagina {
   # Desenho 3D.
   dados_botoes {
     tamanho: 1
+    linha: 2
+    coluna: 1
+    rotulo: "HS"
+    cor_rotulo {}
+    textura: "icon_hemisphere.png"
+    id: CONTROLE_DESENHO_HEMISFERIO
+    forma: FORMA_RETANGULO
+    dica: "Desenho livre."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 0
     coluna: 3
     rotulo: "Es"

@@ -4318,6 +4318,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     case TF_CONE:
     case TF_CUBO:
     case TF_ESFERA:
+    case TF_HEMISFERIO:
     case TF_LIVRE:
     case TF_PIRAMIDE:
     case TF_RETANGULO:

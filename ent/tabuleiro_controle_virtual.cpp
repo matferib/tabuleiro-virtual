@@ -558,7 +558,8 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DESENHO_TRIANGULO:
     case CONTROLE_DESENHO_CUBO:
     case CONTROLE_DESENHO_CILINDRO:
-    case CONTROLE_DESENHO_CONE: {
+    case CONTROLE_DESENHO_CONE:
+    case CONTROLE_DESENHO_HEMISFERIO: {
       const std::map<IdBotao, TipoForma> mapa_id_tipo_forma = {
         { CONTROLE_DESENHO_LIVRE, TF_LIVRE},
         { CONTROLE_DESENHO_RETANGULO, TF_RETANGULO},
@@ -569,6 +570,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         { CONTROLE_DESENHO_CUBO, TF_CUBO},
         { CONTROLE_DESENHO_CILINDRO, TF_CILINDRO},
         { CONTROLE_DESENHO_CONE, TF_CONE},
+        { CONTROLE_DESENHO_HEMISFERIO, TF_HEMISFERIO},
       };
       auto it = mapa_id_tipo_forma.find(IdBotao(id));
       if (it == mapa_id_tipo_forma.end()) {
@@ -761,12 +763,14 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
         case TF_LIVRE:     return CONTROLE_DESENHO_LIVRE;
         case TF_RETANGULO: return CONTROLE_DESENHO_RETANGULO;
         case TF_CIRCULO:   return CONTROLE_DESENHO_CIRCULO;
-        case TF_ESFERA:    return CONTROLE_DESENHO_ESFERA;
+        case TF_ESFERA:
+          return CONTROLE_DESENHO_ESFERA;
         case TF_PIRAMIDE:  return CONTROLE_DESENHO_PIRAMIDE;
         case TF_TRIANGULO: return CONTROLE_DESENHO_TRIANGULO;
         case TF_CUBO:      return CONTROLE_DESENHO_CUBO;
         case TF_CILINDRO:  return CONTROLE_DESENHO_CILINDRO;
         case TF_CONE:      return CONTROLE_DESENHO_CONE;
+        case TF_HEMISFERIO:return CONTROLE_DESENHO_HEMISFERIO;
         default:           return CONTROLE_DESENHO_LIVRE;
       }
     }
@@ -1423,6 +1427,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     }, },
     { CONTROLE_DESENHO_ESFERA, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA;
+    }, },
+    { CONTROLE_DESENHO_HEMISFERIO, [this] (const Entidade* entidade) {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_HEMISFERIO;
     }, },
     { CONTROLE_DESENHO_PIRAMIDE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE;
