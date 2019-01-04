@@ -30,6 +30,7 @@ modelo { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Bruxo' }
+  modelo { id: 'Humano Combatente Dragão Púrpura 2' texto: 'Dragão Púrpura 2' }
 }
 sub_menu {
   id: 'Phaerimm'
