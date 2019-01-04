@@ -1899,14 +1899,124 @@ modelo {
   id: 'Humano Bárbaro'
   entidade { dados_vida: '1d12' info_textura { id: 'barbarian.png'} cor { r: 0.898 g: 0.475 b: 0.475 } }
 }
+
+# Plebeus.
+modelo {
+  id: 'Plebeu Base'
+  entidade {
+    dados_ataque { grupo: 'cac' id_arma: 'clava' tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_ataque { grupo: 'dist' id_arma: 'adaga' municao: 1 tipo_ataque: 'Ataque a Distância' }
+    info_talentos {
+      gerais { id: 'vitalidade' }
+      gerais { id: 'foco_em_pericia' }
+    }
+    info_pericias { id: 'cavalgar' pontos: 4 }
+    info_pericias { id: 'adestrar_animais' pontos: 1 }
+    info_pericias { id: 'oficios' pontos: 3 }
+    tesouro {
+      # O tesouro seria 150 PO, mas isso inclui todos os bens do cidadao. O que ele carrega é isso.
+      tesouro: '1d10 PP, joia de 1d20 PP'
+    }
+    atributos {
+      # Usa o array padrao. Faltou 13 e 8.
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+  }
+}
+
+modelo {
+  id: 'Humano Plebeu Base'
+  entidade {
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
+  id: 'Humana Plebeia Base'
+  entidade {
+    modelo_3d { id: 'human_commoner_female' }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+  }
+}
+
+modelo {
+  id: 'Humano Plebeu 1'
+  id_entidade_base: 'Plebeu Base'
+  id_entidade_base: 'Humano Plebeu Base'
+  entidade {
+    info_classes { id: 'plebeu' nivel: 1 }
+    dados_vida: '1d4+4'
+  }
+}
+
+modelo {
+  id: 'Humana Plebeia 1'
+  id_entidade_base: 'Plebeu Base'
+  id_entidade_base: 'Humana Plebeia Base'
+  entidade {
+    info_classes { id: 'plebeu' nivel: 1 }
+    cor { r: 0.9 g: 0.8 b: 0.8 }
+    dados_vida: '1d4+3'
+  }
+}
+
+modelo {
+  id: 'Humano Plebeu 2'
+  id_entidade_base: 'Plebeu Base'
+  id_entidade_base: 'Humano Plebeu Base'
+  entidade {
+    info_classes { id: 'plebeu' nivel: 2 }
+    dados_vida: '2d4+5'
+    # O tesouro seria 300 PO, mas isso inclui todos os bens do cidadao. O que ele carrega é isso.
+    tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+  }
+}
+
+modelo {
+  id: 'Humana Plebeia 2'
+  id_entidade_base: 'Plebeu Base'
+  id_entidade_base: 'Humana Plebeia Base'
+  entidade {
+    info_classes { id: 'plebeu' nivel: 2 }
+    cor { r: 0.9 g: 0.9 b: 0.8 }
+    dados_vida: '2d4+3'
+    tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+  }
+}
+
 # Os combatentes tem vitalidade.
 modelo {
   id: 'Humano Combatente 1'
   entidade {
+    # vitalidade.
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
-    rotulo_especial: 'Humano Combatente 1\nini: +0\nat: +3 ou +1 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 1 dano: '1d8' ca_normal: 16 }
+    rotulo_especial: ''
+    info_classes { id: 'combatente' nivel: 1 }
+    dados_ataque { grupo: 'cac' id_arma: 'espada_curta' obra_prima: true tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' }
+    dados_defesa { id_armadura: 'camisao' id_escudo: 'leve_madeira' }
+    info_talentos {
+      gerais { id: 'vitalidade' }
+      gerais { id: 'iniciativa_aprimorada' }
+    }
+    atributos {
+      # Usa o array padrao.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {

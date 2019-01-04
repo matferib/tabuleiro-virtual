@@ -196,12 +196,14 @@ Tabuleiro::Tabuleiro(
       *entidade = m.entidade();
       mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
     } else {
-      auto it = modelos_por_id.find(m.id_entidade_base());
-      if (it == modelos_por_id.end()) {
-        LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << m.id_entidade_base();
-        continue;
+      for (const auto& id_entidade_base : m.id_entidade_base()) {
+        auto it = modelos_por_id.find(id_entidade_base);
+        if (it == modelos_por_id.end()) {
+          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
+          continue;
+        }
+        entidade->MergeFrom(it->second->entidade());
       }
-      *entidade = it->second->entidade();
       entidade->MergeFrom(m.entidade());
       std::unique_ptr<Modelo> mp(new Modelo(m));
       *mp->mutable_entidade() = *entidade;

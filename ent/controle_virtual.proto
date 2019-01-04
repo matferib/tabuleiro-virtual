@@ -321,7 +321,7 @@ message Modelo {
   optional EntidadeProto entidade = 2;
   // Se presente, lera a entidade com o id_passado e apenas fara o merge com
   // entidade.
-  optional string id_entidade_base = 4;
+  repeated string id_entidade_base = 4;
 }
 
 // O arquivo eh serializado como uma repeticao de modelos em formato texto.

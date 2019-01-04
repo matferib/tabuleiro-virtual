@@ -118,6 +118,13 @@ sub_menu {
     modelo { id: 'Humano Combatente 2' }
     modelo { id: 'Humano Combatente 4' }
   }
+  sub_menu {
+    id: 'Plebeus'
+    modelo { id: 'Humano Plebeu 1' }
+    modelo { id: 'Humana Plebeia 1' }
+    modelo { id: 'Humano Plebeu 2' }
+    modelo { id: 'Humana Plebeia 2' }
+  }
   modelo { id: 'Humano Druida' }
   modelo { id: 'Humana Guerreira' }
   modelo { id: 'Humano Guerreiro' }
