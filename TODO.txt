@@ -1,3 +1,8 @@
+Anotacoes sessao tipao:
+- Fazer aristocrata 5 e 6.
+- Terminar Wheloon, leste.
+- Fazer a sucubo.
+
 Anotacoes da sessao:
 - Filtrar combo de classes para so mostrar nao monstros.
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
