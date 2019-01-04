@@ -988,6 +988,59 @@
     <string>Dois Lados</string>
    </property>
   </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>20</y>
+     <width>126</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_21">
+    <item>
+     <widget class="QLabel" name="label_17">
+      <property name="text">
+       <string>Tipo</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="combo_tipo_forma">
+      <item>
+       <property name="text">
+        <string>Cilindro</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cone</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cubo</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Esfera</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pirâmide</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Hemisfério</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>spin_pontos_vida</tabstop>

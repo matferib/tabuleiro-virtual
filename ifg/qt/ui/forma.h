@@ -124,6 +124,10 @@ public:
     QLabel *label_16;
     QPlainTextEdit *lista_tesouro;
     QCheckBox *checkbox_dois_lados;
+    QWidget *layoutWidget1;
+    QHBoxLayout *horizontalLayout_21;
+    QLabel *label_17;
+    QComboBox *combo_tipo_forma;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -631,6 +635,28 @@ public:
         checkbox_dois_lados = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_dois_lados->setObjectName(QStringLiteral("checkbox_dois_lados"));
         checkbox_dois_lados->setGeometry(QRect(560, 310, 101, 22));
+        layoutWidget1 = new QWidget(ifg__qt__DialogoForma);
+        layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
+        layoutWidget1->setGeometry(QRect(580, 20, 126, 25));
+        horizontalLayout_21 = new QHBoxLayout(layoutWidget1);
+        horizontalLayout_21->setObjectName(QStringLiteral("horizontalLayout_21"));
+        horizontalLayout_21->setContentsMargins(0, 0, 0, 0);
+        label_17 = new QLabel(layoutWidget1);
+        label_17->setObjectName(QStringLiteral("label_17"));
+
+        horizontalLayout_21->addWidget(label_17);
+
+        combo_tipo_forma = new QComboBox(layoutWidget1);
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->addItem(QString());
+        combo_tipo_forma->setObjectName(QStringLiteral("combo_tipo_forma"));
+
+        horizontalLayout_21->addWidget(combo_tipo_forma);
+
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
         QWidget::setTabOrder(spin_max_pontos_vida, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, dial_rotacao);
@@ -741,6 +767,14 @@ public:
         checkbox_dois_lados->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nos dois lados da primitiva ser\303\243o desenhados.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_dois_lados->setText(QApplication::translate("ifg::qt::DialogoForma", "Dois Lados", nullptr));
+        label_17->setText(QApplication::translate("ifg::qt::DialogoForma", "Tipo", nullptr));
+        combo_tipo_forma->setItemText(0, QApplication::translate("ifg::qt::DialogoForma", "Cilindro", nullptr));
+        combo_tipo_forma->setItemText(1, QApplication::translate("ifg::qt::DialogoForma", "Cone", nullptr));
+        combo_tipo_forma->setItemText(2, QApplication::translate("ifg::qt::DialogoForma", "Cubo", nullptr));
+        combo_tipo_forma->setItemText(3, QApplication::translate("ifg::qt::DialogoForma", "Esfera", nullptr));
+        combo_tipo_forma->setItemText(4, QApplication::translate("ifg::qt::DialogoForma", "Pir\303\242mide", nullptr));
+        combo_tipo_forma->setItemText(5, QApplication::translate("ifg::qt::DialogoForma", "Hemisf\303\251rio", nullptr));
+
     } // retranslateUi
 
 };

@@ -558,6 +558,49 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
   combo->setCurrentIndex(0);
 }
 
+bool PermiteMudarForma(const ent::EntidadeProto& proto) {
+  if (proto.tipo() != ent::TE_FORMA) return false;
+  switch (proto.sub_tipo()) {
+    case ent::TF_CILINDRO:
+    case ent::TF_CONE:
+    case ent::TF_CUBO:
+    case ent::TF_ESFERA:
+    case ent::TF_PIRAMIDE:
+    case ent::TF_HEMISFERIO:
+      return true;
+    default:
+      return false;
+  }
+}
+
+int SubTipoParaIndice(ent::TipoForma sub_tipo) {
+  switch (sub_tipo) {
+    case ent::TF_CILINDRO: return 0;
+    case ent::TF_CONE: return 1;
+    case ent::TF_CUBO: return 2;
+    case ent::TF_ESFERA: return 3;
+    case ent::TF_PIRAMIDE: return 4;
+    case ent::TF_HEMISFERIO: return 5;
+    default:
+      return -1;
+ 
+  }
+}
+
+ent::TipoForma IndiceParaSubTipo(int indice) {
+  switch (indice) {
+    case 0: return ent::TF_CILINDRO;
+    case 1: return ent::TF_CONE;
+    case 2: return ent::TF_CUBO;
+    case 3: return ent::TF_ESFERA;
+    case 4: return ent::TF_PIRAMIDE;
+    case 5: return ent::TF_HEMISFERIO;
+    default:
+      LOG(ERROR) << "indice invalido, retornando cilindro: " << indice;
+      return ent::TF_CILINDRO;
+  }
+}
+
 }  // namespace
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
@@ -579,6 +622,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     rotulos_especiais += rotulo_especial + "\n";
   }
   gerador.lista_rotulos->appendPlainText((rotulos_especiais.c_str()));
+
+  // Combo de forma.
+  const bool permite_mudar_forma = PermiteMudarForma(entidade);
+  if (permite_mudar_forma) {
+    gerador.combo_tipo_forma->setCurrentIndex(SubTipoParaIndice(entidade.sub_tipo()));
+    gerador.combo_tipo_forma->setEnabled(true);
+  } else {
+    gerador.combo_tipo_forma->setEnabled(false);
+  }
+
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
@@ -742,7 +795,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor ] () {
+                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, permite_mudar_forma ] () {
+    if (permite_mudar_forma) {
+      proto_retornado->set_sub_tipo(IndiceParaSubTipo(gerador.combo_tipo_forma->currentIndex()));
+    }
     if (gerador.spin_max_pontos_vida->value() > 0) {
       proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
       proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
