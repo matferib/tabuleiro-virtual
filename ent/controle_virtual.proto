@@ -3,7 +3,7 @@ package ent;
 import "ent/comum.proto";
 import "ent/entidade.proto";
 
-// Proximo id: 139, mas conferir pq ha gaps.
+// Proximo id: 140, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -51,6 +51,7 @@ enum IdBotao {
   CONTROLE_DESENHO_CONE = 39;
   CONTROLE_DESENHO_AGRUPAR = 40;
   CONTROLE_DESENHO_DESAGRUPAR  = 41;
+  CONTROLE_MODO_REMOVER_DE_GRUPO = 139;
   CONTROLE_DESENHO_COR_VERMELHO = 42;
   CONTROLE_DESENHO_COR_VERDE = 43;
   CONTROLE_DESENHO_COR_AZUL = 44;

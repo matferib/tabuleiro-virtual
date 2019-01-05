@@ -1527,12 +1527,22 @@ pagina {
     forma: FORMA_RETANGULO
     dica: "Desagrupa formas."
   }
-
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 6
+    rotulo: "Rc"
+    cor_rotulo {}
+    textura: "icon_remove_from.png"
+    id: CONTROLE_MODO_REMOVER_DE_GRUPO
+    forma: FORMA_RETANGULO
+    dica: "Alterna modo de remoção de entidade de composta."
+  }
   # Texturas.
   dados_botoes {
     largura: 5
     altura: 1
-    linha: 2
+    linha: 3
     coluna: 1
     rotulo: "Textura:"
     id: CONTROLE_NOP
@@ -1541,7 +1551,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 3
     coluna: 6
     rotulo: "<"
     id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
@@ -1550,33 +1560,33 @@ pagina {
   dados_botoes {
     altura: 1
     largura: 9
-    linha: 2
+    linha: 3
     coluna: 7
     id: CONTROLE_TEXTURA_ENTIDADE
     forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 3
     coluna: 16
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
   }
   # Modelos.
-#dados_botoes {
-#    tamanho: 1
-#    linha: 2
-#    coluna: 13
-#    rotulo: "<"
-#    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
-#    forma: FORMA_RETANGULO
-#    dica: "Seleciona modelo de entidade anterior."
-#  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 6
+    rotulo: "<"
+    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
+    forma: FORMA_RETANGULO
+    dica: "Seleciona modelo de entidade anterior."
+  }
   dados_botoes {
     altura: 1
     largura: 5
-    linha: 3
+    linha: 4
     coluna: 1
     id: CONTROLE_NOP
     forma: FORMA_NULA
@@ -1585,22 +1595,22 @@ pagina {
   }
   dados_botoes {
     altura: 1
-    largura: 10
-    linha: 3
-    coluna: 6
+    largura: 9
+    linha: 4
+    coluna: 7
     id: CONTROLE_MODELO_ENTIDADE
     forma: FORMA_RETANGULO
     dica: "O modelo de entidade padrão (ao adicionar)."
   }
-#  dados_botoes {
-#    tamanho: 1
-#    linha: 2
-#    coluna: 24
-#    rotulo: ">"
-#    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
-#    forma: FORMA_RETANGULO
-#    dica: "Seleciona próximo modelo de entidade."
-#  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 16
+    rotulo: ">"
+    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
+    forma: FORMA_RETANGULO
+    dica: "Seleciona próximo modelo de entidade."
+  }
   # Cores
   dados_botoes {
     tamanho: 1
