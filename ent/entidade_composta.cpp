@@ -72,7 +72,6 @@ void Entidade::DesenhaObjetoCompostoProto(
     for (int i = 0; i < proto.sub_forma_size(); ++i) {
       auto sub_forma = proto.sub_forma(i);
       DecompoeFilho(m_pai, &sub_forma);
-
       std::unique_ptr<Entidade> s(NovaEntidade(sub_forma, t, vd.texturas, vd.m3d, nullptr, pd));
       s->Atualiza(0, nullptr);
       gl::CarregaNome(i);

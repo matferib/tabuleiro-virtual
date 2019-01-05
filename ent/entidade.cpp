@@ -266,6 +266,7 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
+  if (central_ == nullptr) return;
   VLOG(2) << "Atualizando modelo3d novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (!proto_.modelo_3d().id().empty() &&
@@ -295,6 +296,7 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
+  if (central == nullptr) return;
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
