@@ -107,7 +107,7 @@ class InterfaceGrafica : public ntf::Receptor {
     bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado);
 
   void TrataSalvarTabuleiro(const ntf::Notificacao& notificacao);
-  void VoltaSalvarTabuleiro(bool modelo_3d, const std::string& nome);
+  void VoltaSalvarTabuleiro(bool modelo_3d, bool versionar, const std::string& nome);
 
   void TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao);
   void VoltaEscolherModeloEntidade(const std::string& nome);

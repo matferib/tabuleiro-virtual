@@ -247,15 +247,18 @@ void InterfaceGrafica::TrataSalvarTabuleiro(const ntf::Notificacao& notificacao)
   EscolheArquivoSalvarTabuleiro(
       std::bind(
           &ifg::InterfaceGrafica::VoltaSalvarTabuleiro,
-          this, notificacao.entidade().has_modelo_3d(),_1));
+          this, notificacao.entidade().has_modelo_3d(), !notificacao.tabuleiro().versoes().empty(), _1));
 }
 
 void InterfaceGrafica::VoltaSalvarTabuleiro(
-    bool modelo_3d, const std::string& nome) {
+    bool modelo_3d, bool versionar, const std::string& nome) {
   auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
   if (modelo_3d) {
     n->mutable_entidade()->mutable_modelo_3d();
+  }
+  if (versionar) {
+    n->mutable_tabuleiro()->mutable_versoes()->Add();
   }
   central_->AdicionaNotificacao(n.release());
   tabuleiro_->ReativaWatchdogSeMestre();
@@ -307,7 +310,7 @@ void InterfaceGrafica::TrataEscolherVersao() {
   EscolheVersaoTabuleiro("Escolha versão a ser restaurada", [this](int versao) {
     if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
       auto notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO);
-      *notificacao->mutable_tabuleiro() = tabuleiro_->Proto().versoes(versao);
+      notificacao->mutable_tabuleiro()->ParseFromString(tabuleiro_->Proto().versoes(versao).dados());
       *notificacao->mutable_tabuleiro()->mutable_versoes() = tabuleiro_->Proto().versoes();
       central_->AdicionaNotificacao(notificacao.release());
     }
@@ -410,7 +413,12 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
 void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
   std::vector<std::string> items;
   for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
-    items.push_back(StringPrintf("versão %d", i + 1));
+    const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
+    if (descricao.empty()) {
+      items.push_back(StringPrintf("versão %d", i + 1));
+    } else {
+      items.push_back(descricao);
+    }
   }
   EscolheItemLista(titulo, items, [this, funcao_volta](bool aceito, int indice) {
     if (aceito && indice >= 0 && indice < tabuleiro_->Proto().versoes().size()) {
@@ -424,7 +432,12 @@ void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::fu
 void InterfaceGrafica::EscolheVersoesTabuleiro(const std::string& titulo, std::function<void(const std::vector<int>&)> funcao_volta) {
   std::vector<std::string> items;
   for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
-    items.push_back(StringPrintf("versão %d", i + 1));
+    const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
+    if (descricao.empty()) {
+      items.push_back(StringPrintf("versão %d", i + 1));
+    } else {
+      items.push_back(descricao);
+    }
   }
   EscolheItemsLista(titulo, items, [this, funcao_volta](bool aceito, const std::vector<int>& indices) {
     if (aceito && !indices.empty()) {

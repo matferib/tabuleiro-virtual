@@ -343,7 +343,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     }
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
-        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO));
+        bool versionar = (modificadores & Modificador_Shift) != 0;
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO);
+        if (versionar) {
+          n->mutable_tabuleiro()->add_versoes();
+        }
+        central_->AdicionaNotificacao(std::move(n));
         return;
       }
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
