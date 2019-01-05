@@ -54,7 +54,7 @@ if sistema == 'win32':
   env['CPPPATH'] += ['./', 'win32/include']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'QT_STATIC_BUILD': 1 }
   env['CXXFLAGS'] = ['-std=c++11', '-Wall', '-Wfatal-errors']
-  env['LIBS'] += ['glu32', 'opengl32', 'protobuf', 'boost_filesystem-mgw48-mt-1_55', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
+  env['LIBS'] += ['glu32', 'opengl32', 'protobuf', 'boost_filesystem-mgw48-mt-1_55', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'boost_date_time-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
@@ -63,13 +63,13 @@ elif sistema == 'apple':
   #env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-mmacosx-version-min=10.10.5']
   env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wfatal-errors']
   env['LIBPATH'] += [ '/usr/local/lib' ]
-  env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
+  env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
 else:
   # linux.
   env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC', '-Wno-unused-lambda-capture']
-  env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_chrono', 'pthread']
+  env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_chrono', 'boost_date_time', 'pthread']
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
 
