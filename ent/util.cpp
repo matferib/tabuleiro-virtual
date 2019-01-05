@@ -4842,4 +4842,70 @@ int CuraAcelerada(const EntidadeProto& proto) {
   return maior;
 }
 
+Vector3 RotationMatrixToAngles(const Matrix3& matrix) {
+  float sy = sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+  const bool singular = sy < 1e-6; // If
+  float x, y, z;
+  if (!singular) {
+    x = atan2(matrix[5], matrix[8]);
+    y = atan2(-matrix[2], sy);
+    z = atan2(matrix[1], matrix[0]);
+  } else {
+    x = atan2(-matrix[7], matrix[4]);
+    y = atan2(-matrix[2], sy);
+    z = 0;
+  }
+  return Vector3(x, y, z);
+}
+
+Matrix4 MatrizDecomposicaoPai(const EntidadeProto& pai) {
+  Matrix4  m_translacao_pai;
+  m_translacao_pai.translate(pai.pos().x(), pai.pos().y(), pai.pos().z());
+  Matrix4 m_rotacao_pai;
+  m_rotacao_pai.rotateX(pai.rotacao_x_graus());
+  m_rotacao_pai.rotateY(pai.rotacao_y_graus());
+  m_rotacao_pai.rotateZ(pai.rotacao_z_graus());
+  Matrix4 m_escala_pai;
+  m_escala_pai.scale(pai.escala().x(), pai.escala().y(), pai.escala().z());
+  return m_translacao_pai * m_rotacao_pai * m_escala_pai;
+}
+
+void DecompoeFilho(const Matrix4& matriz_pai, EntidadeProto* filho) {
+  Matrix4 m_translacao_sub;
+  m_translacao_sub.translate(filho->pos().x(), filho->pos().y(), filho->pos().z());
+  Matrix4 m_rotacao_sub;
+  m_rotacao_sub.rotateX(filho->rotacao_x_graus());
+  m_rotacao_sub.rotateY(filho->rotacao_y_graus());
+  m_rotacao_sub.rotateZ(filho->rotacao_z_graus());
+  Matrix4 m_escala_sub;
+  m_escala_sub.scale(filho->escala().x(), filho->escala().y(), filho->escala().z());
+  // final.
+  Matrix4 m_final = matriz_pai  * m_translacao_sub * m_rotacao_sub * m_escala_sub ;
+
+  auto* pos = filho->mutable_pos();
+  pos->set_x(m_final[12]);
+  pos->set_y(m_final[13]);
+  pos->set_z(m_final[14]);
+  auto* escala = filho->mutable_escala();
+  escala->set_x(Vector3(m_final[0], m_final[1], m_final[2]).length());
+  escala->set_y(Vector3(m_final[4], m_final[5], m_final[6]).length());
+  escala->set_z(Vector3(m_final[8], m_final[9], m_final[10]).length());
+
+  Matrix3 m_final_rotacao;
+  m_final_rotacao[0] = m_final[0] / escala->x();
+  m_final_rotacao[1] = m_final[1] / escala->x();
+  m_final_rotacao[2] = m_final[2] / escala->x();
+  m_final_rotacao[3] = m_final[4] / escala->y();
+  m_final_rotacao[4] = m_final[5] / escala->y();
+  m_final_rotacao[5] = m_final[6] / escala->y();
+  m_final_rotacao[6] = m_final[8] / escala->z();
+  m_final_rotacao[7] = m_final[9] / escala->z();
+  m_final_rotacao[8] = m_final[10] / escala->z();
+
+  Vector3 vr = RotationMatrixToAngles(m_final_rotacao);
+  filho->set_rotacao_x_graus(vr.x * RAD_PARA_GRAUS);
+  filho->set_rotacao_y_graus(vr.y * RAD_PARA_GRAUS);
+  filho->set_rotacao_z_graus(vr.z * RAD_PARA_GRAUS);
+}
+
 }  // namespace ent

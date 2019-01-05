@@ -723,6 +723,14 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 // Retorna a cura acelerada do alvo, ou 0 se houver.
 int CuraAcelerada(const EntidadeProto& proto);
 
+// https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+Vector3 RotationMatrixToAngles(const Matrix3& matrix);
+
+// Gera a matriz de decomposicao do pai para filhos.
+Matrix4 MatrizDecomposicaoPai(const EntidadeProto& pai);
+// Decompoe o filho, usando a matriz do pai e a dele proprio.
+void DecompoeFilho(const Matrix4& matriz_pai, EntidadeProto* filho);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
