@@ -109,6 +109,9 @@ void Tabuleiro::CarregaControleVirtual() {
   const char* ARQUIVO_CONTROLE_VIRTUAL = "controle_virtual.asciiproto";
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, ARQUIVO_CONTROLE_VIRTUAL, &controle_virtual_);
+  } catch (const arq::ParseProtoException& erro) {
+    LOG(ERROR) << "Erro carregando controle virtual: " << erro.what();
+    central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(erro.what()));
   } catch (const std::logic_error& erro) {
     LOG(ERROR) << "Erro carregando controle virtual: " << erro.what();
     return;
@@ -635,6 +638,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_DESENHO_DESAGRUPAR:
       DesagrupaEntidadesSelecionadas();
+      break;
+    case CONTROLE_MODO_REMOVER_DE_GRUPO:
+      AlternaModoRemocaoDeGrupo();
       break;
     case CONTROLE_ULTIMA_ACAO_0:
     case CONTROLE_ULTIMA_ACAO_1:
@@ -1286,6 +1292,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 20; } },
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
+    { CONTROLE_MODO_REMOVER_DE_GRUPO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_REMOCAO_DE_GRUPO; } },
     { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) {
       if (modo_clique_ == MODO_ESQUIVA) return true;
       return entidade->Proto().dados_defesa().has_entidade_esquiva();

@@ -392,7 +392,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
 
-  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao 
+  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao
   * coladas referentes a camera.
   */
   void ColaEntidadesSelecionadas(bool ref_camera);
@@ -453,8 +453,12 @@ class Tabuleiro : public ntf::Receptor {
 
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
+
   /** No modo esquiva, o clique seleciona contra quem a entidade se esquivara. */
   void AlternaModoEsquiva();
+
+  /** No modo remocao de grupo, o clique remove uma entidade de uma entidade composta. */ 
+  void AlternaModoRemocaoDeGrupo();
 
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
@@ -474,6 +478,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_ROTACAO,      // modo de rotacao da camera.
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
     MODO_ESQUIVA,      // Usado para escolher a entidade de esquiva.
+    MODO_REMOCAO_DE_GRUPO,  // usado para remover entidades de grupos.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -481,7 +486,7 @@ class Tabuleiro : public ntf::Receptor {
   /** @return true se houver personagens selecionaveis. */
   bool HaEntidadesSelecionaveis() const;
 
-  /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
+  /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar
   * mestres secundarios tambem.
   */
   bool EmModoMestre() const {
@@ -717,6 +722,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola um dado de faces_dado_ para as entidades selecionadas e notifica. */
   void TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d);
+  
+  /** Remove um objeto de dentro de um composto. */
+  void TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
 
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada

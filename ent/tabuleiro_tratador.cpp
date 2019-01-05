@@ -1615,6 +1615,53 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
   SelecionaQuadrado(id_quadrado);
 }
 
+void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+  modo_clique_ = MODO_NORMAL;
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    LOG(INFO) << "Remocao de entidade valida apenas para objetos compostos.";
+    return;
+  }
+  Entidade* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade " << id << " nao encontrada";
+    return;
+  }
+  if (entidade->Tipo() != TE_COMPOSTA) {
+    LOG(INFO) << "Entidade " << id << " nao é composta";
+    return;
+  }
+  parametros_desenho_.set_desenha_objeto_desmembrado(id);
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    LOG(ERROR) << "tipo invalido: " << tipo_objeto;
+    return;
+  }
+  LOG(INFO) << "id: " << id << ", tipo: " << tipo_objeto;
+  auto proto_antes = entidade->Proto();
+  auto sub_forma = entidade->RemoveSubForma(id);
+
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  {
+    auto* notificacao = grupo_notificacoes.add_notificacao();
+    notificacao->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    *notificacao->mutable_entidade() = entidade->Proto();
+    *notificacao->mutable_entidade_antes() = proto_antes;
+  }
+  {
+    // Se mudar a ordem aqui, mudar embaixo depois do Trata tb.
+    auto* notificacao = grupo_notificacoes.add_notificacao();
+    notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    notificacao->mutable_entidade()->Swap(&sub_forma);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  if (ids_adicionados_.size() == 1) {
+    grupo_notificacoes.mutable_notificacao(1)->mutable_entidade()->set_id(ids_adicionados_[0]);
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
+}
+
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
   if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
     LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
@@ -1994,6 +2041,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_TERRENO:
         TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
         // Nao quero voltar para o modo normal.
+        return;
+      case MODO_REMOCAO_DE_GRUPO:
+        TrataBotaoRemocaoGrupoPressionadoPosPicking(x, y, id, tipo_objeto);
         return;
       case MODO_SINALIZACAO:
         TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);

@@ -5,6 +5,7 @@
 #endif
 #include <algorithm>
 #include <memory>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <tuple>
@@ -2112,15 +2113,19 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         if (notificacao.entidade().has_modelo_3d()) {
           n->mutable_entidade()->mutable_modelo_3d();
         }
+        // indicacao de versao se nao for vazio.
+        *n->mutable_tabuleiro()->mutable_versoes() = notificacao.tabuleiro().versoes();
         n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
         central_->AdicionaNotificacao(n.release());
       } else {
-        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
+        *n->mutable_tabuleiro()->mutable_versoes() = notificacao.tabuleiro().versoes();
+        central_->AdicionaNotificacao(std::move(n));
       }
       break;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
-      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro(true));
+      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro(/*salvar_versoes=*/!notificacao.tabuleiro().versoes().empty()));
       if (notificacao.has_endereco()) {
         // Salvar com nome corrente se endereco for vazio, caso contrario usar o nome da notificacao.
         std::string caminho_str;
@@ -2206,7 +2211,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
-        central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
+        central_->AdicionaNotificacaoRemota(SerializaTabuleiro(/*salvar_versoes=*/false));
       } else {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
@@ -2215,7 +2220,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO: {
       DeserializaTabuleiro(notificacao);
-      central_->AdicionaNotificacaoRemota(SerializaTabuleiro(false));
+      central_->AdicionaNotificacaoRemota(SerializaTabuleiro(/*salvar_versoes=*/false));
     }
     case ntf::TN_CRIAR_CENARIO: {
       CriaSubCenarioNotificando(notificacao);
@@ -4068,6 +4073,9 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (proto.fixa() && proto.cor().a() < 1.0f && pd.nao_desenha_entidades_fixas_translucidas()) {
     return true;
   }
+  if (pd.has_desenha_objeto_desmembrado() && proto.id() != pd.desenha_objeto_desmembrado()) {
+    return true;
+  }
   return false;
 }
 }  // namespace
@@ -5015,29 +5023,28 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(bool salvar_versoes, const std::
     // O tipo é TN_DESERIALIZAR_TABULEIRO para que os clientes possam receber essa notificacao.
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
-    t->CopyFrom(proto_);
-    std::vector<TabuleiroProto*> cenarios;
-    cenarios.push_back(t);
-    for (auto& sub_cenario : *t->mutable_sub_cenario()) {
-      cenarios.push_back(&sub_cenario);
+    // Move as versoes temporariamente para ca, para evitar recursao de versoes.
+    proto_.clear_deprecated_versoes();
+    google::protobuf::RepeatedPtrField<TabuleiroProto::Versao> versoes;
+    if (salvar_versoes) {
+      versoes.Swap(proto_.mutable_versoes());
     }
-    t->clear_entidade();  // As entidades vem do mapa de entidades.
+    *t = proto_;
+    // As entidades vem do mapa de entidades.
+    t->clear_entidade();
     for (const auto& id_ent : entidades_) {
-      t->add_entidade()->CopyFrom(id_ent.second->Proto());
+      *t->add_entidade() = id_ent.second->Proto();
     }
     if (!nome.empty()) {
       t->set_nome(nome);
     }
     if (salvar_versoes) {
-      auto* versoes = proto_.mutable_versoes();
-      *versoes->Add() = *t;
-      *t->mutable_versoes() = *versoes;
-      // Pra evitar que as versoes tenham versoes. So pode haver uma, no principal.
-      for (auto& tv : *t->mutable_versoes()) {
-        tv.clear_versoes();
-      }
+      auto* nova_versao = versoes.Add();
+      nova_versao->set_dados(t->SerializeAsString());
+      nova_versao->set_descricao(to_simple_string(boost::posix_time::second_clock::local_time()));
+      *t->mutable_versoes() = versoes;
+      proto_.mutable_versoes()->Swap(&versoes);
     }
-
     VLOG(1) << "Serializando tabuleiro " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {
@@ -5547,23 +5554,6 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   }
 }
 
-// https://www.learnopencv.com/rotation-matrix-to-euler-angles/
-Vector3 RotationMatrixToAngles(const Matrix3& matrix) {
-  float sy = sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-  const bool singular = sy < 1e-6; // If
-  float x, y, z;
-  if (!singular) {
-    x = atan2(matrix[5], matrix[8]);
-    y = atan2(-matrix[2], sy);
-    z = atan2(matrix[1], matrix[0]);
-  } else {
-    x = atan2(-matrix[7], matrix[4]);
-    y = atan2(-matrix[2], sy);
-    z = 0;
-  }
-  return Vector3(x, y, z);
-}
-
 void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Estado invalido para desagrupar: " << estado_;
@@ -5580,61 +5570,14 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     const auto& proto_composto = e->Proto();
     if (proto_composto.sub_forma().size() < 2) continue;
 
-    Matrix4  m_translacao_proto;
-    m_translacao_proto.translate(proto_composto.pos().x(), proto_composto.pos().y(), proto_composto.pos().z());
-    Matrix4 m_rotacao_proto;
-    m_rotacao_proto.rotateX(proto_composto.rotacao_x_graus());
-    m_rotacao_proto.rotateY(proto_composto.rotacao_y_graus());
-    m_rotacao_proto.rotateZ(proto_composto.rotacao_z_graus());
-    Matrix4 m_escala_proto;
-    m_escala_proto.scale(proto_composto.escala().x(), proto_composto.escala().y(), proto_composto.escala().z());
-
+    Matrix4 m_pai = MatrizDecomposicaoPai(proto_composto);
     for (const auto& sub_entidade : proto_composto.sub_forma()) {
       auto* notificacao_adicao = grupo_notificacoes.add_notificacao();
       notificacao_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
       auto* nova_entidade = notificacao_adicao->mutable_entidade();
       *nova_entidade = sub_entidade;
       nova_entidade->clear_id();
-
-      // https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati
-      Matrix4 m_translacao_sub;
-      m_translacao_sub.translate(nova_entidade->pos().x(), nova_entidade->pos().y(), nova_entidade->pos().z());
-      Matrix4 m_rotacao_sub;
-      m_rotacao_sub.rotateX(nova_entidade->rotacao_x_graus());
-      m_rotacao_sub.rotateY(nova_entidade->rotacao_y_graus());
-      m_rotacao_sub.rotateZ(nova_entidade->rotacao_z_graus());
-      Matrix4 m_escala_sub;
-      m_escala_sub.scale(nova_entidade->escala().x(), nova_entidade->escala().y(), nova_entidade->escala().z());
-
-      // A ordem de desenho é diferente (TSR ao inves de TRS), mas para a equacao funcionar tem que ser desse jeito.
-      // Eu acho que pode dar algo errado ainda, mas como funcionou assim, vou deixar desse jeito.
-      Matrix4 m_final = m_translacao_proto * m_rotacao_proto * m_escala_proto  * m_translacao_sub * m_rotacao_sub * m_escala_sub ;
-
-      auto* pos = nova_entidade->mutable_pos();
-      pos->set_x(m_final[12]);
-      pos->set_y(m_final[13]);
-      pos->set_z(m_final[14]);
-      auto* escala = nova_entidade->mutable_escala();
-      escala->set_x(Vector3(m_final[0], m_final[1], m_final[2]).length());
-      escala->set_y(Vector3(m_final[4], m_final[5], m_final[6]).length());
-      escala->set_z(Vector3(m_final[8], m_final[9], m_final[10]).length());
-
-      Matrix3 m_final_rotacao;
-      m_final_rotacao[0] = m_final[0] / escala->x();
-      m_final_rotacao[1] = m_final[1] / escala->x();
-      m_final_rotacao[2] = m_final[2] / escala->x();
-      m_final_rotacao[3] = m_final[4] / escala->y();
-      m_final_rotacao[4] = m_final[5] / escala->y();
-      m_final_rotacao[5] = m_final[6] / escala->y();
-      m_final_rotacao[6] = m_final[8] / escala->z();
-      m_final_rotacao[7] = m_final[9] / escala->z();
-      m_final_rotacao[8] = m_final[10] / escala->z();
-
-      Vector3 vr = RotationMatrixToAngles(m_final_rotacao);
-      nova_entidade->set_rotacao_x_graus(vr.x * RAD_PARA_GRAUS);
-      nova_entidade->set_rotacao_y_graus(vr.y * RAD_PARA_GRAUS);
-      nova_entidade->set_rotacao_z_graus(vr.z * RAD_PARA_GRAUS);
-
+      DecompoeFilho(m_pai, nova_entidade);
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();
@@ -7169,6 +7112,17 @@ void Tabuleiro::AlternaModoTerreno() {
     modo_clique_ = MODO_NORMAL;
   } else {
     modo_clique_ = MODO_TERRENO;
+  }
+}
+
+void Tabuleiro::AlternaModoRemocaoDeGrupo() {
+  if (!EmModoMestreIncluindoSecundario()) {
+    return;
+  }
+  if (modo_clique_ == MODO_REMOCAO_DE_GRUPO) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_REMOCAO_DE_GRUPO;
   }
 }
 

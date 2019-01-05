@@ -813,6 +813,9 @@ message ParametrosDesenho {
 
   // Se verdadeiro, desenhara a ligacao de agarrar das entidades.
   optional bool desenha_ligacao_agarrar = 60 [default=true];
+
+  // Se presente, apenas a entidade devera ser desenhada e nada mais, de forma decomposta.
+  optional uint32 desenha_objeto_desmembrado = 61;
 }
 
 enum TipoVeneno {

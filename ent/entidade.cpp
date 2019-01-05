@@ -579,7 +579,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 #if DEBUG
   glFinish();
 #endif
-  timer->stop();
+  if (timer != nullptr) timer->stop();
 
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaEscopo {

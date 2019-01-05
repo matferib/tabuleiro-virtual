@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -19,6 +20,14 @@ void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDeri
 
 void Entidade::AtualizaProtoComposta(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
+}
+
+EntidadeProto Entidade::RemoveSubForma(int indice) {
+  if (indice < 0 || indice >= proto_.sub_forma_size()) return EntidadeProto::default_instance();
+  EntidadeProto sub_forma = proto_.sub_forma(indice);
+  proto_.mutable_sub_forma()->DeleteSubrange(indice, 1);
+  DecompoeFilho(MatrizDecomposicaoPai(proto_), &sub_forma);
+  return sub_forma;
 }
 
 gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
@@ -52,6 +61,28 @@ void Entidade::DesenhaObjetoCompostoProto(
   if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos() || pd->entidade_selecionada()) {
     blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
   }
+
+  if (pd->has_desenha_objeto_desmembrado() && pd->desenha_objeto_desmembrado() == proto.id()) {
+    pd->clear_desenha_objeto_desmembrado();
+    pd->set_regera_vbo(true);
+    Tabelas t(nullptr);
+
+    // Transformacoes do objeto pai.
+    Matrix4 m_pai = MatrizDecomposicaoPai(proto);
+    for (int i = 0; i < proto.sub_forma_size(); ++i) {
+      auto sub_forma = proto.sub_forma(i);
+      DecompoeFilho(m_pai, &sub_forma);
+
+      std::unique_ptr<Entidade> s(NovaEntidade(sub_forma, t, vd.texturas, vd.m3d, nullptr, pd));
+      s->Atualiza(0, nullptr);
+      gl::CarregaNome(i);
+      s->DesenhaObjeto(pd);
+    }
+    pd->set_desenha_objeto_desmembrado(proto.id());
+    pd->clear_regera_vbo();
+    return;
+  }
+
 #if !VBO_COM_MODELAGEM
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());

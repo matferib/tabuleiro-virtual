@@ -92,7 +92,7 @@ class Entidade {
   */
   gl::VbosNaoGravados ExtraiVbo(const ParametrosDesenho* pd, bool mundo) const { return ExtraiVbo(Proto(), vd_, pd, mundo); }
   // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVbo(const EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -256,7 +256,7 @@ class Entidade {
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(const ent::Entidade& atacante, TipoCA tipo) const;
+  int CA(const Entidade& atacante, TipoCA tipo) const;
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;
@@ -307,10 +307,10 @@ class Entidade {
   void AtualizaDirecaoDeQueda(float x, float y, float z);
 
   // Acesso a tendencia.
-  bool Bom() const { return ent::Bom(proto_); }
-  bool Mal() const { return ent::Mal(proto_); }
-  bool Ordeiro() const { return ent::Ordeiro(proto_); }
-  bool Caotico() const { return ent::Caotico(proto_); }
+  bool Bom() const { return ::ent::Bom(proto_); }
+  bool Mal() const { return ::ent::Mal(proto_); }
+  bool Ordeiro() const { return ::ent::Ordeiro(proto_); }
+  bool Caotico() const { return ::ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
@@ -334,6 +334,9 @@ class Entidade {
 
   // Reinicia os dados de ataque da entidade.
   void ReiniciaAtaque();
+
+  /** Remove e retorna a sub forma da entidade. */
+  EntidadeProto RemoveSubForma(int indice);
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
@@ -438,32 +441,33 @@ class Entidade {
     Matrix4 matriz_modelagem_tela_textura;
     Matrix4 matriz_deslocamento_textura;
 
-    // As texturas da entidade.
+    // Abaixo sao variaveis que valem para todos (como se fossem globais).
+    // As texturas.
     const Texturas* texturas = nullptr;
-    // Modelo 3d para entidades que o possuem.
+    // Modelo 3d.
     const m3d::Modelos3d* m3d = nullptr;
   };
 
   // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.
-  static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void CorrigeVboRaiz(const EntidadeProto& proto, VariaveisDerivadas* vd);
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
   // Extracao de VBO por tipo.
-  static gl::VbosNaoGravados ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
-  static gl::VbosNaoGravados ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
-  static gl::VbosNaoGravados ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboForma(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboComposta(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
 
   // Inicializacao por tipo.
-  static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
-  static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void InicializaForma(const EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void InicializaComposta(const EntidadeProto& proto, VariaveisDerivadas* vd);
 
   // Atualizacao por tipo.
   static void AtualizaProtoForma(
-      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
+      const EntidadeProto& proto_original, const EntidadeProto& proto_novo, VariaveisDerivadas* vd);
   static void AtualizaProtoComposta(
-      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
+      const EntidadeProto& proto_original, const EntidadeProto& proto_novo, VariaveisDerivadas* vd);
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();

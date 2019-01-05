@@ -238,9 +238,7 @@ void Tabelas::RecarregaMapas() {
     efeitos_[efeito.id()] = &efeito;
   }
 
-    LOG(ERROR) << "aqui1";
   for (const auto& efeito : tabelas_.tabela_efeitos_modelos().efeitos()) {
-    LOG(ERROR) << "aqui";
     efeitos_modelos_[efeito.id()] = &efeito;
   }
 
