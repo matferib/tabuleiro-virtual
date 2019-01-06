@@ -1637,7 +1637,6 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     LOG(ERROR) << "tipo invalido: " << tipo_objeto;
     return;
   }
-  LOG(INFO) << "id: " << id << ", tipo: " << tipo_objeto;
   auto proto_antes = entidade->Proto();
   auto sub_forma = entidade->RemoveSubForma(id);
 
