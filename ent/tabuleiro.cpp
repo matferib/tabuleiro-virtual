@@ -2238,6 +2238,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (n->tabuleiro().entidade().empty()) {
         central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
               jogador ? "Não há entidades presas a câmera" : "Não há entidades selecionáveis"));
+        return true;
       }
       try {
         boost::filesystem::path caminho(notificacao.endereco());
