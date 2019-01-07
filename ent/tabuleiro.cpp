@@ -150,6 +150,18 @@ void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* t
   tempos->push_front(passou_ms);
 }
 
+const TabuleiroProto& BuscaSubCenario(int id_cenario, const TabuleiroProto& proto) {
+  if (id_cenario == CENARIO_PRINCIPAL) {
+    return proto;
+  }
+  for (const auto& sub_cenario : proto.sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
+      return sub_cenario;
+    }
+  }
+  return TabuleiroProto::default_instance();
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(
@@ -265,13 +277,13 @@ Tabuleiro::~Tabuleiro() {
 void Tabuleiro::LiberaTextura() {
   TabuleiroProto dummy;
   for (const auto& sub_cenario : proto_.sub_cenario()) {
-    VLOG(2) << "Liberando textura: " << sub_cenario.info_textura().id();
+    VLOG(2) << "Liberando texturas de cenario: " << sub_cenario.id_cenario();
     dummy.set_id_cenario(sub_cenario.id_cenario());
-    AtualizaTexturas(dummy);
+    AtualizaPisoCeuCenario(dummy);
   }
   dummy.set_id_cenario(CENARIO_PRINCIPAL);
-  VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
-  AtualizaTexturas(dummy);
+  VLOG(2) << "Liberando texturas de: cenario principal";
+  AtualizaPisoCeuCenario(dummy);
 }
 
 Tabuleiro::DadosFramebuffer::~DadosFramebuffer() {
@@ -3955,24 +3967,25 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesvioProfundidade(OFFSET_TERRENO_ESCALA_DZ, OFFSET_TERRENO_ESCALA_R);
   V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
   // Cor.
-  if (proto_corrente_->has_cor_piso()) {
-    MudaCor(proto_corrente_->cor_piso());
+  const auto& cenario_piso = CenarioPiso(*proto_corrente_);
+  if (cenario_piso.has_cor_piso()) {
+    MudaCor(cenario_piso.cor_piso());
   } else {
-    MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+    MudaCor(cenario_piso.has_info_textura_piso() ? COR_BRANCA : COR_CINZA_CLARO);
   }
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
                 parametros_desenho_.offset_terreno());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
-                      proto_corrente_->has_info_textura() &&
+                      cenario_piso.has_info_textura_piso() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
-      texturas_->Textura(proto_corrente_->info_textura().id()) : GL_INVALID_VALUE;
+      texturas_->Textura(cenario_piso.info_textura_piso().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-  } else if (parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura()) {
+  } else if (parametros_desenho_.desenha_texturas() && cenario_piso.has_info_textura_piso()) {
     // Eh possivel que a textura esteja carregando ainda.
-    LOG_EVERY_N(WARNING, 100) << "TEXTURA INVALIDA: " << proto_corrente_->info_textura().id();
+    LOG_EVERY_N(WARNING, 100) << "TEXTURA INVALIDA: " << cenario_piso.info_textura_piso().id();
   } else {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -3980,7 +3993,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
   V_ERRO("textura");
   {
-    if (proto_corrente_->ladrilho()) {
+    if (cenario_piso.ladrilho()) {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
@@ -3988,7 +4001,7 @@ void Tabuleiro::DesenhaTabuleiro() {
       gl::AtualizaMatrizes();
     }
     vbos_tabuleiro_.Desenha();
-    if (proto_corrente_->ladrilho()) {
+    if (cenario_piso.ladrilho()) {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
@@ -4377,7 +4390,7 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
     ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     auto* entidade_antes = ne->mutable_entidade_antes();
     entidade_antes->set_id(e->Id());
-    entidade_antes->mutable_info_textura()->CopyFrom(e->Proto().info_textura());
+    *entidade_antes->mutable_info_textura() = e->Proto().info_textura();
     auto* entidade_depois = ne->mutable_entidade();
     entidade_depois->set_id(e->Id());
     entidade_depois->mutable_info_textura()->set_id(id_textura);
@@ -4870,13 +4883,13 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_id_cliente(id_cliente_);
   tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_corrente_->luz_ambiente());
   tabuleiro->mutable_luz_direcional()->CopyFrom(proto_corrente_->luz_direcional());
-  if (proto_corrente_->has_info_textura()) {
-    tabuleiro->mutable_info_textura()->CopyFrom(proto_corrente_->info_textura());
+  if (proto_corrente_->has_info_textura_piso()) {
+    *tabuleiro->mutable_info_textura_piso() = proto_corrente_->info_textura_piso();
     tabuleiro->set_ladrilho(proto_corrente_->ladrilho());
     tabuleiro->set_textura_mestre_apenas(proto_corrente_->textura_mestre_apenas());
   }
   if (proto_corrente_->has_info_textura_ceu()) {
-    tabuleiro->mutable_info_textura_ceu()->CopyFrom(proto_corrente_->info_textura_ceu());
+    *tabuleiro->mutable_info_textura_ceu() = proto_corrente_->info_textura_ceu();
   }
   if (proto_corrente_->has_nevoa()) {
     tabuleiro->mutable_nevoa()->CopyFrom(proto_corrente_->nevoa());
@@ -4969,8 +4982,8 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   if (novo_proto.info_textura_ceu().id().empty()) {
     novo_proto.clear_info_textura_ceu();
   }
-  if (novo_proto.info_textura().id().empty()) {
-    novo_proto.clear_info_textura();
+  if (novo_proto.info_textura_piso().id().empty()) {
+    novo_proto.clear_info_textura_piso();
   }
   VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
@@ -4996,12 +5009,18 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   } else {
     proto_a_atualizar->clear_nevoa();
   }
-  if (novo_proto.has_cor_piso()) {
-    *proto_a_atualizar->mutable_cor_piso() = novo_proto.cor_piso();
+  if (novo_proto.has_herdar_piso_de()) {
+    proto_a_atualizar->set_herdar_piso_de(novo_proto.herdar_piso_de());
   } else {
-    proto_a_atualizar->clear_cor_piso();
+    proto_a_atualizar->clear_herdar_piso_de();
   }
-  AtualizaTexturas(novo_proto);
+  if (novo_proto.has_herdar_ceu_de()) {
+    proto_a_atualizar->set_herdar_ceu_de(novo_proto.herdar_ceu_de());
+  } else {
+    proto_a_atualizar->clear_herdar_ceu_de();
+  }
+
+  AtualizaPisoCeuCenario(novo_proto);
   CorrigeTopologiaAposMudancaTamanho(
       tam_x_velho, tam_y_velho, proto_a_atualizar->largura(), proto_a_atualizar->altura(), proto_a_atualizar->mutable_ponto_terreno());
   RegeraVboTabuleiro();
@@ -5080,7 +5099,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     auto* cenario_dummy = proto_.add_sub_cenario();
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
-  AtualizaTexturasIncluindoSubCenarios(novo_tabuleiro);
+  AtualizaPisoCeuIncluindoSubCenarios(novo_tabuleiro);
   proto_.CopyFrom(novo_tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
@@ -5268,7 +5287,7 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
       cenario_para_desfazer.CopyFrom(sub_cenario);
       TabuleiroProto dummy;
       dummy.set_id_cenario(id_cenario);
-      AtualizaTexturas(dummy);
+      AtualizaPisoCeuCenario(dummy);
       proto_.mutable_sub_cenario()->DeleteSubrange(i, 1);
       LOG(INFO) << "Tam sub cenario depois: " << proto_.sub_cenario_size();
       removeu = true;
@@ -6139,69 +6158,105 @@ int Tabuleiro::GeraIdTabuleiro() {
   throw std::logic_error("Limite de clientes alcancado.");
 }
 
+
+// Retorna o cenario que contem as informacoes de piso para o sub cenario.
+const TabuleiroProto& Tabuleiro::CenarioPiso(const TabuleiroProto& sub_cenario) const {
+  return sub_cenario.has_herdar_piso_de() ? ent::BuscaSubCenario(sub_cenario.herdar_piso_de(), proto_) : sub_cenario;
+}
+
+// Retorna o cenario que contem as informacoes de ceu para o sub cenario.
+const TabuleiroProto& Tabuleiro::CenarioCeu(const TabuleiroProto& sub_cenario) const {
+  return sub_cenario.has_herdar_ceu_de() ? ent::BuscaSubCenario(sub_cenario.herdar_ceu_de(), proto_) : sub_cenario;
+}
+
 namespace {
+
 // Retorna true se ha uma nova textura.
-bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
-                      bool velho_tem, ent::InfoTextura* velho_proto, ntf::CentralNotificacoes* central) {
-  VLOG(2) << "Atualizando texturas, novo proto: " << novo_proto.ShortDebugString() << ", velho: " << velho_proto->ShortDebugString();
+void AtualizaTexturasNotificando(bool novo_tem, const InfoTextura& novo_proto,
+                                 bool velho_tem, const InfoTextura& velho_proto,
+                                 ntf::CentralNotificacoes* central) {
+  VLOG(2) << "Atualizando texturas, novo proto: " << novo_proto.ShortDebugString() << ", velho: " << velho_proto.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (velho_tem && velho_proto->id() != novo_proto.id()) {
-    VLOG(2) << "Liberando textura: " << velho_proto->id();
+  if (velho_tem && velho_proto.id() != novo_proto.id()) {
+    VLOG(2) << "Liberando textura: " << velho_proto.id();
     auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->add_info_textura()->CopyFrom(*velho_proto);
+    *nl->add_info_textura() = velho_proto;
     central->AdicionaNotificacao(nl.release());
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_tem && novo_proto.id() != velho_proto->id()) {
+  if (novo_tem && novo_proto.id() != velho_proto.id()) {
     VLOG(2) << "Carregando textura: " << novo_proto.id();
     auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->add_info_textura()->CopyFrom(novo_proto);
+    *nc->add_info_textura() = novo_proto;
     central->AdicionaNotificacao(nc.release());
   }
-
-  if (novo_tem) {
-    // Os bits crus so sao reenviados se houver mudanca. Nao eh bom perde-los por causa de novas serializacoes
-    // como salvamentos e novos jogadores. Salva aqui pra restaurar ali embaixo.
-    bool manter_bits_crus =
-        novo_proto.id() == velho_proto->id() && velho_proto->has_bits_crus();
-    std::string bits_crus = manter_bits_crus ? velho_proto->bits_crus() : std::string("");
-    velho_proto->CopyFrom(novo_proto);
-    if (manter_bits_crus) {
-      velho_proto->set_bits_crus(bits_crus);
-    }
-    return true;
-  }
-  return false;
 }
+
+void AtualizaProtoInfoTextura(const InfoTextura& novo_proto, InfoTextura* proto_a_atualizar) {
+  // Os bits crus so sao reenviados se houver mudanca. Nao eh bom perde-los
+  // por causa de novas serializacoes como salvamentos e novos jogadores.
+  // Salva aqui pra restaurar ali embaixo.
+  bool manter_bits_crus =
+      novo_proto.id() == proto_a_atualizar->id() && proto_a_atualizar->has_bits_crus();
+  std::string bits_crus =
+      manter_bits_crus ? proto_a_atualizar->bits_crus() : std::string("");
+  *proto_a_atualizar = novo_proto;
+  if (manter_bits_crus) {
+    proto_a_atualizar->set_bits_crus(bits_crus);
+  }
+}
+
 }  // namespace
 
-void Tabuleiro::AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal) {
-  AtualizaTexturas(proto_principal);
+void Tabuleiro::AtualizaPisoCeuIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal) {
+  AtualizaPisoCeuCenario(proto_principal);
   for (const auto& sub_cenario : proto_principal.sub_cenario()) {
-    AtualizaTexturas(sub_cenario);
+    AtualizaPisoCeuCenario(sub_cenario);
   }
 }
 
-void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
+void Tabuleiro::AtualizaPisoCeuCenario(const TabuleiroProto& novo_proto) {
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
   if (proto_a_atualizar == nullptr) {
     LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe para atualizacao de texturas";
     return;
   }
-  if (ent::AtualizaTexturas(novo_proto.has_info_textura(), novo_proto.info_textura(),
-                            proto_a_atualizar->has_info_textura(), proto_a_atualizar->mutable_info_textura(),
-                            central_)) {
-    proto_a_atualizar->set_ladrilho(novo_proto.ladrilho());
-    proto_a_atualizar->set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
-  } else {
-    proto_a_atualizar->clear_info_textura();
+  {
+    // Piso.
+    const TabuleiroProto &novo_piso = CenarioPiso(novo_proto), &velho_piso = CenarioPiso(*proto_a_atualizar);
+    bool novo_tem_piso = novo_piso.has_info_textura_piso(), velho_tem_piso = velho_piso.has_info_textura_piso();
+    AtualizaTexturasNotificando(novo_tem_piso, novo_piso.info_textura_piso(), velho_tem_piso, velho_piso.info_textura_piso(), central_);
+    const bool herdado = novo_proto.has_herdar_piso_de();
+    if (novo_tem_piso && !herdado) {
+      AtualizaProtoInfoTextura(novo_piso.info_textura_piso(), proto_a_atualizar->mutable_info_textura_piso());
+    } else {
+      proto_a_atualizar->clear_info_textura_piso();
+    }
+    proto_a_atualizar->clear_cor_piso();
+    if (!herdado && novo_proto.has_cor_piso()) {
+      *proto_a_atualizar->mutable_cor_piso() = novo_proto.cor_piso();
+    }
     proto_a_atualizar->clear_ladrilho();
+    if (!herdado && novo_proto.has_info_textura_piso() && novo_proto.has_ladrilho()) {
+      proto_a_atualizar->set_ladrilho(novo_proto.ladrilho());
+    }
+
     proto_a_atualizar->clear_textura_mestre_apenas();
+    if (novo_proto.has_info_textura_piso() && novo_proto.has_textura_mestre_apenas()) {
+      proto_a_atualizar->set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
+    }
   }
-  if (!ent::AtualizaTexturas(novo_proto.has_info_textura_ceu(), novo_proto.info_textura_ceu(),
-                             proto_a_atualizar->has_info_textura_ceu(), proto_a_atualizar->mutable_info_textura_ceu(),
-                             central_)) {
-    proto_a_atualizar->clear_info_textura_ceu();
+  {
+    // ceu.
+    bool novo_tem_ceu, velho_tem_ceu;
+    const TabuleiroProto &novo_ceu = CenarioCeu(novo_proto), &velho_ceu = CenarioCeu(*proto_a_atualizar);
+    AtualizaTexturasNotificando(novo_tem_ceu, novo_ceu.info_textura_ceu(), velho_tem_ceu, velho_ceu.info_textura_ceu(), central_);
+    const bool herdado = novo_proto.has_herdar_ceu_de();
+    if (novo_tem_ceu && !herdado) {
+      AtualizaProtoInfoTextura(novo_ceu.info_textura_ceu(), proto_a_atualizar->mutable_info_textura_ceu());
+    } else {
+      proto_a_atualizar->clear_info_textura_ceu();
+    }
   }
 }
 
@@ -6379,14 +6434,15 @@ void Tabuleiro::DesenhaCaixaCeu() {
 #if 1
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
-  GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
+  const auto& cenario_ceu = CenarioCeu(*proto_corrente_);
+  GLuint id_textura = texturas_->Textura(cenario_ceu.info_textura_ceu().id());
+  GLenum tipo_textura = texturas_->TipoTextura(cenario_ceu.info_textura_ceu().id());
   GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
                                  proto_corrente_->luz_ambiente().g(),
                                  proto_corrente_->luz_ambiente().b(),
                                  proto_corrente_->luz_ambiente().a()};
   gl::CorMisturaPreNevoa(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
-  if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
+  if (!cenario_ceu.aplicar_luz_ambiente_textura_ceu()) {
     MudaCor(COR_BRANCA);
   } else {
     MudaCor(proto_corrente_->luz_ambiente());

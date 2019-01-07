@@ -901,11 +901,17 @@ class Tabuleiro : public ntf::Receptor {
   */
   int GeraIdTabuleiro();
 
-  /** Recarrega todas as texturas, incluindo sub cenarios. */
-  void AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal);
+  /** Recarrega todas as texturas, incluindo sub cenarios. Usado ao abrir um tabuleiro. */
+  void AtualizaPisoCeuIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal);
+
+  // Retorna o cenario que contem as informacoes de piso para o sub cenario.
+  const TabuleiroProto& CenarioPiso(const TabuleiroProto& sub_cenario) const;
+
+  // Retorna o cenario que contem as informacoes de ceu para o sub cenario.
+  const TabuleiroProto& CenarioCeu(const TabuleiroProto& sub_cenario) const;
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
-  void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
+  void AtualizaPisoCeuCenario(const ent::TabuleiroProto& novo_proto);
 
   /** Carrega o controle virtual. */
   void CarregaControleVirtual();
