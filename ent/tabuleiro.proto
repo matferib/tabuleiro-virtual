@@ -69,7 +69,7 @@ message TabuleiroProto {
   optional IluminacaoDirecional luz_direcional = 3;
   optional Cor luz_ambiente = 7;
   // Textura do tabuleiro.
-  optional InfoTextura info_textura = 5;
+  optional InfoTextura info_textura_piso = 5;
   // Se presente, aplicara cor de piso.
   optional Cor cor_piso = 23;
   // Caixa do ceu (skybox).
@@ -104,6 +104,7 @@ message TabuleiroProto {
   repeated TabuleiroProto sub_cenario = 18;
   // Para atualizacao de iniciativa.
   optional int32 indice_iniciativa = 22;
+
   repeated TabuleiroProto deprecated_versoes = 24;
   message Versao {
     // Proto serializado, performance.
@@ -113,8 +114,12 @@ message TabuleiroProto {
   }
   // Cada vez que salva, uma versao do tabuleiro é salva para poder ser restaurada. Por motivos de eficiencia, manter como byte string.
   repeated Versao versoes = 25;
-}
 
+  // Caso estas variaveis esteja preenchidas, usara a textura de ceu e piso de
+  // outro tabuleiro.
+  optional int32 herdar_piso_de = 26;
+  optional int32 herdar_ceu_de = 27;
+}
 
 // Para copiar e colar.
 message EntidadesCopiadas {
