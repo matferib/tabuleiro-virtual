@@ -1,3 +1,5 @@
+Nos subcenarios, permitir iluminacao e piso igual a outros.
+
 Anotacoes sessao tipao:
 - Terminar Wheloon, leste.
 - Fazer a sucubo.
