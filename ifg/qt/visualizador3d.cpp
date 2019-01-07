@@ -656,7 +656,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.checkbox_colisao->setCheckState(entidade.causa_colisao() ? Qt::Checked : Qt::Unchecked);
 
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(),
+                       notificacao.tabuleiro().id_cliente(),
+                       ent::FiltroTexturaEntidade, gerador.combo_textura);
   gerador.checkbox_ladrilho->setCheckState(
       entidade.info_textura().has_modo_textura()
       ? (entidade.info_textura().modo_textura() == GL_REPEAT ? Qt::Checked : Qt::Unchecked)
@@ -2396,7 +2398,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   }
 
   // Textura do tabuleiro.
-  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaTabuleiro, gerador.combo_fundo);
+  PreencheComboTextura(tab_proto.info_textura_piso().id().c_str(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaTabuleiro, gerador.combo_fundo);
   // Ceu do tabuleiro.
   PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
@@ -2482,9 +2484,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Textura.
     if (gerador.combo_fundo->currentIndex() == 0) {
-      proto_retornado->clear_info_textura();
+      proto_retornado->clear_info_textura_piso();
     } else {
-      PreencheTexturaProtoRetornado(tab_proto.info_textura(), gerador.combo_fundo, proto_retornado->mutable_info_textura());
+      PreencheTexturaProtoRetornado(tab_proto.info_textura_piso(), gerador.combo_fundo, proto_retornado->mutable_info_textura_piso());
     }
     // Ladrilho.
     if (gerador.combo_fundo->currentIndex() != 0) {
@@ -2511,7 +2513,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       int indice = gerador.combo_fundo->currentIndex();
       arq::tipo_e tipo = static_cast<arq::tipo_e>(gerador.combo_fundo->itemData(indice).toInt());
       // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheInfoTextura o modifica.
-      ent::InfoTextura textura = proto_retornado->info_textura();
+      ent::InfoTextura textura = proto_retornado->info_textura_piso();
       unsigned int largura = 0, altura = 0;
       std::string nome;
       if (tipo == arq::TIPO_TEXTURA_LOCAL) {
