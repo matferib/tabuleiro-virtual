@@ -68,15 +68,15 @@ message TabuleiroProto {
   // Iluminacao do tabuleiro.
   optional IluminacaoDirecional luz_direcional = 3;
   optional Cor luz_ambiente = 7;
-  // Textura do tabuleiro.
+  // Textura do tabuleiro. Se herdado, usara do pai.
   optional InfoTextura info_textura_piso = 5;
-  // Se presente, aplicara cor de piso.
+  // Se presente, aplicara cor de piso. Se herdado, usara do pai.
   optional Cor cor_piso = 23;
-  // Caixa do ceu (skybox).
+  // Caixa do ceu (skybox). Se herdado, usara do pai.
   optional InfoTextura info_textura_ceu = 16;
-  // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao.
+  // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao. Se herdado, usara do pai.
   optional bool aplicar_luz_ambiente_textura_ceu = 20 [default = true];
-  // Aplicar a textura de forma ladrilhada.
+  // Aplicar a textura de forma ladrilhada. Se herdado, usara do pai.
   optional bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
