@@ -1212,6 +1212,17 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_ARMADURA_NATURAL_MELHORIA
+    nome: 'armadura natural, melhoria'
+    formato_complementos: 'bônus de melhoria de armadura natural'
+    consequencia {
+      usa_complemento: true
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'armadura_natural_melhoria' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_FORCA_TOURO
     nome: 'força do touro'
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
@@ -1867,6 +1878,41 @@ tabela_amuletos {
     custo_po: 36000
     tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
     complementos: 6
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_1'
+    nome: 'Amuleto de Armadura Natural +1'
+    custo_po: 2000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 1
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_2'
+    nome: 'Amuleto de Armadura Natural +2'
+    custo_po: 8000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 2
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_3'
+    nome: 'Amuleto de Armadura Natural +3'
+    custo_po: 18000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 3
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_4'
+    nome: 'Amuleto de Armadura Natural +4'
+    custo_po: 32000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 4
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_5'
+    nome: 'Amuleto de Armadura Natural +5'
+    custo_po: 50000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 5
   }
 }
 
