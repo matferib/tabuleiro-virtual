@@ -5549,7 +5549,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     x_medio += e->X();
     y_medio += e->Y();
     z_medio += e->Z();
-    nova_entidade.add_sub_forma()->CopyFrom(e->Proto());
+    *nova_entidade.add_sub_forma() = e->Proto();
     ++num_entidades;
   }
   if (num_entidades <= 1) {
@@ -5562,6 +5562,12 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   nova_entidade.mutable_pos()->set_x(x_medio);
   nova_entidade.mutable_pos()->set_y(y_medio);
   nova_entidade.mutable_pos()->set_z(z_medio);
+  nova_entidade.set_causa_colisao(c_all_of(nova_entidade.sub_forma(), [](const EntidadeProto& sub_forma) { return sub_forma.causa_colisao(); }));
+  nova_entidade.set_faz_sombra(c_all_of(nova_entidade.sub_forma(), [](const EntidadeProto& sub_forma) { return sub_forma.faz_sombra(); }));
+  if (!nova_entidade.sub_forma(0).info_textura().id().empty() &&
+      c_all_of(nova_entidade.sub_forma(), [&nova_entidade](const EntidadeProto& sub_forma) { return sub_forma.info_textura().id() == nova_entidade.sub_forma(0).info_textura().id(); })) {
+    nova_entidade.mutable_info_textura()->set_id(nova_entidade.sub_forma(0).info_textura().id());
+  }
   for (auto& sub_forma : *nova_entidade.mutable_sub_forma()) {
     sub_forma.mutable_pos()->set_x(sub_forma.pos().x() - x_medio);
     sub_forma.mutable_pos()->set_y(sub_forma.pos().y() - y_medio);
