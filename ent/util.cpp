@@ -1014,7 +1014,8 @@ int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Entid
   int modificador = 0;
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
     // Se houver alvo, verifica possibilidade de queima roupa.
-    if (PossuiTalento("tiro_queima_roupa", ea) && ed.has_id() && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+    // nome melhor seria: tiro_queima_roupa.
+    if (PossuiTalento("tiro_certeiro", ea) && ed.has_id() && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
       modificador += 1;
     }
   }
