@@ -957,7 +957,8 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     modificador -= 4;
   }
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
-    if (PossuiTalento("tiro_queima_roupa", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+    // era tiro_queima_roupa
+    if (PossuiTalento("tiro_certeiro", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
       modificador += 1;
     }
   }

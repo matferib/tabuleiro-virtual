@@ -1406,7 +1406,7 @@ modelo {
     info_talentos {
       gerais { id: 'reflexos_em_combate' }
       gerais { id: 'vontade_ferro' }
-      gerais { id: 'tiro_queima_roupa' }
+      gerais { id: 'tiro_certeiro' }
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'tiro_preciso' }
     }

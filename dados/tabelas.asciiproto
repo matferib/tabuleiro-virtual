@@ -2542,13 +2542,6 @@ tabela_talentos {
     descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
   }
   talentos {
-    id: 'tiro_queima_roupa'
-    nome: 'Tiro Queima Roupa'
-    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
-    descricao: '+1 ataque da no para tiros até 6 quadrados.'
-  }
-
-  talentos {
     id: 'acrobatico'
     nome: 'Acrobático'
     bonus_pericias { id: 'saltar' valor: 2 }
@@ -2958,10 +2951,11 @@ tabela_talentos {
     descricao: 'Saca uma arma branca como ação livre.'
   }
   talentos {
+    # Seria melhor: tiro_queima_roupa.
     id: 'tiro_certeiro'
     nome: 'Tiro Certeiro'
     # guerreiro: true
-    descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros.'
+    descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros (6 quadrados).'
   }
   talentos {
     id: 'tiro_multiplo'
