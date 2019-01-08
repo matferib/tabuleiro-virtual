@@ -1,4 +1,5 @@
 Nos subcenarios, permitir herdar iluminacao.
+Ao desagrupar, herdar textura se nao tiver.
 
 Anotacoes sessao tipao:
 - Terminar Wheloon, leste.
