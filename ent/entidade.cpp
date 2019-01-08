@@ -1901,6 +1901,18 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     vbo.Nomeia("Piramide");
   }
 
+  // Piramide fechada.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE_FECHADA];
+    vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+    {
+      gl::VboNaoGravado vbo_base = gl::VboRetangulo(1.0f);
+      vbo_base.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_base);
+    }
+    vbo.Nomeia("Piramide fechada");
+  }
+
   // Cilindro.
   {
     auto& vbo = vbos_nao_gravados[VBO_CILINDRO];
