@@ -4876,20 +4876,28 @@ void Tabuleiro::CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y,
 }
 
 // TODO mudar para unique_ptr
-ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
+std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   auto notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
   tabuleiro->set_id_cliente(id_cliente_);
-  tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_corrente_->luz_ambiente());
-  tabuleiro->mutable_luz_direcional()->CopyFrom(proto_corrente_->luz_direcional());
-  if (proto_corrente_->has_info_textura_piso()) {
-    *tabuleiro->mutable_info_textura_piso() = proto_corrente_->info_textura_piso();
-    tabuleiro->set_ladrilho(proto_corrente_->ladrilho());
-    tabuleiro->set_textura_mestre_apenas(proto_corrente_->textura_mestre_apenas());
+  *tabuleiro->mutable_luz_ambiente() = proto_corrente_->luz_ambiente();
+  *tabuleiro->mutable_luz_direcional() = proto_corrente_->luz_direcional();
+  if (proto_corrente_->has_herdar_piso_de()) {
+    tabuleiro->set_herdar_piso_de(proto_corrente_->herdar_piso_de());
+  } else {
+    if (proto_corrente_->has_info_textura_piso()) {
+      *tabuleiro->mutable_info_textura_piso() = proto_corrente_->info_textura_piso();
+      tabuleiro->set_ladrilho(proto_corrente_->ladrilho());
+      tabuleiro->set_textura_mestre_apenas(proto_corrente_->textura_mestre_apenas());
+    }
   }
-  if (proto_corrente_->has_info_textura_ceu()) {
-    *tabuleiro->mutable_info_textura_ceu() = proto_corrente_->info_textura_ceu();
+  if (proto_corrente_->has_herdar_ceu_de()) {
+    tabuleiro->set_herdar_ceu_de(proto_corrente_->herdar_ceu_de());
+  } else {
+    if (proto_corrente_->has_info_textura_ceu()) {
+      *tabuleiro->mutable_info_textura_ceu() = proto_corrente_->info_textura_ceu();
+    }
   }
   if (proto_corrente_->has_nevoa()) {
     tabuleiro->mutable_nevoa()->CopyFrom(proto_corrente_->nevoa());
@@ -4901,7 +4909,7 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   if (proto_corrente_->has_cor_piso()) {
     *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
   }
-  return notificacao.release();
+  return notificacao;
 }
 
 // TODO mudar para unique_ptr
@@ -6248,11 +6256,10 @@ void Tabuleiro::AtualizaPisoCeuCenario(const TabuleiroProto& novo_proto) {
   }
   {
     // ceu.
-    bool novo_tem_ceu, velho_tem_ceu;
     const TabuleiroProto &novo_ceu = CenarioCeu(novo_proto), &velho_ceu = CenarioCeu(*proto_a_atualizar);
-    AtualizaTexturasNotificando(novo_tem_ceu, novo_ceu.info_textura_ceu(), velho_tem_ceu, velho_ceu.info_textura_ceu(), central_);
+    AtualizaTexturasNotificando(novo_ceu.has_info_textura_ceu(), novo_ceu.info_textura_ceu(), velho_ceu.has_info_textura_ceu(), velho_ceu.info_textura_ceu(), central_);
     const bool herdado = novo_proto.has_herdar_ceu_de();
-    if (novo_tem_ceu && !herdado) {
+    if (novo_ceu.has_info_textura_ceu() && !herdado) {
       AtualizaProtoInfoTextura(novo_ceu.info_textura_ceu(), proto_a_atualizar->mutable_info_textura_ceu());
     } else {
       proto_a_atualizar->clear_info_textura_ceu();

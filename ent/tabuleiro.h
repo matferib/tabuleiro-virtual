@@ -858,7 +858,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaEntidadesSelecionaveisJogador() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
-  ntf::Notificacao* SerializaPropriedades() const;
+  std::unique_ptr<ntf::Notificacao> SerializaPropriedades() const;
 
   /** @return uma notificacao do tipo TN_ATUALIZAR_RELEVO_TABULEIRO preenchida. */
   ntf::Notificacao* SerializaRelevoCenario() const;

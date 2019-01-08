@@ -49,11 +49,12 @@
 #include "ntf/notificacao.pb.h"
 #include "tex/texturas.h"
 
-using namespace std;
-
 namespace ifg {
 namespace qt {
 namespace {
+
+using namespace std;
+using google::protobuf::StringPrintf;
 
 class DesativadorWatchdogEscopo {
  public:
@@ -525,9 +526,24 @@ void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* comb
   for (const auto& sub_cenario : tabuleiro.sub_cenario()) {
     std::string descricao;
     if (sub_cenario.descricao_cenario().empty()) {
-      descricao = google::protobuf::StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
+      descricao = StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
     } else {
-      descricao = google::protobuf::StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
+      descricao = StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
+    }
+    combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(sub_cenario.id_cenario()));
+  }
+  ExpandeComboBox(combo);
+}
+
+void PreencheComboCenarioPai(const ent::TabuleiroProto& tabuleiro, QComboBox* combo) {
+  combo->addItem("Sem herança", QVariant(CENARIO_INVALIDO));
+  combo->addItem("Principal", QVariant(CENARIO_PRINCIPAL));
+  for (const auto& sub_cenario : tabuleiro.sub_cenario()) {
+    std::string descricao;
+    if (sub_cenario.descricao_cenario().empty()) {
+      descricao = StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
+    } else {
+      descricao = StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
     }
     combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(sub_cenario.id_cenario()));
   }
@@ -2403,6 +2419,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
 
+
+  // Combo de heranca de piso.
+  PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_piso);
+  if (tab_proto.has_herdar_piso_de()) {
+    LOG(INFO) << "herdar_piso: " << tab_proto.herdar_piso_de() << ", indice: " << gerador.combo_herdar_piso->findData(QVariant(tab_proto.herdar_piso_de()));
+    gerador.combo_herdar_piso->setCurrentIndex(gerador.combo_herdar_piso->findData(QVariant(tab_proto.herdar_piso_de())));
+  }
+  PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_ceu);
+  if (tab_proto.has_herdar_ceu_de()) {
+    gerador.combo_herdar_ceu->setCurrentIndex(gerador.combo_herdar_ceu->findData(QVariant(tab_proto.herdar_ceu_de())));
+  }
+
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
   // grade.
@@ -2482,30 +2510,42 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     }
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
-    // Textura.
-    if (gerador.combo_fundo->currentIndex() == 0) {
+    if (gerador.combo_herdar_piso->currentData().toInt() != CENARIO_INVALIDO) {
+      proto_retornado->set_herdar_piso_de(gerador.combo_herdar_piso->currentData().toInt());
       proto_retornado->clear_info_textura_piso();
-    } else {
-      PreencheTexturaProtoRetornado(tab_proto.info_textura_piso(), gerador.combo_fundo, proto_retornado->mutable_info_textura_piso());
-    }
-    // Ladrilho.
-    if (gerador.combo_fundo->currentIndex() != 0) {
-      proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
-    } else {
       proto_retornado->clear_ladrilho();
-    }
-    // Cor piso.
-    if (gerador.checkbox_cor_piso->checkState() == Qt::Checked) {
-      proto_retornado->mutable_cor_piso()->Swap(&cor_piso_proto);
-    } else {
       proto_retornado->clear_cor_piso();
-    }
-
-    // Textura ceu.
-    if (gerador.combo_ceu->currentIndex() == 0) {
-      proto_retornado->clear_info_textura_ceu();
     } else {
-      PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
+      proto_retornado->clear_herdar_piso_de();
+      // Textura.
+      if (gerador.combo_fundo->currentIndex() == 0) {
+        proto_retornado->clear_info_textura_piso();
+      } else {
+        PreencheTexturaProtoRetornado(tab_proto.info_textura_piso(), gerador.combo_fundo, proto_retornado->mutable_info_textura_piso());
+      }
+      // Ladrilho.
+      if (gerador.combo_fundo->currentIndex() != 0) {
+        proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
+      } else {
+        proto_retornado->clear_ladrilho();
+      }
+      // Cor piso.
+      if (gerador.checkbox_cor_piso->checkState() == Qt::Checked) {
+        proto_retornado->mutable_cor_piso()->Swap(&cor_piso_proto);
+      } else {
+        proto_retornado->clear_cor_piso();
+      }
+    }
+    // Textura ceu.
+    if (gerador.combo_herdar_ceu->currentData().toInt() != CENARIO_INVALIDO) {
+      proto_retornado->set_herdar_ceu_de(gerador.combo_herdar_piso->currentData().toInt());
+    } else {
+      proto_retornado->clear_herdar_ceu_de();
+      if (gerador.combo_ceu->currentIndex() == 0) {
+        proto_retornado->clear_info_textura_ceu();
+      } else {
+        PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
+      }
     }
     proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
     // Tamanho do tabuleiro.
