@@ -49,6 +49,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 10
     tipo_dano: TD_OUTRO
+    categoria_pericia: CATPER_EXOTICA
     carregamento {
       requer_carregamento: true
       tipo_carregamento: TC_RODADA_COMPLETA
