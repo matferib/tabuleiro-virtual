@@ -118,7 +118,7 @@ class ModeloTalentos : public QAbstractTableModel {
       return QVariant(TamanhoCelula(index.column()));
     }
 
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::ToolTipRole) {
       return QVariant();
     }
 
@@ -127,13 +127,20 @@ class ModeloTalentos : public QAbstractTableModel {
     const int column = index.column();
     switch (column) {
       case 0:
+        // Nome.
         if (role == Qt::DisplayRole) {
           return QVariant(QString::fromUtf8(tabelas_.Talento(modelo_[row].id).nome().c_str()));
+        } else if (role == Qt::ToolTipRole) {
+          return QVariant(QString::fromUtf8(tabelas_.Talento(modelo_[row].id).descricao().c_str()));
         } else if (role == Qt::EditRole) {
           return QVariant(modelo_[row].id.c_str());
         }
-      case 1: return QVariant(QString::fromUtf8(modelo_[row].complemento.c_str()));
-      case 2: return QVariant(modelo_[row].geral);
+      case 1: 
+        // complemento.
+        return role == Qt::DisplayRole || role == Qt::EditRole ? QVariant(QString::fromUtf8(modelo_[row].complemento.c_str())) : QVariant();
+      case 2:
+        // tipo.
+        return role == Qt::DisplayRole ? QVariant(modelo_[row].geral) : QVariant();
     }
     // Nunca deveria chegar aqui.
     LOG(INFO) << "Coluna invalida: " << column;
