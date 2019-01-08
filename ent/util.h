@@ -41,6 +41,11 @@ bool c_any_of(const C& c, const F& f) {
   return std::any_of(c.begin(), c.end(), f);
 }
 
+template <class C, class F>
+bool c_all_of(const C& c, const F& f) {
+  return std::all_of(c.begin(), c.end(), f);
+}
+
 template <class C, class T>
 bool c_any(const C& c, const T& t) {
   return std::find(c.begin(), c.end(), t) != c.end();
