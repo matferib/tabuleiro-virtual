@@ -1862,7 +1862,8 @@ int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
     }
-    LOG(INFO) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
+    VLOG(1) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
+    return total;
   }
   return 0;
 }

@@ -1270,7 +1270,11 @@ float Tabuleiro::TrataAcaoIndividual(
             entidade, entidade_destino->Proto(), acao_proto->id());
       }
       if (!entidade_destino->ImuneFurtivo()) {
-        delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+        int delta_furtivo = LeValorAtaqueFurtivo(entidade);
+        if (delta_furtivo < 0) {
+          ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
+          delta_pontos_vida += delta_furtivo;
+        }
       }
     }
 
