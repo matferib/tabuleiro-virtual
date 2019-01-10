@@ -2420,7 +2420,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
 
 
-  // Combo de heranca de piso.
+  // Combos de heranca.
   PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_piso);
   if (tab_proto.has_herdar_piso_de()) {
     LOG(INFO) << "herdar_piso: " << tab_proto.herdar_piso_de() << ", indice: " << gerador.combo_herdar_piso->findData(QVariant(tab_proto.herdar_piso_de()));
@@ -2429,6 +2429,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_ceu);
   if (tab_proto.has_herdar_ceu_de()) {
     gerador.combo_herdar_ceu->setCurrentIndex(gerador.combo_herdar_ceu->findData(QVariant(tab_proto.herdar_ceu_de())));
+  }
+  PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_iluminacao);
+  if (tab_proto.has_herdar_iluminacao_de()) {
+    gerador.combo_herdar_iluminacao->setCurrentIndex(gerador.combo_herdar_iluminacao->findData(QVariant(tab_proto.herdar_iluminacao_de())));
   }
 
   // Ladrilho de textura.
@@ -2484,10 +2488,6 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
                  [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, proto_retornado] {
-    proto_retornado->mutable_luz_direcional()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
-    proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
-    proto_retornado->mutable_luz_direcional()->mutable_cor()->Swap(&cor_direcional_proto);
-    proto_retornado->mutable_luz_ambiente()->Swap(&cor_ambiente_proto);
     // Nevoa.
     if (gerador.checkbox_nevoa->checkState() == Qt::Checked) {
       bool ok;
@@ -2510,6 +2510,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     }
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
+    // Textura de piso.
     if (gerador.combo_herdar_piso->currentData().toInt() != CENARIO_INVALIDO) {
       proto_retornado->set_herdar_piso_de(gerador.combo_herdar_piso->currentData().toInt());
       proto_retornado->clear_info_textura_piso();
@@ -2547,7 +2548,19 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
         PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
       }
     }
-    proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
+    // Iluminacao.
+    if (gerador.combo_herdar_iluminacao->currentData().toInt() != CENARIO_INVALIDO) {
+      proto_retornado->set_herdar_iluminacao_de(gerador.combo_herdar_iluminacao->currentData().toInt());
+      proto_retornado->clear_luz_ambiente();
+      proto_retornado->clear_luz_direcional();
+      proto_retornado->clear_aplicar_luz_ambiente_textura_ceu();
+    } else {
+      proto_retornado->mutable_luz_direcional()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
+      proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
+      proto_retornado->mutable_luz_direcional()->mutable_cor()->Swap(&cor_direcional_proto);
+      proto_retornado->mutable_luz_ambiente()->Swap(&cor_ambiente_proto);
+      proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
+    }
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       int indice = gerador.combo_fundo->currentIndex();
