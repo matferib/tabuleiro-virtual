@@ -5626,11 +5626,22 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
       *nova_entidade = sub_entidade;
       nova_entidade->clear_id();
       DecompoeFilho(m_pai, nova_entidade);
+      // Pai tem textura, filho nao. Herda.
+      if (proto_composto.has_info_textura() && !nova_entidade->has_info_textura()) {
+        *nova_entidade->mutable_info_textura() = proto_composto.info_textura();
+      }
+      // Se pai tem colisao, filho tb.
+      if (proto_composto.causa_colisao()) {
+        nova_entidade->set_causa_colisao(true);
+      }
+      // Sombra igual a do pai.
+      nova_entidade->set_faz_sombra(proto_composto.faz_sombra());
+
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();
     notificacao_remocao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
-    notificacao_remocao->mutable_entidade()->CopyFrom(proto_composto);
+    *notificacao_remocao->mutable_entidade() = proto_composto;
   }
   TrataNotificacao(grupo_notificacoes);
   AdicionaEntidadesSelecionadas(ids_adicionados_);

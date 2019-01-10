@@ -1,4 +1,3 @@
-Ao desagrupar, herdar textura se nao tiver.
 Nos subcenarios, permitir herdar nevoa.
 
 Anotacoes sessao tipao:
