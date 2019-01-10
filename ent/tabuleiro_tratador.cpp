@@ -2642,7 +2642,7 @@ void Tabuleiro::TrataRolarPericiaNotificando(int indice_pericia, const EntidadeP
   if (treinado || pericia_tabelada.sem_treinamento()) {
     const int bonus = ent::BonusTotal(pericia.bonus());
     const int dado = ent::RolaDado(20);
-    texto = google::protobuf::StringPrintf("%s: d%d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
+    texto = google::protobuf::StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
   } else {
     texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
   }
