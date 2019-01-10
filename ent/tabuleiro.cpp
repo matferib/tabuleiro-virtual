@@ -4882,8 +4882,6 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
   tabuleiro->set_id_cliente(id_cliente_);
-  *tabuleiro->mutable_luz_ambiente() = proto_corrente_->luz_ambiente();
-  *tabuleiro->mutable_luz_direcional() = proto_corrente_->luz_direcional();
   if (proto_corrente_->has_herdar_piso_de()) {
     tabuleiro->set_herdar_piso_de(proto_corrente_->herdar_piso_de());
   } else {
@@ -4900,13 +4898,20 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
       *tabuleiro->mutable_info_textura_ceu() = proto_corrente_->info_textura_ceu();
     }
   }
+  if (proto_corrente_->has_herdar_iluminacao_de()) {
+    tabuleiro->set_herdar_iluminacao_de(proto_corrente_->herdar_iluminacao_de());
+  } else {
+    *tabuleiro->mutable_luz_ambiente() = proto_corrente_->luz_ambiente();
+    *tabuleiro->mutable_luz_direcional() = proto_corrente_->luz_direcional();
+    tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
+  }
+
   if (proto_corrente_->has_nevoa()) {
     tabuleiro->mutable_nevoa()->CopyFrom(proto_corrente_->nevoa());
   }
   tabuleiro->set_largura(proto_corrente_->largura());
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
-  tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
   if (proto_corrente_->has_cor_piso()) {
     *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
   }
@@ -5002,12 +5007,9 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   }
   int tam_x_velho = proto_a_atualizar->largura();
   int tam_y_velho = proto_a_atualizar->altura();
-  proto_a_atualizar->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
-  proto_a_atualizar->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_a_atualizar->set_largura(novo_proto.largura());
   proto_a_atualizar->set_altura(novo_proto.altura());
   proto_a_atualizar->set_desenha_grade(novo_proto.desenha_grade());
-  proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   if (novo_proto.has_descricao_cenario()) {
     proto_a_atualizar->set_descricao_cenario(novo_proto.descricao_cenario());
   } else {
@@ -5027,6 +5029,17 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->set_herdar_ceu_de(novo_proto.herdar_ceu_de());
   } else {
     proto_a_atualizar->clear_herdar_ceu_de();
+  }
+  if (novo_proto.has_herdar_iluminacao_de()) {
+    proto_a_atualizar->set_herdar_iluminacao_de(novo_proto.herdar_iluminacao_de());
+    proto_a_atualizar->clear_luz_ambiente();
+    proto_a_atualizar->clear_luz_direcional();
+    proto_a_atualizar->clear_aplicar_luz_ambiente_textura_ceu();
+  } else {
+    proto_a_atualizar->clear_herdar_iluminacao_de();
+    *proto_a_atualizar->mutable_luz_ambiente() = novo_proto.luz_ambiente();
+    *proto_a_atualizar->mutable_luz_direcional() = novo_proto.luz_direcional();
+    proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   }
 
   AtualizaPisoCeuCenario(novo_proto);
@@ -6184,6 +6197,10 @@ const TabuleiroProto& Tabuleiro::CenarioCeu(const TabuleiroProto& sub_cenario) c
   return sub_cenario.has_herdar_ceu_de() ? ent::BuscaSubCenario(sub_cenario.herdar_ceu_de(), proto_) : sub_cenario;
 }
 
+const TabuleiroProto& Tabuleiro::CenarioIluminacao(const TabuleiroProto& sub_cenario) const {
+  return sub_cenario.has_herdar_iluminacao_de() ? ent::BuscaSubCenario(sub_cenario.herdar_iluminacao_de(), proto_) : sub_cenario;
+}
+
 namespace {
 
 // Retorna true se ha uma nova textura.
@@ -6380,10 +6397,11 @@ void Tabuleiro::DesenhaLuzes() {
     return;
   }
 
-  GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
-                                 proto_corrente_->luz_ambiente().g(),
-                                 proto_corrente_->luz_ambiente().b(),
-                                 proto_corrente_->luz_ambiente().a()};
+  const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
+  GLfloat cor_luz_ambiente[] = { cenario_luz.luz_ambiente().r(),
+                                 cenario_luz.luz_ambiente().g(),
+                                 cenario_luz.luz_ambiente().b(),
+                                 cenario_luz.luz_ambiente().a()};
   if (IluminacaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
     // Adiciona luz pro mestre ver melhor.
     cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
@@ -6402,14 +6420,14 @@ void Tabuleiro::DesenhaLuzes() {
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-    gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    gl::Roda(cenario_luz.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    gl::Roda(cenario_luz.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     // A cor da luz direcional.
     GLfloat cor_luz[] = {
-        proto_corrente_->luz_direcional().cor().r(),
-        proto_corrente_->luz_direcional().cor().g(),
-        proto_corrente_->luz_direcional().cor().b(),
-        proto_corrente_->luz_direcional().cor().a() };
+        cenario_luz.luz_direcional().cor().r(),
+        cenario_luz.luz_direcional().cor().g(),
+        cenario_luz.luz_direcional().cor().b(),
+        cenario_luz.luz_direcional().cor().a() };
     if (parametros_desenho_.tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
       cor_luz[0] = std::min(1.0f, cor_luz[0] * parametros_desenho_.multiplicador_visao_penumbra());
       cor_luz[1] = std::min(1.0f, cor_luz[1] * parametros_desenho_.multiplicador_visao_penumbra());
@@ -6449,17 +6467,18 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
   const auto& cenario_ceu = CenarioCeu(*proto_corrente_);
+  const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
   GLuint id_textura = texturas_->Textura(cenario_ceu.info_textura_ceu().id());
   GLenum tipo_textura = texturas_->TipoTextura(cenario_ceu.info_textura_ceu().id());
-  GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
-                                 proto_corrente_->luz_ambiente().g(),
-                                 proto_corrente_->luz_ambiente().b(),
-                                 proto_corrente_->luz_ambiente().a()};
+  GLfloat cor_luz_ambiente[] = { cenario_luz.luz_ambiente().r(),
+                                 cenario_luz.luz_ambiente().g(),
+                                 cenario_luz.luz_ambiente().b(),
+                                 cenario_luz.luz_ambiente().a()};
   gl::CorMisturaPreNevoa(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
   if (!cenario_ceu.aplicar_luz_ambiente_textura_ceu()) {
     MudaCor(COR_BRANCA);
   } else {
-    MudaCor(proto_corrente_->luz_ambiente());
+    MudaCor(cenario_luz.luz_ambiente());
   }
 
   gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);

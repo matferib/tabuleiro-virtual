@@ -910,6 +910,9 @@ class Tabuleiro : public ntf::Receptor {
   // Retorna o cenario que contem as informacoes de ceu para o sub cenario.
   const TabuleiroProto& CenarioCeu(const TabuleiroProto& sub_cenario) const;
 
+  // Retorna o cenario que contem as informacoes de iluminacao direcional e ambiente para o sub cenario.
+  const TabuleiroProto& CenarioIluminacao(const TabuleiroProto& sub_cenario) const;
+
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaPisoCeuCenario(const ent::TabuleiroProto& novo_proto);
 
