@@ -2434,6 +2434,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   if (tab_proto.has_herdar_iluminacao_de()) {
     gerador.combo_herdar_iluminacao->setCurrentIndex(gerador.combo_herdar_iluminacao->findData(QVariant(tab_proto.herdar_iluminacao_de())));
   }
+  PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_nevoa);
+  if (tab_proto.has_herdar_nevoa_de()) {
+    gerador.combo_herdar_nevoa->setCurrentIndex(gerador.combo_herdar_nevoa->findData(QVariant(tab_proto.herdar_nevoa_de())));
+  }
 
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
@@ -2488,28 +2492,33 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
                  [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, proto_retornado] {
-    // Nevoa.
-    if (gerador.checkbox_nevoa->checkState() == Qt::Checked) {
-      bool ok;
-      int d_min = gerador.linha_nevoa_min->text().toInt(&ok);
-      if (!ok) {
-        LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa minima invalida: "
-                     << gerador.linha_nevoa_min->text().toStdString();
-        return;
-      }
-      int d_max = gerador.linha_nevoa_max->text().toInt(&ok);
-      if (!ok || d_min >= d_max) {
-        LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa maxima invalida: "
-                     << gerador.linha_nevoa_max->text().toStdString();
-        return;
-      }
-      proto_retornado->mutable_nevoa()->set_minimo(d_min);
-      proto_retornado->mutable_nevoa()->set_maximo(d_max);
-    } else {
-      proto_retornado->clear_nevoa();
-    }
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
+    // Nevoa.
+    if (gerador.combo_herdar_nevoa->currentData().toInt() != CENARIO_INVALIDO) {
+      proto_retornado->set_herdar_nevoa_de(gerador.combo_herdar_nevoa->currentData().toInt());
+      proto_retornado->clear_nevoa();
+    } else {
+      if (gerador.checkbox_nevoa->checkState() == Qt::Checked) {
+        bool ok;
+        int d_min = gerador.linha_nevoa_min->text().toInt(&ok);
+        if (!ok) {
+          LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa minima invalida: "
+                       << gerador.linha_nevoa_min->text().toStdString();
+          return;
+        }
+        int d_max = gerador.linha_nevoa_max->text().toInt(&ok);
+        if (!ok || d_min >= d_max) {
+          LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa maxima invalida: "
+                       << gerador.linha_nevoa_max->text().toStdString();
+          return;
+        }
+        proto_retornado->mutable_nevoa()->set_minimo(d_min);
+        proto_retornado->mutable_nevoa()->set_maximo(d_max);
+      } else {
+        proto_retornado->clear_nevoa();
+      }
+    }
     // Textura de piso.
     if (gerador.combo_herdar_piso->currentData().toInt() != CENARIO_INVALIDO) {
       proto_retornado->set_herdar_piso_de(gerador.combo_herdar_piso->currentData().toInt());
