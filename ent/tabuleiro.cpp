@@ -4908,8 +4908,10 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
   }
 
-  if (proto_corrente_->has_nevoa()) {
-    tabuleiro->mutable_nevoa()->CopyFrom(proto_corrente_->nevoa());
+  if (proto_corrente_->has_herdar_nevoa_de()) {
+    tabuleiro->set_herdar_nevoa_de(proto_corrente_->herdar_nevoa_de());
+  } else {
+    *tabuleiro->mutable_nevoa() = proto_corrente_->nevoa();
   }
   tabuleiro->set_largura(proto_corrente_->largura());
   tabuleiro->set_altura(proto_corrente_->altura());
@@ -5017,10 +5019,15 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   } else {
     proto_a_atualizar->clear_descricao_cenario();
   }
-  if (novo_proto.has_nevoa()) {
-    *proto_a_atualizar->mutable_nevoa() = novo_proto.nevoa();
+  if (novo_proto.has_herdar_nevoa_de()) {
+    proto_a_atualizar->set_herdar_nevoa_de(novo_proto.herdar_nevoa_de());
   } else {
-    proto_a_atualizar->clear_nevoa();
+    proto_a_atualizar->clear_herdar_nevoa_de();
+    if (novo_proto.has_nevoa()) {
+      *proto_a_atualizar->mutable_nevoa() = novo_proto.nevoa();
+    } else {
+      proto_a_atualizar->clear_nevoa();
+    }
   }
   if (novo_proto.has_herdar_piso_de()) {
     proto_a_atualizar->set_herdar_piso_de(novo_proto.herdar_piso_de());
@@ -6214,6 +6221,10 @@ const TabuleiroProto& Tabuleiro::CenarioIluminacao(const TabuleiroProto& sub_cen
   return sub_cenario.has_herdar_iluminacao_de() ? ent::BuscaSubCenario(sub_cenario.herdar_iluminacao_de(), proto_) : sub_cenario;
 }
 
+const TabuleiroProto& Tabuleiro::CenarioNevoa(const TabuleiroProto& sub_cenario) const {
+  return sub_cenario.has_herdar_nevoa_de() ? ent::BuscaSubCenario(sub_cenario.herdar_nevoa_de(), proto_) : sub_cenario;
+}
+
 namespace {
 
 // Retorna true se ha uma nova textura.
@@ -6450,7 +6461,8 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Habilita(GL_LIGHT0);
   }
 
-  if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
+  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
+  if (parametros_desenho_.desenha_nevoa() && cenario_nevoa.has_nevoa() &&
       (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
     float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
@@ -6460,7 +6472,7 @@ void Tabuleiro::DesenhaLuzes() {
       pos[1] = epos.y();
       pos[2] = epos.z();
     }
-    ConfiguraNevoa(proto_corrente_->nevoa().minimo(), proto_corrente_->nevoa().maximo(),
+    ConfiguraNevoa(cenario_nevoa.nevoa().minimo(), cenario_nevoa.nevoa().maximo(),
                    cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos, &parametros_desenho_);
   } else {
     gl::Desabilita(GL_FOG);
