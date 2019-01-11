@@ -71,7 +71,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
         gl::VboNaoGravado vbo_base = gl::VboRetangulo(1.0f);
         vbo_base.Escala(-1.0f, 1.0f, -1.0f);
         vbo.Concatena(vbo_base);
-      } 
+      }
     }
     break;
     case TF_RETANGULO: {
@@ -88,6 +88,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
     break;
     case TF_HEMISFERIO: {
       vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
+      vbo.Escala(1.0f, 1.0f, 2.0f);
     }
     break;
     case TF_LIVRE: {
