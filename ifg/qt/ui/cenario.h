@@ -31,17 +31,23 @@ namespace qt {
 class Ui_DialogoIluminacao
 {
 public:
-    QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_5;
+    QGridLayout *gridLayout_2;
     QLabel *label_15;
     QLineEdit *campo_id;
-    QLineEdit *campo_descricao;
     QLabel *label_16;
+    QLineEdit *campo_descricao;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *label_17;
+    QComboBox *combo_id_cenario;
+    QPushButton *botao_clonar;
     QHBoxLayout *horizontalLayout_9;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
-    QPushButton *botao_cor_ambiente;
+    QHBoxLayout *horizontalLayout_14;
+    QLabel *label_21;
+    QComboBox *combo_herdar_iluminacao;
     QHBoxLayout *horizontalLayout_10;
+    QPushButton *botao_cor_ambiente;
     QLabel *label_18;
     QPushButton *botao_cor_direcional;
     QGridLayout *gridLayout;
@@ -56,10 +62,11 @@ public:
     QLabel *label_5;
     QSpacerItem *horizontalSpacer;
     QLabel *label_4;
-    QHBoxLayout *horizontalLayout_6;
-    QLabel *label_17;
-    QComboBox *combo_id_cenario;
-    QPushButton *botao_clonar;
+    QGroupBox *groupBox_5;
+    QVBoxLayout *verticalLayout_4;
+    QHBoxLayout *horizontalLayout_15;
+    QLabel *label_22;
+    QComboBox *combo_herdar_nevoa;
     QHBoxLayout *horizontalLayout_3;
     QCheckBox *checkbox_nevoa;
     QLabel *label_12;
@@ -104,35 +111,55 @@ public:
         if (ifg__qt__DialogoIluminacao->objectName().isEmpty())
             ifg__qt__DialogoIluminacao->setObjectName(QStringLiteral("ifg__qt__DialogoIluminacao"));
         ifg__qt__DialogoIluminacao->resize(929, 948);
-        verticalLayout_4 = new QVBoxLayout(ifg__qt__DialogoIluminacao);
-        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
-        horizontalLayout_5 = new QHBoxLayout();
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        gridLayout_2 = new QGridLayout(ifg__qt__DialogoIluminacao);
+        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
         label_15 = new QLabel(ifg__qt__DialogoIluminacao);
         label_15->setObjectName(QStringLiteral("label_15"));
 
-        horizontalLayout_5->addWidget(label_15, 0, Qt::AlignRight);
+        gridLayout_2->addWidget(label_15, 0, 0, 1, 1);
 
         campo_id = new QLineEdit(ifg__qt__DialogoIluminacao);
         campo_id->setObjectName(QStringLiteral("campo_id"));
         campo_id->setMaximumSize(QSize(50, 16777215));
         campo_id->setReadOnly(true);
 
-        horizontalLayout_5->addWidget(campo_id, 0, Qt::AlignLeft);
+        gridLayout_2->addWidget(campo_id, 0, 1, 1, 1);
+
+        label_16 = new QLabel(ifg__qt__DialogoIluminacao);
+        label_16->setObjectName(QStringLiteral("label_16"));
+
+        gridLayout_2->addWidget(label_16, 0, 2, 1, 1);
 
         campo_descricao = new QLineEdit(ifg__qt__DialogoIluminacao);
         campo_descricao->setObjectName(QStringLiteral("campo_descricao"));
         campo_descricao->setReadOnly(false);
 
-        horizontalLayout_5->addWidget(campo_descricao);
+        gridLayout_2->addWidget(campo_descricao, 0, 3, 1, 1);
 
-        label_16 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_16->setObjectName(QStringLiteral("label_16"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
+        label_17 = new QLabel(ifg__qt__DialogoIluminacao);
+        label_17->setObjectName(QStringLiteral("label_17"));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(label_17->sizePolicy().hasHeightForWidth());
+        label_17->setSizePolicy(sizePolicy);
 
-        horizontalLayout_5->addWidget(label_16);
+        horizontalLayout_6->addWidget(label_17);
+
+        combo_id_cenario = new QComboBox(ifg__qt__DialogoIluminacao);
+        combo_id_cenario->setObjectName(QStringLiteral("combo_id_cenario"));
+
+        horizontalLayout_6->addWidget(combo_id_cenario);
+
+        botao_clonar = new QPushButton(ifg__qt__DialogoIluminacao);
+        botao_clonar->setObjectName(QStringLiteral("botao_clonar"));
+
+        horizontalLayout_6->addWidget(botao_clonar);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_5);
+        gridLayout_2->addLayout(horizontalLayout_6, 1, 0, 1, 4);
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
@@ -140,35 +167,53 @@ public:
         groupBox->setObjectName(QStringLiteral("groupBox"));
         verticalLayout = new QVBoxLayout(groupBox);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        botao_cor_ambiente = new QPushButton(groupBox);
-        botao_cor_ambiente->setObjectName(QStringLiteral("botao_cor_ambiente"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(botao_cor_ambiente->sizePolicy().hasHeightForWidth());
-        botao_cor_ambiente->setSizePolicy(sizePolicy);
+        horizontalLayout_14 = new QHBoxLayout();
+        horizontalLayout_14->setObjectName(QStringLiteral("horizontalLayout_14"));
+        label_21 = new QLabel(groupBox);
+        label_21->setObjectName(QStringLiteral("label_21"));
+        sizePolicy.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
+        label_21->setSizePolicy(sizePolicy);
 
-        verticalLayout->addWidget(botao_cor_ambiente);
+        horizontalLayout_14->addWidget(label_21);
+
+        combo_herdar_iluminacao = new QComboBox(groupBox);
+        combo_herdar_iluminacao->setObjectName(QStringLiteral("combo_herdar_iluminacao"));
+
+        horizontalLayout_14->addWidget(combo_herdar_iluminacao);
+
+
+        verticalLayout->addLayout(horizontalLayout_14);
 
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
-        label_18 = new QLabel(groupBox);
-        label_18->setObjectName(QStringLiteral("label_18"));
-        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        botao_cor_ambiente = new QPushButton(groupBox);
+        botao_cor_ambiente->setObjectName(QStringLiteral("botao_cor_ambiente"));
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label_18->sizePolicy().hasHeightForWidth());
-        label_18->setSizePolicy(sizePolicy1);
+        sizePolicy1.setHeightForWidth(botao_cor_ambiente->sizePolicy().hasHeightForWidth());
+        botao_cor_ambiente->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_10->addWidget(botao_cor_ambiente);
+
+        label_18 = new QLabel(groupBox);
+        label_18->setObjectName(QStringLiteral("label_18"));
+        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label_18->sizePolicy().hasHeightForWidth());
+        label_18->setSizePolicy(sizePolicy2);
+        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_10->addWidget(label_18);
 
         botao_cor_direcional = new QPushButton(groupBox);
         botao_cor_direcional->setObjectName(QStringLiteral("botao_cor_direcional"));
-        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(botao_cor_direcional->sizePolicy().hasHeightForWidth());
-        botao_cor_direcional->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(botao_cor_direcional->sizePolicy().hasHeightForWidth());
+        botao_cor_direcional->setSizePolicy(sizePolicy3);
 
         horizontalLayout_10->addWidget(botao_cor_direcional);
 
@@ -179,26 +224,26 @@ public:
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         label_6 = new QLabel(groupBox);
         label_6->setObjectName(QStringLiteral("label_6"));
-        sizePolicy2.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
-        label_6->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
+        label_6->setSizePolicy(sizePolicy3);
         label_6->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_6, 1, 6, 1, 1);
 
         label_7 = new QLabel(groupBox);
         label_7->setObjectName(QStringLiteral("label_7"));
-        QSizePolicy sizePolicy3(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
-        label_7->setSizePolicy(sizePolicy3);
+        QSizePolicy sizePolicy4(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
+        label_7->setSizePolicy(sizePolicy4);
 
         gridLayout->addWidget(label_7, 1, 0, 1, 1);
 
         label_3 = new QLabel(groupBox);
         label_3->setObjectName(QStringLiteral("label_3"));
-        sizePolicy2.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
-        label_3->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
+        label_3->setSizePolicy(sizePolicy3);
         label_3->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_3, 2, 5, 1, 1);
@@ -220,16 +265,16 @@ public:
 
         label_9 = new QLabel(groupBox);
         label_9->setObjectName(QStringLiteral("label_9"));
-        sizePolicy3.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy3);
+        sizePolicy4.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
+        label_9->setSizePolicy(sizePolicy4);
         label_9->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_9, 0, 1, 1, 1);
 
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QStringLiteral("label_2"));
-        sizePolicy3.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy3);
+        sizePolicy4.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy4);
 
         gridLayout->addWidget(label_2, 1, 2, 1, 1);
 
@@ -250,16 +295,16 @@ public:
 
         label_8 = new QLabel(groupBox);
         label_8->setObjectName(QStringLiteral("label_8"));
-        sizePolicy3.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy3);
+        sizePolicy4.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy4);
         label_8->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_8, 2, 1, 1, 1);
 
         label_5 = new QLabel(groupBox);
         label_5->setObjectName(QStringLiteral("label_5"));
-        sizePolicy2.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
-        label_5->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
+        label_5->setSizePolicy(sizePolicy3);
         label_5->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_5, 1, 4, 1, 1);
@@ -270,8 +315,8 @@ public:
 
         label_4 = new QLabel(groupBox);
         label_4->setObjectName(QStringLiteral("label_4"));
-        sizePolicy2.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
-        label_4->setSizePolicy(sizePolicy2);
+        sizePolicy3.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy3);
         label_4->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label_4, 0, 5, 1, 1);
@@ -283,61 +328,57 @@ public:
         horizontalLayout_9->addWidget(groupBox);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_9);
+        gridLayout_2->addLayout(horizontalLayout_9, 2, 0, 1, 4);
 
-        horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
-        label_17 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_17->setObjectName(QStringLiteral("label_17"));
-        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(label_17->sizePolicy().hasHeightForWidth());
-        label_17->setSizePolicy(sizePolicy4);
+        groupBox_5 = new QGroupBox(ifg__qt__DialogoIluminacao);
+        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        verticalLayout_4 = new QVBoxLayout(groupBox_5);
+        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        horizontalLayout_15 = new QHBoxLayout();
+        horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
+        label_22 = new QLabel(groupBox_5);
+        label_22->setObjectName(QStringLiteral("label_22"));
+        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
+        label_22->setSizePolicy(sizePolicy);
 
-        horizontalLayout_6->addWidget(label_17);
+        horizontalLayout_15->addWidget(label_22);
 
-        combo_id_cenario = new QComboBox(ifg__qt__DialogoIluminacao);
-        combo_id_cenario->setObjectName(QStringLiteral("combo_id_cenario"));
+        combo_herdar_nevoa = new QComboBox(groupBox_5);
+        combo_herdar_nevoa->setObjectName(QStringLiteral("combo_herdar_nevoa"));
 
-        horizontalLayout_6->addWidget(combo_id_cenario);
-
-        botao_clonar = new QPushButton(ifg__qt__DialogoIluminacao);
-        botao_clonar->setObjectName(QStringLiteral("botao_clonar"));
-
-        horizontalLayout_6->addWidget(botao_clonar);
+        horizontalLayout_15->addWidget(combo_herdar_nevoa);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_6);
+        verticalLayout_4->addLayout(horizontalLayout_15);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        checkbox_nevoa = new QCheckBox(ifg__qt__DialogoIluminacao);
+        checkbox_nevoa = new QCheckBox(groupBox_5);
         checkbox_nevoa->setObjectName(QStringLiteral("checkbox_nevoa"));
         checkbox_nevoa->setMaximumSize(QSize(80, 16777215));
 
         horizontalLayout_3->addWidget(checkbox_nevoa);
 
-        label_12 = new QLabel(ifg__qt__DialogoIluminacao);
+        label_12 = new QLabel(groupBox_5);
         label_12->setObjectName(QStringLiteral("label_12"));
         label_12->setMaximumSize(QSize(30, 16777215));
 
         horizontalLayout_3->addWidget(label_12);
 
-        linha_nevoa_min = new QLineEdit(ifg__qt__DialogoIluminacao);
+        linha_nevoa_min = new QLineEdit(groupBox_5);
         linha_nevoa_min->setObjectName(QStringLiteral("linha_nevoa_min"));
         linha_nevoa_min->setEnabled(false);
         linha_nevoa_min->setMaximumSize(QSize(50, 16777215));
 
         horizontalLayout_3->addWidget(linha_nevoa_min);
 
-        label_13 = new QLabel(ifg__qt__DialogoIluminacao);
+        label_13 = new QLabel(groupBox_5);
         label_13->setObjectName(QStringLiteral("label_13"));
         label_13->setMaximumSize(QSize(30, 16777215));
 
         horizontalLayout_3->addWidget(label_13);
 
-        linha_nevoa_max = new QLineEdit(ifg__qt__DialogoIluminacao);
+        linha_nevoa_max = new QLineEdit(groupBox_5);
         linha_nevoa_max->setObjectName(QStringLiteral("linha_nevoa_max"));
         linha_nevoa_max->setEnabled(false);
         linha_nevoa_max->setMaximumSize(QSize(50, 16777215));
@@ -347,6 +388,9 @@ public:
 
         verticalLayout_4->addLayout(horizontalLayout_3);
 
+
+        gridLayout_2->addWidget(groupBox_5, 3, 0, 1, 4);
+
         groupBox_3 = new QGroupBox(ifg__qt__DialogoIluminacao);
         groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
         verticalLayout_3 = new QVBoxLayout(groupBox_3);
@@ -355,8 +399,8 @@ public:
         horizontalLayout_12->setObjectName(QStringLiteral("horizontalLayout_12"));
         label_20 = new QLabel(groupBox_3);
         label_20->setObjectName(QStringLiteral("label_20"));
-        sizePolicy4.setHeightForWidth(label_20->sizePolicy().hasHeightForWidth());
-        label_20->setSizePolicy(sizePolicy4);
+        sizePolicy.setHeightForWidth(label_20->sizePolicy().hasHeightForWidth());
+        label_20->setSizePolicy(sizePolicy);
 
         horizontalLayout_12->addWidget(label_20);
 
@@ -390,7 +434,7 @@ public:
         verticalLayout_3->addLayout(horizontalLayout_4);
 
 
-        verticalLayout_4->addWidget(groupBox_3);
+        gridLayout_2->addWidget(groupBox_3, 4, 0, 1, 4);
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoIluminacao);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
@@ -400,8 +444,8 @@ public:
         horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
         label_19 = new QLabel(groupBox_2);
         label_19->setObjectName(QStringLiteral("label_19"));
-        sizePolicy4.setHeightForWidth(label_19->sizePolicy().hasHeightForWidth());
-        label_19->setSizePolicy(sizePolicy4);
+        sizePolicy.setHeightForWidth(label_19->sizePolicy().hasHeightForWidth());
+        label_19->setSizePolicy(sizePolicy);
 
         horizontalLayout_11->addWidget(label_19);
 
@@ -419,8 +463,8 @@ public:
         horizontalLayout_8->setObjectName(QStringLiteral("horizontalLayout_8"));
         label = new QLabel(groupBox_2);
         label->setObjectName(QStringLiteral("label"));
-        sizePolicy4.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy4);
+        sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy);
         label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
         horizontalLayout_8->addWidget(label);
@@ -437,8 +481,8 @@ public:
         horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
         checkbox_cor_piso = new QCheckBox(groupBox_2);
         checkbox_cor_piso->setObjectName(QStringLiteral("checkbox_cor_piso"));
-        sizePolicy.setHeightForWidth(checkbox_cor_piso->sizePolicy().hasHeightForWidth());
-        checkbox_cor_piso->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(checkbox_cor_piso->sizePolicy().hasHeightForWidth());
+        checkbox_cor_piso->setSizePolicy(sizePolicy1);
 
         horizontalLayout_7->addWidget(checkbox_cor_piso);
 
@@ -464,7 +508,7 @@ public:
         verticalLayout_2->addLayout(horizontalLayout);
 
 
-        verticalLayout_4->addWidget(groupBox_2);
+        gridLayout_2->addWidget(groupBox_2, 5, 0, 1, 4);
 
         groupBox_4 = new QGroupBox(ifg__qt__DialogoIluminacao);
         groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
@@ -474,8 +518,8 @@ public:
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         linha_largura = new QLineEdit(groupBox_4);
         linha_largura->setObjectName(QStringLiteral("linha_largura"));
-        sizePolicy.setHeightForWidth(linha_largura->sizePolicy().hasHeightForWidth());
-        linha_largura->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(linha_largura->sizePolicy().hasHeightForWidth());
+        linha_largura->setSizePolicy(sizePolicy1);
         linha_largura->setMaximumSize(QSize(50, 16777215));
         linha_largura->setInputMask(QStringLiteral("099"));
 
@@ -483,15 +527,15 @@ public:
 
         label_10 = new QLabel(groupBox_4);
         label_10->setObjectName(QStringLiteral("label_10"));
-        sizePolicy.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
-        label_10->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy1);
 
         horizontalLayout_2->addWidget(label_10);
 
         linha_altura = new QLineEdit(groupBox_4);
         linha_altura->setObjectName(QStringLiteral("linha_altura"));
-        sizePolicy.setHeightForWidth(linha_altura->sizePolicy().hasHeightForWidth());
-        linha_altura->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(linha_altura->sizePolicy().hasHeightForWidth());
+        linha_altura->setSizePolicy(sizePolicy1);
         linha_altura->setMaximumSize(QSize(50, 16777215));
         linha_altura->setInputMask(QStringLiteral("099"));
 
@@ -511,14 +555,14 @@ public:
         horizontalLayout_13->addLayout(horizontalLayout_2);
 
 
-        verticalLayout_4->addWidget(groupBox_4);
+        gridLayout_2->addWidget(groupBox_4, 6, 0, 1, 4);
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoIluminacao);
         botoes->setObjectName(QStringLiteral("botoes"));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-        verticalLayout_4->addWidget(botoes);
+        gridLayout_2->addWidget(botoes, 7, 0, 1, 4);
 
 
         retranslateUi(ifg__qt__DialogoIluminacao);
@@ -533,9 +577,12 @@ public:
     {
         ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Propriedades Tabuleiro", nullptr));
         label_15->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Id", nullptr));
-        campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", nullptr));
         label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", nullptr));
+        campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", nullptr));
+        label_17->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Clonar", nullptr));
+        botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", nullptr));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Ilumina\303\247\303\243o", nullptr));
+        label_21->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
         botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", nullptr));
         label_18->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", nullptr));
         botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", nullptr));
@@ -553,9 +600,9 @@ public:
         label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", nullptr));
         label_5->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "W", nullptr));
         label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", nullptr));
-        label_17->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Clonar", nullptr));
-        botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", nullptr));
-        checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", nullptr));
+        groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", nullptr));
+        label_22->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
+        checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Habilitar", nullptr));
         label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", nullptr));
 #ifndef QT_NO_TOOLTIP
         linha_nevoa_min->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia m\303\255nma da n\303\251voa, em m.", nullptr));

@@ -1,3 +1,5 @@
+Agrupamento de hemisferio ta perdendo altura.
+Arrumar cor de sub formas compostas.
 Nos subcenarios, permitir herdar nevoa.
 
 Anotacoes sessao tipao:
