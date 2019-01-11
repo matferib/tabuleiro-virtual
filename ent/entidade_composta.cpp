@@ -42,6 +42,12 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
     }
     vbos.Concatena(&sub_vbos);
   }
+  if (proto.has_cor()) {
+    const auto& c = proto.cor();
+    vbos.MesclaCores(c.r(), c.g(), c.b(), c.a());
+  } else {
+    vbos.MesclaCores(1.0f, 1.0f, 1.0f, 1.0f);
+  }
   if (mundo) {
     Matrix4 m;
     m.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
@@ -56,13 +62,8 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  //AlteraBlendEscopo blend_escopo(pd, proto.cor());
-  std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
-  if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos() || pd->entidade_selecionada()) {
-    blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
-  }
-
   if (pd->has_desenha_objeto_desmembrado() && pd->desenha_objeto_desmembrado() == proto.id()) {
+    // Usado em picking para decomposicao de objetos.
     pd->clear_desenha_objeto_desmembrado();
     pd->set_regera_vbo(true);
     Tabelas t(nullptr);
@@ -80,6 +81,11 @@ void Entidade::DesenhaObjetoCompostoProto(
     pd->set_desenha_objeto_desmembrado(proto.id());
     pd->clear_regera_vbo();
     return;
+  }
+
+  std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
+  if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos() || pd->entidade_selecionada()) {
+    blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
   }
 
 #if !VBO_COM_MODELAGEM

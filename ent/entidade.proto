@@ -58,7 +58,7 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 96.
+// Proximo id: 98.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -438,4 +438,9 @@ message EntidadeProto {
   // Fim feiticos.
   // Apenas para atualizacao parcial reiniciar os ataques.
   optional bool reiniciar_ataque = 91;
+
+  // Indica que a entidade está montada em outra, ou seja, o movimento acompanhará.
+  optional uint32 montado_em = 96;
+  // Quais entidades estão montadas nessa.
+  repeated uint32 entidades_montadas = 97;
 }

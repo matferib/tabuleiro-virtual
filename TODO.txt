@@ -1,7 +1,5 @@
-Arrumar cor de sub formas compostas.
 Nos subcenarios, permitir herdar nevoa.
 Entidades montadas.
-Restaurar como nao selecionaveis.
 
 Anotacoes sessao tipao:
 - Terminar Wheloon, leste.
