@@ -360,9 +360,10 @@ void Tabuleiro::EscreveInfoGeral(const std::string& info_geral) {
 }
 
 void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
-  float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
+  float lado_maior = std::max(TamanhoX(), TamanhoY());
+  float val = lado_maior * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
   gl::Ortogonal(-val, val, -val, val,
-                0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
+                0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, DISTANCIA_LUZ_DIRECIONAL_METROS + lado_maior * TAMANHO_LADO_QUADRADO_2);
   gl::AtualizaMatrizes();
 }
 
@@ -466,10 +467,11 @@ void Tabuleiro::ConfiguraOlhar() {
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
+  const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
   Matrix4 mr;
-  mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
-  mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
-  mr.scale(150.0f);  // TODO valor.
+  mr.rotateY(-cenario_luz.luz_direcional().inclinacao_graus());
+  mr.rotateZ(cenario_luz.luz_direcional().posicao_graus());
+  mr.scale(DISTANCIA_LUZ_DIRECIONAL_METROS);
   Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
   vl = mr * vl;
   //LOG(INFO) << vl;
