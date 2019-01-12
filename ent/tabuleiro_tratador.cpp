@@ -1222,7 +1222,7 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     });
 
-    if (da != nullptr && (da->has_municao() || da->has_limite_vezes())) {
+    if (da != nullptr && (da->has_municao() || da->has_limite_vezes() || da->requer_carregamento())) {
       // Consome vezes e/ou municao e carregamento.
       if (da->requer_carregamento()) {
         atraso_s += 0.5f;
