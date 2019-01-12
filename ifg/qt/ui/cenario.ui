@@ -102,7 +102,24 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="combo_herdar_iluminacao"/>
+           <widget class="QComboBox" name="combo_herdar_iluminacao">
+            <property name="toolTip">
+             <string>Se váilido, configurações de luz serão as mesmas do cenário passado.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -392,7 +409,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="combo_herdar_nevoa"/>
+         <widget class="QComboBox" name="combo_herdar_nevoa">
+          <property name="toolTip">
+           <string>Se váilido, configurações de névoa serão as mesmas do cenário passado.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -496,7 +530,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="combo_herdar_ceu"/>
+         <widget class="QComboBox" name="combo_herdar_ceu">
+          <property name="toolTip">
+           <string>Se váilido, configurações de céu serão as mesmas do cenário passado.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -552,7 +603,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="combo_herdar_piso"/>
+         <widget class="QComboBox" name="combo_herdar_piso">
+          <property name="toolTip">
+           <string>Se váilido, configurações de piso serão as mesmas do cenário passado.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
