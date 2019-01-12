@@ -587,7 +587,7 @@ modelo {
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_warrior' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
     tesouro { tesouro: '2d20 PP' }
   }

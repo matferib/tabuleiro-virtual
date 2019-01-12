@@ -1660,7 +1660,7 @@ modelo {
     }
     info_classes { id: 'combatente' nivel: 3 }
     dados_ataque { rotulo: 'espada longa OP' empunhadura: EA_ARMA_ESCUDO id_arma: 'espada_longa' obra_prima: true }
-    dados_ataque { rotulo: 'besta leve OP' id_arma: 'besta_leve' obra_prima: true }
+    dados_ataque { rotulo: 'besta leve OP' id_arma: 'besta_leve' obra_prima: true municao: 20 }
     # Defesa.
     dados_defesa { id_armadura: 'couro_batido' id_escudo: 'pesado_madeira' }
     atributos {
@@ -2022,7 +2022,7 @@ modelo {
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'combatente' nivel: 1 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_curta' tipo_ataque: 'Ataque Corpo a Corpo' }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_defesa { id_armadura: 'camisao' id_escudo: 'leve_madeira' }
     tesouro { tesouro: '2d10 PP' }
   }
@@ -2034,7 +2034,7 @@ modelo {
     dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
     tesouro { tesouro: '2d20 PP' }
   }
@@ -2106,7 +2106,7 @@ modelo {
       gerais { id: 'foco_em_arma' complemento: 'sabre' }
     }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
     dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
       pocoes { id: 'forca_touro' }
@@ -2134,7 +2134,7 @@ modelo {
       gerais { id: 'acuidade_arma' }
     }
     dados_ataque { grupo: 'cac' id_arma: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
     dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
       pocoes { id: 'agilidade_gato' }
@@ -2162,7 +2162,7 @@ modelo {
       gerais { id: 'persuasivo' }
     }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
     dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
       pocoes { id: 'forca_touro' }
@@ -2190,7 +2190,7 @@ modelo {
       gerais { id: 'persuasivo' }
     }
     dados_ataque { grupo: 'cac' id_arma: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
     dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
       pocoes { id: 'agilidade_gato' }
@@ -2217,6 +2217,7 @@ modelo {
     dados_ataque {
       id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 20
     }
     tesouro {
       pocoes { id: 'protecao_contra_mal' }
