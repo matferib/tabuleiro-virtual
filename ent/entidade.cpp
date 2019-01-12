@@ -2077,7 +2077,6 @@ void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
   luz_acao.tempo_desde_inicio_ms = 0;
   luz_acao.inicio.set_raio_m(luz.raio_m());
   *luz_acao.inicio.mutable_cor() = luz.cor();
-  LOG(INFO) << "Luz acao ligada";
 }
 
 void Entidade::AtivaFumegando(int duracao_ms) {
