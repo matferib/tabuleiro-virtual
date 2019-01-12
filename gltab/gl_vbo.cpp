@@ -161,6 +161,12 @@ void VbosNaoGravados::AtribuiCor(float r, float g, float b, float a) {
   }
 }
 
+void VbosNaoGravados::MesclaCores(float r, float g, float b, float a) {
+  for (auto& vbo : vbos_) {
+    vbo.MesclaCores(r, g, b, a);
+  }
+}
+
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);
@@ -500,6 +506,19 @@ void VboNaoGravado::AtribuiCores(const float* cores) {
   cores_.clear();
   cores_.insert(cores_.end(), cores, cores + (coordenadas_.size() * 4) / num_dimensoes_);
   tem_cores_ = true;
+}
+
+void VboNaoGravado::MesclaCores(float r, float g, float b, float a) {
+  if (!tem_cores_) {
+    AtribuiCor(r, g, b, a);
+  } else {
+    for (int i = 0; i < cores_.size(); i += 4) {
+      cores_[i] *= r;
+      cores_[i + 1] *= g;
+      cores_[i + 2] *= b;
+      cores_[i + 3] *= a;
+    }
+  }
 }
 
 VboNaoGravado VboNaoGravado::ExtraiVboNormais() const {
