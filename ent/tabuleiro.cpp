@@ -370,8 +370,8 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
 void Tabuleiro::ConfiguraProjecaoMapeamentoOclusaoLuzes() {
   gl::Perspectiva(90.0f, 1.0f,
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
-                  DISTANCIA_PLANO_CORTE_DISTANTE);
-  gl::PlanoDistanteOclusao(DISTANCIA_PLANO_CORTE_DISTANTE);
+                  DistanciaPlanoCorteDistante());
+  gl::PlanoDistanteOclusao(DistanciaPlanoCorteDistante());
   gl::AtualizaMatrizes();
 }
 
@@ -399,7 +399,7 @@ void Tabuleiro::ConfiguraProjecao() {
                     parametros_desenho_.projecao().tipo_camera() == CAMERA_PRIMEIRA_PESSOA
                         ? DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA : DISTANCIA_PLANO_CORTE_PROXIMO,
                     parametros_desenho_.projecao().has_plano_corte_distante_m()
-                        ? parametros_desenho_.projecao().plano_corte_distante_m() : DISTANCIA_PLANO_CORTE_DISTANTE);
+                        ? parametros_desenho_.projecao().plano_corte_distante_m() : DistanciaPlanoCorteDistante());
   }
   gl::AtualizaMatrizes();
 }
@@ -4911,7 +4911,9 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   if (proto_corrente_->has_herdar_nevoa_de()) {
     tabuleiro->set_herdar_nevoa_de(proto_corrente_->herdar_nevoa_de());
   } else {
-    *tabuleiro->mutable_nevoa() = proto_corrente_->nevoa();
+    if (proto_corrente_->has_nevoa()) {
+      *tabuleiro->mutable_nevoa() = proto_corrente_->nevoa();
+    }
   }
   tabuleiro->set_largura(proto_corrente_->largura());
   tabuleiro->set_altura(proto_corrente_->altura());
@@ -6462,9 +6464,8 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Habilita(GL_LIGHT0);
   }
 
-  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
-  if (parametros_desenho_.desenha_nevoa() && cenario_nevoa.has_nevoa() &&
-      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
+  if (UsaNevoa()) {
+    const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
     gl::Habilita(GL_FOG);
     float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
     if (entidade_referencia != nullptr) {
@@ -7715,6 +7716,17 @@ void Tabuleiro::RemoveVersoes(const std::vector<int>& versoes) {
     }
     proto_.mutable_versoes()->DeleteSubrange(versao, 1);
   }
+}
+
+bool Tabuleiro::UsaNevoa() const {
+  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
+  return parametros_desenho_.desenha_nevoa() && cenario_nevoa.has_nevoa() &&
+      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores());
+}
+
+float Tabuleiro::DistanciaPlanoCorteDistante() const {
+  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
+  return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
 }
 
 }  // namespace ent
