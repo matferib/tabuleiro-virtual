@@ -1602,12 +1602,12 @@ void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino) {
   for (int i = 0; i < acao_destino->efeitos_adicionais_size(); ++i) {
     auto* ea = acao_destino->mutable_efeitos_adicionais(i);
     if (ea->has_combinar_com()) {
-      if (ea->combinar_com() >= 0 && ea->combinar_com() < acao_destino->efeitos_adicionais_size()) {
+      if (ea->combinar_com() >= 0 && ea->combinar_com() < acao_destino->efeitos_adicionais_size() && i != ea->combinar_com()) {
         acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
         acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
       } else {
         LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
-                   << ", tamanho: " << acao_destino->efeitos_adicionais_size();
+                   << ", i: " << i << ", tamanho: " << acao_destino->efeitos_adicionais_size();
       }
       a_remover.insert(i);
     }

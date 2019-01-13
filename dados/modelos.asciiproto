@@ -2848,15 +2848,13 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Encantar Monstro' rotulo: 'encantar_monstro' tipo_ataque: 'Feitiço de Mago' id_arma: 'enfeiticar_monstro'
+      grupo: 'Efeitiçar Monstro' tipo_ataque: 'Feitiço de Mago' id_arma: 'enfeiticar_monstro'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_m: 31
       acao_fixa {
         dificuldade_salvacao_base: 14
         efeitos_adicionais {
-          efeito: EFEITO_ENFEITICADO
-          rodadas: 172800  # * 12, mas assim ta bao.
-          descricao: 'enfeiticado'
+          rodadas: 7200  # 12 horas
           combinar_com: 0
         }
       }

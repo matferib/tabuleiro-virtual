@@ -4507,7 +4507,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE 
+      tipo: ACAO_FEITICO_TOQUE
       cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
       distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
       permite_ataque_vs_defesa: false
@@ -4518,6 +4518,11 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        rodadas: 600  # 1h por nivel.
+        descricao: 'enfeiticado'
+      }
     }
   }
   armas {
@@ -4880,6 +4885,11 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_SUGESTAO
+        rodadas: 600  # 1h por nivel.
+        descricao: 'sugestão'
+      }
     }
   }
 
