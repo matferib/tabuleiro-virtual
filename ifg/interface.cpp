@@ -332,6 +332,15 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
+std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
+  if (!c.id().empty()) {
+    const auto& feitico = tabelas.Feitico(c.id());
+    if (!feitico.nome().empty()) return feitico.nome();
+  }
+  if (!c.nome().empty()) return c.nome();
+  return c.id();
+}
+
 void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().feiticos_classes().empty() ||
       notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
@@ -352,7 +361,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       if (pl.usado()) continue;
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
-      lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, c.nome().c_str()));
+      lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str()));
       items.push_back(std::make_pair(nivel_gasto, indice));
     }
     if (lista.empty()) {
@@ -372,7 +381,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& fn = fc.feiticos_por_nivel(nivel);
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
-        lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, c.nome().c_str()));
+        lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, NomeFeitico(c, tabelas_).c_str()));
         // Gasta do nivel certo.
         items.push_back(std::make_pair(nivel_gasto, indice_gasto));
       }
