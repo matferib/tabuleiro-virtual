@@ -4666,7 +4666,36 @@ tabela_feiticos {
       }
     }
   }
-
+  armas {
+    id: 'pedra_encantada'
+    nome: 'Pedra Encantada'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      ataque_distancia: false
+      efeitos_adicionais {
+        efeito: EFEITO_PEDRA_ENCANTADA
+        rodadas: 300
+      }
+    }
+  }
   armas {
     id: 'raio_flamejante'
     nome: 'Raio Flamejante'

@@ -2323,7 +2323,7 @@ modelo {
   id: 'Humano Druida 2'
   id_entidade_base: 'Druida Base'
   entidade {
-    rotulo: 'Druida 2\n0: detectar magia, detectar veneno, orientação, luz\n1: constrição, pedra mágica, presa mágica'
+    rotulo: 'Druida 2'
     info_classes { id: 'druida' nivel: 2 }
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.7 b: 0.3 }
@@ -2352,7 +2352,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'constricao' nome: 'Constrição' }
-        conhecidos { id: 'pedra_magica' nome: 'Pedra Mágica' }
+        conhecidos { id: 'pedra_encantada' }
         conhecidos { id: 'presa_magica' nome: 'Presa Mágica' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
