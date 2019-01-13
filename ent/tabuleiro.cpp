@@ -5245,6 +5245,7 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
       LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
+  SelecionaEntidadesAdicionadas();
 }
 
 const TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) const {
