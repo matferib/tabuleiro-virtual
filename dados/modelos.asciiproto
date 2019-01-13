@@ -1867,6 +1867,58 @@ modelo {
   }
 }
 modelo {
+  id: 'Lobo'
+  entidade {
+    dados_vida: '2d8+4' tamanho: TM_MEDIO modelo_3d { id: 'wolf' }
+    rotulo_especial: 'faro\nderrubar automático +1'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes { id: 'animal' nivel: 2 }
+    dados_ataque {
+      grupo: 'ataque+derrubar'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 2 } }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+  }
+}
+modelo {
+  id: 'Lobo Atroz'
+  entidade {
+    dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'dire_wolf' }
+    rotulo_especial: 'faro\nderrubar automático +11'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes { id: 'animal_atroz' nivel: 6 }
+    dados_ataque {
+      grupo: 'ataque+derrubar'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 3 } }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 25 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+  }
+}
+modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }
@@ -2237,12 +2289,84 @@ modelo {
   }
 }
 modelo {
+  id: 'Druida Base'
+  entidade {
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Druida'
-  entidade { dados_vida: '1d8' info_textura { id: 'druid.png'} cor { r: 0.3 g: 0.7 b: 0.3 } }
+  id_entidade_base: 'Druida Base'
+  entidade {
+    rotulo: 'Druida 1'
+    info_classes { id: 'druida' nivel: 1 }
+    dados_vida: '9'
+    info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.7 b: 0.3 }
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'madeira_pesado' }
+    dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    tesouro { tesouro: '25 PO, 5 pergaminhos de curar ferimentos leves, 4 pergaminhos de pedra magica' }
+    # feiticos: 3/2
+    # TODO talentos e usar tesouro.
+  }
 }
 modelo {
+  id: 'Humano Druida 2'
+  id_entidade_base: 'Druida Base'
+  entidade {
+    rotulo: 'Druida 2\n0: detectar magia, detectar veneno, orientação, luz\n1: constrição, pedra mágica, presa mágica'
+    info_classes { id: 'druida' nivel: 2 }
+    info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.7 b: 0.3 }
+    dados_vida: '1d8+10'
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'madeira_pesado' }
+    dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'ajuda' }
+      tesouro: '50 PO\npena de quaal, árvore, 10 pergaminhos de curar ferimentos leves, 10 pergaminhos de pedra mágica\n2 pergaminhos santuário'
+    }
+    feiticos_classes {
+      id_classe: 'druida'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' nome: 'Detectar Magia' }
+        conhecidos { id: 'detectar_veneno' nome: 'Detectar Veneno' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' nome: 'Luz' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'constricao' nome: 'Constrição' }
+        conhecidos { id: 'pedra_magica' nome: 'Pedra Mágica' }
+        conhecidos { id: 'presa_magica' nome: 'Presa Mágica' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+      }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Guerreiro'
-  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade {
+      dados_vida: '1d10' info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+  }
 }
 modelo {
   id: 'Humano Guerreiro 5'

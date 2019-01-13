@@ -1349,6 +1349,13 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_ORIENTACAO
+    nome: 'Orientação'
+    # Nao da pra modelar: enquanto em efeito ate ser usado, entidade pode escolher:
+    # +1 competencia: ataque, salvacao ou teste de pericia.
+  }
+
+  efeitos {
     id: EFEITO_REDUZIR_PESSOA
     nome: 'reduzir pessoa'
     consequencia {
@@ -3909,6 +3916,24 @@ tabela_classes {
     id: 'gigante' nome: 'Gigante' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
+    id: 'animal' nome: 'Animal'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    # Visao na penumbra
+    # pericias: 2+int
+  }
+  info_classes {
+    id: 'animal_atroz' nome: 'Animal Atroz'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    # Visao na penumbra
+    # pericias: 2+int
+  }
+ 
+  info_classes {
     id: 'aberracao' nome: 'Aberração' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
   }
 }
@@ -4614,6 +4639,32 @@ tabela_feiticos {
       elemento: DESC_FORCA
     }
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+  }
+
+  armas {
+    id: 'orientacao'
+    nome: 'Orientação'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      ataque_distancia: false
+      efeitos_adicionais {
+        efeito: EFEITO_ORIENTACAO
+        rodadas: 10
+      }
+    }
   }
 
   armas {

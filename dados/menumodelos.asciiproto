@@ -32,6 +32,8 @@ sub_menu {
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Atroz' }
+  modelo { id: 'Lobo' }
+  modelo { id: 'Lobo Atroz' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Tubarão Médio' }
@@ -132,7 +134,11 @@ sub_menu {
     modelo { id: 'Humano Plebeu 2' }
     modelo { id: 'Humana Plebeia 2' }
   }
-  modelo { id: 'Humano Druida' }
+  sub_menu {
+    id: 'Druidas'
+    modelo { id: 'Humano Druida 1' }
+    modelo { id: 'Humano Druida 2' }
+  }
   modelo { id: 'Humana Guerreira' }
   modelo { id: 'Humano Guerreiro' }
   modelo { id: 'Humano Guerreiro 5' }

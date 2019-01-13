@@ -1,9 +1,12 @@
-Nos subcenarios, permitir herdar nevoa.
-Entidades montadas.
+Ao lancar feitico, esta sumindo todos os ataques. Ver druida com orientacao
 
 Anotacoes sessao tipao:
-- Terminar Wheloon, leste.
+- Druida 2.
 - Fazer a sucubo.
+
+Entidades montadas.
+
+Fazer o derrubar automatico de alguns ataques.
 
 Anotacoes da sessao:
 - Filtrar combo de classes para so mostrar nao monstros.
