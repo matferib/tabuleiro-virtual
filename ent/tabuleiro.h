@@ -916,6 +916,9 @@ class Tabuleiro : public ntf::Receptor {
   // Retorna o cenario que contem as informacoes de nevoa para o sub cenario.
   const TabuleiroProto& CenarioNevoa(const TabuleiroProto& sub_cenario) const;
 
+  // Retorna se a nevoa sera usada na renderizacao.
+  bool UsaNevoa() const;
+
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaPisoCeuCenario(const ent::TabuleiroProto& novo_proto);
 
@@ -1090,6 +1093,8 @@ class Tabuleiro : public ntf::Receptor {
   // Gera um framebuffer.
   void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb);
   void GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb);
+
+  float DistanciaPlanoCorteDistante() const;
 
   void DesativaWatchdog();
   void ReativaWatchdog();
