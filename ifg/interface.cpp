@@ -412,7 +412,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     }
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
-        id_classe, nivel, indice, true /*usado*/, notificacao.entidade());
+        id_classe, nivel, indice, /*usado=*/true, notificacao.entidade());
     *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
     central_->AdicionaNotificacao(n_alteracao_feitico.release());

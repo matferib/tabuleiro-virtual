@@ -4530,6 +4530,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
   n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
   n->mutable_entidade()->set_id(proto.id());
   *n->mutable_entidade()->mutable_info_classes() = proto.info_classes();
+  *n->mutable_entidade()->mutable_dados_ataque() = proto.dados_ataque();  // pro ataque criado.
   *n->mutable_entidade()->add_feiticos_classes() = fc;
   if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
     n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
