@@ -1572,6 +1572,9 @@ void PreencheNotificacaoAtualizaoPontosVida(
 void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n) {
   const auto& proto = entidade.Proto();
   int cura = CuraAcelerada(proto);
+  if (cura == 0) {
+    return;
+  }
 
   EntidadeProto *entidade_antes, *entidade_depois;
   std::tie(entidade_antes, entidade_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
