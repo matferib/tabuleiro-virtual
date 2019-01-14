@@ -2,7 +2,7 @@ Entidades montadas.
 
 Fazer o derrubar automatico de alguns ataques.
 
-Anotacoes da sessao:
+Anotacoes da sessao Tilverton:
 - Filtrar combo de classes para so mostrar nao monstros.
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
 - UI para horas.
@@ -12,16 +12,14 @@ Anotacoes da sessao:
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
 Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
 Eventos nao estao sendo regerados ao tirar um efeito na mao.
-Tooltip de descricao de talentos na UI.
 Colocar evasao e evasao aprimorada na UI.
 Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
-Nos complmentos, ignorar case.
+Nos complementos, ignorar case.
 Modelar multishot (tiro multiplo).
 Pontos raciais de elfo.
 Sugestao: desfazer dar mensagem.
 Zerar botoes ao passar rodada.
-Reflexos some no inicio da acao.
-Colocar botao de carga (+2 ataque, -2 CA)
+Reflexos some no inicio da acao (nao espera ela acontecer).
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Colocar arte da fuga no agarrar.
 Botao de remover feitico na UI de feiticos.
@@ -31,7 +29,6 @@ Dados rolados para alguns tipos nao estao aparecendo no log.
 Aplicar dano em fim de efeito ao clicar.
 Barra de status das entidades.
 UI para Ataque poderoso.
-Imunidade a ataque furtivo.
 Ao agarrar, ignora reflexos.
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
 
@@ -146,7 +143,6 @@ Versao 2.6.0
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
-- Descricao de cenarios (melhorar UI com drop down).
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Fazer rotacao Z ser suavizada como destino do movimento.
@@ -162,7 +158,6 @@ Versao 2.6.0
 - Traducoes ANDROID e IOS.
 - Android e ipad: voltar para UI principal caso falhe a conexao.
 - Adicionar mais unit tests (comecar pelos simples).
-- Adicionar modelos diversos.
 - Unit teste dos glVbo roda.
 - Objetos compostos com transparencia.
 
