@@ -191,6 +191,9 @@ void PosicionaRaster2d(int x, int y);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
 TipoEfeito StringParaEfeito(const std::string& s);
+// Devia se chamar EfeitoParaString.
+std::string StringEfeito(TipoEfeito efeito);
+inline std::string EfeitoParaString(TipoEfeito efeito) { return StringEfeito(efeito); }
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {

@@ -289,6 +289,8 @@ message EntidadeProto {
     // Para armas que tem que ser carregadas.
     optional bool requer_carregamento = 49;
     optional bool descarregada = 50;
+    // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
+    optional bool derrubar_automatico = 51;
   }
   repeated DadosAtaque dados_ataque = 44;
 

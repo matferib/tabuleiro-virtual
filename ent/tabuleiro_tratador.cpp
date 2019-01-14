@@ -1216,6 +1216,7 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
+    // Acao realizada, ao terminar funcao, roda isso.
     RodaNoRetorno roda_no_retorno([entidade, da]() {
       if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
         entidade->ProximoAtaque();
@@ -1365,9 +1366,11 @@ float Tabuleiro::TrataAcaoIndividual(
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
-        std::string nome = TipoEfeito_Name(efeito_adicional.efeito());
-        ConcatenaString(nome.find("EFEITO_") == 0 ? nome.substr(7) : nome, por_entidade->mutable_texto());
+        ConcatenaString(EfeitoParaString(efeito_adicional.efeito()), por_entidade->mutable_texto());
       }
+    }
+
+    if (resultado.Sucesso() && da->derrubar_automatico()) {
     }
 
     // Resistencias e imunidades.
