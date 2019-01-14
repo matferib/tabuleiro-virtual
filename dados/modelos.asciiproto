@@ -1177,6 +1177,7 @@ modelo {
     dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 7
     rotulo_especial: 'mordida +2 1d6+1\nca 15/13/12\nreducao 5/estourante'
+    mais_de_duas_pernas: true
   }
 }
 modelo {
@@ -1856,6 +1857,7 @@ modelo {
     dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini: +3\nat: +2/+7/+7\ndano: 1d8+2/1d4+5/1d4+5\nca: 15'
     modificador_iniciativa: 3
+    mais_de_duas_pernas: true
   }
 }
 modelo {
@@ -1864,6 +1866,7 @@ modelo {
     dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini: +2\nca 15/11/13 agarrar +17 mordida/garrax2 +7/+13/+13\ndano: 1d8+3/1d6+7/1d6+7\nagarrar aprimorado'
     modificador_iniciativa: 2
+    mais_de_duas_pernas: true
   }
 }
 modelo {
@@ -1873,9 +1876,11 @@ modelo {
     rotulo_especial: 'faro\nderrubar automático +1'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes { id: 'animal' nivel: 2 }
+    mais_de_duas_pernas: true
     dados_ataque {
-      grupo: 'ataque+derrubar'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      derrubar_automatico: true
     }
     dados_defesa {
       ca {
@@ -1899,9 +1904,12 @@ modelo {
     rotulo_especial: 'faro\nderrubar automático +11'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes { id: 'animal_atroz' nivel: 6 }
+    mais_de_duas_pernas: true
     dados_ataque {
-      grupo: 'ataque+derrubar'
+      grupo: 'ataque'
+      rotulo: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      derrubar_automatico: true
     }
     dados_defesa {
       ca {
@@ -3126,6 +3134,7 @@ modelo {
     rotulo_especial: 'dano da doenca fort 11 febre esgoto'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
     modificador_iniciativa: 3
+    mais_de_duas_pernas: true
   }
 }
 modelo {
@@ -3156,7 +3165,10 @@ modelo {
 }
 modelo {
   id: 'Tigre'
-  entidade { info_textura { id: 'snowtiger.png' } }
+  entidade {
+    info_textura { id: 'snowtiger.png' }
+    mais_de_duas_pernas: true
+  }
 }
 modelo {
   id: 'Troll'

@@ -1393,6 +1393,30 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   return resultado;
 }
 
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed) {
+  TamanhoEntidade tamanho_atacante = ea.Proto().tamanho();
+  TamanhoEntidade tamanho_defensor = ed.Proto().tamanho();
+  ResultadoAtaqueVsDefesa resultado;
+  if (tamanho_defensor > tamanho_atacante + 1) {
+    resultado.texto = "derrubar falhou: defensor muito grande";
+    return resultado;
+  }
+  const int diferenca_tamanho = tamanho_atacante - tamanho_defensor;
+  const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho;
+  const int modificadores_defesa = std::max(ed.ModificadorAtributo(TA_FORCA), ed.ModificadorAtributo(TA_DESTREZA)) + (ea.MaisDeDuasPernas() ? 4 : 0);
+  const int dado_ataque = RolaDado(20);
+  const int dado_defesa = RolaDado(20);
+
+  if (dado_ataque + modificadores_ataque >= dado_defesa + modificadores_defesa) {
+    resultado.resultado = RA_SUCESSO;
+    resultado.texto = StringPrintf("derrubar sucesso: %d%+d >= %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+  } else {
+    resultado.resultado = RA_FALHA_NORMAL;
+    resultado.texto = StringPrintf("derrubar falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+  }
+  return resultado;
+}
+
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
@@ -3218,7 +3242,7 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
   // Iteracao.
   const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
- 
+
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto* pericia_proto = mapa_pericias_proto[pt.id()];

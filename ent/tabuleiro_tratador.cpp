@@ -101,7 +101,7 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
 
 // As funcoes Preenchem assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
 // n e n_desfazer podem ser iguais.
-void PreencheNotificacaoDerrubaOrigem(
+void PreencheNotificacaoDerrubar(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   auto* entidade_depois = n->mutable_entidade();
@@ -1209,7 +1209,7 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
         std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
-        PreencheNotificacaoDerrubaOrigem(*entidade, n_derrubar.get(), nd);
+        PreencheNotificacaoDerrubar(*entidade, n_derrubar.get(), nd);
         central_->AdicionaNotificacao(n_derrubar.release());
       }
       AdicionaAcaoTexto(entidade->Id(), resultado.texto, atraso_s);
@@ -1370,7 +1370,15 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    if (resultado.Sucesso() && da->derrubar_automatico()) {
+    if (resultado.Sucesso() && da->derrubar_automatico() && !entidade_destino->Proto().caida()) {
+      ResultadoAtaqueVsDefesa resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade, *entidade_destino);
+      if (resultado_derrubar.Sucesso()) {
+        acao_proto->set_consequencia(TC_DERRUBA_ALVO);
+        // Apenas para desfazer, pois a consequencia derrubara.
+        auto* nd = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoDerrubar(*entidade_destino, nd, nd);
+      }
+      ConcatenaString(resultado_derrubar.texto, por_entidade->mutable_texto());
     }
 
     // Resistencias e imunidades.
