@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 61.
+// Proximo id: 63.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -63,7 +63,7 @@ enum TipoEfeito {
   EFEITO_AJUDA = 27;
   EFEITO_SUPORTAR_ELEMENTOS = 28;
   EFEITO_RESISTENCIA_ELEMENTOS = 29;
-  EFEITO_SANTUARIO = 30;              // TODO
+  EFEITO_SANTUARIO = 30;
   // Complemento é o rotulo.
   EFEITO_ABENCOAR_ARMA = 31;
 
@@ -105,6 +105,8 @@ enum TipoEfeito {
   EFEITO_INVESTIDA = 53;
   EFEITO_CONFUSAO = 58;
   EFEITO_ORIENTACAO = 60;
+  EFEITO_MORTO_VIVO_EXPULSO = 61;
+  EFEITO_MORTO_VIVO_FASCINADO = 62;
 }
 
 enum TipoEfeitoModelo {

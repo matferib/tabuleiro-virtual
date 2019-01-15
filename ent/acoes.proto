@@ -16,6 +16,7 @@ enum TipoAcao {
   ACAO_AGARRAR = 8;
   ACAO_POCAO = 9;
   ACAO_PROJETIL_AREA = 10;
+  ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS = 11;
 }
 
 // Algumas acoes causam consequencias, como deslocamento do alvo.

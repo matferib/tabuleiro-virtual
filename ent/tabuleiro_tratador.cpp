@@ -942,6 +942,16 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
+float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
+    float atraso_s, const Entidade* entidade, AcaoProto* acao_proto,
+    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  // Confere se entidade possui niveis de clerigo.
+  // Coleta todos os alvos que estao dentro do raio de alcance da entidade.
+  // Ordena por distancia.
+  // Ve os que podem ser afetados.
+  // Computa quem eh expulso, quem é destruido.
+}
+
 float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
     Entidade* entidade, AcaoProto* acao_proto,
@@ -1473,7 +1483,9 @@ float Tabuleiro::TrataAcaoUmaEntidade(
 
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-  if (acao_proto.efeito_projetil_area()) {
+  if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
+    atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade, &acao_proto, &n, &grupo_desfazer);
+  } else if (acao_proto.efeito_projetil_area()) {
     atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
   } else if (acao_proto.efeito_area()) {
     atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);

@@ -33,6 +33,16 @@ acao {
   ignora_resistencia_magia: true
 }
 acao {
+  id: 'Expulsar Mortos Vivos'
+  tipo: ACAO_EXPULSAR_MORTOS_VIVOS
+  icone: 'icon_turn_undead.png'
+}
+acao {
+  id: 'Fascinar Mortos Vivos'
+  tipo: ACAO_EXPULSAR_MORTOS_VIVOS
+  icone: 'icon_rebuke_undead.png'
+}
+acao {
   id: 'Feitiço de Clérigo'
   classe_conjuracao: 'clerigo'
 }
