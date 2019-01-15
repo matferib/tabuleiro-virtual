@@ -191,6 +191,9 @@ void PosicionaRaster2d(int x, int y);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
 TipoEfeito StringParaEfeito(const std::string& s);
+// Devia se chamar EfeitoParaString.
+std::string StringEfeito(TipoEfeito efeito);
+inline std::string EfeitoParaString(TipoEfeito efeito) { return StringEfeito(efeito); }
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {
@@ -290,6 +293,9 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo);
+
+// Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
 
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);

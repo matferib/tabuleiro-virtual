@@ -25,6 +25,7 @@ enum TipoConsequencia {
   TC_INFLAMA_ALVO      = 2;
   TC_AGARRA_ALVO       = 3;
   TC_ILUMINA_ALVO      = 4;
+  TC_DERRUBA_ALVO      = 5;
 }
 
 enum GeometriaAcao {

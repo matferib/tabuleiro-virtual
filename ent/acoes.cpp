@@ -1240,6 +1240,25 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       entidade_destino->AtivaFumegando(/*duracao_ms*/5000);
     }
     return false;
+  } else if (acao_proto_.consequencia() == TC_DERRUBA_ALVO) {
+    if (!acao_proto_.bem_sucedida()) {
+      VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
+    for (const auto& por_entidade : acao_proto_.por_entidade()) {
+      if (por_entidade.delta() == 0) continue;
+      const auto id = por_entidade.id();
+      auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
+      if (entidade_destino == nullptr) {
+        continue;
+      }
+      AtualizaDirecaoQuedaAlvo(entidade_destino);
+      EntidadeProto parcial;
+      parcial.set_caida(true);
+      entidade_destino->AtualizaParcial(parcial);
+    }
+    return false;
   } else if (acao_proto_.consequencia() == TC_AGARRA_ALVO) {
     Entidade* entidade_destino = EntidadeDestino();
     Entidade* entidade_origem = EntidadeOrigem();

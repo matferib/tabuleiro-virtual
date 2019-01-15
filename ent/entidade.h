@@ -133,6 +133,10 @@ class Entidade {
   int BonusBaseAtaque() const;
   /** Modificador do atributo de conjuracao. Exemplo: sab para clérigos. */
   int ModificadorAtributoConjuracao() const;
+  /** Retorna o modificador de um atributo do personagem, com todos modificadores. */
+  int ModificadorAtributo(TipoAtributo atributo) const;
+  /** Retorna true se a entidade tiver mais de duas pernas. */
+  bool MaisDeDuasPernas() const { return proto_.mais_de_duas_pernas(); }
 
   /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
   EntidadeProto::TipoTransicao TipoTransicao() const;

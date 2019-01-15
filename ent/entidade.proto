@@ -58,7 +58,7 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 98.
+// Proximo id: 99.
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
@@ -289,6 +289,8 @@ message EntidadeProto {
     // Para armas que tem que ser carregadas.
     optional bool requer_carregamento = 49;
     optional bool descarregada = 50;
+    // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
+    optional bool derrubar_automatico = 51;
   }
   repeated DadosAtaque dados_ataque = 44;
 
@@ -443,4 +445,5 @@ message EntidadeProto {
   optional uint32 montado_em = 96;
   // Quais entidades estão montadas nessa.
   repeated uint32 entidades_montadas = 97;
+  optional bool mais_de_duas_pernas = 98;
 }

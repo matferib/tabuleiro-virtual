@@ -68,7 +68,7 @@ else:
   # linux.
   env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC', '-Wno-unused-lambda-capture']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors', '-Wno-deprecated-register', '-fPIC', '-Wno-unused-lambda-capture', '-Wno-unused-local-typedef']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_chrono', 'boost_date_time', 'pthread']
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')

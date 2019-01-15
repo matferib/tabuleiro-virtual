@@ -880,6 +880,10 @@ int Entidade::ModificadorAtributoConjuracao() const {
   return 0;
 }
 
+int Entidade::ModificadorAtributo(TipoAtributo ta) const {
+  return ent::ModificadorAtributo(ta, proto_);
+}
+
 int Entidade::BonusBaseAtaque() const {
   int bba = 0;
   for (const auto& info_classe : proto_.info_classes()) {
