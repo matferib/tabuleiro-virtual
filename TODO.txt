@@ -1,4 +1,5 @@
 Tooltip de itens magicos.
+Tooltip de pericia: mostrar os bonus.
 
 Entidades montadas.
 
