@@ -1,3 +1,5 @@
+Tooltip de itens magicos.
+
 Entidades montadas.
 
 Fazer o derrubar automatico de alguns ataques.
