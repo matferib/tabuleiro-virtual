@@ -1332,7 +1332,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       return entidade != nullptr && entidade->Proto().selecionavel_para_jogador();
     } },
     { CONTROLE_FURTIVO,            [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().furtivo();
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().furtivo();
     } },
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();

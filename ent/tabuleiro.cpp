@@ -1338,8 +1338,8 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
     proto_depois->set_surpreso(valor);
   }
   if (bits & BIT_FURTIVO) {
-    proto_antes->set_furtivo(proto_original.furtivo());
-    proto_depois->set_furtivo(valor);
+    proto_antes->mutable_dados_ataque_global()->set_furtivo(proto_original.dados_ataque_global().furtivo());
+    proto_depois->mutable_dados_ataque_global()->set_furtivo(valor);
   }
   if (bits & BIT_ATAQUE_MAIS_1) {
     proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
@@ -1552,8 +1552,8 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_depois->set_surpreso(!proto_original.surpreso());
     }
     if (bits & BIT_FURTIVO) {
-      proto_antes->set_furtivo(proto_original.furtivo());
-      proto_depois->set_furtivo(!proto_original.furtivo());
+      proto_antes->mutable_dados_ataque_global()->set_furtivo(proto_original.dados_ataque_global().furtivo());
+      proto_depois->mutable_dados_ataque_global()->set_furtivo(!proto_original.dados_ataque_global().furtivo());
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
       proto_antes->mutable_dados_ataque_global()->set_ataque_mais_1(proto_original.dados_ataque_global().ataque_mais_1());
@@ -1853,7 +1853,7 @@ int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
       LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_global().dano_furtivo().empty()) {
+    if (!entidade->Proto().dados_ataque_global().furtivo() || entidade->Proto().dados_ataque_global().dano_furtivo().empty()) {
       return 0;
     }
     int total;
@@ -2636,6 +2636,37 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   SelecionaEntidadeIniciativa();
 }
 
+void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  const auto& dge = entidade.Proto().dados_ataque_global();
+  auto* dga = e_antes->mutable_dados_ataque_global();
+  auto* dgd = e_depois->mutable_dados_ataque_global();
+#define COPIA_SE_NAO_ZERO(X) if (dge.X()) { dga->set_##X(dge.X()); dgd->set_##X(0); }
+  COPIA_SE_NAO_ZERO(ataque_menos_1);
+  COPIA_SE_NAO_ZERO(ataque_menos_2);
+  COPIA_SE_NAO_ZERO(ataque_menos_4);
+  COPIA_SE_NAO_ZERO(ataque_menos_8);
+  COPIA_SE_NAO_ZERO(ataque_mais_1);
+  COPIA_SE_NAO_ZERO(ataque_mais_2);
+  COPIA_SE_NAO_ZERO(ataque_mais_4);
+  COPIA_SE_NAO_ZERO(ataque_mais_8);
+  COPIA_SE_NAO_ZERO(ataque_mais_16);
+  COPIA_SE_NAO_ZERO(dano_menos_1);
+  COPIA_SE_NAO_ZERO(dano_menos_2);
+  COPIA_SE_NAO_ZERO(dano_menos_4);
+  COPIA_SE_NAO_ZERO(dano_menos_8);
+  COPIA_SE_NAO_ZERO(dano_mais_1);
+  COPIA_SE_NAO_ZERO(dano_mais_2);
+  COPIA_SE_NAO_ZERO(dano_mais_4);
+  COPIA_SE_NAO_ZERO(dano_mais_8);
+  COPIA_SE_NAO_ZERO(dano_mais_16);
+  COPIA_SE_NAO_ZERO(dano_mais_32);
+  COPIA_SE_NAO_ZERO(furtivo);
+  COPIA_SE_NAO_ZERO(chance_falha);
+#undef COPIA_SE_NAO_ZERO
+}
+
 void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ == -1) {
     LOG(INFO) << "Nao ha indice de iniativa";
@@ -2666,6 +2697,11 @@ void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
     n->mutable_tabuleiro()->set_indice_iniciativa(0);
     PassaUmaRodadaNotificando(&grupo);
+  }
+  // Por ultimo, zera os controles da entidade.
+  const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
+  if (entidade_iniciativa != nullptr) {
+    ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
   }
   AdicionaNotificacaoListaEventos(grupo);
   TrataNotificacao(grupo);

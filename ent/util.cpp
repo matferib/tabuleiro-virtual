@@ -3774,7 +3774,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
   if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
 
   std::string texto_furtivo;
-  if (proto.furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
+  if (proto.dados_ataque_global().furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
     texto_furtivo = google::protobuf::StringPrintf("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
   }
 
