@@ -718,6 +718,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     }
     default:
       if (id >= CONTROLE_JOGADORES) {
+        // Isso acontece pela UI. O mestre aperta a tecla J, que mostra todos os jogadores como
+        // controles e entao ele clica em um dos botoes de jogadores, transformando o jogador em
+        // mestre tambem.
         ntf::Notificacao n;
         n.set_tipo(ntf::TN_ALTERAR_MODO_MESTRE_SECUNDARIO);
         n.mutable_entidade()->set_id(id - CONTROLE_JOGADORES);
