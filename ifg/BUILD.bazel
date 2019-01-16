@@ -1,0 +1,19 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+  name = "ifg",
+  srcs = [
+    "interface.cpp",
+    "tecladomouse.cpp",
+  ],
+  hdrs = [
+    "interface.h",
+    "tecladomouse.h",
+  ],
+  copts = [],
+  deps = [
+    "//arq",
+    "//ent:acoes",
+    "//ntf",
+  ]
+)

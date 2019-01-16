@@ -1,0 +1,31 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+  name = "ntf",
+  srcs = [
+    "notificacao.cpp",
+  ],
+  hdrs = [
+    "notificacao.h",
+  ],
+  copts = [],
+  deps = [
+    ":ntf_cc_proto",
+    "//log",
+  ]
+)
+
+cc_proto_library(
+  name = "ntf_cc_proto",
+  deps = [":ntf_proto"]
+)
+
+proto_library(
+  name = "ntf_proto",
+  srcs = [
+    "notificacao.proto",
+  ],
+  deps = [
+    "//ent:ent_proto",
+  ]
+)
