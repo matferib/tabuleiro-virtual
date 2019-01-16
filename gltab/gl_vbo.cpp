@@ -3,10 +3,14 @@
 #include <limits>
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
-#include "net/util.h"
 
 namespace gl {
+
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 bool ImprimeSeErro(const char* mais = nullptr);
 
@@ -212,7 +216,7 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
   std::string ret;
   int i = 0;
   for (const auto& vbo : vbos_) {
-    ret += net::to_string(i++) + ") " + vbo.ParaString(completo) + "\n";
+    ret += StringPrintf("%d) %s\n", i++, vbo.ParaString(completo).c_str());
   }
   return ret;
 }
@@ -555,7 +559,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
   std::string coords;
   if (completo) {
     for (unsigned int i = 0; i < coordenadas_.size(); ++i) {
-      coords += net::to_string(coordenadas_[i]);
+      coords += StringPrintf("%f", coordenadas_[i]);
       if ((i > 0) && i % NumDimensoes() == 0) {
         coords += ";";
       }
