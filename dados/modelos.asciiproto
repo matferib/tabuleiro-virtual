@@ -2018,6 +2018,10 @@ modelo {
     info_classes { id: 'plebeu' nivel: 1 }
     cor { r: 0.9 g: 0.8 b: 0.8 }
     dados_vida: '1d4+4'
+    # Pericias: 5
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 
@@ -2030,6 +2034,10 @@ modelo {
     info_classes { id: 'plebeu' nivel: 1 }
     cor { r: 0.9 g: 0.8 b: 0.8 }
     dados_vida: '1d4+3'
+    # Pericias: 5
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 
@@ -2044,6 +2052,10 @@ modelo {
     dados_vida: '2d4+5'
     # O tesouro seria 300 PO, mas isso inclui todos os bens do cidadao. O que ele carrega é isso.
     tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+    # pericias: 6.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 2 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 
@@ -2057,6 +2069,10 @@ modelo {
     cor { r: 0.9 g: 0.9 b: 0.8 }
     dados_vida: '2d4+3'
     tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+    # pericias: 6.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 2 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 
@@ -2186,6 +2202,14 @@ modelo {
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
+    # 24 pontos (4-1 int) * 8.
+    info_pericias { id: 'avaliacao' pontos: 4 }
+    info_pericias { id: 'blefar' pontos: 2 }
+    info_pericias { id: 'diplomacia' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'conhecimento_local' pontos: 4 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 
@@ -2214,6 +2238,13 @@ modelo {
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
+    info_pericias { id: 'avaliacao' pontos: 4 }
+    info_pericias { id: 'blefar' pontos: 2 }
+    info_pericias { id: 'diplomacia' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'conhecimento_local' pontos: 4 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
 

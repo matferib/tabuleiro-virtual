@@ -3803,7 +3803,7 @@ tabela_classes {
   }
   info_classes {
     id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
-
+    # 4+int.
     pericias: 'avaliacao'
     pericias: 'blefar'
     pericias: 'diplomacia'
@@ -3837,6 +3837,7 @@ tabela_classes {
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
 
+    # 2 + int
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'

@@ -120,12 +120,19 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   // Acoes.
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
+  } catch (const arq::ParseProtoException& ppe) {
+    LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto: " << ppe.what();
+    if (central_ != nullptr) {
+      central_->AdicionaNotificacao(
+          ntf::NovaNotificacaoErro(
+            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", ppe.what())));
+    }
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
+            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
   RecarregaMapas();
