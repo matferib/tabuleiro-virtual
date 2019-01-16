@@ -9,10 +9,12 @@
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
-#include "m3d/m3d.h"
 
 #define VBO_COM_MODELAGEM 0
 
+namespace m3d {
+class Modelos3d;
+}  // namespace m3d
 namespace ntf {
 class CentralNotificacoes;
 }  // namespace ntf
