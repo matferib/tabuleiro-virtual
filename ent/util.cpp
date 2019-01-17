@@ -26,7 +26,6 @@
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
 #include "goog/stringprintf.h"
 #include "log/log.h"
-#include "net/util.h"
 
 namespace ent {
 
@@ -671,7 +670,7 @@ DanoArma LeDanoArma(const std::string& dano_arma) {
 
 std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados) {
   std::string s("rolado total: ");
-  s += net::to_string(total) + ", ";
+  s += StringPrintf("%d, ", total);
   for (const auto& dado_valor : dados) {
     char ds[100];
     snprintf(ds, 99, "d%d=%d, ", dado_valor.first, dado_valor.second);
@@ -1512,7 +1511,7 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
   if (!proto.rotulo().empty()) {
     return proto.rotulo();
   }
-  return net::to_string(proto.id());
+  return StringPrintf("%d", proto.id());
 }
 
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
@@ -3756,13 +3755,13 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
   if (da.multiplicador_critico() == 2 && da.margem_critico() == 20) return "";
   std::string critico = "(";
   if (da.margem_critico() < 20) {
-    critico += net::to_string(da.margem_critico()) + "-20";
+    critico += StringPrintf("%d", da.margem_critico()) + "-20";
     if (da.multiplicador_critico() > 2) {
       critico += "/";
     }
   }
   if (da.multiplicador_critico() > 2) {
-    critico += "x" + net::to_string(da.multiplicador_critico());
+    critico += "x" + StringPrintf("%d", da.multiplicador_critico());
   }
   critico += ")";
   return critico;

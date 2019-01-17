@@ -4,6 +4,7 @@ cc_library(
   name = "tex",
   hdrs = [
     "texturas.h",
+    "lodepng.h",
   ],
   srcs = [
     "texturas.cpp",
@@ -11,8 +12,9 @@ cc_library(
   copts = [],
   deps = [
     "//arq",
+    "//ent:ent_cc_proto",
     "//gltab",
     "//log",
-    "//ent:ent_cc_proto",
+    "//ntf:ntf_cc_proto",
   ]
 )

@@ -79,6 +79,7 @@ cc_library(
     ":ent_headers",
     "//log",
     "//matrix",
+    "//ntf",
     "//ntf:ntf_cc_proto",
   ]
 )
