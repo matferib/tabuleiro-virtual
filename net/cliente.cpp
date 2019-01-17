@@ -5,6 +5,7 @@
 #include <string>
 
 #include "ent/constantes.h"
+#include "goog/stringprintf.h"
 // para depurar android e ios.
 //#define VLOG_NIVEL 1
 #include "log/log.h"
@@ -14,6 +15,9 @@
 #include "ntf/notificacao.pb.h"
 
 namespace net {
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 Cliente::Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
   sincronizador_ = sincronizador;
@@ -119,11 +123,13 @@ void Cliente::AutoConecta(const std::string& id) {
         }
         LOG(INFO) << "RECEBI de: " << endereco_descoberto_
                   << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
-        std::string endereco_str(endereco_descoberto_);
-        if (num_bytes > 0) {
-          endereco_str.append(":");
-          endereco_str.append(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes);
+        std::string endereco_str(StringPrintf("[%s]", endereco_descoberto_.c_str()));
+        if (num_bytes > 0 && num_bytes < 10) {
+          StringPrintf("%s:%s",
+              endereco_str.c_str(),
+              std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes).c_str());
         }
+        LOG(INFO) << "CONECTANDO EM: " << endereco_str;
         Conecta(id, endereco_str, 0);
       }
   );
