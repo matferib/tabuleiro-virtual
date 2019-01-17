@@ -10,6 +10,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "goog/stringprintf.h"
+#include "m3d/m3d.h"
 #include "net/util.h"
 
 #include "log/log.h"

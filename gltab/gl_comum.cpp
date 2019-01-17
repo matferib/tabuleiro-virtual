@@ -36,7 +36,7 @@ using gl::TSH_PONTUAL;
 namespace gl {
 
 namespace {
-using goog::protobuf::StringPrintf;
+using google::protobuf::StringPrintf;
 }  // namespace
 
 bool ImprimeSeErro(const char* mais) {

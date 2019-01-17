@@ -25,6 +25,7 @@
 #include "ifg/qt/principal.h"
 #include "ifg/tecladomouse.h"
 #include "ifg/qt/qt_interface.h"
+#include "m3d/m3d.h"
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
