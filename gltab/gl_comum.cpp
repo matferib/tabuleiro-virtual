@@ -21,7 +21,7 @@
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
-#include "net/util.h"
+#include "goog/stringprintf.h"
 #include "matrix/matrices.h"
 
 using gl::TSH_LUZ;
@@ -34,6 +34,10 @@ using gl::TSH_PONTUAL;
 
 // Comum.
 namespace gl {
+
+namespace {
+using goog::protobuf::StringPrintf;
+}  // namespace
 
 bool ImprimeSeErro(const char* mais) {
   auto erro = glGetError();
@@ -74,7 +78,7 @@ void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloa
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
   if (c->proximo_id > IdMaximoEntidade()) {
-    throw std::logic_error(std::string("Limite de ids alcancado: ") + net::to_string((int)c->proximo_id));
+    throw std::logic_error(StringPrintf("Limite de ids alcancado: %d", (int)c->proximo_id));
   }
   unsigned int id_mapeado = c->proximo_id | (c->bit_pilha << DeslocamentoPilha() );
   c->ids.insert(std::make_pair(id_mapeado, id));

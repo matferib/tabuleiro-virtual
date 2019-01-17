@@ -1,0 +1,24 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+  name = "gltab",
+  hdrs = [
+    "gl.h",
+    "gl_interno.h",
+    "glues.h",
+    "gl_vbo.h",
+  ],
+  srcs = [
+      "gl_char.cpp",
+      "gl_comum.cpp",
+      "gl_normal.cpp",
+      "gl_vbo.cpp",
+      "glues.cpp",
+  ],
+  copts = [],
+  deps = [
+    "//arq",
+    "//log",
+    "//matrix",
+  ]
+)
