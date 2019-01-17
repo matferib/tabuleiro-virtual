@@ -16,5 +16,9 @@ cc_library(
   ],
   copts = [],
   deps = [
+    "//goog",
+    "//log",
+    "//ntf",
+    "//ntf:ntf_cc_proto",
   ]
 )

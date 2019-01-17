@@ -12,8 +12,21 @@ cc_library(
   ],
   copts = [],
   deps = [
+    ":ifg_cc_proto",
     "//arq",
     "//ent:acoes",
     "//ntf",
   ]
+)
+
+cc_proto_library(
+  name = "ifg_cc_proto",
+  deps = [
+    "ifg_proto"
+  ],
+)
+
+proto_library(
+  name = "ifg_proto",
+  srcs = ["modelos.proto"],
 )

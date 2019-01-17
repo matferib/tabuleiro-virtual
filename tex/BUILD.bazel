@@ -10,5 +10,9 @@ cc_library(
   ],
   copts = [],
   deps = [
+    "//arq",
+    "//gltab",
+    "//log",
+    "//ent:ent_cc_proto",
   ]
 )

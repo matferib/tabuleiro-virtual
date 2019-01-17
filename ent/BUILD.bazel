@@ -13,6 +13,10 @@ cc_library(
     "tabuleiro.h",
     "util.h",
   ],
+  deps = [
+    "//gltab",
+    "//tex",
+  ]
 )
 
 cc_library(
@@ -42,6 +46,7 @@ cc_library(
     "//ifg",
     "//log",
     "//matrix",
+    "//net",
     "//ntf",
     "//tex",
   ]
@@ -71,6 +76,7 @@ cc_library(
   copts = [],
   deps = [
     ":ent_cc_proto",
+    ":ent_headers",
     "//log",
     "//matrix",
     "//ntf:ntf_cc_proto",
