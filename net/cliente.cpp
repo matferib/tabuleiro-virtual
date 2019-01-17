@@ -125,7 +125,7 @@ void Cliente::AutoConecta(const std::string& id) {
                   << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
         std::string endereco_str(StringPrintf("[%s]", endereco_descoberto_.c_str()));
         if (num_bytes > 0 && num_bytes < 10) {
-          StringPrintf("%s:%s",
+          endereco_str = StringPrintf("%s:%s",
               endereco_str.c_str(),
               std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes).c_str());
         }
