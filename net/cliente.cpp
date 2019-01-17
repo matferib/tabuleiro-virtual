@@ -130,7 +130,7 @@ void Cliente::AutoConecta(const std::string& id) {
               std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes).c_str());
         }
         LOG(INFO) << "CONECTANDO EM: " << endereco_str;
-        Conecta(id, endereco_str, 0);
+        Conecta(id, endereco_str, /*porta_local=*/0);
       }
   );
   //LOG(INFO) << "zerando timer";
@@ -145,24 +145,35 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str, in
     return;
   }
   std::vector<std::string> endereco_porta;
-  boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
+  // Mesmo que use token compress, o primeiro [ gerara um token vazio.
+  boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of("]"));
+  std::string endereco_parseado;
+  std::string porta_parseada;
   if (endereco_porta.size() == 0) {
     // Endereco padrao.
     LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem porta";
-    endereco_porta.push_back("localhost");
+    endereco_parseado = "localhost";
   } else if (endereco_porta[0].empty()) {
-    endereco_porta[0] = "localhost";
+    endereco_parseado = "localhost";
+  } else if (endereco_porta[0][0] == '[') {
+    endereco_parseado = endereco_porta[0].substr(1);
+  } else {
+    endereco_parseado = endereco_porta[0];
   }
-  if (endereco_porta.size() == 1) {
+  if (endereco_porta.size() == 1 ||
+      (endereco_porta.size() > 1 && (endereco_porta[1].size() <= 1 || endereco_porta[1][0] != ':'))) {
     // Porta padrao.
-    endereco_porta.push_back(to_string(PortaPadrao()));
+    porta_parseada = to_string(PortaPadrao());
+  } else {
+    porta_parseada = endereco_porta[1].substr(1);
   }
   try {
     socket_.reset(new Socket(sincronizador_));
     if (porta_local > 1024) {
       socket_->PortaLocal(porta_local);
     }
-    socket_->Conecta(endereco_porta[0], endereco_porta[1]);
+    LOG(INFO) << "Pronto para conectar, servidor: " << endereco_parseado << ", porta: " << porta_parseada;
+    socket_->Conecta(endereco_parseado, porta_parseada);
 #if 0
     //boost::asio::socket_base::receive_buffer_size option(50000);
     boost::asio::socket_base::receive_buffer_size option;
