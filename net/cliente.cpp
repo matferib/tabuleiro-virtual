@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "ent/constantes.h"
+//#include "ent/constantes.h"
 #include "goog/stringprintf.h"
 // para depurar android e ios.
 //#define VLOG_NIVEL 1
