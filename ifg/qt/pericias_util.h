@@ -129,6 +129,8 @@ class ModeloPericias : public QAbstractTableModel {
       case 5: {
         if (role == Qt::DisplayRole) {
           return QVariant(BonusTotal(modelo_[row].bonus()));
+        } else if (role == Qt::ToolTipRole) {
+          return QVariant(QString::fromUtf8(BonusParaString(modelo_[row].bonus()).c_str()));
         } else {
           // Nao editavel.
           return QVariant();
