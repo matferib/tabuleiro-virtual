@@ -3404,6 +3404,28 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
 
+std::string NomeTipoBonus(TipoBonus tipo) {
+  std::string nome = TipoBonus_Name(tipo);
+  if (nome.size() > 3) {
+    nome = nome.substr(3);
+  }
+  return nome;
+}
+
+std::string BonusParaString(const Bonus& bonus) {
+  std::string resumo;
+  for (const auto& bi : bonus.bonus_individual()) {
+    for (const auto& po : bi.por_origem()) {
+      if (po.valor() == 0) continue;
+      resumo += StringPrintf("%s (%s): %d\n", NomeTipoBonus(bi.tipo()).c_str(), po.origem().c_str(), po.valor());
+    }
+  }
+  if (!resumo.empty()) {
+    resumo.pop_back();
+  }
+  return resumo;
+}
+
 int BonusTotal(const Bonus& bonus) {
   int total = 0;
   for (const auto& bi : bonus.bonus_individual()) {

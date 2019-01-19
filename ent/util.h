@@ -353,6 +353,9 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 
+// Retorna uma string com o resumo do bonus.
+std::string BonusParaString(const Bonus& bonus);
+std::string NomeTipoBonus(TipoBonus tipo);
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
