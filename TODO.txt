@@ -1,6 +1,4 @@
-Fazer teste de espantar mortos vivos.
-Tooltip de itens magicos.
-Tooltip de pericia: mostrar os bonus.
+Fazer tratamento de espantar mortos vivos.
 
 Entidades montadas.
 
