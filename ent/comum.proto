@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 63.
+// Proximo id: 64.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -107,6 +107,7 @@ enum TipoEfeito {
   EFEITO_ORIENTACAO = 60;
   EFEITO_MORTO_VIVO_EXPULSO = 61;
   EFEITO_MORTO_VIVO_FASCINADO = 62;
+  EFEITO_VOO = 63;
 }
 
 enum TipoEfeitoModelo {
@@ -655,6 +656,11 @@ enum TipoItem {
   TIPO_CHAPEU = 7;
 }
 
+enum TipoComplementoItemMagico {
+  TCIM_NENHUM = 0;
+  TCIM_ENERGIA = 1;  // resistencia a elementos.
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
@@ -692,6 +698,8 @@ message ItemMagicoProto {
   optional int32 max_cargas = 15;
   // Cargas correntes do item.
   optional int32 cargas = 16;
+  // Tipo de complemento requerido pelo item magico. Usado pela UI.
+  optional TipoComplementoItemMagico tipo_complemento = 18;
 }
 
 message AnelProto {

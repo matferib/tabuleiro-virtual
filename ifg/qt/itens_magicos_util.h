@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QItemDelegate>
+#include <QToolTip>
 #include "ent/tabelas.h"
 #include "goog/stringprintf.h"
 #include "log/log.h"
@@ -17,6 +18,10 @@ int MaximoEmUso(ent::TipoItem tipo);
 // Retorna os itens da tabela.
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo);
+
+// Retorna a string de descricao do item.
+std::string DescricaoParaLista(
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
 
 // Retorna o nome do item seguido por 'em uso' ou 'não usado'.
 std::string NomeParaLista(
@@ -64,6 +69,26 @@ class ItemMagicoDelegate : public QItemDelegate {
     return s;
   }
 
+  bool helpEvent(
+      QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option,
+      const QModelIndex & index) override {
+    if (event == nullptr || event->type() != QEvent::ToolTip || view == nullptr) {
+      return false;
+    }
+    QListWidget* parent = qobject_cast<QListWidget*>(view);
+    if (parent == nullptr) {
+      return false;
+    }
+    int indice = parent->row(parent->itemAt(event->pos()));
+    if (indice < 0) {
+      return false;
+    }
+    QToolTip::showText(
+        event->globalPos(),
+        QString::fromUtf8(DescricaoParaLista(tabelas_, tipo_, ItemDoProto(indice)).c_str()));
+    return true;
+  }
+
  private:
   // Retorna o id do item corrente do combo.
   std::string IdCorrenteDoCombo(QComboBox* combo) const {
@@ -85,14 +110,18 @@ class ItemMagicoDelegate : public QItemDelegate {
 
   // Retorna o item do personagem.
   const ent::ItemMagicoProto& ItemCorrenteDoProto() const {
-    const int indice_proto = lista_->currentRow();
+    return ItemDoProto(lista_->currentRow());
+  }
+
+  const ent::ItemMagicoProto& ItemDoProto(int indice_proto) const {
     const auto& itens = ItensPersonagem();
     if (indice_proto < 0 || indice_proto >= itens.size()) {
-      LOG(ERROR) << "indice invalido em ItemCorrenteDoProto: " << indice_proto;
+      LOG(ERROR) << "indice invalido em ItemDoPRoto: " << indice_proto;
       return ent::ItemMagicoProto::default_instance();
     }
     return itens.Get(indice_proto);
   }
+
 
   // Retorna o id do item corrente.
   const char* IdCorrenteDoProto() const {
@@ -152,7 +181,6 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
   return tabelas.todas().tabela_aneis().aneis();
 }
 
-// Retorna o nome do item seguido por em uso ou nao usado.
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
@@ -161,6 +189,13 @@ inline std::string NomeParaLista(
       item_tabela.nome().c_str(),
       item_pc.em_uso() ? " (em uso)" : " (não usado)");
 }
+
+inline std::string DescricaoParaLista(
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
+  const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
+  return item_tabela.descricao().c_str();
+}
+
 
 inline int MaximoEmUso(ent::TipoItem tipo) {
   switch (tipo) {
