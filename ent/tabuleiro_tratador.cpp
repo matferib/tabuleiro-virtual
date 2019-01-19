@@ -950,6 +950,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
   // Ordena por distancia.
   // Ve os que podem ser afetados.
   // Computa quem eh expulso, quem é destruido.
+  return atraso_s;
 }
 
 float Tabuleiro::TrataAcaoProjetilArea(
