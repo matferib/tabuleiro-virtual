@@ -1444,6 +1444,10 @@ tabela_efeitos {
     nome: 'veneno'
   }
   efeitos {
+    id: EFEITO_VOO
+    nome: 'vôo'
+  }
+  efeitos {
     id: EFEITO_PRESA_MAGICA
     nome: 'presa mágica'
     formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra)'
@@ -2116,12 +2120,14 @@ tabela_pocoes {
     id: 'aumentar_pessoa'
     nome: 'Aumentar Pessoa'
     tipo_efeito: EFEITO_AUMENTAR_PESSOA
+    descricao: 'Aumenta a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para força, -2 para destreza e todas as consequências do tamanho aumentado (-1 ataque e classe de armadura, por exemplo).'
     duracao_rodadas: 10
     custo_po: 250
   }
   pocoes {
     id: 'reduzir_pessoa'
     nome: 'Reduzir Pessoa'
+    descricao: 'Reduz a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para destreza, -2 de penalidade em força e todas as consequências do tamanho reduzido (+1 ataque e classe de armadura, por exemplo).'
     tipo_efeito: EFEITO_REDUZIR_PESSOA
     duracao_rodadas: 10
     custo_po: 250
@@ -2130,6 +2136,7 @@ tabela_pocoes {
   pocoes {
     id: 'ajuda'
     nome: 'Ajuda'
+    descricao: '+1 de moral nos ataques e testes de resitência contra medo, além de 1d8+3 PV.'
     tipo_efeito: EFEITO_AJUDA
     duracao_rodadas: 30
     custo_po: 300
@@ -2367,6 +2374,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_2'
     nome: 'Pele de Árvore (2)'
+    descricao: '+2 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 300
     duracao_rodadas: 300
@@ -2375,6 +2383,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_3'
     nome: 'Pele de Árvore (3)'
+    descricao: '+3 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 600
     duracao_rodadas: 600
@@ -2383,6 +2392,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_4'
     nome: 'Pele de Árvore (4)'
+    descricao: '+4 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 900
     duracao_rodadas: 900
@@ -2391,6 +2401,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_5'
     nome: 'Pele de Árvore (5)'
+    descricao: '+5 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 1200
     duracao_rodadas: 1200
@@ -2399,6 +2410,7 @@ tabela_pocoes {
   pocoes {
     id: 'santuario'
     nome: 'Santuário'
+    descricao: 'Oponentes que tentarem atacar o alvo devem passar em um teste de vontade CD 11.'
     tipo_efeito: EFEITO_SANTUARIO
     custo_po: 50
     duracao_rodadas: 1
@@ -2425,38 +2437,45 @@ tabela_pocoes {
     id: 'suportar_elementos'
     nome: 'Suportar Elementos'
     tipo_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    descricao: 'Criatura protegida não sofre por estar no calor ou frio, podendo ficar confortável entre -45 e 60 graus celsius.'
     custo_po: 50
     duracao_rodadas: 14400 # 24 horas.
   }
   pocoes {
     id: 'resistencia_elementos_10'
     nome: 'Resistência a Elementos (10)'
+    descricao: 'Dá resistência 10 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 300
     duracao_rodadas: 300
     complementos: 10
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'resistencia_elementos_20'
     nome: 'Resistência a Elementos (20)'
+    descricao: 'Dá resistência 20 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 700
     duracao_rodadas: 700
     complementos: 20
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'resistencia_elementos_30'
     nome: 'Resistência a Elementos (30)'
+    descricao: 'Dá resistência 30 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 1100
     duracao_rodadas: 1100
     complementos: 30
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'voo'
     nome: 'Vôo'
     duracao_rodadas: 50
-    tipo_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_VOO
     descricao: 'Alvo pode voar com velocidade 12 quadrados (8 em armadura média ou pesada).'
     custo_po: 750
   }
