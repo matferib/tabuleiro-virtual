@@ -2,8 +2,9 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_saude_1'
     nome: 'Amuleto da Saúde +1'
+    descricao: 'Bônus de +1 de melhoria na constituição.'
     custo_po: 1500
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 1
   }
 }

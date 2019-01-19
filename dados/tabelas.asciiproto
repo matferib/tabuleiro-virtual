@@ -1868,27 +1868,31 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_saude_2'
     nome: 'Amuleto da Saúde +2'
+    descricao: 'Bônus de +2 de melhoria na constituição.'
     custo_po: 4000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 2
   }
   amuletos {
     id: 'amuleto_saude_4'
     nome: 'Amuleto da Saúde +4'
+    descricao: 'Bônus de +4 de melhoria na constituição.'
     custo_po: 16000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 4
   }
   amuletos {
     id: 'amuleto_saude_6'
     nome: 'Amuleto da Saúde +6'
+    descricao: 'Bônus de +6 de melhoria na constituição.'
     custo_po: 36000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 6
   }
   amuletos {
     id: 'amuleto_armadura_natural_1'
     nome: 'Amuleto de Armadura Natural +1'
+    descricao: 'Bônus de +1 de melhoria de armadura natural.'
     custo_po: 2000
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 1
@@ -1896,6 +1900,7 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_armadura_natural_2'
     nome: 'Amuleto de Armadura Natural +2'
+    descricao: 'Bônus de +2 de melhoria de armadura natural.'
     custo_po: 8000
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 2
@@ -1903,6 +1908,7 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_armadura_natural_3'
     nome: 'Amuleto de Armadura Natural +3'
+    descricao: 'Bônus de +3 de melhoria de armadura natural.'
     custo_po: 18000
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 3
@@ -1910,6 +1916,7 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_armadura_natural_4'
     nome: 'Amuleto de Armadura Natural +4'
+    descricao: 'Bônus de +4 de melhoria de armadura natural.'
     custo_po: 32000
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 4
@@ -1917,6 +1924,7 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_armadura_natural_5'
     nome: 'Amuleto de Armadura Natural +5'
+    descricao: 'Bônus de +5 de melhoria de armadura natural.'
     custo_po: 50000
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 5
