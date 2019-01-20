@@ -1350,6 +1350,7 @@ Posicao Acao::AjustaPonto(
 
   switch (acao_proto.tipo()) {
     case ACAO_DISPERSAO:
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA:
         case ACAO_GEO_CILINDRO:
@@ -1473,6 +1474,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       return dq_m2 <= distancia_maxima_m2;
     }
     case ACAO_DISPERSAO:
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA: {
           const float dq =
@@ -1579,6 +1581,7 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoSinalizacao(acao_proto, tabuleiro, texturas);
     case ACAO_PROJETIL:
       return new AcaoProjetil(acao_proto, tabuleiro, texturas);
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
     case ACAO_DISPERSAO:
       return new AcaoDispersao(acao_proto, tabuleiro, texturas);
     case ACAO_DELTA_PONTOS_VIDA:

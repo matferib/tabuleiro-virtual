@@ -945,11 +945,105 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
     float atraso_s, const Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
-  // Confere se entidade possui niveis de clerigo.
+  const int nivel_expulsao = NivelExpulsao(tabelas_, entidade->Proto());
+  // Confere se entidade pode expulsar mortos vivos.
+  if (nivel_expulsao <= 0) {
+    AdicionaAcaoTextoLogado(entidade->Id(), "Entidade não pode expulsar/fascinar mortos vivos.");
+    return atraso_s;
+  }
+  // TODO numero de expulsoes.
+
+  // Teste de expulsao: d20 + carisma.
+  const int d20 = RolaDado(20);
+  const int modificador_carisma = ModificadorAtributo(TA_CARISMA, entidade->Proto());
+  // Tabela de expulsao:
+  // 0 or lower Cleric’s level -4
+  // 1—3 Cleric’s level -3
+  // 4—6 Cleric’s level -2
+  // 7—9 Cleric’s level -1
+  // 10—12 Cleric’s level
+  // 13—15 Cleric’s level +1
+  // 16—18 Cleric’s level +2
+  // 19—21 Cleric’s level +3
+  // 22 or higher Cleric’s level +4
+  // TODO adicionar ao log de eventos os dados.
+  const int total_teste = d20 + modificador_carisma;
+  const int modificador_nivel = -4 + (std::max(std::min(22, total_teste), 0) + 2) / 3;
+  const int maior_nivel = nivel_expulsao + modificador_nivel;
+  acao_proto->set_bem_sucedida(true);  // acao realizada.
+
   // Coleta todos os alvos que estao dentro do raio de alcance da entidade.
+  *acao_proto->mutable_pos_tabuleiro() = entidade->PosicaoAcao();
+  std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  atraso_s += acao_proto->duracao_s();
+  std::vector<const Entidade*> entidades_por_distancia;
+  for (auto id : ids_afetados) {
+    const Entidade* entidade_destino = BuscaEntidade(id);
+    if (entidade_destino == nullptr) {
+      // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
+      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+      continue;
+    }
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+      VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " não é morto vivo";
+      continue;
+    }
+
+    if (Nivel(entidade_destino->Proto()) > maior_nivel) {
+      acao_proto->set_gera_outras_acoes(true);  // mesmo que nao de dano, tem os textos.
+      auto* por_entidade = acao_proto->add_por_entidade();
+      por_entidade->set_id(id);
+      por_entidade->set_texto("imune por dados de vida");
+      continue;
+    }
+
+    VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " possivelmente afetado";
+    entidades_por_distancia.push_back(entidade_destino);
+  }
+
   // Ordena por distancia.
-  // Ve os que podem ser afetados.
-  // Computa quem eh expulso, quem é destruido.
+  auto OrdenacaoPorDistancia = [entidade] (const Entidade* lhs, const Entidade* rhs) {
+    const float dql = DistanciaQuadrado(entidade->Pos(), lhs->Pos());
+    const float dqr = DistanciaQuadrado(entidade->Pos(), rhs->Pos());
+    return dql < dqr;
+  };
+  std::sort(entidades_por_distancia.begin(), entidades_por_distancia.end(), OrdenacaoPorDistancia);
+
+  // Ve os que podem ser afetados, mais proximos primeiro.
+  const int d6x2 = RolaValor("2d6");
+  int dados_vida_afetados = d6x2 + nivel_expulsao + modificador_carisma;
+  for (const auto* entidade_destino : entidades_por_distancia) {
+    const int nivel_destino = Nivel(entidade_destino->Proto());
+    auto* por_entidade = acao_proto->add_por_entidade();
+    por_entidade->set_id(entidade_destino->Id());
+    if (nivel_destino > dados_vida_afetados) {
+      VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " escapou: dados de expulsao insuficientes";
+      por_entidade->set_texto("dados de expulsao insuficientes");
+      continue;
+    }
+    dados_vida_afetados -= nivel_destino;
+    acao_proto->set_afeta_pontos_vida(true);
+
+    // Afetado!
+    if (nivel_expulsao >= 2 * nivel_destino) {
+      por_entidade->set_delta(-entidade_destino->MaximoPontosVida() * 2);
+      VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " destruido.";
+    } else {
+      por_entidade->set_texto("afetado por expulsão");
+      std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+      AcaoProto::EfeitoAdicional efeito_adicional;
+      // TODO fascinar.
+      efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
+      efeito_adicional.set_rodadas(10);
+      PreencheNotificacaoEvento(
+          *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+      central_->AdicionaNotificacao(n_efeito.release());
+      atraso_s += 0.5f;
+      VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " afetado.";
+    }
+  }
+  VLOG(2) << "Acao de expulsao: " << acao_proto->ShortDebugString();
+  *n->mutable_acao() = *acao_proto;
   return atraso_s;
 }
 
@@ -1063,7 +1157,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (pos_entidade_destino.has_x()) {
-    acao_proto->mutable_pos_entidade()->CopyFrom(pos_entidade_destino);
+    *acao_proto->mutable_pos_entidade() = pos_entidade_destino;
   }
   int delta_pontos_vida = 0;
   if (HaValorListaPontosVida()) {

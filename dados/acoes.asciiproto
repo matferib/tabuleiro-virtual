@@ -35,7 +35,12 @@ acao {
 acao {
   id: 'Expulsar Mortos Vivos'
   tipo: ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS
+  geometria: ACAO_GEO_ESFERA
   icone: 'icon_turn_undead.png'
+  duracao_s: 0.5
+  afeta_apenas: TIPO_MORTO_VIVO
+  raio_quadrados: 12
+  cor { r: 1 g: 1 b: 1 a: 1 }
 }
 acao {
   id: 'Fascinar Mortos Vivos'

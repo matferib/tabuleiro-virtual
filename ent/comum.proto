@@ -448,6 +448,12 @@ enum ProgressaoConjurador {
   PCONJ_MEIO_MIN_4 = 2; // ranger, paladino
 }
 
+enum ProgressaoExpulsao {
+  PEXP_ZERO = 0;          // sem progressao.
+  PEXP_UM = 1;            // um por nivel
+  PEXP_UM_MENOS_TRES = 2; // nivel menos tres.
+}
+
 // Informacoes sobre a classe de um personagem.
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
@@ -500,6 +506,8 @@ message InfoClasse {
   optional bool monstro = 21;
   // Se presente, faz merge com classe ja existente ao inves de criar.
   optional int32 combinar_com = 22;
+  // Se presente, classe pode expulsar morto vivo com a progressao passada.
+  optional ProgressaoExpulsao progressao_expulsao = 23;
 }
 
 // Informacao sobre a pericia do personagem.

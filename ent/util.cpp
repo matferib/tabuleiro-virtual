@@ -3720,6 +3720,27 @@ int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const Arm
   return 0;
 }
 
+// Nivel expulsao.
+int NivelExpulsao(const Tabelas& tabelas, const ent::EntidadeProto& proto) {
+  int total = 0;
+  for (const auto& ic : proto.info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    switch (classe_tabelada.progressao_expulsao()) {
+      case PEXP_UM:
+        total += ic.nivel();
+      break;
+      case PEXP_UM_MENOS_TRES:
+        if (ic.nivel() > 3) {
+          total += ic.nivel() - 3;
+        }
+      break;
+      default:
+        continue;
+    }
+  }
+  return total - proto.niveis_negativos();
+}
+
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
   da->clear_acao();

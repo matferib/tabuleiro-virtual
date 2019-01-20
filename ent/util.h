@@ -514,6 +514,8 @@ int Nivel(const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
 int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+// Retorna o nivel para testes de expulsar/fascinar mortos vivos.
+int NivelExpulsao(const Tabelas& tabelas, const EntidadeProto& proto);
 // Retorna o id de classe para um tipo de ataque. Por exemplo, 'Feitiço de Mago' retorna 'mago'.
 // Vazio caso contrario.
 std::string TipoAtaqueParaClasse(const Tabelas& tabelas, const std::string& tipo_ataque);

@@ -336,7 +336,11 @@ message EntidadeProto {
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
     repeated InimigoPredileto inimigos_prediletos = 26;
+    // indica modo furtivo, proximo dano dara dano furtivo.
     optional bool furtivo = 28;
+    // Expulsar/fascinar mortos vivos.
+    optional int32 maximo_expulsoes_por_dia = 29;
+    optional int32 expulsoes_realizadas = 30;
   }
   optional DadosAtaqueGlobal dados_ataque_global = 73;
 
