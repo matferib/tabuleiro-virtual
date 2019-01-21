@@ -1,5 +1,4 @@
-Fazer tratamento de espantar mortos vivos.
-
+Conferir expulsar mortos vivos.
 Entidades montadas.
 
 Anotacoes da sessao Tilverton:
