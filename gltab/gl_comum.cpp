@@ -120,7 +120,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   // eh considerado no sampling e nao em pixels.
   gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
 #endif
-  
+
   // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
