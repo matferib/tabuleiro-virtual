@@ -1346,9 +1346,13 @@ const Posicao Entidade::PosicaoAcao() const {
     Matrix4 matriz;
     matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
     Vector4 ponto(PosParaVector4(proto_.posicao_acao()));
-    return Vector4ParaPosicao(matriz * ponto);
+    auto pos = Vector4ParaPosicao(matriz * ponto);
+    pos.set_id_cenario(IdCenario());
+    return pos;
   }
-  return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+  auto pos = PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+  pos.set_id_cenario(IdCenario());
+  return pos;
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
