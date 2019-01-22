@@ -242,25 +242,57 @@ class AcaoAgarrar : public Acao {
   bool finalizada_ = false;
 };
 
-// Sobe um numero verde ou vermelho de acordo com o dano causado.
+// Antigamente: sobe um numero verde ou vermelho de acordo com o dano causado.
+// Hoje serve para texto tb.
+// Renomear para AcaoTexto.
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
   AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
       : Acao(acao_proto, tabuleiro, texturas) {
-    Entidade* entidade_destino = nullptr;
+    Entidade* entidade_destino = BuscaEntidadeDestino(acao_proto, tabuleiro);
     if (!acao_proto_.has_pos_entidade()) {
-      if ((entidade_destino = BuscaEntidadeDestino(acao_proto, tabuleiro)) == nullptr) {
+      if (entidade_destino == nullptr) {
         faltam_ms_ = 0;
         VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
         return;
       }
-      pos_ = entidade_destino->Pos();
-      pos_.set_z(entidade_destino->ZOlho());
-      VLOG(2) << "Acao usando entidade destino " << pos_.ShortDebugString();
+      if (tabuleiro_ == nullptr) {
+        faltam_ms_ = 0;
+        LOG(ERROR) << "Tabuleiro é nullptr!";
+        return;
+      }
+      const auto* entidade_primeira_pessoa = tabuleiro_->EntidadePrimeiraPessoa();
+      if (entidade_primeira_pessoa == nullptr || entidade_primeira_pessoa->Id() != entidade_destino->Id()) {
+        pos_ = entidade_destino->Pos();
+        pos_.set_z(entidade_destino->ZOlho());
+        VLOG(1) << "Acao usando entidade destino " << pos_.ShortDebugString();
+      } else {
+        // Entidade destino é a mesma da primeira pessoa. Vamos colocar a acao
+        // no meio da tela.
+        int largura, altura;
+        std::tie(largura, altura) = tabuleiro_->LarguraAlturaViewport();
+        pos_2d_.set_x(largura / 2);
+        pos_2d_.set_y(altura / 2);
+        max_delta_y_ = altura / 10;
+        VLOG(1) << "Acao posicao primeira pessoa";
+      }
     } else {
-      pos_ = acao_proto_.pos_entidade();
-      VLOG(2) << "Acao usando posicao entidade " << pos_.ShortDebugString();
+      const auto* entidade_primeira_pessoa = tabuleiro_->EntidadePrimeiraPessoa();
+      if (entidade_primeira_pessoa == nullptr || entidade_destino == nullptr ||
+          entidade_primeira_pessoa->Id() != entidade_destino->Id()) {
+        pos_ = acao_proto_.pos_entidade();
+        VLOG(1) << "Acao usando posicao entidade " << pos_.ShortDebugString();
+      } else {
+        // Entidade destino é a mesma da primeira pessoa. Vamos colocar a acao
+        // no meio da tela.
+        int largura, altura;
+        std::tie(largura, altura) = tabuleiro_->LarguraAlturaViewport();
+        pos_2d_.set_x(largura / 2);
+        pos_2d_.set_y(altura / 2);
+        max_delta_y_ = altura / 10;
+        VLOG(1) << "Acao posicao primeira pessoa";
+      }
     }
     faltam_ms_ = 0;
     // Monta a string de delta.
@@ -304,7 +336,9 @@ class AcaoDeltaPontosVida : public Acao {
     } else {
       MudaCorAplicandoNevoa(COR_VERMELHA, pd);
     }
-    DesenhaStringDelta();
+    if (!string_delta_.empty()) {
+      DesenhaStringDelta();
+    }
 
     if (!string_texto_.empty()) {
       if (acao_proto_.has_cor()) {
@@ -322,7 +356,11 @@ class AcaoDeltaPontosVida : public Acao {
       // Primeiro frame. Apenas posiciona na posicao inicial. Importante pos UI para nao pular o efeito.
       --faltam_ms_;
     } else {
-      pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
+      if (pos_2d_.has_y()) {
+        pos_2d_.set_y(pos_2d_.y() + (static_cast<float>(intervalo_ms) * max_delta_y_) / duracao_total_ms_);
+      } else {
+        pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
+      }
       faltam_ms_ -= intervalo_ms;
     }
     if (faltam_ms_ <= 0) {
@@ -338,16 +376,28 @@ class AcaoDeltaPontosVida : public Acao {
   void DesenhaStringDelta() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-    if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-      gl::DesenhaString(StringSemUtf8(string_delta_));
+    if (pos_2d_.has_x()) {
+      if (gl::PosicaoRasterAbsoluta(pos_2d_.x(), pos_2d_.y())) {
+        gl::DesenhaString(StringSemUtf8(string_delta_));
+      }
+    } else {
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        gl::DesenhaString(StringSemUtf8(string_delta_));
+      }
     }
   }
 
   void DesenhaStringTexto() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-    if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
-      gl::DesenhaString(StringSemUtf8(string_texto_));
+    if (pos_2d_.has_x()) {
+      if (gl::PosicaoRasterAbsoluta(pos_2d_.x(), pos_2d_.y())) {
+        gl::DesenhaString(StringSemUtf8(string_texto_));
+      }
+    } else {
+      if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
+        gl::DesenhaString(StringSemUtf8(string_texto_));
+      }
     }
   }
 
@@ -359,7 +409,9 @@ class AcaoDeltaPontosVida : public Acao {
   std::string string_delta_;
   int duracao_total_ms_ = 0;
   Posicao pos_;
+  Posicao pos_2d_;
   int faltam_ms_;
+  int max_delta_y_ = 0;
 };
 
 // Acao de dispersao, estilo bola de fogo.

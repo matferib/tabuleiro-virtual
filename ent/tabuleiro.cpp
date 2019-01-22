@@ -6988,6 +6988,14 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
 }
 
+const Entidade* Tabuleiro::EntidadePrimeiraPessoa() const {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return BuscaEntidade(IdCameraPresa());
+  } else {
+    return nullptr;
+  }
+}
+
 Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     return BuscaEntidade(IdCameraPresa());

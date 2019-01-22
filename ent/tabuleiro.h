@@ -457,7 +457,8 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo esquiva, o clique seleciona contra quem a entidade se esquivara. */
   void AlternaModoEsquiva();
 
-  /** No modo remocao de grupo, o clique remove uma entidade de uma entidade composta. */ 
+  /** No modo remocao de grupo, o clique remove uma entidade de uma entidade
+   * composta. */
   void AlternaModoRemocaoDeGrupo();
 
   // Controle virtual.
@@ -519,6 +520,13 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaCameraIsometrica();
   /** Alterna entre a camera em primeira pessoa e a normal. */
   void AlternaCameraPrimeiraPessoa();
+  /** Retorna a entidade de primeira pessoa ou null se nao tiver. */
+  const Entidade* EntidadePrimeiraPessoa() const;
+
+  /** Retorna a largura e a altura do viewport do tabuleiro. */
+  std::pair<int, int> LarguraAlturaViewport() const {
+    return std::make_pair(largura_, altura_);
+  }
 
   /** Alterna entre visao do jogador e do mestre. */
   void AlternaVisaoJogador();
@@ -725,7 +733,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola um dado de faces_dado_ para as entidades selecionadas e notifica. */
   void TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d);
-  
+
   /** Remove um objeto de dentro de um composto. */
   void TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
 
@@ -842,7 +850,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o x3d e y3d do SW do quadrado. */
   void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
   void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
-  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */ 
+  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */
   void XYQuadrado(unsigned int id_quadrado, int *x, int* y);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
@@ -1267,7 +1275,7 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_uma_renderizacao_controle_virtual_;
   /** computa o tempo para renderizar os mapas de luz e oclusao. */
   boost::timer::cpu_timer timer_renderizacao_mapas_;
-  
+
   // Listas que armazenam os ultimos tempos computados pelos timers.
   std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_
   std::list<uint64_t> tempos_uma_renderizacao_completa_;  // timer_uma_renderizacao_completa_

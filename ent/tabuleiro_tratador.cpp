@@ -2749,13 +2749,6 @@ void Tabuleiro::TrataRolarPericiaNotificando(int indice_pericia, const EntidadeP
   const auto& pericia = proto.info_pericias(indice_pericia);
   const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
   const bool treinado = pericia.pontos() > 0;
-  auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-  auto* a = n->mutable_acao();
-  auto* pd = a->mutable_pos_entidade();
-  const auto& entidade = BuscaEntidade(proto.id());
-  *pd = entidade->PosicaoAcao();
-  a->set_tipo(ent::ACAO_DELTA_PONTOS_VIDA);
-  a->set_local_apenas(false);
   std::string texto;
   if (treinado || pericia_tabelada.sem_treinamento()) {
     const int bonus = ent::BonusTotal(pericia.bonus());
@@ -2764,9 +2757,7 @@ void Tabuleiro::TrataRolarPericiaNotificando(int indice_pericia, const EntidadeP
   } else {
     texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
   }
-  a->set_texto(texto);
-  central_->AdicionaNotificacao(n.release());
-  AdicionaLogEvento(texto);
+  AdicionaAcaoTextoLogado(proto.id(), texto);
 }
 
 }  // namespace ent
