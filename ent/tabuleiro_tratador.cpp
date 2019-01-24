@@ -57,7 +57,7 @@ std::string StringTipoCarregamento(TipoCarregamento tc) {
 void ConcatenaString(const std::string& s, std::string* alvo) {
   if (alvo == nullptr) return;
   if (alvo->empty()) *alvo = s;
-  else *alvo = google::protobuf::StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
+  else *alvo = StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
 }
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.

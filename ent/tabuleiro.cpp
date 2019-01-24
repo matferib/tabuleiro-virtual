@@ -2639,6 +2639,7 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
 void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
   auto* dga = e_antes->mutable_dados_ataque_global();
   auto* dgd = e_depois->mutable_dados_ataque_global();
@@ -2689,19 +2690,32 @@ void Tabuleiro::ProximaIniciativa() {
 
   ntf::Notificacao grupo;
   grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  auto* n = grupo.add_notificacao();
-  n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
-  SerializaIniciativas(n->mutable_tabuleiro_antes());
-  SerializaIniciativas(n->mutable_tabuleiro());
-  n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
-  if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
-    n->mutable_tabuleiro()->set_indice_iniciativa(0);
-    PassaUmaRodadaNotificando(&grupo);
+
+  {
+    // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
+    const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
+    if (entidade_iniciativa_antes != nullptr) {
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
+    }
   }
-  // Por ultimo, zera os controles da entidade.
-  const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
-  if (entidade_iniciativa != nullptr) {
-    ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
+  {
+    // Atualiza a lista de iniciativa.
+    auto* n = grupo.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+    SerializaIniciativas(n->mutable_tabuleiro_antes());
+    SerializaIniciativas(n->mutable_tabuleiro());
+    n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
+    if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
+      n->mutable_tabuleiro()->set_indice_iniciativa(0);
+      PassaUmaRodadaNotificando(&grupo);
+    }
+  }
+  {
+    // Por ultimo, zera os controles da entidade corrente.
+    const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
+    if (entidade_iniciativa != nullptr) {
+      ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
+    }
   }
   AdicionaNotificacaoListaEventos(grupo);
   TrataNotificacao(grupo);
