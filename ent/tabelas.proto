@@ -75,6 +75,7 @@ message StringPorTamanho {
 enum TipoCarregamento {
   TC_LIVRE = 0;
   TC_MOVIMENTO = 1;
+  TC_PADRAO = 3;
   TC_RODADA_COMPLETA = 2;
 }
 

@@ -52,7 +52,7 @@ tabela_armas {
     categoria_pericia: CATPER_EXOTICA
     carregamento {
       requer_carregamento: true
-      tipo_carregamento: TC_RODADA_COMPLETA
+      tipo_carregamento: TC_PADRAO
     }
     acao {
       cor { r: 1 g: 0.5 b: 0 }

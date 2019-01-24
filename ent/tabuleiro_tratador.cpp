@@ -47,6 +47,7 @@ using google::protobuf::StringPrintf;
 std::string StringTipoCarregamento(TipoCarregamento tc) {
   switch (tc) {
     case TC_RODADA_COMPLETA: return "rodada";
+    case TC_PADRAO: return "padrao";
     case TC_MOVIMENTO: return "movimento";
     default: return "livre";
   }
