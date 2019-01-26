@@ -963,6 +963,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_formas_alternativas();
   }
 
+  // Se tiver, deixa o MergeFrom fazer o servico.
+  if (!proto_parcial.entidades_montadas().empty()) {
+    proto_.clear_entidades_montadas();
+  }
+
   // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
   if (proto_parcial.evento_size() > 0) {
     std::vector<int> a_remover;
@@ -1049,6 +1054,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (!proto_parcial.entidades_montadas().empty() && proto_.entidades_montadas(0) == IdInvalido) {
+    proto_.clear_entidades_montadas();
+  }
 
   if (proto_.dados_defesa().entidade_esquiva() == IdInvalido) {
     proto_.mutable_dados_defesa()->clear_entidade_esquiva();
@@ -1143,6 +1152,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_.reiniciar_ataque()) {
     proto_.clear_reiniciar_ataque();
     ReiniciaAtaque();
+  }
+  if (proto_.montado_em() == IdInvalido) {
+    proto_.clear_montado_em();
   }
   RecomputaDependencias(tabelas_, &proto_);
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();

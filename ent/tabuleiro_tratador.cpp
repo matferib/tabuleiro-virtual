@@ -558,7 +558,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float dy = ny - ultimo_y_3d_;
       int quantidade_movimento = 0;
       bool atualizar_mapa_luzes = false;
-      for (unsigned int id : ids_entidades_selecionadas_) {
+      for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           continue;
@@ -825,7 +825,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       vetor_delta.set_x(ultimo_x_3d_ - primeiro_x_3d_);
       vetor_delta.set_y(ultimo_y_3d_ - primeiro_y_3d_);
       vetor_delta.set_z(ultimo_z_3d_ - primeiro_z_3d_);
-      for (unsigned int id : ids_entidades_selecionadas_) {
+      for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           continue;
@@ -1784,6 +1784,34 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
   }
 }
 
+void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
+  modo_clique_ = MODO_NORMAL;
+  const auto ids = IdsEntidadesSelecionadasOuPrimeiraPessoa();
+  if (ids.empty()) {
+    LOG(ERROR) << "Nao ha entidades selecionadas.";
+    return;
+  }
+  std::unordered_set<unsigned int> ids_montarias;
+  // Montadores.
+  std::vector<const Entidade*> montadores;
+  for (auto id : ids) {
+    const auto* montador = BuscaEntidade(id);
+    if (montador == nullptr) continue;
+    montadores.push_back(montador);
+  }
+
+  const Entidade* montaria = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
+  ntf::Notificacao grupo;
+  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  if (montaria == nullptr) {
+    PreencheNotificacoesDesmontar(montadores, &grupo);
+  } else {
+    PreencheNotificacoesMontarEm(montadores, montaria, &grupo);
+  }
+  TrataNotificacao(grupo);
+  AdicionaNotificacaoListaEventos(grupo);
+}
+
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
   if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
     LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
@@ -2167,6 +2195,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_REMOCAO_DE_GRUPO:
         TrataBotaoRemocaoGrupoPressionadoPosPicking(x, y, id, tipo_objeto);
         return;
+      case MODO_MONTAR:
+        TrataBotaoMontariaPressionadoPosPicking(id, tipo_objeto);
+        return;
       case MODO_SINALIZACAO:
         TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
         break;
@@ -2226,7 +2257,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
       }
       bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
-      for (unsigned int id : ids_entidades_selecionadas_) {
+      for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           // Forma nao deixa rastro.

@@ -1455,6 +1455,14 @@ void Tabuleiro::AlternaInvestida() {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::AlternaMontar() {
+  if (modo_clique_ == MODO_MONTAR) {
+    modo_clique_ = MODO_NORMAL;
+    return;
+  }
+  modo_clique_ = MODO_MONTAR;
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -6115,7 +6123,7 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
     return;
   }
-  bool apoiada_antes = entidade->Apoiada();
+  const bool apoiada_antes = entidade->Apoiada();
   if (proto.has_destino()) {
     entidade->Destino(proto.destino());
   } else {
@@ -7002,6 +7010,16 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
 }
 
+std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const {
+  std::vector<unsigned int> ids = IdsEntidadesSelecionadasOuPrimeiraPessoa();
+  for (unsigned int id : ids) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
+  }
+  return ids;
+}
+
 const Entidade* Tabuleiro::EntidadePrimeiraPessoa() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     return BuscaEntidade(IdCameraPresa());
@@ -7783,6 +7801,82 @@ bool Tabuleiro::UsaNevoa() const {
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
   const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
+}
+
+void Tabuleiro::PreencheNotificacoesMontarEm(
+    const std::vector<const Entidade*>& montadores, const Entidade* montaria, ntf::Notificacao* grupo) const {
+  // Quem estiver montado, desmonta.
+  PreencheNotificacoesDesmontar(montadores, grupo);
+
+  unsigned int id_montaria = montaria->Id();
+  std::unordered_set<unsigned int> ids_montados(
+      montaria->Proto().entidades_montadas().begin(), montaria->Proto().entidades_montadas().end());
+  for (const auto* montador : montadores) {
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montador, grupo->add_notificacao());
+    e_antes->set_montado_em(Entidade::IdInvalido);
+    e_depois->set_montado_em(id_montaria);
+    ids_montados.insert(montador->Id());
+    VLOG(1) << "Montando " << RotuloEntidade(montador) << " em " << RotuloEntidade(montaria);
+  }
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montaria, grupo->add_notificacao());
+  *e_antes->mutable_entidades_montadas() = montaria->Proto().entidades_montadas();
+  std::copy(ids_montados.begin(), ids_montados.end(),
+            google::protobuf::RepeatedFieldBackInserter(e_depois->mutable_entidades_montadas()));
+}
+
+void Tabuleiro::PreencheNotificacoesDesmontar(
+    const std::vector<const Entidade*>& montadores, ntf::Notificacao* grupo) const {
+  std::unordered_set<unsigned int> ids_montarias;
+  std::unordered_set<unsigned int> ids_montadores;
+  // Montadores.
+  for (const auto* montador : montadores) {
+    if (!montador->Proto().has_montado_em()) {
+      VLOG(2) << "montador " << RotuloEntidade(montador) << " nao esta montado";
+      continue;
+    }
+    const auto* montaria = BuscaEntidade(montador->Proto().montado_em());
+    if (montaria != nullptr) {
+      ids_montarias.insert(montaria->Id());
+    }
+    ids_montadores.insert(montador->Id());
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montador, grupo->add_notificacao());
+    e_antes->set_montado_em(montador->Proto().montado_em());
+    e_depois->set_montado_em(Entidade::IdInvalido);
+    VLOG(1) << "Desmontando " << RotuloEntidade(montador) << " de " << RotuloEntidade(montaria);
+  }
+  // Montarias.
+  if (ids_montarias.empty()) {
+    VLOG(1) << "Nao ha montarias a serem atualizadas";
+    return;
+  }
+  for (unsigned int id_montaria : ids_montarias) {
+    const auto* montaria = BuscaEntidade(id_montaria);
+    if (montaria == nullptr) continue;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montaria, grupo->add_notificacao());
+    *e_antes->mutable_entidades_montadas() = montaria->Proto().entidades_montadas();
+    std::copy_if(
+        montaria->Proto().entidades_montadas().begin(),
+        montaria->Proto().entidades_montadas().end(),
+        google::protobuf::RepeatedFieldBackInserter(e_depois->mutable_entidades_montadas()),
+        [&ids_montadores] (unsigned int id) {
+          // Copia apenas se nao estiver presente.
+          return ids_montadores.find(id) == ids_montadores.end();
+        });
+    if (e_depois->entidades_montadas().empty()) {
+      VLOG(1) << "Montaria " << RotuloEntidade(montaria) << " atualizada para 0 montadores.";
+      e_depois->add_entidades_montadas(Entidade::IdInvalido);
+    } else {
+      VLOG(1) << "Montaria " << RotuloEntidade(montaria) << " atualizada para " << e_depois->entidades_montadas().size() << " montadores.";
+    }
+  }
 }
 
 }  // namespace ent
