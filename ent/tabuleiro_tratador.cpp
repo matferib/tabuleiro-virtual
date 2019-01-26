@@ -957,6 +957,9 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
   // Teste de expulsao: d20 + carisma.
   const int d20 = RolaDado(20);
   const int modificador_carisma = ModificadorAtributo(TA_CARISMA, entidade->Proto());
+  // Ta no livro do jogador.
+  // TODO: o bonus vai acabar variando com tipo de expulsao. Por exemplo, extra planares, plantas etc.
+  const int bonus_graduacao = Pericia("conhecimento_religiao", entidade->Proto()).pontos() > 5 ? 2 : 0;
   // Tabela de expulsao:
   // 0 or lower Cleric’s level -4
   // 1—3 Cleric’s level -3
@@ -967,8 +970,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
   // 16—18 Cleric’s level +2
   // 19—21 Cleric’s level +3
   // 22 or higher Cleric’s level +4
-  // TODO adicionar ao log de eventos os dados.
-  const int total_teste = d20 + modificador_carisma;
+  const int total_teste = d20 + modificador_carisma + bonus_graduacao;
   const int modificador_nivel = -4 + (std::max(std::min(22, total_teste), 0) + 2) / 3;
   const int maior_nivel = nivel_expulsao + modificador_nivel;
   acao_proto->set_bem_sucedida(true);  // acao realizada.
@@ -1027,8 +1029,12 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
 
     // Afetado!
     if (nivel_expulsao >= 2 * nivel_destino) {
-      por_entidade->set_delta(-entidade_destino->MaximoPontosVida() * 2);
+      int delta = -entidade_destino->MaximoPontosVida() * 2;
+      por_entidade->set_delta(delta);
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " destruido.";
+      // Apenas para desfazer, o dano sera dado pela acao.
+      auto* nd = grupo_desfazer->add_notificacao();
+      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta, TD_LETAL, nd, nd);
     } else {
       por_entidade->set_texto("afetado por expulsão");
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
@@ -1044,6 +1050,13 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
     }
   }
   VLOG(2) << "Acao de expulsao: " << acao_proto->ShortDebugString();
+  AdicionaLogEvento(entidade->Id(),
+      StringPrintf("Teste de expulsao: d20 (%d) + mod carisma (%d) + bonus religiao (%d) = %d; "
+                   "Maior DV: nivel expulsao (%d) + modificador expulsao (%d) = %d; "
+                   "maximo DV afetados: %d; destroi DV <= %d",
+                   d20, modificador_carisma, bonus_graduacao, total_teste,
+                   nivel_expulsao, modificador_nivel, maior_nivel,
+                   dados_vida_afetados, nivel_expulsao / 2));
   *n->mutable_acao() = *acao_proto;
   return atraso_s;
 }

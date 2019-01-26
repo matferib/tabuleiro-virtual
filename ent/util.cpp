@@ -3738,6 +3738,9 @@ int NivelExpulsao(const Tabelas& tabelas, const ent::EntidadeProto& proto) {
         continue;
     }
   }
+  if (PossuiTalento("expulsao_aprimorada", proto)) {
+    ++total;
+  }
   return total - proto.niveis_negativos();
 }
 
