@@ -150,6 +150,7 @@ enum IdBotao {
 
   CONTROLE_DESCANSAR_PERSONAGEM = 134;
   CONTROLE_INVESTIDA = 137;
+  CONTROLE_MONTAR = 140;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
