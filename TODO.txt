@@ -1,5 +1,3 @@
-Log de eventos: permitir rolagem lateral
-
 Anotacoes da sessao Tilverton:
 - Filtrar combo de classes para so mostrar nao monstros.
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
