@@ -1,5 +1,4 @@
-Conferir expulsar mortos vivos.
-Entidades montadas.
+Log de eventos: permitir rolagem lateral
 
 Anotacoes da sessao Tilverton:
 - Filtrar combo de classes para so mostrar nao monstros.
