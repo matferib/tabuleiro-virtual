@@ -1079,6 +1079,18 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 3
+    coluna: 12
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_mount.png"
+    id: CONTROLE_MONTAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Montar/desmontar."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 2
     coluna: 10
     rotulo: "00"
