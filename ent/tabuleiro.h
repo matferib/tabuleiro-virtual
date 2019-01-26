@@ -965,8 +965,8 @@ class Tabuleiro : public ntf::Receptor {
   * de callback para controle virtual.
   * Os valores coluna e linha sao usados para posicionar o raster inicialmente. A origem eh esquerda embaixo.
   */
-  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
-      int nome_cima, int nome_baixo, int tipo_lista,
+  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, int pagina_corrente_horizontal, const char* titulo, const float* cor_titulo,
+      int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
       const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
       std::function<int(int)> f_id);
 
@@ -1246,6 +1246,7 @@ class Tabuleiro : public ntf::Receptor {
 
   std::list<std::string> log_eventos_;
   int pagina_log_eventos_;
+  int pagina_horizontal_log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;

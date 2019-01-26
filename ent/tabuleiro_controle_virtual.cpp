@@ -544,6 +544,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_PAGINACAO_LISTA_LOG_BAIXO:
       ++pagina_log_eventos_;
       break;
+    case CONTROLE_PAGINACAO_LISTA_LOG_ESQUERDA:
+      pagina_horizontal_log_eventos_ = std::max(0, pagina_horizontal_log_eventos_ - 1);
+      break;
+    case CONTROLE_PAGINACAO_LISTA_LOG_DIREITA:
+      pagina_horizontal_log_eventos_ = std::min(10, pagina_horizontal_log_eventos_ + 1);
+      break;
     case CONTROLE_PAGINACAO_ANTERIOR:
       if (controle_virtual_.pagina_corrente() > 0) {
         controle_virtual_.set_pagina_corrente(controle_virtual_.pagina_corrente() - 1);
@@ -1172,7 +1178,7 @@ void Tabuleiro::DesenhaIniciativas() {
   int raster_x = 0, raster_y = 0;
   largura_fonte *= escala;
   altura_fonte *= escala;
-  raster_y = altura_ - altura_fonte;
+  raster_y = altura_ - (altura_fonte * 3);  // deixa a linha livre pra nao baguncar acoes.
   raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
