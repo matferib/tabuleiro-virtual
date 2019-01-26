@@ -26,3 +26,25 @@ tabela_chapeus {
     complementos: 1
   }
 }
+tabela_classes {
+  info_classes {
+    id: 'moeda_waukeen' nome: 'Moeda de Waukeen' progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE
+    aumenta_nivel_conjurador_de: 'clerigo'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'cura'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+  }
+}

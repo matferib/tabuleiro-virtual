@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "ent/acoes.h"
 #include "ent/constantes.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -863,13 +864,8 @@ int Entidade::NivelPersonagem() const {
   return total - proto_.niveis_negativos();
 }
 
-int Entidade::NivelConjurador() const {
-  for (const auto& info_classe : proto_.info_classes()) {
-    if (info_classe.nivel_conjurador() > 0) {
-      return info_classe.nivel_conjurador();
-    }
-  }
-  return 0;
+int Entidade::NivelConjurador(const std::string& id_classe) const {
+  return ::ent::NivelConjurador(id_classe, proto_);
 }
 
 int Entidade::ModificadorAtributoConjuracao() const {

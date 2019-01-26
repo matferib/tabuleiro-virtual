@@ -3379,7 +3379,8 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'identificar_magia'
 
-    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE
+    atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM

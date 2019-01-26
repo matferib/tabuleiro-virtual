@@ -130,7 +130,7 @@ class Entidade {
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
   /** @return o nivel de conjurador do personagem. */
-  int NivelConjurador() const;
+  int NivelConjurador(const std::string& classe) const;
   /** Bonus base de ataque total do personagem. */
   int BonusBaseAtaque() const;
   /** Modificador do atributo de conjuracao. Exemplo: sab para clérigos. */

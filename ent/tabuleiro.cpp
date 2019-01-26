@@ -995,7 +995,7 @@ int Tabuleiro::Desenha() {
 }
 
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
-  const int nivel = referencia.NivelConjurador();
+  const int nivel = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {
@@ -1049,7 +1049,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
         break;
       }
       case TMA_BBA_NIVEL_CONJURADOR:
-        modificador_ataque = referencia.NivelConjurador();
+        modificador_ataque = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
         break;
       default:
         break;
