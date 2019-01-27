@@ -2851,7 +2851,7 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
 
 void Tabuleiro::AlternaDanoAutomatico() {
   modo_dano_automatico_ = !modo_dano_automatico_;
-  if (modo_dano_automatico_) {
+  if (modo_dano_automatico_ && !IdsPrimeiraPessoaOuEntidadesSelecionadas().empty()) {
     modo_clique_ = MODO_ACAO;
   }
 }
