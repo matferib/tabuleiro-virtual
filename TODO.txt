@@ -1,3 +1,5 @@
+Mostrar salvacoes do mestre apenas para mestre.
+Permitir mais de uma textura por objeto (util para compostos).
 Conferir expulsar mortos vivos.
 Entidades montadas.
 
