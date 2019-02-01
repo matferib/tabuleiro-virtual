@@ -1481,7 +1481,7 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, cons
     return std::make_tuple(true, "");;
   }
   const int d20 = RolaDado(20);
-  const int nivel_conjurador = ea.NivelConjurador();
+  const int nivel_conjurador = ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
   const int total = d20 + nivel_conjurador;
 
   if (d20 + nivel_conjurador < rm) {
@@ -2966,6 +2966,22 @@ int ReducaoDanoBarbaro(int nivel) {
   return 5;
 }
 
+void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto, InfoClasse* ic) {
+  int niveis_da_classe = NivelParaCalculoMagiasPorDia(ic->id(), proto);
+  switch (tabelas.Classe(ic->id()).progressao_conjurador()) {
+    case PCONJ_MEIO_MIN_4:
+      ic->set_nivel_conjurador(niveis_da_classe < 4 ? 0 : niveis_da_classe / 2);
+      break;
+    case PCONJ_UM:
+      ic->set_nivel_conjurador(niveis_da_classe);
+      break;
+    case PCONJ_ZERO:
+    default:
+      ic->clear_nivel_conjurador();
+  }
+}
+
+
 // Recomputa os modificadores de conjuracao.
 void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
   int salvacao_fortitude = 0;
@@ -3006,18 +3022,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
           tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
       ic.set_atributo_conjuracao(classe_tabelada_conjuracao.atributo_conjuracao());
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
-      int nc = 0;
-      ProgressaoConjurador pconj =
-          ic.has_progressao_conjurador() ? ic.progressao_conjurador() : classe_tabelada_conjuracao.progressao_conjurador();
-      switch (pconj) {
-        case PCONJ_UM:
-          nc = ic.nivel(); break;
-        case PCONJ_MEIO_MIN_4:
-          nc = ic.nivel() < 4 ? 0 : ic.nivel() / 2; break;
-        default:
-          nc = ic.nivel_conjurador();
-      }
-      ic.set_nivel_conjurador(nc);
+      RecomputaNivelConjuracao(tabelas, *proto, &ic);
     }
     if (ic.has_progressao_bba()) {
       switch (ic.progressao_bba()) {
@@ -3322,7 +3327,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     // Encontra a entrada da classe, ou cria se nao houver.
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
-    const int nivel = std::min(ic.nivel(), 20);
+    const int nivel = std::min(NivelParaCalculoMagiasPorDia(ic.id(), *proto), 20);
     const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
@@ -3711,6 +3716,27 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
   return classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : id_classe;
 }
 
+int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
+  for (const auto& info_classe : proto.info_classes()) {
+    if (info_classe.id() == id_classe) {
+      return info_classe.nivel_conjurador();
+    }
+  }
+  return 0;
+}
+
+int NivelParaCalculoMagiasPorDia(const std::string& id_classe, const EntidadeProto& proto) {
+  int niveis_da_classe = 0;
+  for (const auto& info_classe : proto.info_classes()) {
+    if (info_classe.id() == id_classe) {
+      niveis_da_classe += info_classe.nivel();
+    } else if (info_classe.has_aumenta_nivel_conjurador_de() && info_classe.aumenta_nivel_conjurador_de() == id_classe) {
+      niveis_da_classe += info_classe.nivel();
+    }
+  }
+  return niveis_da_classe;
+}
+
 // Retorna o nivel do feitico para determinada classe.
 int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const ArmaProto& arma) {
   const auto& id = IdParaMagia(tabelas, id_classe);
@@ -3737,6 +3763,9 @@ int NivelExpulsao(const Tabelas& tabelas, const ent::EntidadeProto& proto) {
       default:
         continue;
     }
+  }
+  if (PossuiTalento("expulsao_aprimorada", proto)) {
+    ++total;
   }
   return total - proto.niveis_negativos();
 }

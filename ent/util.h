@@ -511,6 +511,10 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 int Nivel(const std::string& id, const EntidadeProto& proto);
 // Nivel total da entidade.
 int Nivel(const EntidadeProto& proto);
+// Retorna o nivel de conjuracao para a classe.
+int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
+// Retorna o nivel da classe com modificadores para fins de calculo de numeros de magia.
+int NivelParaCalculoMagiasPorDia(const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
 int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);

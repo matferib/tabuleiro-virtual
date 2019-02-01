@@ -461,6 +461,7 @@ message InfoClasse {
   optional string id = 1;
   optional string nome = 9;
   optional int32 nivel = 2;
+  // Atencao: usar a funcao NivelConjurador para pegar isso, ja que outras classes influenciam.
   optional int32 nivel_conjurador = 3;
   // Bonus base de ataque do nivel.
   optional int32 bba = 4;
@@ -508,6 +509,8 @@ message InfoClasse {
   optional int32 combinar_com = 22;
   // Se presente, classe pode expulsar morto vivo com a progressao passada.
   optional ProgressaoExpulsao progressao_expulsao = 23;
+  // Se presente, a classe contribui com nivel de conjurador de outra classe.
+  optional string aumenta_nivel_conjurador_de = 24; 
 }
 
 // Informacao sobre a pericia do personagem.

@@ -341,6 +341,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // LogEventos.
   log_eventos_.clear();
   pagina_log_eventos_ = 0;
+  pagina_horizontal_log_eventos_ = 0;
 
   // iniciativa.
   indice_iniciativa_ = -1;
@@ -994,7 +995,7 @@ int Tabuleiro::Desenha() {
 }
 
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
-  const int nivel = referencia.NivelConjurador();
+  const int nivel = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {
@@ -1048,7 +1049,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
         break;
       }
       case TMA_BBA_NIVEL_CONJURADOR:
-        modificador_ataque = referencia.NivelConjurador();
+        modificador_ataque = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
         break;
       default:
         break;
@@ -1453,6 +1454,14 @@ void Tabuleiro::AlternaInvestida() {
   if (grupo_notificacoes.notificacao().empty()) return;
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::AlternaMontar() {
+  if (modo_clique_ == MODO_MONTAR) {
+    modo_clique_ = MODO_NORMAL;
+    return;
+  }
+  modo_clique_ = MODO_MONTAR;
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
@@ -6115,7 +6124,7 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
     return;
   }
-  bool apoiada_antes = entidade->Apoiada();
+  const bool apoiada_antes = entidade->Apoiada();
   if (proto.has_destino()) {
     entidade->Destino(proto.destino());
   } else {
@@ -6625,8 +6634,8 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 void Tabuleiro::DesenhaListaGenerica(
-    int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
-    int nome_cima, int nome_baixo, int tipo_lista,
+    int coluna, int linha, int pagina_corrente, int pagina_corrente_horizontal, const char* titulo, const float* cor_titulo,
+    int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
     const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
     std::function<int(int)> f_id) {
   const int n_objetos = lista.size();
@@ -6688,23 +6697,46 @@ void Tabuleiro::DesenhaListaGenerica(
   raster_y -= altura_linha;
 
   // Lista de objetos.
+  const int maximo_numero_caracteres_por_linha = largura_ / largura_fonte;
+  int numero_caracteres = coluna < 0 ? coluna : maximo_numero_caracteres_por_linha - coluna;
+  int raster_x_texto = raster_x;
+  if (nome_esquerda != CONTROLE_PAGINACAO_DUMMY) {
+    numero_caracteres -= 2;
+    raster_x_texto += largura_fonte;
+  }
   for (int i = objeto_inicial; i < objeto_final; ++i) {
-    if (!parametros_desenho_.has_picking_x()) {
-      PosicionaRaster2d(raster_x, raster_y);
-    }
     gl::TipoEscopo tipo(tipo_lista);
-    try {
-      gl::CarregaNome(f_id(i));
-    } catch (...) {
-      continue;
-    }
     {
-      if (cor_lista_fundo != nullptr) MudaCor(cor_lista_fundo);
-      gl::Retangulo(raster_x, raster_y, raster_x + (lista[i].size() * largura_fonte), raster_y + altura_linha);
+      // Fundo (e picking).
+      if (cor_lista_fundo != nullptr) {
+        MudaCor(cor_lista_fundo);
+      }
+      gl::CarregaNome(f_id(i));
+      // 1 pixel de borda.
+      gl::Retangulo(raster_x_texto + 1, raster_y, raster_x_texto + (numero_caracteres * largura_fonte) - 1, raster_y + altura_linha);
+      if (nome_esquerda != CONTROLE_PAGINACAO_DUMMY) {
+        gl::CarregaNome(nome_esquerda);
+        gl::Retangulo(raster_x, raster_y, raster_x + largura_fonte, raster_y + altura_linha);
+        gl::CarregaNome(nome_direita);
+        gl::Retangulo(raster_x + largura_fonte * (numero_caracteres + 1), raster_y, raster_x + largura_fonte * (numero_caracteres + 2), raster_y + altura_linha);
+      }
     }
     MudaCor(cor_lista);
     if (!parametros_desenho_.has_picking_x()) {
-      gl::DesenhaStringAlinhadoEsquerda(lista[i]);
+      PosicionaRaster2d(raster_x_texto, raster_y);
+      // evita out of range.
+      int indice_primeiro_char = pagina_corrente_horizontal * numero_caracteres;
+      if (indice_primeiro_char > lista[i].length()) {
+        indice_primeiro_char = lista[i].length();
+      }
+      gl::DesenhaStringAlinhadoEsquerda(lista[i].substr(indice_primeiro_char, numero_caracteres));
+      if (nome_esquerda != CONTROLE_PAGINACAO_DUMMY) {
+        // paginacoes horizontais.
+        PosicionaRaster2d(raster_x, raster_y);
+        gl::DesenhaStringAlinhadoEsquerda("<");
+        PosicionaRaster2d(raster_x + largura_fonte * (numero_caracteres + 1), raster_y);
+        gl::DesenhaStringAlinhadoEsquerda(">");
+      }
     }
     raster_y -= altura_linha;
   }
@@ -6795,8 +6827,8 @@ void Tabuleiro::DesenhaListaObjetos() {
     return mapa_indice_ids[i];
   };
 
-  DesenhaListaGenerica(0, -1, pagina_lista_objetos_, StringSemUtf8("Lista de Objetos do cenário").c_str(), COR_BRANCA,
-                       CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA, CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO,
+  DesenhaListaGenerica(0, -1, pagina_lista_objetos_, 0, StringSemUtf8("Lista de Objetos do cenário").c_str(), COR_BRANCA,
+                       CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA, CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO, CONTROLE_PAGINACAO_DUMMY, CONTROLE_PAGINACAO_DUMMY,
                        OBJ_ENTIDADE_LISTA, lista, COR_PRETA, COR_BRANCA, Mapeia);
 }
 
@@ -6810,8 +6842,8 @@ void Tabuleiro::DesenhaLogEventos() {
   for (const auto& log : log_eventos_) lista.push_back(StringSemUtf8(log));
 
   DesenhaListaGenerica(0, kNumLinhas,
-                       pagina_log_eventos_, StringSemUtf8("Log de Eventos Locais").c_str(), COR_AMARELA,
-                       CONTROLE_PAGINACAO_LISTA_LOG_CIMA, CONTROLE_PAGINACAO_LISTA_LOG_BAIXO,
+                       pagina_log_eventos_, pagina_horizontal_log_eventos_, StringSemUtf8("Log de Eventos Locais").c_str(), COR_AMARELA,
+                       CONTROLE_PAGINACAO_LISTA_LOG_CIMA, CONTROLE_PAGINACAO_LISTA_LOG_BAIXO, CONTROLE_PAGINACAO_LISTA_LOG_ESQUERDA, CONTROLE_PAGINACAO_LISTA_LOG_DIREITA,
                        OBJ_CONTROLE_VIRTUAL, lista, COR_PRETA, COR_BRANCA, [](int) { return CONTROLE_PAGINACAO_DUMMY; });
 }
 
@@ -7000,6 +7032,16 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
     }
   }
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+}
+
+std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const {
+  std::vector<unsigned int> ids = IdsEntidadesSelecionadasOuPrimeiraPessoa();
+  for (unsigned int id : ids) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
+  }
+  return ids;
 }
 
 const Entidade* Tabuleiro::EntidadePrimeiraPessoa() const {
@@ -7783,6 +7825,82 @@ bool Tabuleiro::UsaNevoa() const {
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
   const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
+}
+
+void Tabuleiro::PreencheNotificacoesMontarEm(
+    const std::vector<const Entidade*>& montadores, const Entidade* montaria, ntf::Notificacao* grupo) const {
+  // Quem estiver montado, desmonta.
+  PreencheNotificacoesDesmontar(montadores, grupo);
+
+  unsigned int id_montaria = montaria->Id();
+  std::unordered_set<unsigned int> ids_montados(
+      montaria->Proto().entidades_montadas().begin(), montaria->Proto().entidades_montadas().end());
+  for (const auto* montador : montadores) {
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montador, grupo->add_notificacao());
+    e_antes->set_montado_em(Entidade::IdInvalido);
+    e_depois->set_montado_em(id_montaria);
+    ids_montados.insert(montador->Id());
+    VLOG(1) << "Montando " << RotuloEntidade(montador) << " em " << RotuloEntidade(montaria);
+  }
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montaria, grupo->add_notificacao());
+  *e_antes->mutable_entidades_montadas() = montaria->Proto().entidades_montadas();
+  std::copy(ids_montados.begin(), ids_montados.end(),
+            google::protobuf::RepeatedFieldBackInserter(e_depois->mutable_entidades_montadas()));
+}
+
+void Tabuleiro::PreencheNotificacoesDesmontar(
+    const std::vector<const Entidade*>& montadores, ntf::Notificacao* grupo) const {
+  std::unordered_set<unsigned int> ids_montarias;
+  std::unordered_set<unsigned int> ids_montadores;
+  // Montadores.
+  for (const auto* montador : montadores) {
+    if (!montador->Proto().has_montado_em()) {
+      VLOG(2) << "montador " << RotuloEntidade(montador) << " nao esta montado";
+      continue;
+    }
+    const auto* montaria = BuscaEntidade(montador->Proto().montado_em());
+    if (montaria != nullptr) {
+      ids_montarias.insert(montaria->Id());
+    }
+    ids_montadores.insert(montador->Id());
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montador, grupo->add_notificacao());
+    e_antes->set_montado_em(montador->Proto().montado_em());
+    e_depois->set_montado_em(Entidade::IdInvalido);
+    VLOG(1) << "Desmontando " << RotuloEntidade(montador) << " de " << RotuloEntidade(montaria);
+  }
+  // Montarias.
+  if (ids_montarias.empty()) {
+    VLOG(1) << "Nao ha montarias a serem atualizadas";
+    return;
+  }
+  for (unsigned int id_montaria : ids_montarias) {
+    const auto* montaria = BuscaEntidade(id_montaria);
+    if (montaria == nullptr) continue;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *montaria, grupo->add_notificacao());
+    *e_antes->mutable_entidades_montadas() = montaria->Proto().entidades_montadas();
+    std::copy_if(
+        montaria->Proto().entidades_montadas().begin(),
+        montaria->Proto().entidades_montadas().end(),
+        google::protobuf::RepeatedFieldBackInserter(e_depois->mutable_entidades_montadas()),
+        [&ids_montadores] (unsigned int id) {
+          // Copia apenas se nao estiver presente.
+          return ids_montadores.find(id) == ids_montadores.end();
+        });
+    if (e_depois->entidades_montadas().empty()) {
+      VLOG(1) << "Montaria " << RotuloEntidade(montaria) << " atualizada para 0 montadores.";
+      e_depois->add_entidades_montadas(Entidade::IdInvalido);
+    } else {
+      VLOG(1) << "Montaria " << RotuloEntidade(montaria) << " atualizada para " << e_depois->entidades_montadas().size() << " montadores.";
+    }
+  }
 }
 
 }  // namespace ent

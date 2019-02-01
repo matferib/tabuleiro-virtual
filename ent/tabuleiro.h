@@ -170,6 +170,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Liga/desliga evento de investida do personagem. */
   void AlternaInvestida();
 
+  /* Se estiver montado, desmonta. Caso contrario, entra no modo de clicar para montar. */
+  void AlternaMontar();
+
   /** Ao inves de notificar, apenas preenche grupo. */
   void PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* grupo);
 
@@ -480,6 +483,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
     MODO_ESQUIVA,      // Usado para escolher a entidade de esquiva.
     MODO_REMOCAO_DE_GRUPO,  // usado para remover entidades de grupos.
+    MODO_MONTAR,            // usado para montar entidades em outras.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -737,6 +741,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Remove um objeto de dentro de um composto. */
   void TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
 
+  /** Monta em um objeto. */
+  void TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
+
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
   * desta funcao.
@@ -777,6 +784,10 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<unsigned int> IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const;
   /** O contrario, se houver selecao retorna o que esta selecionado. Caso contrario, retorna primeira pessoa (se houver). */
   std::vector<unsigned int> IdsEntidadesSelecionadasOuPrimeiraPessoa() const;
+
+  /** Retorna os ids das entidades selecionadas e tambem daquelas montadas nelas. */
+  std::vector<unsigned int> IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const;
+
   /** Retorna a entidade selecionada se houver apenas uma, ou a primeira pessoa. */
   Entidade* EntidadeSelecionadaOuPrimeiraPessoa();
   const Entidade* EntidadeSelecionadaOuPrimeiraPessoa() const;
@@ -954,8 +965,8 @@ class Tabuleiro : public ntf::Receptor {
   * de callback para controle virtual.
   * Os valores coluna e linha sao usados para posicionar o raster inicialmente. A origem eh esquerda embaixo.
   */
-  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
-      int nome_cima, int nome_baixo, int tipo_lista,
+  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, int pagina_corrente_horizontal, const char* titulo, const float* cor_titulo,
+      int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
       const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
       std::function<int(int)> f_id);
 
@@ -1110,6 +1121,14 @@ class Tabuleiro : public ntf::Receptor {
   void DesativaWatchdog();
   void ReativaWatchdog();
 
+  // Funcoes de preenchimento que requerem o tabuleiro por causa de entidades dinamicas.
+  // Configura as notificacoes para varias entidades montarem em montaria.
+  void PreencheNotificacoesMontarEm(
+      const std::vector<const Entidade*>& montandos, const Entidade* montaria, ntf::Notificacao* grupo) const;
+  // Configura as notificacoes para varias entidades desmontarem de montaria.
+  void PreencheNotificacoesDesmontar(
+      const std::vector<const Entidade*>& desmontandos, ntf::Notificacao* grupo) const;
+
  private:
   const Tabelas& tabelas_;
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -1227,6 +1246,7 @@ class Tabuleiro : public ntf::Receptor {
 
   std::list<std::string> log_eventos_;
   int pagina_log_eventos_;
+  int pagina_horizontal_log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
