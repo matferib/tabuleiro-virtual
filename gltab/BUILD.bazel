@@ -15,7 +15,7 @@ cc_library(
       "gl_vbo.cpp",
       "glues.cpp",
   ],
-  copts = [],
+  defines = ["GL_GLEXT_PROTOTYPES=1"],
   deps = [
     "//arq",
     "//log",

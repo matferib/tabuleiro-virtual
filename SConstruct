@@ -12,7 +12,7 @@ if sistema == 'win32':
   env.Tool('mingw')
 else:
   env.Tool('default')
-  env['CXX'] = 'clang++'
+  env['CXX'] = 'clang++-7'
 
 # qt
 env.SConscript('localqt.SConscript', exports = 'env')

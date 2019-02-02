@@ -5,6 +5,8 @@ cc_library(
   hdrs = [
     "log.h",
   ],
+
+  defines = ["USAR_GLOG=1", "USAR_GFLAGS=1"],
   copts = [],
   deps = [
   ]
