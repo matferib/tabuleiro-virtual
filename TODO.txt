@@ -2,7 +2,7 @@ Anotacoes da sessao Tilverton:
 - Filtrar combo de classes para so mostrar nao monstros.
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
 - UI para horas.
-- Vulto: adicionar ataques na consequencia de efeitos.
+- Vulto: adicionar ataques na consequencia de efeitos (o template esta como um efeito).
 - Rever a logica de pontos de vida ta um caos. Provavelmente tem gente com mais PV que o maximo. Nao esta claro o que eh computado.
 
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
