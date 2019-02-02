@@ -4745,7 +4745,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
     LOG(ERROR) << "Entidade invalida em Tabuleiro::SelecionaEntidade: " << id;
-    throw std::logic_error("Entidade inválida");
+    return false;
   }
   if ((!forcar_fixa && entidade->Fixa()) || (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
     DeselecionaEntidades();
@@ -4810,7 +4810,8 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
   VLOG(1) << "Selecionando entidade: " << id;
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
-    throw std::logic_error("Entidade inválida");
+    LOG(ERROR) << "Entidade inválida em Tabuleiro::AlternaSelecaoEntidade: " << id;
+    return;
   }
 
   if (EntidadeEstaSelecionada(id)) {
