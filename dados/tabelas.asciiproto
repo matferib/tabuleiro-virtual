@@ -4963,6 +4963,70 @@ tabela_feiticos {
 tabela_chapeus {
 }
 
+tabela_racas {
+  racas {
+    id: 'outra'
+    nome: 'Não Tabelada'
+    descricao: 'Para raças não tabeladas.'
+  }
+  racas {
+    id: 'anao'
+    nome: 'Anão do Escudo'
+    descricao: 'Raça mais comum de anões.'
+    bonus_atributos {
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+  }
+  racas {
+    id: 'elfo'
+    nome: 'Elfo da Lua'
+    descricao: 'Raça mais comum de elfos.'
+    bonus_atributos {
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+  }
+  racas {
+    id: 'halfling'
+    nome: 'Halfling Pés Leves'
+    descricao: ''
+    bonus_atributos {
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+  }
+  racas {
+    id: 'humano'
+    nome: 'Humano'
+    descricao: 'Humanos são versáteis.'
+  }
+  racas {
+    id: 'gnomo'
+    nome: 'Gnomo das Rochas'
+    descricao: 'Brincalhões, desconfiados das raças grandes.'
+    bonus_atributos {
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+  }
+  racas {
+    id: 'meio_elfo'
+    nome: 'Meio-Elfo'
+    descricao: 'Mistura entre elfos e humanos.'
+  }
+  racas {
+    id: 'meio_orc'
+    nome: 'Meio-Orc'
+    descricao: 'Mistura entre orcs e humanos.'
+    bonus_atributos {
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+  }
+}
+
 #tabela_venenos {
 #  venenos {
 #    id: 'nitharit' nome: 'Nitharit' tipo: TV_CONTATO dano_secondario: '3d6' tipo_dano_secondario: TDV_CONSTITUICAO preco_po: 650

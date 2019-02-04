@@ -58,8 +58,9 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
-// Proximo id: 99.
+// Proximo id: 100.
 message EntidadeProto {
+  optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
   optional TipoEntidade tipo = 1;

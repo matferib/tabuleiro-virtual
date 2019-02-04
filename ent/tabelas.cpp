@@ -157,6 +157,11 @@ void Tabelas::RecarregaMapas() {
   pericias_.clear();
   classes_.clear();
   acoes_.clear();
+  racas_.clear();
+
+  for (const auto& raca : tabelas_.tabela_racas().racas()) {
+    racas_[raca.id()] = &raca;
+  }
 
   for (const auto& armadura : tabelas_.tabela_armaduras().armaduras()) {
     armaduras_[armadura.id()] = &armadura;
@@ -350,6 +355,11 @@ const TalentoProto& Tabelas::Talento(const std::string& id) const {
 const InfoClasse& Tabelas::Classe(const std::string& id) const {
   auto it = classes_.find(id);
   return it == classes_.end() ? InfoClasse::default_instance() : *it->second;
+}
+
+const RacaProto& Tabelas::Raca(const std::string& id) const {
+  auto it = racas_.find(id);
+  return it == racas_.end() ? RacaProto::default_instance() : *it->second;
 }
 
 const PericiaProto& Tabelas::Pericia(const std::string& id) const {

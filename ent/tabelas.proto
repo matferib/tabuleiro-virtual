@@ -210,6 +210,10 @@ message TabelaVenenos {
   repeated VenenoProto venenos = 1;
 }
 
+message TabelaRacas {
+  repeated RacaProto racas = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -220,6 +224,7 @@ message TodasTabelas {
   optional TabelaPericias tabela_pericias =  6;
   optional TabelaFeiticos tabela_feiticos = 7;
   optional TabelaEfeitosModelos tabela_efeitos_modelos = 8;
+  optional TabelaRacas tabela_racas = 9;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;

@@ -882,3 +882,10 @@ message ModeloDnD {
   optional TipoEfeitoModelo id_efeito = 2;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
   optional bool ativo = 3;                     // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
 }
+
+message RacaProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
+  optional Atributos bonus_atributos = 4;
+}
