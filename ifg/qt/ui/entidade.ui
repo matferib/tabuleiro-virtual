@@ -2044,13 +2044,13 @@ QGroupBox::title {
      </widget>
      <widget class="QWidget" name="tab_nivel">
       <attribute name="title">
-       <string>Nível e Tendência</string>
+       <string>Raça, Classes e Tendência</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="3">
-        <layout class="QHBoxLayout" name="horizontalLayout_38">
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_31">
          <item alignment="Qt::AlignRight">
-          <widget class="QLabel" name="label_84">
+          <widget class="QLabel" name="label_39">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -2058,44 +2058,14 @@ QGroupBox::title {
             </sizepolicy>
            </property>
            <property name="text">
-            <string>XP</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spin_xp">
-           <property name="toolTip">
-            <string>Experiência do personagem.</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>1000000</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_33">
-         <item alignment="Qt::AlignRight">
-          <widget class="QLabel" name="label_46">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>BBA</string>
+            <string>Nível PC</string>
            </property>
           </widget>
          </item>
          <item alignment="Qt::AlignLeft">
-          <widget class="QLineEdit" name="linha_bba">
+          <widget class="QLineEdit" name="linha_nivel">
            <property name="toolTip">
-            <string>Bônus Base de Ataque Total</string>
+            <string>Nível do Personagem</string>
            </property>
            <property name="readOnly">
             <bool>true</bool>
@@ -2143,35 +2113,58 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_39">
-         <item>
-          <widget class="QLabel" name="label_76">
-           <property name="text">
-            <string>Caos</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="slider_ordem_caos">
+       <item row="0" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_33">
+         <item alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_46">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="maximum">
-            <number>8</number>
+           <property name="text">
+            <string>BBA</string>
            </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignLeft">
+          <widget class="QLineEdit" name="linha_bba">
+           <property name="toolTip">
+            <string>Bônus Base de Ataque Total</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_38">
+         <item alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_84">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>XP</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_77">
-           <property name="text">
-            <string>Ordem</string>
+          <widget class="QSpinBox" name="spin_xp">
+           <property name="toolTip">
+            <string>Experiência do personagem.</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1000000</number>
            </property>
           </widget>
          </item>
@@ -2211,34 +2204,61 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_31">
-         <item alignment="Qt::AlignRight">
-          <widget class="QLabel" name="label_39">
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_39">
+         <item>
+          <widget class="QLabel" name="label_76">
+           <property name="text">
+            <string>Caos</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="slider_ordem_caos">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string>Nível PC</string>
+           <property name="maximum">
+            <number>8</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
-         <item alignment="Qt::AlignLeft">
-          <widget class="QLineEdit" name="linha_nivel">
-           <property name="toolTip">
-            <string>Nível do Personagem</string>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
+         <item>
+          <widget class="QLabel" name="label_77">
+           <property name="text">
+            <string>Ordem</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="6">
+       <item row="1" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_47">
+         <item>
+          <widget class="QLabel" name="label_101">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Raça</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="combo_raca"/>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" colspan="5">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Dados Nível</string>
@@ -2478,17 +2498,7 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" rowspan="3" colspan="5">
-        <widget class="QListWidget" name="lista_niveis">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="5">
+       <item row="3" column="4">
         <layout class="QVBoxLayout" name="verticalLayout_14">
          <item>
           <widget class="QPushButton" name="botao_adicionar_nivel">
@@ -2523,6 +2533,16 @@ QGroupBox::title {
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="3" column="0" colspan="4">
+        <widget class="QListWidget" name="lista_niveis">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

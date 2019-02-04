@@ -157,7 +157,7 @@ void AtualizaUIClassesNiveis(
   // Objetos da UI a serem bloqueados. Passa por copia.
   std::vector<QObject*> objs = {
       gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
-      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe, gerador.combo_raca,
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -200,6 +200,7 @@ void AtualizaUIClassesNiveis(
     gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(classe_tabelada));
   }
 
+  gerador.combo_raca->setCurrentIndex(gerador.combo_raca->findData(QVariant(proto.raca().c_str())));
   DesbloqueiaSinais();
 }
 

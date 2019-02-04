@@ -46,6 +46,7 @@ public:
     QHBoxLayout *horizontalLayout_14;
     QLabel *label_21;
     QComboBox *combo_herdar_iluminacao;
+    QSpacerItem *horizontalSpacer_3;
     QHBoxLayout *horizontalLayout_10;
     QPushButton *botao_cor_ambiente;
     QLabel *label_18;
@@ -67,6 +68,7 @@ public:
     QHBoxLayout *horizontalLayout_15;
     QLabel *label_22;
     QComboBox *combo_herdar_nevoa;
+    QSpacerItem *horizontalSpacer_5;
     QHBoxLayout *horizontalLayout_3;
     QCheckBox *checkbox_nevoa;
     QLabel *label_12;
@@ -78,6 +80,7 @@ public:
     QHBoxLayout *horizontalLayout_12;
     QLabel *label_20;
     QComboBox *combo_herdar_ceu;
+    QSpacerItem *horizontalSpacer_2;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_14;
     QComboBox *combo_ceu;
@@ -87,6 +90,7 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_19;
     QComboBox *combo_herdar_piso;
+    QSpacerItem *horizontalSpacer_4;
     QHBoxLayout *horizontalLayout;
     QHBoxLayout *horizontalLayout_8;
     QLabel *label;
@@ -180,6 +184,10 @@ public:
         combo_herdar_iluminacao->setObjectName(QStringLiteral("combo_herdar_iluminacao"));
 
         horizontalLayout_14->addWidget(combo_herdar_iluminacao);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_14->addItem(horizontalSpacer_3);
 
 
         verticalLayout->addLayout(horizontalLayout_14);
@@ -348,6 +356,10 @@ public:
 
         horizontalLayout_15->addWidget(combo_herdar_nevoa);
 
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_15->addItem(horizontalSpacer_5);
+
 
         verticalLayout_4->addLayout(horizontalLayout_15);
 
@@ -409,6 +421,10 @@ public:
 
         horizontalLayout_12->addWidget(combo_herdar_ceu);
 
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_12->addItem(horizontalSpacer_2);
+
 
         verticalLayout_3->addLayout(horizontalLayout_12);
 
@@ -453,6 +469,10 @@ public:
         combo_herdar_piso->setObjectName(QStringLiteral("combo_herdar_piso"));
 
         horizontalLayout_11->addWidget(combo_herdar_piso);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_11->addItem(horizontalSpacer_4);
 
 
         verticalLayout_2->addLayout(horizontalLayout_11);
@@ -583,6 +603,9 @@ public:
         botao_clonar->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "OK", nullptr));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Ilumina\303\247\303\243o", nullptr));
         label_21->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
+#ifndef QT_NO_TOOLTIP
+        combo_herdar_iluminacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se v\303\241ilido, configura\303\247\303\265es de luz ser\303\243o as mesmas do cen\303\241rio passado.", nullptr));
+#endif // QT_NO_TOOLTIP
         botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", nullptr));
         label_18->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", nullptr));
         botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", nullptr));
@@ -602,6 +625,9 @@ public:
         label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", nullptr));
         groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", nullptr));
         label_22->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
+#ifndef QT_NO_TOOLTIP
+        combo_herdar_nevoa->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se v\303\241ilido, configura\303\247\303\265es de n\303\251voa ser\303\243o as mesmas do cen\303\241rio passado.", nullptr));
+#endif // QT_NO_TOOLTIP
         checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Habilitar", nullptr));
         label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -613,6 +639,9 @@ public:
 #endif // QT_NO_TOOLTIP
         groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", nullptr));
         label_20->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
+#ifndef QT_NO_TOOLTIP
+        combo_herdar_ceu->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se v\303\241ilido, configura\303\247\303\265es de c\303\251u ser\303\243o as mesmas do cen\303\241rio passado.", nullptr));
+#endif // QT_NO_TOOLTIP
         label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", nullptr));
 #ifndef QT_NO_TOOLTIP
         checkbox_luz_ceu->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", nullptr));
@@ -620,6 +649,9 @@ public:
         checkbox_luz_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Aplicar luz ambiente", nullptr));
         groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Piso", nullptr));
         label_19->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Herdar de", nullptr));
+#ifndef QT_NO_TOOLTIP
+        combo_herdar_piso->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se v\303\241ilido, configura\303\247\303\265es de piso ser\303\243o as mesmas do cen\303\241rio passado.", nullptr));
+#endif // QT_NO_TOOLTIP
         label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Piso", nullptr));
 #ifndef QT_NO_TOOLTIP
         combo_fundo->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolha o tipo de piso", nullptr));

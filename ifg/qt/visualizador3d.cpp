@@ -1899,7 +1899,7 @@ void PreencheConfiguraComboClasse(
   auto* combo = gerador.combo_classe;
   combo->addItem(combo->tr("Outro"), "outro");
   for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
-    combo->addItem((ic.nome().c_str()), ic.id().c_str());
+    combo->addItem(QString::fromUtf8(ic.nome().c_str()), ic.id().c_str());
   }
   ExpandeComboBox(combo);
   ExpandeComboBox(gerador.combo_mod_conjuracao);
@@ -1918,6 +1918,21 @@ void PreencheConfiguraComboClasse(
         proto_retornado->mutable_info_classes(indice)->clear_id();
       }
     }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
+void PreencheConfiguraComboRaca(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto* combo = gerador.combo_raca;
+  for (const auto& ir : tabelas.todas().tabela_racas().racas()) {
+    combo->addItem(QString::fromUtf8(ir.nome().c_str()), ir.id().c_str());
+  }
+  ExpandeComboBox(combo);
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+    const auto& raca_tabelada = tabelas.Raca(combo->itemData(combo->currentIndex()).toString().toStdString());
+    proto_retornado->set_raca(raca_tabelada.id());
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
@@ -1949,6 +1964,7 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   });
 
   PreencheConfiguraComboClasse(tabelas, gerador, proto_retornado);
+  PreencheConfiguraComboRaca(tabelas, gerador, proto_retornado);
 
   PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
   lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
