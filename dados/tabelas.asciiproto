@@ -1984,6 +1984,7 @@ tabela_luvas {
   luvas {
     id: 'manoplas_poder_ogro'
     nome: 'Manoplas do Poder do Ogro'
+    descricao: '+2 melhoria em força.'
     custo_po: 4000
     tipo_efeito: EFEITO_MELHORIA_FORCA
     complementos: 2
@@ -2125,15 +2126,6 @@ tabela_pocoes {
     custo_po: 250
   }
   pocoes {
-    id: 'reduzir_pessoa'
-    nome: 'Reduzir Pessoa'
-    descricao: 'Reduz a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para destreza, -2 de penalidade em força e todas as consequências do tamanho reduzido (+1 ataque e classe de armadura, por exemplo).'
-    tipo_efeito: EFEITO_REDUZIR_PESSOA
-    duracao_rodadas: 10
-    custo_po: 250
-  }
-
-  pocoes {
     id: 'ajuda'
     nome: 'Ajuda'
     descricao: '+1 de moral nos ataques e testes de resitência contra medo, além de 1d8+3 PV.'
@@ -2204,6 +2196,29 @@ tabela_pocoes {
     duracao_rodadas: 10
     custo_po: 50
   }
+  pocoes {
+    id: 'reduzir_pessoa'
+    nome: 'Reduzir Pessoa'
+    descricao: 'Reduz a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para destreza, -2 de penalidade em força e todas as consequências do tamanho reduzido (+1 ataque e classe de armadura, por exemplo).'
+    tipo_efeito: EFEITO_REDUZIR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+  pocoes {
+    id: 'restauracao_menor'
+    nome: 'Restauração Menor'
+    descricao: 'Dissipa efeitos mágicos que reduzam atributos ou cura 1d4 pontos de dano temporário a atributos. Elimina fadiga e melhora exaustão para fadigado.'
+    duracao_rodadas: 0
+    custo_po: 300
+  }
+  pocoes {
+    id: 'visao_escuro'
+    nome: 'Visão no Escuro'
+    descricao: 'Ganha visão no escuro, 12 quadrados.'
+    duracao_rodadas: 1800 # 3 horas
+    custo_po: 300
+  }
+
 
   pocoes {
     id: 'curar_ferimentos_leves'
@@ -2219,7 +2234,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'curar_ferimentos_serios'
-    nome: 'Curar Ferimentos Sérios'
+    nome: 'Curar Ferimentos Graves'
     delta_pontos_vida: '3d8+5'
     custo_po: 750
   }
