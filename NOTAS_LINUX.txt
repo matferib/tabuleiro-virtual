@@ -2,3 +2,7 @@
 - Profile: make benchmark_debug
 run
 gprof gmon.out
+
+boost:
+./bootstrap.sh --with-libraries=system,timer,filesystem,chrono,date_time
+./b2
