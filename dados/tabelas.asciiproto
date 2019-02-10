@@ -5010,6 +5010,7 @@ tabela_racas {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    tamanho: TM_PEQUENO
   }
   racas {
     id: 'humano'
@@ -5024,6 +5025,7 @@ tabela_racas {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    tamanho: TM_PEQUENO
   }
   racas {
     id: 'meio_elfo'

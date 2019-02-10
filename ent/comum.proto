@@ -888,4 +888,5 @@ message RacaProto {
   optional string nome = 2;
   optional string descricao = 3;
   optional Atributos bonus_atributos = 4;
+  optional TamanhoEntidade tamanho = 5;
 }
