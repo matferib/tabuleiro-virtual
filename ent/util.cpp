@@ -3302,7 +3302,7 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     Redimensiona(magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
 
-    for (int nivel_magia = 0; nivel_magia < magias_conhecidas.size(); ++nivel_magia) {
+    for (unsigned int nivel_magia = 0; nivel_magia < magias_conhecidas.size(); ++nivel_magia) {
       const char magias_conhecidas_do_nivel = magias_conhecidas[nivel_magia] - '0';
       Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
     }
@@ -3336,7 +3336,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     Redimensiona(magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
 
-    for (int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
+    for (unsigned int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
       int magias_do_nivel =
         (magias_por_dia[nivel_magia] - '0') +
         FeiticosBonusPorAtributoPorNivel(
@@ -3355,10 +3355,24 @@ void ResetComputados(EntidadeProto* proto) {
   cura_acelerada->add_computado(cura_acelerada->base());
 }
 
+void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {
+  const auto& raca_tabelada = tabelas.Raca(proto->raca());
+  AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
+  auto* atributos = proto->mutable_atributos();
+  const auto& atributos_raca = raca_tabelada.bonus_atributos();
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.forca()), TB_BASE, "base", atributos->mutable_forca());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.destreza()), TB_BASE, "base", atributos->mutable_destreza());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.constituicao()), TB_BASE, "base", atributos->mutable_constituicao());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.inteligencia()), TB_BASE, "base", atributos->mutable_inteligencia());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.sabedoria()), TB_BASE, "base", atributos->mutable_sabedoria());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.carisma()), TB_BASE, "base", atributos->mutable_carisma());
+}
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
 
+  RecomputaDependenciasRaciais(tabelas, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
@@ -3688,7 +3702,7 @@ bool EventosIguaisIgnorandoDuracao(const EntidadeProto::Evento& lhs, const Entid
       lhs.complementos_size() != rhs.complementos_size()) {
     return false;
   }
-  for (unsigned int i = 0; i < lhs.complementos_size(); ++i) {
+  for (int i = 0; i < lhs.complementos_size(); ++i) {
     if (lhs.complementos(i) != rhs.complementos(i)) return false;
   }
   return true;
@@ -4322,7 +4336,7 @@ const EntidadeProto::Evento* AchaEvento(uint32_t id_unico, const EntidadeProto& 
   return nullptr;
 }
 
-ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto) {
+ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto) {
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
     if (re.id_unico() == id_unico) {
       return &re;
@@ -4331,7 +4345,7 @@ ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* 
   return nullptr;
 }
 
-void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto) {
+void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto) {
   int i = 0;
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
     if (re.id_unico() == id_unico) {

@@ -430,8 +430,8 @@ bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Eve
 // Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
 bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
 // Retorna a resistencia a elementos gerada pelo evento de id_unico ou nullptr se nao houver.
-ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
-void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
+ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto);
+void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto);
 
 // Retorna os eventos do tipo passado.
 std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
