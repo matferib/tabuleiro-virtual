@@ -89,10 +89,10 @@ class InterfaceGrafica : public ntf::Receptor {
 
  private:
   void TrataEscolherPericia(const ntf::Notificacao& notificacao);
-  void VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, unsigned int indice_pericia);
+  void VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, int indice_pericia);
 
   void TrataEscolherPocao(const ntf::Notificacao& notificacao);
-  void VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao);
+  void VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, int indice_pocao);
   void VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito);
 
   void TrataEscolherFeitico(const ntf::Notificacao& notificacao);

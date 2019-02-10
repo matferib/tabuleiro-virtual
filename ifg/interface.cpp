@@ -104,7 +104,7 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, unsigned int indice_pericia) {
+void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, int indice_pericia) {
   if (ok && indice_pericia <= notificacao.entidade().info_pericias_size()) {
     tabuleiro_->TrataRolarPericiaNotificando(indice_pericia, notificacao.entidade());
   }
@@ -134,7 +134,7 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao) {
+void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, int indice_pocao) {
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
   if (!ok || indice_pocao >= pocoes_entidade.size()) {
     VoltaEscolherEfeito(notificacao, 0, false, 0);

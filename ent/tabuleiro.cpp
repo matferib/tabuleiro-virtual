@@ -6726,7 +6726,7 @@ void Tabuleiro::DesenhaListaGenerica(
     if (!parametros_desenho_.has_picking_x()) {
       PosicionaRaster2d(raster_x_texto, raster_y);
       // evita out of range.
-      int indice_primeiro_char = pagina_corrente_horizontal * numero_caracteres;
+      unsigned int indice_primeiro_char = pagina_corrente_horizontal * numero_caracteres;
       if (indice_primeiro_char > lista[i].length()) {
         indice_primeiro_char = lista[i].length();
       }
@@ -7587,7 +7587,7 @@ void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
 }
 
-void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito) {
+void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
   ent::EntidadeProto *e_antes, *e_depois;

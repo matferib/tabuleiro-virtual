@@ -49,7 +49,7 @@ void InterfaceGraficaQt::EscolheItemLista(
   }
   gerador.lista->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, lista, funcao_volta] () {
-    funcao_volta(gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < lista.size(), gerador.lista->currentRow());
+    funcao_volta(gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < (int)lista.size(), gerador.lista->currentRow());
     dialogo->accept();
   };
   auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
