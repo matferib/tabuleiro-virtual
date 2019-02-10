@@ -8,6 +8,14 @@ Permitir mais de uma textura por objeto (util para compostos).
 
 Anotacoes da sessao Tilverton:
 - Vulto: adicionar ataques na consequencia de efeitos (o template esta como um efeito de template).
+- Outros vultos:
+  - guerreiros:
+  - magos/feiticeiros (ver no livro anauroch empire of the shade)
+  - sacerdotes:
+  - bardo:
+  - monge:
+- Veserab:
+  - tem no livro.
 
 Anotacoes sessao Wheloon:
 - Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
