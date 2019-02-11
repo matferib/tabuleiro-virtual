@@ -135,5 +135,12 @@ tabela_racas {
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } }
     }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'racial' } } }
+    }
+    # +2 oficios e conhecimento (natureza)
+    # Claustrofobico: -4 circunstancia ataque e pericias em areas fechadas.
+    # ajuste de nivel: 2
+    # Proficiencia em azagaia.
   }
 }  # tabela_racas
