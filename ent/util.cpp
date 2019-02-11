@@ -3360,12 +3360,12 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
   auto* atributos = proto->mutable_atributos();
   const auto& atributos_raca = raca_tabelada.bonus_atributos();
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.forca()), TB_BASE, "base", atributos->mutable_forca());
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.destreza()), TB_BASE, "base", atributos->mutable_destreza());
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.constituicao()), TB_BASE, "base", atributos->mutable_constituicao());
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.inteligencia()), TB_BASE, "base", atributos->mutable_inteligencia());
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.sabedoria()), TB_BASE, "base", atributos->mutable_sabedoria());
-  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.carisma()), TB_BASE, "base", atributos->mutable_carisma());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.forca()), TB_RACIAL, "racial", atributos->mutable_forca());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.destreza()), TB_RACIAL, "racial", atributos->mutable_destreza());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.constituicao()), TB_RACIAL, "racial", atributos->mutable_constituicao());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.inteligencia()), TB_RACIAL, "racial", atributos->mutable_inteligencia());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.sabedoria()), TB_RACIAL, "racial", atributos->mutable_sabedoria());
+  AtribuiOuRemoveBonus(BonusTotal(atributos_raca.carisma()), TB_RACIAL, "racial", atributos->mutable_carisma());
 }
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {

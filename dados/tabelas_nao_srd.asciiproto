@@ -127,3 +127,13 @@ tabela_efeitos_modelos {
   }
 }  # tabela efeito de modelos.
 
+tabela_racas {
+  racas {
+    id: 'aarakocra'
+    nome: 'Aarakocra'
+    bonus_atributos {
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } }
+    }
+  }
+}  # tabela_racas
