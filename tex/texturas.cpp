@@ -107,7 +107,7 @@ void DecodificaImagem(
     int largura_linha_bytes = largura * bytes_per_pixel;
     std::vector<unsigned char> t(largura_linha_bytes);
     //LOG(ERROR) << "bytes per pixel: " << bytes_per_pixel << ", largura linha bytes: " << largura_linha_bytes;
-    for (int linha = 0; linha < altura / 2; ++linha) {
+    for (unsigned int linha = 0; linha < altura / 2; ++linha) {
       memcpy(&t[0], &dados[linha * largura_linha_bytes], largura_linha_bytes);
       memcpy(&dados[linha * largura_linha_bytes], &dados[(altura - linha - 1) * largura_linha_bytes], largura_linha_bytes);
       memcpy(&dados[(altura - linha - 1) * largura_linha_bytes], &t[0], largura_linha_bytes);
@@ -117,8 +117,8 @@ void DecodificaImagem(
     const int bytes_per_pixel = 4;  // RGBA
     int largura_linha_bytes = largura * bytes_per_pixel;
     std::vector<unsigned char> t(4);
-    for (int linha = 0; linha < altura; ++linha) {
-      for (int coluna = 0; coluna < largura / 2; ++coluna) {
+    for (unsigned int linha = 0; linha < altura; ++linha) {
+      for (unsigned int coluna = 0; coluna < largura / 2; ++coluna) {
         memcpy(&t[0], &dados[linha * largura_linha_bytes + coluna * 4], 4);
         memcpy(&dados[linha * largura_linha_bytes + coluna * 4], &dados[linha * largura_linha_bytes + (largura - coluna - 1) * 4], 4);
         memcpy(&dados[linha * largura_linha_bytes + (largura - coluna - 1) * 4], &t[0], 4);
