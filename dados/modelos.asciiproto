@@ -3056,7 +3056,7 @@ modelo {
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
-          rodadas: 14
+          rodadas: 120
           complementos: 6  # 1d4+4
           combinar_com: 0
         }
