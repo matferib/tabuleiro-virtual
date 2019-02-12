@@ -3369,6 +3369,9 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   AplicaBonusOuRemove(atributos_raca.sabedoria(), atributos->mutable_sabedoria());
   AplicaBonusOuRemove(atributos_raca.carisma(), atributos->mutable_carisma());
   AplicaBonusOuRemove(raca_tabelada.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
+    *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
+  }
 }
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
