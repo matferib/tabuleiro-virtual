@@ -1,4 +1,3 @@
-Terminar racas tabeladas.
 Permitir nomear versoes.
 Mostrar salvacoes do mestre apenas para mestre.
 Permitir mais de uma textura por objeto (util para compostos).
