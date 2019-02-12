@@ -576,8 +576,36 @@ modelo {
   id: 'Vulto Guerreiro 5'
   id_entidade_base: 'Humano Guerreiro 5'
   entidade {
-    rotulo: 'forma normal'
+    rotulo: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+    dados_ataque {
+      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          complementos: 3  # 1d4+1
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
   }
 }
 modelo {
@@ -593,3 +621,23 @@ modelo {
     tesouro { tesouro: '2d20 PP' }
   }
 }
+modelo {
+  id: 'Veserab'
+  entidade {
+    dados_vida: '5d10+15' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
+    rotulo_especial: ''
+    info_classes { id: 'besta_magica' nivel: 5 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    # apesar de ser grande, alcance 1.
+    # faro
+    # sopro nocivo: tipo nuvem fetida, mas cone, por 10 rodadsa.
+  }
+}
+
