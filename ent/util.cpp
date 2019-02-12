@@ -3357,7 +3357,9 @@ void ResetComputados(EntidadeProto* proto) {
 
 void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {
   const auto& raca_tabelada = tabelas.Raca(proto->raca());
-  AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
+  if (raca_tabelada.has_tamanho()) {
+    AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
+  }
   auto* atributos = proto->mutable_atributos();
   const auto& atributos_raca = raca_tabelada.bonus_atributos();
   AplicaBonusOuRemove(atributos_raca.forca(), atributos->mutable_forca());
