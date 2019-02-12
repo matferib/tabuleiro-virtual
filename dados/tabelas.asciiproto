@@ -3978,7 +3978,16 @@ tabela_classes {
     # Visao na penumbra
     # pericias: 2+int
   }
- 
+   info_classes {
+    id: 'besta_magica' nome: 'Besta Mágica'
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    # DV: 10
+    # Visao no escuro 12 quadrados.
+    # pericias: 2+int
+  }
+
   info_classes {
     id: 'aberracao' nome: 'Aberração' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
   }
@@ -4370,6 +4379,32 @@ tabela_pericias {
   }
 }
 tabela_feiticos {
+  armas {
+    id: 'invisibilidade'
+    nome: 'Invisibilidade'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE
+        rodadas: 30  # 10/por nivel
+      }
+    }
+  }
   armas {
     id: 'maos_flamejantes'
     nome: 'Mãos Flamejantes'
@@ -4992,6 +5027,7 @@ tabela_racas {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    tamanho: TM_MEDIO
   }
   racas {
     id: 'elfo'
@@ -5001,6 +5037,7 @@ tabela_racas {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    tamanho: TM_MEDIO
   }
   racas {
     id: 'halfling'
@@ -5016,6 +5053,7 @@ tabela_racas {
     id: 'humano'
     nome: 'Humano'
     descricao: 'Humanos são versáteis.'
+    tamanho: TM_MEDIO
   }
   racas {
     id: 'gnomo'
@@ -5031,6 +5069,7 @@ tabela_racas {
     id: 'meio_elfo'
     nome: 'Meio-Elfo'
     descricao: 'Mistura entre elfos e humanos.'
+    tamanho: TM_MEDIO
   }
   racas {
     id: 'meio_orc'
@@ -5041,6 +5080,7 @@ tabela_racas {
       inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    tamanho: TM_MEDIO
   }
 }
 
