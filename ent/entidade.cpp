@@ -457,7 +457,11 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   bool fim = f.duracao_ms == 0;
   if (fim && PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_)) {
     AtivaFumegando(1000);
-    AtualizaFumaca(intervalo_ms);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaFumaca(/*intervalo_ms=*/0);
     return;
   }
   if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
