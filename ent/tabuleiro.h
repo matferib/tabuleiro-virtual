@@ -173,6 +173,9 @@ class Tabuleiro : public ntf::Receptor {
   /* Se estiver montado, desmonta. Caso contrario, entra no modo de clicar para montar. */
   void AlternaMontar();
 
+  /** Alterna todos os modelos desligaveis de uma entidade (por exemplo, vulto na luz). */
+  void AlternaModelosDesligaveisNotificando();
+
   /** Ao inves de notificar, apenas preenche grupo. */
   void PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* grupo);
 

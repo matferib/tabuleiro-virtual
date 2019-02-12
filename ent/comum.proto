@@ -333,8 +333,18 @@ message ResistenciaElementos {
   optional int32 id_unico = 4;
 }
 
+enum VariacaoRM {
+  VRM_BASE = 0;
+  VRM_BASE_MAIS_UM_POR_NIVEL = 1;
+}
+
+message ResistenciaMagiaVariavel {
+  optional int32 base = 1;
+  optional VariacaoRM tipo_variacao = 2;
+}
+
 // Dados de defesa global (independe de ataque).
-// Proximo id: 24.
+// Proximo id: 25.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -359,6 +369,7 @@ message DadosDefesa {
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
   optional int32 reducao_dano_barbaro = 15;
   optional int32 resistencia_magia = 16;
+  optional ResistenciaMagiaVariavel resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
   // Reduz ataques que nao corresponderem aos descritores.
   optional ReducaoDano reducao_dano = 18;

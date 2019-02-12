@@ -414,6 +414,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_MONTAR:
       AlternaMontar();
       break;
+    case CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE:
+      AlternaModelosDesligaveisNotificando();
+      break;
     case CONTROLE_ATAQUE_MAIS_1:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
       break;
@@ -1355,6 +1358,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_MONTAR,             [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_montado_em();
+    } },
+    { CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE, [this] (const Entidade* entidade) {
+      return false;
     } },
     { CONTROLE_ILUMINACAO_MESTRE,  [this] (const Entidade* entidade) {
       return !opcoes_.iluminacao_mestre_igual_jogadores();

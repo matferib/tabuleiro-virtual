@@ -68,10 +68,10 @@ fixo {
     linha: 5
     coluna: 8
     rotulo: "1"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -0.3 
+    #translacao_y: -0.3
     visibilidade { referencia { tipo: VIS_FEITICO_1 } }
   }
   dados_botoes {
@@ -1076,6 +1076,18 @@ pagina {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Investida (carga)."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 12
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_templates.png"
+    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Alterna os modelos desligaveis da entidade."
   }
   dados_botoes {
     tamanho: 1

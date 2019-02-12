@@ -1464,6 +1464,10 @@ void Tabuleiro::AlternaMontar() {
   modo_clique_ = MODO_MONTAR;
 }
 
+void Tabuleiro::AlternaModelosDesligaveisNotificando() {
+  // TODO
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
