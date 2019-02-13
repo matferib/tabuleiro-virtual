@@ -2945,7 +2945,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
       continue;
     }
-    VLOG(1) << "aplicando efeito: " << TipoEfeito(efeito.id());
+    VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
     AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }

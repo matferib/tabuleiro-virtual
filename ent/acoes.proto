@@ -57,6 +57,15 @@ message Velocidade {
   optional float maxima_m_s = 5 [default=50.0];
 }
 
+enum ModificadorRodadas {
+  MR_NENHUM = 0;
+  MR_RODADAS_NIVEL = 1;
+  MR_MINUTOS_NIVEL = 2;
+  MR_10_MINUTOS_NIVEL = 3;
+  MR_HORAS_NIVEL = 4;
+  MR_2_HORAS_NIVEL = 5;
+}
+
 // Proximo id: 59.
 message AcaoProto {
   // Identificador da acao, para menus.
@@ -171,6 +180,9 @@ message AcaoProto {
     // Se presente, ao inves de fazer merge com repeated, ira combinar com o
     // efeito ja existente no indice passado.
     optional int32 combinar_com = 6;
+    // Para mudar o valor de rodadas.
+    optional int32 rodadas_base = 7;
+    optional ModificadorRodadas modificador_rodadas = 8;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }

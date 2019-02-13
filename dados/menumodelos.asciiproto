@@ -113,7 +113,11 @@ sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Adepto 3' }
   modelo { id: 'Humano Bárbaro' }
-  modelo { id: 'Humano Clérigo' }
+  sub_menu {
+    id: 'Clérigos'
+    modelo { id: 'Humano Clérigo' }
+    modelo { id: 'Humano Clérigo 5' }
+  }
   sub_menu {
     id: 'Aristocratas'
     modelo { id: 'Humano Aristocrata 5' }
