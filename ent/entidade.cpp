@@ -958,6 +958,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
+  // Copia quaisquer modelos.
+  google::protobuf::RepeatedPtrField<ModeloDnD> modelos_dnd;
+  if (!proto_parcial.modelos().empty()) {
+    modelos_dnd.Swap(proto_.mutable_modelos());
+  }
+
   // Formas alternativa: atualiza todas ou nada.
   if (!proto_parcial.formas_alternativas().empty()) {
     proto_.clear_formas_alternativas();
@@ -1054,6 +1060,17 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (!modelos_dnd.empty()) {
+    modelos_dnd.Swap(proto_.mutable_modelos());
+    // Encontra os modelos parciais a serem atualizados.
+    for (const auto& modelo_parcial : modelos_dnd) {
+      auto* modelo = EncontraModelo(modelo_parcial.id_efeito(), &proto_);
+      if (modelo != nullptr) {
+        modelo->MergeFrom(modelo_parcial);
+      }
+    }
+  }
 
   if (!proto_parcial.entidades_montadas().empty() && proto_.entidades_montadas(0) == IdInvalido) {
     proto_.clear_entidades_montadas();

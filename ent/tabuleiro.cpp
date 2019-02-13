@@ -1464,8 +1464,48 @@ void Tabuleiro::AlternaMontar() {
   modo_clique_ = MODO_MONTAR;
 }
 
+namespace {
+bool EntidadeTemModeloDesligavel(const Tabelas& tabelas, const EntidadeProto& proto) {
+  return c_any_of(proto.modelos(), [&tabelas] (const ModeloDnD& modelo) {
+    return ModeloDesligavel(tabelas, modelo);
+  });
+}
+
+void PreencheNotificacaoAlternaModelosDesligaveis(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n) {
+  for (const auto& modelo_proto : entidade.Proto().modelos()) {
+    if (!ModeloDesligavel(tabelas, modelo_proto)) continue;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+    {
+      auto* modelo = e_antes->add_modelos();
+      modelo->set_id_efeito(modelo_proto.id_efeito());
+      modelo->set_ativo(modelo_proto.ativo());
+    }
+    {
+      auto* modelo = e_depois->add_modelos();
+      modelo->set_id_efeito(modelo_proto.id_efeito());
+      modelo->set_ativo(!modelo_proto.ativo());
+    }
+  }
+}
+}  // namespace
+
 void Tabuleiro::AlternaModelosDesligaveisNotificando() {
-  // TODO
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr || !EntidadeTemModeloDesligavel(tabelas_, entidade->Proto())) continue;
+    PreencheNotificacaoAlternaModelosDesligaveis(tabelas_, *entidade, grupo_notificacoes.add_notificacao());
+  }
+  if (grupo_notificacoes.notificacao().empty()) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
@@ -7604,7 +7644,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
     if (e_depois->tesouro().pocoes().empty()) {
       e_depois->mutable_tesouro()->add_pocoes();
     }
-    if (indice_efeito < pocao.tipo_efeito().size()) {
+    if (indice_efeito < (unsigned int)pocao.tipo_efeito().size()) {
       AdicionaEventoItemMagico(entidade->Proto().evento(), pocao, indice_efeito, pocao.duracao_rodadas(), false, e_depois);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {

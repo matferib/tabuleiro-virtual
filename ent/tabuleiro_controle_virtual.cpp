@@ -1360,7 +1360,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       return entidade != nullptr && entidade->Proto().has_montado_em();
     } },
     { CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE, [this] (const Entidade* entidade) {
-      return false;
+      return entidade != nullptr && EntidadeTemModeloDesligavelLigado(tabelas_, entidade->Proto());
     } },
     { CONTROLE_ILUMINACAO_MESTRE,  [this] (const Entidade* entidade) {
       return !opcoes_.iluminacao_mestre_igual_jogadores();

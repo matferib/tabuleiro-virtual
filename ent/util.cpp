@@ -2402,6 +2402,7 @@ bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const 
 
 // Aplica o efeito. Alguns especificos serao feitos aqui. Alguns efeitos sao aplicados apenas uma vez e usam processado como controle.
 void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  VLOG(2) << "consequencia: " << consequencia.DebugString();
   AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
   AplicaBonusOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
   AplicaBonusOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
@@ -2724,15 +2725,24 @@ void PreencheOrigemValor(
   }
 }
 
+// Dado um efeito, preenche o valor com zero e seta origem para o id do evento.
 void PreencheOrigemZeraValor(int id_unico, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(google::protobuf::StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
+      po.set_origem(StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
       po.set_valor(0);
     }
   }
 }
 
+// Zera todos os valores de origem para o bonus, para criar o fim de efeito de modelos.
+void ZeraValorBonus(Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    for (auto& po : *bi.mutable_por_origem()) {
+      po.set_valor(0);
+    }
+  }
+}
 
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
 ConsequenciaEvento PreencheConsequencia(
@@ -2775,6 +2785,26 @@ ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvent
   if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
   return c;
 }
+
+ConsequenciaEvento PreencheConsequenciaFimParaModelos(const ConsequenciaEvento& consequencia_original) {
+  ConsequenciaEvento c(consequencia_original);
+  if (c.atributos().has_forca())        ZeraValorBonus(c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     ZeraValorBonus(c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) ZeraValorBonus(c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) ZeraValorBonus(c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    ZeraValorBonus(c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      ZeraValorBonus(c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        ZeraValorBonus(c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.dados_defesa().has_cura_acelerada())     c.mutable_dados_defesa()->clear_cura_acelerada();
+  if (c.has_jogada_ataque())            ZeraValorBonus(c.mutable_jogada_ataque());
+  if (c.has_jogada_dano())              ZeraValorBonus(c.mutable_jogada_dano());
+  if (c.has_tamanho())                  ZeraValorBonus(c.mutable_tamanho());
+  return c;
+}
+
 
 void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeProto* proto) {
   if (total_antes == total_depois) return;
@@ -2896,10 +2926,10 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   // Modelos desativados.
   for (auto& modelo : *proto->mutable_modelos()) {
-    if (modelo.ativo()) continue;
+    if (!ModeloDesligavel(tabelas, modelo) || modelo.ativo()) continue;
     const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
     VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
-    AplicaEfeitoComum(PreencheConsequenciaFim(-1, efeito.consequencia()), proto);
+    AplicaEfeitoComum(PreencheConsequenciaFimParaModelos(efeito.consequencia()), proto);
   }
 
   for (int i : eventos_a_remover) {
@@ -2915,16 +2945,15 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
       continue;
     }
-    VLOG(1) << "aplicando efeito: " << efeito.DebugString();
+    VLOG(1) << "aplicando efeito: " << TipoEfeito(efeito.id());
     AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }
   // Efeito de modelos.
   for (auto& modelo : *proto->mutable_modelos()) {
-    if (!modelo.ativo()) continue;
+    if (ModeloDesligavel(tabelas, modelo) && !modelo.ativo()) continue;
     const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
-    //VLOG(1) << "aplicando efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
-    VLOG(1) << "aplicando efeito de modelo: " << efeito.DebugString();
+    VLOG(1) << "aplicando efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
     AplicaEfeitoComum(efeito.consequencia(), proto);
   }
 
@@ -3256,7 +3285,7 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     // Sinergia.
     for (const auto& s : pt.sinergias()) {
       auto* pericia_alvo = mapa_pericias_proto[s.id()];
-      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, google::protobuf::StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo->mutable_bonus());
+      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo->mutable_bonus());
       if (!s.restricao().empty()) {
         pericia_alvo->add_restricoes_sinergia(s.restricao());
       }
@@ -5027,6 +5056,23 @@ void DecompoeFilho(const Matrix4& matriz_pai, EntidadeProto* filho) {
   filho->set_rotacao_x_graus(vr.x * RAD_PARA_GRAUS);
   filho->set_rotacao_y_graus(vr.y * RAD_PARA_GRAUS);
   filho->set_rotacao_z_graus(vr.z * RAD_PARA_GRAUS);
+}
+
+bool ModeloDesligavel(const Tabelas& tabelas, const ModeloDnD& modelo) {
+  return tabelas.EfeitoModelo(modelo.id_efeito()).desligavel();
+}
+
+ModeloDnD* EncontraModelo(TipoEfeitoModelo id_efeito, EntidadeProto* proto) {
+  for (auto& modelo : *proto->mutable_modelos()) {
+    if (modelo.id_efeito() == id_efeito) return &modelo;
+  }
+  return nullptr;
+}
+
+bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto) {
+  return c_any_of(proto.modelos(), [&tabelas] (const ModeloDnD& modelo) {
+    return ModeloDesligavel(tabelas, modelo) && modelo.ativo();
+  });
 }
 
 }  // namespace ent

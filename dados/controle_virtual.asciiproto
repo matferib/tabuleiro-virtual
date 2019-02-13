@@ -1084,7 +1084,7 @@ pagina {
     rotulo: "M"
     cor_rotulo {}
     textura: "icon_templates.png"
-    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS
+    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE
     forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Alterna os modelos desligaveis da entidade."

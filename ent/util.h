@@ -751,6 +751,15 @@ Matrix4 MatrizDecomposicaoPai(const EntidadeProto& pai);
 // Decompoe o filho, usando a matriz do pai e a dele proprio.
 void DecompoeFilho(const Matrix4& matriz_pai, EntidadeProto* filho);
 
+// Retorna true se o modelo for desligavel.
+bool ModeloDesligavel(const Tabelas& tabelas, const ModeloDnD& modelo);
+
+// Encontra o modelo de entidade com o efeito passado. Retorna nullptr se nao houver.
+ModeloDnD* EncontraModelo(TipoEfeitoModelo id_efeito, EntidadeProto* proto);
+
+// Retorna true se a entidade tiver algum modelo desligavel que esta ligado.
+bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto); 
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

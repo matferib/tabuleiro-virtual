@@ -111,6 +111,7 @@ enum TipoEfeito {
 }
 
 enum TipoEfeitoModelo {
+  EFEITO_MODELO_INVALIDO = 0;
   EFEITO_MODELO_VULTO = 1;
 }
 
@@ -584,6 +585,7 @@ message EfeitoModeloProto {
   optional ConsequenciaEvento consequencia = 2;
   // Indica que o template pode ser desligado, tipo vulto com luz.
   optional bool desligavel = 3;
+  optional string descricao = 4;
 }
 
 // Como os efeitos de uma pocao se combinam.
@@ -889,9 +891,8 @@ message VenenoProto {
 
 // Os templates de D&D.
 message ModeloDnD {
-  optional string descricao = 1;
-  optional TipoEfeitoModelo id_efeito = 2;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
-  optional bool ativo = 3;                     // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+  optional TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+  optional bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
 }
 
 message RacaProto {
