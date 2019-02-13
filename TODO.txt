@@ -1,3 +1,6 @@
+Fazer o modificador de rodadas funcionar nos efeitos adicionais.
+Mais feiticos de clerigo.
+Colocar modificador de besta com escudo.
 Permitir nomear versoes.
 Mostrar salvacoes do mestre apenas para mestre.
 Permitir mais de uma textura por objeto (util para compostos).
@@ -5,7 +8,10 @@ Permitir mais de uma textura por objeto (util para compostos).
 - UI para horas.
 - Rever a logica de pontos de vida ta um caos. Provavelmente tem gente com mais PV que o maximo. Nao esta claro o que eh computado.
 
+
 Anotacoes da sessao Tilverton:
+- Fazer Melir e Quairon (clerigo 4 e mago 4).
+- Resistencia magia variavel.
 - Vulto: adicionar ataques na consequencia de efeitos (o template esta como um efeito de template).
 - Outros vultos:
   - guerreiros:
