@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 66.
+// Proximo id: 68.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -54,6 +54,8 @@ enum TipoEfeito {
   EFEITO_PROTECAO_CONTRA_BEM = 20;
   EFEITO_PROTECAO_CONTRA_CAOS = 21;
   EFEITO_PROTECAO_CONTRA_ORDEM = 22;
+  EFEITO_IMUNIDADE_ELEMENTO = 66;
+  EFEITO_LUZ = 67;
   EFEITO_FURIA = 23;
   // A furia do barbaro tem alguns efeitos a mais, como fadiga apos efeito e bonus de vontade contra encantamento.
   EFEITO_FURIA_BARBARO = 24;

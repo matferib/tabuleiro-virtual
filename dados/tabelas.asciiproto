@@ -1472,6 +1472,11 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_IMUNIDADE_ELEMENTO
+    nome: 'proteção a elementos (imunidade)'
+    formato_complementos: 'descritor;quantidade'
+  }
+  efeitos {
     id: EFEITO_RESISTENCIA_ELEMENTOS
     nome: 'resistência a elementos'
     formato_complementos: 'descritor;valor da resistência'
@@ -4396,6 +4401,299 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'luz'
+    nome: 'luz'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_LUZ
+        rodadas: 10
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'resistencia'
+    nome: 'resistência'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_SALVACAO
+        rodadas: 10
+        complementos: 1
+      }
+    }
+  }
+
+
+  armas {
+    id: 'curar_ferimentos_moderados'
+    nome: 'curar ferimentos moderados'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+
+  }
+
+  armas {
+    id: 'forca_touro'
+    nome: 'força do touro'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_FORCA_TOURO
+        rodadas: 20  # 10/por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+  armas {
+    id: 'ajuda'
+    nome: 'ajuda'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 2
+      dominio: true
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_SANTUARIO
+        rodadas: 1  # 1/por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+  armas {
+    id: 'escudo_fe'
+    nome: 'escudo da fé'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_SANTUARIO
+        rodadas: 1  # 1/por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+
+  armas {
+    id: 'santuario'
+    nome: 'santuário'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_SANTUARIO
+        rodadas: 1  # 1/por nivel
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_tendencia'
+    nome: 'círculo mágico contra tendência'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 3
+      dominio: true
+    }
+    # TODO
+  }
+  armas {
+    id: 'protecao_contra_elementos'
+    nome: 'proteção contra elementos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+
+    info_classes {
+      id: 'sorte'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 3
+      dominio: true
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_IMUNIDADE_ELEMENTO
+        rodadas: 300  # 100/por nivel
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+
+
+  armas {
     id: 'invisibilidade'
     nome: 'Invisibilidade'
     info_classes {
@@ -4421,6 +4719,35 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'explosão sonora'
+    nome: 'explosão sonora'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.7 g: 0.7 b: 0 }
+      raio_quadrados: 2
+      distancia_quadrados: 5 # + 1 a cada dois niveis
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_burning_hands.png'
+      duracao_s: 0.350
+      # Esse feitico a salvacao e apenas para o efeito de atordoar.
+      dificuldade_salvacao: 12
+      tipo_salvacao: TS_FORTITUDE
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_SONICO
+    }
+  }
+
   armas {
     id: 'maos_flamejantes'
     nome: 'Mãos Flamejantes'
@@ -4891,6 +5218,40 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'detectar_veneno'
+    nome: 'detectar veneno'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      ataque_distancia: false
+    }
+  }
+
   armas {
     id: 'pedra_encantada'
     nome: 'Pedra Encantada'
