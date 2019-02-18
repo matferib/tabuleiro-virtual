@@ -116,6 +116,7 @@ sub_menu {
   sub_menu {
     id: 'Clérigos'
     modelo { id: 'Humano Clérigo' }
+    modelo { id: 'Humano Clérigo 4' }
     modelo { id: 'Humano Clérigo 5' }
   }
   sub_menu {
@@ -154,7 +155,12 @@ sub_menu {
     modelo { id: 'Humano Ladino 5' }
     modelo { id: 'Humano Ladino 7' }
   }
-  modelo { id: 'Humano Mago' }
+  sub_menu {
+    id: 'Magos'
+    modelo { id: 'Humano Mago' }
+    modelo { id: 'Humano Mago 4' }
+    modelo { id: 'Humano Mago 5' }
+  }
   modelo { id: 'Humano Monge' }
   modelo { id: 'Humano Paladino' }
 }
