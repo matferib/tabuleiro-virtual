@@ -2335,6 +2335,87 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Clérigo 4'
+  entidade {
+    dados_vida: '3d8+16' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 4 }
+    cor { r: 0.898 g: 0.663 b: 0.475 }
+    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' }
+    dados_ataque {
+      id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 10
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'reflexos_rapidos' }
+    }
+    info_pericias { id: 'concentracao' pontos: 7 }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'identificar_magia' pontos: 7 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
+      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+    }
+
+    feiticos_classes {
+      id_classe: 'clerigo'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'maldicao_menor' }
+        conhecidos { id: 'bencao' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'escudo_fe' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'curar_ferimentos_moderados' }
+        conhecidos { id: 'explosao_sonora' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Clérigo 5'
   entidade {
     dados_vida: '4d8+18' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
@@ -2360,6 +2441,8 @@ modelo {
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_leves' }
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
       tesouro: '10 PO\nsimbolo sagrado\n6tochas'
     }
     feiticos_classes {

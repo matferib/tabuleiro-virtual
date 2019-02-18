@@ -1954,8 +1954,31 @@ tabela_amuletos {
     tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
     complementos: 5
   }
+  amuletos {
+    id: 'periapto_sabedoria_2'
+    nome: 'Periapto da Sabedoria +2'
+    descricao: 'Bônus de melhoria de +2 na sabedoria.'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 2
+  }
+  amuletos {
+    id: 'periapto_sabedoria_4'
+    nome: 'Periapto da Sabedoria +4'
+    descricao: 'Bônus de melhoria de +4 na sabedoria.'
+    custo_po: 16000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 4
+  }
+  amuletos {
+    id: 'periapto_sabedoria_6'
+    nome: 'Periapto da Sabedoria +6'
+    descricao: 'Bônus de melhoria de +6 na sabedoria.'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 6
+  }
 }
-
 tabela_luvas {
   luvas {
     id: 'luvas_apanhar_flechas'
