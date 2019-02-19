@@ -495,6 +495,8 @@ message InfoClasse {
   // Essas nao vem da tabela de classe, mas sim do modelo do monstro. Ver gaviao-seta como exemplo.
   // Atencao: esta aqui nao eh limpa no merge, portanto NUNCA deve aparecer na tabela de classes.
   repeated string pericias_monstro = 20;
+  // Numero de pericias por nivel que a classe ganha.
+  optional int32 pericias_por_nivel = 25;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.

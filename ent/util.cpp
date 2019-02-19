@@ -4109,6 +4109,25 @@ bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, c
   return false;
 }
 
+int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& proto) {
+  bool primeiro_nivel = true;
+  int total = 0;
+  int modificador_inteligencia = ModificadorAtributo(TA_INTELIGENCIA, proto);
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.nivel() <= 0) continue;
+    const auto& ct = tabelas.Classe(ic.id());
+    int por_nivel = std::max(ct.pericias_por_nivel() + modificador_inteligencia, 1);
+    if (primeiro_nivel) {
+      total += (por_nivel * 4) + por_nivel * (ic.nivel() - 1);
+    } else {
+      total += por_nivel * ic.nivel();
+    }
+    primeiro_nivel = false;
+  }
+  return total;
+}
+
+
 TipoEfeito StringParaEfeito(const std::string& s) {
   for (int i = TipoEfeito_MIN; i < TipoEfeito_MAX; ++i) {
     if (!TipoEfeito_IsValid(i)) continue;

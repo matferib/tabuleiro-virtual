@@ -155,11 +155,13 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 TEST(TesteDependencias, TestePericias) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
+  AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
   auto* ic = proto.add_info_classes();
   ic->set_id("ladino");
   ic->set_nivel(1);
   EXPECT_TRUE(PericiaDeClasse(tabelas, "observar", proto));
   EXPECT_FALSE(PericiaDeClasse(tabelas, "adestrar_animais", proto));
+  EXPECT_EQ(TotalPontosPericiaPermitidos(tabelas, proto), 36);
 }
 
 TEST(TesteDependencias, TesteNiveisNegativos) {

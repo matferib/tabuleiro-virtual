@@ -3378,6 +3378,7 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'cavalgar'
     pericias: 'natacao'
+    pericias_por_nivel: 2
 
     salvacoes_fortes: TS_FORTITUDE
   }
@@ -3390,6 +3391,7 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'cavalgar'
     pericias: 'natacao'
+    pericias_por_nivel: 2
 
     salvacoes_fortes: TS_FORTITUDE
   }
@@ -3422,6 +3424,7 @@ tabela_classes {
       para_nivel { magias_por_dia: '6555554444' }
     }
 
+    pericias_por_nivel: 2
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3467,6 +3470,7 @@ tabela_classes {
       para_nivel { magias_por_dia: '333332' }
       para_nivel { magias_por_dia: '333332' }
     }
+    pericias_por_nivel: 2
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3495,6 +3499,7 @@ tabela_classes {
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
 
+    pericias_por_nivel: 4
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3515,6 +3520,7 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     precisa_memorizar: true
+    pericias_por_nivel: 6
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '' }
@@ -3570,6 +3576,7 @@ tabela_classes {
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     precisa_memorizar: true
+    pericias_por_nivel: 4
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31' }
@@ -3618,6 +3625,7 @@ tabela_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
+    pericias_por_nivel: 2
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '' }
@@ -3661,6 +3669,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+    pericias_por_nivel: 8
 
     pericias: 'avaliacao'
     pericias: 'equilibrio'
@@ -3701,6 +3710,7 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    pericias_por_nivel: 6
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '2' conhecidos: '4' }
@@ -3769,6 +3779,7 @@ tabela_classes {
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    pericias_por_nivel: 2
     precisa_memorizar: true
     progressao_feitico {
       para_nivel {}
@@ -3820,6 +3831,7 @@ tabela_classes {
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     id_para_magia: 'mago'
+    pericias_por_nivel: 2
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '53' conhecidos: '42' }
@@ -3861,6 +3873,7 @@ tabela_classes {
   info_classes {
     id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
 
+    pericias_por_nivel: 4
     pericias: 'equilibrio'
     pericias: 'escalar'
     pericias: 'concentracao'
@@ -3892,7 +3905,7 @@ tabela_classes {
   }
   info_classes {
     id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
-    # 4+int.
+    pericias_por_nivel: 4
     pericias: 'avaliacao'
     pericias: 'blefar'
     pericias: 'diplomacia'
@@ -3926,7 +3939,7 @@ tabela_classes {
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
 
-    # 2 + int
+    pericias_por_nivel: 2
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3949,6 +3962,7 @@ tabela_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
 
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
+    pericias_por_nivel: 6
     pericias: 'avaliacao'
     pericias: 'equilibrio'
     pericias: 'blefar'
@@ -4002,16 +4016,22 @@ tabela_classes {
 
     salvacoes_fortes: TS_VONTADE
   }
+
   info_classes {
-    id: 'gigante' nome: 'Gigante' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
+    id: 'aberracao' nome: 'Aberração'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
+    # d8
   }
+
   info_classes {
     id: 'animal' nome: 'Animal'
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
     # Visao na penumbra
-    # pericias: 2+int
   }
   info_classes {
     id: 'animal_atroz' nome: 'Animal Atroz'
@@ -4019,8 +4039,8 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
     salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
     # Visao na penumbra
-    # pericias: 2+int
   }
    info_classes {
     id: 'besta_magica' nome: 'Besta Mágica'
@@ -4029,12 +4049,131 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
     # DV: 10
     # Visao no escuro 12 quadrados.
-    # pericias: 2+int
+    pericias_por_nivel: 2
+  }
+  info_classes {
+    id: 'constructo' nome: 'Constructo'
+    progressao_bba: PBBA_TRES_QUARTOS
+    # Nao tem salvacoes fortes.
+    pericias_por_nivel: 2
+    # DV: 10
+  }
+  info_classes {
+    id: 'dragao' nome: 'Dragão'
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 6
+    # d12
+    # visao_escuro: 12 quadrados
+    # imune a sono e paralisia
+  }
+  info_classes {
+    id: 'elemental_agua_terra' nome: 'Elemental (Água ou Terra)'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # visao_escuro: 12 quadrados
+    # imune a veneno, sono, paralisia, atordoamento
+    # imune a critico ou flanqueamento
+  }
+  info_classes {
+    id: 'elemental_fogo_ar' nome: 'Elemental (Fogo ou Ar)'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
+    # visao_escuro: 12 quadrados
+    # imune a veneno, sono, paralisia, atordoamento
+    # imune a critico ou flanqueamento
+    # d8
+  }
+  info_classes {
+    id: 'fada' nome: 'Fada'
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 6
+    # visao na penumbra_
+    # d6
+  }
+  info_classes {
+    id: 'humanoide' nome: 'Humanóide'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
+    # d8
   }
 
   info_classes {
-    id: 'aberracao' nome: 'Aberração' progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_VONTADE
+    id: 'humanoide_monstruoso' nome: 'Humanóide Monstruoso'
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
+    # d8
+    # visao escuro: 12 q
   }
+  info_classes {
+    id: 'gigante' nome: 'Gigante'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+  }
+  info_classes {
+    id: 'limo' nome: 'Limo'
+    progressao_bba: PBBA_TRES_QUARTOS
+    # sem salvacao boa.
+    pericias_por_nivel: 2
+    # d10
+    # Sem mente, imune a efeitos mentais.
+    # cego com blindsight.
+    # imune a ataques de olhar
+  }
+  info_classes {
+    id: 'extra_planar' nome: 'Extra-Planar'
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 8
+    # d8
+    # visao escuro: 12
+  }
+  info_classes {
+    id: 'planta' nome: 'Planta'
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # visao penumbra
+    # imune a efeitos mentais
+    # imune a veneno, sono, paralisia, polimorfismo, atordoamento.
+    # imune a critico
+  }
+  info_classes {
+    id: 'morto_vivo' nome: 'Morto-Vivo'
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 4
+    # d12
+    # visao escuro 12q
+    # imune a efeitos mentais
+    # imune a veneno, sono, paralisia, atordoamento, doenca, efeitos de morte.
+    # imune a critico, dano nao letal, dreno de habilidade, dreno de energia, fadiga, exaustao
+    # imune a efeitos que demandem fortitude save.
+  }
+  info_classes {
+    id: 'verme' nome: 'Verme'
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # sem mente: imune a efeitos mentais.
+    # visao escuro 12q
+  }
+
+
 }
 
 tabela_pericias {
