@@ -523,6 +523,16 @@ void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Enti
   gerador.spin_max_pontos_vida->setValue(proto.max_pontos_vida());
 }
 
+void AtualizaPontosGastosPericia(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  int total_gasto = 0;
+  for (const auto& ip : proto.info_pericias()) {
+    total_gasto += ip.pontos();
+  }
+  int total_permitido = TotalPontosPericiaPermitidos(tabelas, proto);
+  gerador.label_pericias->setText(QString("Perícias: pontos gastos %1, permitidos: %2").arg(total_gasto).arg(total_permitido));
+}
+
 void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // Se no windows nao tiver Moc vai dar erro de linker. Ai, transformar isso em reinterpret_cast.
   auto* modelo = qobject_cast<ModeloPericias*>(gerador.tabela_pericias->model());
@@ -532,6 +542,7 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     LOG(ERROR) << "modelo eh nullptr";
   }
   gerador.tabela_pericias->update();
+  AtualizaPontosGastosPericia(tabelas, gerador, proto);
 }
 
 // Feiticos.

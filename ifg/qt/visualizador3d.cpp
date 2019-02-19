@@ -1187,6 +1187,7 @@ void PreencheConfiguraTalentos(
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
+  AtualizaUIPericias(tabelas, gerador, proto);
 }
 
 void PreencheConfiguraInimigosPrediletos(

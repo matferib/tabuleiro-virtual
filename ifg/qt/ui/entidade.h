@@ -290,7 +290,7 @@ public:
     QWidget *tab_3;
     QGridLayout *gridLayout_12;
     QGridLayout *gridLayout_11;
-    QLabel *label_81;
+    QLabel *label_pericias;
     QTableView *tabela_pericias;
     QGridLayout *gridLayout_10;
     QLabel *label_9;
@@ -1945,13 +1945,13 @@ public:
         gridLayout_12->setObjectName(QStringLiteral("gridLayout_12"));
         gridLayout_11 = new QGridLayout();
         gridLayout_11->setObjectName(QStringLiteral("gridLayout_11"));
-        label_81 = new QLabel(tab_3);
-        label_81->setObjectName(QStringLiteral("label_81"));
-        sizePolicy7.setHeightForWidth(label_81->sizePolicy().hasHeightForWidth());
-        label_81->setSizePolicy(sizePolicy7);
-        label_81->setAlignment(Qt::AlignCenter);
+        label_pericias = new QLabel(tab_3);
+        label_pericias->setObjectName(QStringLiteral("label_pericias"));
+        sizePolicy7.setHeightForWidth(label_pericias->sizePolicy().hasHeightForWidth());
+        label_pericias->setSizePolicy(sizePolicy7);
+        label_pericias->setAlignment(Qt::AlignCenter);
 
-        gridLayout_11->addWidget(label_81, 0, 0, 1, 1);
+        gridLayout_11->addWidget(label_pericias, 0, 0, 1, 1);
 
         tabela_pericias = new QTableView(tab_3);
         tabela_pericias->setObjectName(QStringLiteral("tabela_pericias"));
@@ -3205,7 +3205,7 @@ public:
         botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", nullptr));
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "Ra\303\247a, Classes e Tend\303\252ncia", nullptr));
-        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
+        label_pericias->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
         label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
