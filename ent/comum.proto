@@ -470,6 +470,13 @@ enum ProgressaoExpulsao {
   PEXP_UM_MENOS_TRES = 2; // nivel menos tres.
 }
 
+enum TipoClasse {
+  TC_BASICA = 0;
+  TC_PRESTIGIO = 1;
+  TC_PDM = 2;
+  TC_MONSTRO = 3;
+}
+
 // Informacoes sobre a classe de um personagem.
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
@@ -529,6 +536,8 @@ message InfoClasse {
   optional ProgressaoExpulsao progressao_expulsao = 23;
   // Se presente, a classe contribui com nivel de conjurador de outra classe.
   optional string aumenta_nivel_conjurador_de = 24; 
+  // Indica o tipo da classe tabelada.
+  optional TipoClasse tipo_classe = 26;
 }
 
 // Informacao sobre a pericia do personagem.

@@ -3446,6 +3446,7 @@ tabela_classes {
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_classe: TC_PDM
     precisa_memorizar: true
     progressao_feitico {
       para_nivel {}
@@ -3905,6 +3906,7 @@ tabela_classes {
   }
   info_classes {
     id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
+    tipo_classe: TC_PDM
     pericias_por_nivel: 4
     pericias: 'avaliacao'
     pericias: 'blefar'
@@ -3938,6 +3940,7 @@ tabela_classes {
   }
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
+    tipo_classe: TC_PDM
 
     pericias_por_nivel: 2
     pericias: 'escalar'
@@ -3960,6 +3963,7 @@ tabela_classes {
   }
   info_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
+    tipo_classe: TC_PDM
 
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
     pericias_por_nivel: 6
@@ -4019,6 +4023,7 @@ tabela_classes {
 
   info_classes {
     id: 'aberracao' nome: 'Aberração'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 2
@@ -4027,6 +4032,7 @@ tabela_classes {
 
   info_classes {
     id: 'animal' nome: 'Animal'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
@@ -4035,6 +4041,7 @@ tabela_classes {
   }
   info_classes {
     id: 'animal_atroz' nome: 'Animal Atroz'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
@@ -4044,6 +4051,7 @@ tabela_classes {
   }
    info_classes {
     id: 'besta_magica' nome: 'Besta Mágica'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_UM
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
@@ -4053,6 +4061,7 @@ tabela_classes {
   }
   info_classes {
     id: 'constructo' nome: 'Constructo'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     # Nao tem salvacoes fortes.
     pericias_por_nivel: 2
@@ -4060,6 +4069,7 @@ tabela_classes {
   }
   info_classes {
     id: 'dragao' nome: 'Dragão'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_UM
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
@@ -4071,6 +4081,7 @@ tabela_classes {
   }
   info_classes {
     id: 'elemental_agua_terra' nome: 'Elemental (Água ou Terra)'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
@@ -4081,6 +4092,7 @@ tabela_classes {
   }
   info_classes {
     id: 'elemental_fogo_ar' nome: 'Elemental (Fogo ou Ar)'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
@@ -4091,6 +4103,7 @@ tabela_classes {
   }
   info_classes {
     id: 'fada' nome: 'Fada'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_MEIO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 6
@@ -4099,6 +4112,7 @@ tabela_classes {
   }
   info_classes {
     id: 'humanoide' nome: 'Humanóide'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
@@ -4107,6 +4121,7 @@ tabela_classes {
 
   info_classes {
     id: 'humanoide_monstruoso' nome: 'Humanóide Monstruoso'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_UM
     salvacoes_fortes: TS_REFLEXO
     salvacoes_fortes: TS_VONTADE
@@ -4116,12 +4131,14 @@ tabela_classes {
   }
   info_classes {
     id: 'gigante' nome: 'Gigante'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
   }
   info_classes {
     id: 'limo' nome: 'Limo'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     # sem salvacao boa.
     pericias_por_nivel: 2
@@ -4132,6 +4149,7 @@ tabela_classes {
   }
   info_classes {
     id: 'extra_planar' nome: 'Extra-Planar'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_UM
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
@@ -4142,6 +4160,7 @@ tabela_classes {
   }
   info_classes {
     id: 'planta' nome: 'Planta'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
@@ -4153,6 +4172,7 @@ tabela_classes {
   }
   info_classes {
     id: 'morto_vivo' nome: 'Morto-Vivo'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_MEIO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 4
@@ -4165,6 +4185,7 @@ tabela_classes {
   }
   info_classes {
     id: 'verme' nome: 'Verme'
+    tipo_classe: TC_MONSTRO
     progressao_bba: PBBA_MEIO
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
@@ -4172,8 +4193,6 @@ tabela_classes {
     # sem mente: imune a efeitos mentais.
     # visao escuro 12q
   }
-
-
 }
 
 tabela_pericias {

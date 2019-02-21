@@ -1899,9 +1899,35 @@ void PreencheConfiguraComboClasse(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto* combo = gerador.combo_classe;
   combo->addItem(combo->tr("Outro"), "outro");
+  combo->insertSeparator(combo->count());
+
+  std::unordered_map<int, std::vector<const ent::InfoClasse*>> classes_por_tipo;
   for (const auto& ic : tabelas.todas().tabela_classes().info_classes()) {
-    combo->addItem(QString::fromUtf8(ic.nome().c_str()), ic.id().c_str());
+    classes_por_tipo[ic.tipo_classe()].push_back(&ic);
   }
+  for (auto& tipo_classes : classes_por_tipo) {
+    auto& classes = tipo_classes.second;
+    std::sort(classes.begin(), classes.end(), [combo, &tabelas](const ent::InfoClasse* lhs, const ent::InfoClasse* rhs) {
+      return combo->tr(lhs->nome().c_str()) < combo->tr(rhs->nome().c_str());
+    });
+  }
+
+  for (const auto* ic : classes_por_tipo[ent::TC_BASICA]) {
+    combo->addItem(combo->tr(ic->nome().c_str()), ic->id().c_str());
+  }
+  combo->insertSeparator(combo->count());
+  for (const auto* ic : classes_por_tipo[ent::TC_PRESTIGIO]) {
+    combo->addItem(combo->tr(ic->nome().c_str()), ic->id().c_str());
+  }
+  combo->insertSeparator(combo->count());
+  for (const auto* ic : classes_por_tipo[ent::TC_PDM]) {
+    combo->addItem(combo->tr(ic->nome().c_str()), ic->id().c_str());
+  }
+  combo->insertSeparator(combo->count());
+  for (const auto* ic : classes_por_tipo[ent::TC_MONSTRO]) {
+    combo->addItem(combo->tr(ic->nome().c_str()), ic->id().c_str());
+  }
+
   ExpandeComboBox(combo);
   ExpandeComboBox(gerador.combo_mod_conjuracao);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {

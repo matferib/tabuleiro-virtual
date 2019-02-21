@@ -1,6 +1,40 @@
 tabela_classes {
   info_classes {
+    id: 'hathran' nome: 'Hathran' progressao_bba: PBBA_MEIO
+    tipo_classe: TC_PRESTIGIO
+    aumenta_nivel_conjurador_de: 'druida'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'natacao'
+    pericias: 'falar_idioma'
+    pericias: 'identificar_magia'
+    pericias: 'sobrevivencia'
+    pericias_por_nivel: 2
+
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
     id: 'agente_harpista' nome: 'Agente Harpista'
+    tipo_classe: TC_PRESTIGIO
     progressao_bba: PBBA_TRES_QUARTOS
     # Dados de vida: d6
     salvacoes_fortes: TS_VONTADE
@@ -165,3 +199,4 @@ tabela_racas {
     # ajuste de nivel: 1
   }
 }  # tabela_racas
+

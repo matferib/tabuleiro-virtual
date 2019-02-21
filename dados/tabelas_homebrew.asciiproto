@@ -29,6 +29,7 @@ tabela_chapeus {
 tabela_classes {
   info_classes {
     id: 'moeda_waukeen' nome: 'Moeda de Waukeen' progressao_bba: PBBA_TRES_QUARTOS
+    tipo_classe: TC_PRESTIGIO
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE
     aumenta_nivel_conjurador_de: 'clerigo'
     pericias: 'concentracao'

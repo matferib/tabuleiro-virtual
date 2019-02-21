@@ -493,18 +493,23 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float delta_x = (x - ultimo_x_);
       float delta_y = (y - ultimo_y_);
       // Realiza rotacao/translacao da entidade.
-      for (unsigned int id : ids_entidades_selecionadas_) {
-        auto* e = BuscaEntidade(id);
-        if (e == nullptr) {
-          continue;
-        }
-        if (translacao_rotacao_ == TR_ROTACAO) {
+      if (translacao_rotacao_ == TR_ROTACAO) {
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          auto* e = BuscaEntidade(id);
+          if (e == nullptr) continue;
           e->IncrementaRotacaoZGraus(delta_x);
-        } else if (translacao_rotacao_ == TR_TRANSLACAO) {
-          e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
+          if (e->Tipo() != TE_ENTIDADE) {
+            atualizar_mapa_luzes = true;
+          }
         }
-        if (e->Tipo() != TE_ENTIDADE) {
-          atualizar_mapa_luzes = true;
+      } else {
+        for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
+          auto* e = BuscaEntidade(id);
+          if (e == nullptr) continue;
+          e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
+          if (e->Tipo() != TE_ENTIDADE) {
+            atualizar_mapa_luzes = true;
+          }
         }
       }
       if (atualizar_mapa_luzes) {
