@@ -2577,6 +2577,78 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Feiticeiro 5'
+  entidade {
+    dados_vida: '4d4+12' raca: 'humano'
+    info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'feiticeiro' nivel: 5 }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+    }
+    dados_ataque {
+      id_arma: 'lanca_curta' obra_prima: true empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'magia_combate' }
+    }
+    info_pericias { id: 'blefar' pontos: 8 }
+    info_pericias { id: 'concentracao' pontos: 8 }
+    info_pericias { id: 'oficios_armadilharia' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'procurar' pontos: 8 }
+    info_pericias { id: 'profissao' pontos: 2 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 8 }
+    tesouro {
+      pocoes { id: 'nublar' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'velocidade' }
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      tesouro: '10 PO\npergaminho de invisibilidade x2, flecha acida x2, teia x2'
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'maos_magicas' }  # TODO
+        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'toque_fadiga' }  # TODO
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'raio_de_gelo' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'causar_medo' }  # TODO
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'misseis_magicos' }
+        conhecidos { id: 'sono' }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'nublar' }
+        conhecidos { id: 'esfera_flamejante' }  # TODO
+      }
+    }
+  }
+}
+
 
 modelo {
   id: 'Humano Guerreiro'

@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
@@ -516,7 +517,7 @@ int Nivel(const EntidadeProto& proto);
 // Retorna o nivel de conjuracao para a classe.
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe com modificadores para fins de calculo de numeros de magia.
-int NivelParaCalculoMagiasPorDia(const std::string& id_classe, const EntidadeProto& proto);
+int NivelParaCalculoMagiasPorDia(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
 int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
@@ -761,6 +762,9 @@ ModeloDnD* EncontraModelo(TipoEfeitoModelo id_efeito, EntidadeProto* proto);
 
 // Retorna true se a entidade tiver algum modelo desligavel que esta ligado.
 bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto); 
+
+// Retorna a classe dentro do proto, ou default se nao houver.
+const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
 
 }  // namespace ent
 

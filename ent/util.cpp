@@ -2565,24 +2565,6 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     }
     break;
-    case EFEITO_SUPORTAR_ELEMENTOS: {
-      if (evento.complementos_str().empty()) return;
-      DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
-      if (descritor == DESC_NENHUM) {
-        LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
-        return;
-      }
-      ResistenciaElementos re;
-      re.set_valor(10);
-      re.set_descritor(descritor);
-      re.set_id_unico(evento.id_unico());
-      auto* re_corrente = AchaResistenciaElemento(evento.id_unico(), proto);
-      if (re_corrente == nullptr) {
-        re_corrente = proto->mutable_dados_defesa()->add_resistencia_elementos();
-      }
-      re_corrente->Swap(&re);
-    }
-    break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
@@ -2702,7 +2684,6 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
     }
     break;
-    case EFEITO_SUPORTAR_ELEMENTOS:
     case EFEITO_RESISTENCIA_ELEMENTOS: {
       LimpaResistenciaElemento(evento.id_unico(), proto);
     }
@@ -2996,7 +2977,7 @@ int ReducaoDanoBarbaro(int nivel) {
 }
 
 void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto, InfoClasse* ic) {
-  int niveis_da_classe = NivelParaCalculoMagiasPorDia(ic->id(), proto);
+  int niveis_da_classe = NivelParaCalculoMagiasPorDia(tabelas, ic->id(), proto);
   switch (tabelas.Classe(ic->id()).progressao_conjurador()) {
     case PCONJ_MEIO_MIN_4:
       ic->set_nivel_conjurador(niveis_da_classe < 4 ? 0 : niveis_da_classe / 2);
@@ -3356,7 +3337,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     // Encontra a entrada da classe, ou cria se nao houver.
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
-    const int nivel = std::min(NivelParaCalculoMagiasPorDia(ic.id(), *proto), 20);
+    const int nivel = std::min(NivelParaCalculoMagiasPorDia(tabelas, ic.id(), *proto), 20);
     const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
@@ -3766,21 +3747,45 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
 }
 
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
-  for (const auto& info_classe : proto.info_classes()) {
-    if (info_classe.id() == id_classe) {
-      return info_classe.nivel_conjurador();
-    }
-  }
-  return 0;
+  return InfoClasseProto(id_classe, proto).nivel_conjurador();
 }
 
-int NivelParaCalculoMagiasPorDia(const std::string& id_classe, const EntidadeProto& proto) {
+// Retorna o nivel aumentado de conjurador da classe, se houver.
+std::string NivelAumentadoConjurador(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto) {
+  // Primeiro: ve se a classe estabelece qual nivel sera aumentado.
+  const auto& classe_tabelada = tabelas.Classe(id_classe);
+  if (classe_tabelada.has_aumenta_nivel_conjurador_de()) {
+    return classe_tabelada.aumenta_nivel_conjurador_de();
+  }
+  if (!classe_tabelada.has_aumenta_nivel_conjurador()) {
+    return "";
+  }
+  // A classe tabelada aumenta nivel de conjurador mas nao especificou.
+  // Tenta o que o usuario passou.
+  const auto& ic = InfoClasseProto(id_classe, proto);
+  if (ic.has_aumenta_nivel_conjurador_de()) {
+    return ic.aumenta_nivel_conjurador_de();
+  }
+  // Por ultimo, tenta achar a primeira classe com nivel de conjuracao.
+  for (const auto& ic : proto.info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    if (classe_tabelada.progressao_conjurador() != PCONJ_ZERO) {
+      return ic.id();
+    }
+  }
+  return "";
+}
+
+int NivelParaCalculoMagiasPorDia(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto) {
   int niveis_da_classe = 0;
   for (const auto& info_classe : proto.info_classes()) {
     if (info_classe.id() == id_classe) {
       niveis_da_classe += info_classe.nivel();
-    } else if (info_classe.has_aumenta_nivel_conjurador_de() && info_classe.aumenta_nivel_conjurador_de() == id_classe) {
-      niveis_da_classe += info_classe.nivel();
+    } else {
+      std::string classe_aumentada = NivelAumentadoConjurador(tabelas, info_classe.id(), proto);
+      if (!classe_aumentada.empty() && classe_aumentada == id_classe) {
+        niveis_da_classe += info_classe.nivel();
+      }
     }
   }
   return niveis_da_classe;
@@ -4237,6 +4242,13 @@ std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::strin
     }
   }
   return "";
+}
+
+const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.id() == id_classe) return ic;
+  }
+  return InfoClasse::default_instance();
 }
 
 const InfoClasse& InfoClasseParaFeitico(

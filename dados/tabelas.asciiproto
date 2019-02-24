@@ -1024,6 +1024,21 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ATAQUE_CERTEIRO
+    nome: 'ataque certeiro'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_INTUICAO por_origem { valor: 20 origem: 'ataque certeiro' } } }
+      # TODO ignora chance de falha contra alvos camuflados.
+    }
+  }
+
+  efeitos {
+    id: EFEITO_SUPORTAR_ELEMENTOS
+    nome: 'suportar elementos'
+    # Criatura fica confortavel no calor e frio.
+  }
+
+  efeitos {
     id: EFEITO_BENCAO
     nome: 'benção'
     consequencia {
@@ -1212,10 +1227,22 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantada' } } }
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantado' } } }
       }
     }
   }
+  efeitos {
+    id: EFEITO_ESCUDO_ARCANO
+    nome: 'escudo arcano'
+    # TODO anular misseis magicos.
+    # TODO funciona contra ataques incorporeos.
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO por_origem { valor: 4 origem: 'escudo_arcano' } } }
+      }
+    }
+  }
+
   efeitos {
     id: EFEITO_ARMADURA
     nome: 'armadura'
@@ -4582,6 +4609,124 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'ataque_certeiro'
+    nome: 'ataque certeiro'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ATAQUE_CERTEIRO
+        rodadas: 1
+      }
+    }
+  }
+
+  armas {
+    id: 'romper_morto_vivo'
+    nome: 'romper morto-vivo'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano_invariavel: '1d6'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      afeta_apenas: TIPO_MORTO_VIVO
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      distancia_quadrados: 5
+    }
+  }
+
+  armas {
+    id: 'mensagem'
+    nome: 'mensagem'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'maos_magicas'
+    nome: 'mãos mágicas'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'resistencia'
+    nome: 'resistência'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_SALVACAO
+        rodadas: 10
+      }
+    }
+  }
+
+  armas {
+    id: 'escudo_arcano'
+    nome: 'escudo arcano'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ESCUDO_ARCANO
+        rodadas: 10
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
     id: 'luz'
     nome: 'luz'
     info_classes {
@@ -5702,6 +5847,8 @@ tabela_racas {
   }
   racas {
     id: 'anao'
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ANAO
     nome: 'Anão do Escudo'
     descricao: 'Raça mais comum de anões.'
     bonus_atributos {
@@ -5711,6 +5858,8 @@ tabela_racas {
     tamanho: TM_MEDIO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ELFO
     id: 'elfo'
     nome: 'Elfo da Lua'
     descricao: 'Raça mais comum de elfos.'
@@ -5721,6 +5870,8 @@ tabela_racas {
     tamanho: TM_MEDIO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_HALFLING
     id: 'halfling'
     nome: 'Halfling Pés Leves'
     descricao: ''
@@ -5731,12 +5882,16 @@ tabela_racas {
     tamanho: TM_PEQUENO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_HUMANO
     id: 'humano'
     nome: 'Humano'
     descricao: 'Humanos são versáteis.'
     tamanho: TM_MEDIO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_GNOMO
     id: 'gnomo'
     nome: 'Gnomo das Rochas'
     descricao: 'Brincalhões, desconfiados das raças grandes.'
@@ -5747,12 +5902,16 @@ tabela_racas {
     tamanho: TM_PEQUENO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ELFO
     id: 'meio_elfo'
     nome: 'Meio-Elfo'
     descricao: 'Mistura entre elfos e humanos.'
     tamanho: TM_MEDIO
   }
   racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ORC
     id: 'meio_orc'
     nome: 'Meio-Orc'
     descricao: 'Mistura entre orcs e humanos.'

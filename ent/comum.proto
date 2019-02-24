@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 68.
+// Proximo id: 71.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -48,12 +48,14 @@ enum TipoEfeito {
   EFEITO_VIGOR_URSO = 14;
   EFEITO_ROUPA_ENCANTADA = 15;
   EFEITO_ESCUDO_ENCANTADO = 16;
+  EFEITO_ESCUDO_ARCANO = 68;
   EFEITO_HEROISMO = 17;
   EFEITO_PELE_ARVORE = 18;
   EFEITO_PROTECAO_CONTRA_MAL = 19;
   EFEITO_PROTECAO_CONTRA_BEM = 20;
   EFEITO_PROTECAO_CONTRA_CAOS = 21;
   EFEITO_PROTECAO_CONTRA_ORDEM = 22;
+  EFEITO_PROTECAO_CONTRA_ELEMENTOS = 69;
   EFEITO_IMUNIDADE_ELEMENTO = 66;
   EFEITO_LUZ = 67;
   EFEITO_FURIA = 23;
@@ -112,6 +114,7 @@ enum TipoEfeito {
   EFEITO_MORTO_VIVO_EXPULSO = 61;
   EFEITO_MORTO_VIVO_FASCINADO = 62;
   EFEITO_VOO = 63;
+  EFEITO_ATAQUE_CERTEIRO = 70;
 }
 
 enum TipoEfeitoModelo {
@@ -161,6 +164,7 @@ enum TipoDnD {
   TIPO_ELEMENTAL = 9;
   TIPO_LIMO = 10;
   TIPO_GIGANTE = 11;
+  TIPO_HUMANOIDE_MONSTRUOSO = 12;
   // TODO outros.
 }
 
@@ -484,7 +488,7 @@ message InfoClasse {
   optional string id = 1;
   optional string nome = 9;
   optional int32 nivel = 2;
-  // Atencao: usar a funcao NivelConjurador para pegar isso, ja que outras classes influenciam.
+  // Este valor é recomputado para conter os aumentos de classes de prestigio.
   optional int32 nivel_conjurador = 3;
   // Bonus base de ataque do nivel.
   optional int32 bba = 4;
@@ -534,8 +538,11 @@ message InfoClasse {
   optional int32 combinar_com = 22;
   // Se presente, classe pode expulsar morto vivo com a progressao passada.
   optional ProgressaoExpulsao progressao_expulsao = 23;
+  // Aumenta o nivel de conjurador da primeira classe que tiver nivel de conjurador. Se quiser especificar,
+  // tem que preencher aumenta_nivel_conjurador_de.
+  optional bool aumenta_nivel_conjurador = 27;
   // Se presente, a classe contribui com nivel de conjurador de outra classe.
-  optional string aumenta_nivel_conjurador_de = 24; 
+  optional string aumenta_nivel_conjurador_de = 24;
   // Indica o tipo da classe tabelada.
   optional TipoClasse tipo_classe = 26;
 }
@@ -674,6 +681,12 @@ message TalentoProto {
   repeated BonusSalvacao bonus_salvacao = 9;
 
   optional Bonus bonus_ca = 10;
+
+  // Indica talento regional (FR).
+  optional bool regional = 11;
+
+  // De onde veio o talento.  
+  optional string livro = 12;
 }
 
 message HabilidadeEspecialProto {
@@ -917,4 +930,6 @@ message RacaProto {
   optional Atributos bonus_atributos = 4;
   optional TamanhoEntidade tamanho = 5 [default=TM_MEDIO];
   optional DadosDefesa dados_defesa = 6;
+  optional TipoDnD tipo = 7;
+  optional SubTipoDnD sub_tipo = 8;
 }

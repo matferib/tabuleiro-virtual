@@ -8,6 +8,23 @@
 
 namespace ent {
 
+TEST(TesteTalentoPericias, AumentaNivelDe) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(7);
+  }
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("hathran");
+    ic->set_nivel(2);
+  }
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(NivelConjurador("druida", proto), 9);
+}
+
 TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;

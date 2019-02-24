@@ -56,6 +56,8 @@ sub_menu {
   modelo { id: 'Morto de Bane' }
 }
 sub_menu {
-  id: 'Vultos'
+  id: 'Vultos e Obscuros'
   modelo { id: 'Vulto Guerreiro 5' }
+  modelo { id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4' }
+  modelo { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4' }
 }

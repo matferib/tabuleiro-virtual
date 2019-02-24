@@ -609,6 +609,284 @@ modelo {
   }
 }
 modelo {
+  id: 'Vulto Feiticeiro 5'
+  id_entidade_base: 'Humano Feiticeiro 5'
+  entidade {
+    rotulo: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+    dados_ataque {
+      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          complementos: 3  # 1d4+1
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
+  }
+}
+modelo {
+  # Atencao: nao é vulto! EotS 95
+  id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4'
+  entidade {
+    dados_vida: '9d4+14' raca: 'humano'
+    info_textura { id: 'shadovar_guard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'feiticeiro' nivel: 6 }
+    info_classes { id: 'adepto_sombras' nivel: 4 }
+    tendencia { simples: TD_LEAL_MAU }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'magia_combate' }
+      gerais { id: 'criar_varinha' }
+      gerais { id: 'aumentar_magia' }
+      gerais { id: 'magia_traicoeira' }
+      gerais { id: 'magia_perniciosa' }
+      gerais { id: 'magia_trama_sombras' }
+      gerais { id: 'magia_tenaz' }
+    }
+    info_pericias { id: 'blefar' pontos: 13 }
+    info_pericias { id: 'concentracao' pontos: 13 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'intimidacao' pontos: 2 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 9 }
+    info_pericias { id: 'identificar_magia' pontos: 11 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+    }
+    tesouro {
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      capas { id: 'manto_resistencia_2' em_uso: true }
+    }
+
+    rotulo: ''
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    feiticos_classes {
+      id_classe: 'mago'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'arcane_mark' } # TODO
+        conhecidos { id: 'pasmar' } # TODO
+        conhecidos { id: 'maos_magicas' } 
+        conhecidos { id: 'mending' }  # TODO
+        conhecidos { id: 'message' }  # TODO
+        conhecidos { id: 'open/close' }  # TODO
+        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'resistance' } # TODO
+        conhecidos { id: 'toque_fadiga' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'suportar_elementos' }
+        conhecidos { id: 'feather_fall' }  #TODO
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'protecao_contra_bem' } #TODO
+        conhecidos { id: 'shield' } #TODO
+        para_lancar { usado: true }
+        para_lancar { usado: true }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'invisibilidade' }
+        conhecidos { id: 'resist energy' }  # TODO
+        conhecidos { id: 'summon swarm' }  # TODO
+        conhecidos { id: 'whispering wind' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'gaseous_form' } # TODO
+        conhecidos { id: 'ray_of_exhaustion' }  # TODO
+        conhecidos { id: 'tongues' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'stoneskin' } # TODO
+        conhecidos { id: 'summon_monster_iv' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'cloudkill' } # TODO
+      }
+    }
+
+  }
+}
+modelo {
+  # Atencao: nao é vulto! EotS 119
+  # Done.
+  id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4'
+  entidade {
+    dados_vida: '4d10+2d8+4d4+21' raca: 'humano'
+    info_textura { id: 'shadovar_guard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    info_classes { id: 'ranger' nivel: 2 }
+    info_classes { id: 'feiticeiro' nivel: 4 }
+    tendencia { simples: TD_LEAL_MAU }
+    inimigo_predileto {
+      classe: 'ranger'
+      vezes: 1
+      tipo: TIPO_HUMANOIDE
+      sub_tipo: SUBTIPO_ELFO
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'disciplina' }
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'combate_montado' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'tiro_rapido' }
+      gerais { id: 'investida_montada' }
+      gerais { id: 'investida_implacavel' }
+      gerais { id: 'rastrear' }
+    }
+    info_pericias { id: 'escalar' pontos: 7 }
+    info_pericias { id: 'concentracao' pontos: 9 }
+    info_pericias { id: 'adestrar_animais' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 7 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'cavalgar' pontos: 10 }
+    info_pericias { id: 'indentificar_magia' pontos: 7 }
+    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'usar_cordas' pontos: 1 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8 com carisma 13.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+    evento {
+      rodadas: 40
+      id_efeito: EFEITO_ESCUDO_ARCANO
+    }
+    evento {
+      rodadas: 40
+      id_efeito: EFEITO_AGILIDADE_GATO
+    }
+    evento {
+      rodadas: 14400 # 24h
+      id_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' bonus_magico_armadura: 2
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'romper_morto_vivo' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'maos_magicas' }
+        conhecidos { id: 'message' }
+        conhecidos { id: 'resistencia' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'suportar_elementos' }
+        conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'ataque_certeiro' }
+        para_lancar { usado: true }
+        para_lancar { usado: true }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'agilidade_gato' }
+        para_lancar { usado: true }
+      }
+    }
+
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+      municao: 20
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 1
+    }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS }
+    dados_ataque { grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_2_MAOS }
+
+    tesouro {
+      aneis { id: 'protecao_1' em_uso: true }
+      aneis { id: 'queda_suave' em_uso: true }
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
+    }
+
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+  }
+}
+modelo {
+  # Atencao: nao é vulto! EotS 121
+  # TODO
+  id: 'Adepto das Sombras de Shar'
+  entidade {
+    dados_vida: '' raca: 'humano'
+    info_textura { id: 'sharran_shadow_adept.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'clerigo' nivel: 5 }
+    info_classes { id: 'adepto_sombras' nivel: 7 }
+    tendencia { simples: TD_LEAL_MAU }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8 com carisma 13.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+    rotulo: ''
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+  }
+}
+
+
+modelo {
   id: 'Humano Combatente Dragão Púrpura 2'
   id_entidade_base: 'Combatente Base'
   entidade {

@@ -1,8 +1,40 @@
 tabela_classes {
   info_classes {
+    id: 'adepto_sombras' nome: 'Adepto das Sombras' progressao_bba: PBBA_MEIO
+    # d4
+    tipo_classe: TC_PRESTIGIO
+    aumenta_nivel_conjurador: true 
+    pericias: 'blefar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'disfarces'
+    pericias: 'esconderse'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+    pericias_por_nivel: 2
+
+    salvacoes_fortes: TS_VONTADE
+  }
+
+  info_classes {
     id: 'hathran' nome: 'Hathran' progressao_bba: PBBA_MEIO
     tipo_classe: TC_PRESTIGIO
-    aumenta_nivel_conjurador_de: 'druida'
+    aumenta_nivel_conjurador: true
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -107,6 +139,42 @@ tabela_armas {
 }
 tabela_talentos {
   talentos {
+    id: 'disciplina'
+    nome: 'Disciplina'
+    descricao: '+2 em testes de vontade e concetração.'
+    regional: true
+    livro: 'PGtF'
+    bonus_salvacao {
+      tipo: TS_VONTADE
+      bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'disciplina' valor: 2 } } }
+    }
+    bonus_pericias { id: 'concentracao' valor: 2 }
+  }
+  talentos {
+    id: 'magia_traicoeira'
+    nome: 'Magia Traiçoeira'
+    descricao: 'Personagem pode usar a trama das sombras para tornar suas magias mais difíceis de serem detectadas.'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_perniciosa'
+    nome: 'Magia Perniciosa'
+    descricao: '+4 em testes de superar resistência a magia de usuários da trama.'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_trama_sombras'
+    nome: 'Magia da Trama das Sombras'
+    descricao: 'Personagem pode usar magia através da Trama das Sombras'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_tenaz'
+    nome: 'Magia Tenaz'
+    descricao: 'Testes de dissipar contra as magias da trama das sombras tem CD base 15 ao invés de 10.'
+    livro: 'PGtF'
+  }
+  talentos {
     id: 'sorte_dos_herois'
     nome: 'Sorte dos Herois'
     # guerreiro: true Ataque Poderoso
@@ -126,6 +194,8 @@ tabela_talentos {
     bonus_ca {
       bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } }
     }
+    regional: true
+    livro: 'FR'
   }
 }
 tabela_efeitos_modelos {
@@ -164,6 +234,8 @@ tabela_efeitos_modelos {
 tabela_racas {
   racas {
     id: 'aarakocra'
+    tipo: TIPO_HUMANOIDE_MONSTRUOSO
+
     nome: 'Aarakocra'
     bonus_atributos {
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
@@ -179,6 +251,8 @@ tabela_racas {
     # Proficiencia em azagaia.
   }
   racas {
+    tipo: TIPO_EXTRA_PLANAR
+    sub_tipo: SUBTIPO_NATIVO
     id: 'aasimar'
     nome: 'Aasimar'
     bonus_atributos {
