@@ -5305,6 +5305,7 @@ tabela_feiticos {
     nome: 'bola de fogo'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
+    modelo_dano: DANO_1D6_POR_NIVEL
     info_classes {
       id: 'mago'
       nivel: 3

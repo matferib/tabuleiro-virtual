@@ -3380,6 +3380,14 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   if (raca_tabelada.has_tamanho()) {
     AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
   }
+  if (raca_tabelada.has_tipo()) {
+    proto->clear_tipo_dnd();
+    proto->add_tipo_dnd(raca_tabelada.tipo());
+  }
+  if (raca_tabelada.has_sub_tipo()) {
+    proto->clear_sub_tipo_dnd();
+    proto->add_sub_tipo_dnd(raca_tabelada.sub_tipo());
+  }
   auto* atributos = proto->mutable_atributos();
   const auto& atributos_raca = raca_tabelada.bonus_atributos();
   AplicaBonusOuRemove(atributos_raca.forca(), atributos->mutable_forca());
@@ -4651,7 +4659,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 }
 
 int ComputaLimiteVezes(
-    ArmaProto::ModeloLimiteVezes modelo_limite_vezes, const std::string& id_classe, int nivel_conjurador) {
+    ArmaProto::ModeloLimiteVezes modelo_limite_vezes, int nivel_conjurador) {
   switch (modelo_limite_vezes) {
     case ArmaProto::LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5: {
       return std::min(5, (nivel_conjurador + 1) / 2);
@@ -4664,6 +4672,16 @@ int ComputaLimiteVezes(
 
     default:
       return 1;
+  }
+}
+
+std::string ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador) {
+  switch (modelo_dano) {
+    case ArmaProto::DANO_1D6_POR_NIVEL: {
+      return StringPrintf("%dd6", nivel_conjurador);
+    }
+    default:
+      return "0";
   }
 }
 
@@ -4698,7 +4716,10 @@ void NotificacaoConsequenciaFeitico(
       da->set_tipo_ataque(ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe)));
       da->set_rotulo(feitico_tabelado.nome());
       da->set_id_arma(feitico_tabelado.id());
-      da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), id_classe, Nivel(id_classe, proto)));
+      da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), NivelConjurador(id_classe, proto)));
+      if (feitico_tabelado.has_modelo_dano()) {
+        da->set_dano_basico_fixo(ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto)));
+      }
     }
     {
       *e_antes->mutable_dados_ataque() = proto.dados_ataque();
