@@ -43,15 +43,18 @@ sub_menu {
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
-modelo { id: 'Ankheg' }
+sub_menu {
+  id: 'Bestas Mágicas'
+  modelo { id: 'Ankheg' }
+  modelo { id: 'Bulette' }
+  modelo { id: 'Cão Teleportador'}
+  modelo { id: 'Coruja Gigante'}
+}
 sub_menu {
   id: 'Anões'
   modelo { id: 'Anão' }
 }
 modelo { id: 'Barghest' }
-modelo { id: 'Bulette' }
-modelo { id: 'Cão Teleportador'}
-modelo { id: 'Coruja Gigante'}
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }

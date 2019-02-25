@@ -6,6 +6,10 @@ sub_menu {
   modelo { id: 'Beholder' }
 }
 sub_menu {
+  id: 'Bestas Mágicas'
+  modelo { id: 'Veserab' }
+}
+sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Flecha' texto: 'Flecha' }
   modelo { id: 'Peticionário Sacerdote Abismo (mane)' }

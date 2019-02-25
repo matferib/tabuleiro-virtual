@@ -3332,12 +3332,18 @@ tabela_talentos {
     # Pre requisito: voar.
   }
   talentos {
+    id: 'investida_aerea'  # flyby attack
+    nome: 'Investida Aérea'
+    descricao: 'Pode atacar durante o movimento, mas não pode dobrar o movimento.'
+    monstro: true
+    # Pre requisito: voar.
+  }
+  talentos {
     id: 'pairar'  # hover 
     nome: 'Pairar'
     descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
     # Pre requisito: voar.
   }
-
 }
 
 # Lista de pericias na ordem em ingles para faciliar.

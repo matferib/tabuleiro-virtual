@@ -3862,7 +3862,10 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     const int base = da->acao().has_dificuldade_salvacao_base()
         ? da->acao().dificuldade_salvacao_base()
         : 10 + NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
-    da->mutable_acao()->set_dificuldade_salvacao(base + ModificadorAtributoConjuracao(ic.id(), proto));
+    const int mod_atributo = da->acao().has_atributo_dificuldade_salvacao()
+        ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
+        : ModificadorAtributoConjuracao(ic.id(), proto);
+    da->mutable_acao()->set_dificuldade_salvacao(base + mod_atributo);
   }
 
   if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
@@ -4378,11 +4381,42 @@ EntidadeProto::Evento* AdicionaEvento(
   return e;
 }
 
+int Rodadas(const EfeitoAdicional& efeito_adicional, int nivel) {
+  if (efeito_adicional.has_modificador_rodadas()) {
+    int modificador = 0;
+    switch (efeito_adicional.modificador_rodadas()) {
+      case MR_RODADAS_NIVEL:
+        modificador = nivel;
+        break;
+      case MR_MINUTOS_NIVEL:
+        modificador = 10 * nivel;
+        break;
+      case MR_10_MINUTOS_NIVEL:
+        modificador = 100 * nivel;
+        break;
+      case MR_HORAS_NIVEL:
+        modificador = 600 * nivel;
+        break;
+      case MR_2_HORAS_NIVEL:
+        modificador = 1200 * nivel;
+        break;
+      case MR_1D4_MAIS_1:
+        modificador = RolaValor("1d4+1");
+        break;
+      default:
+        break;
+    }
+    return efeito_adicional.rodadas_base() + modificador;
+  }
+  return efeito_adicional.rodadas();
+}
+
 EntidadeProto::Evento* AdicionaEvento(
     const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const EfeitoAdicional& efeito_adicional, EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas();
-  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), efeito_adicional.rodadas(), continuo, proto);
+  // TODO achar o nivel da fonte.
+  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), Rodadas(efeito_adicional, 1), continuo, proto);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();

@@ -65,9 +65,10 @@ enum ModificadorRodadas {
   MR_10_MINUTOS_NIVEL = 3;
   MR_HORAS_NIVEL = 4;
   MR_2_HORAS_NIVEL = 5;
+  MR_1D4_MAIS_1 = 6;
 }
 
-// Proximo id: 59.
+// Proximo id: 60.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -110,6 +111,8 @@ message AcaoProto {
   optional ResultadoSalvacao resultado_salvacao = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;
+  // Se presente, usara este atributo para calcular a dificuldade da salvacao.
+  optional TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
   optional bool dificuldade_salvacao_por_nivel = 50;
   optional int32 dificuldade_salvacao = 33;
@@ -184,6 +187,9 @@ message AcaoProto {
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
+    // TODO
+    // Para rodadas com valor de string.
+    // optional string rodadas_string = 9;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
 }

@@ -917,8 +917,15 @@ modelo {
   id: 'Veserab'
   entidade {
     dados_vida: '5d10+15' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
-    rotulo_especial: ''
+    movimento {
+      terrestre_basico_q: 4
+      aereo_basico_q: 24
+    }
+
+    rotulo_especial: 'faro, sentido cego (48 q), bote (mergulhando), rasgar'
     info_classes { id: 'besta_magica' nivel: 5 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    sub_tipo_dnd: SUBTIPO_PLANAR
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
@@ -927,6 +934,73 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
     }
+    dados_ataque_global {
+      chance_falha: 50 
+    }
+    info_talentos {
+      gerais { id: 'investida_aerea' }
+      gerais { id: 'ataques_multiplos' }
+    }
+    info_pericias { id: 'ouvir' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+
+    # Sopro
+    dados_ataque {
+      grupo: 'sopro' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Ataque a Distância'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 4
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        dificuldade_salvacao_base: 12  # +3 de constituicao.
+        atributo_dificuldade_salvacao: TA_CONSTITUICAO
+        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        icone: 'icon_breath.png'
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          rodadas: 2  # Na verdade, é 1d4+1 ate sair.
+          modificador_rodadas: MR_1D4_MAIS_1
+        }
+      }
+    }
+
+    # Bote.
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+
     # apesar de ser grande, alcance 1.
     # faro
     # sopro nocivo: tipo nuvem fetida, mas cone, por 10 rodadsa.
