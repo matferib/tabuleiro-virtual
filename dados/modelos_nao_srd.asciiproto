@@ -683,11 +683,10 @@ modelo {
     }
     tesouro {
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      capas { id: 'manto_resistencia_2' em_uso: true }
+      mantos { id: 'manto_resistencia_2' em_uso: true }
     }
 
     rotulo: ''
-    cor { r: 0.2 g: 0.2 b: 0.2 }
     feiticos_classes {
       id_classe: 'mago'
       feiticos_por_nivel {
@@ -748,12 +747,14 @@ modelo {
     info_classes { id: 'guerreiro' nivel: 5 }
     info_classes { id: 'ranger' nivel: 2 }
     info_classes { id: 'feiticeiro' nivel: 4 }
-    tendencia { simples: TD_LEAL_MAU }
-    inimigo_predileto {
-      classe: 'ranger'
-      vezes: 1
-      tipo: TIPO_HUMANOIDE
-      sub_tipo: SUBTIPO_ELFO
+    tendencia { simples: TD_NEUTRO_MAU }
+    dados_ataque_global {
+      inimigos_prediletos {
+        classe: 'ranger'
+        vezes: 1
+        tipo: TIPO_HUMANOIDE
+        sub_tipo: SUBTIPO_ELFO
+      }
     }
     info_talentos {
       gerais { id: 'prontidao' }
@@ -805,14 +806,14 @@ modelo {
     }
 
     feiticos_classes {
-      id_classe: 'mago'
+      id_classe: 'feiticeiro'
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'romper_morto_vivo' }
         conhecidos { id: 'luz' }
         conhecidos { id: 'maos_magicas' }
-        conhecidos { id: 'message' }
+        conhecidos { id: 'mensagem' }
         conhecidos { id: 'resistencia' }
       }
       feiticos_por_nivel {
@@ -832,22 +833,37 @@ modelo {
 
     dados_ataque {
       grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
       ordem_ataque: 0
       municao: 20
     }
     dados_ataque {
       grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
       ordem_ataque: 0
     }
     dados_ataque {
       grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
       ordem_ataque: 1
     }
-    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS }
-    dados_ataque { grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_2_MAOS }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
+
+    # Lanças podem ser usadas com uma mão quando montado e dá dano duplo (ou seja, x4).
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 0
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 1
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+
+    dados_ataque { grupo: 'fogo alquimico' id_arma: 'fogo_alquimico' }
 
     tesouro {
       aneis { id: 'protecao_1' em_uso: true }
@@ -857,8 +873,6 @@ modelo {
       pocoes { id: 'curar_ferimentos_moderados' }
       tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
     }
-
-    cor { r: 0.2 g: 0.2 b: 0.2 }
   }
 }
 modelo {
@@ -867,7 +881,8 @@ modelo {
   id: 'Adepto das Sombras de Shar'
   entidade {
     dados_vida: '' raca: 'humano'
-    info_textura { id: 'sharran_shadow_adept.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_textura { id: 'sharran_shadow_adept.png'  largura: 0.6 translacao_x: 0.2 }
+    cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'clerigo' nivel: 5 }
     info_classes { id: 'adepto_sombras' nivel: 7 }
     tendencia { simples: TD_LEAL_MAU }
@@ -881,7 +896,6 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
     }
     rotulo: ''
-    cor { r: 0.2 g: 0.2 b: 0.2 }
   }
 }
 
