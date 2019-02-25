@@ -55,6 +55,8 @@ bool c_any(const C& c, const T& t) {
 
 void IniciaUtil();
 
+/** Cria uma notificacao do tipo TN_GRUPO_NOTIFICACOES. */
+std::unique_ptr<ntf::Notificacao> NovoGrupoNotificacoes();
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
 std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto);
 /** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
@@ -347,6 +349,8 @@ void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, con
 // Retorna entidade antes e depois dentro de n.
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* n);
 
 // Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
@@ -536,6 +540,9 @@ const InfoClasse& InfoClasseParaFeitico(
 // possuem sua propria lista de magias. Renomear para IdParaConjuracao?
 const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
+// Retorna true se o feitico for pessoal.
+bool FeiticoPessoal(const ArmaProto& feitico_tabelado);
+
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);
 
@@ -636,7 +643,10 @@ EntidadeProto::FeiticosPorNivel* FeiticosNivel(
 EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
     const std::string& id_classe, int nivel, EntidadeProto* proto);
 
-// Retorna o indice de um feitico disponivel para a entidade. Retorna -1 se nao houver.
+// Retorna se a classe tem feitico para o nivel.
+bool TemFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
+// Retorna o indice do feitico disponivel da classe (para saber qual gastar, para feiticeiros e bardos por exemplo).
+// Retorna -1 se nao houver.
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 // Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
@@ -670,11 +680,11 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 // Retorna uma notificacao de alterar feitico para um personagem.
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
-// Cria uma notificacao de consequencia de uso do feitico, normalmente a criacao de ataques com limite de vezes
-// para a entidade.
-// Caso feitico nao tenha efeito, retorna nullptr.
-std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+
+// Preenche as notificacoes de consequencia de um feitico. Para feiticos pessoais, o efeito sera aplicado.
+// Para os demais, cria um ataque com o efeito do feitico.
+void NotificacaoConsequenciaFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 

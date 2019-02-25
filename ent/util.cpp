@@ -86,6 +86,11 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
+std::unique_ptr<ntf::Notificacao> NovoGrupoNotificacoes() {
+  auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES));
+  return n;
+}
+
 std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto) {
   auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(tipo));
   n->mutable_entidade_antes()->set_id(proto.id());
@@ -1633,9 +1638,14 @@ void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao
 
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n) {
+  return PreencheNotificacaoEntidadeProto(tipo, entidade.Proto(), n);
+}
+
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* n) {
   n->set_tipo(tipo);
-  n->mutable_entidade_antes()->set_id(entidade.Id());
-  n->mutable_entidade()->set_id(entidade.Id());
+  n->mutable_entidade_antes()->set_id(proto.id());
+  n->mutable_entidade()->set_id(proto.id());
   return std::make_pair(n->mutable_entidade_antes(), n->mutable_entidade());
 }
 
@@ -4596,6 +4606,14 @@ const std::string& ProximaClasseFeiticoAtiva(const EntidadeProto& proto) {
   return *(*(it + 1));
 }
 
+bool TemFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto) {
+  const auto& fn = FeiticosNivel(id_classe, nivel, proto);
+  for (int i = 0; i < fn.para_lancar().size(); ++i) {
+    if (!fn.para_lancar(i).usado()) return true;
+  }
+  return false;
+}
+
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto) {
   const auto& fn = FeiticosNivel(id_classe, nivel, proto);
   for (int i = 0; i < fn.para_lancar().size(); ++i) {
@@ -4639,44 +4657,56 @@ int ComputaLimiteVezes(
       return std::min(5, (nivel_conjurador + 1) / 2);
     }
     break;
+    case ArmaProto::LIMITE_UM_POR_NIVEL: {
+      return nivel_conjurador;
+    }
+    break;
+
     default:
       return 1;
   }
 }
 
-std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
+void NotificacaoConsequenciaFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
+  const auto& proto = entidade.Proto();
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
   // dos feiticos conhecidos.
   const EntidadeProto::InfoConhecido& ic =
       ClassePrecisaMemorizar(tabelas, id_classe)
-      ? FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto)
-      : FeiticoConhecido(id_classe, nivel, indice, proto);
+        ? FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto)
+        : FeiticoConhecido(id_classe, nivel, indice, proto);
   const auto& feitico_tabelado = tabelas.Feitico(ic.id());
   if (!feitico_tabelado.has_id()) {
     // Nao ha entrada.
     LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado: InfoConhecido: " << ic.ShortDebugString()
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
-    return nullptr;
+    return;
   }
-  auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto);
-  {
-    auto* e_depois = n->mutable_entidade();
-    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
-    auto* da = e_depois->add_dados_ataque();
-    da->set_tipo_ataque(ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe)));
-    da->set_rotulo(feitico_tabelado.nome());
-    da->set_id_arma(feitico_tabelado.id());
-    da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), id_classe, Nivel(id_classe, proto)));
-  }
-  {
-    auto* e_antes = n->mutable_entidade_antes();
-    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
-    if (e_antes->dados_ataque().empty()) {
-      e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
+  if (FeiticoPessoal(feitico_tabelado)) {
+    // Aplica o efeito do feitico no personagem diretamente.
+    for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
+      PreencheNotificacaoEvento(entidade, efeito_adicional, grupo->add_notificacao(), nullptr);
+    }
+  } else {
+    ntf::Notificacao* n;
+    ent::EntidadeProto *e_antes, *e_depois;
+    std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
+    {
+      *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+      auto* da = e_depois->add_dados_ataque();
+      da->set_tipo_ataque(ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe)));
+      da->set_rotulo(feitico_tabelado.nome());
+      da->set_id_arma(feitico_tabelado.id());
+      da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), id_classe, Nivel(id_classe, proto)));
+    }
+    {
+      *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+      if (e_antes->dados_ataque().empty()) {
+        e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
+      }
     }
   }
-  return n;
 }
 
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
@@ -5107,6 +5137,10 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
   return c_any_of(proto.modelos(), [&tabelas] (const ModeloDnD& modelo) {
     return ModeloDesligavel(tabelas, modelo) && modelo.ativo();
   });
+}
+
+bool FeiticoPessoal(const ArmaProto& feitico_tabelado) {
+  return feitico_tabelado.acao().tipo() == ACAO_FEITICO_PESSOAL;
 }
 
 }  // namespace ent

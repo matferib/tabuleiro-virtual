@@ -351,7 +351,15 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   const auto& fc = notificacao.entidade().feiticos_classes(0);
   const auto& id_classe = fc.id_classe();
   std::vector<std::string> lista;
-  std::vector<std::pair<int, int>> items;
+  // Cada item, contendo o nivel do feitico e o indice do feitico e o indice gasto.
+  struct NivelIndiceIndiceGasto {
+    NivelIndiceIndiceGasto(int nivel, int indice, int indice_gasto)
+      : nivel(nivel), indice(indice), indice_gasto(indice_gasto) {}
+    int nivel = 0;
+    int indice = 0;
+    int indice_gasto = 0;
+  };
+  std::vector<NivelIndiceIndiceGasto> items;
   int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
   if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
     // Monta lista de feiticos para lancar do nivel.
@@ -362,7 +370,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
       lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str()));
-      items.push_back(std::make_pair(nivel_gasto, indice));
+      items.emplace_back(nivel_gasto, indice, indice);
     }
     if (lista.empty()) {
       central_->AdicionaNotificacao(
@@ -371,7 +379,12 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     }
   } else {
     // Monta lista de feiticos conhecidos ate o nivel.
-    int indice_gasto = ent::IndiceFeiticoDisponivel(id_classe, nivel_gasto, notificacao.entidade());
+    const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
+    if (entidade == nullptr) {
+      LOG(ERROR) << "entidade invalida";
+      return;
+    }
+    int indice_gasto = IndiceFeiticoDisponivel(id_classe, nivel_gasto, entidade->Proto());
     if (indice_gasto == -1) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
@@ -383,39 +396,38 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
         const auto& c = fn.conhecidos(indice);
         lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, NomeFeitico(c, tabelas_).c_str()));
         // Gasta do nivel certo.
-        items.push_back(std::make_pair(nivel_gasto, indice_gasto));
+        items.emplace_back(nivel, indice, indice_gasto);
       }
     }
   }
 
   EscolheItemLista("Escolha o Feitiço", lista,
-      [this, notificacao, id_classe, items](bool ok, int indice_lista) {
+      [this, notificacao, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
     if (!ok) {
       LOG(INFO) << "Nao usando feitico";
       return;
     }
     // Consome o feitico.
-    int nivel;
-    int indice;
-    std::tie(nivel, indice) = items[indice_lista];
+    const auto& item = items[indice_lista];
 
     ntf::Notificacao grupo_notificacao;
     grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
-    {
-      auto n_uso = ent::NotificacaoUsarFeitico(
-          tabelas_, id_classe, nivel, indice, notificacao.entidade());
-      if (n_uso != nullptr) {
-        *grupo_notificacao.add_notificacao() = *n_uso;
-        central_->AdicionaNotificacao(n_uso.release());
-      }
+    const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
+    if (entidade == nullptr) {
+      LOG(INFO) << "Erro, entidade nao existe";
+      return;
     }
+    ent::NotificacaoConsequenciaFeitico(
+        tabelas_, id_classe, item.nivel, item.indice, *entidade, &grupo_notificacao);
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
-        id_classe, nivel, indice, /*usado=*/true, notificacao.entidade());
+        id_classe, nivel_gasto, item.indice_gasto, /*usado=*/true, notificacao.entidade());
     *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
+
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
-    central_->AdicionaNotificacao(n_alteracao_feitico.release());
+    tabuleiro_->TrataNotificacao(grupo_notificacao);
+    LOG(INFO) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
   });
 }
 
