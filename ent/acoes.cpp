@@ -1005,7 +1005,7 @@ class AcaoFeiticoToque : public Acao {
  public:
   AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
-      VLOG(1) << "Acao de feitico de toque requer origem e destino";
+      LOG(ERROR) << "Acao de feitico de toque requer origem e destino";
       terminado_ = true;
       return;
     }
@@ -1031,7 +1031,7 @@ class AcaoFeiticoToque : public Acao {
   void AtualizaAposAtraso(int intervalo_ms) override {
     auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.por_entidade(0).id());
     if (e == nullptr) {
-      VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
+      LOG(ERROR) << "Terminando acao feitico: origem ou destino nao existe mais.";
       terminado_ = true;
       return;
     }
@@ -1643,6 +1643,7 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
     case ACAO_CORPO_A_CORPO:
       return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
     case ACAO_FEITICO_TOQUE:
+    case ACAO_FEITICO_PESSOAL:
       return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
     case ACAO_AGARRAR:
       return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
