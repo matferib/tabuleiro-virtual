@@ -1178,6 +1178,14 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   if (pos_entidade_destino.has_x()) {
     *acao_proto->mutable_pos_entidade() = pos_entidade_destino;
   }
+
+  const auto* da = entidade->DadoCorrente();
+  if (da != nullptr && da->has_limite_vezes()) {
+    std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
+    PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+    central_->AdicionaNotificacao(n_consumo.release());
+  }
+
   int delta_pontos_vida = 0;
   if (HaValorListaPontosVida()) {
     delta_pontos_vida =
@@ -1189,6 +1197,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   acao_proto->clear_por_entidade();
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
+
   for (auto id : ids_afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {

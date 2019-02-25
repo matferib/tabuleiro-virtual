@@ -427,7 +427,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
 
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
     tabuleiro_->TrataNotificacao(grupo_notificacao);
-    LOG(INFO) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
+    VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
   });
 }
 
