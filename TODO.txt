@@ -1,7 +1,3 @@
-Adicionar dano nas acoes (por exemplo, bola de fogo, romper morto-vivo)
-Aplicar tipo e subtipo com raca.
-fazer acao efeito pessoal.
-
 Anotacoes da sessao Tilverton:
 - Definir encontros.
 - Fazer vangerdahast (mago 18)
@@ -16,6 +12,7 @@ Anotacoes da sessao Tilverton:
 - Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, 121).
 Veserab avancado: pg 119
 
+Tipo e subtipo de formas alternativas.
 Feiticos de feiticeiro marcados com TODO.
 Capar pericias e talentos.
 Pergaminhos.
