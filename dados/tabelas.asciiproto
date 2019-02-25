@@ -4642,6 +4642,30 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'velocidade'
+    nome: 'velocidade'
+    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ACELERAR
+        rodadas: 5
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'ataque_certeiro'
     nome: 'ataque certeiro'
     info_classes {
@@ -4690,6 +4714,9 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
     }
   }
 
@@ -4789,8 +4816,6 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_FEITICO_PESSOAL
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_ESCUDO_ARCANO
         rodadas: 10
@@ -5273,8 +5298,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'bola_de_fogo'
-    nome: 'Bola de Fogo'
+    id: 'bola_fogo'
+    nome: 'bola de fogo'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
@@ -5789,12 +5814,13 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      tipo: ACAO_FEITICO_PESSOAL
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_REFLEXOS
-        rodadas: 10  # por nivel
+        rodadas: 30
+        modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
   }
