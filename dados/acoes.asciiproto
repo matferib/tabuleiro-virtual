@@ -85,6 +85,18 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
+  id: 'Feitiço Pessoal'
+  tipo: ACAO_FEITICO_PESSOAL
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+  icone: 'icon_personal.png'
+  permite_ataque_vs_defesa: false
+  ignora_resistencia_magia: true
+  ignora_reducao_dano_barbaro: true
+}
+acao {
   id: 'Feitiço de Toque a Distância'
   tipo: ACAO_FEITICO_TOQUE
   geometria: ACAO_GEO_ESFERA
