@@ -4645,6 +4645,8 @@ tabela_feiticos {
     id: 'velocidade'
     nome: 'velocidade'
     modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -4657,6 +4659,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
       efeitos_adicionais {
         efeito: EFEITO_ACELERAR
         rodadas: 5
