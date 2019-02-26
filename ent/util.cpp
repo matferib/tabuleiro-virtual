@@ -1732,10 +1732,12 @@ void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito,
   }
 }
 
-void PreencheNotificacaoEvento(const Entidade& entidade, const EfeitoAdicional& efeito_adicional, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+void PreencheNotificacaoEventoEfeitoAdicional(
+    int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+    ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  auto* evento = AdicionaEvento(entidade.Proto().evento(), efeito_adicional, e_depois);
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
+  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, entidade_destino.Proto().evento(), efeito_adicional, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2433,6 +2435,11 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   }
 
   AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
+  for (const auto& dp : consequencia.dados_pericia()) {
+    auto* pericia = PericiaOuNullptr(dp.id(), proto);
+    if (pericia == nullptr) continue;
+    AplicaBonusOuRemove(dp.bonus(), pericia->mutable_bonus());
+  }
 }
 
 // Retorna o dado de ataque que contem a arma, ou nullptr;
@@ -2754,6 +2761,9 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.has_jogada_ataque())            PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(id_unico, complementos, c.mutable_tamanho());
+  for (auto& dp : *c.mutable_dados_pericia()) {
+    PreencheOrigemValor(id_unico, complementos, dp.mutable_bonus());
+  }
   return c;
 }
 
@@ -2774,6 +2784,9 @@ ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvent
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(id_unico, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
+  for (auto& dp : *c.mutable_dados_pericia()) {
+    PreencheOrigemZeraValor(id_unico, dp.mutable_bonus());
+  }
   return c;
 }
 
@@ -4381,42 +4394,47 @@ EntidadeProto::Evento* AdicionaEvento(
   return e;
 }
 
-int Rodadas(const EfeitoAdicional& efeito_adicional, int nivel) {
+int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
+  VLOG(1) << "entrando com nivel: " << nivel_conjurador;
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
       case MR_RODADAS_NIVEL:
-        modificador = nivel;
+        modificador = nivel_conjurador;
         break;
       case MR_MINUTOS_NIVEL:
-        modificador = 10 * nivel;
+        modificador = 10 * nivel_conjurador;
         break;
       case MR_10_MINUTOS_NIVEL:
-        modificador = 100 * nivel;
+        modificador = 100 * nivel_conjurador;
         break;
       case MR_HORAS_NIVEL:
-        modificador = 600 * nivel;
+        modificador = 600 * nivel_conjurador;
         break;
       case MR_2_HORAS_NIVEL:
-        modificador = 1200 * nivel;
+        modificador = 1200 * nivel_conjurador;
         break;
       case MR_1D4_MAIS_1:
         modificador = RolaValor("1d4+1");
         break;
+      case MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6:
+        modificador = std::min(nivel_conjurador / 3, 6);
+        break;
       default:
         break;
     }
+    VLOG(1) << "saindo: " << (efeito_adicional.rodadas_base() + modificador);
     return efeito_adicional.rodadas_base() + modificador;
   }
   return efeito_adicional.rodadas();
 }
 
-EntidadeProto::Evento* AdicionaEvento(
-    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const EfeitoAdicional& efeito_adicional, EntidadeProto* proto) {
-  const bool continuo = !efeito_adicional.has_rodadas();
+EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
+    int nivel_conjurador, const RepeatedPtrField<EntidadeProto::Evento>& eventos, const EfeitoAdicional& efeito_adicional,
+    EntidadeProto* proto) {
+  const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
   // TODO achar o nivel da fonte.
-  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), Rodadas(efeito_adicional, 1), continuo, proto);
+  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, proto);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
@@ -4722,6 +4740,7 @@ std::string ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador)
 void NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
+  const int nivel_conjurador = NivelConjurador(id_classe, proto);
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
   // dos feiticos conhecidos.
   const EntidadeProto::InfoConhecido& ic =
@@ -4738,7 +4757,7 @@ void NotificacaoConsequenciaFeitico(
   if (FeiticoPessoal(feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-      PreencheNotificacaoEvento(entidade, efeito_adicional, grupo->add_notificacao(), nullptr);
+      PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, grupo->add_notificacao(), nullptr);
     }
   } else {
     ntf::Notificacao* n;

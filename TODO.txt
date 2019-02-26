@@ -1,3 +1,9 @@
+Feiticos de criacao: como modelar?
+Efeitos adicionais se passar.
+Testar modificador de nivel para feiticeiro (com certeza ta errado).
+
+Modificador de rodadas de efeitos adicionais (precisa adicionar o nivel da fonte).
+
 Anotacoes da sessao Tilverton:
 - Definir encontros.
 - Fazer vangerdahast (mago 18)

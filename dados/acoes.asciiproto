@@ -53,6 +53,10 @@ acao {
   icone: 'icon_turn_undead.png'
 }
 acao {
+  id: 'Feitiço de Bardo'
+  classe_conjuracao: 'bardo'
+}
+acao {
   id: 'Feitiço de Clérigo'
   classe_conjuracao: 'clerigo'
 }

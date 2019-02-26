@@ -1026,6 +1026,30 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_POEIRA_OFUSCANTE
+    nome: 'poeira ofuscante'
+    # TODO
+    # cego.
+    # visivel.
+  }
+
+  efeitos {
+    id: EFEITO_LER_MAGIAS
+    nome: 'ler magias'
+  }
+
+  efeitos {
+    id: EFEITO_OFUSCADO
+    nome: 'ofuscado'
+    nao_cumulativo: true
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } }
+      dados_pericia { id: 'procurar' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } } }
+      dados_pericia { id: 'observar' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } } }
+    }
+  }
+
+  efeitos {
     id: EFEITO_ATAQUE_CERTEIRO
     nome: 'ataque certeiro'
     consequencia {
@@ -4617,6 +4641,487 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'toque_fadiga' #  touch of fatigue 
+    nome: 'toque da fadiga'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: true
+      ignora_resistencia_magia: true 
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      efeitos_adicionais {
+        efeito: EFEITO_FADIGA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+
+  armas {
+    id: 'causar_medo' #  cause fear 
+    nome: 'causar medo'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 1
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: false 
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_AMEDRONTADO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      # Se passar, fica abalado
+      # 6 dados ou mais: imune.
+    }
+  }
+
+
+  armas {
+    id: 'resistencia_elementos' #  resist energy
+    nome: 'resistência a elementos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_ELEMENTOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'flecha_acida' #  acid arrow
+    nome: 'flecha ácida'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    dano { invariavel: '2d4' }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: true 
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      elemento: DESC_ACIDO
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: '2d4 de acido por rodada'
+        rodadas_base: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'arrombar' #  knock
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    nome: 'arrombar'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+    }
+  }
+
+  armas {
+    id: 'nublar' # blur
+    nome: 'nublar'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_BORRAR
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'vigor_urso' # bears endurance
+    nome: 'vigor do urso'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_VIGOR_URSO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'poeira_ofuscante' # glitterdust
+    nome: 'poeira ofuscante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 2
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_POEIRA_OFUSCANTE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'arma_magica'
+    nome: 'arma mágica'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 1
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMA_MAGICA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'armadura_arcana'
+    nome: 'armadura arcana'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMADURA
+        modificador_rodadas: MR_HORAS_NIVEL
+        complementos: 4
+      }
+      # TODO efeito de forca.
+    }
+  }
+
+  armas {
+    id: 'identificacao'
+    nome: 'identificação'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'magia'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'leque_cromatico'
+    nome: 'leque cromático'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
+      distancia_quadrados: 3
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_LEQUE_CROMATICO
+        # totalmente variavel a duracao de acordo com nivel do alvo.
+      }
+    }
+  }
+
+  armas {
+    id: 'raio_gelo'
+    nome: 'raio de gelo'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'ler_magias'
+    nome: 'ler magias'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_LER_MAGIAS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'som_fantasma'
+    nome: 'som fantasma'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    # Rodadas nivel.
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: true 
+      ataque_toque: true
+      permite_salvacao: false 
+      elemento: DESC_FRIO
+    }
+  }
+
+  armas {
+    id: 'brilho'
+    nome: 'brilho'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      elemento: DESC_LUZ
+      efeitos_adicionais {
+        efeito: EFEITO_OFUSCADO
+        rodadas: 10
+      }
+    }
+  }
+
+  armas {
+    id: 'pasmar'
+    nome: 'pasmar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      # TODO: afeta apenas 4 HD ou menos.
+      efeitos_adicionais {
+        efeito: EFEITO_PASMAR
+        rodadas: 1
+      }
+    }
+  }
+
+
+  armas {
     id: 'agilidade_gato'
     nome: 'agilidade do gato'
     info_classes {
@@ -4668,7 +5173,6 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       efeitos_adicionais {
         efeito: EFEITO_ACELERAR
-        rodadas: 5
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
@@ -5433,7 +5937,7 @@ tabela_feiticos {
   }
   armas {
     id: 'dissipar_magia'
-    nome: 'Dissipar Magia'
+    nome: 'dissipar magia'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -5832,6 +6336,21 @@ tabela_feiticos {
         rodadas: 30
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+    }
+  }
+
+  armas {
+    id: 'esfera_flamejante'
+    nome: 'esfera flamejante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
     }
   }
 

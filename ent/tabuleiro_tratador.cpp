@@ -1047,8 +1047,8 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       // TODO fascinar.
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
-      PreencheNotificacaoEvento(
-          *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+      PreencheNotificacaoEventoEfeitoAdicional(
+          nivel_expulsao, *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " afetado.";
@@ -1172,25 +1172,33 @@ float Tabuleiro::TrataAcaoProjetilArea(
   return atraso_s;
 }
 
+// Retorna o nivel de conjurador da entidade para uma determinada acao.
+int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
+  if (acao.has_classe_conjuracao()) {
+    return NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
+  }
+  return Nivel(entidade.Proto());
+}
+
 float Tabuleiro::TrataAcaoEfeitoArea(
-    float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
+    float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (pos_entidade_destino.has_x()) {
     *acao_proto->mutable_pos_entidade() = pos_entidade_destino;
   }
 
-  const auto* da = entidade->DadoCorrente();
+  const auto* da = entidade_origem->DadoCorrente();
   if (da != nullptr && da->has_limite_vezes()) {
     std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
-    PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+    PreencheNotificacaoConsumoAtaque(*entidade_origem, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
     central_->AdicionaNotificacao(n_consumo.release());
   }
 
   int delta_pontos_vida = 0;
   if (HaValorListaPontosVida()) {
     delta_pontos_vida =
-        LeValorListaPontosVida(entidade, EntidadeProto(), acao_proto->id());
-    entidade->ProximoAtaque();
+        LeValorListaPontosVida(entidade_origem, EntidadeProto(), acao_proto->id());
+    entidade_origem->ProximoAtaque();
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
   }
@@ -1224,9 +1232,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool passou_rm;
-      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
+      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade_origem, *entidade_destino);
       por_entidade->set_texto(resultado_rm);
-      AdicionaLogEvento(entidade->Id(), resultado_rm);
+      AdicionaLogEvento(entidade_origem->Id(), resultado_rm);
       if (!passou_rm) {
         por_entidade->set_delta(0);
         continue;
@@ -1237,10 +1245,10 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (acao_proto->permite_salvacao()) {
       std::string texto_salvacao;
       // pega o dano da acao.
-      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
       atraso_s += 1.5f;
       ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade->Id(), texto_salvacao);
+      AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
     }
     // Imunidade ao tipo de ataque.
     ResultadoImunidadeOuResistencia resultado_elemento =
@@ -1249,7 +1257,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade->Id(), resultado_elemento.texto);
+      AdicionaLogEvento(entidade_origem->Id(), resultado_elemento.texto);
     }
 
     // Efeitos adicionais.
@@ -1257,8 +1265,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        PreencheNotificacaoEvento(
-            *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+        PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         ConcatenaString(StringEfeito(efeito_adicional.efeito()),
@@ -1280,7 +1288,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
 float Tabuleiro::TrataAcaoIndividual(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
-    Entidade* entidade, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+    Entidade* entidade_origem, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Efeito individual.
   Entidade* entidade_destino =
      id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
@@ -1296,20 +1304,20 @@ float Tabuleiro::TrataAcaoIndividual(
       bool realiza_acao;
       std::string texto_falha_alcance;
       std::tie(texto_falha_alcance, realiza_acao, distancia_m) =
-          VerificaAlcanceMunicao(*acao_proto, *entidade, *entidade_destino, pos_alvo);
+          VerificaAlcanceMunicao(*acao_proto, *entidade_origem, *entidade_destino, pos_alvo);
       if (!realiza_acao) {
-        AdicionaAcaoTextoLogado(entidade->Id(), texto_falha_alcance);
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), texto_falha_alcance);
         return atraso_s;
       }
     }
     // Verifica carregamento.
-    const auto* da = entidade->DadoCorrente();
+    const auto* da = entidade_origem->DadoCorrente();
     if (da != nullptr && da->requer_carregamento() && da->descarregada()) {
       const auto& arma = tabelas_.Arma(da->id_arma());
       std::unique_ptr<ntf::Notificacao> n_carregamento(new ntf::Notificacao);
-      PreencheNotificacaoRecarregamento(*entidade, *da, n_carregamento.get(), grupo_desfazer->add_notificacao());
+      PreencheNotificacaoRecarregamento(*entidade_origem, *da, n_carregamento.get(), grupo_desfazer->add_notificacao());
       AdicionaAcaoTextoLogado(
-          entidade->Id(),
+          entidade_origem->Id(),
           StringPrintf("recarregando (%s)", StringTipoCarregamento(arma.carregamento().tipo_carregamento()).c_str()));
       central_->AdicionaNotificacao(n_carregamento.release());
       return atraso_s;
@@ -1328,9 +1336,9 @@ float Tabuleiro::TrataAcaoIndividual(
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
       resultado =
-          AtaqueVsDefesa(distancia_m, *acao_proto, *entidade, *entidade_destino, pos_alvo);
+          AtaqueVsDefesa(distancia_m, *acao_proto, *entidade_origem, *entidade_destino, pos_alvo);
       VLOG(1) << "--------------------------";
-      AdicionaLogEvento(entidade->Id(), resultado.texto);
+      AdicionaLogEvento(entidade_origem->Id(), resultado.texto);
       por_entidade->set_texto(resultado.texto);
       acao_proto->set_bem_sucedida(resultado.Sucesso());
     } else {
@@ -1342,17 +1350,17 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
         std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
-        PreencheNotificacaoDerrubar(*entidade, n_derrubar.get(), nd);
+        PreencheNotificacaoDerrubar(*entidade_origem, n_derrubar.get(), nd);
         central_->AdicionaNotificacao(n_derrubar.release());
       }
-      AdicionaAcaoTexto(entidade->Id(), resultado.texto, atraso_s);
+      AdicionaAcaoTexto(entidade_origem->Id(), resultado.texto, atraso_s);
       return atraso_s;
     }
 
     // Acao realizada, ao terminar funcao, roda isso.
-    RodaNoRetorno roda_no_retorno([entidade, da]() {
+    RodaNoRetorno roda_no_retorno([entidade_origem, da]() {
       if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
-        entidade->ProximoAtaque();
+        entidade_origem->ProximoAtaque();
       }
     });
 
@@ -1360,10 +1368,10 @@ float Tabuleiro::TrataAcaoIndividual(
       // Consome vezes e/ou municao e carregamento.
       if (da->requer_carregamento()) {
         atraso_s += 0.5f;
-        AdicionaAcaoTextoLogado(entidade->Id(), "descarregada", atraso_s);
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), "descarregada", atraso_s);
       }
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
-      PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+      PreencheNotificacaoConsumoAtaque(*entidade_origem, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_consumo.release());
     }
 
@@ -1388,7 +1396,7 @@ float Tabuleiro::TrataAcaoIndividual(
     int delta_pontos_vida = 0;
     if (resultado.Sucesso()) {
       int max_predileto = 0;
-      for (const auto& ip : entidade->Proto().dados_ataque_global().inimigos_prediletos()) {
+      for (const auto& ip : entidade_origem->Proto().dados_ataque_global().inimigos_prediletos()) {
         if (entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
           max_predileto = std::max(2 * ip.vezes(), max_predileto);
         }
@@ -1396,15 +1404,15 @@ float Tabuleiro::TrataAcaoIndividual(
       if (max_predileto > 0) {
         max_predileto *= resultado.vezes;
         ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
-        AdicionaLogEvento(entidade->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
+        AdicionaLogEvento(entidade_origem->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
       }
       delta_pontos_vida -= max_predileto;
       for (int i = 0; i < resultado.vezes; ++i) {
         delta_pontos_vida += LeValorListaPontosVida(
-            entidade, entidade_destino->Proto(), acao_proto->id());
+            entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
       if (!entidade_destino->ImuneFurtivo()) {
-        int delta_furtivo = LeValorAtaqueFurtivo(entidade);
+        int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
         if (delta_furtivo < 0) {
           ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
           delta_pontos_vida += delta_furtivo;
@@ -1451,7 +1459,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::string resultado_rm;
       bool passou_rm;
       std::tie(passou_rm, resultado_rm) =
-          AtaqueVsResistenciaMagia(*acao_proto, *entidade, *entidade_destino);
+          AtaqueVsResistenciaMagia(*acao_proto, *entidade_origem, *entidade_destino);
       if (!passou_rm) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;
@@ -1467,7 +1475,7 @@ float Tabuleiro::TrataAcaoIndividual(
     if ((delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
       por_entidade->set_delta(delta_pontos_vida);
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade, *entidade_destino);
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
     }
@@ -1494,8 +1502,8 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty() && !salvou) {
       for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        PreencheNotificacaoEvento(
-            *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+        PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
@@ -1504,7 +1512,7 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     if (resultado.Sucesso() && da->derrubar_automatico() && !entidade_destino->Proto().caida()) {
-      ResultadoAtaqueVsDefesa resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade, *entidade_destino);
+      ResultadoAtaqueVsDefesa resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
       if (resultado_derrubar.Sucesso()) {
         acao_proto->set_consequencia(TC_DERRUBA_ALVO);
         // Apenas para desfazer, pois a consequencia derrubara.
@@ -1532,7 +1540,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     AdicionaLogEvento(google::protobuf::StringPrintf(
           "entidade %s %s %d em entidade %s. Texto: '%s'",
-          RotuloEntidade(entidade).c_str(),
+          RotuloEntidade(entidade_origem).c_str(),
           delta_pontos_vida <= 0 ? "causou dano" : "curou",
           std::abs(delta_pontos_vida),
           RotuloEntidade(entidade_destino).c_str(),
@@ -1544,19 +1552,19 @@ float Tabuleiro::TrataAcaoIndividual(
       PreencheNotificacaoAtualizaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
     }
-    if (entidade != nullptr && entidade_destino != nullptr &&
+    if (entidade_origem != nullptr && entidade_destino != nullptr &&
         delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
-        PossuiTalento("trespassar", entidade->Proto())) {
-      AdicionaAcaoTexto(entidade->Id(), "trespassar");
+        PossuiTalento("trespassar", entidade_origem->Proto())) {
+      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar");
     }
   }
 
   if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
     // Se agarrou, desfaz aqui.
     auto* no = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade, no, no);
+    PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
     nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAgarrar(entidade->Id(), *entidade_destino, nd, nd);
+    PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
   }
   VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
   // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
@@ -1588,6 +1596,12 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s) {
+
+  if (entidade != nullptr && PossuiEvento(EFEITO_PASMAR, entidade->Proto())) {
+    AdicionaAcaoTextoLogado(entidade->Id(), "Entidade pasma", atraso_s);
+    return atraso_s + 0.5f;
+  }
+
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 

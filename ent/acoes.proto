@@ -66,6 +66,7 @@ enum ModificadorRodadas {
   MR_HORAS_NIVEL = 4;
   MR_2_HORAS_NIVEL = 5;
   MR_1D4_MAIS_1 = 6;
+  MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6 = 7;
 }
 
 // Proximo id: 60.

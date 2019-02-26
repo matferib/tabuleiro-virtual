@@ -2623,27 +2623,27 @@ modelo {
     }
 
     feiticos_classes {
-      id_classe: 'mago'
+      id_classe: 'feiticeiro'
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'pasmar' }
-        conhecidos { id: 'maos_magicas' }  # TODO
-        conhecidos { id: 'ler_magia' }
-        conhecidos { id: 'toque_fadiga' }  # TODO
+        conhecidos { id: 'maos_magicas' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'toque_fadiga' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_de_gelo' }
+        conhecidos { id: 'raio_gelo' }
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'causar_medo' }  # TODO
+        conhecidos { id: 'causar_medo' }
         conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'misseis_magicos' }
+        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'sono' }
       }
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'esfera_flamejante' }  # TODO
+        conhecidos { id: 'esfera_flamejante' }
       }
     }
   }
@@ -2870,7 +2870,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'vigor_do_urso' }
+        conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
         conhecidos { id: 'arrombar' }
         conhecidos { id: 'flecha_acida' }
@@ -2937,7 +2937,7 @@ modelo {
         conhecidos { id: 'detectar_veneno' }
         conhecidos { id: 'brilho' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_de_gelo' }
+        conhecidos { id: 'raio_gelo' }
         conhecidos { id: 'ler_magias' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -2949,7 +2949,7 @@ modelo {
         conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'misseis_magicos' }
+        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
@@ -2959,7 +2959,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'vigor_do_urso' }
+        conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
         conhecidos { id: 'arrombar' }
         conhecidos { id: 'flecha_acida' }
