@@ -576,7 +576,10 @@ void AtualizaFeiticosConhecidosNivel(
   const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
-    AdicionaItemFeiticoConhecido(tabelas, gerador, conhecido.id(), conhecido.nome(), id_classe, nivel, slot++, pai);
+    AdicionaItemFeiticoConhecido(
+        tabelas, gerador, conhecido.id(),
+        conhecido.has_nome() ? conhecido.nome() : tabelas.Feitico(conhecido.id()).nome(),
+        id_classe, nivel, slot++, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
@@ -599,6 +602,7 @@ QCheckBox* CriaCheckboxUsado(
 }
 
 void PreencheComboParaLancar(
+    const ent::Tabelas& tabelas,
     const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
     const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico, QComboBox* combo) {
   QStringList lista;
@@ -611,7 +615,7 @@ void PreencheComboParaLancar(
     const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
     int indice_conhecido = 0;
     for (const auto& c : fn.conhecidos()) {
-      lista.push_back(QString::fromUtf8(c.nome().c_str()));
+      lista.push_back(QString::fromUtf8(c.has_nome() ? c.nome().c_str() : tabelas.Feitico(c.id()).nome().c_str()));
       if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
           fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
         indice_corrente = mapa.size();
@@ -637,11 +641,12 @@ void PreencheComboParaLancar(
 
 // Preenche o item da arvore com um combo que possui todos os feiticos conhecidos ate o nivel passado.
 QComboBox* CriaComboParaLancar(
+    const ent::Tabelas& tabelas,
     const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
     const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico) {
   auto* combo = new QComboBox();
   combo->setObjectName("combo_para_lancar");
-  PreencheComboParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto, item_feitico, combo);
+  PreencheComboParaLancar(tabelas, id_classe, nivel_para_lancar, indice_para_lancar, proto, item_feitico, combo);
   return combo;
 }
 
@@ -660,7 +665,7 @@ void AdicionaItemFeiticoParaLancar(
   auto* hbox = new QHBoxLayout;
   hbox->addWidget(CriaCheckboxUsado(id_classe, nivel, indice, proto, item_feitico), 0, Qt::AlignLeft);
   if (ent::ClassePrecisaMemorizar(tabelas, id_classe)) {
-    hbox->addWidget(CriaComboParaLancar(id_classe, nivel, indice, proto, item_feitico));
+    hbox->addWidget(CriaComboParaLancar(tabelas, id_classe, nivel, indice, proto, item_feitico));
   }
   hwidget->setLayout(hbox);
   item_feitico->treeWidget()->setItemWidget(item_feitico, 0, hwidget);
@@ -747,7 +752,7 @@ void AtualizaCombosParaLancarDoNivel(
       continue;
     }
     combo->blockSignals(true);
-    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    PreencheComboParaLancar(tabelas, id_classe, nivel, i, proto, item_para_lancar, combo);
     combo->blockSignals(false);
   }
 }
@@ -798,7 +803,7 @@ void AtualizaCombosParaLancarDoNivel(
     auto* combo = ComboParaLancar(item_para_lancar, gerador.arvore_feiticos);
     if (combo == nullptr) continue;
     combo->blockSignals(true);
-    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    PreencheComboParaLancar(tabelas, id_classe, nivel, i, proto, item_para_lancar, combo);
     combo->blockSignals(false);
   }
 }

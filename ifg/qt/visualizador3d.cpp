@@ -2466,7 +2466,6 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   // Combos de heranca.
   PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_piso);
   if (tab_proto.has_herdar_piso_de()) {
-    LOG(INFO) << "herdar_piso: " << tab_proto.herdar_piso_de() << ", indice: " << gerador.combo_herdar_piso->findData(QVariant(tab_proto.herdar_piso_de()));
     gerador.combo_herdar_piso->setCurrentIndex(gerador.combo_herdar_piso->findData(QVariant(tab_proto.herdar_piso_de())));
   }
   PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_ceu);

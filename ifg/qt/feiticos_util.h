@@ -11,7 +11,7 @@
 namespace ifg {
 namespace qt {
 
-// Item para conhecido (a barra com texto conhcido).
+// Item para conhecido (a barra com texto conhecido).
 class ItemConhecidos : public QTreeWidgetItem {
  public:
   ItemConhecidos(const std::string& id_classe, int nivel, QTreeWidgetItem* pai)
