@@ -443,9 +443,6 @@ void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto);
 // Retorna os eventos do tipo passado.
 std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
 
-// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
-
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
 
@@ -567,12 +564,6 @@ bool LutandoDefensivamente(const EntidadeProto& proto);
 // Retorna um rotulo para a entidade. Tenta o rotulo, id e se for null, retorna null.
 std::string RotuloEntidade(const Entidade* entidade);
 std::string RotuloEntidade(const EntidadeProto& proto);
-
-// Remove os campos para os quais predicado retornar true.
-template <class T>
-void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
-template <class T>
-void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
 
 // Acha um id unico de evento para o proto passado. Normalmente o eventos_entidade vem do proto da entidade e o outro vem do proto que esta sendo
 // gerado para atualizar a entidade.

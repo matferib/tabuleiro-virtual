@@ -157,6 +157,7 @@ cEntidadeForma = env.Object('ent/entidade_forma.cpp')
 cAcoes = env.Object('ent/acoes.cpp')
 cConstantes = env.Object('ent/constantes.cpp')
 cEntUtil = env.Object('ent/util.cpp')
+cEntRecomputa = env.Object('ent/recomputa.cpp')
 cEntDesenho = env.Object('ent/entidade_desenho.cpp')
 if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
@@ -208,7 +209,7 @@ objetos = [
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], ent_proto[8], ent_proto[10],
     cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface, cTabuleiroTratador,
-    cTabelas, cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
+    cTabelas, cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntRecomputa, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar, cGlVbo, cGlues,
     # arq
