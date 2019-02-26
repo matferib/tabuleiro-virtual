@@ -542,11 +542,17 @@ const InfoClasse& InfoClasseParaFeitico(
 // possuem sua propria lista de magias. Renomear para IdParaConjuracao?
 const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
+// Retorna se o feitico pode ser conjurado no nivel passado pela classe cujo id para magia foi passado.
+bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo, const std::string& id_classe_para_magia);
+
 // Retorna true se o feitico for pessoal.
 bool FeiticoPessoal(const ArmaProto& feitico_tabelado);
 
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);
+
+// Retorna o nivel maximo de feitico que a classe pode conjurar com o nivel de conjurador passado.
+int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_conjurador);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:

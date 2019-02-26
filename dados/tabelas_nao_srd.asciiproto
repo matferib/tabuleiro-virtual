@@ -66,6 +66,7 @@ tabela_classes {
   }
   info_classes {
     id: 'agente_harpista' nome: 'Agente Harpista'
+    aumenta_nivel_conjurador: true
     tipo_classe: TC_PRESTIGIO
     progressao_bba: PBBA_TRES_QUARTOS
     # Dados de vida: d6
@@ -101,7 +102,6 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'sentir_motivacao'
     pericias: 'sobrevivencia'
-    # Progressao de feitico: +1 classe anterior.
   }
 }
 tabela_armas {

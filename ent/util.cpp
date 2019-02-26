@@ -3014,7 +3014,6 @@ void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto
   }
 }
 
-
 // Recomputa os modificadores de conjuracao.
 void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) {
   int salvacao_fortitude = 0;
@@ -3332,11 +3331,19 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
     // Classe nao tem magias conhecidas.
     if (magias_conhecidas.empty()) continue;
-    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
-    Redimensiona(magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
 
-    for (unsigned int nivel_magia = 0; nivel_magia < magias_conhecidas.size(); ++nivel_magia) {
-      const char magias_conhecidas_do_nivel = magias_conhecidas[nivel_magia] - '0';
+    const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
+
+    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+    // Como na tabela nao ha nivel zero, tem que compensar aqui.
+    Redimensiona(nao_possui_nivel_zero ? magias_conhecidas.size() + 1 : magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
+
+    if (nao_possui_nivel_zero) {
+      Redimensiona(0, fc->mutable_feiticos_por_nivel(0)->mutable_conhecidos());
+    }
+    for (unsigned int indice = 0; indice < magias_conhecidas.size(); ++indice) {
+      const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
+      const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
       Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
     }
   }
@@ -3360,18 +3367,27 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     // Encontra a entrada da classe, ou cria se nao houver.
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
-    const int nivel = std::min(NivelParaCalculoMagiasPorDia(tabelas, ic.id(), *proto), 20);
+    const int nivel_para_conjuracao = std::min(NivelParaCalculoMagiasPorDia(tabelas, ic.id(), *proto), 20);
     const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
+
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
-    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
-    const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel).magias_por_dia();
+    if (nivel_para_conjuracao >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
+
+    const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel_para_conjuracao).magias_por_dia();
+
+    const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
 
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
-    Redimensiona(magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
+    // Na tabela, o nivel zero nao esta presente entao tem que ser compensado aqui.
+    Redimensiona(nao_possui_nivel_zero ? magias_por_dia.size() + 1 : magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
 
-    for (unsigned int nivel_magia = 0; nivel_magia < magias_por_dia.size(); ++nivel_magia) {
+    if (nao_possui_nivel_zero) {
+      fc->mutable_feiticos_por_nivel(0)->Clear();
+    }
+    for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
+      int nivel_magia = nao_possui_nivel_zero ? indice + 1 : indice;
       int magias_do_nivel =
-        (magias_por_dia[nivel_magia] - '0') +
+        (magias_por_dia[indice] - '0') +
         FeiticosBonusPorAtributoPorNivel(
             nivel_magia,
             BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
@@ -4433,7 +4449,6 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const RepeatedPtrField<EntidadeProto::Evento>& eventos, const EfeitoAdicional& efeito_adicional,
     EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  // TODO achar o nivel da fonte.
   auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, proto);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
@@ -4765,16 +4780,25 @@ void NotificacaoConsequenciaFeitico(
     std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
     {
       *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+      //std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe));
+      std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, id_classe);
+      std::string grupo_str = feitico_tabelado.nome();
+      e_depois->set_ultima_acao(acao_str);
+      e_depois->set_ultimo_grupo_acao(grupo_str);
       auto* da = e_depois->add_dados_ataque();
-      da->set_tipo_ataque(ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe)));
-      da->set_rotulo(feitico_tabelado.nome());
+      da->set_tipo_ataque(acao_str);
+      da->set_grupo(grupo_str);
+      int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), NivelConjurador(id_classe, proto));
+      da->set_rotulo(StringPrintf("%d", limite_vezes));
       da->set_id_arma(feitico_tabelado.id());
-      da->set_limite_vezes(ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), NivelConjurador(id_classe, proto)));
+      da->set_limite_vezes(limite_vezes);
       if (feitico_tabelado.has_modelo_dano()) {
         da->set_dano_basico_fixo(ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto)));
       }
     }
     {
+      e_antes->set_ultima_acao(proto.ultima_acao());
+      e_antes->set_ultimo_grupo_acao(proto.ultimo_grupo_acao());
       *e_antes->mutable_dados_ataque() = proto.dados_ataque();
       if (e_antes->dados_ataque().empty()) {
         e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
@@ -5215,6 +5239,32 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 
 bool FeiticoPessoal(const ArmaProto& feitico_tabelado) {
   return feitico_tabelado.acao().tipo() == ACAO_FEITICO_PESSOAL;
+}
+
+int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_para_conjuracao) {
+  if (nivel_para_conjuracao <= 0) return 0;
+  nivel_para_conjuracao = std::min(nivel_para_conjuracao, 20);
+  const auto& classe_tabelada = tabelas.Classe(id_classe);
+  const auto& progressao_feitico = classe_tabelada.progressao_feitico();
+  if (progressao_feitico.para_nivel().empty()) return 0;
+
+  int modificador = progressao_feitico.nao_possui_nivel_zero() ? 0 : 1;
+  if (nivel_para_conjuracao < progressao_feitico.para_nivel().size()) {
+    return progressao_feitico.para_nivel(nivel_para_conjuracao).magias_por_dia().size() - modificador;
+  } else {
+    LOG(WARNING) << "Nao deveria acontecer, nivel de conjuracao maior que tabelado, id: " << id_classe << ", nivel: " << nivel_para_conjuracao;
+    return progressao_feitico.para_nivel(progressao_feitico.para_nivel().size() - 1).magias_por_dia().size() - modificador;
+  }
+}
+
+bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo_feitico, const std::string& id_classe_para_magia) {
+  for (const auto& ic : feitico.info_classes()) {
+    if (ic.id() == id_classe_para_magia) {
+      if (ic.nivel() <= nivel_maximo_feitico) return true;
+      else return false;
+    }
+  }
+  return false;
 }
 
 }  // namespace ent

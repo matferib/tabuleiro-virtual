@@ -8,7 +8,7 @@
 
 namespace ent {
 
-TEST(TesteTalentoPericias, AumentaNivelDe) {
+TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
   {
@@ -22,8 +22,30 @@ TEST(TesteTalentoPericias, AumentaNivelDe) {
     ic->set_nivel(2);
   }
   RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(tabelas, "druida", proto), 9);
   EXPECT_EQ(NivelConjurador("druida", proto), 9);
+  EXPECT_EQ(NivelMaximoFeitico(tabelas, "druida", 9), 5);
 }
+
+TEST(TesteTalentoPericias, AumentaNivelDeRanger) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ranger");
+    ic->set_nivel(7);
+  }
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("agente_harpista");
+    ic->set_nivel(2);
+  }
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(tabelas, "ranger", proto), 9);
+  EXPECT_EQ(NivelConjurador("ranger", proto), 4);
+  EXPECT_EQ(NivelMaximoFeitico(tabelas, "ranger", 9), 2);
+}
+
 
 TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
   Tabelas tabelas(nullptr);
@@ -654,6 +676,18 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
   }
 }
 
+TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
+  Tabelas tabelas(nullptr);
+  {
+    ntf::Notificacao n;
+    EntidadeProto proto;
+    std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+    PreencheNotificacaoEventoEfeitoAdicional(3, *e, tabelas.Feitico("sono").acao().efeitos_adicionais(0), &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
+  }
+}
+
 TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
   Tabelas tabelas(nullptr);
   {
@@ -664,7 +698,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Mago");
-    da->set_id_arma("bola_de_fogo");
+    da->set_id_arma("bola_fogo");
     RecomputaDependencias(tabelas, &proto);
 
     EXPECT_EQ(da->acao().dificuldade_salvacao(), 14);
@@ -676,8 +710,8 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     ic->set_nivel(3);
     AtribuiBaseAtributo(14, TA_CARISMA, &proto);
     auto* da = proto.add_dados_ataque();
-    da->set_tipo_ataque("Feitiço de Mago");
-    da->set_id_arma("bola_de_fogo");
+    da->set_tipo_ataque("Feitiço de Feiticeiro");
+    da->set_id_arma("bola_fogo");
     RecomputaDependencias(tabelas, &proto);
 
     EXPECT_EQ(da->acao().dificuldade_salvacao(), 15);

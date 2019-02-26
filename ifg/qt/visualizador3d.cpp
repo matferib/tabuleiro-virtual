@@ -1723,7 +1723,7 @@ void PreencheConfiguraComboTipoAtaque(
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
     gerador.combo_arma->setEnabled(
         tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
-        tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
+        tipo_ataque.find("Feitiço de ") == 0);
     gerador.combo_material_arma->setEnabled(
         tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
     EditaAtualizaUIAtaque();

@@ -65,6 +65,10 @@ acao {
   classe_conjuracao: 'druida'
 }
 acao {
+  id: 'Feitiço de Feiticeiro'
+  classe_conjuracao: 'feiticeiro'
+}
+acao {
   id: 'Feitiço de Mago'
   classe_conjuracao: 'mago'
 }

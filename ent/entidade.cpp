@@ -1242,7 +1242,7 @@ AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   std::string string_acao = StringAcao();
   auto it = mapa_acoes.find(string_acao);
   if (it == mapa_acoes.end()) {
-    return AcaoProto();
+    return AcaoProto::default_instance();
   }
   AcaoProto acao = *it->second;
   if (da != nullptr && da->has_acao()) {

@@ -3582,6 +3582,7 @@ tabela_classes {
     precisa_memorizar: true
     pericias_por_nivel: 6
     progressao_feitico {
+      nao_possui_nivel_zero: true
       para_nivel {}
       para_nivel { magias_por_dia: '' }
       para_nivel { magias_por_dia: '' }
@@ -3687,6 +3688,7 @@ tabela_classes {
     progressao_expulsao: PEXP_UM_MENOS_TRES
     pericias_por_nivel: 2
     progressao_feitico {
+      nao_possui_nivel_zero: true
       para_nivel {}
       para_nivel { magias_por_dia: '' }
       para_nivel { magias_por_dia: '' }
@@ -6377,7 +6379,7 @@ tabela_feiticos {
       permite_salvacao: true
       icone: 'icon_sleep.png'
       duracao_s: 0.350
-      ignora_luz: false 
+      ignora_luz: false
       # Mais modificador de conjurador.
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
@@ -6385,7 +6387,7 @@ tabela_feiticos {
       resultado_salvacao: RS_ANULOU
       efeitos_adicionais {
         efeito: EFEITO_SONO
-        rodadas: 10  # por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
   }

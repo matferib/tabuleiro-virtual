@@ -258,13 +258,11 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque) {
+void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque, const ent::EntidadeProto& proto) {
   const bool cac = tipo_ataque == "Ataque Corpo a Corpo";
   const bool projetil_area = tipo_ataque == "Projétil de Área";
   const bool distancia = tipo_ataque == "Ataque a Distância";
-  const bool feitico_mago = tipo_ataque == "Feitiço de Mago";
-  const bool feitico_clerigo = tipo_ataque == "Feitiço de Clérigo";
-  const bool feitico_druida = tipo_ataque == "Feitiço de Druida";
+  const bool feitico_de = tipo_ataque.find("Feitiço de ") == 0;
   std::map<std::string, std::string> nome_id_map;
   if (cac || projetil_area || distancia) {
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -275,9 +273,14 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
         nome_id_map[arma.nome()] = arma.id();
       }
     }
-  } else if (feitico_mago || feitico_clerigo || feitico_druida) {
-    for (const auto& arma : tabelas.todas().tabela_feiticos().armas()) {
-      nome_id_map[arma.nome()] = arma.id();
+  } else if (feitico_de) {
+    std::string id_classe = TipoAtaqueParaClasse(tabelas, tipo_ataque);
+    const int nivel_para_conjuracao = NivelParaCalculoMagiasPorDia(tabelas, id_classe, proto);
+    const int nivel_maximo_feitico = NivelMaximoFeitico(tabelas, id_classe, nivel_para_conjuracao);
+    for (const auto& feitico : tabelas.todas().tabela_feiticos().armas()) {
+      if (PodeConjurarFeitico(feitico, nivel_maximo_feitico, IdParaMagia(tabelas, id_classe))) {
+        nome_id_map[feitico.nome()] = feitico.id();
+      }
     }
   }
   gerador.combo_arma->clear();
@@ -360,8 +363,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
   gerador.combo_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
-      tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
-  PreencheComboArma(tabelas, gerador, tipo_ataque);
+      tipo_ataque.find("Feitiço de ") == 0);
+  PreencheComboArma(tabelas, gerador, tipo_ataque, proto);
   gerador.combo_material_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
   if (!linha_valida) {
