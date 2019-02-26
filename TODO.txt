@@ -1,6 +1,7 @@
+Ao criar acao de feitico, deixar como ativo para o personagem (como se tivesse clicado no botao de acao).
+Testar modificador de nivel para feiticeiro (com certeza ta errado).
 Feiticos de criacao: como modelar?
 Efeitos adicionais se passar.
-Testar modificador de nivel para feiticeiro (com certeza ta errado).
 
 Modificador de rodadas de efeitos adicionais (precisa adicionar o nivel da fonte).
 
