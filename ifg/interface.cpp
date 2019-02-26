@@ -418,8 +418,10 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       LOG(INFO) << "Erro, entidade nao existe";
       return;
     }
-    ent::NotificacaoConsequenciaFeitico(
-        tabelas_, id_classe, item.nivel, item.indice, *entidade, &grupo_notificacao);
+    if (ent::NotificacaoConsequenciaFeitico(
+        tabelas_, id_classe, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
+    }
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
         id_classe, nivel_gasto, item.indice_gasto, /*usado=*/true, notificacao.entidade());

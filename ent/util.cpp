@@ -3147,7 +3147,7 @@ std::string ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador)
   }
 }
 
-void NotificacaoConsequenciaFeitico(
+bool NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
   const int nivel_conjurador = NivelConjurador(id_classe, proto);
@@ -3162,13 +3162,14 @@ void NotificacaoConsequenciaFeitico(
     // Nao ha entrada.
     LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado: InfoConhecido: " << ic.ShortDebugString()
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
-    return;
+    return false;
   }
   if (FeiticoPessoal(feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
       PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, grupo->add_notificacao(), nullptr);
     }
+    return false;
   } else {
     ntf::Notificacao* n;
     ent::EntidadeProto *e_antes, *e_depois;
@@ -3199,6 +3200,7 @@ void NotificacaoConsequenciaFeitico(
         e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
       }
     }
+    return true;
   }
 }
 

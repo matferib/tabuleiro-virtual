@@ -683,7 +683,8 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 
 // Preenche as notificacoes de consequencia de um feitico. Para feiticos pessoais, o efeito sera aplicado.
 // Para os demais, cria um ataque com o efeito do feitico.
-void NotificacaoConsequenciaFeitico(
+// Retorna true se criou um ataque.
+bool NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);

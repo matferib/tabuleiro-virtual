@@ -1175,10 +1175,10 @@ float Tabuleiro::TrataAcaoProjetilArea(
 // Retorna o nivel de conjurador da entidade para uma determinada acao.
 int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
   if (acao.has_classe_conjuracao()) {
-    LOG(INFO) << "classe conjuracao: " << acao.classe_conjuracao();
+    VLOG(1) << "classe conjuracao: " << acao.classe_conjuracao();
     return NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
   }
-  LOG(INFO) << "sem classe conjuracao";
+  VLOG(1) << "sem classe conjuracao";
   return Nivel(entidade.Proto());
 }
 

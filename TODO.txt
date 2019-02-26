@@ -1,5 +1,4 @@
-Ao criar acao de feitico, deixar como ativo para o personagem (como se tivesse clicado no botao de acao).
-Testar modificador de nivel para feiticeiro (com certeza ta errado).
+Colocar tabuleiro em modo automatico por default.
 Feiticos de criacao: como modelar?
 Efeitos adicionais se passar.
 
