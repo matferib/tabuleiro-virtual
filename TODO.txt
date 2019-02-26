@@ -1,4 +1,3 @@
-Colocar tabuleiro em modo automatico por default.
 Feiticos de criacao: como modelar?
 Efeitos adicionais se passar.
 

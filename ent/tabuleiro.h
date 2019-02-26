@@ -1321,7 +1321,7 @@ class Tabuleiro : public ntf::Receptor {
   int faces_dado_ = 0;
 
   // Variaveis de estado de alguns botoes.
-  bool modo_dano_automatico_ = false;
+  bool modo_dano_automatico_ = true;
   bool bonus_dano_negativo_ = false;
   bool bonus_ataque_negativo_ = false;
 
