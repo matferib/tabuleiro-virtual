@@ -796,6 +796,11 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
       const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
       const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
       Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
+      for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+        if (!fc.has_nome()) {
+          fc.set_nome(tabelas.Feitico(fc.id()).nome());
+        }
+      }
     }
   }
 }
