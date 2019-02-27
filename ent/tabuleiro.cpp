@@ -1901,26 +1901,26 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadePr
 }
 
 int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
-  if (modo_dano_automatico_) {
-    if (entidade == nullptr) {
-      LOG(WARNING) << "entidade eh nula";
-      return 0;
-    }
-    if (!entidade->Proto().dados_ataque_global().furtivo() || entidade->Proto().dados_ataque_global().dano_furtivo().empty()) {
-      return 0;
-    }
-    int total;
-    std::vector<std::pair<int, int>> dados;
-    std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_global().dano_furtivo());
-    total = -total;
-    std::string texto_dados;
-    for (const auto& fv : dados) {
-      texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
-    }
-    VLOG(1) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
-    return total;
+  if (!modo_dano_automatico_) {
+    return 0;
   }
-  return 0;
+  if (entidade == nullptr) {
+    LOG(WARNING) << "entidade eh nula";
+    return 0;
+  }
+  if (entidade->Proto().dados_ataque_global().dano_furtivo().empty()) {
+    return 0;
+  }
+  int total;
+  std::vector<std::pair<int, int>> dados;
+  std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_global().dano_furtivo());
+  total = -total;
+  std::string texto_dados;
+  for (const auto& fv : dados) {
+    texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
+  }
+  VLOG(1) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
+  return total;
 }
 
 bool Tabuleiro::HaValorListaPontosVida() {
