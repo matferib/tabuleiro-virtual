@@ -1055,6 +1055,17 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_ATORDOADO # stunned.
+    nome: 'atordoado'
+    # A stunned creature drops everything held, can’t take actions, -2 penalty to AC, and loses his Dexterity bonus to AC (if any).
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'atordoado' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_POEIRA_OFUSCANTE
     nome: 'poeira ofuscante'
     # TODO
@@ -4903,16 +4914,54 @@ tabela_feiticos {
     acao {
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
+      efeito_area: true
       raio_quadrados: 2
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
       permite_ataque_vs_defesa: false 
       ignora_resistencia_magia: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
+      ignora_luz: true
+      duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_POEIRA_OFUSCANTE
         modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'explosao_sonora' # sound burst 
+    nome: 'explosao sonora'
+    alcance_quadrados: 5
+    dano { invariavel: '1d8' }
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      raio_quadrados: 2
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: false 
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      duracao_s: 0.350
+      elemento: DESC_SONICO
+      dano_ignora_salvacao: true
+      efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        rodadas: 1
       }
     }
   }
