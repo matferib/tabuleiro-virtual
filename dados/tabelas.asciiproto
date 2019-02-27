@@ -4822,6 +4822,43 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'teia' #  web 
+    nome: 'teia'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 4
+      efeito_area: true
+      duracao_s: 0.350
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_web.png'
+      permite_ataque_vs_defesa: false 
+      ignora_resistencia_magia: true
+      permite_salvacao: true
+      resultado_salvacao: RS_ANULOU 
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_ENREDADO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_OUTRO
+        descricao: 'não pode mover, ver descricao.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'arrombar' #  knock
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL

@@ -619,7 +619,6 @@ modelo {
     dados_ataque {
       grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       limite_vezes: 3
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
@@ -633,7 +632,6 @@ modelo {
     }
     dados_ataque {
       grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
@@ -643,6 +641,30 @@ modelo {
           combinar_com: 0
         }
       }
+    }
+    dados_ataque {
+      grupo: 'pergaminho' rotulo: 'flecha ácida' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'flecha_acida'
+      acao_fixa {
+        limite_vezes: 4
+        efeitos_adicionais {
+          rodadas: 2
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
+      acao_fixa {
+        limite_vezes: 2
+        efeitos_adicionais {
+          rodadas: 300
+          combinar_com: 0
+        }
+      }
+    }
+
+    tesouro {
+      tesouro: '10 PO\nflecha acida x4, teia x2'
     }
   }
 }
