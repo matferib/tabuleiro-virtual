@@ -1413,10 +1413,13 @@ float Tabuleiro::TrataAcaoIndividual(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
       if (!entidade_destino->ImuneFurtivo()) {
-        int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
-        if (delta_furtivo < 0) {
-          ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
-          delta_pontos_vida += delta_furtivo;
+        if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
+            && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
+          int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
+          if (delta_furtivo < 0) {
+            ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
+            delta_pontos_vida += delta_furtivo;
+          }
         }
       }
     }
@@ -1597,40 +1600,40 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 }
 
 float Tabuleiro::TrataAcaoUmaEntidade(
-    Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
+    Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s) {
 
-  if (entidade != nullptr && PossuiEvento(EFEITO_PASMAR, entidade->Proto())) {
-    AdicionaAcaoTextoLogado(entidade->Id(), "Entidade pasma", atraso_s);
+  if (entidade_origem != nullptr && !PodeAgir(entidade_origem->Proto())) {
+    AdicionaAcaoTextoLogado(entidade_origem->Id(), "Entidade nao pode agir", atraso_s);
     return atraso_s + 0.5f;
   }
 
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
-  AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
+  AcaoProto acao_proto = entidade_origem->Acao(mapa_acoes_);
   if (!acao_proto.has_tipo()) {
     LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
     return atraso_s;
   }
-  if (id_entidade_destino != Entidade::IdInvalido && entidade != nullptr) {
-    AtualizaEsquivaAoAtacar(*entidade, id_entidade_destino, &grupo_desfazer);
+  if (id_entidade_destino != Entidade::IdInvalido && entidade_origem != nullptr) {
+    AtualizaEsquivaAoAtacar(*entidade_origem, id_entidade_destino, &grupo_desfazer);
   }
   acao_proto.set_atraso_s(atraso_s);
   *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
-  acao_proto.set_id_entidade_origem(entidade->Id());
+  acao_proto.set_id_entidade_origem(entidade_origem->Id());
   VLOG(1) << "acao proto: " << acao_proto.DebugString();
 
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);
   if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
-    atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade, &acao_proto, &n, &grupo_desfazer);
+    atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
   } else if (acao_proto.efeito_projetil_area()) {
-    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
-  } else if (acao_proto.efeito_area()) {
-    atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
+    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+  } else if (EfeitoArea(acao_proto)) {
+    atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
   } else {
-    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade, entidade, &acao_proto, &n, &grupo_desfazer);
+    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
   }
   if (n.has_acao()) {
     TrataNotificacao(n);
@@ -1698,7 +1701,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   }
   // Primeiro, entidades.
   unsigned int id_entidade_destino = Entidade::IdInvalido;
-  Posicao pos_entidade;
+  Posicao pos_entidade_destino;
   Posicao pos_tabuleiro;
   if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     VLOG(1) << "Acao em entidade: " << id;
@@ -1706,10 +1709,10 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     id_entidade_destino = id;
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-    pos_entidade.set_x(x3d);
-    pos_entidade.set_y(y3d);
-    pos_entidade.set_z(z3d);
-    pos_entidade.set_id_cenario(IdCenario());
+    pos_entidade_destino.set_x(x3d);
+    pos_entidade_destino.set_y(y3d);
+    pos_entidade_destino.set_z(z3d);
+    pos_entidade_destino.set_id_cenario(IdCenario());
     // Depois tabuleiro.
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
@@ -1745,7 +1748,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade, pos_tabuleiro, id_entidade_destino, atraso_s);
+      atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade_destino, pos_tabuleiro, id_entidade_destino, atraso_s);
     }
   }
 
