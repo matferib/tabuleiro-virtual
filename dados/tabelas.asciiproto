@@ -6369,7 +6369,6 @@ tabela_feiticos {
       icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_REFLEXOS
-        rodadas: 30
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }

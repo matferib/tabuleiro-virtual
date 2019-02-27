@@ -487,7 +487,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
     switch (et) {
       case ET_INICIAL:
         if (token == "+" || token == "-" || token == "d") {
-          LOG(ERROR) << "Estado inicial deve comecar com numero, encontrei: " << token;
+          LOG(ERROR) << "Estado inicial deve comecar com numero, encontrei: " << token << ", string: " << dados_vida;
           et = ET_ERRO;
         } else {
           num = atoi(token.c_str()) * num;
@@ -1139,8 +1139,8 @@ std::tuple<std::string, bool> AtaqueVsChanceFalha(const Entidade& ea, const Enti
     VLOG(1) << "ataque ignorando chance de falha";
     return std::make_pair("", true);
   }
-  VLOG(1) << "ataque: " << ea.ChanceFalhaAtaque();
-  VLOG(1) << "defesa: " << ea.ChanceFalhaDefesa();
+  VLOG(1) << "chance falha ataque: " << ea.ChanceFalhaAtaque();
+  VLOG(1) << "chance falha defesa: " << ea.ChanceFalhaDefesa();
   const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa());
   if (chance_falha > 0) {
     const int d100 = RolaDado(100);
@@ -1299,26 +1299,30 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
-  const int numero_reflexos = NumeroReflexos(ed.Proto());
-  if (numero_reflexos > 0) {
-    int num_total = numero_reflexos + 1;
-    int dref = RolaDado(num_total);
-    VLOG(1) << StringPrintf("dado ref: %d em d%d", dref, num_total);
-    if (dref != 1) {
-      VLOG(1) << "Ataque no reflexo";
-      // Ataque no reflexo.
-      resultado_ataque_reflexos rar;
-      std::string texto_reflexo;
-      std::tie(texto_reflexo, rar) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
-      resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo.c_str(), dref - 1, num_total - 1);
-      if (rar == RAR_ACERTOU) {
-        resultado.resultado = RA_FALHA_REFLEXO;
-      } else {
-        resultado.resultado = (rar == RAR_FALHA_CRITICA) ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+  if (ea.Id() != ed.Id()) {
+    const int numero_reflexos = NumeroReflexos(ed.Proto());
+    if (numero_reflexos > 0) {
+      int num_total = numero_reflexos + 1;
+      int dref = RolaDado(num_total);
+      VLOG(1) << StringPrintf("dado ref: %d em d%d", dref, num_total);
+      if (dref != 1) {
+        VLOG(1) << "Ataque no reflexo";
+        // Ataque no reflexo.
+        resultado_ataque_reflexos rar;
+        std::string texto_reflexo;
+        std::tie(texto_reflexo, rar) = AtaqueToqueReflexos(outros_modificadores, da, ea, ed);
+        resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo.c_str(), dref - 1, num_total - 1);
+        if (rar == RAR_ACERTOU) {
+          resultado.resultado = RA_FALHA_REFLEXO;
+        } else {
+          resultado.resultado = (rar == RAR_FALHA_CRITICA) ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+        }
+        return resultado;
       }
-      return resultado;
+      VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
     }
-    VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
+  } else {
+    VLOG(1) << "Ataque ignorou reflexos por ser pessoal.";
   }
 
   // Realiza um ataque de toque.
@@ -1351,7 +1355,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   }
 
   // Chance de falha.
-  {
+  if (ea.Id() != ed.Id()) {
     bool passou_falha;
     std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(ea, ed);
     if (!passou_falha) {
@@ -2806,7 +2810,7 @@ EntidadeProto::Evento* AdicionaEvento(
 }
 
 int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
-  VLOG(1) << "entrando com nivel: " << nivel_conjurador;
+  VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
@@ -2837,9 +2841,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
       default:
         break;
     }
-    VLOG(1) << "saindo: " << (efeito_adicional.rodadas_base() + modificador);
+    VLOG(1) << "Calculo de rodadas, valor final: " << (efeito_adicional.rodadas_base() + modificador);
     return efeito_adicional.rodadas_base() + modificador;
   }
+  VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
   return efeito_adicional.rodadas();
 }
 

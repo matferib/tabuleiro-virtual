@@ -1,5 +1,5 @@
+Complementos variaveis (por exemplo, reflexos cria 1d4+1/3 niveis maximo 8).
 Feiticos de criacao: como modelar?
-Efeitos adicionais se passar.
 
 Modificador de rodadas de efeitos adicionais (precisa adicionar o nivel da fonte).
 

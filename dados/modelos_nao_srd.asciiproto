@@ -580,7 +580,7 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
     dados_ataque {
-      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
+      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
@@ -594,7 +594,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
+      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
@@ -616,7 +616,7 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
     dados_ataque {
-      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
+      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
@@ -630,7 +630,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
+      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
