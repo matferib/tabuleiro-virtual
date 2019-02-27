@@ -2379,13 +2379,13 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
 }
 
 std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
-  const bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
+  const bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO && PermiteEscudo(proto);
   int normal, toque;
   std::string info = !permite_escudo && !proto.surpreso()
       ? "" : permite_escudo && proto.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
   if (proto.dados_defesa().has_ca()) {
-    normal = proto.surpreso() ? CASurpreso(proto, permite_escudo) : CATotal(proto, permite_escudo);
-    toque = proto.surpreso() ? CAToqueSurpreso(proto) : CAToque(proto);
+    normal = DestrezaNaCA(proto) ? CATotal(proto, permite_escudo) : CASurpreso(proto, permite_escudo);
+    toque = DestrezaNaCA(proto) ? CAToque(proto) : CAToqueSurpreso(proto);
   } else {
     normal = proto.surpreso() ? da.ca_surpreso() : da.ca_normal();
     toque = da.ca_toque();
@@ -3695,6 +3695,27 @@ std::string BonusParaString(const Bonus& bonus) {
     resumo.pop_back();
   }
   return resumo;
+}
+
+bool PodeAgir(const EntidadeProto& proto) {
+  if (PossuiEvento(EFEITO_PASMAR, proto) || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  return true;
+}
+
+bool DestrezaNaCA(const EntidadeProto& proto) {
+  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  return true;
+}
+
+bool PermiteEscudo(const EntidadeProto& proto) {
+  if (PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace ent

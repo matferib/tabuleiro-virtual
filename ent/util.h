@@ -777,6 +777,15 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 // Retorna a classe dentro do proto, ou default se nao houver.
 const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
 
+// Retorna true se a entidade pode agir. Alguns efeitos nao permite (pasmar, atordoado, etc).
+bool PodeAgir(const EntidadeProto& proto);
+
+// Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
+bool DestrezaNaCA(const EntidadeProto& proto);
+
+// Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
+bool PermiteEscudo(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
