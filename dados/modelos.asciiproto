@@ -1026,6 +1026,7 @@ modelo {
         permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         dificuldade_salvacao: 12
+        elemento: DESC_FOGO
       }
     }
     ignora_luz: true

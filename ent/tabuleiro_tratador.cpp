@@ -1474,9 +1474,11 @@ float Tabuleiro::TrataAcaoIndividual(
     std::string resultado_salvacao;
     bool salvou = false;
     if ((delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
-      // A funcao AtaqueVsSalvacao usa o delta para retornar o valor.
+      // A funcao AtaqueVsSalvacao usa o delta para retornar o valor. Entao setamos antes e depois.
       por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
+      // Corrige o valor.
+      por_entidade->set_delta(delta_pontos_vida);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
     }

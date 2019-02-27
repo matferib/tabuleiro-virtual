@@ -6419,6 +6419,8 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
       resultado_salvacao: RS_ANULOU
+      dv_mais_alto: 4
+      # TODO total de DV = 4.
       efeitos_adicionais {
         efeito: EFEITO_SONO
         modificador_rodadas: MR_MINUTOS_NIVEL

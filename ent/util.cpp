@@ -1419,7 +1419,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   std::string descricao_resultado;
-  int delta_pontos_vida = ap.delta_pontos_vida();
+  int delta_pontos_vida = DeltaAcao(ap);
   bool salvou = false;
 
   if (ed.TemProximaSalvacao()) {
