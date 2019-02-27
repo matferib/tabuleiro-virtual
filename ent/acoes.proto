@@ -70,7 +70,7 @@ enum ModificadorRodadas {
   MR_1D4 = 8;
 }
 
-// Proximo id: 62.
+// Proximo id: 63.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -110,6 +110,8 @@ message AcaoProto {
   // Acao tem dano direto e de area.
   optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
+  // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados.
+  optional bool dano_ignora_salvacao = 62;
   optional ResultadoSalvacao resultado_salvacao = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;

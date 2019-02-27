@@ -1429,11 +1429,11 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
-      descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/2: dano %d", -delta_pontos_vida);
+      descricao_resultado = StringPrintf("salvacao manual 1/2: dano %d", -delta_pontos_vida);
       salvou = true;
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
-      descricao_resultado = google::protobuf::StringPrintf("salvacao manual 1/4: dano %d", -delta_pontos_vida);
+      descricao_resultado = StringPrintf("salvacao manual 1/4: dano %d", -delta_pontos_vida);
       salvou = true;
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
@@ -1461,19 +1461,23 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = google::protobuf::StringPrintf(
+      descricao_resultado = StringPrintf(
           "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
       if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
-      descricao_resultado = google::protobuf::StringPrintf(
+      descricao_resultado = StringPrintf(
           "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     salvou = true;
-    descricao_resultado = google::protobuf::StringPrintf("salvacao: acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
+    descricao_resultado = StringPrintf("salvacao: acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
+  }
+  if (ap.dano_ignora_salvacao()) {
+    delta_pontos_vida = DeltaAcao(ap);
+    descricao_resultado = StringPrintf("dano ignora salvacao: %d, salvou: %s", delta_pontos_vida, salvou ? "sim" : "não");
   }
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
