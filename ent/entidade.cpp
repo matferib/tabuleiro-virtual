@@ -1743,15 +1743,15 @@ int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
-    bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
+    bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso()
-          ? CASurpreso(proto_, permite_escudo, outros_bonus)
-          : CATotal(proto_, permite_escudo, outros_bonus);
+      return DestrezaNaCA(proto_)
+          ? CATotal(proto_, permite_escudo, outros_bonus)
+          : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return proto_.surpreso()
-          ? CAToqueSurpreso(proto_, outros_bonus)
-          : CAToque(proto_, outros_bonus);
+      return DestrezaNaCA(proto_)
+          ? CAToque(proto_, outros_bonus)
+          : CAToqueSurpreso(proto_, outros_bonus);
     }
   }
   if (da == nullptr) {
