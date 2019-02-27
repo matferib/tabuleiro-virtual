@@ -1001,11 +1001,16 @@ class AcaoCorpoCorpo : public Acao {
 };
 
 // Acao de feitico de toque.
-class AcaoFeiticoToque : public Acao {
+class AcaoFeitico : public Acao {
  public:
-  AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
       LOG(ERROR) << "Acao de feitico de toque requer origem e destino";
+      terminado_ = true;
+      return;
+    }
+    if (acao_proto.tipo() == ACAO_FEITICO_PESSOAL && acao_proto_.id_entidade_origem() != acao_proto_.por_entidade(0).id()) {
+      LOG(ERROR) << "Acao de feitico de toque pessoal requer origem e destino iguais";
       terminado_ = true;
       return;
     }
@@ -1644,7 +1649,7 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
     case ACAO_FEITICO_TOQUE:
     case ACAO_FEITICO_PESSOAL:
-      return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
+      return new AcaoFeitico(acao_proto, tabuleiro, texturas);
     case ACAO_AGARRAR:
       return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
     case ACAO_POCAO:
@@ -1690,6 +1695,10 @@ void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino) {
   for (int i : a_remover) {
     acao_destino->mutable_efeitos_adicionais()->DeleteSubrange(i, 1);
   }
+}
+
+bool EfeitoArea(const AcaoProto& acao_proto) {
+  return acao_proto.efeito_area() || acao_proto.tipo() == ACAO_DISPERSAO;
 }
 
 }  // namespace ent

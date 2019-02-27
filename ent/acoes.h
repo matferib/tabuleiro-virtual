@@ -117,6 +117,9 @@ int DeltaAcao(const AcaoProto& acao_proto);
 // especial (por exemplo, efeitos_adicionais).
 void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino);
 
+// Retorna true se a acao for um efeito de area.
+bool EfeitoArea(const AcaoProto& acao_proto);
+
 }  // namespace ent
 
 #endif  // ENT_ACOES_H
