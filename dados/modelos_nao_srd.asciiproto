@@ -580,6 +580,7 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
     dados_ataque {
+      limite_vezes: 3
       grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
@@ -617,6 +618,7 @@ modelo {
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
     dados_ataque {
       grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      limite_vezes: 3
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
