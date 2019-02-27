@@ -583,7 +583,7 @@ modelo {
       grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
+        tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
@@ -597,7 +597,7 @@ modelo {
       grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
+        tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_INVISIBILIDADE
@@ -633,7 +633,7 @@ modelo {
       grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
+        tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_INVISIBILIDADE
@@ -935,7 +935,7 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
     }
     dados_ataque_global {
-      chance_falha: 50 
+      chance_falha: 50
     }
     info_talentos {
       gerais { id: 'investida_aerea' }
@@ -959,7 +959,7 @@ modelo {
 
     # Sopro
     dados_ataque {
-      grupo: 'sopro' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Ataque a Distância'
+      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Ataque a Distância'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       acao_fixa {
         tipo: ACAO_DISPERSAO
@@ -973,7 +973,6 @@ modelo {
         icone: 'icon_breath.png'
         efeitos_adicionais {
           efeito: EFEITO_NAUSEA
-          rodadas: 2  # Na verdade, é 1d4+1 ate sair.
           modificador_rodadas: MR_1D4_MAIS_1
         }
       }
@@ -1000,10 +999,7 @@ modelo {
       grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
-
     # apesar de ser grande, alcance 1.
-    # faro
-    # sopro nocivo: tipo nuvem fetida, mas cone, por 10 rodadsa.
   }
 }
 

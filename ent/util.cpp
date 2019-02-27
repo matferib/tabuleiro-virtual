@@ -2825,6 +2825,9 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
       case MR_2_HORAS_NIVEL:
         modificador = 1200 * nivel_conjurador;
         break;
+      case MR_1D4:
+        modificador = RolaValor("1d4");
+        break;
       case MR_1D4_MAIS_1:
         modificador = RolaValor("1d4+1");
         break;
@@ -3396,6 +3399,9 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
   if (c_any_of(acao_proto.nao_afeta_sub_tipo(), [&entidade](const int sub_tipo) {
     return entidade.TemSubTipoDnD(static_cast<SubTipoDnD>(sub_tipo));
   })) {
+    return false;
+  }
+  if (acao_proto.has_dv_mais_alto() && Nivel(entidade.Proto()) > acao_proto.dv_mais_alto()) {
     return false;
   }
   // Aqui tem que testar o vazio pra afetar, caso contrario o return da false e

@@ -1264,15 +1264,14 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
-    if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0) && !salvou) {
-      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
+    if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0)) {
+      for (const auto& efeito_adicional : (salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais())) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         PreencheNotificacaoEventoEfeitoAdicional(
             NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
-        ConcatenaString(StringEfeito(efeito_adicional.efeito()),
-                        por_entidade->mutable_texto());
+        ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
       }
     }
 
@@ -1501,8 +1500,8 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
-    if (resultado.Sucesso() && !acao_proto->efeitos_adicionais().empty() && !salvou) {
-      for (const auto& efeito_adicional : acao_proto->efeitos_adicionais()) {
+    if (resultado.Sucesso()) {
+      for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         PreencheNotificacaoEventoEfeitoAdicional(
             NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());

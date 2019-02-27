@@ -67,9 +67,10 @@ enum ModificadorRodadas {
   MR_2_HORAS_NIVEL = 5;
   MR_1D4_MAIS_1 = 6;
   MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6 = 7;
+  MR_1D4 = 8;
 }
 
-// Proximo id: 60.
+// Proximo id: 62.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -161,6 +162,8 @@ message AcaoProto {
   repeated TipoDnD nao_afeta_tipo = 56;
   repeated SubTipoDnD nao_afeta_sub_tipo = 57;
   optional bool nao_afeta_origem = 58;
+  // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
+  optional int32 dv_mais_alto = 61;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -193,6 +196,8 @@ message AcaoProto {
     // optional string rodadas_string = 9;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
+  // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
+  repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
 }
 
 // O arquivo de acoes é serializado desta forma.

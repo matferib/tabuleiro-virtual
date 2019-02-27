@@ -1026,6 +1026,35 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ABALADO  # shaken
+    nome: 'abalado'
+    # -2 penalty on attack rolls, saving throws, skill checks, and ability checks.
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+      }
+    }
+    # TODO -2 em pericias e testes de habilidade.
+  }
+  efeitos {
+    id: EFEITO_AMEDRONTADO  # frightened
+    nome: 'amedrontado'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+      }
+    }
+    # A criatura deve fugir e so atacar se acuada.
+    # TODO -2 em pericias e testes de habilidade.
+  }
+
+  efeitos {
     id: EFEITO_POEIRA_OFUSCANTE
     nome: 'poeira ofuscante'
     # TODO
@@ -4691,18 +4720,22 @@ tabela_feiticos {
 
     acao {
       tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       permite_ataque_vs_defesa: false 
       ignora_resistencia_magia: false 
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
+      dv_mais_alto: 5
       efeitos_adicionais {
         efeito: EFEITO_AMEDRONTADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_rodadas: MR_1D4
       }
-      # Se passar, fica abalado
-      # 6 dados ou mais: imune.
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_ABALADO
+        rodadas: 1 
+      }
     }
   }
 
@@ -5114,6 +5147,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
       # TODO: afeta apenas 4 HD ou menos.
       efeitos_adicionais {
         efeito: EFEITO_PASMAR

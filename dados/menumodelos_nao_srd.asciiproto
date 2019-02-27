@@ -62,6 +62,7 @@ sub_menu {
 sub_menu {
   id: 'Vultos e Obscuros'
   modelo { id: 'Vulto Guerreiro 5' }
+  modelo { id: 'Vulto Feiticeiro 5' }
   modelo { id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4' }
   modelo { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4' }
 }
