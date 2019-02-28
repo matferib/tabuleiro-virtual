@@ -462,7 +462,8 @@ TEST(TesteDependencias, TesteAgarrar) {
 TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
+  std::vector<int> ids_unicos;
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(3);
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -488,9 +489,10 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  auto* ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
-  ev = AdicionaEvento(proto.evento(), EFEITO_AJUDA, 10, false, &proto);
-  uint32_t id_segundo_evento = ev->id_unico();
+  std::vector<int> ids_unicos;
+  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  int id_segundo_evento = ev->id_unico();
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
@@ -678,14 +680,15 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
 
 TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
   Tabelas tabelas(nullptr);
-  {
-    ntf::Notificacao n;
-    EntidadeProto proto;
-    std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
-    PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, IdsUnicosEntidade(*e), tabelas.Feitico("sono").acao().efeitos_adicionais(0), &n, nullptr);
-    ASSERT_FALSE(n.entidade().evento().empty());
-    EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
-  }
+  ntf::Notificacao n;
+  EntidadeProto proto;
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
+  PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, tabelas.Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+  ASSERT_FALSE(n.entidade().evento().empty());
+  EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
+  ASSERT_EQ(ids_unicos.size(), 1);
+  EXPECT_EQ(n.entidade().evento(0).id_unico(), ids_unicos[0]);
 }
 
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
@@ -699,15 +702,16 @@ TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
     std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
     ntf::Notificacao n;
     std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
-    ids_unicos.push_back(
-        PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, ids_unicos, tabelas.Feitico("teia").acao().efeitos_adicionais(0), n.add_notificacao(), nullptr));
-    ids_unicos.push_back(
-        PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, ids_unicos, tabelas.Feitico("teia").acao().efeitos_adicionais(1), n.add_notificacao(), nullptr));
+    PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, tabelas.Feitico("teia").acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, tabelas.Feitico("teia").acao().efeitos_adicionais(1), &ids_unicos, n.add_notificacao(), nullptr);
     e->AtualizaParcial(n.notificacao(0).entidade());
     e->AtualizaParcial(n.notificacao(1).entidade());
     ASSERT_EQ(e->Proto().evento().size(), 2);
     EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_ENREDADO);
     EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_OUTRO);
+    ASSERT_EQ(ids_unicos.size(), 2);
+    EXPECT_EQ(ids_unicos[0], 0);
+    EXPECT_EQ(ids_unicos[1], 1);
   }
 }
 
