@@ -343,7 +343,7 @@ void PreencheNotificacaoEvento(
     unsigned int id_entidade, TipoEfeito te, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementoStr(
-    const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Retorna o id unico gerado (-1 em caso de erro).

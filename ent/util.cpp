@@ -1744,10 +1744,10 @@ void PreencheNotificacaoEventoEfeitoAdicional(
 }
 
 void PreencheNotificacaoEventoComComplementoStr(
-    const Entidade& entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
   auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
