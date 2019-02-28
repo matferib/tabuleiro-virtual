@@ -340,7 +340,7 @@ void PreencheNotificacaoRecarregamento(
 // Adiciona um evento do tipo passado a entidade.
 // Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
 void PreencheNotificacaoEvento(
-    const Entidade& entidade, TipoEfeito te, int rodadas,
+    unsigned int id_entidade, TipoEfeito te, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementoStr(
     const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
@@ -351,10 +351,10 @@ void PreencheNotificacaoEventoEfeitoAdicional(
     int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
@@ -363,6 +363,8 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* n);
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
+    ntf::Tipo tipo, uint32_t id_entidade, ntf::Notificacao* n);
 
 // Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);

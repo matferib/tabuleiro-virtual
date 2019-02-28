@@ -1449,7 +1449,7 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEvento(*entidade_selecionada, EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEvento(entidade_selecionada->Id(), EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -7217,7 +7217,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vec
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoSecundario(entidade, veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
+          PreencheNotificacaoEventoParaVenenoSecundario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
         } else {
           // salvou.
           veneno_str = google::protobuf::StringPrintf("salvou veneno secundario (%d + %d >= %d)", d20, bonus, veneno.cd());

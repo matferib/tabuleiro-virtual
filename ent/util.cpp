@@ -1645,11 +1645,17 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
 
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* n) {
+  return PreencheNotificacaoEntidadeComId(tipo, proto.id(), n);
+}
+
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
+    ntf::Tipo tipo, unsigned int id_entidade, ntf::Notificacao* n) {
   n->set_tipo(tipo);
-  n->mutable_entidade_antes()->set_id(proto.id());
-  n->mutable_entidade()->set_id(proto.id());
+  n->mutable_entidade_antes()->set_id(id_entidade);
+  n->mutable_entidade()->set_id(id_entidade);
   return std::make_pair(n->mutable_entidade_antes(), n->mutable_entidade());
 }
+
 
 namespace {
 
@@ -1711,9 +1717,9 @@ void PreencheNotificacaoRecarregamento(
 }
 
 void PreencheNotificacaoEvento(
-    const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    unsigned int id_entidade, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
   auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -1768,9 +1774,9 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
 }
 
 bool PreencheNotificacaoEventoParaVenenoComum(
-    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  PreencheNotificacaoEvento(id_entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -1780,9 +1786,9 @@ bool PreencheNotificacaoEventoParaVenenoComum(
 }  // namespace
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
@@ -1798,9 +1804,9 @@ void PreencheNotificacaoEventoParaVenenoPrimario(
 }
 
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);

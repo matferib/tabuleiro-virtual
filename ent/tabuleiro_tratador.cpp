@@ -1446,7 +1446,7 @@ float Tabuleiro::TrataAcaoIndividual(
           // nao salvou: criar o efeito do dano.
           veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
           PreencheNotificacaoEventoParaVenenoPrimario(
-              *entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+              entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
         } else {
           veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
