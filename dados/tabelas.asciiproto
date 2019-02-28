@@ -4846,17 +4846,19 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       permite_salvacao: true
       resultado_salvacao: RS_ANULOU
+      # Nao salvou, efeito completo.
       efeitos_adicionais {
         efeito: EFEITO_ENREDADO
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
-      efeitos_adicionais_se_salvou {
-        efeito: EFEITO_ENREDADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
-      efeitos_adicionais_se_salvou {
+      efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: 'não pode mover, ver descricao.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      # Se salvou, fica enredado.
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_ENREDADO
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }

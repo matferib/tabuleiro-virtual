@@ -1734,18 +1734,19 @@ void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito,
   }
 }
 
-void PreencheNotificacaoEventoEfeitoAdicional(
-    int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+int PreencheNotificacaoEventoEfeitoAdicional(
+    int nivel_conjurador, const Entidade& entidade_destino, const std::vector<int>& ids_unicos, const EfeitoAdicional& efeito_adicional,
     ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, entidade_destino.Proto().evento(), efeito_adicional, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, ids_unicos, efeito_adicional, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
   }
+  return evento->id_unico();
 }
 
 void PreencheNotificacaoEvento(
@@ -2779,10 +2780,38 @@ bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento
   return lhs.SerializeAsString() == rhs.SerializeAsString();
 }
 
-uint32_t AchaIdUnicoEvento(
+std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
+  std::vector<int> ids;
+  for (const auto& evento : entidade.Proto().evento()) {
+    if (evento.has_id_unico()) ids.push_back(evento.id_unico());
+  }
+  return ids;
+}
+
+int AchaIdUnicoEvento(const std::vector<int>& ids_unicos) {
+  int candidato = 0;
+  bool existe = false;
+  auto EhCandidato = [&candidato] (int id_unico) { return candidato == id_unico; };
+  do {
+    existe = c_any_of(ids_unicos, EhCandidato);
+    if (!existe) break;
+    ++candidato;
+    if (candidato < 0) {
+      // Se isso acontecer, acredito que a memoria vai explodir antes...
+      LOG(ERROR) << "Cheguei ao limite de eventos";
+      candidato = 0;
+      break;
+    }
+  } while (1);
+  VLOG(1) << "Retornando id unico: " << candidato;
+  return candidato;
+}
+
+
+int AchaIdUnicoEvento(
     const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     const RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados) {
-  uint32_t candidato = 0;
+  int candidato = 0;
   bool existe = false;
   auto EhCandidato = [&candidato] (const EntidadeProto::Evento& evento) { return candidato == evento.id_unico(); };
   do {
@@ -2801,10 +2830,23 @@ uint32_t AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
+    const std::vector<int>& ids_unicos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+  // Pega antes de criar o evento.
+  int id_unico = AchaIdUnicoEvento(ids_unicos);
+  auto* e = proto->add_evento();
+  e->set_id_efeito(id_efeito);
+  e->set_rodadas(continuo ? 1 : rodadas);
+  e->set_continuo(continuo);
+  e->set_id_unico(id_unico);
+  return e;
+}
+
+
+EntidadeProto::Evento* AdicionaEvento(
     const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   // Pega antes de criar o evento.
-  uint32_t id_unico = AchaIdUnicoEvento(eventos, proto->evento());
+  int id_unico = AchaIdUnicoEvento(eventos, proto->evento());
   auto* e = proto->add_evento();
   e->set_id_efeito(id_efeito);
   e->set_rodadas(continuo ? 1 : rodadas);
@@ -2853,17 +2895,17 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    int nivel_conjurador, const RepeatedPtrField<EntidadeProto::Evento>& eventos, const EfeitoAdicional& efeito_adicional,
+    int nivel_conjurador, const std::vector<int>& ids_unicos, const EfeitoAdicional& efeito_adicional,
     EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  auto* e = AdicionaEvento(eventos, efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, proto);
+  auto* e = AdicionaEvento(ids_unicos, efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, proto);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;
 }
 
-void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto) {
+void ExpiraEventoItemMagico(int id_unico, EntidadeProto* proto) {
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.id_unico() == id_unico) {
       evento.set_rodadas(-1);
@@ -2879,7 +2921,7 @@ void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto) {
   item->clear_ids_efeitos();
 }
 
-EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto) {
+EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto) {
   for (auto& evento : *proto->mutable_evento()) {
     if (evento.id_unico() == id_unico) {
       return &evento;
@@ -2888,7 +2930,7 @@ EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto) {
   return nullptr;
 }
 
-const EntidadeProto::Evento* AchaEvento(uint32_t id_unico, const EntidadeProto& proto) {
+const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto) {
   for (auto& evento : proto.evento()) {
     if (evento.id_unico() == id_unico) {
       return &evento;
@@ -3178,8 +3220,10 @@ bool NotificacaoConsequenciaFeitico(
   }
   if (FeiticoPessoal(feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
+    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-      PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, grupo->add_notificacao(), nullptr);
+      ids_unicos.push_back(
+          PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, ids_unicos, efeito_adicional, grupo->add_notificacao(), nullptr));
     }
     return false;
   } else {

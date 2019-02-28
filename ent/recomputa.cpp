@@ -366,7 +366,7 @@ void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
   evento->set_rodadas(100);
 }
 
-void AplicaFimPedraEncantada(unsigned int id_unico, EntidadeProto* proto) {
+void AplicaFimPedraEncantada(int id_unico, EntidadeProto* proto) {
   // Encontra o dado de ataque.
   int i = 0;
   for (const auto& da : proto->dados_ataque()) {

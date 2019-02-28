@@ -1048,7 +1048,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
       PreencheNotificacaoEventoEfeitoAdicional(
-          nivel_expulsao, *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+          nivel_expulsao, *entidade_destino, IdsUnicosEntidade(*entidade_destino), efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " afetado.";
@@ -1265,10 +1265,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0)) {
+      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade_destino);
       for (const auto& efeito_adicional : (salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais())) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+        ids_unicos.push_back(PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, ids_unicos, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao()));
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
@@ -1506,10 +1507,11 @@ float Tabuleiro::TrataAcaoIndividual(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     if (resultado.Sucesso()) {
+      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade_destino);
       for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+        ids_unicos.push_back(PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, ids_unicos, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao()));
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.

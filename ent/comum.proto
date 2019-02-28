@@ -453,7 +453,7 @@ message BonusIndividual {
     // Para preenchimento do valor atraves de complemento.
     optional int32 indice_complemento = 3;
     // Para associar com eventos.
-    optional uint32 id_unico = 4;
+    optional int32 id_unico = 4;
   }
   repeated PorOrigem por_origem = 2;
 }

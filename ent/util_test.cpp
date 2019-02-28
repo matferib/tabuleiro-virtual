@@ -682,9 +682,32 @@ TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
     ntf::Notificacao n;
     EntidadeProto proto;
     std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
-    PreencheNotificacaoEventoEfeitoAdicional(3, *e, tabelas.Feitico("sono").acao().efeitos_adicionais(0), &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, IdsUnicosEntidade(*e), tabelas.Feitico("sono").acao().efeitos_adicionais(0), &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
+  }
+}
+
+// Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
+TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
+  Tabelas tabelas(nullptr);
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+    ntf::Notificacao n;
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
+    ids_unicos.push_back(
+        PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, ids_unicos, tabelas.Feitico("teia").acao().efeitos_adicionais(0), n.add_notificacao(), nullptr));
+    ids_unicos.push_back(
+        PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, ids_unicos, tabelas.Feitico("teia").acao().efeitos_adicionais(1), n.add_notificacao(), nullptr));
+    e->AtualizaParcial(n.notificacao(0).entidade());
+    e->AtualizaParcial(n.notificacao(1).entidade());
+    ASSERT_EQ(e->Proto().evento().size(), 2);
+    EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_ENREDADO);
+    EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_OUTRO);
   }
 }
 
