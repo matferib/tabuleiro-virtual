@@ -1098,7 +1098,7 @@ class Tabuleiro : public ntf::Receptor {
   }
 
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
-  void AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);

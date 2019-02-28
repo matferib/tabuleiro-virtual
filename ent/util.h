@@ -339,16 +339,23 @@ void PreencheNotificacaoRecarregamento(
 
 // Adiciona um evento do tipo passado a entidade.
 // Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
-void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEvento(
+    const Entidade& entidade, TipoEfeito te, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoComComplementoStr(
+    const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
-// Retorna o id unico gerado.
-int PreencheNotificacaoEventoEfeitoAdicional(
-    int nivel_conjurador, const Entidade& entidade_destino, const std::vector<int>& efeitos_adicionados, const AcaoProto::EfeitoAdicional& efeito_adicional,
-    ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+// Retorna o id unico gerado (-1 em caso de erro).
+void PreencheNotificacaoEventoEfeitoAdicional(
+    int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoPrimario(
+    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoSecundario(
+    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
@@ -569,6 +576,7 @@ std::string RotuloEntidade(const Entidade* entidade);
 std::string RotuloEntidade(const EntidadeProto& proto);
 
 // Retorna os ids unicos da entidade.
+std::vector<int> IdsUnicosProto(const EntidadeProto& proto);
 std::vector<int> IdsUnicosEntidade(const Entidade& entidade);
 
 // Acha um id unico de evento para o proto passado. Normalmente o eventos_entidade vem do proto da entidade e o outro vem do proto que esta sendo
@@ -583,35 +591,33 @@ inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadePr
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente. Os eventos devem vir da entidade, para correto preenchimento do id unico
 // (normalmente proto preenchido nao contem tudo).
+// Params ids_unicos é in/out.
 EntidadeProto::Evento* AdicionaEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
-EntidadeProto::Evento* AdicionaEvento(
-    const std::vector<int>& ids_unicos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
+    TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    int nivel_conjurador, const std::vector<int>& ids_unicos, const AcaoProto::EfeitoAdicional& efeito_adicional,
-    EntidadeProto* proto);
-
+    int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, EntidadeProto* proto);
 
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
 // TODO: rodadas automatico?
-std::vector<int> AdicionaEventoItemMagico(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
+void AdicionaEventoItemMagico(
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
+    std::vector<int>* ids_unicos, EntidadeProto* proto);
 
-inline std::vector<int> AdicionaEventoItemMagico(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, /*indice=*/-1, rodadas, continuo, proto);
+inline void AdicionaEventoItemMagicoEfeitoSimples(
+    const ItemMagicoProto& item, int rodadas, bool continuo,
+    std::vector<int>* ids_unicos, EntidadeProto* proto) {
+  AdicionaEventoItemMagico(item, /*indice=*/-1, rodadas, continuo, ids_unicos, proto);
 }
-inline std::vector<int> AdicionaEventoItemMagicoContinuo(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, /*indice=*/-1, /*rodadas=*/1, /*continuo=*/true, proto);
+inline void AdicionaEventoItemMagicoContinuo(
+    const ItemMagicoProto& item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+  AdicionaEventoItemMagico(item, /*indice=*/-1, /*rodadas=*/1, /*continuo=*/true, ids_unicos, proto);
 }
 // Aqui o item eh do proto, e nao da tabela.
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto);
+    const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto);
 
 // Marca a duracao do evento para -1.
 void ExpiraEventoItemMagico(int id_unico, EntidadeProto* proto);

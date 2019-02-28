@@ -1710,10 +1710,11 @@ void PreencheNotificacaoRecarregamento(
   }
 }
 
-void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito tipo_efeito, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+void PreencheNotificacaoEvento(
+    const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, /*rodadas=*/0, /*continuo*/true, e_depois);
+  auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -1722,38 +1723,26 @@ void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito tipo
   }
 }
 
-void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito tipo_efeito, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
-  auto* evento_antes = e_antes->add_evento();
-  *evento_antes = *evento;
-  evento_antes->set_rodadas(-1);
-  if (n_desfazer != nullptr) {
-    *n_desfazer = *n;
-  }
-}
-
-int PreencheNotificacaoEventoEfeitoAdicional(
-    int nivel_conjurador, const Entidade& entidade_destino, const std::vector<int>& ids_unicos, const EfeitoAdicional& efeito_adicional,
-    ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+void PreencheNotificacaoEventoEfeitoAdicional(
+    int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, ids_unicos, efeito_adicional, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, efeito_adicional, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
   }
-  return evento->id_unico();
 }
 
-void PreencheNotificacaoEvento(
-    const Entidade& entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+void PreencheNotificacaoEventoComComplementoStr(
+    const Entidade& entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  auto* evento = AdicionaEvento(entidade.Proto().evento(), tipo_efeito, rodadas, false, e_depois);
+  auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -1778,8 +1767,10 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
   }
 }
 
-bool PreencheNotificacaoEventoParaVenenoComum(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, n, n_desfazer);
+bool PreencheNotificacaoEventoParaVenenoComum(
+    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  PreencheNotificacaoEvento(entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -1788,8 +1779,10 @@ bool PreencheNotificacaoEventoParaVenenoComum(const Entidade& entidade, const Ve
 }
 }  // namespace
 
-void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, n, n_desfazer)) return;
+void PreencheNotificacaoEventoParaVenenoPrimario(
+    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
@@ -1804,8 +1797,10 @@ void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const
   }
 }
 
-void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, n, n_desfazer)) return;
+void PreencheNotificacaoEventoParaVenenoSecundario(
+    const Entidade& entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  if (!PreencheNotificacaoEventoParaVenenoComum(entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
@@ -2780,13 +2775,18 @@ bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento
   return lhs.SerializeAsString() == rhs.SerializeAsString();
 }
 
-std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
+std::vector<int> IdsUnicosProto(const EntidadeProto& proto) {
   std::vector<int> ids;
-  for (const auto& evento : entidade.Proto().evento()) {
+  for (const auto& evento : proto.evento()) {
     if (evento.has_id_unico()) ids.push_back(evento.id_unico());
   }
   return ids;
 }
+
+std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
+  return IdsUnicosProto(entidade.Proto());;
+}
+
 
 int AchaIdUnicoEvento(const std::vector<int>& ids_unicos) {
   int candidato = 0;
@@ -2806,7 +2806,6 @@ int AchaIdUnicoEvento(const std::vector<int>& ids_unicos) {
   VLOG(1) << "Retornando id unico: " << candidato;
   return candidato;
 }
-
 
 int AchaIdUnicoEvento(
     const RepeatedPtrField<EntidadeProto::Evento>& eventos,
@@ -2830,19 +2829,20 @@ int AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    const std::vector<int>& ids_unicos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
+    TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   // Pega antes de criar o evento.
-  int id_unico = AchaIdUnicoEvento(ids_unicos);
+  int id_unico = AchaIdUnicoEvento(*ids_unicos);
   auto* e = proto->add_evento();
   e->set_id_efeito(id_efeito);
   e->set_rodadas(continuo ? 1 : rodadas);
   e->set_continuo(continuo);
   e->set_id_unico(id_unico);
+  ids_unicos->push_back(id_unico);
   return e;
 }
 
 
-EntidadeProto::Evento* AdicionaEvento(
+EntidadeProto::Evento* AdicionaEventoOld(
     const RepeatedPtrField<EntidadeProto::Evento>& eventos,
     TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
   // Pega antes de criar o evento.
@@ -2895,10 +2895,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    int nivel_conjurador, const std::vector<int>& ids_unicos, const EfeitoAdicional& efeito_adicional,
-    EntidadeProto* proto) {
+    int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos,  EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  auto* e = AdicionaEvento(ids_unicos, efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, proto);
+  auto* e = AdicionaEvento(efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, ids_unicos, proto);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
@@ -2959,10 +2959,9 @@ void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto) {
   }
 }
 
-std::vector<int> AdicionaEventoItemMagico(
-    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto) {
-  std::vector<int> ids_unicos;
+void AdicionaEventoItemMagico(
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
+    std::vector<int>* ids_unicos, EntidadeProto* proto) {
   std::vector<TipoEfeito> efeitos;
   if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
     if (indice < 0 || indice >= item.tipo_efeito().size()) {
@@ -2977,8 +2976,7 @@ std::vector<int> AdicionaEventoItemMagico(
   }
 
   for (auto tipo_efeito : efeitos) {
-    auto* evento = AdicionaEvento(eventos, tipo_efeito, rodadas, continuo, proto);
-    ids_unicos.push_back(evento->id_unico());
+    auto* evento = AdicionaEvento(tipo_efeito, rodadas, continuo, ids_unicos, proto);
     if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();
     }
@@ -2987,7 +2985,6 @@ std::vector<int> AdicionaEventoItemMagico(
     }
     evento->set_descricao(item.descricao().empty() ? item.nome() : item.descricao());
   }
-  return ids_unicos;
 }
 
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto) {
@@ -3222,8 +3219,7 @@ bool NotificacaoConsequenciaFeitico(
     // Aplica o efeito do feitico no personagem diretamente.
     std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-      ids_unicos.push_back(
-          PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, ids_unicos, efeito_adicional, grupo->add_notificacao(), nullptr));
+       PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
     }
     return false;
   } else {
@@ -3496,8 +3492,11 @@ const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto&
 }
 
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, const RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto) {
-  for (int id_unico : AdicionaEventoItemMagicoContinuo(eventos, ItemTabela(tabelas, *item), proto)) {
+    const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+  int tam_antes = ids_unicos->size();
+  AdicionaEventoItemMagicoContinuo(ItemTabela(tabelas, *item), ids_unicos, proto);
+  std::vector<int> ids_adicionados(ids_unicos->begin() + tam_antes, ids_unicos->end());
+  for (int id_unico : ids_adicionados) {
     item->add_ids_efeitos(id_unico);
   }
 }

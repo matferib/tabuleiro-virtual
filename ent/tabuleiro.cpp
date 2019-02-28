@@ -1448,7 +1448,8 @@ void Tabuleiro::AlternaInvestida() {
         }
       }
     } else {
-      PreencheNotificacaoEvento(*entidade_selecionada, EFEITO_INVESTIDA, /*rodadas=*/1, n, nullptr);
+      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
+      PreencheNotificacaoEvento(*entidade_selecionada, EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -7181,7 +7182,7 @@ void Tabuleiro::AlternaModoDebug() {
 }
 
 
-void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo) {
   std::vector<const EntidadeProto::Evento*> eventos;
   for (const auto& evento : entidade.Proto().evento()) {
     if (evento.rodadas() > 0 && !evento.continuo()) {
@@ -7216,7 +7217,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Not
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoSecundario(entidade, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno, nullptr);
+          PreencheNotificacaoEventoParaVenenoSecundario(entidade, veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
         } else {
           // salvou.
           veneno_str = google::protobuf::StringPrintf("salvou veneno secundario (%d + %d >= %d)", d20, bonus, veneno.cd());
@@ -7270,7 +7271,8 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
     auto& entidade = *id_entidade.second.get();
-    AtualizaEventosAoPassarRodada(entidade, &grupo_notificacoes);
+    std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
+    AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes);
     AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
@@ -7645,7 +7647,8 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
       e_depois->mutable_tesouro()->add_pocoes();
     }
     if (indice_efeito < (unsigned int)pocao.tipo_efeito().size()) {
-      AdicionaEventoItemMagico(entidade->Proto().evento(), pocao, indice_efeito, pocao.duracao_rodadas(), false, e_depois);
+      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
+      AdicionaEventoItemMagico(pocao, indice_efeito, pocao.duracao_rodadas(), false, &ids_unicos, e_depois);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
       int total;
@@ -7733,7 +7736,8 @@ void Tabuleiro::AlternaFuria() {
       // Para ver novo modificador.
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-      auto* evento = AdicionaEvento(entidade->Proto().evento(), EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, e_depois);
+      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
+      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");

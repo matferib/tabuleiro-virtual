@@ -1085,8 +1085,9 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto* item : itens_a_expirar) {
     ExpiraEventosItemMagico(item, proto);
   }
+  std::vector<int> ids_unicos(IdsUnicosProto(*proto));
   for (auto* item : itens) {
-    AdicionaEventosItemMagicoContinuo(tabelas, proto->evento(), item, proto);
+    AdicionaEventosItemMagicoContinuo(tabelas, item, &ids_unicos, proto);
   }
 }
 

@@ -1021,6 +1021,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
   const int d6x2 = RolaValor("2d6");
   int dados_vida_afetados = d6x2 + nivel_expulsao + modificador_carisma;
   for (const auto* entidade_destino : entidades_por_distancia) {
+    std::vector<int> ids_unicos_entidade_destino(IdsUnicosEntidade(*entidade_destino));
     const int nivel_destino = Nivel(entidade_destino->Proto());
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(entidade_destino->Id());
@@ -1048,7 +1049,8 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
       PreencheNotificacaoEventoEfeitoAdicional(
-          nivel_expulsao, *entidade_destino, IdsUnicosEntidade(*entidade_destino), efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao());
+          nivel_expulsao, *entidade_destino, efeito_adicional,
+          &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " afetado.";
@@ -1219,6 +1221,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
       continue;
     }
+    std::vector<int> ids_unicos_entidade_destino = IdsUnicosEntidade(*entidade_destino);
     acao_proto->set_gera_outras_acoes(true);  // mesmo que nao de dano, tem os textos.
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
@@ -1265,11 +1268,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     if ((resultado_elemento.causa == ALT_NENHUMA || delta_pv_pos_salvacao < 0)) {
-      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade_destino);
       for (const auto& efeito_adicional : (salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais())) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        ids_unicos.push_back(PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, ids_unicos, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao()));
+        PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
+            &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
@@ -1297,6 +1300,7 @@ float Tabuleiro::TrataAcaoIndividual(
   // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
   auto* nd = grupo_desfazer->add_notificacao();
   acao_proto->set_bem_sucedida(true);
+  std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
@@ -1441,7 +1445,8 @@ float Tabuleiro::TrataAcaoIndividual(
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoPrimario(*entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, n_veneno.get(), nullptr);
+          PreencheNotificacaoEventoParaVenenoPrimario(
+              *entidade_destino, veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
         } else {
           veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
@@ -1450,8 +1455,9 @@ float Tabuleiro::TrataAcaoIndividual(
         {
           std::string veneno_proto_str;
           google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
-          PreencheNotificacaoEvento(
-              *entidade_destino, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10, n_veneno.get(), grupo_desfazer->add_notificacao());
+          PreencheNotificacaoEventoComComplementoStr(
+              *entidade_destino, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10,
+              &ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
         }
         central_->AdicionaNotificacao(n_veneno.release());
       }
@@ -1507,11 +1513,11 @@ float Tabuleiro::TrataAcaoIndividual(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     if (resultado.Sucesso()) {
-      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade_destino);
       for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-        ids_unicos.push_back(PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, ids_unicos, efeito_adicional, n_efeito.get(), grupo_desfazer->add_notificacao()));
+        PreencheNotificacaoEventoEfeitoAdicional(
+            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
+            &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
