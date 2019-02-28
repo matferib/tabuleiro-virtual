@@ -644,18 +644,20 @@ modelo {
     }
     dados_ataque {
       grupo: 'pergaminho' rotulo: 'flecha ácida' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'flecha_acida'
+      limite_vezes: 4
       acao_fixa {
-        limite_vezes: 4
         efeitos_adicionais {
-          rodadas: 2
+          rodadas_base: 2
+          modificador_rodadas: MR_NENHUM
           combinar_com: 0
         }
       }
     }
     dados_ataque {
       grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
+      limite_vezes: 2
       acao_fixa {
-        limite_vezes: 2
+        dificuldade_salvacao: 13
         efeitos_adicionais {
           rodadas: 300
           combinar_com: 0

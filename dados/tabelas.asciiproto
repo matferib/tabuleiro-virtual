@@ -4805,10 +4805,14 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: true 
+      tipo: ACAO_PROJETIL
+      geometria: ACAO_GEO_CUBO
+      escala { x: 1.0 y: 0.05 z: 0.05 }
+      cor { r: 0.0 g: 1.0 b: 0.0 }
+      icone: 'icon_bow.png'
+      consequencia: TC_DESLOCA_ALVO
+      ataque_distancia: true
+      permite_ataque_vs_defesa: true
       ignora_resistencia_magia: true
       permite_salvacao: false
       elemento: DESC_ACIDO
@@ -4822,7 +4826,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teia' #  web 
+    id: 'teia' #  web
     nome: 'teia'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -4838,10 +4842,10 @@ tabela_feiticos {
       duracao_s: 0.350
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_web.png'
-      permite_ataque_vs_defesa: false 
+      permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU 
+      resultado_salvacao: RS_ANULOU
       efeitos_adicionais {
         efeito: EFEITO_ENREDADO
         modificador_rodadas: MR_10_MINUTOS_NIVEL
