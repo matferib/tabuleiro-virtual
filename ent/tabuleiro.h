@@ -717,7 +717,7 @@ class Tabuleiro : public ntf::Receptor {
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s);
   float TrataAcaoEfeitoArea(
-      float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+      float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
   float TrataAcaoExpulsarFascinarMortosVivos(
       float atraso_s, const Entidade* entidade, AcaoProto* acao_proto,
