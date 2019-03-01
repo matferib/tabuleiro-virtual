@@ -1542,7 +1542,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
   switch (acao_proto.tipo()) {
     case ACAO_PROJETIL_AREA: {
       const float dq_m2 =
-        DistanciaQuadrado(
+        DistanciaEmMetrosAoQuadrado(
             pos_ponto, acao_proto.pos_tabuleiro());
       // Admite uma certa tolerancia, porque o raio normalmente eh pequeno.
       const float distancia_maxima_m2 = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO * 1.10f, 2);
@@ -1554,7 +1554,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA: {
           const float dq =
-            DistanciaQuadrado(
+            DistanciaEmMetrosAoQuadrado(
                 pos_ponto, acao_proto.pos_tabuleiro());
           const float distancia_maxima = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
           VLOG(1) << "Distancia quadrado: " << dq << ", maximo: " << distancia_maxima;

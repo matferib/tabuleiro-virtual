@@ -293,7 +293,7 @@ Matrix4 MatrizRotacao(const Vector3& vn) {
   return Matrix4().rotate(acosf(cosang) * RAD_PARA_GRAUS, axis);
 }
 
-float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2) {
+float DistanciaEmMetrosAoQuadrado(const Posicao& pos1, const Posicao& pos2) {
   float distancia = powf(pos1.x() - pos2.x(), 2) + powf(pos1.y() - pos2.y(), 2) + powf(pos1.z() - pos2.z(), 2);
   VLOG(4) << "Distancia: " << distancia;
   return distancia;
@@ -1077,7 +1077,8 @@ float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Po
   return distancia_m;
 }
 
-std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
+    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da!= nullptr && da->has_municao() && da->municao() == 0) {
@@ -1492,10 +1493,10 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, cons
   const int total = d20 + nivel_conjurador;
 
   if (d20 + nivel_conjurador < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("RM falhou: %d < %d", total, rm));
+    return std::make_tuple(false, google::protobuf::StringPrintf("RM: anulou; %d < %d", total, rm));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("RM sucesso: %d >= %d", total, rm));
+      true, google::protobuf::StringPrintf("RM: passsou; %d >= %d", total, rm));
 }
 
 namespace {

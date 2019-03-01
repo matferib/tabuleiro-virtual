@@ -1011,8 +1011,8 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
 
   // Ordena por distancia.
   auto OrdenacaoPorDistancia = [entidade] (const Entidade* lhs, const Entidade* rhs) {
-    const float dql = DistanciaQuadrado(entidade->Pos(), lhs->Pos());
-    const float dqr = DistanciaQuadrado(entidade->Pos(), rhs->Pos());
+    const float dql = DistanciaEmMetrosAoQuadrado(entidade->Pos(), lhs->Pos());
+    const float dqr = DistanciaEmMetrosAoQuadrado(entidade->Pos(), rhs->Pos());
     return dql < dqr;
   };
   std::sort(entidades_por_distancia.begin(), entidades_por_distancia.end(), OrdenacaoPorDistancia);
@@ -1187,8 +1187,29 @@ int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
 float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  const Posicao* pos_destino = &acao_proto->pos_tabuleiro();
   if (pos_entidade_destino.has_x()) {
+    // Usa a posicao da acao na entidade ao inves do tabuleiro. Esse é o ponto onde o picking acertou a entidade
+    // e nao a posicao da entidade.
     *acao_proto->mutable_pos_entidade() = pos_entidade_destino;
+    pos_destino = &acao_proto->pos_entidade();
+  }
+  // Verifica alcance.
+  {
+    const float alcance_m = entidade_origem->AlcanceAtaqueMetros();
+    const Posicao& pos_origem = entidade_origem->PosicaoAcao();
+    Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
+    Vector3 vd(pos_destino->x(), pos_destino->y(), pos_destino->z());
+    LOG(INFO) << "va: " << va;
+    LOG(INFO) << "vd: " << vd;
+    const float distancia_m = (va - vd).length();
+    VLOG(1)
+        << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
+        << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
+    if (distancia_m > alcance_m) {
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      return atraso_s;
+    }
   }
 
   const auto* da = entidade_origem->DadoCorrente();
@@ -1292,14 +1313,30 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 }
 
 float Tabuleiro::TrataAcaoCriacao(
-    float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    float atraso_s, const Posicao& pos_criacao, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
-  LOG(INFO) << "pos: " << pos_entidade.DebugString();
+  VLOG(1) << "pos criacao: " << pos_criacao.DebugString();
   auto it = mapa_modelos_com_parametros_.find(acao_proto->id_modelo_entidade());
   if (it == mapa_modelos_com_parametros_.end()) {
     LOG(ERROR) << "Modelo de entidade invalido: " << acao_proto->id_modelo_entidade();
     return atraso_s;
   }
+  // Verifica alcance.
+  {
+    const float alcance_m = entidade->AlcanceAtaqueMetros();
+    const Posicao& pos_origem = entidade->PosicaoAcao();
+    Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
+    Vector3 vd(pos_criacao.x(), pos_criacao.y(), pos_criacao.z());
+    const float distancia_m = (va - vd).length();
+    VLOG(1)
+        << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
+        << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
+    if (distancia_m > alcance_m) {
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      return atraso_s;
+    }
+  }
+
   const auto& modelo_fixo = it->second;
   const auto* referencia = entidade;
   ntf::Notificacao notificacao;
@@ -1309,7 +1346,7 @@ float Tabuleiro::TrataAcaoCriacao(
   if (modelo_fixo->has_parametros()) {
     PreencheModeloComParametros(modelo_fixo->parametros(), *referencia, modelo);
   }
-  *modelo->mutable_pos() = pos_entidade;
+  *modelo->mutable_pos() = pos_criacao;
 
   TrataNotificacao(notificacao);
   return atraso_s;
@@ -1492,10 +1529,10 @@ float Tabuleiro::TrataAcaoIndividual(
     if (!acao_proto->ignora_resistencia_magia() &&
         entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
-      bool passou_rm;
-      std::tie(passou_rm, resultado_rm) =
+      bool sucesso;
+      std::tie(sucesso, resultado_rm) =
           AtaqueVsResistenciaMagia(*acao_proto, *entidade_origem, *entidade_destino);
-      if (!passou_rm) {
+      if (!sucesso) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;
         por_entidade->set_delta(0);
@@ -1507,7 +1544,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     std::string resultado_salvacao;
     bool salvou = false;
-    if ((delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
+    if (resultado.Sucesso() && (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor. Entao setamos antes e depois.
       por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
@@ -1673,7 +1710,9 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     TrataNotificacao(n);
   }
   // Mesmo nao havendo acao, tem que desfazer porque ha efeitos que independem disso, como queda.
-  AdicionaNotificacaoListaEventos(grupo_desfazer);
+  if (!grupo_desfazer.notificacao().empty()) {
+    AdicionaNotificacaoListaEventos(grupo_desfazer);
+  }
   return atraso_s;
 }
 

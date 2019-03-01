@@ -182,7 +182,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 Matrix4 MatrizRotacao(const Vector3& v);
 
 /** @return quadrado da distancia entre as posicoes. */
-float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2);
+float DistanciaEmMetrosAoQuadrado(const Posicao& pos1, const Posicao& pos2);
 
 /** Roda o vetor no eixo Z. */
 void RodaVetor2d(float graus, Posicao* vetor);
@@ -631,7 +631,8 @@ void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto);
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 
 // Retorna false se nao houver alcance ou municao, com texto descritivo. O valor float eh a distancia computada.
-std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
+    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Retorna o modificador de incrementos. Assume alcance e municao.
 int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
