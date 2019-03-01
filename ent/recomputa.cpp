@@ -1225,7 +1225,6 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   }
 }
 
-
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
