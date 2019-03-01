@@ -2901,13 +2901,25 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
   return efeito_adicional.rodadas();
 }
 
+void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
+  switch (efeito_adicional.modificador_complementos()) {
+    case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
+      int adicionais = std::min(4, nivel_conjurador / 3);
+      evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
+      break;
+    }
+    default:
+      *evento->mutable_complementos() = efeito_adicional.complementos();
+  }
+}
+
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos,  EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
   auto* e = AdicionaEvento(efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, ids_unicos, proto);
+  PreencheComplementos(nivel_conjurador, efeito_adicional, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
-  *e->mutable_complementos() = efeito_adicional.complementos();
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;
 }

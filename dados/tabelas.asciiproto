@@ -1026,6 +1026,13 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_REFLEXOS
+    nome: 'reflexos'
+    formato_complementos: 'Número de reflexos.'
+    nao_cumulativo: true
+  }
+
+  efeitos {
     id: EFEITO_ABALADO  # shaken
     nome: 'abalado'
     # -2 penalty on attack rolls, saving throws, skill checks, and ability checks.
@@ -6482,6 +6489,7 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_REFLEXOS
         modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_1D4_MAIS_1_CADA_TRES_MAX_8
       }
     }
   }

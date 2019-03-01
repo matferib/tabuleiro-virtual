@@ -71,6 +71,12 @@ enum ModificadorRodadas {
   MR_1D4 = 8;
 }
 
+enum ModificadorComplementos {
+  MC_NENHUM = 0;
+  MC_1D4_MAIS_1_CADA_TRES_MAX_8 = 1;  // reflexos
+}
+
+
 // Proximo id: 64.
 message AcaoProto {
   // Identificador da acao, para menus.
@@ -194,6 +200,7 @@ message AcaoProto {
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
+    optional ModificadorComplementos modificador_complementos = 9;
     // TODO
     // Para rodadas com valor de string.
     // optional string rodadas_string = 9;
