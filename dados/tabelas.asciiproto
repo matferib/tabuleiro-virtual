@@ -4683,6 +4683,7 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    # TODO
     id: 'invocar criaturas I'
     info_classes {
       id: 'bardo'
@@ -4698,9 +4699,8 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_CRIACAO_ENTIDADE
-      id_modelo_entidade: 'Orc'
+      #id_modelo_entidade: 'Orc'
     }
-
   }
   armas {
     id: 'toque_fadiga' #  touch of fatigue
@@ -5863,7 +5863,7 @@ tabela_feiticos {
   }
   armas {
     id: 'coluna_chamas'
-    nome: 'Coluna de Chamas'
+    nome: 'coluna de chamas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -6582,7 +6582,7 @@ tabela_feiticos {
 
   armas {
     id: 'tempestade_glacial'
-    nome: 'Tempestade Glacial'
+    nome: 'tempestade glacial'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
@@ -6599,21 +6599,11 @@ tabela_feiticos {
       nivel: 5
     }
     acao {
-      tipo: ACAO_DISPERSAO
-      cor { r: 1 g: 1 b: 1 a: 0.5 }
-      raio_quadrados: 4  # quadrados.
-      geometria: ACAO_GEO_CILINDRO
-      efeito_area: true
-      permite_salvacao: false
-      icone: 'icon_ice.png'
-      info_textura { id: 'ice.png' }
-      duracao_s: 0.350
-      dois_lados: true
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_FRIO
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Tempestade Glacial'
+      icone: 'ice.png'
     }
   }
-
 }
 
 tabela_chapeus {

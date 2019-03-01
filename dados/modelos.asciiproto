@@ -2861,7 +2861,7 @@ modelo {
         conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'misseis_magicos' }
+        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
@@ -3652,16 +3652,26 @@ modelo {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
     cor { r: 1 g: 1 b: 1 a: 0.5 }
     dados_ataque {
-      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d6+3d6'
-      acao_fixa { permite_ataque_vs_defesa: false }
+      grupo: 'ataque' tipo_ataque: 'Pedrada (gigante)' rotulo: 'gelo' dano_basico: '2d6'
+      acao_fixa {
+        icone: 'icon_ice.png'
+        permite_ataque_vs_defesa: false
+        permite_salvacao: false
+        ignora_resistencia_magia: false
+        elemento: DESC_FRIO
+      }
     }
     dados_ataque {
-      rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano_basico: '2d6+3d6'
+      grupo: 'ataque' tipo_ataque: 'Pedrada (gigante)' rotulo: 'fisico' dano_basico: '3d6'
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: false
+        ignora_resistencia_magia: false
+      }
     }
     info_textura { id: 'ice.png' }
     faz_sombra: false
     dois_lados: true
-    rotulo_especial: '2d6 dano de estouro, 3d6 de gelo, sem salvação.'
     evento { rodadas: 1 descricao: 'duração' }
   }
 }
