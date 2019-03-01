@@ -5658,6 +5658,67 @@ tabela_feiticos {
       }
     }
   }
+
+  armas {
+    id: 'arma_espiritual_mangual'
+    nome: 'arma espiritual mangual (20/x2)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Arma Espiritual (20/x2)'
+    }
+  }
+
+  armas {
+    id: 'arma_espiritual_machado_martelo'
+    nome: 'arma espiritual machado ou martelo (20/x3)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Arma Espiritual (20/x3)'
+    }
+  }
+
+  armas {
+    id: 'arma_espiritual_espada'
+    nome: 'arma espiritual espada (19-20/x2)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
+    }
+  }
+
   armas {
     id: 'escudo_fe'
     nome: 'escudo da fé'
