@@ -994,104 +994,6 @@ int Tabuleiro::Desenha() {
   return tempos_entre_cenas_.front();
 }
 
-void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
-  const int nivel = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
-  if (parametros.has_tipo_duracao()) {
-    int duracao_rodadas = -1;
-    switch (parametros.tipo_duracao()) {
-      case TD_RODADAS_NIVEL:
-        duracao_rodadas = nivel;
-        break;
-      case TD_MINUTOS_NIVEL:
-        duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
-        break;
-      case TD_HORAS_NIVEL:
-        duracao_rodadas = nivel * HORAS_PARA_RODADAS;
-        break;
-      default:
-        break;
-    }
-    if (duracao_rodadas > 0) {
-      // Procura a duracao no modelo, caso nao haja, coloca.
-      for (int i = 0; i < modelo->evento_size(); ++i) {
-        if (StringSemUtf8(modelo->evento(i).descricao()) == "duracao") {
-          modelo->mutable_evento()->DeleteSubrange(i, 1);
-          break;
-        }
-      }
-      auto* evento = modelo->add_evento();
-      evento->set_descricao("duração");
-      evento->set_id_efeito(EFEITO_OUTRO);
-      evento->set_rodadas(duracao_rodadas);
-      // Acha o id para a referencia, ja que o modelo nao tem nada.
-      evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto().evento()));
-    }
-  }
-  if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
-    std::string dano_str = parametros.dano_fixo();
-    int modificador = nivel * parametros.multiplicador_nivel_dano();
-    if (parametros.has_maximo_modificador_dano()) {
-      modificador = std::min(parametros.maximo_modificador_dano(), modificador);
-    }
-    google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
-    for (auto& da : *modelo->mutable_dados_ataque()) {
-      da.set_dano_basico(dano_str);
-    }
-  }
-  if (parametros.has_tipo_modificador_ataque()) {
-    int modificador_ataque = -100;
-    int num_ataques = 1;
-    switch (parametros.tipo_modificador_ataque()) {
-      case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO: {
-        int ref_bba = referencia.BonusBaseAtaque();
-        num_ataques = 1 + (ref_bba / 6);
-        modificador_ataque = ref_bba + referencia.ModificadorAtributoConjuracao();
-        break;
-      }
-      case TMA_BBA_NIVEL_CONJURADOR:
-        modificador_ataque = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
-        break;
-      default:
-        break;
-    }
-    // Hack para quando o personagem nao tiver modificadores.
-    if (modificador_ataque > -50) {
-      // Adiciona uma classe ficticia com o bba. Os ataques adicionais receberao o bonus dentro de outros_bonus_ataque.
-      auto* ic = modelo->add_info_classes();
-      ic->set_id("modelo");
-      ic->set_nivel(modificador_ataque);
-      ic->set_bba(modificador_ataque);
-      // Salva o ataque como modelo para usar ao criar os demais.
-      auto da = modelo->dados_ataque().empty() ? EntidadeProto::DadosAtaque() : modelo->dados_ataque(0);
-      modelo->clear_dados_ataque();
-      int ordem_ataque = 0;
-      while (num_ataques-- > 0) {
-        auto* nda = modelo->add_dados_ataque();
-        *nda = da;
-        if (ordem_ataque > 0) AtribuiBonus(ordem_ataque * -5, TB_SEM_NOME, "ataque_adicional", nda->mutable_bonus_ataque());
-        ++ordem_ataque;
-      }
-    }
-  }
-  if (parametros.has_tipo_modificador_salvacao()) {
-    switch (parametros.tipo_modificador_salvacao()) {
-      case TMS_MODIFICADOR_CONJURACAO:
-        for (auto& da : *modelo->mutable_dados_ataque()) {
-          da.mutable_acao_fixa()->set_dificuldade_salvacao(
-              da.acao_fixa().dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
-        }
-        break;
-      case TMS_NENHUM:
-      default:
-        break;
-    }
-  }
-  if (!parametros.rotulo_especial().empty()) {
-    *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
-  }
-  VLOG(1) << "Modelo parametrizado: " << modelo->DebugString();
-}
-
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
@@ -1128,6 +1030,9 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         modelo.mutable_pos()->set_id_cenario(IdCenario());
       } else if (!Desfazendo()) {
         // Se nao estiver desfazendo, poe a entidade no cenario corrente.
+        if (notificacao.entidade().has_pos()) {
+          *modelo.mutable_pos() = notificacao.entidade().pos();
+        }
         modelo.mutable_pos()->set_id_cenario(IdCenario());
       }
       unsigned int id_entidade = GeraIdEntidade(id_cliente_);

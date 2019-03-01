@@ -1000,7 +1000,7 @@ class AcaoCorpoCorpo : public Acao {
   constexpr static int DURACAO_MS = 180;
 };
 
-// Acao de feitico de toque.
+// Acao de feitico.
 class AcaoFeitico : public Acao {
  public:
   AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
@@ -1064,6 +1064,25 @@ class AcaoFeitico : public Acao {
   bool desenhando_origem_;
   float raio_;
   bool terminado_;
+};
+
+// Nao faz nada.
+class AcaoCriacaoEntidade : public Acao {
+ public:
+  AcaoCriacaoEntidade(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+  }
+
+  void AtualizaAposAtraso(int intervalo_ms) override {
+  }
+
+  bool Finalizada() const override {
+    return true;
+  }
+
+ private:
 };
 
 }  // namespace
@@ -1656,6 +1675,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoPocao(acao_proto, tabuleiro, texturas);
     case ACAO_PROJETIL_AREA:
       return new AcaoProjetilArea(acao_proto, tabuleiro, texturas);
+    case ACAO_CRIACAO_ENTIDADE:
+      return new AcaoCriacaoEntidade(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;

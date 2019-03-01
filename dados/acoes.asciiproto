@@ -171,3 +171,8 @@ acao {
   icone: 'icon_signal.png'
   ignora_luz: true
 }
+acao {
+  id: 'Criação de Entidade'
+  tipo: ACAO_CRIACAO_ENTIDADE
+  icone: 'icon_summon.png'
+}

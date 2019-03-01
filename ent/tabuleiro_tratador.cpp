@@ -1291,6 +1291,30 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   return atraso_s;
 }
 
+float Tabuleiro::TrataAcaoCriacao(
+    float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+    ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  LOG(INFO) << "pos: " << pos_entidade.DebugString();
+  auto it = mapa_modelos_com_parametros_.find(acao_proto->id_modelo_entidade());
+  if (it == mapa_modelos_com_parametros_.end()) {
+    LOG(ERROR) << "Modelo de entidade invalido: " << acao_proto->id_modelo_entidade();
+    return atraso_s;
+  }
+  const auto& modelo_fixo = it->second;
+  const auto* referencia = entidade;
+  ntf::Notificacao notificacao;
+  notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+  auto* modelo = notificacao.mutable_entidade();
+  *modelo = modelo_fixo->entidade();
+  if (modelo_fixo->has_parametros()) {
+    PreencheModeloComParametros(modelo_fixo->parametros(), *referencia, modelo);
+  }
+  *modelo->mutable_pos() = pos_entidade;
+
+  TrataNotificacao(notificacao);
+  return atraso_s;
+}
+
 float Tabuleiro::TrataAcaoIndividual(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
     Entidade* entidade_origem, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
@@ -1611,7 +1635,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s) {
 
-  if (entidade_origem != nullptr && !PodeAgir(entidade_origem->Proto())) {
+  if (!PodeAgir(entidade_origem->Proto())) {
     AdicionaAcaoTextoLogado(entidade_origem->Id(), "Entidade nao pode agir", atraso_s);
     return atraso_s + 0.5f;
   }
@@ -1636,6 +1660,8 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   n.set_tipo(ntf::TN_ADICIONAR_ACAO);
   if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
     atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+  } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
+    atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
   } else if (acao_proto.efeito_projetil_area()) {
     atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
   } else if (EfeitoArea(acao_proto)) {

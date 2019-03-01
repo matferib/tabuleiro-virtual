@@ -18,6 +18,7 @@ enum TipoAcao {
   ACAO_POCAO = 9;
   ACAO_PROJETIL_AREA = 10;
   ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS = 11;
+  ACAO_CRIACAO_ENTIDADE = 13;
 }
 
 // Algumas acoes causam consequencias, como deslocamento do alvo.
@@ -70,7 +71,7 @@ enum ModificadorRodadas {
   MR_1D4 = 8;
 }
 
-// Proximo id: 63.
+// Proximo id: 64.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -200,6 +201,8 @@ message AcaoProto {
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
+  // Para entidades de criacao.
+  optional string id_modelo_entidade = 63;
 }
 
 // O arquivo de acoes é serializado desta forma.

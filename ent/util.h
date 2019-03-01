@@ -10,6 +10,7 @@
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
+#include "ent/controle_virtual.pb.h"
 #include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.pb.h"
@@ -802,6 +803,9 @@ bool DestrezaNaCA(const EntidadeProto& proto);
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
+
+// Dado os parametros e a entidade de referencia, preenche `modelo`.
+void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
 
 }  // namespace ent
 

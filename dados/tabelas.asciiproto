@@ -4683,7 +4683,27 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
-    id: 'toque_fadiga' #  touch of fatigue 
+    id: 'invocar criaturas I'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Orc'
+    }
+
+  }
+  armas {
+    id: 'toque_fadiga' #  touch of fatigue
     nome: 'toque da fadiga'
     info_classes {
       id: 'mago'
@@ -4695,7 +4715,7 @@ tabela_feiticos {
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       permite_ataque_vs_defesa: true
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
       efeitos_adicionais {
@@ -6478,6 +6498,10 @@ tabela_feiticos {
     info_classes {
       id: 'druida'
       nivel: 2
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Esfera Flamejante'
     }
   }
 
