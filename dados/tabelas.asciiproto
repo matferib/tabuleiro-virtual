@@ -6485,7 +6485,7 @@ tabela_feiticos {
     acao {
       tipo: ACAO_FEITICO_PESSOAL
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
+      icone: 'icon_personal.png'
       efeitos_adicionais {
         efeito: EFEITO_REFLEXOS
         modificador_rodadas: MR_MINUTOS_NIVEL
