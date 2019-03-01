@@ -1656,7 +1656,7 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   }
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
-      VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
+      VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
     }
   }
@@ -1666,7 +1666,10 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
             << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
-  VLOG(3) << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque();
+  VLOG(3)
+      << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque()
+      << ", grupo: " << ataques_casados[vd_.ataques_na_rodada]->grupo();
+  VLOG(4) << "Ataque retornado: " << ataques_casados[vd_.ataques_na_rodada]->DebugString();
   return ataques_casados[vd_.ataques_na_rodada];
 }
 

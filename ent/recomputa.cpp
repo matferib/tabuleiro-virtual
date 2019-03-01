@@ -1317,7 +1317,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   // Tenta achar o primeiro da lista com mesmo rotulo para obter coisas derivadas do primeiro (municao, descritores).
   const EntidadeProto::DadosAtaque* primeiro = nullptr;
   for (const auto& dda : proto.dados_ataque()) {
-    if (dda.rotulo() == da->rotulo()) {
+    if (dda.grupo() == da->grupo() && dda.tipo_ataque() == da->tipo_ataque() && dda.rotulo() == da->rotulo()) {
       primeiro = &dda;
       break;
     }
