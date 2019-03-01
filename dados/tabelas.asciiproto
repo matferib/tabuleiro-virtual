@@ -6027,6 +6027,25 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'criar_agua'
+    nome: 'criar água'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladin'
+      nivel: 0
+    }
+  }
+
+  armas {
     id: 'bola_fogo'
     nome: 'bola de fogo'
     alcance_quadrados: 80
@@ -6347,8 +6366,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'orientacao'
-    nome: 'Orientação'
+    id: 'orientacao'  # guidance.
+    nome: 'orientação'
     info_classes {
       id: 'clerigo'
       nivel: 0

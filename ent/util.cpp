@@ -3217,6 +3217,16 @@ std::string ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador)
   }
 }
 
+bool FeiticoGeraAcao(const ArmaProto& feitico_tabelado) {
+  // Ha varias condicoes que fazem o feitico gerar uma acao. Vamos tentar varias.
+  switch (feitico_tabelado.acao().tipo()) {
+    case ACAO_INVALIDA:
+      return false;
+    default:
+      return true;
+  }
+}
+
 bool NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
@@ -3241,7 +3251,7 @@ bool NotificacaoConsequenciaFeitico(
        PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
     }
     return false;
-  } else {
+  } else if (FeiticoGeraAcao(feitico_tabelado)) {
     ntf::Notificacao* n;
     ent::EntidadeProto *e_antes, *e_depois;
     std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
@@ -3273,6 +3283,7 @@ bool NotificacaoConsequenciaFeitico(
     }
     return true;
   }
+  return false;
 }
 
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
