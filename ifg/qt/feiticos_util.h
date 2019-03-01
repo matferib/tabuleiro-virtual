@@ -63,8 +63,12 @@ class ItemFeiticoConhecido : public QTreeWidgetItem {
       const ent::Tabelas& tabelas, const std::string& id_classe, int nivel, QComboBox* combo) {
     combo->clear();
     combo->addItem(QString::fromUtf8(""), QVariant(""));
+    std::map<QString, std::string> feiticos_ordenados;
     for (const auto& feitico : tabelas.Feiticos(ent::IdParaMagia(tabelas, id_classe), nivel)) {
-      combo->addItem(QString::fromStdString(feitico->nome()), QVariant(QString::fromStdString(feitico->id())));
+      feiticos_ordenados[QString::fromStdString(feitico->nome())] = feitico->id();
+    }
+    for (const auto par_nome_id : feiticos_ordenados) {
+      combo->addItem(par_nome_id.first, QVariant(QString::fromStdString(par_nome_id.second)));
     }
   }
 

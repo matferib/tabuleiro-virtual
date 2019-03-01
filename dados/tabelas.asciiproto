@@ -5972,7 +5972,7 @@ tabela_feiticos {
   }
   armas {
     id: 'bencao'
-    nome: 'Benção'
+    nome: 'benção'
     alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
@@ -6426,7 +6426,7 @@ tabela_feiticos {
 
   armas {
     id: 'pedra_encantada'
-    nome: 'Pedra Encantada'
+    nome: 'pedra encantada'
     info_classes {
       id: 'clerigo'
       nivel: 1
