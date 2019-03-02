@@ -100,6 +100,7 @@ void AtualizaFeiticosConhecidosNivel(
 void AdicionaItemFeiticoConhecido(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int indice,
+    const ent::EntidadeProto& proto_retornado,
     QTreeWidgetItem* pai);
 
 // Atualiza os feiticos para lancar de um nivel.

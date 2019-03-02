@@ -19,6 +19,9 @@
 namespace ifg {
 namespace qt {
 
+using google::protobuf::StringPrintf;
+using google::protobuf::StringAppendF;
+
 void AtualizaUIEventos(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   auto* model = qobject_cast<ModeloEvento*>(gerador.tabela_lista_eventos->model());
@@ -106,7 +109,7 @@ std::string StringSalvacoesFortes(const ent::InfoClasse& ic) {
 }
 
 // Atualiza a UI com a lista de niveis e os totais.
-void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // nivel total.
   int total = 0;
   int total_bba = 0;
@@ -122,14 +125,23 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   gerador.lista_niveis->clear();
   for (const auto& ic : proto.info_classes()) {
     std::string string_nivel;
-    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
+    StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
     if (ic.nivel_conjurador() > 0) {
-      google::protobuf::StringAppendF(
+      StringAppendF(
           &string_nivel, ", conjurador: %d, mod (%s): %d",
           ic.nivel_conjurador(), TipoAtributo_Name(ic.atributo_conjuracao()).substr(3, 3).c_str(),
           ic.modificador_atributo_conjuracao());
     }
-    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
+    StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    if (classe_tabelada.possui_dominio()) {
+      const auto& fc = ent::FeiticosClasse(ic.id(), proto);
+      if (fc.dominios_size() == 2) {
+        StringAppendF(&string_nivel, ", dominios: %s, %s", tabelas.Dominio(fc.dominios(0)).nome().c_str(), tabelas.Dominio(fc.dominios(1)).nome().c_str());
+      } else {
+        LOG(ERROR) << "dominios de tamanho errado";
+      }
+    }
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
   }
   if (indice_antes < proto.info_classes().size()) {
@@ -139,9 +151,8 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   }
 }
 
-int IdClasseParaIndice(const std::string& id, const QComboBox* combo) {
-  int indice = combo->findData(id.c_str());
-  return indice < 0 ? combo->findData("outro") : indice;
+void SelecionaIndicePorId(const std::string& id, QComboBox* combo) {
+  combo->setCurrentIndex(combo->findData(id.c_str()));
 }
 
 }  // namespace
@@ -158,6 +169,7 @@ void AtualizaUIClassesNiveis(
   std::vector<QObject*> objs = {
       gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe, gerador.combo_raca,
+      gerador.combo_dominio_1, gerador.combo_dominio_2,
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -167,7 +179,7 @@ void AtualizaUIClassesNiveis(
   };
 
   BloqueiaSinais();
-  AtualizaUINiveis(gerador, proto);
+  AtualizaUINiveis(tabelas, gerador, proto);
   gerador.spin_niveis_negativos->setValue(proto.niveis_negativos());
 
   const int indice = gerador.lista_niveis->currentRow();
@@ -175,7 +187,7 @@ void AtualizaUIClassesNiveis(
   if (indice >= 0 && indice < proto.info_classes_size()) {
     const auto& info_classe = proto.info_classes(indice);
     gerador.botao_remover_nivel->setEnabled(true);
-    gerador.combo_classe->setCurrentIndex(IdClasseParaIndice(info_classe.id(), gerador.combo_classe));
+    SelecionaIndicePorId(info_classe.id(), gerador.combo_classe);
     gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
     gerador.spin_nivel_classe->setValue(info_classe.nivel());
     gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
@@ -183,6 +195,19 @@ void AtualizaUIClassesNiveis(
     gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
     gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
     gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(info_classe));
+    const auto& classe_tabelada = tabelas.Classe(info_classe.id());
+    if (classe_tabelada.possui_dominio()) {
+      gerador.combo_dominio_1->setEnabled(true);
+      gerador.combo_dominio_2->setEnabled(true);
+      const auto& fc = ent::FeiticosClasse(classe_tabelada.id(), proto);
+      SelecionaIndicePorId(fc.dominios().size() == 2 ? fc.dominios(0) : "nenhum", gerador.combo_dominio_1);
+      SelecionaIndicePorId(fc.dominios().size() == 2 ? fc.dominios(1) : "nenhum", gerador.combo_dominio_2);
+    } else {
+      gerador.combo_dominio_1->setEnabled(false);
+      gerador.combo_dominio_2->setEnabled(false);
+      SelecionaIndicePorId("nenhum", gerador.combo_dominio_1);
+      SelecionaIndicePorId("nenhum", gerador.combo_dominio_2);
+    }
   }
 
   // Override de coisas tabeladas, independente de selecao.
@@ -552,9 +577,10 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
 void AdicionaItemFeiticoConhecido(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int slot,
+    const ent::EntidadeProto& proto,
     QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, pai);
+  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, proto, pai);
   item_feitico->setIdNome(QString::fromUtf8(id.c_str()), QString::fromUtf8(nome.c_str()));
   item_feitico->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(CONHECIDO));
   item_feitico->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
@@ -579,7 +605,7 @@ void AtualizaFeiticosConhecidosNivel(
     AdicionaItemFeiticoConhecido(
         tabelas, gerador, conhecido.id(),
         conhecido.has_nome() ? conhecido.nome() : tabelas.Feitico(conhecido.id()).nome(),
-        id_classe, nivel, slot++, pai);
+        id_classe, nivel, slot++, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);

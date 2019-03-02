@@ -942,3 +942,9 @@ message RacaProto {
   optional TipoDnD tipo = 7;
   optional SubTipoDnD sub_tipo = 8;
 }
+
+message DominioProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
+}

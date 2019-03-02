@@ -1,11 +1,9 @@
-Feiticos de criacao: como fazer UNDO.
+Adicionar feiticos de dominio na UI de clerigo.
+Tabelar mais dominios.
 
 Luz deve ter raio na UI de objetos.
 Permitir feiticos de nivel acima para pergaminhos na UI.
 Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
-Complementos variaveis (por exemplo, reflexos cria 1d4+1/3 niveis maximo 8).
-
-Modificador de rodadas de efeitos adicionais (precisa adicionar o nivel da fonte).
 
 Anotacoes da sessao Tilverton:
 - Definir encontros.

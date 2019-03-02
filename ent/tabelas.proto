@@ -222,6 +222,10 @@ message TabelaRacas {
   repeated RacaProto racas = 1;
 }
 
+message TabelaDominios {
+  repeated DominioProto dominios = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -243,4 +247,5 @@ message TodasTabelas {
   optional TabelaAmuletos tabela_amuletos = 58;
   optional TabelaChapeus tabela_chapeus = 59;
   optional TabelaVenenos tabela_venenos = 57;
+  optional TabelaDominios tabela_dominios = 60;
 }

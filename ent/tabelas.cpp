@@ -158,6 +158,11 @@ void Tabelas::RecarregaMapas() {
   classes_.clear();
   acoes_.clear();
   racas_.clear();
+  dominios_.clear();
+
+  for (const auto& dominio : tabelas_.tabela_dominios().dominios()) {
+    dominios_[dominio.id()] = &dominio;
+  }
 
   for (const auto& raca : tabelas_.tabela_racas().racas()) {
     racas_[raca.id()] = &raca;
@@ -360,6 +365,11 @@ const InfoClasse& Tabelas::Classe(const std::string& id) const {
 const RacaProto& Tabelas::Raca(const std::string& id) const {
   auto it = racas_.find(id);
   return it == racas_.end() ? RacaProto::default_instance() : *it->second;
+}
+
+const DominioProto& Tabelas::Dominio(const std::string& id) const {
+  auto it = dominios_.find(id);
+  return it == dominios_.end() ? DominioProto::default_instance() : *it->second;
 }
 
 const PericiaProto& Tabelas::Pericia(const std::string& id) const {

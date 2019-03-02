@@ -262,7 +262,7 @@ public:
     QLabel *label_101;
     QComboBox *combo_raca;
     QGroupBox *groupBox_2;
-    QHBoxLayout *horizontalLayout_46;
+    QGridLayout *gridLayout_20;
     QHBoxLayout *horizontalLayout;
     QLabel *label_40;
     QComboBox *combo_classe;
@@ -274,15 +274,19 @@ public:
     QLabel *label_43;
     QSpinBox *spin_bba;
     QSpacerItem *horizontalSpacer_7;
-    QLabel *label_42;
-    QSpinBox *spin_nivel_conjurador;
-    QSpacerItem *horizontalSpacer_8;
-    QLabel *label_44;
-    QComboBox *combo_mod_conjuracao;
-    QLabel *label_mod_conjuracao;
-    QSpacerItem *horizontalSpacer_9;
     QLabel *label_64;
     QComboBox *combo_salvacoes_fortes;
+    QHBoxLayout *horizontalLayout_48;
+    QLabel *label_42;
+    QSpinBox *spin_nivel_conjurador;
+    QLabel *label_mod_conjuracao;
+    QSpacerItem *horizontalSpacer_5;
+    QLabel *label_44;
+    QComboBox *combo_mod_conjuracao;
+    QSpacerItem *horizontalSpacer_8;
+    QLabel *label_102;
+    QComboBox *combo_dominio_1;
+    QComboBox *combo_dominio_2;
     QVBoxLayout *verticalLayout_14;
     QPushButton *botao_adicionar_nivel;
     QPushButton *botao_remover_nivel;
@@ -1786,8 +1790,8 @@ public:
 
         groupBox_2 = new QGroupBox(tab_nivel);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        horizontalLayout_46 = new QHBoxLayout(groupBox_2);
-        horizontalLayout_46->setObjectName(QStringLiteral("horizontalLayout_46"));
+        gridLayout_20 = new QGridLayout(groupBox_2);
+        gridLayout_20->setObjectName(QStringLiteral("gridLayout_20"));
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         label_40 = new QLabel(groupBox_2);
@@ -1845,51 +1849,6 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_7);
 
-        label_42 = new QLabel(groupBox_2);
-        label_42->setObjectName(QStringLiteral("label_42"));
-        label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout->addWidget(label_42);
-
-        spin_nivel_conjurador = new QSpinBox(groupBox_2);
-        spin_nivel_conjurador->setObjectName(QStringLiteral("spin_nivel_conjurador"));
-        spin_nivel_conjurador->setMinimum(-1);
-
-        horizontalLayout->addWidget(spin_nivel_conjurador);
-
-        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer_8);
-
-        label_44 = new QLabel(groupBox_2);
-        label_44->setObjectName(QStringLiteral("label_44"));
-        label_44->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout->addWidget(label_44);
-
-        combo_mod_conjuracao = new QComboBox(groupBox_2);
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->addItem(QString());
-        combo_mod_conjuracao->setObjectName(QStringLiteral("combo_mod_conjuracao"));
-
-        horizontalLayout->addWidget(combo_mod_conjuracao);
-
-        label_mod_conjuracao = new QLabel(groupBox_2);
-        label_mod_conjuracao->setObjectName(QStringLiteral("label_mod_conjuracao"));
-        sizePolicy6.setHeightForWidth(label_mod_conjuracao->sizePolicy().hasHeightForWidth());
-        label_mod_conjuracao->setSizePolicy(sizePolicy6);
-        label_mod_conjuracao->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout->addWidget(label_mod_conjuracao);
-
-        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer_9);
-
         label_64 = new QLabel(groupBox_2);
         label_64->setObjectName(QStringLiteral("label_64"));
         label_64->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
@@ -1902,7 +1861,74 @@ public:
         horizontalLayout->addWidget(combo_salvacoes_fortes);
 
 
-        horizontalLayout_46->addLayout(horizontalLayout);
+        gridLayout_20->addLayout(horizontalLayout, 0, 0, 1, 1);
+
+        horizontalLayout_48 = new QHBoxLayout();
+        horizontalLayout_48->setObjectName(QStringLiteral("horizontalLayout_48"));
+        label_42 = new QLabel(groupBox_2);
+        label_42->setObjectName(QStringLiteral("label_42"));
+        label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_48->addWidget(label_42);
+
+        spin_nivel_conjurador = new QSpinBox(groupBox_2);
+        spin_nivel_conjurador->setObjectName(QStringLiteral("spin_nivel_conjurador"));
+        spin_nivel_conjurador->setMinimum(-1);
+
+        horizontalLayout_48->addWidget(spin_nivel_conjurador);
+
+        label_mod_conjuracao = new QLabel(groupBox_2);
+        label_mod_conjuracao->setObjectName(QStringLiteral("label_mod_conjuracao"));
+        sizePolicy6.setHeightForWidth(label_mod_conjuracao->sizePolicy().hasHeightForWidth());
+        label_mod_conjuracao->setSizePolicy(sizePolicy6);
+        label_mod_conjuracao->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_48->addWidget(label_mod_conjuracao);
+
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_48->addItem(horizontalSpacer_5);
+
+        label_44 = new QLabel(groupBox_2);
+        label_44->setObjectName(QStringLiteral("label_44"));
+        label_44->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_48->addWidget(label_44);
+
+        combo_mod_conjuracao = new QComboBox(groupBox_2);
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->addItem(QString());
+        combo_mod_conjuracao->setObjectName(QStringLiteral("combo_mod_conjuracao"));
+
+        horizontalLayout_48->addWidget(combo_mod_conjuracao);
+
+        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_48->addItem(horizontalSpacer_8);
+
+        label_102 = new QLabel(groupBox_2);
+        label_102->setObjectName(QStringLiteral("label_102"));
+        sizePolicy4.setHeightForWidth(label_102->sizePolicy().hasHeightForWidth());
+        label_102->setSizePolicy(sizePolicy4);
+
+        horizontalLayout_48->addWidget(label_102);
+
+        combo_dominio_1 = new QComboBox(groupBox_2);
+        combo_dominio_1->setObjectName(QStringLiteral("combo_dominio_1"));
+
+        horizontalLayout_48->addWidget(combo_dominio_1);
+
+        combo_dominio_2 = new QComboBox(groupBox_2);
+        combo_dominio_2->setObjectName(QStringLiteral("combo_dominio_2"));
+
+        horizontalLayout_48->addWidget(combo_dominio_2);
+
+
+        gridLayout_20->addLayout(horizontalLayout_48, 1, 0, 1, 1);
 
 
         gridLayout_9->addWidget(groupBox_2, 2, 0, 1, 5);
@@ -2783,10 +2809,7 @@ public:
         QWidget::setTabOrder(combo_classe, linha_classe);
         QWidget::setTabOrder(linha_classe, spin_nivel_classe);
         QWidget::setTabOrder(spin_nivel_classe, spin_bba);
-        QWidget::setTabOrder(spin_bba, spin_nivel_conjurador);
-        QWidget::setTabOrder(spin_nivel_conjurador, combo_mod_conjuracao);
-        QWidget::setTabOrder(combo_mod_conjuracao, combo_salvacoes_fortes);
-        QWidget::setTabOrder(combo_salvacoes_fortes, lista_niveis);
+        QWidget::setTabOrder(spin_bba, lista_niveis);
         QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
         QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
         QWidget::setTabOrder(botao_remover_nivel, tabela_pericias);
@@ -3188,11 +3211,13 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", nullptr));
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", nullptr));
+        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
 #ifndef QT_NO_TOOLTIP
         spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", nullptr));
+        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", nullptr));
+        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Atributo de Conjura\303\247\303\243o", nullptr));
         combo_mod_conjuracao->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", nullptr));
         combo_mod_conjuracao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", nullptr));
         combo_mod_conjuracao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", nullptr));
@@ -3200,8 +3225,7 @@ public:
         combo_mod_conjuracao->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", nullptr));
         combo_mod_conjuracao->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", nullptr));
 
-        label_mod_conjuracao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "00", nullptr));
-        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es Fortes", nullptr));
+        label_102->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dom\303\255nios", nullptr));
         botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", nullptr));
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "Ra\303\247a, Classes e Tend\303\252ncia", nullptr));

@@ -2263,8 +2263,8 @@ QGroupBox::title {
          <property name="title">
           <string>Dados Nível</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_46">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_20">
+          <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="label_40">
@@ -2375,9 +2375,26 @@ QGroupBox::title {
              </spacer>
             </item>
             <item>
+             <widget class="QLabel" name="label_64">
+              <property name="text">
+               <string>Salvações Fortes</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_salvacoes_fortes"/>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_48">
+            <item>
              <widget class="QLabel" name="label_42">
               <property name="text">
-               <string>Conjurador</string>
+               <string>Nível de Conjurador</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2395,7 +2412,23 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_8">
+             <widget class="QLabel" name="label_mod_conjuracao">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>00</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -2410,7 +2443,7 @@ QGroupBox::title {
             <item>
              <widget class="QLabel" name="label_44">
               <property name="text">
-               <string>Mod</string>
+               <string>Atributo de Conjuração</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2452,23 +2485,7 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_mod_conjuracao">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>00</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_9">
+             <spacer name="horizontalSpacer_8">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -2481,17 +2498,23 @@ QGroupBox::title {
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="label_64">
-              <property name="text">
-               <string>Salvações Fortes</string>
+             <widget class="QLabel" name="label_102">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <property name="text">
+               <string>Domínios</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="combo_salvacoes_fortes"/>
+             <widget class="QComboBox" name="combo_dominio_1"/>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_dominio_2"/>
             </item>
            </layout>
           </item>
@@ -3884,9 +3907,6 @@ QGroupBox::title {
   <tabstop>linha_classe</tabstop>
   <tabstop>spin_nivel_classe</tabstop>
   <tabstop>spin_bba</tabstop>
-  <tabstop>spin_nivel_conjurador</tabstop>
-  <tabstop>combo_mod_conjuracao</tabstop>
-  <tabstop>combo_salvacoes_fortes</tabstop>
   <tabstop>lista_niveis</tabstop>
   <tabstop>botao_adicionar_nivel</tabstop>
   <tabstop>botao_remover_nivel</tabstop>

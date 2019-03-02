@@ -34,8 +34,10 @@ class ItemConhecidos : public QTreeWidgetItem {
 // Item para feiticos conhecidos.
 class ItemFeiticoConhecido : public QTreeWidgetItem {
  public:
-  ItemFeiticoConhecido(const ent::Tabelas& tabelas, const std::string& id_classe, int nivel, QTreeWidgetItem* pai)
-      : QTreeWidgetItem(pai, QTreeWidgetItem::UserType) {
+  ItemFeiticoConhecido(
+      const ent::Tabelas& tabelas, const std::string& id_classe, int nivel, const ent::EntidadeProto& proto,
+      QTreeWidgetItem* pai)
+      : QTreeWidgetItem(pai, QTreeWidgetItem::UserType), proto_(proto) {
     auto* hwidget = new QWidget;
     auto* hbox = new QHBoxLayout;
     linha_ = new QLineEdit();
@@ -67,7 +69,14 @@ class ItemFeiticoConhecido : public QTreeWidgetItem {
     for (const auto& feitico : tabelas.Feiticos(ent::IdParaMagia(tabelas, id_classe), nivel)) {
       feiticos_ordenados[QString::fromStdString(feitico->nome())] = feitico->id();
     }
-    for (const auto par_nome_id : feiticos_ordenados) {
+    for (const auto& dominio : FeiticosClasse(id_classe, proto_).dominios()) {
+      for (const auto& feitico : tabelas.Feiticos(ent::IdParaMagia(tabelas, dominio), nivel)) {
+        feiticos_ordenados[QString::fromStdString(feitico->nome())] = feitico->id();
+      }
+    }
+
+    // Adiciona no combo.
+    for (auto par_nome_id : feiticos_ordenados) {
       combo->addItem(par_nome_id.first, QVariant(QString::fromStdString(par_nome_id.second)));
     }
   }
@@ -95,6 +104,7 @@ class ItemFeiticoConhecido : public QTreeWidgetItem {
 
   QLineEdit* linha_ = nullptr;
   QComboBox* combo_ = nullptr;
+  const ent::EntidadeProto& proto_;
 };
 
 }  // namespace qt
