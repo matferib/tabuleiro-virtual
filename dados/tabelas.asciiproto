@@ -4690,6 +4690,86 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'alarme'  # alarm
+    nome: 'alarme'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'builtin:esfera'
+      icone: 'icon_plus.png'
+      # TODO modelar duracao da esfera.
+    }
+  }
+  armas {
+    id: 'aumentar_pessoa'  # enlarge person 
+    nome: 'aumentar pessoa'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      icone: 'icon_touch.png'
+      permite_salvacao: true
+      ignora_resistencia_magia: false
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_AUMENTAR_PESSOA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'prestigidacao'  # prestigidation 
+    nome: 'prestigidação'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+  armas {
+    id: 'raio_acido'  # acid splash
+    nome: 'raio de ácido'
+    dano { invariavel: '1d3' }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_RAIO
+      icone: 'icon_ray.png'
+      ataque_toque: true
+      ataque_distancia: true
+      elemento: DESC_ACIDO
+      permite_salvacao: false
+      permite_ataque_vs_defesa: true
+      ignora_resistencia_magia: true
+    }
+  }
+  armas {
     id: 'tentaculos_negros'
     nome: 'tentáculos negros'
     alcance_quadrados: 20
@@ -5181,9 +5261,20 @@ tabela_feiticos {
     nome: 'raio de gelo'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '1d3' }
     info_classes {
       id: 'mago'
       nivel: 0
+    }
+    acao {
+      tipo: ACAO_RAIO
+      icone: 'icon_ray.png'
+      ataque_toque: true
+      ataque_distancia: true
+      elemento: DESC_FRIO
+      permite_salvacao: false
+      permite_ataque_vs_defesa: true
+      ignora_resistencia_magia: false 
     }
   }
 
@@ -6822,6 +6913,10 @@ tabela_racas {
 }
 
 tabela_dominios {
+  dominios {
+    id: 'forca'
+    nome: 'força'
+  }
   dominios {
     id: 'fogo'
     nome: 'fogo'

@@ -1,3 +1,5 @@
+Raio de gelo, raio de acido nao fazem nada.
+
 Adicionar feiticos de dominio na UI de clerigo.
 Tabelar mais dominios.
 
