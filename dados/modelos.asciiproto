@@ -1031,7 +1031,7 @@ modelo {
     }
     ignora_luz: true
     evento {
-      rodadas: 3          
+      rodadas: 3
       descricao: 'duração'
     }
   }
