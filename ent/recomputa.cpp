@@ -769,6 +769,23 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   // TODO sinergia e talentos.
 }
 
+void RecomputaClasseFeiticoAtiva(const Tabelas& tabelas, EntidadeProto* proto) {
+  if (Nivel(proto->classe_feitico_ativa(), *proto) > 0) return;
+  int nivel = 0;
+  std::string id_classe;
+  for (const auto& ic : proto->info_classes()) {
+    if (ic.nivel_conjurador() > 0 && ic.nivel() > nivel) {
+      nivel = ic.nivel();
+      id_classe = ic.id();
+    }
+  }
+  if (!id_classe.empty()) {
+    proto->set_classe_feitico_ativa(id_classe);
+  } else {
+    proto->clear_classe_feitico_ativa();
+  }
+}
+
 void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
@@ -1582,6 +1599,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   RecomputaDependenciasPericias(tabelas, proto);
 
+  RecomputaClasseFeiticoAtiva(tabelas, proto);
   RecomputaDependenciasMagiasConhecidas(tabelas, proto);
   RecomputaDependenciasMagiasPorDia(tabelas, proto);
 

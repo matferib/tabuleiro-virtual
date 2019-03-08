@@ -3797,6 +3797,7 @@ bool PermiteEscudo(const EntidadeProto& proto) {
 
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
   const int nivel = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
+  LOG(INFO) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {

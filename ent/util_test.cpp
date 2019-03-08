@@ -25,6 +25,7 @@ TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
   EXPECT_EQ(NivelParaCalculoMagiasPorDia(tabelas, "druida", proto), 9);
   EXPECT_EQ(NivelConjurador("druida", proto), 9);
   EXPECT_EQ(NivelMaximoFeitico(tabelas, "druida", 9), 5);
+  EXPECT_EQ(proto.classe_feitico_ativa(), "druida");
 }
 
 TEST(TesteTalentoPericias, AumentaNivelDeRanger) {

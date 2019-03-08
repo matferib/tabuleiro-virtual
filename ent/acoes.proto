@@ -76,7 +76,6 @@ enum ModificadorComplementos {
   MC_1D4_MAIS_1_CADA_TRES_MAX_8 = 1;  // reflexos
 }
 
-
 // Proximo id: 64.
 message AcaoProto {
   // Identificador da acao, para menus.

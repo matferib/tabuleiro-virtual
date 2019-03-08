@@ -4691,6 +4691,18 @@ tabela_pericias {
 tabela_feiticos {
   armas {
     # TODO
+    id: 'tentáculos negros'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Tentáculos Negros'
+    }
+  }
+  armas {
+    # TODO
     id: 'invocar criaturas I'
     info_classes {
       id: 'bardo'
@@ -4709,6 +4721,27 @@ tabela_feiticos {
       #id_modelo_entidade: 'Orc'
     }
   }
+  armas {
+    # TODO
+    id: 'invocar criaturas III'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    }
+  }
+
   armas {
     id: 'toque_fadiga' #  touch of fatigue
     nome: 'toque da fadiga'
@@ -6590,6 +6623,7 @@ tabela_feiticos {
     acao {
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Esfera Flamejante'
+      icone: 'icon_plus.png'
     }
   }
 
@@ -6780,6 +6814,34 @@ tabela_racas {
     }
     tamanho: TM_MEDIO
   }
+}
+
+tabela_dominios {
+  dominios {
+    id: 'fogo'
+    nome: 'fogo'
+  }
+  dominios {
+    id: 'magia'
+    nome: 'magia'
+  }
+  dominios {
+    id: 'enganacao'
+    nome: 'enganação'
+  }
+  dominios {
+    id: 'morte'
+    nome: 'morte'
+  }
+  dominios {
+    id: 'guerra'
+    nome: 'guerra'
+  }
+  dominios {
+    id: 'sol'
+    nome: 'sol'
+  }
+
 }
 
 #tabela_venenos {
