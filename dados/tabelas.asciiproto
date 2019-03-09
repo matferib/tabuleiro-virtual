@@ -4714,7 +4714,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'aumentar_pessoa'  # enlarge person 
+    id: 'aumentar_pessoa'  # enlarge person
     nome: 'aumentar pessoa'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -4741,7 +4741,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'prestigidacao'  # prestigidation 
+    id: 'prestigidacao'  # prestigidation
     nome: 'prestigidação'
     info_classes {
       id: 'mago'
@@ -4767,6 +4767,8 @@ tabela_feiticos {
       permite_salvacao: false
       permite_ataque_vs_defesa: true
       ignora_resistencia_magia: true
+      info_textura { id: 'ice.png' }
+      cor { r: 0.2 g: 1.0 b: .2 a: 0.7 }
     }
   }
   armas {
@@ -5274,7 +5276,9 @@ tabela_feiticos {
       elemento: DESC_FRIO
       permite_salvacao: false
       permite_ataque_vs_defesa: true
-      ignora_resistencia_magia: false 
+      ignora_resistencia_magia: false
+      info_textura { id: 'ice.png' }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
     }
   }
 

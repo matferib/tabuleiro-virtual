@@ -1997,6 +1997,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
       if (acao == nullptr || acao->Finalizada()) {
+        LOG(INFO) << "Finalizando ação construida, acao: " << (acao == nullptr ? "nullptr" : acao->Proto().DebugString().c_str());
         return true;
       }
       acoes_.push_back(std::move(acao));

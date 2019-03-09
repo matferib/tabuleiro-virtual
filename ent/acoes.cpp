@@ -793,7 +793,7 @@ class AcaoProjetil : public Acao {
 class AcaoRaio : public Acao {
  public:
   AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
-    duracao_ = acao_proto.duracao_s();
+    duracao_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.5f;
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id origem.";
