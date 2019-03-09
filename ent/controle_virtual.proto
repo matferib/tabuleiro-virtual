@@ -157,9 +157,6 @@ enum IdBotao {
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
-  CONTROLE_ULTIMA_ACAO_0 = 201;
-  CONTROLE_ULTIMA_ACAO_1 = 202;
-  CONTROLE_ULTIMA_ACAO_2 = 203;
   // Este deve ser o ultimo sempre.
   CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 }
@@ -282,6 +279,7 @@ message ControleVirtualProto {
   optional Fixo fixo = 1;
   repeated Pagina pagina = 2;
   optional int32 pagina_corrente = 3;
+  optional bool modo_debug = 4;
 }
 
 enum TipoDuracao {

@@ -654,12 +654,6 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_MODO_REMOVER_DE_GRUPO:
       AlternaModoRemocaoDeGrupo();
       break;
-    case CONTROLE_ULTIMA_ACAO_0:
-    case CONTROLE_ULTIMA_ACAO_1:
-    case CONTROLE_ULTIMA_ACAO_2: {
-      SelecionaAcaoExecutada(id - CONTROLE_ULTIMA_ACAO_0);
-      break;
-    }
     case CONTROLE_DESENHO_COR_VERMELHO:
     case CONTROLE_DESENHO_COR_VERDE:
     case CONTROLE_DESENHO_COR_AZUL:
@@ -828,20 +822,6 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
           return it->second->textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(it->second->textura());
         }
       }
-    }
-    case CONTROLE_ULTIMA_ACAO_0:
-    case CONTROLE_ULTIMA_ACAO_1:
-    case CONTROLE_ULTIMA_ACAO_2:
-    {
-      int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
-      if (entidade == nullptr) {
-        return texturas_->Textura(AcaoPadrao(indice_acao).icone());
-      }
-      auto par_tipo_icone = entidade->TipoAcaoComIcone(indice_acao, AcoesPadroes(), mapa_acoes_);
-      if (!par_tipo_icone.second.empty()) {
-        return texturas_->Textura(par_tipo_icone.second);
-      }
-      return texturas_->Textura(AcaoDoMapa(par_tipo_icone.first).icone());
     }
     default:
       ;
@@ -1311,7 +1291,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_MODO_REMOVER_DE_GRUPO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_REMOCAO_DE_GRUPO; } },
     { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) {
       if (modo_clique_ == MODO_ESQUIVA) return true;
-      return entidade->Proto().dados_defesa().has_entidade_esquiva();
+      return entidade != nullptr && entidade->Proto().dados_defesa().has_entidade_esquiva();
     } },
     { CONTROLE_DEFESA_TOTAL,      [this] (const Entidade* entidade) {
       if (entidade == nullptr) return false;
@@ -1493,17 +1473,22 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Todos botoes, mapeados por id.
   std::vector<DadosBotao*> botoes;
   {
+
+    std::unique_ptr<gl::HabilitaEscopo> blend_escopo;
+    if (controle_virtual_.modo_debug()) {
+      blend_escopo.reset(new gl::HabilitaEscopo(GL_BLEND));
+    }
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {
-      if (!BotaoVisivel(db)) continue;
+      if (!controle_virtual_.modo_debug() && !BotaoVisivel(db)) continue;
       botoes.push_back(&db);
     }
     for (auto& db : *controle_virtual_.mutable_fixo()->mutable_dados_botoes()) {
-      if (!BotaoVisivel(db)) continue;
+      if (!controle_virtual_.modo_debug() && !BotaoVisivel(db)) continue;
       botoes.push_back(&db);
     }
     auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
@@ -1514,14 +1499,20 @@ void Tabuleiro::DesenhaControleVirtual() {
       cor[0] *= ajuste;
       cor[1] *= ajuste;
       cor[2] *= ajuste;
-      gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+      if (!controle_virtual_.modo_debug()) {
+        gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+      } else {
+        gl::MudaCor(1.0f, 0.0f, 0.0f, 0.2f);
+      }
       DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao, entidade);
       //LOG(INFO) << "timer: " << ((int)(timer_uma_renderizacao_completa_.elapsed().wall / 1000000ULL)) << ", botao: " << db->dica();
     }
 
     // Rotulos dos botoes.
-    for (const auto* db : botoes) {
-      DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
+    if (!controle_virtual_.modo_debug()) {
+      for (const auto* db : botoes) {
+        DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
+      }
     }
   }
 

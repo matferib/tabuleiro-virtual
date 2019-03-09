@@ -1,4 +1,5 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
+#modo_debug: true
 fixo {
   # Coisas da primeira pessoa ou selecionada.
   # Linha 4.
@@ -554,30 +555,6 @@ pagina {
     tamanho: 1
     linha: 2
     coluna: 1
-    id: CONTROLE_ULTIMA_ACAO_0
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 2
-    id: CONTROLE_ULTIMA_ACAO_1
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 3
-    id: CONTROLE_ULTIMA_ACAO_2
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 4
     id: CONTROLE_ACAO_SINALIZACAO
     forma: FORMA_RETANGULO
     textura: 'icon_signal.png'
@@ -598,7 +575,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 5
+    coluna: 2
     rotulo: "<"
     cor_rotulo {}
     textura: ""
@@ -609,7 +586,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 6
+    coluna: 3
     rotulo: ">"
     cor_rotulo {}
     textura: ""
@@ -632,7 +609,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 7
+    coluna: 4
     rotulo: "A"
     cor_rotulo {}
     textura: ""
@@ -1079,8 +1056,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 4
-    coluna: 12
+    linha: 3
+    coluna: 13
     rotulo: "M"
     cor_rotulo {}
     textura: "icon_templates.png"

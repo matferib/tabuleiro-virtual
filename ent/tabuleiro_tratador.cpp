@@ -1337,6 +1337,16 @@ float Tabuleiro::TrataAcaoCriacao(
     }
   }
 
+  // Consome ataque.
+  {
+    const auto* da = entidade->DadoCorrente();
+    if (da != nullptr && da->has_limite_vezes()) {
+      std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
+      PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+      central_->AdicionaNotificacao(n_consumo.release());
+    }
+  }
+
   const auto& modelo_fixo = it->second;
   const auto* referencia = entidade;
   ntf::Notificacao notificacao;
@@ -1709,6 +1719,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   if (n.has_acao()) {
     TrataNotificacao(n);
   }
+
   // Mesmo nao havendo acao, tem que desfazer porque ha efeitos que independem disso, como queda.
   if (!grupo_desfazer.notificacao().empty()) {
     AdicionaNotificacaoListaEventos(grupo_desfazer);
