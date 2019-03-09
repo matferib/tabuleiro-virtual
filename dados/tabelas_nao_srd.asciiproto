@@ -3,7 +3,7 @@ tabela_classes {
     id: 'adepto_sombras' nome: 'Adepto das Sombras' progressao_bba: PBBA_MEIO
     # d4
     tipo_classe: TC_PRESTIGIO
-    aumenta_nivel_conjurador: true 
+    aumenta_nivel_conjurador: true
     pericias: 'blefar'
     pericias: 'concentracao'
     pericias: 'oficios'
@@ -274,3 +274,178 @@ tabela_racas {
   }
 }  # tabela_racas
 
+tabela_dominios {
+  dominios {
+    id: 'anoes'
+    nome: 'anões'
+    descricao: 'Talento Grande Fortitude.'
+  }
+  dominios {
+    id: 'aranhas'
+    nome: 'aranhas'
+    descricao: 'Controlar/fascinar aranhas.'
+  }
+  dominios {
+    id: 'cavernas'
+    nome: 'cavernas'
+    descricao: 'Ligação com pedras (como anões) ou aumenta para +4 se já tiver.'
+  }
+  dominios {
+    id: 'comercio'
+    nome: 'comércio'
+    descricao: 'Detectar pensamentos uma vez por dia (SM) como ação livre, duração 10 rodadas / bonus carisma. '
+  }
+  dominios {
+    id: 'destino'
+    nome: 'destino'
+    descricao: 'Esquiva sobrenatural de ladino de 3o nivel. Se já tiver, adiciona +3 ao nivel efetivo da esquiva.'
+  }
+  dominios {
+    id: 'drow'
+    nome: 'drow'
+    descricao: 'Talento reflexos rápidos.'
+  }
+  dominios {
+    id: 'elfos'
+    nome: 'elfos'
+    descricao: 'Talento tiro certeiro.'
+  }
+  dominios {
+    id: 'encantamento'
+    nome: 'encantamento'
+    descricao: 'Elevar carisma em 4 pontos como ação livre por 1 minuto uma vez por dia.'
+  }
+  dominios {
+    id: 'escamosos'
+    nome: 'escamosos'
+    descricao: 'Controlar/fascinar animais répteis e ofídeos.'
+  }
+  dominios {
+    id: 'escuridao'
+    nome: 'escuridão'
+    descricao: 'Talento lutar às cegas.'
+  }
+  dominios {
+    id: 'familia'
+    nome: 'família'
+    descricao: 'Fornece +4 de esquiva a um número de criaturas (a 2 quadrados) igual a seu carisma uma vez por dia por 1 rodada por nível. Pode afetar o próprio clérigo.'
+  }
+  dominios {
+    id: 'feitico'
+    nome: 'feitiço'
+    descricao: '+2 testes de concentração e identificar magias.'
+  }
+  dominios {
+    id: 'gnomos'
+    nome: 'gnomos'
+    descricao: '+1 nível de conjurador para magias de ilusão.'
+  }
+  dominios {
+    id: 'halflings'
+    nome: 'halflings'
+    descricao: 'Uma vez por dia, por 10 minutos, adiciona carisma em escalar, saltar, furtividade e esconder-se.'
+  }
+  dominios {
+    id: 'ilusao'
+    nome: 'ilusão'
+    descricao: '+1 nível de conjurador para magias de ilusão.'
+  }
+  dominios {
+    id: 'lodo'
+    nome: 'lodo'
+    descricao: 'Controlar/fascinar limos/muco/gosmas.'
+  }
+  dominios {
+    id: 'lua'
+    nome: 'lua'
+    descricao: 'Expulsar/destruir licantropos.'
+  }
+  dominios {
+    id: 'mentalidade'
+    nome: 'mentalidade'
+    descricao: 'Uma vez por dia, proteção mental (SM), toqaue. Bônus de resistência em vontade igual a nível +2, por 1 hora.'
+  }
+  dominios {
+    id: 'metais'
+    nome: 'metais'
+    descricao: 'Usar arma comum (ou exótica) e foco em arma em um martelo escolhido.'
+  }
+  dominios {
+    id: 'mortos_vivos'
+    nome: 'mortos-vivos'
+    descricao: 'Talento expulsão adicional.'
+  }
+  dominios {
+    id: 'nobreza'
+    nome: 'nobreza'
+    descricao: 'Uma vez por dia por rodadas igual ao bônus de carisma, inspirar aliados: +2 moral em testes de resistência, ataque e dano, habilidade e perícia. Devem ser capazes de ouvir o personagem.'
+  }
+  dominios {
+    id: 'oceano'
+    nome: 'oceano'
+    descricao: 'Habilidade de respirar na água, total de 10 rodadas por nível de personagem.'
+  }
+  dominios {
+    id: 'odio'
+    nome: 'ódio'
+    descricao: '+2 de bônus profanos em ataque, resistência e CA contra um oponente, 1 vez por dia durante 10 rodadas.'
+  }
+  dominios {
+    id: 'oficios'
+    nome: 'ofícios'
+    descricao: 'Todas magias de criação com +1 de nível de conjurador e adquire foco em perícia (+2 em uma perícia de ofício)'
+  }
+  dominios {
+    id: 'orcs'
+    nome: 'orcs'
+    descricao: 'Destruição em um ataque por dia: bônus no dano igual ao nível de clérigo, +4 se for anão ou elfo.'
+  }
+  dominios {
+    id: 'planejamento'
+    nome: 'planejamento'
+    descricao: 'Talento estender magia'
+  }
+  dominios {
+    id: 'portais'
+    nome: 'portais'
+    descricao: 'Detectar portal, ativo ou inativo, como porta secreta comum (CD 20).'
+  }
+  dominios {
+    id: 'renovacao'
+    nome: 'renovação'
+    descricao: 'Cura 1d8+modificador carisma caso caia para 0 ou menos PV, uma vez por dia (não impede morte direta).'
+  }
+  dominios {
+    id: 'retribuicao'
+    nome: 'retribuição'
+    descricao: 'Uma vez por dia, pode desferir um golpe de vingança na próxima ação, que se acertar o agressor, causará o dano máximo (exceto críticos).'
+  }
+  dominios {
+    id: 'runas'
+    nome: 'runas'
+    descricao: 'Talento escrever pergaminhos.'
+  }
+  dominios {
+    id: 'sofrimento'
+    nome: 'sofrimento'
+    descricao: 'Toque de dor uma vez por dia: se acertar ataque de toque, alvo sofre -2 em força e destreza por 1 minuto. Não afeta criaturas imunes a críticos.'
+  }
+  dominios {
+    id: 'tempestade'
+    nome: 'tempestade'
+    descricao: 'Resistência a eletricidade 5.'
+  }
+  dominios {
+    id: 'tempo'
+    nome: 'tempo'
+    descricao: 'Talento Iniciativa Aprimorada.'
+  }
+  dominios {
+    id: 'tirania'
+    nome: 'tirania'
+    descricao: '+2 CD em magias de compulsão.'
+  }
+
+
+
+}

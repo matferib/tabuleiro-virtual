@@ -1,5 +1,4 @@
 Adicionar feiticos de dominio na UI de clerigo.
-Tabelar mais dominios.
 
 Luz deve ter raio na UI de objetos.
 Permitir feiticos de nivel acima para pergaminhos na UI.
