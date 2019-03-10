@@ -3275,7 +3275,6 @@ bool NotificacaoConsequenciaFeitico(
       string_efeitos.pop_back();
       string_efeitos.pop_back();
     }
-    LOG(INFO) << "string: " << string_efeitos;
     // Adiciona uma acao de feitico pessoal.
     PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
     return false;
