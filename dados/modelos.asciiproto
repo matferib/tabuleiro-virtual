@@ -4908,3 +4908,21 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Alarme'
+  entidade {
+    tipo: TE_FORMA
+    sub_tipo: TF_ESFERA
+    escala { x: 6 y: 6 z: 6 }  # 2 quadrados de raio
+    cor { r: 0.6 g: 0.6 b: 1 a: 0.5 }
+    faz_sombra: false
+    evento {
+      rodadas: 1200 # minimo
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_2_HORAS_NIVEL
+  }
+}
+
