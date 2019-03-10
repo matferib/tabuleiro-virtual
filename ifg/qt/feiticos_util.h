@@ -5,6 +5,7 @@
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
+#include "goog/stringprintf.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
@@ -70,8 +71,8 @@ class ItemFeiticoConhecido : public QTreeWidgetItem {
       feiticos_ordenados[QString::fromStdString(feitico->nome())] = feitico->id();
     }
     for (const auto& dominio : FeiticosClasse(id_classe, proto_).dominios()) {
-      for (const auto& feitico : tabelas.Feiticos(ent::IdParaMagia(tabelas, dominio), nivel)) {
-        feiticos_ordenados[QString::fromStdString(feitico->nome())] = feitico->id();
+      for (const auto& feitico : tabelas.Feiticos(dominio, nivel)) {
+        feiticos_ordenados[QString::fromStdString(google::protobuf::StringPrintf("%s (D)", feitico->nome().c_str()))] = feitico->id();
       }
     }
 

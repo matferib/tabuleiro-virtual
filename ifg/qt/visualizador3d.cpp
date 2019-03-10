@@ -1873,7 +1873,7 @@ std::vector<ent::TipoSalvacao> ComboParaSalvacoesFortes(const QComboBox* combo) 
   }
 }
 
-void PreencheComboDominio(const QComboBox* combo, string* dominio) {
+void LeDominioDoCombo(const QComboBox* combo, string* dominio) {
   const std::string& id = combo->itemData(combo->currentIndex()).toString().toStdString();
   if (id == "nenhum") {
     dominio->clear();
@@ -1903,8 +1903,8 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
   if (classe_tabelada.possui_dominio()) {
     auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
     Redimensiona(2, fc->mutable_dominios());
-    PreencheComboDominio(gerador.combo_dominio_1, fc->mutable_dominios(0));
-    PreencheComboDominio(gerador.combo_dominio_2, fc->mutable_dominios(1));
+    LeDominioDoCombo(gerador.combo_dominio_1, fc->mutable_dominios(0));
+    LeDominioDoCombo(gerador.combo_dominio_2, fc->mutable_dominios(1));
   } else {
     auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
     fc->clear_dominios();
@@ -1950,6 +1950,7 @@ void PreencheConfiguraCombosDominio(
           ? nullptr : proto_retornado->mutable_info_classes(indice);
       if (ic == nullptr) {
         // Pode acontecer quando a classe ainda nao foi adicionada.
+        combo->setToolTip("");
         return;
       }
       combo->blockSignals(true);
@@ -1960,8 +1961,11 @@ void PreencheConfiguraCombosDominio(
       QVariant data = combo->itemData(combo->currentIndex());
       if (data == "nenhum") {
         fc->mutable_dominios(indice_dominio)->clear();
+        combo->setToolTip("");
       } else {
-        *fc->mutable_dominios(indice_dominio) = data.toString().toStdString();
+        string id = data.toString().toStdString();
+        *fc->mutable_dominios(indice_dominio) = id;
+        combo->setToolTip(combo->tr(tabelas.Dominio(id).descricao().c_str()));
       }
       AtualizaUI(tabelas, gerador, *proto_retornado);
       combo->blockSignals(false);

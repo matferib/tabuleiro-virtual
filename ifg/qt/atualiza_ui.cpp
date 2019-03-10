@@ -200,13 +200,19 @@ void AtualizaUIClassesNiveis(
       gerador.combo_dominio_1->setEnabled(true);
       gerador.combo_dominio_2->setEnabled(true);
       const auto& fc = ent::FeiticosClasse(classe_tabelada.id(), proto);
-      SelecionaIndicePorId(fc.dominios().size() == 2 ? fc.dominios(0) : "nenhum", gerador.combo_dominio_1);
-      SelecionaIndicePorId(fc.dominios().size() == 2 ? fc.dominios(1) : "nenhum", gerador.combo_dominio_2);
+      std::string dominio_1 = fc.dominios().size() == 2 ? fc.dominios(0) : "nenhum";
+      SelecionaIndicePorId(dominio_1, gerador.combo_dominio_1);
+      gerador.combo_dominio_1->setToolTip(gerador.combo_dominio_1->tr(tabelas.Dominio(dominio_1).descricao().c_str()));
+      std::string dominio_2 = fc.dominios().size() == 2 ? fc.dominios(1) : "nenhum";
+      SelecionaIndicePorId(dominio_2, gerador.combo_dominio_2);
+      gerador.combo_dominio_2->setToolTip(gerador.combo_dominio_2->tr(tabelas.Dominio(dominio_2).descricao().c_str()));
     } else {
       gerador.combo_dominio_1->setEnabled(false);
       gerador.combo_dominio_2->setEnabled(false);
       SelecionaIndicePorId("nenhum", gerador.combo_dominio_1);
+      gerador.combo_dominio_1->setToolTip("");
       SelecionaIndicePorId("nenhum", gerador.combo_dominio_2);
+      gerador.combo_dominio_2->setToolTip("");
     }
   }
 
