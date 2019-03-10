@@ -4702,6 +4702,31 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'detectar_portas_secretas'  # detect secret doors
+    nome: 'detectar portas secretas'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar portas secretas'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
     id: 'auxilio_divino'  # divine favor
     nome: 'auxílio divino'
     info_classes {
