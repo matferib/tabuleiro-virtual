@@ -1026,6 +1026,10 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_OUTRO
+    nome: 'outros'
+  }
+  efeitos {
     id: EFEITO_REFLEXOS
     nome: 'reflexos'
     formato_complementos: 'Número de reflexos.'

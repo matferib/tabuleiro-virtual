@@ -3231,6 +3231,20 @@ bool FeiticoGeraAcao(const ArmaProto& feitico_tabelado) {
   }
 }
 
+void PreencheNotificacaoAcaoFeiticoPessoal(
+    unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n) {
+  n->set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = n->mutable_acao();
+  a->set_id_entidade_origem(id);
+  a->set_tipo(ACAO_FEITICO_PESSOAL);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_texto(string_efeitos);
+  a->set_afeta_pontos_vida(false);
+  a->set_gera_outras_acoes(true);
+  if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
+}
+
 bool NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
@@ -3251,9 +3265,19 @@ bool NotificacaoConsequenciaFeitico(
   if (FeiticoPessoal(feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
     std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+    std::string string_efeitos;
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-       PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+       PreencheNotificacaoEventoEfeitoAdicional(
+           nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
     }
+    if (!string_efeitos.empty()) {
+      string_efeitos.pop_back();
+      string_efeitos.pop_back();
+    }
+    LOG(INFO) << "string: " << string_efeitos;
+    // Adiciona uma acao de feitico pessoal.
+    PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
     return false;
   } else if (FeiticoGeraAcao(feitico_tabelado)) {
     ntf::Notificacao* n;

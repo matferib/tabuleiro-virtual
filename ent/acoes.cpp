@@ -1046,6 +1046,7 @@ class AcaoFeitico : public Acao {
       if (raio_ <= 0) {
         desenhando_origem_ = false;
         AtualizaAlvo(intervalo_ms);
+        raio_ = 0.0f;
       }
     } else {
       raio_ += DELTA_RAIO;
@@ -1060,7 +1061,7 @@ class AcaoFeitico : public Acao {
   }
 
  private:
-  constexpr static int DURACAO_MS = 480;
+  constexpr static int DURACAO_MS = 300;
   bool desenhando_origem_;
   float raio_;
   bool terminado_;
