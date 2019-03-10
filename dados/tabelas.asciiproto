@@ -1030,6 +1030,20 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_PROTEGER_OUTRO
+    nome: 'proteger outro'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+      }
+    }
+    # TODO dividir pontos de vida.
+  }
+
+  efeitos {
     id: EFEITO_REFLEXOS
     nome: 'reflexos'
     formato_complementos: 'Número de reflexos.'
@@ -4706,6 +4720,73 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'cativar'  # enthrall
+    nome: 'cativar'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'nobreza'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 20  # TODO variavel: 2 quad por nivel.
+      efeito_area: true
+      duracao_s: 0.350
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      resultado_salvacao: RS_ANULOU
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'cativado, ver feitiço.'
+        rodadas: 600  # 1 hora enquanto ficar falando + 1d3 apos
+      }
+    }
+  }
+
+  armas {
+    id: 'proteger_outro'  # shield other
+    nome: 'proteger_outro'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_PROTEGER_OUTRO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'detectar_portas_secretas'  # detect secret doors
     nome: 'detectar portas secretas'
     info_classes {
@@ -4740,6 +4821,11 @@ tabela_feiticos {
     info_classes {
       id: 'paladino'
       nivel: 1
+    }
+    info_classes {
+      id: 'nobreza'
+      nivel: 1
+      dominio: true
     }
     acao {
       tipo: ACAO_FEITICO_PESSOAL
