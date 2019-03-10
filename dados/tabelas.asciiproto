@@ -1033,6 +1033,18 @@ tabela_efeitos {
   }
 
   efeitos {
+    id: EFEITO_AUXILIO_DIVINO # divine favor
+    nome: 'auxílio divino'
+    # +1 bonus sorte em atauqe e dano para armas apenas!
+    formato_complementos: 'Bônus de sorte em ataque e dano ao usar armas (mesmo para os dois, máximo 3).'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { indice_complemento: 0  origem: 'auxilio divino' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { indice_complemento: 0  origem: 'auxilio divino' } } }
+    }
+    # TODO apenas para armas, nao afeta feiticos.
+  }
+
+  efeitos {
     id: EFEITO_ABALADO  # shaken
     nome: 'abalado'
     # -2 penalty on attack rolls, saving throws, skill checks, and ability checks.
@@ -4690,6 +4702,27 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'auxilio_divino'  # divine favor
+    nome: 'auxílio divino'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_AUXILIO_DIVINO
+        rodadas: 10  # fixo.
+        modificador_complementos: MC_1_CADA_3_MAX_3
+      }
+    }
+  }
+
+  armas {
     id: 'protecao_contra_mal'
     nome: 'proteção contra o mal'
     info_classes {
@@ -4996,8 +5029,8 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
-      ignora_resistencia_magia: false 
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       dificuldade_salvacao_por_nivel: true
@@ -5008,7 +5041,7 @@ tabela_feiticos {
       }
       efeitos_adicionais_se_salvou {
         efeito: EFEITO_ABALADO
-        rodadas: 1 
+        rodadas: 1
       }
     }
   }

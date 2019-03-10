@@ -2908,6 +2908,10 @@ void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_ad
       evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
       break;
     }
+    case MC_1_CADA_3_MAX_3: {
+      evento->add_complementos(std::min(3, nivel_conjurador / 3));
+      break;
+    }
     default:
       *evento->mutable_complementos() = efeito_adicional.complementos();
   }
@@ -3809,6 +3813,9 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
         break;
       case TD_HORAS_NIVEL:
         duracao_rodadas = nivel * HORAS_PARA_RODADAS;
+        break;
+      case TD_2_HORAS_NIVEL:
+        duracao_rodadas = 2 * nivel * HORAS_PARA_RODADAS;
         break;
       default:
         break;

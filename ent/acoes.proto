@@ -74,6 +74,7 @@ enum ModificadorRodadas {
 enum ModificadorComplementos {
   MC_NENHUM = 0;
   MC_1D4_MAIS_1_CADA_TRES_MAX_8 = 1;  // reflexos
+  MC_1_CADA_3_MAX_3 = 2;  // divine favor
 }
 
 // Proximo id: 64.

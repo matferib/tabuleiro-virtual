@@ -286,6 +286,7 @@ enum TipoDuracao {
   TD_RODADAS_NIVEL = 0;
   TD_MINUTOS_NIVEL = 1;
   TD_HORAS_NIVEL   = 2;
+  TD_2_HORAS_NIVEL = 3;
   TD_OUTRA_DURACAO = 20;
 }
 
