@@ -1,5 +1,3 @@
-Adicionar feiticos de dominio na UI de clerigo.
-
 Luz deve ter raio na UI de objetos.
 Permitir feiticos de nivel acima para pergaminhos na UI.
 Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
