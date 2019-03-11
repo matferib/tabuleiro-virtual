@@ -3838,6 +3838,9 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       case TD_MINUTOS_NIVEL:
         duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
         break;
+      case TD_10_MINUTOS_NIVEL:
+        duracao_rodadas = 10 * nivel * MINUTOS_PARA_RODADAS;
+        break;
       case TD_HORAS_NIVEL:
         duracao_rodadas = nivel * HORAS_PARA_RODADAS;
         break;

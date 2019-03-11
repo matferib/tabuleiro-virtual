@@ -4720,6 +4720,35 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'luz_dia'  # daylight
+    nome: 'luz do dia'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Luz do Dia'
+    }
+  }
+
+  armas {
     id: 'restauracao_menor'  # lesser restoration
     nome: 'restauracao menor'
     info_classes {

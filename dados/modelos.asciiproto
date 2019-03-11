@@ -243,7 +243,7 @@ modelo {
     modelo_3d { id: 'bulette' } info_textura { id: 'terrain_rocky.png' } cor { r: 1 g: 1 b: 1 }
     rotulo_especial: 'Visao escudo 12, visao penumbra, faro, tremorsense\nsalto: 4 garras com +5 de ataque sem mordida.\nalcance apenas 2'
     info_classes {
-      id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM 
+      id: 'besta_magica' nivel: 9 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
       pericias_monstro: 'saltar'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
@@ -1011,6 +1011,23 @@ modelo {
     modificador_iniciativa: 2
   }
 }
+modelo {
+  id: 'Luz do Dia'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    luz { cor { r: 1 g: 1 b: 1 a: 1 } raio_m: 18 }
+    ignora_luz: true
+    evento {
+      rodadas: 500
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+  }
+}
+
 modelo {
   id: 'Esfera Flamejante'
   entidade {
@@ -3743,7 +3760,7 @@ modelo {
 modelo {
   id: 'Uivante'
   entidade {
-    dados_vida: '6d8+12' tamanho: TM_GRANDE 
+    dados_vida: '6d8+12' tamanho: TM_GRANDE
     modelo_3d { id: 'howler'}
     rotulo_especial: 'Apenas 1d4 espinhas por rodada podem ser usados\nuivo por uma hora Cd 12 vontade ou 1 ponto de sabedoria'
     movimento {
@@ -4341,7 +4358,7 @@ modelo {
     }
     sub_forma {
       tipo: TE_FORMA cor { r: 0.63529414 g: 0.63529414 b: 0.63529414 a: 1 }
-      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } 
+      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 }
     }
   }
 }
@@ -4351,16 +4368,16 @@ modelo {
     tipo: TE_COMPOSTA
     pos { x: -8.0337772 y: -5.2814279 z: 0 }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.23598671 y: 0.14873552 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
+      tipo: TE_FORMA pos { x: 0.23598671 y: 0.14873552 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.081827164 y: 0.24695206 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
+      tipo: TE_FORMA pos { x: -0.081827164 y: 0.24695206 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.036110878 y: -0.13381243 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
+      tipo: TE_FORMA pos { x: 0.036110878 y: -0.13381243 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.34461498 y: -0.10325861 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
+      tipo: TE_FORMA pos { x: -0.34461498 y: -0.10325861 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
       tipo: TE_FORMA pos { x: -0.26157951 y: 0.0507102 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
@@ -4925,4 +4942,3 @@ modelo {
     tipo_duracao: TD_2_HORAS_NIVEL
   }
 }
-
