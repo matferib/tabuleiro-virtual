@@ -6127,11 +6127,13 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
       efeitos_adicionais {
-        efeito: EFEITO_SANTUARIO
-        rodadas: 1  # 1/por nivel
+        efeito: EFEITO_ESCUDO_FE
         modificador_rodadas: MR_MINUTOS_NIVEL
-        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+        modificador_complementos: MC_2_MAIS_1_CADA_6_MAX_5
       }
     }
   }
