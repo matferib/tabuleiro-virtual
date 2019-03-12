@@ -1258,7 +1258,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool passou_rm;
-      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(*acao_proto, *entidade_origem, *entidade_destino);
+      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(da, *acao_proto, *entidade_origem, *entidade_destino);
       por_entidade->set_texto(resultado_rm);
       AdicionaLogEvento(entidade_origem->Id(), resultado_rm);
       if (!passou_rm) {
@@ -1541,7 +1541,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::string resultado_rm;
       bool sucesso;
       std::tie(sucesso, resultado_rm) =
-          AtaqueVsResistenciaMagia(*acao_proto, *entidade_origem, *entidade_destino);
+          AtaqueVsResistenciaMagia(da, *acao_proto, *entidade_origem, *entidade_destino);
       if (!sucesso) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;

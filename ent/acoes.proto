@@ -191,9 +191,9 @@ message AcaoProto {
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
     // Para efeitos de cura ou dano.
-    optional string delta_pontos_vida = 9;
+    optional string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
-    optional TendenciaSimplificada afeta_apenas_tendencia = 10;
+    optional TendenciaSimplificada afeta_apenas_tendencia = 11;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
     optional int32 rodadas = 2;
     repeated int32 complementos = 3;

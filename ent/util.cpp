@@ -1483,13 +1483,16 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
 
-std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
+    const EntidadeProto::DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
     return std::make_tuple(true, "");;
   }
   const int d20 = RolaDado(20);
-  const int nivel_conjurador = ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
+  const int nivel_conjurador = da != nullptr && da->has_nivel_conjurador_pergaminho()
+    ? da->nivel_conjurador_pergaminho()
+    : ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
   const int total = d20 + nivel_conjurador;
 
   if (d20 + nivel_conjurador < rm) {
@@ -2429,7 +2432,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   }
 
   std::string texto_municao;
-  if (da.has_municao()) texto_municao = google::protobuf::StringPrintf(", municao: %d", da.municao());
+  if (da.has_municao()) texto_municao = StringPrintf(", municao: %d", da.municao());
   std::string texto_descarregada;
   if (da.descarregada()) texto_descarregada = " [descarregada]";
 
@@ -2437,12 +2440,17 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   if (da.acao().has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
 
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
+  std::string string_salvacao;
+  if (da.acao().has_dificuldade_salvacao()) {
+    string_salvacao = StringPrintf(", CD: %d", da.acao().dificuldade_salvacao());
+  }
   return StringPrintf(
-      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
       da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(),
+      string_salvacao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(),
       string_escudo.c_str(), da.ca_surpreso());

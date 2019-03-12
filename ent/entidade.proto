@@ -292,6 +292,10 @@ message EntidadeProto {
     optional bool descarregada = 50;
     // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
     optional bool derrubar_automatico = 51;
+
+    // Para pergaminhos, que já vem com estas variaveis definidas.
+    optional int32 nivel_conjurador_pergaminho = 52;
+    optional int32 modificador_atributo_pergaminho = 53;
   }
   repeated DadosAtaque dados_ataque = 44;
 

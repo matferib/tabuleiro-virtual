@@ -37,7 +37,7 @@ int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const Arm
   for (const auto& ic : arma.info_classes()) {
     if (ic.id() == id) return ic.nivel();
   }
-  return 0;
+  return -1;
 }
 
 void DobraMargemCritico(EntidadeProto::DadosAtaque* da) {
@@ -1185,6 +1185,27 @@ void RecomputaDependenciasDestrezaLegado(const Tabelas& tabelas, EntidadeProto* 
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
 }
 
+int NivelFeiticoPergaminho(const Tabelas& tabelas, const std::string& tipo_pergaminho, const ArmaProto& feitico) {
+  std::vector<std::string> classes;
+  if (tipo_pergaminho.find("Divino") != std::string::npos) {
+    // divino: tenta clerigo, druida, paladino, ranger
+    classes.push_back("clerigo");
+    classes.push_back("druida");
+    classes.push_back("paladino");
+    classes.push_back("ranger");
+  } else {
+    // arcano: tenta mago, bardo.
+    classes.push_back("mago");
+    classes.push_back("bardo");
+  }
+  for (const auto& classe : classes) {
+    int nivel = NivelFeitico(tabelas, classe, feitico);
+    if (nivel >= 0) return nivel;
+  }
+  LOG(ERROR) << "Não achei nivel certo para pergaminho tipo: " << tipo_pergaminho;
+  return 10;
+}
+
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
   const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
@@ -1203,10 +1224,17 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
     // enquanto TipoAtaqueParaClasse busca a classe para feitico (mago).
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
-    const int base = da->acao().has_dificuldade_salvacao_base()
-        ? da->acao().dificuldade_salvacao_base()
-        : 10 + NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
-    const int mod_atributo = da->acao().has_atributo_dificuldade_salvacao()
+    int base = 10;
+    if (da->acao().has_dificuldade_salvacao_base()) {
+      base += da->acao().dificuldade_salvacao_base();
+    } else {
+      base += da->has_nivel_conjurador_pergaminho()
+        ? NivelFeiticoPergaminho(tabelas, da->tipo_ataque(), arma)
+        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
+    }
+    const int mod_atributo = da->has_modificador_atributo_pergaminho()
+      ? da->modificador_atributo_pergaminho()
+      : da->acao().has_atributo_dificuldade_salvacao()
         ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
         : ModificadorAtributoConjuracao(ic.id(), proto);
     da->mutable_acao()->set_dificuldade_salvacao(base + mod_atributo);
