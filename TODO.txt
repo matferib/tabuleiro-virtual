@@ -1,3 +1,5 @@
+Dano para curar ferimentos serios.
+Implementar afeta apenas tendencia em acoes.
 Adicionar feiticos de dominio na UI de clerigo.
 
 Luz deve ter raio na UI de objetos.
