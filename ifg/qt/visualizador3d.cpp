@@ -987,6 +987,13 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     da.clear_alcance_m();
   }
+  if (gerador.spin_nivel_conjurador_pergaminho->isEnabled()) {
+    da.set_nivel_conjurador_pergaminho(gerador.spin_nivel_conjurador_pergaminho->value());
+    da.set_modificador_atributo_pergaminho(gerador.spin_modificador_atributo_pergaminho->value());
+  } else {
+    da.clear_nivel_conjurador_pergaminho();
+    da.clear_modificador_atributo_pergaminho();
+  }
   if (indice_valido) {
     proto_retornado->mutable_dados_ataque(indice)->Swap(&da);
   } else {
@@ -1731,12 +1738,15 @@ void PreencheConfiguraComboTipoAtaque(
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)),
       [tabelas, &gerador, EditaAtualizaUIAtaque, proto_retornado]() {
     const auto& tipo_ataque = CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
+    const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
     gerador.combo_arma->setEnabled(
         tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
-        tipo_ataque.find("Feitiço de ") == 0);
+        tipo_ataque.find("Feitiço de ") == 0 || pergaminho);
     gerador.combo_material_arma->setEnabled(
         tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
     EditaAtualizaUIAtaque();
+    gerador.spin_nivel_conjurador_pergaminho->setEnabled(pergaminho);
+    gerador.spin_modificador_atributo_pergaminho->setEnabled(pergaminho);
     int indice = gerador.lista_ataques->currentRow();
     if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
       // Se nao for edicao, tem que atualizar a UI por causa do combo de armas.
@@ -1831,6 +1841,8 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_nivel_conjurador_pergaminho, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_modificador_atributo_pergaminho, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.botao_bonus_ataque, SIGNAL(clicked()), [this_, EditaAtualizaUIAtaque, &gerador, proto_retornado] {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;

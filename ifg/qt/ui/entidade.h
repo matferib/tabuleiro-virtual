@@ -103,14 +103,21 @@ public:
     QPushButton *botao_remover_forma_alternativa;
     QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout_7;
+    QGroupBox *groupBox_9;
+    QHBoxLayout *horizontalLayout_49;
     QLabel *label_3;
     QCheckBox *checkbox_cor;
     QPushButton *botao_cor;
+    QSpacerItem *horizontalSpacer_3;
+    QLabel *label_81;
     QSlider *slider_alfa;
     QHBoxLayout *horizontalLayout_14;
+    QGroupBox *groupBox_8;
+    QHBoxLayout *horizontalLayout_46;
     QLabel *label_12;
     QDoubleSpinBox *spin_raio_quad;
     QLabel *label_31;
+    QSpacerItem *horizontalSpacer_2;
     QPushButton *botao_luz;
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_26;
@@ -317,8 +324,8 @@ public:
     QPushButton *botao_remover_inimigo_predileto;
     QWidget *tab_6;
     QGridLayout *gridLayout_13;
-    QCheckBox *checkbox_op;
     QLabel *label_23;
+    QCheckBox *checkbox_op;
     QComboBox *combo_material_arma;
     QLabel *label_92;
     QSpinBox *spin_bonus_magico;
@@ -352,6 +359,10 @@ public:
     QSpinBox *spin_municao;
     QLabel *label_72;
     QPushButton *botao_bonus_dano;
+    QLabel *label_104;
+    QSpinBox *spin_nivel_conjurador_pergaminho;
+    QLabel *label_mod_atributo;
+    QSpinBox *spin_modificador_atributo_pergaminho;
     QWidget *tab;
     QGridLayout *gridLayout_7;
     QHBoxLayout *horizontalLayout_36;
@@ -860,69 +871,102 @@ public:
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         horizontalLayout_7 = new QHBoxLayout();
         horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
-        label_3 = new QLabel(tab_geral);
+        groupBox_9 = new QGroupBox(tab_geral);
+        groupBox_9->setObjectName(QStringLiteral("groupBox_9"));
+        horizontalLayout_49 = new QHBoxLayout(groupBox_9);
+        horizontalLayout_49->setObjectName(QStringLiteral("horizontalLayout_49"));
+        label_3 = new QLabel(groupBox_9);
         label_3->setObjectName(QStringLiteral("label_3"));
         sizePolicy.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
         label_3->setSizePolicy(sizePolicy);
         label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(label_3);
+        horizontalLayout_49->addWidget(label_3);
 
-        checkbox_cor = new QCheckBox(tab_geral);
+        checkbox_cor = new QCheckBox(groupBox_9);
         checkbox_cor->setObjectName(QStringLiteral("checkbox_cor"));
         sizePolicy1.setHeightForWidth(checkbox_cor->sizePolicy().hasHeightForWidth());
         checkbox_cor->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_7->addWidget(checkbox_cor);
+        horizontalLayout_49->addWidget(checkbox_cor);
 
-
-        horizontalLayout_2->addLayout(horizontalLayout_7);
-
-        botao_cor = new QPushButton(tab_geral);
+        botao_cor = new QPushButton(groupBox_9);
         botao_cor->setObjectName(QStringLiteral("botao_cor"));
 
-        horizontalLayout_2->addWidget(botao_cor);
+        horizontalLayout_49->addWidget(botao_cor);
 
-        slider_alfa = new QSlider(tab_geral);
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_49->addItem(horizontalSpacer_3);
+
+        label_81 = new QLabel(groupBox_9);
+        label_81->setObjectName(QStringLiteral("label_81"));
+
+        horizontalLayout_49->addWidget(label_81);
+
+        slider_alfa = new QSlider(groupBox_9);
         slider_alfa->setObjectName(QStringLiteral("slider_alfa"));
         sizePolicy1.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
         slider_alfa->setSizePolicy(sizePolicy1);
         slider_alfa->setMaximum(100);
         slider_alfa->setOrientation(Qt::Horizontal);
 
-        horizontalLayout_2->addWidget(slider_alfa);
+        horizontalLayout_49->addWidget(slider_alfa);
+
+
+        horizontalLayout_7->addWidget(groupBox_9);
+
+
+        horizontalLayout_2->addLayout(horizontalLayout_7);
 
 
         gridLayout_8->addLayout(horizontalLayout_2, 0, 1, 1, 1);
 
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setObjectName(QStringLiteral("horizontalLayout_14"));
-        label_12 = new QLabel(tab_geral);
+        groupBox_8 = new QGroupBox(tab_geral);
+        groupBox_8->setObjectName(QStringLiteral("groupBox_8"));
+        horizontalLayout_46 = new QHBoxLayout(groupBox_8);
+        horizontalLayout_46->setObjectName(QStringLiteral("horizontalLayout_46"));
+        label_12 = new QLabel(groupBox_8);
         label_12->setObjectName(QStringLiteral("label_12"));
+        sizePolicy6.setHeightForWidth(label_12->sizePolicy().hasHeightForWidth());
+        label_12->setSizePolicy(sizePolicy6);
         label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_14->addWidget(label_12);
+        horizontalLayout_46->addWidget(label_12);
 
-        spin_raio_quad = new QDoubleSpinBox(tab_geral);
+        spin_raio_quad = new QDoubleSpinBox(groupBox_8);
         spin_raio_quad->setObjectName(QStringLiteral("spin_raio_quad"));
+        sizePolicy1.setHeightForWidth(spin_raio_quad->sizePolicy().hasHeightForWidth());
+        spin_raio_quad->setSizePolicy(sizePolicy1);
         spin_raio_quad->setDecimals(1);
         spin_raio_quad->setSingleStep(1);
 
-        horizontalLayout_14->addWidget(spin_raio_quad);
+        horizontalLayout_46->addWidget(spin_raio_quad);
 
-        label_31 = new QLabel(tab_geral);
+        label_31 = new QLabel(groupBox_8);
         label_31->setObjectName(QStringLiteral("label_31"));
         sizePolicy6.setHeightForWidth(label_31->sizePolicy().hasHeightForWidth());
         label_31->setSizePolicy(sizePolicy6);
         label_31->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_14->addWidget(label_31);
+        horizontalLayout_46->addWidget(label_31);
 
-        botao_luz = new QPushButton(tab_geral);
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_46->addItem(horizontalSpacer_2);
+
+        botao_luz = new QPushButton(groupBox_8);
         botao_luz->setObjectName(QStringLiteral("botao_luz"));
+        sizePolicy1.setHeightForWidth(botao_luz->sizePolicy().hasHeightForWidth());
+        botao_luz->setSizePolicy(sizePolicy1);
         botao_luz->setStyleSheet(QStringLiteral(""));
 
-        horizontalLayout_14->addWidget(botao_luz);
+        horizontalLayout_46->addWidget(botao_luz);
+
+
+        horizontalLayout_14->addWidget(groupBox_8);
 
 
         gridLayout_8->addLayout(horizontalLayout_14, 1, 1, 1, 1);
@@ -2097,13 +2141,6 @@ public:
         tab_6->setObjectName(QStringLiteral("tab_6"));
         gridLayout_13 = new QGridLayout(tab_6);
         gridLayout_13->setObjectName(QStringLiteral("gridLayout_13"));
-        checkbox_op = new QCheckBox(tab_6);
-        checkbox_op->setObjectName(QStringLiteral("checkbox_op"));
-        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
-        checkbox_op->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(checkbox_op, 1, 4, 1, 1);
-
         label_23 = new QLabel(tab_6);
         label_23->setObjectName(QStringLiteral("label_23"));
         sizePolicy7.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
@@ -2111,6 +2148,13 @@ public:
         label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_13->addWidget(label_23, 1, 5, 1, 1);
+
+        checkbox_op = new QCheckBox(tab_6);
+        checkbox_op->setObjectName(QStringLiteral("checkbox_op"));
+        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
+        checkbox_op->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(checkbox_op, 1, 4, 1, 1);
 
         combo_material_arma = new QComboBox(tab_6);
         combo_material_arma->addItem(QString());
@@ -2159,8 +2203,8 @@ public:
 
         label_73 = new QLabel(tab_6);
         label_73->setObjectName(QStringLiteral("label_73"));
-        sizePolicy1.setHeightForWidth(label_73->sizePolicy().hasHeightForWidth());
-        label_73->setSizePolicy(sizePolicy1);
+        sizePolicy7.setHeightForWidth(label_73->sizePolicy().hasHeightForWidth());
+        label_73->setSizePolicy(sizePolicy7);
         label_73->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_13->addWidget(label_73, 0, 7, 1, 1);
@@ -2237,8 +2281,8 @@ public:
 
         label_36 = new QLabel(tab_6);
         label_36->setObjectName(QStringLiteral("label_36"));
-        sizePolicy1.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
-        label_36->setSizePolicy(sizePolicy1);
+        sizePolicy7.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
+        label_36->setSizePolicy(sizePolicy7);
         QFont font2;
         font2.setKerning(false);
         label_36->setFont(font2);
@@ -2277,8 +2321,8 @@ public:
 
         label_91 = new QLabel(tab_6);
         label_91->setObjectName(QStringLiteral("label_91"));
-        sizePolicy1.setHeightForWidth(label_91->sizePolicy().hasHeightForWidth());
-        label_91->setSizePolicy(sizePolicy1);
+        sizePolicy7.setHeightForWidth(label_91->sizePolicy().hasHeightForWidth());
+        label_91->setSizePolicy(sizePolicy7);
         label_91->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_13->addWidget(label_91, 0, 0, 1, 1);
@@ -2308,7 +2352,7 @@ public:
         verticalLayout_16->addWidget(botao_ataque_baixo);
 
 
-        gridLayout_13->addLayout(verticalLayout_16, 4, 10, 1, 1);
+        gridLayout_13->addLayout(verticalLayout_16, 5, 10, 1, 1);
 
         lista_ataques = new QListWidget(tab_6);
         lista_ataques->setObjectName(QStringLiteral("lista_ataques"));
@@ -2320,7 +2364,7 @@ public:
         lista_ataques->setSelectionMode(QAbstractItemView::ExtendedSelection);
         lista_ataques->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-        gridLayout_13->addWidget(lista_ataques, 4, 0, 1, 10);
+        gridLayout_13->addWidget(lista_ataques, 5, 0, 1, 10);
 
         botao_remover_ataque = new QPushButton(tab_6);
         botao_remover_ataque->setObjectName(QStringLiteral("botao_remover_ataque"));
@@ -2328,7 +2372,7 @@ public:
         sizePolicy1.setHeightForWidth(botao_remover_ataque->sizePolicy().hasHeightForWidth());
         botao_remover_ataque->setSizePolicy(sizePolicy1);
 
-        gridLayout_13->addWidget(botao_remover_ataque, 5, 9, 1, 1);
+        gridLayout_13->addWidget(botao_remover_ataque, 6, 9, 1, 1);
 
         botao_clonar_ataque = new QPushButton(tab_6);
         botao_clonar_ataque->setObjectName(QStringLiteral("botao_clonar_ataque"));
@@ -2336,7 +2380,7 @@ public:
         sizePolicy1.setHeightForWidth(botao_clonar_ataque->sizePolicy().hasHeightForWidth());
         botao_clonar_ataque->setSizePolicy(sizePolicy1);
 
-        gridLayout_13->addWidget(botao_clonar_ataque, 5, 8, 1, 1);
+        gridLayout_13->addWidget(botao_clonar_ataque, 6, 8, 1, 1);
 
         label_55 = new QLabel(tab_6);
         label_55->setObjectName(QStringLiteral("label_55"));
@@ -2381,6 +2425,30 @@ public:
         botao_bonus_dano->setObjectName(QStringLiteral("botao_bonus_dano"));
 
         gridLayout_13->addWidget(botao_bonus_dano, 3, 10, 1, 1);
+
+        label_104 = new QLabel(tab_6);
+        label_104->setObjectName(QStringLiteral("label_104"));
+        sizePolicy7.setHeightForWidth(label_104->sizePolicy().hasHeightForWidth());
+        label_104->setSizePolicy(sizePolicy7);
+        label_104->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_104, 4, 0, 1, 1);
+
+        spin_nivel_conjurador_pergaminho = new QSpinBox(tab_6);
+        spin_nivel_conjurador_pergaminho->setObjectName(QStringLiteral("spin_nivel_conjurador_pergaminho"));
+
+        gridLayout_13->addWidget(spin_nivel_conjurador_pergaminho, 4, 1, 1, 1);
+
+        label_mod_atributo = new QLabel(tab_6);
+        label_mod_atributo->setObjectName(QStringLiteral("label_mod_atributo"));
+        label_mod_atributo->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_mod_atributo, 4, 2, 1, 1);
+
+        spin_modificador_atributo_pergaminho = new QSpinBox(tab_6);
+        spin_modificador_atributo_pergaminho->setObjectName(QStringLiteral("spin_modificador_atributo_pergaminho"));
+
+        gridLayout_13->addWidget(spin_modificador_atributo_pergaminho, 4, 3, 1, 1);
 
         tabs->addTab(tab_6, QString());
         tab = new QWidget();
@@ -2785,12 +2853,7 @@ public:
         QWidget::setTabOrder(combo_visao, spin_raio_visao_escuro_quad);
         QWidget::setTabOrder(spin_raio_visao_escuro_quad, checkbox_salvacao);
         QWidget::setTabOrder(checkbox_salvacao, combo_salvacao);
-        QWidget::setTabOrder(combo_salvacao, checkbox_cor);
-        QWidget::setTabOrder(checkbox_cor, botao_cor);
-        QWidget::setTabOrder(botao_cor, slider_alfa);
-        QWidget::setTabOrder(slider_alfa, spin_raio_quad);
-        QWidget::setTabOrder(spin_raio_quad, botao_luz);
-        QWidget::setTabOrder(botao_luz, combo_textura);
+        QWidget::setTabOrder(combo_salvacao, combo_textura);
         QWidget::setTabOrder(combo_textura, spin_tex_trans_x);
         QWidget::setTabOrder(spin_tex_trans_x, spin_tex_trans_y);
         QWidget::setTabOrder(spin_tex_trans_y, spin_tex_largura);
@@ -2887,7 +2950,6 @@ public:
         QWidget::setTabOrder(botao_remover_bracadeiras, botao_renovar_feiticos);
         QWidget::setTabOrder(botao_renovar_feiticos, arvore_feiticos);
         QWidget::setTabOrder(arvore_feiticos, texto_notas);
-        QWidget::setTabOrder(texto_notas, tabs);
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -3001,12 +3063,15 @@ public:
         botao_remover_forma_alternativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Remove a forma alternativa selecionada", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_remover_forma_alternativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        groupBox_9->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Cor", nullptr));
         label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", nullptr));
         checkbox_cor->setText(QString());
 #ifndef QT_NO_TOOLTIP
         botao_cor->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cor da entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", nullptr));
+        label_81->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transpar\303\252ncia", nullptr));
+        groupBox_8->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Luz", nullptr));
         label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", nullptr));
 #ifndef QT_NO_TOOLTIP
         spin_raio_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da luz, em metros.", nullptr));
@@ -3244,13 +3309,13 @@ public:
         botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
-#endif // QT_NO_TOOLTIP
-        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", nullptr));
-#ifndef QT_NO_TOOLTIP
         label_23->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
 #endif // QT_NO_TOOLTIP
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", nullptr));
         combo_material_arma->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
         combo_material_arma->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
         combo_material_arma->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Ferro Frio", nullptr));
@@ -3321,6 +3386,14 @@ public:
         botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        label_104->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_conjurador_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o n\303\255vel de conjurador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_mod_atributo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de Atributo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_modificador_atributo_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o modificador de atributo", nullptr));
+#endif // QT_NO_TOOLTIP
         tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", nullptr));
         label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", nullptr));
         botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));

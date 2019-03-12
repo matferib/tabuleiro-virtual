@@ -289,11 +289,13 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.spin_alcance_quad->setValue(0);
 }
 
-void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque, const ent::EntidadeProto& proto) {
+void PreencheComboArma(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque, const ent::EntidadeProto& proto) {
   const bool cac = tipo_ataque == "Ataque Corpo a Corpo";
   const bool projetil_area = tipo_ataque == "Projétil de Área";
   const bool distancia = tipo_ataque == "Ataque a Distância";
   const bool feitico_de = tipo_ataque.find("Feitiço de ") == 0;
+  const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
   std::map<std::string, std::string> nome_id_map;
   if (cac || projetil_area || distancia) {
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -312,6 +314,10 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
       if (PodeConjurarFeitico(feitico, nivel_maximo_feitico, IdParaMagia(tabelas, id_classe))) {
         nome_id_map[feitico.nome()] = feitico.id();
       }
+    }
+  } else if (pergaminho) {
+    for (const auto& feitico : tabelas.todas().tabela_feiticos().armas()) {
+      nome_id_map[feitico.nome()] = feitico.id();
     }
   }
   gerador.combo_arma->clear();
@@ -358,7 +364,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
-       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma };
+       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma,
+       gerador.spin_nivel_conjurador_pergaminho, gerador.spin_modificador_atributo_pergaminho };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Tem que vir antes do clear.
@@ -392,10 +399,14 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
+  const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
   gerador.combo_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
-      tipo_ataque.find("Feitiço de ") == 0);
+      tipo_ataque.find("Feitiço de ") == 0 || pergaminho);
   PreencheComboArma(tabelas, gerador, tipo_ataque, proto);
+  gerador.spin_nivel_conjurador_pergaminho->setEnabled(pergaminho);
+  gerador.spin_modificador_atributo_pergaminho->setEnabled(pergaminho);
+
   gerador.combo_material_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
   if (!linha_valida) {
@@ -419,6 +430,10 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_municao->setValue(da.municao());
+  if (pergaminho) {
+    gerador.spin_nivel_conjurador_pergaminho->setValue(da.nivel_conjurador_pergaminho());
+    gerador.spin_modificador_atributo_pergaminho->setValue(da.modificador_atributo_pergaminho());
+  }
   // A ordem eh indexada em 0, mas usuarios entendem primeiro como 1.
   gerador.spin_ordem_ataque->setValue(da.ordem_ataque() + 1);
 

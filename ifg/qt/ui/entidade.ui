@@ -738,113 +738,182 @@ QGroupBox::title {
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
-            <widget class="QLabel" name="label_3">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QGroupBox" name="groupBox_9">
+             <property name="title">
+              <string>Cor</string>
              </property>
-             <property name="text">
-              <string>Cor:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkbox_cor">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_49">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Cor:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkbox_cor">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_cor">
+                <property name="toolTip">
+                 <string>Cor da entidade.</string>
+                </property>
+                <property name="text">
+                 <string>Escolher Cor</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_81">
+                <property name="text">
+                 <string>Transparência</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSlider" name="slider_alfa">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QPushButton" name="botao_cor">
-           <property name="toolTip">
-            <string>Cor da entidade.</string>
-           </property>
-           <property name="text">
-            <string>Escolher Cor</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="slider_alfa">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>
        <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_14">
          <item>
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Raio</string>
+          <widget class="QGroupBox" name="groupBox_8">
+           <property name="title">
+            <string>Luz</string>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="spin_raio_quad">
-           <property name="toolTip">
-            <string>Raio da luz, em metros.</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_31">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>quadrados</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="botao_luz">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Escolher Cor da Luz</string>
-           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_46">
+            <item>
+             <widget class="QLabel" name="label_12">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Raio</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="spin_raio_quad">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Raio da luz, em metros.</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_31">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>quadrados</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_luz">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Escolher Cor da Luz</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -2742,22 +2811,6 @@ QGroupBox::title {
        <string>Ataques</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
-       <item row="1" column="4">
-        <widget class="QCheckBox" name="checkbox_op">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Arma obra prima?</string>
-         </property>
-         <property name="text">
-          <string>OP</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="5">
         <widget class="QLabel" name="label_23">
          <property name="sizePolicy">
@@ -2774,6 +2827,22 @@ QGroupBox::title {
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QCheckBox" name="checkbox_op">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Arma obra prima?</string>
+         </property>
+         <property name="text">
+          <string>OP</string>
          </property>
         </widget>
        </item>
@@ -2887,7 +2956,7 @@ QGroupBox::title {
        <item row="0" column="7">
         <widget class="QLabel" name="label_73">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -3057,7 +3126,7 @@ QGroupBox::title {
        <item row="0" column="2">
         <widget class="QLabel" name="label_36">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -3133,7 +3202,7 @@ QGroupBox::title {
        <item row="0" column="0">
         <widget class="QLabel" name="label_91">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -3162,7 +3231,7 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="4" column="10">
+       <item row="5" column="10">
         <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
           <widget class="QPushButton" name="botao_ataque_cima">
@@ -3192,7 +3261,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="4" column="0" colspan="10">
+       <item row="5" column="0" colspan="10">
         <widget class="QListWidget" name="lista_ataques">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -3208,7 +3277,7 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="5" column="9">
+       <item row="6" column="9">
         <widget class="QPushButton" name="botao_remover_ataque">
          <property name="enabled">
           <bool>false</bool>
@@ -3224,7 +3293,7 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
-       <item row="5" column="8">
+       <item row="6" column="8">
         <widget class="QPushButton" name="botao_clonar_ataque">
          <property name="enabled">
           <bool>true</bool>
@@ -3327,6 +3396,46 @@ QGroupBox::title {
          </property>
          <property name="text">
           <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_104">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Nível de Conjurador</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QSpinBox" name="spin_nivel_conjurador_pergaminho">
+         <property name="toolTip">
+          <string>Para pergaminhos, o nível de conjurador</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLabel" name="label_mod_atributo">
+         <property name="text">
+          <string>Modificador de Atributo</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QSpinBox" name="spin_modificador_atributo_pergaminho">
+         <property name="toolTip">
+          <string>Para pergaminhos, o modificador de atributo</string>
          </property>
         </widget>
        </item>
@@ -3883,11 +3992,6 @@ QGroupBox::title {
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
   <tabstop>checkbox_salvacao</tabstop>
   <tabstop>combo_salvacao</tabstop>
-  <tabstop>checkbox_cor</tabstop>
-  <tabstop>botao_cor</tabstop>
-  <tabstop>slider_alfa</tabstop>
-  <tabstop>spin_raio_quad</tabstop>
-  <tabstop>botao_luz</tabstop>
   <tabstop>combo_textura</tabstop>
   <tabstop>spin_tex_trans_x</tabstop>
   <tabstop>spin_tex_trans_y</tabstop>
@@ -3985,7 +4089,6 @@ QGroupBox::title {
   <tabstop>botao_renovar_feiticos</tabstop>
   <tabstop>arvore_feiticos</tabstop>
   <tabstop>texto_notas</tabstop>
-  <tabstop>tabs</tabstop>
  </tabstops>
  <resources/>
  <connections>
