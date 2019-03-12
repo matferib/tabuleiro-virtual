@@ -4720,6 +4720,53 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'luz_dia'  # daylight
+    nome: 'luz do dia'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Luz do Dia'
+    }
+  }
+
+  armas {
+    id: 'restauracao_menor'  # lesser restoration
+    nome: 'restauracao menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    # TODO eliminar fadiga, exausto para fadiga, cura 1d4 pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
+  }
+
+  armas {
     id: 'cativar'  # enthrall
     nome: 'cativar'
     alcance_quadrados: 1
@@ -5066,10 +5113,31 @@ tabela_feiticos {
       id: 'mago'
       nivel: 1
     }
-    acao {
-      tipo: ACAO_CRIACAO_ENTIDADE
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
       #id_modelo_entidade: 'Orc'
+    #}
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_ii'
+    nome: 'invocar criaturas II'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
     }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
   }
   armas {
     # TODO
@@ -5087,10 +5155,10 @@ tabela_feiticos {
       id: 'mago'
       nivel: 3
     }
-    acao {
-      tipo: ACAO_CRIACAO_ENTIDADE
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
       #id_modelo_entidade: 'Orc'
-    }
+    #}
   }
 
   armas {
@@ -5314,39 +5382,6 @@ tabela_feiticos {
       permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_BORRAR
-        modificador_rodadas: MR_MINUTOS_NIVEL
-      }
-    }
-  }
-
-  armas {
-    id: 'vigor_urso' # bears endurance
-    nome: 'vigor do urso'
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 2
-    }
-    info_classes {
-      id: 'ranger'
-      nivel: 2
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
-      ignora_resistencia_magia: true
-      permite_salvacao: false
-      efeitos_adicionais {
-        efeito: EFEITO_VIGOR_URSO
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
@@ -5672,38 +5707,6 @@ tabela_feiticos {
     }
   }
 
-
-  armas {
-    id: 'agilidade_gato'
-    nome: 'agilidade do gato'
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 2
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 2
-    }
-    info_classes {
-      id: 'ranger'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      efeitos_adicionais {
-        efeito: EFEITO_AGILIDADE_GATO
-        rodadas: 10
-        modificador_rodadas: MR_MINUTOS_NIVEL
-      }
-    }
-  }
-
   armas {
     id: 'velocidade'
     nome: 'velocidade'
@@ -5991,7 +5994,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'forca_touro'
+    id: 'forca_touro'  # bull's strength
     nome: 'força do touro'
     info_classes {
       id: 'clerigo'
@@ -6018,11 +6021,165 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_FORCA_TOURO
-        rodadas: 20  # 10/por nivel
         modificador_rodadas: MR_MINUTOS_NIVEL
-        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+  armas {
+    id: 'sabedoria_coruja'  # owl's wisdom
+    nome: 'sabedoria da coruja'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_SABEDORIA_CORUJA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'agilidade_gato'  # cat's grace
+    nome: 'agilidade do gato'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_AGILIDADE_GATO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'esplendor_aguia'  # eagle's splendor
+    nome: 'esplendor da águia'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ESPLENDOR_AGUIA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'vigor_urso'  # bear's endurance
+    nome: 'vigor do urso'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_VIGOR_URSO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'astucia_raposa'  # fox's cunning
+    nome: 'astúcia da raposa'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ASTUCIA_RAPOSA
+        modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
   }
@@ -6127,11 +6284,13 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
       efeitos_adicionais {
-        efeito: EFEITO_SANTUARIO
-        rodadas: 1  # 1/por nivel
+        efeito: EFEITO_ESCUDO_FE
         modificador_rodadas: MR_MINUTOS_NIVEL
-        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+        modificador_complementos: MC_2_MAIS_1_CADA_6_MAX_5
       }
     }
   }
@@ -6852,8 +7011,8 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'raio_flamejante'
-    nome: 'raio flamejante'
+    id: 'raio_ardente'
+    nome: 'raio ardente'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     dano { invariavel: '4d6' }
