@@ -6633,7 +6633,7 @@ tabela_feiticos {
   }
   armas {
     id: 'confusao'
-    nome: 'Confusão'
+    nome: 'confusão'
     alcance_quadrados: 20  # +2/niveis
     info_classes {
       id: 'mago'
@@ -6667,7 +6667,7 @@ tabela_feiticos {
   }
   armas {
     id: 'cone_de_gelo'
-    nome: 'Cone de Gelo'
+    nome: 'cone de gelo'
     alcance_quadrados: 12
     info_classes {
       id: 'mago'
@@ -6766,7 +6766,7 @@ tabela_feiticos {
   }
   armas {
     id: 'enfeiticar_monstro'
-    nome: 'Enfeitiçar Monstro'
+    nome: 'enfeitiçar monstro'
     alcance_quadrados: 12
     info_classes {
       id: 'mago'
@@ -6802,7 +6802,7 @@ tabela_feiticos {
   }
   armas {
     id: 'heroismo'
-    nome: 'Heroismo'
+    nome: 'heroismo'
     info_classes {
       id: 'mago'
       nivel: 3
@@ -7086,7 +7086,7 @@ tabela_feiticos {
   }
   armas {
     id: 'piscar'
-    nome: 'Piscar'
+    nome: 'piscar'
     info_classes {
       id: 'mago'
       nivel: 3
@@ -7190,7 +7190,7 @@ tabela_feiticos {
 
   armas {
     id: 'sugestao'
-    nome: 'Sugestão'
+    nome: 'sugestão'
     alcance_quadrados: 5  # 1/2 niveis
     info_classes {
       id: 'mago'
