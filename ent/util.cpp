@@ -3217,11 +3217,20 @@ int ComputaLimiteVezes(
 
 std::string ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador) {
   switch (modelo_dano) {
-    case ArmaProto::DANO_1D8_MAIS_1_POR_NIVEL_MAX_5: {
+    case ArmaProto::CURA_1D8_MAIS_1_POR_NIVEL_MAX_5: {
       return StringPrintf("-1d8+%d", std::min(5, nivel_conjurador));
     }
+    case ArmaProto::CURA_2D8_MAIS_1_POR_NIVEL_MAX_10: {
+      return StringPrintf("-2d8+%d", std::min(10, nivel_conjurador));
+    }
+    case ArmaProto::DANO_1D8_MAIS_1_POR_NIVEL_MAX_5: {
+      return StringPrintf("1d8+%d", std::min(5, nivel_conjurador));
+    }
+    case ArmaProto::DANO_2D8_MAIS_1_POR_NIVEL_MAX_10: {
+      return StringPrintf("2d8+%d", std::min(10, nivel_conjurador));
+    }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_10D6: {
-      return StringPrintf("%dd6", nivel_conjurador);
+      return StringPrintf("%dd6", std::min(10, nivel_conjurador));
     }
     default:
       return "0";

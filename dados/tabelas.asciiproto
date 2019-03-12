@@ -4720,6 +4720,36 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'imobilizar_pessoa'  # hold person
+    nome: 'imobilizar pessoa'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_ANULOU
+      ignora_resistencia_magia: false
+      afeta_apenas: TIPO_HUMANOIDE
+      efeitos_adicionais {
+        efeito: EFEITO_IMOBILIZADO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'tendencia_arma'  # align weapon
     nome: 'tendência em arma'
     info_classes {
@@ -6022,8 +6052,32 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'curar_ferimentos_moderados'
+    id: 'infligir_ferimentos_leves'  # inflict light wounds
+    nome: 'infligir ferimentos leves'
+    modelo_dano: DANO_1D8_MAIS_1_POR_NIVEL_MAX_5
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_MEIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+  armas {
+    id: 'curar_ferimentos_moderados'  # cure moderate wounds
     nome: 'curar ferimentos moderados'
+    modelo_dano: CURA_2D8_MAIS_1_POR_NIVEL_MAX_10
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -6053,6 +6107,24 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+    }
+  }
+  armas {
+    id: 'infligir_ferimentos_moderados'  # cure moderate wounds
+    nome: 'infligir ferimentos moderados'
+    modelo_dano: DANO_2D8_MAIS_1_POR_NIVEL_MAX_10
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_MEIO
     }
   }
 
