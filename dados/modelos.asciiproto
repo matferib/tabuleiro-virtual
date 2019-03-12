@@ -1029,6 +1029,24 @@ modelo {
 }
 
 modelo {
+  id: 'Escuridão'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    aura_m: 6  # 4 quadrado de raio
+    cor { r: 0 g: 0 b: 0 a: 1 }
+    ignora_luz: true
+    evento {
+      rodadas: 300
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Esfera Flamejante'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
