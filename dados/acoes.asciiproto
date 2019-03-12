@@ -118,6 +118,12 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
+  id: 'Pergaminho Arcano'
+}
+acao {
+  id: 'Pergaminho Divino'
+}
+acao {
   id: 'Pedrada (gigante)'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_ESFERA

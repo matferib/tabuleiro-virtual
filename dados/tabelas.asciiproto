@@ -5118,7 +5118,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'causar_medo' #  cause fear 
+    id: 'causar_medo' #  cause fear
     nome: 'causar medo'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5195,7 +5195,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
+      permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
       efeitos_adicionais {
@@ -5288,7 +5288,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
+      permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
     }
@@ -5309,7 +5309,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
+      permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
       efeitos_adicionais {
@@ -5372,7 +5372,7 @@ tabela_feiticos {
       raio_quadrados: 2
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
+      permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
@@ -5386,7 +5386,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'explosao_sonora' # sound burst 
+    id: 'explosao_sonora' # sound burst
     nome: 'explosao sonora'
     alcance_quadrados: 5
     dano { invariavel: '1d8' }
@@ -5406,8 +5406,8 @@ tabela_feiticos {
       raio_quadrados: 2
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false 
-      ignora_resistencia_magia: false 
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
       duracao_s: 0.350
@@ -5604,9 +5604,9 @@ tabela_feiticos {
       tipo: ACAO_RAIO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: true 
+      permite_ataque_vs_defesa: true
       ataque_toque: true
-      permite_salvacao: false 
+      permite_salvacao: false
       elemento: DESC_FRIO
     }
   }
@@ -6244,7 +6244,7 @@ tabela_feiticos {
 
   armas {
     id: 'invisibilidade'
-    nome: 'Invisibilidade'
+    nome: 'invisibilidade'
     info_classes {
       id: 'mago'
       nivel: 2
@@ -6385,7 +6385,7 @@ tabela_feiticos {
       raio_quadrados: 10  # quadrados.
       geometria: ACAO_GEO_ESFERA
       efeito_area: true
-      permite_salvacao: false 
+      permite_salvacao: false
       icone: 'icon_bless.png'
       duracao_s: 0.350
       ignora_luz: true
@@ -6562,7 +6562,7 @@ tabela_feiticos {
       distancia_quadrados: 12
       geometria: ACAO_GEO_CONE
       efeito_area: true
-      permite_salvacao: false 
+      permite_salvacao: false
       icone: 'icon_touch.png'
       duracao_s: 0.350
     }
@@ -6600,7 +6600,7 @@ tabela_feiticos {
     acao {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.7 g: 0.7 b: 0.7 }
-      permite_salvacao: false 
+      permite_salvacao: false
       icone: 'icon_touch.png'
       duracao_s: 0.350
     }
@@ -6664,7 +6664,7 @@ tabela_feiticos {
   }
   armas {
     id: 'martelo_caos'
-    nome: 'Martelo do Caos'
+    nome: 'martelo do caos'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     # dano { invariavel: '1d8' }
@@ -6699,7 +6699,7 @@ tabela_feiticos {
 
   armas {
     id: 'nuvem_profana'
-    nome: 'Nuvem Profana'
+    nome: 'nuvem profana'
     # Unholy blight
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -6879,7 +6879,7 @@ tabela_feiticos {
   }
   armas {
     id: 'relampago'
-    nome: 'Relâmpago'
+    nome: 'relâmpago'
     alcance_quadrados: 24
     info_classes {
       id: 'mago'
@@ -6904,7 +6904,7 @@ tabela_feiticos {
   }
   armas {
     id: 'palavra_poder_atordoar'
-    nome: 'Palavra do Poder: Atordoar'
+    nome: 'palavra do poder: Atordoar'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
