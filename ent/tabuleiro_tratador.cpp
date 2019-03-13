@@ -1223,6 +1223,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   if (HaValorListaPontosVida()) {
     delta_pontos_vida =
         LeValorListaPontosVida(entidade_origem, EntidadeProto(), acao_proto->id());
+    if (da != nullptr && da->cura()) {
+      delta_pontos_vida = -delta_pontos_vida;
+    }
     entidade_origem->ProximoAtaque();
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
@@ -1471,10 +1474,11 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Aplica dano e critico, furtivo.
     int delta_pontos_vida = 0;
+    const bool acao_cura = da != nullptr && da->cura();
     if (resultado.Sucesso()) {
       int max_predileto = 0;
       for (const auto& ip : entidade_origem->Proto().dados_ataque_global().inimigos_prediletos()) {
-        if (entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
+        if (!acao_cura && entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
           max_predileto = std::max(2 * ip.vezes(), max_predileto);
         }
       }
@@ -1488,7 +1492,7 @@ float Tabuleiro::TrataAcaoIndividual(
         delta_pontos_vida += LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
-      if (!entidade_destino->ImuneFurtivo()) {
+      if (!entidade_destino->ImuneFurtivo() && !acao_cura) {
         if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
             && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
           int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
@@ -1497,6 +1501,9 @@ float Tabuleiro::TrataAcaoIndividual(
             delta_pontos_vida += delta_furtivo;
           }
         }
+      }
+      if (acao_cura) {
+        delta_pontos_vida = -delta_pontos_vida;
       }
     }
 
