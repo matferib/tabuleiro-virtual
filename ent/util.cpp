@@ -1474,7 +1474,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
     }
   } else {
     salvou = true;
-    descricao_resultado = StringPrintf("salvacao: acao sem dificuldade e alvo sem salvacao, dano: %d", -delta_pontos_vida);
+    descricao_resultado = StringPrintf("salvacao: acao sem dificuldade, dano: %d", -delta_pontos_vida);
   }
   if (ap.dano_ignora_salvacao()) {
     delta_pontos_vida = DeltaAcao(ap);

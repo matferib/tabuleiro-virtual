@@ -1253,7 +1253,9 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
         ? ACAO_PROJETIL_AREA
         : PossuiCategoria(CAT_DISTANCIA, arma) ? ACAO_PROJETIL : ACAO_CORPO_A_CORPO);
   }
-  if (PossuiCategoria(CAT_PROJETIL_AREA, arma) || acao_proto.ataque_toque() || da->acao().ataque_toque()) {
+  if (PossuiCategoria(CAT_PROJETIL_AREA, arma) ||
+      acao_proto.ataque_toque() || da->acao().ataque_toque() ||
+      acao_proto.tipo() == ACAO_FEITICO_TOQUE || da->acao().tipo() == ACAO_FEITICO_TOQUE) {
     da->set_ataque_toque(true);
   } else {
     da->clear_ataque_toque();
@@ -1452,6 +1454,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     usar_forca_dano = true;
   } else if (da->ataque_toque()) {
     bba = PossuiTalento("acuidade_arma", proto) ? std::max(bba_distancia, bba_cac) : bba_cac;
+  } else if (da->acao().permite_ataque_vs_defesa()) {
+    LOG(WARNING) << "Tipo de ataque não se enquadra em nada: " << da->DebugString();
   }
 
   {
@@ -1519,7 +1523,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       PossuiTalento("especializacao_arma", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
   AtribuiOuRemoveBonus(
       PossuiTalento("especializacao_arma_maior", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
-  // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que vale.
+  // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que valem.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
@@ -1529,6 +1533,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_ca_normal(CATotal(proto, permite_escudo));
   da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
   da->set_ca_toque(CAToque(proto));
+
+  VLOG(1) << "Ataque recomputado: " << da->DebugString();
 }
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {

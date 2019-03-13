@@ -6066,6 +6066,7 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_FEITICO_TOQUE
+      dificuldade_salvacao_por_nivel: true
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
@@ -6121,6 +6122,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      dificuldade_salvacao_por_nivel: true
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE

@@ -124,6 +124,7 @@ enum TipoEfeito {
   EFEITO_ABALADO = 77;
   EFEITO_AUXILIO_DIVINO = 78;
   EFEITO_PROTEGER_OUTRO = 79;
+  EFEITO_IMOBILIZADO = 80;
 }
 
 enum TipoEfeitoModelo {
