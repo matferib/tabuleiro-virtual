@@ -6047,7 +6047,7 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
   }
@@ -6105,7 +6105,7 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
   }
@@ -6125,6 +6125,64 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_salvacao: RS_MEIO
+    }
+  }
+  armas {
+    id: 'curar_ferimentos_graves'  # cure serious wounds
+    nome: 'curar ferimentos graves'
+    modelo_dano: CURA_3D8_MAIS_1_POR_NIVEL_MAX_15
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 4
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'infligir_ferimentos_graves'  # inflict serious wounds
+    nome: 'infligir ferimentos graves'
+    modelo_dano: DANO_3D8_MAIS_1_POR_NIVEL_MAX_15
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_salvacao: RS_MEIO
+      dificuldade_salvacao_por_nivel: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
     }
   }
 
