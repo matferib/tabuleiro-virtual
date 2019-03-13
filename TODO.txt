@@ -1,20 +1,23 @@
-Luz deve ter raio na UI de objetos.
-Permitir feiticos de nivel acima para pergaminhos na UI.
-Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
+- Pergaminhos:
+  - TESTAR: Usar o nivel de conjurador do pergaminho ao inves do personagem para outros efeitos.
 
 Anotacoes da sessao Tilverton:
 - Definir encontros.
 - Fazer vangerdahast (mago 18)
-- Fazer Aris (gigante anciao)
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
 - Fazer Melir e Quairon (clerigo 4 e mago 4).
 - Resistencia magia variavel.
-- Veserab:
-  - tem no livro.
+- Veserab: pg 94 empire of the shade.
 - Outros vultos:
   - guerreiros:
 - Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, 121).
+- Fazer Aris (gigante anciao): OK
 Veserab avancado: pg 119
+
+
+Permitir feiticos de nivel acima para pergaminhos na UI.
+Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
+
 
 Tipo e subtipo de formas alternativas.
 Feiticos de feiticeiro marcados com TODO.
