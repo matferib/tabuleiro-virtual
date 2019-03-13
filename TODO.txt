@@ -1,6 +1,9 @@
 - Pergaminhos:
   - TESTAR: Usar o nivel de conjurador do pergaminho ao inves do personagem para outros efeitos.
 
+Dano para curar ferimentos serios.
+Implementar afeta apenas tendencia em acoes.
+
 Anotacoes da sessao Tilverton:
 - Definir encontros.
 - Fazer vangerdahast (mago 18)

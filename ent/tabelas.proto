@@ -133,7 +133,11 @@ message ArmaProto {
   optional ModeloLimiteVezes modelo_limite_vezes = 23;
 
   enum ModeloDano {
-    DANO_1D6_POR_NIVEL = 0;
+    DANO_1D6_POR_NIVEL_MAX_10D6 = 0;
+    CURA_1D8_MAIS_1_POR_NIVEL_MAX_5 = 1;
+    DANO_1D8_MAIS_1_POR_NIVEL_MAX_5 = 2;
+    CURA_2D8_MAIS_1_POR_NIVEL_MAX_10 = 3;
+    DANO_2D8_MAIS_1_POR_NIVEL_MAX_10 = 4;
   }
   // Se a arma for criada por feitico.
   optional ModeloDano modelo_dano = 25;
