@@ -1,3 +1,4 @@
+Arrumar a cura acelerada: parece que a base nao esta sendo usada para nada e o computado nao tem nada setando.
 Dano para curar ferimentos serios.
 Implementar afeta apenas tendencia em acoes.
 Adicionar feiticos de dominio na UI de clerigo.
