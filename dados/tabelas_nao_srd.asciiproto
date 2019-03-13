@@ -466,8 +466,9 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       efeitos_adicionais {
-        efeito: EFEITO_CURA_ADICIONAL
+        efeito: EFEITO_CURA_ACELERADA
         complementos: 1
+        modificador_rodadas: MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15
       }
     }
   }

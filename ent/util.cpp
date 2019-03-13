@@ -2891,6 +2891,9 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
       case MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6:
         modificador = std::min(nivel_conjurador / 3, 6);
         break;
+      case MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15:
+        modificador = std::min(15, 10 + nivel_conjurador);
+        break;
       default:
         break;
     }

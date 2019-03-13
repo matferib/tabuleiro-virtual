@@ -27,7 +27,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 80.
+// Proximo id: 81.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -124,6 +124,7 @@ enum TipoEfeito {
   EFEITO_ABALADO = 77;
   EFEITO_AUXILIO_DIVINO = 78;
   EFEITO_PROTEGER_OUTRO = 79;
+  EFEITO_CURA_ACELERADA = 80;
 }
 
 enum TipoEfeitoModelo {
@@ -399,7 +400,7 @@ message DadosDefesa {
     // Base do personagem.
     optional int32 base = 1;
     // Computado: pega de todas as origens.
-    repeated int32 computado = 2; 
+    repeated int32 computado = 2;
   }
   optional CuraAcelerada cura_acelerada = 23;
 }

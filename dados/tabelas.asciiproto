@@ -1042,6 +1042,16 @@ tabela_efeitos {
     }
     # TODO dividir pontos de vida.
   }
+  efeitos {
+    id: EFEITO_CURA_ACELERADA
+    nome: 'cura acelerada'
+    formato_complementos: 'Valor da cura acelerada.'
+    consequencia {
+      dados_defesa {
+        cura_acelerada { indice_complemento: 0 }
+      }
+    }
+  }
 
   efeitos {
     id: EFEITO_REFLEXOS
