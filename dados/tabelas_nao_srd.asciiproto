@@ -445,7 +445,31 @@ tabela_dominios {
     nome: 'tirania'
     descricao: '+2 CD em magias de compulsão.'
   }
-
-
-
+}
+tabela_feiticos {
+  armas {
+    id: 'vigor_menor'  # vigor lesser
+    nome: 'vigor menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permita_salvacao: false
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_CURA_ACELERADA
+        complementos: 1
+        modificador_rodadas: MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15
+      }
+    }
+  }
 }
