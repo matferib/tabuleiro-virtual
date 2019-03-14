@@ -2,13 +2,12 @@
   - TESTAR: Usar o nivel de conjurador do pergaminho ao inves do personagem para outros efeitos.
 
 Dano para curar ferimentos serios.
-Implementar afeta apenas tendencia em acoes.
 
 Anotacoes da sessao Tilverton:
+- Terminar Melir e Quairon (clerigo 4 e mago 4) (pergaminhos?).
 - Definir encontros.
 - Fazer vangerdahast (mago 18)
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
-- Fazer Melir e Quairon (clerigo 4 e mago 4).
 - Resistencia magia variavel.
 - Veserab: pg 94 empire of the shade.
 - Outros vultos:
@@ -17,7 +16,7 @@ Anotacoes da sessao Tilverton:
 - Fazer Aris (gigante anciao): OK
 Veserab avancado: pg 119
 
-
+Implementar afeta apenas tendencia em acoes.
 Permitir feiticos de nivel acima para pergaminhos na UI.
 Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
 
