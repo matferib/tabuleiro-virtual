@@ -233,9 +233,7 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (consequencia.dados_defesa().cura_acelerada().base() > 0) {
-    proto->mutable_dados_defesa()->mutable_cura_acelerada()->add_computado(consequencia.dados_defesa().cura_acelerada().base());
-  }
+  AplicaBonusOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
     AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
@@ -527,7 +525,7 @@ ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvent
   if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())     c.mutable_dados_defesa()->clear_cura_acelerada();
+  if (c.dados_defesa().has_cura_acelerada())     PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_cura_acelerada());
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(id_unico, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
@@ -549,7 +547,7 @@ ConsequenciaEvento PreencheConsequenciaFimParaModelos(const ConsequenciaEvento& 
   if (c.dados_defesa().has_salvacao_fortitude()) ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_fortitude());
   if (c.dados_defesa().has_salvacao_vontade())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())     c.mutable_dados_defesa()->clear_cura_acelerada();
+  if (c.dados_defesa().has_cura_acelerada())     ZeraValorBonus(c.mutable_dados_defesa()->mutable_cura_acelerada());
   if (c.has_jogada_ataque())            ZeraValorBonus(c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              ZeraValorBonus(c.mutable_jogada_dano());
   if (c.has_tamanho())                  ZeraValorBonus(c.mutable_tamanho());
@@ -666,9 +664,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
 
 // Reseta todos os campos computados que tem que ser feito no inicio.
 void ResetComputados(EntidadeProto* proto) {
-  auto* cura_acelerada = proto->mutable_dados_defesa()->mutable_cura_acelerada();
-  cura_acelerada->clear_computado();
-  cura_acelerada->add_computado(cura_acelerada->base());
+  proto->mutable_dados_defesa()->clear_cura_acelerada();
 }
 
 void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {

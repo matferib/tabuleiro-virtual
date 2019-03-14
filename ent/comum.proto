@@ -396,14 +396,8 @@ message DadosDefesa {
   optional ReducaoDano reducao_dano = 18;
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
   repeated ResistenciaElementos resistencia_elementos = 19;
-  // A maior cura acelerada é a que vale.
-  message CuraAcelerada {
-    // Base do personagem.
-    optional int32 base = 1;
-    // Computado: pega de todas as origens.
-    repeated int32 computado = 2;
-  }
-  optional CuraAcelerada cura_acelerada = 23;
+  // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.
+  optional Bonus cura_acelerada = 23;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

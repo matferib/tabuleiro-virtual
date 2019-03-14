@@ -3692,12 +3692,8 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
 }
 
 int CuraAcelerada(const EntidadeProto& proto) {
-  const auto& cura_acelerada = proto.dados_defesa().cura_acelerada();
-  int maior = 0;
-  for (int c : cura_acelerada.computado()) {
-    maior = std::max(c, maior);
-  }
-  return maior;
+  // Rodar manualmente os bonus e retornar o maior?
+  return BonusTotal(proto.dados_defesa().cura_acelerada());
 }
 
 Vector3 RotationMatrixToAngles(const Matrix3& matrix) {

@@ -1045,7 +1045,20 @@ modelo {
     tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
   }
 }
-
+modelo {
+  id: 'Zona da Verdade'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    cor { r: 1 g: 1 b: 1 a: 0.5 }
+    evento {
+      rodadas: 30
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+  }
+}
 modelo {
   id: 'Esfera Flamejante'
   entidade {
