@@ -223,7 +223,7 @@ tabela_efeitos_modelos {
         salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
-        cura_acelerada { base: 2 }
+        cura_acelerada { bonus_individual { tipo: TB_BASE por_origem { valor: 2 origem: 'vulto' } } }
         # resistencia magia 11 + nivel PC
         # pericias: +4 racial esconderse e furtividade.
       }
@@ -462,7 +462,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
-      permita_salvacao: false
+      permite_salvacao: false
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       efeitos_adicionais {
