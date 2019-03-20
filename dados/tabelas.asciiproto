@@ -1030,6 +1030,35 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_ORACAO_ALIADOS
+    nome: 'oração (aliados)'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        # pericias
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+    }
+  }
+  efeitos {
+    id: EFEITO_ORACAO_INIMIGOS
+    nome: 'oração (inimigos)'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        # pericias
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+    }
+  }
+
+  efeitos {
     id: EFEITO_PROTEGER_OUTRO
     nome: 'proteger outro'
     consequencia {
@@ -4729,6 +4758,97 @@ tabela_pericias {
   }
 }
 tabela_feiticos {
+  armas {
+    id: 'luz_cegante'  # prayer
+    nome: 'luz cegante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    modelo_dano: DANO_1D8_CADA_2_NIVEIS_MAX_5D8
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_RAIO
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      ignora_luz: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+    }
+    # TODO constructos levam apenas 1d6 a cada 2 niveis
+    # mortos vivos levam 1d6 por nivel (max 10d6).
+    # mortos vivos vulneraveis a luz levam 1d8 por nivel (max 10d8)
+  }
+
+  armas {
+    id: 'oracao'  # prayer
+    nome: 'oração'
+    alcance_quadrados: 8
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+    }
+    # TODO aliados ganham +1 sorte em ataque, dano com armas, salvacoes e pericias.
+    # Inimigos ganham -1 de penalidade no mesmo.
+  }
+
+  armas {
+    id: 'drenar_forca_vital'  # death knell
+    nome: 'condição'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+    }
+    # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
+    # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
+  }
+
+  armas {
+    id: 'condicao'  # status
+    nome: 'condição'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Condição (feitiço)'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
   armas {
     id: 'imobilizar_pessoa'  # hold person
     nome: 'imobilizar pessoa'
