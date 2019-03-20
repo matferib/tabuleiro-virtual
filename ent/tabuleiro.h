@@ -716,6 +716,10 @@ class Tabuleiro : public ntf::Receptor {
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s);
+  /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
+  float TrataPreAcaoComum(
+      float atraso_s, const Posicao& pos_tabuleiro, const Entidade* entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
+      ntf::Notificacao* grupo_desfazer);
   float TrataAcaoEfeitoArea(
       float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);

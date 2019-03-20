@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1265</width>
+    <width>1405</width>
     <height>632</height>
    </rect>
   </property>
@@ -2669,7 +2669,7 @@ QGroupBox::title {
        <item row="0" column="1">
         <layout class="QGridLayout" name="gridLayout_10">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="label_talentos">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -3436,6 +3436,20 @@ QGroupBox::title {
         <widget class="QSpinBox" name="spin_modificador_atributo_pergaminho">
          <property name="toolTip">
           <string>Para pergaminhos, o modificador de atributo</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="5">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Limite de Vezes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="6">
+        <widget class="QSpinBox" name="spin_limite_vezes">
+         <property name="toolTip">
+          <string>Se &gt; 0, o ataque poderá ser usado este número de vezes e depois será consumido.</string>
          </property>
         </widget>
        </item>

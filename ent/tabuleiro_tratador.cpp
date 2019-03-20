@@ -1685,47 +1685,86 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
   }
 }
 
+float Tabuleiro::TrataPreAcaoComum(
+    float atraso_s, const Posicao& pos_tabuleiro, const Entidade* entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
+    ntf::Notificacao* grupo_desfazer) {
+  if (entidade_origem != nullptr && !PodeAgir(entidade_origem->Proto())) {
+    AdicionaAcaoTextoLogado(entidade_origem->Id(), "Entidade nao pode agir", atraso_s);
+    acao_proto->set_bem_sucedida(false);
+    return atraso_s;
+  }
+  if (!acao_proto->has_tipo()) {
+    if (entidade_origem != nullptr) {
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), "Ação inválida: sem tipo", atraso_s);
+    }
+    acao_proto->set_bem_sucedida(false);
+    return atraso_s;
+  }
+  // Pergaminhos...
+  const auto* da = entidade_origem == nullptr ? nullptr : entidade_origem->DadoCorrente();
+  if (da != nullptr && da->has_nivel_conjurador_pergaminho()) {
+    // Testa a classe.
+    bool pode_lancar;
+    std::string texto;
+    std::tie(pode_lancar, texto) = PodeLancarPergaminho(tabelas_, entidade_origem->Proto(), *da);
+    if (!pode_lancar) {
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), texto, atraso_s);
+      acao_proto->set_bem_sucedida(false);
+      return atraso_s;
+    }
+    auto resultado_pergaminho = TesteLancarPergaminho(tabelas_, entidade_origem->Proto(), *da);
+    if (resultado_pergaminho.ok) {
+      if (!resultado_pergaminho.texto.empty()) {
+        AdicionaLogEvento(entidade_origem->Id(), resultado_pergaminho.texto);
+      }
+    } else {
+      // TODO neste caso deve consumir o pergaminho, pois a acao nao sera feita.
+      // TODO adicionar um campo na acao para este fim? (algo como consome_acao mesmo que nao seja bem sucedida?)
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), resultado_pergaminho.texto);
+      acao_proto->set_bem_sucedida(false);
+      return atraso_s;
+    }
+  }
+
+  if (id_entidade_destino != Entidade::IdInvalido && entidade_origem != nullptr) {
+    AtualizaEsquivaAoAtacar(*entidade_origem, id_entidade_destino, grupo_desfazer);
+  }
+  acao_proto->set_bem_sucedida(true);
+  acao_proto->set_atraso_s(atraso_s);
+  *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
+  acao_proto->set_id_entidade_origem(entidade_origem->Id());
+  VLOG(1) << "acao proto: " << acao_proto->DebugString();
+  return atraso_s;
+}
+
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s) {
 
-  if (!PodeAgir(entidade_origem->Proto())) {
-    AdicionaAcaoTextoLogado(entidade_origem->Id(), "Entidade nao pode agir", atraso_s);
-    return atraso_s + 0.5f;
-  }
-
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
   AcaoProto acao_proto = entidade_origem->Acao(mapa_acoes_);
-  if (!acao_proto.has_tipo()) {
-    LOG(ERROR) << "Acao invalida da entidade: " << acao_proto.ShortDebugString();
-    return atraso_s;
-  }
-  if (id_entidade_destino != Entidade::IdInvalido && entidade_origem != nullptr) {
-    AtualizaEsquivaAoAtacar(*entidade_origem, id_entidade_destino, &grupo_desfazer);
-  }
-  acao_proto.set_atraso_s(atraso_s);
-  *acao_proto.mutable_pos_tabuleiro() = pos_tabuleiro;
-  acao_proto.set_id_entidade_origem(entidade_origem->Id());
-  VLOG(1) << "acao proto: " << acao_proto.DebugString();
+  atraso_s = TrataPreAcaoComum(atraso_s, pos_tabuleiro, entidade_origem, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-  if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
-    atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
-  } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
-    atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
-  } else if (acao_proto.efeito_projetil_area()) {
-    atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
-  } else if (EfeitoArea(acao_proto)) {
-    atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
-  } else {
-    atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+  if (acao_proto.bem_sucedida()) {
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
+      atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+    } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
+      atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+    } else if (acao_proto.efeito_projetil_area()) {
+      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+    } else if (EfeitoArea(acao_proto)) {
+      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+    } else {
+      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+    }
+    if (n.has_acao()) {
+      TrataNotificacao(n);
+    }
   }
-  if (n.has_acao()) {
-    TrataNotificacao(n);
-  }
+  // TODO fazer um TrataPosAcaoComum, para consumir municao, atualizar ataques etc.
 
   // Mesmo nao havendo acao, tem que desfazer porque ha efeitos que independem disso, como queda.
   if (!grupo_desfazer.notificacao().empty()) {

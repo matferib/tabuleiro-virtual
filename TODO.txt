@@ -1,14 +1,6 @@
-- Pergaminhos:
-  - TESTAR: Usar o nivel de conjurador do pergaminho ao inves do personagem para outros efeitos.
-Arrumar a cura acelerada: parece que a base nao esta sendo usada para nada e o computado nao tem nada setando.
-Dano para curar ferimentos serios.
-Implementar afeta apenas tendencia em acoes.
-Adicionar feiticos de dominio na UI de clerigo.
-
-Dano para curar ferimentos serios.
-
 Anotacoes da sessao Tilverton:
 - Terminar Melir e Quairon (clerigo 4 e mago 4) (pergaminhos?).
+  - Falta luz cegante.
 - Definir encontros.
 - Fazer vangerdahast (mago 18)
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
@@ -20,10 +12,11 @@ Anotacoes da sessao Tilverton:
 - Fazer Aris (gigante anciao): OK
 Veserab avancado: pg 119
 
+Resolver o vigor menor (como proceder com a parada do maximo que cura?)
 Implementar afeta apenas tendencia em acoes.
 Permitir feiticos de nivel acima para pergaminhos na UI.
 Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
-
+Mostrar apenas feiticos de dominio na UI de clerigo no slot de dominio.
 
 Tipo e subtipo de formas alternativas.
 Feiticos de feiticeiro marcados com TODO.

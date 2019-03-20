@@ -304,7 +304,7 @@ public:
     QLabel *label_pericias;
     QTableView *tabela_pericias;
     QGridLayout *gridLayout_10;
-    QLabel *label_9;
+    QLabel *label_talentos;
     QGridLayout *gridLayout_6;
     QTableView *tabela_talentos;
     QVBoxLayout *verticalLayout_15;
@@ -363,6 +363,8 @@ public:
     QSpinBox *spin_nivel_conjurador_pergaminho;
     QLabel *label_mod_atributo;
     QSpinBox *spin_modificador_atributo_pergaminho;
+    QLabel *label_9;
+    QSpinBox *spin_limite_vezes;
     QWidget *tab;
     QGridLayout *gridLayout_7;
     QHBoxLayout *horizontalLayout_36;
@@ -438,7 +440,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QStringLiteral("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(1265, 632);
+        ifg__qt__DialogoEntidade->resize(1405, 632);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -2033,13 +2035,13 @@ public:
 
         gridLayout_10 = new QGridLayout();
         gridLayout_10->setObjectName(QStringLiteral("gridLayout_10"));
-        label_9 = new QLabel(tab_3);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        sizePolicy7.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy7);
-        label_9->setAlignment(Qt::AlignCenter);
+        label_talentos = new QLabel(tab_3);
+        label_talentos->setObjectName(QStringLiteral("label_talentos"));
+        sizePolicy7.setHeightForWidth(label_talentos->sizePolicy().hasHeightForWidth());
+        label_talentos->setSizePolicy(sizePolicy7);
+        label_talentos->setAlignment(Qt::AlignCenter);
 
-        gridLayout_10->addWidget(label_9, 0, 0, 1, 1);
+        gridLayout_10->addWidget(label_talentos, 0, 0, 1, 1);
 
         gridLayout_6 = new QGridLayout();
         gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
@@ -2449,6 +2451,16 @@ public:
         spin_modificador_atributo_pergaminho->setObjectName(QStringLiteral("spin_modificador_atributo_pergaminho"));
 
         gridLayout_13->addWidget(spin_modificador_atributo_pergaminho, 4, 3, 1, 1);
+
+        label_9 = new QLabel(tab_6);
+        label_9->setObjectName(QStringLiteral("label_9"));
+
+        gridLayout_13->addWidget(label_9, 4, 5, 1, 1);
+
+        spin_limite_vezes = new QSpinBox(tab_6);
+        spin_limite_vezes->setObjectName(QStringLiteral("spin_limite_vezes"));
+
+        gridLayout_13->addWidget(spin_limite_vezes, 4, 6, 1, 1);
 
         tabs->addTab(tab_6, QString());
         tab = new QWidget();
@@ -3295,7 +3307,7 @@ public:
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "Ra\303\247a, Classes e Tend\303\252ncia", nullptr));
         label_pericias->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
+        label_talentos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", nullptr));
@@ -3393,6 +3405,10 @@ public:
         label_mod_atributo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de Atributo", nullptr));
 #ifndef QT_NO_TOOLTIP
         spin_modificador_atributo_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o modificador de atributo", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Limite de Vezes", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_limite_vezes->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se > 0, o ataque poder\303\241 ser usado este n\303\272mero de vezes e depois ser\303\241 consumido.", nullptr));
 #endif // QT_NO_TOOLTIP
         tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", nullptr));
         label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", nullptr));

@@ -3572,6 +3572,7 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM
@@ -3621,6 +3622,7 @@ tabela_classes {
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
     tipo_classe: TC_PDM
     precisa_memorizar: true
     progressao_feitico {
@@ -3695,6 +3697,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 6
     progressao_feitico {
@@ -3752,6 +3755,7 @@ tabela_classes {
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
     progressao_feitico {
@@ -3800,6 +3804,7 @@ tabela_classes {
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
     pericias_por_nivel: 2
@@ -3888,6 +3893,7 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
     pericias_por_nivel: 6
     progressao_feitico {
       para_nivel {}
@@ -3957,6 +3963,7 @@ tabela_classes {
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
     pericias_por_nivel: 2
     precisa_memorizar: true
     progressao_feitico {
@@ -4008,6 +4015,7 @@ tabela_classes {
   }
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
     id_para_magia: 'mago'
     pericias_por_nivel: 2
     progressao_feitico {
@@ -6162,6 +6170,29 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'curar_ferimentos_minimos'  # cure minor wounds
+    nome: 'curar ferimentos mínimos'
+    modelo_dano: CURA_1
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
     id: 'curar_ferimentos_leves'  # cure light wounds
     nome: 'curar ferimentos leves'
     modelo_dano: CURA_1D8_MAIS_1_POR_NIVEL_MAX_5
@@ -6927,6 +6958,10 @@ tabela_feiticos {
     nome: 'criar água'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     info_classes {
       id: 'clerigo'
       nivel: 0

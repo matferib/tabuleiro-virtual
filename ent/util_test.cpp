@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <queue>
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabelas.h"
@@ -7,6 +8,165 @@
 #include "log/log.h"
 
 namespace ent {
+
+extern std::queue<int> g_dados_teste;
+
+TEST(TestePergaminho, PodeLancar) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(7);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_id_arma("curar_ferimentos_leves");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_pergaminho(TM_DIVINA);
+      da->set_id_arma("luz_cegante");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_moderados");
+      da->set_modificador_atributo_pergaminho(1);
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+      da->set_modificador_atributo_pergaminho(0);
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  // Tipo errado.
+  EXPECT_FALSE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(0)).first);
+  // Fora da lista.
+  EXPECT_FALSE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(1)).first);
+  // Atributo invalido.
+  EXPECT_FALSE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(2)).first);
+
+  EXPECT_TRUE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(3)).first);
+}
+
+TEST(TestePergaminho, PodeLancarDominio) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    {
+      auto* fc = ent::FeiticosClasse("clerigo", &proto);
+      fc->add_dominios("conhecimento");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("detectar_portas_secretas");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("aumentar_pessoa");
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(1)).first);
+}
+
+
+TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(7);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+      da->set_modificador_atributo_pergaminho(0);
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(TesteLancarPergaminho(tabelas, proto, proto.dados_ataque(0)).ok);
+}
+
+TEST(TestePergaminho, TesteLancarPergaminhoSucesso) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(1);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+      da->set_nivel_conjurador_pergaminho(2);
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  g_dados_teste.push(3);
+  auto res = TesteLancarPergaminho(tabelas, proto, proto.dados_ataque(0));
+  EXPECT_TRUE(res.ok) << res.texto;
+}
+
+TEST(TestePergaminho, TesteLancarPergaminhoFalhaSemFiasco) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(1);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+      da->set_nivel_conjurador_pergaminho(2);
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  g_dados_teste.push(1);  // 1 + 1 de nivel = 2 < 3 (nivel conjurador pergaminho  1);
+  g_dados_teste.push(5);  // 4 + 0 de sabedoria >= 5.
+  auto res = TesteLancarPergaminho(tabelas, proto, proto.dados_ataque(0));
+  EXPECT_FALSE(res.ok) << res.texto;
+  EXPECT_FALSE(res.fiasco) << res.texto;
+}
+
+TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(1);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+      da->set_nivel_conjurador_pergaminho(2);
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  g_dados_teste.push(1);
+  g_dados_teste.push(4);  // 4 + 0 sabedoria < 5.
+  auto res = TesteLancarPergaminho(tabelas, proto, proto.dados_ataque(0));
+  EXPECT_FALSE(res.ok) << res.texto;
+  EXPECT_TRUE(res.fiasco) << res.texto;
+}
 
 TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
   Tabelas tabelas(nullptr);
@@ -69,7 +229,9 @@ TEST(TesteVazamento, TesteVazamento) {
   auto* ic = proto.add_info_classes();
   ic->set_id("monge");
   ic->set_nivel(2);
-  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_CURA_ACELERADA);
+  evento->add_complementos(5);
   RecomputaDependencias(tabelas, &proto);
   int tamanho = proto.ByteSize();
   for (int i = 0; i < 100; ++i) {
@@ -1177,7 +1339,18 @@ TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
 TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_CURA_ACELERADA);
+    evento->add_complementos(5);
+    evento->set_id_unico(0);
+  }
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_CURA_ACELERADA);
+    evento->add_complementos(3);
+    evento->set_id_unico(1);
+  }
   RecomputaDependencias(tabelas, &proto);
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
@@ -1185,7 +1358,11 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
 TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  proto.mutable_dados_defesa()->mutable_cura_acelerada()->set_base(5);
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_CURA_ACELERADA);
+    evento->add_complementos(5);
+  }
   // Vai dar max de 15 PV. 2 de dano temporario, 10 de dano normal.
   proto.set_niveis_negativos(1);
   proto.set_max_pontos_vida(20);

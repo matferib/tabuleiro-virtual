@@ -955,6 +955,11 @@ void AdicionaOuAtualizaAtaqueEntidade(
 
   da.set_bonus_magico(gerador.spin_bonus_magico->value());
   da.set_municao(gerador.spin_municao->value());
+  if (gerador.spin_limite_vezes->value() > 0) {
+    da.set_limite_vezes(gerador.spin_limite_vezes->value());
+  } else {
+    da.clear_limite_vezes();
+  }
   if (gerador.spin_ordem_ataque->value() > 0) {
     da.set_ordem_ataque(gerador.spin_ordem_ataque->value() - 1);
   } else {
@@ -1836,6 +1841,7 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_municao, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.spin_limite_vezes, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_ordem_ataque, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
