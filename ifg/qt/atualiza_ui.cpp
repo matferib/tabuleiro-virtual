@@ -285,6 +285,7 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_bonus_dano->setText("0");
   gerador.spin_bonus_magico->setValue(0);
   gerador.spin_municao->setValue(0);
+  gerador.spin_limite_vezes->setValue(0);
   gerador.linha_dano->clear();
   gerador.spin_alcance_quad->setValue(0);
 }
@@ -362,7 +363,7 @@ int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
-       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
+       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.spin_limite_vezes, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma,
        gerador.spin_nivel_conjurador_pergaminho, gerador.spin_modificador_atributo_pergaminho };
@@ -430,6 +431,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_municao->setValue(da.municao());
+  gerador.spin_limite_vezes->setValue(da.limite_vezes());
   if (pergaminho) {
     gerador.spin_nivel_conjurador_pergaminho->setValue(da.nivel_conjurador_pergaminho());
     gerador.spin_modificador_atributo_pergaminho->setValue(da.modificador_atributo_pergaminho());

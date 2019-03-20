@@ -3439,6 +3439,20 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
+       <item row="4" column="5">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Limite de Vezes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="6">
+        <widget class="QSpinBox" name="spin_limite_vezes">
+         <property name="toolTip">
+          <string>Se &gt; 0, o ataque poderá ser usado este número de vezes e depois será consumido.</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab">

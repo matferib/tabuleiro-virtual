@@ -363,6 +363,8 @@ public:
     QSpinBox *spin_nivel_conjurador_pergaminho;
     QLabel *label_mod_atributo;
     QSpinBox *spin_modificador_atributo_pergaminho;
+    QLabel *label_9;
+    QSpinBox *spin_limite_vezes;
     QWidget *tab;
     QGridLayout *gridLayout_7;
     QHBoxLayout *horizontalLayout_36;
@@ -2450,6 +2452,16 @@ public:
 
         gridLayout_13->addWidget(spin_modificador_atributo_pergaminho, 4, 3, 1, 1);
 
+        label_9 = new QLabel(tab_6);
+        label_9->setObjectName(QStringLiteral("label_9"));
+
+        gridLayout_13->addWidget(label_9, 4, 5, 1, 1);
+
+        spin_limite_vezes = new QSpinBox(tab_6);
+        spin_limite_vezes->setObjectName(QStringLiteral("spin_limite_vezes"));
+
+        gridLayout_13->addWidget(spin_limite_vezes, 4, 6, 1, 1);
+
         tabs->addTab(tab_6, QString());
         tab = new QWidget();
         tab->setObjectName(QStringLiteral("tab"));
@@ -3393,6 +3405,10 @@ public:
         label_mod_atributo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de Atributo", nullptr));
 #ifndef QT_NO_TOOLTIP
         spin_modificador_atributo_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o modificador de atributo", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Limite de Vezes", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_limite_vezes->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se > 0, o ataque poder\303\241 ser usado este n\303\272mero de vezes e depois ser\303\241 consumido.", nullptr));
 #endif // QT_NO_TOOLTIP
         tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", nullptr));
         label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Po\303\247\303\265es", nullptr));
