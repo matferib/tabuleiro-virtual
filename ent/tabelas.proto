@@ -134,6 +134,8 @@ message ArmaProto {
 
   enum ModeloDano {
     DANO_1D6_POR_NIVEL_MAX_10D6 = 0;
+    CURA_1= 10;
+    DANO_1= 11;
     CURA_1D8_MAIS_1_POR_NIVEL_MAX_5 = 1;
     DANO_1D8_MAIS_1_POR_NIVEL_MAX_5 = 2;
     CURA_2D8_MAIS_1_POR_NIVEL_MAX_10 = 3;

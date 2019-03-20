@@ -301,6 +301,19 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
 ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
 
+// Retorna true se o personagem puder lancar o tipo de pergaminho do ataque.
+std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da);
+
+// Resultado de um teste de lancar pergaminho. Se nao ok, pode ter fiasco.
+struct ResultadoPergaminho {
+  ResultadoPergaminho(bool ok, bool fiasco = false, const std::string& texto = "") : ok(ok), fiasco(fiasco), texto(texto) {}
+  bool ok;
+  bool fiasco;  // se falhar, pode ser fiasco.
+  std::string texto;
+};
+// Realiza o teste de lancar pergaminho.
+ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da);
+
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
@@ -533,6 +546,8 @@ int Nivel(const std::string& id, const EntidadeProto& proto);
 int Nivel(const EntidadeProto& proto);
 // Retorna o nivel de conjuracao para a classe.
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
+// Retorna o nivel de conjurador do personagem para lancar um pergaminho. Caso nao haja, retorna -1.
+int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto);
 // Retorna o nivel da classe com modificadores para fins de calculo de numeros de magia.
 int NivelParaCalculoMagiasPorDia(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.

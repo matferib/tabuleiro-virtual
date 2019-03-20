@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <queue>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -561,10 +562,18 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
 
 } // namespace
 
+// Apenas para testes.
+std::queue<int> g_dados_teste;
+
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
   // TODO inicializacao do motor de baseada no timestamp.
   static std::default_random_engine motor(std::chrono::system_clock::now().time_since_epoch().count());
+  if (!g_dados_teste.empty()) {
+    int valor = g_dados_teste.front();
+    g_dados_teste.pop();
+    return valor;
+  }
   std::uniform_int_distribution<int> distribution(1, nfaces);
   //static int min = motor_aleatorio.min();
   //static int max = motor_aleatorio.max();
@@ -3228,6 +3237,15 @@ int ComputaLimiteVezes(
 
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da) {
   switch (modelo_dano) {
+    case ArmaProto::CURA_1: {
+      da->set_dano_basico_fixo("1");
+      da->set_cura(true);
+      return;
+    }
+    case ArmaProto::DANO_1: {
+      da->set_dano_basico_fixo("1");
+      return;
+    }
     case ArmaProto::CURA_1D8_MAIS_1_POR_NIVEL_MAX_5: {
       da->set_dano_basico_fixo(StringPrintf("1d8+%d", std::min(5, nivel_conjurador)));
       da->set_cura(true);
@@ -3966,5 +3984,92 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
   VLOG(1) << "Modelo parametrizado: " << modelo->DebugString();
 }
 
+// Retorna o nivel do feitico tabelado para uma determinada classe. Caso nao tenha, retorna -1.
+int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitico_tabelado) {
+  for (const auto& icf : feitico_tabelado.info_classes()) {
+    if (icf.id() == id_classe) return icf.nivel();
+  }
+  return -1;
+}
+
+const InfoClasse& ClasseParaLancarPergaminho(
+    const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
+  const auto& feitico_tabelado = tabelas.Feitico(id_feitico);
+  int nivel = -1;
+  const InfoClasse* ret = nullptr;
+  for (const auto& ic : proto.info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    if (classe_tabelada.tipo_magia() != tipo_magia) continue;
+    const bool feitico_de_classe = NivelFeiticoParaClasse(ic.has_id_para_magia() ? ic.id_para_magia() : ic.id(), feitico_tabelado) > -1;
+    if (!feitico_de_classe) continue;
+
+    const int nivel_conjurador_candidato = NivelConjurador(ic.id(), proto);
+    if (nivel_conjurador_candidato > nivel) {
+      ret = &ic;
+      nivel = nivel_conjurador_candidato;
+    }
+  }
+  return ret == nullptr ? InfoClasse::default_instance() : *ret;
+}
+
+int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
+  const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, id_feitico, proto);
+  return ic.has_nivel_conjurador() ? ic.nivel_conjurador() : -1;
+}
+
+ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da) {
+  int nc = NivelConjuradorParaLancarPergaminho(tabelas, da.tipo_pergaminho(), da.id_arma(), proto);
+  if (nc >= da.nivel_conjurador_pergaminho()) {
+    return ResultadoPergaminho(/*ok=*/true);
+  }
+  // Teste para lançar.
+  const int dc = da.nivel_conjurador_pergaminho() + 1;
+  const int d20 = RolaDado(20);
+  if (d20 + nc >= dc) {
+    return ResultadoPergaminho(/*ok=*/true, false, StringPrintf("Teste conjuração ok: %d >= %d", d20 + nc, dc));
+  }
+  // Fiascos com pergaminho (scroll mishaps).
+  const int d20_sab = RolaDado(20);
+  const int modificador_sabedoria = ModificadorAtributo(TA_SABEDORIA, proto);
+  if (d20_sab + modificador_sabedoria >= 5) {
+    return ResultadoPergaminho(
+        /*ok=*/false, false,
+        StringPrintf("Teste conjuração falhou: %d < %d, sem fiasco %d >= 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
+  }
+  return ResultadoPergaminho(
+      /*ok=*/false, /*fiasco=*/true,
+      StringPrintf("FIASCO! Teste conjuração: %d < %d, teste sabedoria: %d < 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
+}
+
+std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da) {
+  // Tipo correto.
+  TipoMagia tipo_magia = da.tipo_pergaminho();
+  bool tipo_correto = false;
+  for (const auto& classe_proto : proto.info_classes()) {
+    if (tabelas.Classe(classe_proto.id()).tipo_magia() == tipo_magia) {
+      tipo_correto = true;
+      break;
+    }
+  }
+  if (!tipo_correto) {
+    return std::make_pair(false, StringPrintf("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
+  }
+  // Esta na lista de feiticos.
+  const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, da.id_arma(), proto);
+  if (!ic.has_nivel_conjurador()) {
+    return std::make_pair(false, StringPrintf("feitiço %s não está na lista do personagem", da.id_arma().c_str()));
+  }
+  // Atributo minimo de conjuracao.
+  if (da.has_modificador_atributo_pergaminho() &&
+      ModificadorAtributoConjuracao(ic.id(), proto) < da.modificador_atributo_pergaminho()) {
+    return std::make_pair(
+        false,
+        StringPrintf(
+            "atributo de conjuração do personagem abaixo do minimo: %d < %d",
+            ModificadorAtributoConjuracao(ic.id(), proto),
+            da.modificador_atributo_pergaminho()));
+  }
+  return std::make_pair(true, "");
+}
 
 }  // namespace ent

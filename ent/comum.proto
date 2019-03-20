@@ -1,6 +1,12 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum TipoMagia {
+  TM_NENHUMA = 0;
+  TM_ARCANA = 1;
+  TM_DIVINA = 2;
+}
+
 enum TendenciaSimplificada {
   TD_LEAL_BOM = 0;
   TD_LEAL_NEUTRO = 1;
@@ -516,6 +522,8 @@ message InfoClasse {
   optional int32 pericias_por_nivel = 25;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12;
+  // Pode lancar magia arcna? Divina? Nenhum tipo.
+  optional TipoMagia tipo_magia = 28;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
   optional string id_para_progressao_de_magia = 18;
   optional bool possui_dominio = 14;

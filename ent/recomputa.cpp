@@ -503,6 +503,7 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
   if (c.has_jogada_ataque())            PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(id_unico, complementos, c.mutable_tamanho());
@@ -948,6 +949,10 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   }
 }
 
+void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto) {
+  // TODO
+}
+
 void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
   int bonus_maximo = std::numeric_limits<int>::max();
@@ -1181,15 +1186,15 @@ void RecomputaDependenciasDestrezaLegado(const Tabelas& tabelas, EntidadeProto* 
   AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
 }
 
-int NivelFeiticoPergaminho(const Tabelas& tabelas, const std::string& tipo_pergaminho, const ArmaProto& feitico) {
+int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, const ArmaProto& feitico) {
   std::vector<std::string> classes;
-  if (tipo_pergaminho.find("Divino") != std::string::npos) {
+  if (tipo_pergaminho == TM_DIVINA) {
     // divino: tenta clerigo, druida, paladino, ranger
     classes.push_back("clerigo");
     classes.push_back("druida");
     classes.push_back("paladino");
     classes.push_back("ranger");
-  } else {
+  } else if (tipo_pergaminho == TM_ARCANA) {
     // arcano: tenta mago, bardo.
     classes.push_back("mago");
     classes.push_back("bardo");
@@ -1199,7 +1204,7 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, const std::string& tipo_perga
     if (nivel >= 0) return nivel;
   }
   LOG(ERROR) << "Não achei nivel certo para pergaminho tipo: " << tipo_pergaminho;
-  return 10;
+  return 0;
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
@@ -1225,7 +1230,7 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       base += da->acao().dificuldade_salvacao_base();
     } else {
       base += da->has_nivel_conjurador_pergaminho()
-        ? NivelFeiticoPergaminho(tabelas, da->tipo_ataque(), arma)
+        ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), arma)
         : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
     }
     const int mod_atributo = da->has_modificador_atributo_pergaminho()
@@ -1550,7 +1555,15 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   // Remover isso quando nao existir mais tipo_ataque.
   // Apenas para as correspondencias 1x1.
   for (auto& da : *proto->mutable_dados_ataque()) {
+    // Preenche tipo de pergaminho.
+    if (da.tipo_ataque() == "Pergaminho Divino") {
+      da.set_tipo_pergaminho(TM_DIVINA);
+    } else if (da.tipo_ataque() == "Pergaminho Arcano") {
+      da.set_tipo_pergaminho(TM_ARCANA);
+    }
+
     if (da.has_tipo_ataque()) continue;
+
     switch (da.tipo_acao()) {
       case ACAO_AGARRAR: da.set_tipo_ataque("Agarrar"); break;
       case ACAO_CORPO_A_CORPO: da.set_tipo_ataque("Ataque Corpo a Corpo"); break;
@@ -1590,6 +1603,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasEfeitos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
+  RecomputaDependenciasTalentos(tabelas, proto);
   RecomputaDependenciaTamanho(proto);
   RecomputaDependenciasPontosVidaTemporarios(proto);
   RecomputaDependenciasPontosVida(proto);
