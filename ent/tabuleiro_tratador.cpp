@@ -1729,6 +1729,7 @@ float Tabuleiro::TrataPreAcaoComum(
   if (id_entidade_destino != Entidade::IdInvalido && entidade_origem != nullptr) {
     AtualizaEsquivaAoAtacar(*entidade_origem, id_entidade_destino, grupo_desfazer);
   }
+  acao_proto->set_bem_sucedida(true);
   acao_proto->set_atraso_s(atraso_s);
   *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
   acao_proto->set_id_entidade_origem(entidade_origem->Id());
