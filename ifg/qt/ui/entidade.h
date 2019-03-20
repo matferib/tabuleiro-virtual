@@ -304,7 +304,7 @@ public:
     QLabel *label_pericias;
     QTableView *tabela_pericias;
     QGridLayout *gridLayout_10;
-    QLabel *label_9;
+    QLabel *label_talentos;
     QGridLayout *gridLayout_6;
     QTableView *tabela_talentos;
     QVBoxLayout *verticalLayout_15;
@@ -438,7 +438,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QStringLiteral("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(1265, 632);
+        ifg__qt__DialogoEntidade->resize(1405, 632);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -2033,13 +2033,13 @@ public:
 
         gridLayout_10 = new QGridLayout();
         gridLayout_10->setObjectName(QStringLiteral("gridLayout_10"));
-        label_9 = new QLabel(tab_3);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        sizePolicy7.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy7);
-        label_9->setAlignment(Qt::AlignCenter);
+        label_talentos = new QLabel(tab_3);
+        label_talentos->setObjectName(QStringLiteral("label_talentos"));
+        sizePolicy7.setHeightForWidth(label_talentos->sizePolicy().hasHeightForWidth());
+        label_talentos->setSizePolicy(sizePolicy7);
+        label_talentos->setAlignment(Qt::AlignCenter);
 
-        gridLayout_10->addWidget(label_9, 0, 0, 1, 1);
+        gridLayout_10->addWidget(label_talentos, 0, 0, 1, 1);
 
         gridLayout_6 = new QGridLayout();
         gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
@@ -3295,7 +3295,7 @@ public:
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "Ra\303\247a, Classes e Tend\303\252ncia", nullptr));
         label_pericias->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias", nullptr));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
+        label_talentos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Talentos", nullptr));
         botao_adicionar_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_talento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         tabs->setTabText(tabs->indexOf(tab_3), QApplication::translate("ifg::qt::DialogoEntidade", "Per\303\255cias e Talentos", nullptr));
