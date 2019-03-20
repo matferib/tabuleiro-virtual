@@ -516,7 +516,7 @@ void VboNaoGravado::MesclaCores(float r, float g, float b, float a) {
   if (!tem_cores_) {
     AtribuiCor(r, g, b, a);
   } else {
-    for (int i = 0; i < cores_.size(); i += 4) {
+    for (unsigned int i = 0; i < cores_.size(); i += 4) {
       cores_[i] *= r;
       cores_[i + 1] *= g;
       cores_[i + 2] *= b;
