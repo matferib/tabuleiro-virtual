@@ -53,6 +53,35 @@ TEST(TestePergaminho, PodeLancar) {
   EXPECT_TRUE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(3)).first);
 }
 
+TEST(TestePergaminho, PodeLancarDominio) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    {
+      auto* fc = ent::FeiticosClasse("clerigo", &proto);
+      fc->add_dominios("conhecimento");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("detectar_portas_secretas");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("aumentar_pessoa");
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarPergaminho(tabelas, proto, proto.dados_ataque(1)).first);
+}
+
+
 TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;

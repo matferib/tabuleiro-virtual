@@ -2442,6 +2442,8 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
 
   std::string texto_municao;
   if (da.has_municao()) texto_municao = StringPrintf(", municao: %d", da.municao());
+  std::string texto_limite_vezes;
+  if (da.has_limite_vezes()) texto_limite_vezes = StringPrintf(", limite vezes: %d", da.limite_vezes());
   std::string texto_descarregada;
   if (da.descarregada()) texto_descarregada = " [descarregada]";
 
@@ -2454,11 +2456,11 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
     string_salvacao = StringPrintf(", CD: %d", da.acao().dificuldade_salvacao());
   }
   return StringPrintf(
-      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
-      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(),
+      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(),
       string_salvacao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(),
@@ -3992,6 +3994,15 @@ int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitic
   return -1;
 }
 
+std::vector<std::string> DominiosClasse(const std::string& id_classe, const EntidadeProto& proto) {
+  const auto& fc = ent::FeiticosClasse(id_classe, proto);
+  std::vector<std::string> dominios;
+  for (const auto& dominio : fc.dominios()) {
+    dominios.push_back(dominio);
+  }
+  return dominios;
+}
+
 const InfoClasse& ClasseParaLancarPergaminho(
     const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
   const auto& feitico_tabelado = tabelas.Feitico(id_feitico);
@@ -4000,7 +4011,15 @@ const InfoClasse& ClasseParaLancarPergaminho(
   for (const auto& ic : proto.info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.tipo_magia() != tipo_magia) continue;
-    const bool feitico_de_classe = NivelFeiticoParaClasse(ic.has_id_para_magia() ? ic.id_para_magia() : ic.id(), feitico_tabelado) > -1;
+    std::vector<std::string> dominios = DominiosClasse(ic.id(), proto);
+    bool de_dominio = false;
+    for (const auto& dominio : dominios) {
+      if (NivelFeiticoParaClasse(dominio, feitico_tabelado) > -1) {
+        de_dominio = true;
+        break;
+      }
+    }
+    const bool feitico_de_classe = de_dominio || NivelFeiticoParaClasse(ic.has_id_para_magia() ? ic.id_para_magia() : ic.id(), feitico_tabelado) > -1;
     if (!feitico_de_classe) continue;
 
     const int nivel_conjurador_candidato = NivelConjurador(ic.id(), proto);
