@@ -3263,6 +3263,12 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, Entida
       da->set_cura(true);
       return;
     }
+    case ArmaProto::CURA_4D8_MAIS_1_POR_NIVEL_MAX_20: {
+      da->set_dano_basico_fixo(
+          StringPrintf("4d8+%d", std::min(20, nivel_conjurador)));
+      da->set_cura(true);
+      return;
+    }
     case ArmaProto::DANO_1D8_MAIS_1_POR_NIVEL_MAX_5: {
       da->set_dano_basico_fixo(StringPrintf("1d8+%d", std::min(5, nivel_conjurador)));
       return;
@@ -3273,6 +3279,10 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, Entida
     }
     case ArmaProto::DANO_3D8_MAIS_1_POR_NIVEL_MAX_15: {
       da->set_dano_basico_fixo(StringPrintf("3d8+%d", std::min(15, nivel_conjurador)));
+      return;
+    }
+    case ArmaProto::DANO_4D8_MAIS_1_POR_NIVEL_MAX_20: {
+      da->set_dano_basico_fixo(StringPrintf("4d8+%d", std::min(20, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_10D6: {
