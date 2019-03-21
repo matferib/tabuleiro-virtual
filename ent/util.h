@@ -824,6 +824,9 @@ bool PermiteEscudo(const EntidadeProto& proto);
 // Dado os parametros e a entidade de referencia, preenche `modelo`.
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
 
+// Computa o dano do dado de ataque baseado no modelo e nivel passado.
+void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

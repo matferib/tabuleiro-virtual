@@ -1271,6 +1271,10 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   } else {
     da->clear_ataque_agarrar();
   }
+  if (arma.has_modelo_dano() && da->has_nivel_conjurador_pergaminho()) {
+    // Para pergaminhos computarem os efeitos.
+    ComputaDano(arma.modelo_dano(), da->nivel_conjurador_pergaminho(), da);
+  }
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
