@@ -58,6 +58,61 @@ modelo {
   }
 }
 modelo {
+  id: 'Cobra, Víbora Miúda'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1' tamanho: TM_MIUDO cor { r: 0.0 g: 0.0 b: 0.0 }
+    info_textura { id: 'snake_viper.png' altura: 0.5 translacao_y: 0.5 }
+    info_classes { id: 'animal' nivel: 1 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1'
+      veneno {
+        tipo: TV_FERIMENTO cd: 10
+        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'acuidade_arma' }
+    }
+  }
+}
+modelo {
+  id: 'Sapo'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1' tamanho: TM_DIMINUTO cor { r: 0.0 g: 1.0 b: 0.0 }
+    info_classes { id: 'animal' nivel: 1 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+modelo {
   id : 'Anão'
   entidade {
     dados_vida: '1d8+2' cor { r: 0.4 g: 0.1 b: 0.1 } info_textura { id: 'dwarf.png' }

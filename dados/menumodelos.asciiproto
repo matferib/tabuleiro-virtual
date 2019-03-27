@@ -29,6 +29,13 @@ sub_menu {
 sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
+  sub_menu {
+    id: 'Cobras'
+    sub_menu {
+      id: 'Víboras'
+      modelo { id: 'Cobra, víbora miúda' texto: 'Miúda' }
+    }
+  }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Atroz' }
