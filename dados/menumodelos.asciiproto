@@ -43,6 +43,7 @@ sub_menu {
   modelo { id: 'Lobo Atroz' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
+  modelo { id: 'Sapo' }
   modelo { id: 'Tubarão Médio' }
   modelo { id: 'Tubarão Grande' }
   modelo { id: 'Tubarão Imenso' }
