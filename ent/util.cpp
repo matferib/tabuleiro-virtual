@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
+#include "ent/comum.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
@@ -1460,7 +1461,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
     if (total >= ap.dificuldade_salvacao()) {
       salvou = true;
       if (ap.resultado_salvacao() == RS_MEIO) {
-        if (ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao", ed.Proto())) {
+        if (ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO) {
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
@@ -1474,7 +1475,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
       descricao_resultado = StringPrintf(
           "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
+      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
@@ -2455,12 +2456,16 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   if (da.acao().has_dificuldade_salvacao()) {
     string_salvacao = StringPrintf(", CD: %d", da.acao().dificuldade_salvacao());
   }
+  std::string texto_veneno;
+  if (da.has_veneno()) {
+    texto_veneno = StringPrintf(", veneno CD %d", da.veneno().cd());
+  }
   return StringPrintf(
-      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
-      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(),
+      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(), texto_veneno.c_str(),
       string_salvacao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(),
@@ -4115,6 +4120,10 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
             da.modificador_atributo_pergaminho()));
   }
   return std::make_pair(true, "");
+}
+
+TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto) {
+  return proto.dados_defesa().evasao();
 }
 
 }  // namespace ent

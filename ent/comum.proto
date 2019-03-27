@@ -372,8 +372,14 @@ message ResistenciaMagiaVariavel {
   optional VariacaoRM tipo_variacao = 2;
 }
 
+enum TipoEvasao {
+  TE_NENHUM = 0;
+  TE_EVASAO = 1;
+  TE_EVASAO_APRIMORADA = 2;
+}
+
 // Dados de defesa global (independe de ataque).
-// Proximo id: 25.
+// Proximo id: 27.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -406,6 +412,10 @@ message DadosDefesa {
   repeated ResistenciaElementos resistencia_elementos = 19;
   // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.
   optional Bonus cura_acelerada = 23;
+  // Evasao: dinamico.
+  optional TipoEvasao evasao = 25;
+  // Para casos de evasao sem ser por classe, exemplo, familiar.
+  optional TipoEvasao evasao_estatica = 26;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
@@ -932,6 +942,8 @@ message VenenoProto {
   // Classe de dificuldade.
   optional int32 cd = 10;
   optional int32 preco_po = 11;
+  // Indica pra nao computar CD usando a formula 10 + 1/2 HD + mod CON.
+  optional bool nao_usar_cd_dinamico = 12;
 }
 
 // Os templates de D&D.

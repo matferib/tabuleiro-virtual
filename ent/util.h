@@ -827,6 +827,9 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
 // Computa o dano do dado de ataque baseado no modelo e nivel passado.
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da);
 
+// Retorna o tipo de evasao da entidade (ja computado).
+TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

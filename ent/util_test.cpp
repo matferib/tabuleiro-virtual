@@ -213,14 +213,26 @@ TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("monge");
+
+  ic->set_nivel(1);
+  proto.mutable_dados_defesa()->set_evasao_estatica(TE_EVASAO_APRIMORADA);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_FALSE(PossuiHabilidadeEspecial("evasao", proto));
+  EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+  EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO_APRIMORADA);
+
   ic->set_nivel(2);
+  proto.mutable_dados_defesa()->clear_evasao_estatica();
   RecomputaDependencias(tabelas, &proto);
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
   EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+  EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO);
+
   ic->set_nivel(9);
   RecomputaDependencias(tabelas, &proto);
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
+  EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO_APRIMORADA);
 }
 
 TEST(TesteVazamento, TesteVazamento) {

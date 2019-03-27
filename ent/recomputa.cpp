@@ -1017,6 +1017,18 @@ void RecomputaDependenciasSalvacoes(
   AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
 }
 
+void RecomputaDependenciasEvasao(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+  auto* dd = proto_retornado->mutable_dados_defesa();
+  dd->clear_evasao();
+  if (PossuiHabilidadeEspecial("evasao_aprimorada", *proto_retornado) || dd->evasao_estatica() == TE_EVASAO_APRIMORADA) {
+    dd->set_evasao(TE_EVASAO_APRIMORADA);
+  } else if (PossuiHabilidadeEspecial("evasao", *proto_retornado) || dd->evasao_estatica() == TE_EVASAO) {
+    dd->set_evasao(TE_EVASAO);
+  } else {
+    dd->clear_evasao();
+  }
+}
+
 void RecomputaDependenciaTamanho(EntidadeProto* proto) {
   // Aplica efeito cria isso, entao melhor ver se tem algum bonus individual.
   if (!PossuiBonus(TB_BASE, proto->bonus_tamanho())) {
@@ -1275,6 +1287,15 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     // Para pergaminhos computarem os efeitos.
     ComputaDano(arma.modelo_dano(), da->nivel_conjurador_pergaminho(), da);
   }
+}
+
+void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
+  if (!da->has_veneno() || da->veneno().nao_usar_cd_dinamico()) {
+    return;
+  }
+  const int nivel = Nivel(proto);
+  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, proto);
+  da->mutable_veneno()->set_cd(10 + mod_con + nivel / 2);
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
@@ -1539,6 +1560,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
   da->set_ca_toque(CAToque(proto));
 
+  // Veneno.
+  RecomputaDependenciasVenenoParaAtaque(proto, da);
+
   VLOG(1) << "Ataque recomputado: " << da->DebugString();
 }
 
@@ -1625,6 +1649,8 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasCA(tabelas, proto);
   // Salvacoes.
   RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);
+  // Evasao.
+  RecomputaDependenciasEvasao(tabelas, proto);
 
   // BBA: tenta atualizar por classe, se nao houver, pelo bba base, senao nao faz nada.
   if (proto->info_classes_size() > 0 ||  proto->bba().has_base()) {
