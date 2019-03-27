@@ -1239,7 +1239,7 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
     int base = 10;
     if (da->acao().has_dificuldade_salvacao_base()) {
-      base += da->acao().dificuldade_salvacao_base();
+      base = da->acao().dificuldade_salvacao_base();
     } else {
       base += da->has_nivel_conjurador_pergaminho()
         ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), arma)

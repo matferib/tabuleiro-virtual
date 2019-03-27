@@ -435,6 +435,9 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
     vd_.fumaca.vbo.Desenha();
     gl::Desabilita(GL_TEXTURE_2D);
   }
+  if (!vd_.bolhas.nuvens.empty() && pd->has_alfa_translucidos()) {
+    vd_.bolhas.vbo.Desenha();
+  }
 }
 
 void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {

@@ -60,6 +60,9 @@ class Entidade {
   /** faz alvo fumegar. */
   void AtivaFumegando(int duracao_ms);
 
+  /** Faz o alvo soltar bolhas, como nausea. */
+  void AtivaBolhas(int duracao_ms);
+
   /** Destroi a entidade. */
   ~Entidade();
 
@@ -435,6 +438,7 @@ class Entidade {
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
     DadosFumaca fumaca;
+    DadosFumaca bolhas;
     DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
@@ -480,6 +484,9 @@ class Entidade {
   void AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
+  /** Atualiza as bolhas da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaBolhas(int intervalo_ms);
+
   /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaLuzAcao(int intervalo_ms);
 

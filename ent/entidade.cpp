@@ -523,6 +523,70 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   f.vbo = gl::VbosNaoGravados(std::move(vbos));
 }
 
+void Entidade::AtualizaBolhas(int intervalo_ms) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms -= intervalo_ms;
+  if (b.duracao_ms < 0) {
+    b.duracao_ms = 0;
+  }
+  bool fim = b.duracao_ms == 0;
+  if (fim && PossuiEvento(EFEITO_NAUSEA, proto_)) {
+    AtivaBolhas(1000);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaBolhas(/*intervalo_ms=*/0);
+    return;
+  }
+  if (!fim && intervalo_ms >= b.proxima_emissao_ms) {
+    b.proxima_emissao_ms = b.proxima_emissao_ms;
+    // Emite nova particula.
+    DadosUmaNuvem nuvem;
+    nuvem.direcao.z = 1.0f;
+    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+    nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+    nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+    nuvem.duracao_ms = b.duracao_nuvem_ms;
+    nuvem.velocidade_m_s = 0.25f;
+    nuvem.escala = 1.0f;
+    b.nuvens.emplace_back(std::move(nuvem));
+    b.proxima_emissao_ms = b.intervalo_emissao_ms;
+  } else {
+    b.proxima_emissao_ms -= intervalo_ms;
+  }
+  // Atualiza as particulas existentes.
+  std::vector<unsigned int> a_remover;
+  float intervalo_s = intervalo_ms / 1000.0f;
+  for (unsigned int i = 0; i < b.nuvens.size(); ++i) {
+    auto& nuvem = b.nuvens[i];
+    nuvem.duracao_ms -= intervalo_ms;
+    if (nuvem.duracao_ms <= 0) {
+      a_remover.push_back(i);
+      continue;
+    }
+    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
+    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / b.intervalo_emissao_ms;
+  }
+  // Remove as que tem que remover.
+  unsigned int removidas = 0;
+  for (int i : a_remover) {
+    b.nuvens.erase(b.nuvens.begin() + (i - removidas));
+  }
+  // Recria o VBO.
+  std::vector<gl::VboNaoGravado> vbos;
+  for (const auto& nuvem : b.nuvens) {
+    gl::VboNaoGravado vbo_ng = gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6);
+    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
+    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
+    float aleatorio_r = Aleatorio() * 0.3;
+    float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
+    vbo_ng.AtribuiCor(1.0f - aleatorio_r, 0.5f + aleatorio_g, 0.0f, nuvem.alfa);
+    vbos.emplace_back(std::move(vbo_ng));
+  }
+  b.vbo = gl::VbosNaoGravados(std::move(vbos));
+}
+
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.matriz_modelagem = md.modelagem;
@@ -612,6 +676,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaBolhas(intervalo_ms);
   AtualizaLuzAcao(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
@@ -2126,6 +2191,14 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.intervalo_emissao_ms = 1000;
   f.duracao_nuvem_ms = 3000;
   f.proxima_emissao_ms = 0;
+}
+
+void Entidade::AtivaBolhas(int duracao_ms) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms = duracao_ms;
+  b.intervalo_emissao_ms = 1000;
+  b.duracao_nuvem_ms = 3000;
+  b.proxima_emissao_ms = 0;
 }
 
 void Entidade::ReiniciaAtaque() {
