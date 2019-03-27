@@ -172,6 +172,15 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
+  id: 'Sopro'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_CONE
+  icone: 'icon_breath.png'
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  ignora_reducao_dano_barbaro: true
+}
+acao {
   id: 'Sinalização'
   tipo: ACAO_SINALIZACAO
   icone: 'icon_signal.png'

@@ -1693,7 +1693,7 @@ std::string Entidade::TipoAtaque() const {
 float Entidade::AlcanceAtaqueMetros() const {
   const auto* da = DadoCorrente();
   if (da == nullptr || !da->has_alcance_m()) {
-    return -1.5f;
+    return -TAMANHO_LADO_QUADRADO;
   }
   return da->alcance_m();
 }

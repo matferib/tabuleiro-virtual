@@ -1200,14 +1200,14 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     const Posicao& pos_origem = entidade_origem->PosicaoAcao();
     Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
     Vector3 vd(pos_destino->x(), pos_destino->y(), pos_destino->z());
-    LOG(INFO) << "va: " << va;
-    LOG(INFO) << "vd: " << vd;
+    VLOG(2) << "va: " << va;
+    VLOG(2) << "vd: " << vd;
     const float distancia_m = (va - vd).length();
     VLOG(1)
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1335,7 +1335,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1d m", distancia_m, alcance_m));
       return atraso_s;
     }
   }

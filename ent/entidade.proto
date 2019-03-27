@@ -205,6 +205,7 @@ message EntidadeProto {
 
   // Dados para um ataque especifico.
   // Como depende de AcaoProto, nao movi para comum.
+  // Proximo id: 57.
   message DadosAtaque {
     // O rotulo de um ataque, para identificacao. Identifica uma arma.
     optional string rotulo = 9;
@@ -225,6 +226,7 @@ message EntidadeProto {
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
+    optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario). TODO: deprecar alcance_m.
     optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     // A diferenca desses dois eh importante.
