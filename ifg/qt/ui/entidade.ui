@@ -2755,6 +2755,76 @@ QGroupBox::title {
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_50">
+         <item>
+          <widget class="QLabel" name="label_103">
+           <property name="text">
+            <string>Evasão</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="combo_evasao_estatica">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Tipo de evasão que não vem de classe, por exemplo, familiares.</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>Sem Evasão</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Evasão</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Evasão Aprimorada</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="combo_evasao_dinamica">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Tipo de evasão do personagem, computado dinamicamente</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>Sem Evasão</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Evasão</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Evasão Aprimorada</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QVBoxLayout" name="verticalLayout_17">
          <item>
           <widget class="QLabel" name="label_94">

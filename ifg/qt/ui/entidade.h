@@ -315,6 +315,10 @@ public:
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_38;
     QLineEdit *linha_furtivo;
+    QHBoxLayout *horizontalLayout_50;
+    QLabel *label_103;
+    QComboBox *combo_evasao_estatica;
+    QComboBox *combo_evasao_dinamica;
     QVBoxLayout *verticalLayout_17;
     QLabel *label_94;
     QHBoxLayout *horizontalLayout_29;
@@ -2096,6 +2100,37 @@ public:
 
         verticalLayout_18->addLayout(horizontalLayout_6);
 
+        horizontalLayout_50 = new QHBoxLayout();
+        horizontalLayout_50->setObjectName(QStringLiteral("horizontalLayout_50"));
+        label_103 = new QLabel(tab_5);
+        label_103->setObjectName(QStringLiteral("label_103"));
+        label_103->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_50->addWidget(label_103);
+
+        combo_evasao_estatica = new QComboBox(tab_5);
+        combo_evasao_estatica->addItem(QString());
+        combo_evasao_estatica->addItem(QString());
+        combo_evasao_estatica->addItem(QString());
+        combo_evasao_estatica->setObjectName(QStringLiteral("combo_evasao_estatica"));
+        sizePolicy1.setHeightForWidth(combo_evasao_estatica->sizePolicy().hasHeightForWidth());
+        combo_evasao_estatica->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_50->addWidget(combo_evasao_estatica);
+
+        combo_evasao_dinamica = new QComboBox(tab_5);
+        combo_evasao_dinamica->addItem(QString());
+        combo_evasao_dinamica->addItem(QString());
+        combo_evasao_dinamica->addItem(QString());
+        combo_evasao_dinamica->setObjectName(QStringLiteral("combo_evasao_dinamica"));
+        sizePolicy1.setHeightForWidth(combo_evasao_dinamica->sizePolicy().hasHeightForWidth());
+        combo_evasao_dinamica->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_50->addWidget(combo_evasao_dinamica);
+
+
+        verticalLayout_18->addLayout(horizontalLayout_50);
+
         verticalLayout_17 = new QVBoxLayout();
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
         label_94 = new QLabel(tab_5);
@@ -3316,6 +3351,21 @@ public:
         linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", nullptr));
 #endif // QT_NO_TOOLTIP
         linha_furtivo->setText(QString());
+        label_103->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));
+        combo_evasao_estatica->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Sem Evas\303\243o", nullptr));
+        combo_evasao_estatica->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));
+        combo_evasao_estatica->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o Aprimorada", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_evasao_estatica->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de evas\303\243o que n\303\243o vem de classe, por exemplo, familiares.", nullptr));
+#endif // QT_NO_TOOLTIP
+        combo_evasao_dinamica->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Sem Evas\303\243o", nullptr));
+        combo_evasao_dinamica->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));
+        combo_evasao_dinamica->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o Aprimorada", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_evasao_dinamica->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de evas\303\243o do personagem, computado dinamicamente", nullptr));
+#endif // QT_NO_TOOLTIP
         label_94->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inimigos Prediletos", nullptr));
         botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", nullptr));
         botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
