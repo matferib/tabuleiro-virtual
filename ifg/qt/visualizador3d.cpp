@@ -1212,6 +1212,29 @@ void PreencheConfiguraTalentos(
   AtualizaUIPericias(tabelas, gerador, proto);
 }
 
+ent::TipoEvasao IndiceComboParaTipoEvasao(int indice) {
+  if (indice < 0 || indice > ent::TE_EVASAO_APRIMORADA) return ent::TE_NENHUM;
+  // TODO tratar com switch?
+  return (ent::TipoEvasao)indice;
+}
+
+void PreencheConfiguraEvasao(
+	  Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+	  ent::EntidadeProto* proto_retornado) {
+  AtualizaUIEvasao(this_->tabelas(), gerador, proto);
+  const ent::Tabelas& tabelas = this_->tabelas();
+  lambda_connect(gerador.combo_evasao_estatica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+    proto_retornado->mutable_dados_defesa()->set_evasao_estatica(IndiceComboParaTipoEvasao(gerador.combo_evasao_estatica->currentIndex()));
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.combo_evasao_dinamica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+    proto_retornado->mutable_dados_defesa()->set_evasao(IndiceComboParaTipoEvasao(gerador.combo_evasao_dinamica->currentIndex()));
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUI(tabelas, gerador, *proto_retornado);
+  });
+}
+
 void PreencheConfiguraInimigosPrediletos(
 	  Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
 	  ent::EntidadeProto* proto_retornado) {
@@ -2204,6 +2227,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Inimigos Prediletos.
   PreencheConfiguraInimigosPrediletos(this, gerador, entidade, proto_retornado);
+
+  // Evasao estatica e dimamica.
+  PreencheConfiguraEvasao(this, gerador, entidade, proto_retornado);
 
   // Feiticos.
   PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);

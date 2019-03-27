@@ -1,6 +1,5 @@
 Anotacoes da sessao Tilverton:
-- Melir (clerigo 4): Feito.
-- Quairon ( mago 4): falta familiar.
+- Imagens para os vultos (ou usar os modelos).
 - Definir encontros.
 - Fazer vangerdahast (mago 18)
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
@@ -10,6 +9,8 @@ Anotacoes da sessao Tilverton:
   - guerreiros:
 - Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, 121).
 - Fazer Aris (gigante anciao): OK
+- Melir (clerigo 4): Feito.
+- Quairon ( mago 4): Feito.
 Veserab avancado: pg 119
 
 Resolver o vigor menor (como proceder com a parada do maximo que cura?)
@@ -38,7 +39,6 @@ Anotacoes sessao Wheloon:
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
 Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
 Eventos nao estao sendo regerados ao tirar um efeito na mao.
-Colocar evasao e evasao aprimorada na UI.
 Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
 Nos complementos, ignorar case.
 Modelar multishot (tiro multiplo).
