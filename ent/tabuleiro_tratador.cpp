@@ -2511,7 +2511,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
     estado_anterior_ = ETAB_ENTS_SELECIONADAS;
     translacao_rotacao_ = TR_NENHUM;
     translacoes_rotacoes_escalas_antes_.clear();
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -2705,7 +2705,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   }
   // Colisao
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadas();
+  const std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
   Entidade* entidade_referencia = nullptr;
   if (ids_colisao.size() == 1) {
     entidade_referencia = BuscaEntidade(ids_colisao[0]);
@@ -2761,13 +2761,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  std::unordered_set<unsigned int> ids;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(IdCameraPresa());
-  } else {
-    ids = ids_entidades_selecionadas_;
-  }
-  for (unsigned int id : ids) {
+  for (unsigned int id : ids_colisao) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
@@ -2831,7 +2825,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
   } else {
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* entidade_selecionada = BuscaEntidade(id);
       if (entidade_selecionada == nullptr) {
         continue;

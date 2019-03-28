@@ -2351,7 +2351,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 void Tabuleiro::RefrescaMovimentosParciais() {
   if (estado_ == ETAB_ENTS_PRESSIONADAS) {
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* e = BuscaEntidade(id);
       if (e == nullptr) {
         continue;
@@ -6969,6 +6969,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return { IdCameraPresa() };
+  } else {
+    return IdsEntidadesSelecionadasEMontadas();
+  }
+}
+
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const {
   std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
@@ -6984,6 +6992,16 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
     }
   }
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+}
+
+std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadas() const {
+  std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+  for (unsigned int id : ids) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
+  }
+  return ids;
 }
 
 std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const {
