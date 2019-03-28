@@ -88,6 +88,7 @@ extern const float COR_VERDE[];
 extern const float COR_AZUL[];
 extern const float COR_AZUL_ALFA[];
 extern const float COR_AMARELA[];
+extern const float COR_LARANJA[];
 
 // Offset de profundidade para formas 2d sobre tabuleiro.
 constexpr float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;

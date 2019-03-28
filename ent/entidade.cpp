@@ -465,62 +465,97 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     return;
   }
   if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
-    f.proxima_emissao_ms = f.proxima_emissao_ms;
-    // Emite nova particula.
-    DadosUmaNuvem nuvem;
-    nuvem.direcao.z = 1.0f;
-    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
-    nuvem.duracao_ms = f.duracao_nuvem_ms;
-    nuvem.velocidade_m_s = 0.25f;
-    nuvem.escala = 1.0f;
-    f.nuvens.emplace_back(std::move(nuvem));
+    EmiteNovaNuvem();
     f.proxima_emissao_ms = f.intervalo_emissao_ms;
   } else {
     f.proxima_emissao_ms -= intervalo_ms;
   }
-  // Atualiza as particulas existentes.
+
+  RemoveAtualizaEmissoes(intervalo_ms, &f);
+
+  // Recria o VBO. Deve ficar sempre de frente para camera.
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
+  Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
+  Vector3 dc = camera - PosParaVector3(PosicaoAltura(1.0f));
+  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+  // mais a diferenca de angulo.
+  float inclinacao_graus = 0.0f;
+  float dc_len = dc.length();
+  if (dc_len < 0.001f) {
+    inclinacao_graus = 0.0f;
+  } else {
+    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+  }
+  vbo_ng.RodaY(90.0f - inclinacao_graus);
+  // Agora roda no eixo z.
+  vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
+  RecriaVboEmissoes(vbo_ng, &f);
+}
+
+void Entidade::EmiteNovaBolha() {
+  auto& bolhas = vd_.bolhas;
+  DadosUmaEmissao bolha;
+  bolha.direcao.z = 1.0f;
+  bolha.pos = PosParaVector3(PosicaoAltura(1.0f));
+  bolha.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.duracao_ms = bolhas.duracao_nuvem_ms;
+  bolha.velocidade_m_s = 0.25f;
+  bolha.escala = 1.0f;
+  float aleatorio_r = Aleatorio() * 0.3;
+  float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
+  bolha.cor[0] = COR_LARANJA[0] - aleatorio_r;
+  bolha.cor[1] = COR_LARANJA[1] + aleatorio_g;
+  bolha.cor[2] = COR_LARANJA[2];
+  bolhas.emissoes.emplace_back(std::move(bolha));
+}
+
+void Entidade::EmiteNovaNuvem() {
+  auto& fumaca = vd_.fumaca;
+  DadosUmaEmissao nuvem;
+  nuvem.direcao.z = 1.0f;
+  nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+  nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.duracao_ms = fumaca.duracao_nuvem_ms;
+  nuvem.velocidade_m_s = 0.25f;
+  nuvem.escala = 1.0f;
+  nuvem.incremento_escala_s = 1.5f;
+  fumaca.emissoes.emplace_back(std::move(nuvem));
+}
+
+void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const {
   std::vector<unsigned int> a_remover;
   float intervalo_s = intervalo_ms / 1000.0f;
-  for (unsigned int i = 0; i < f.nuvens.size(); ++i) {
-    auto& nuvem = f.nuvens[i];
-    nuvem.duracao_ms -= intervalo_ms;
-    if (nuvem.duracao_ms <= 0) {
+  for (unsigned int i = 0; i < dados_emissao->emissoes.size(); ++i) {
+    auto& emissao = dados_emissao->emissoes[i];
+    emissao.duracao_ms -= intervalo_ms;
+    if (emissao.duracao_ms <= 0) {
       a_remover.push_back(i);
       continue;
     }
-    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
-    nuvem.escala += 1.5f * intervalo_s;
-    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / f.intervalo_emissao_ms;
+    emissao.pos += emissao.direcao * emissao.velocidade_m_s * intervalo_s;
+    emissao.escala += emissao.incremento_escala_s * intervalo_s;
+    emissao.cor[3] = static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms;
   }
   // Remove as que tem que remover.
   unsigned int removidas = 0;
   for (int i : a_remover) {
-    f.nuvens.erase(f.nuvens.begin() + (i - removidas));
+    dados_emissao->emissoes.erase(dados_emissao->emissoes.begin() + (i - removidas));
   }
+}
+
+void Entidade::RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const {
   // Recria o VBO.
   std::vector<gl::VboNaoGravado> vbos;
-  for (const auto& nuvem : f.nuvens) {
-    gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
-    Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
-    Vector3 dc = camera - nuvem.pos;
-    // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
-    // mais a diferenca de angulo.
-    float inclinacao_graus = 0.0f;
-    float dc_len = dc.length();
-    if (dc_len < 0.001f) {
-      inclinacao_graus = 0.0f;
-    } else {
-      inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
-    }
-    vbo_ng.RodaY(90.0f - inclinacao_graus);
-    // Agora roda no eixo z.
-    vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
-    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
-    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
-    vbo_ng.AtribuiCor(1.0f, 1.0f, 1.0f, nuvem.alfa);
+  for (const auto& emissao: dados_emissao->emissoes) {
+    gl::VboNaoGravado vbo_ng = vbo;
+    vbo_ng.Escala(emissao.escala, emissao.escala, emissao.escala);
+    vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
+    vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
     vbos.emplace_back(std::move(vbo_ng));
   }
-  f.vbo = gl::VbosNaoGravados(std::move(vbos));
+  dados_emissao->vbo = gl::VbosNaoGravados(std::move(vbos));
 }
 
 void Entidade::AtualizaBolhas(int intervalo_ms) {
@@ -529,9 +564,11 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
   if (b.duracao_ms < 0) {
     b.duracao_ms = 0;
   }
-  bool fim = b.duracao_ms == 0;
-  if (fim && PossuiEvento(EFEITO_NAUSEA, proto_)) {
-    AtivaBolhas(1000);
+  bool fim = (b.duracao_ms == 0);
+  const bool nauseado = PossuiEvento(EFEITO_NAUSEA, proto_);
+  const bool envenenado = PossuiEvento(EFEITO_VENENO, proto_);
+  if (fim && (nauseado || envenenado)) {
+    AtivaBolhas(/*duracao_ms=*/1000, envenenado ? COR_VERDE : COR_LARANJA);
     // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
     // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
     // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
@@ -540,51 +577,13 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
     return;
   }
   if (!fim && intervalo_ms >= b.proxima_emissao_ms) {
-    b.proxima_emissao_ms = b.proxima_emissao_ms;
-    // Emite nova particula.
-    DadosUmaNuvem nuvem;
-    nuvem.direcao.z = 1.0f;
-    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
-    nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
-    nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
-    nuvem.duracao_ms = b.duracao_nuvem_ms;
-    nuvem.velocidade_m_s = 0.25f;
-    nuvem.escala = 1.0f;
-    b.nuvens.emplace_back(std::move(nuvem));
+    EmiteNovaBolha();
     b.proxima_emissao_ms = b.intervalo_emissao_ms;
   } else {
     b.proxima_emissao_ms -= intervalo_ms;
   }
-  // Atualiza as particulas existentes.
-  std::vector<unsigned int> a_remover;
-  float intervalo_s = intervalo_ms / 1000.0f;
-  for (unsigned int i = 0; i < b.nuvens.size(); ++i) {
-    auto& nuvem = b.nuvens[i];
-    nuvem.duracao_ms -= intervalo_ms;
-    if (nuvem.duracao_ms <= 0) {
-      a_remover.push_back(i);
-      continue;
-    }
-    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
-    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / b.intervalo_emissao_ms;
-  }
-  // Remove as que tem que remover.
-  unsigned int removidas = 0;
-  for (int i : a_remover) {
-    b.nuvens.erase(b.nuvens.begin() + (i - removidas));
-  }
-  // Recria o VBO.
-  std::vector<gl::VboNaoGravado> vbos;
-  for (const auto& nuvem : b.nuvens) {
-    gl::VboNaoGravado vbo_ng = gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6);
-    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
-    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
-    float aleatorio_r = Aleatorio() * 0.3;
-    float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
-    vbo_ng.AtribuiCor(1.0f - aleatorio_r, 0.5f + aleatorio_g, 0.0f, nuvem.alfa);
-    vbos.emplace_back(std::move(vbo_ng));
-  }
-  b.vbo = gl::VbosNaoGravados(std::move(vbos));
+  RemoveAtualizaEmissoes(intervalo_ms, &b);
+  RecriaVboEmissoes(gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6), &b);
 }
 
 void Entidade::AtualizaMatrizes() {
@@ -2193,12 +2192,15 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.proxima_emissao_ms = 0;
 }
 
-void Entidade::AtivaBolhas(int duracao_ms) {
+void Entidade::AtivaBolhas(int duracao_ms, const float* cor) {
   auto& b = vd_.bolhas;
   b.duracao_ms = duracao_ms;
   b.intervalo_emissao_ms = 1000;
   b.duracao_nuvem_ms = 3000;
   b.proxima_emissao_ms = 0;
+  b.cor[0] = cor[0];
+  b.cor[1] = cor[1];
+  b.cor[2] = cor[2];
 }
 
 void Entidade::ReiniciaAtaque() {

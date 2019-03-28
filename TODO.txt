@@ -1,17 +1,18 @@
+Problemas de montaria:
+- Nao atualiza com teclado.
+- Com mouse, so atualiza apos soltar o botao.
+
 Anotacoes da sessao Tilverton:
-- Imagens para os vultos (ou usar os modelos).
-- Definir encontros.
+- Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, clerigo de Shar 121).
 - Fazer vangerdahast (mago 18)
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
+- Definir encontros.
 - Resistencia magia variavel.
-- Veserab: pg 94 empire of the shade.
-- Outros vultos:
-  - guerreiros:
-- Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, 121).
-- Fazer Aris (gigante anciao): OK
+- Fazer Aris (gigante anciao): Feito.
 - Melir (clerigo 4): Feito.
 - Quairon ( mago 4): Feito.
-Veserab avancado: pg 119
+- Veserab: pg 95 empire of the shade: Feito.
+- Veserab avancado: pg 119: Feito.
 
 Resolver o vigor menor (como proceder com a parada do maximo que cura?)
 Implementar afeta apenas tendencia em acoes.
