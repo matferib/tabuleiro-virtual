@@ -1,7 +1,3 @@
-Problemas de montaria:
-- Nao atualiza com teclado.
-- Com mouse, so atualiza apos soltar o botao.
-
 Anotacoes da sessao Tilverton:
 - Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, clerigo de Shar 121).
 - Fazer vangerdahast (mago 18)
