@@ -2139,7 +2139,8 @@ std::string Entidade::ResumoEventos() const {
 
 int Entidade::ChanceFalhaDefesa() const {
   int chance = 0;
-  if (PossuiEvento(EFEITO_BORRAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_NUBLAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_DESLOCAMENTO, proto_)) chance = 50;
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;

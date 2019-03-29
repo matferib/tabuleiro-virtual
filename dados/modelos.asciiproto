@@ -3382,7 +3382,8 @@ modelo {
     rotulo_especial: 'Não pode ser flanqueado\nreducao de dano 1/- armas e ataques naturais'
     dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
     dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
-    dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 }
+    dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 ordem_ataque: 0 }
+    dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 ordem_ataque: 1 }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'fogo_alquimico' municao: 3 }
 

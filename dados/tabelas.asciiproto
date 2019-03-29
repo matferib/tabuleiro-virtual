@@ -2324,7 +2324,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'acelerar'
-    nome: 'Acelerar'
+    nome: 'Velocidade'
     duracao_rodadas: 5
     tipo_efeito: EFEITO_ACELERAR
     descricao: 'Acelera o personagem'
@@ -2530,9 +2530,16 @@ tabela_pocoes {
   pocoes {
     id: 'nublar'
     nome: 'Nublar'
-    tipo_efeito: EFEITO_BORRAR
+    tipo_efeito: EFEITO_NUBLAR
     custo_po: 300
     duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'deslocamento'
+    nome: 'Deslocamento'
+    tipo_efeito: EFEITO_DESLOCAMENTO
+    custo_po: 750
+    duracao_rodadas: 5
   }
   pocoes {
     id: 'armadura_arcana'
@@ -4767,7 +4774,30 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
-    id: 'luz_cegante'  # prayer
+    id: 'deslocamento'  # displacement
+    nome: 'deslocamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      permite_ataque_vs_defesa: false 
+      efeitos_adicionais {
+        efeito: EFEITO_DESLOCAMENTO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'luz_cegante'  # searing light
     nome: 'luz cegante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5601,7 +5631,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       permite_salvacao: false
       efeitos_adicionais {
-        efeito: EFEITO_BORRAR
+        efeito: EFEITO_NUBLAR
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
