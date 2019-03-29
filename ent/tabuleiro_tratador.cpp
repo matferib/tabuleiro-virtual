@@ -1647,7 +1647,8 @@ float Tabuleiro::TrataAcaoIndividual(
     if (entidade_origem != nullptr && entidade_destino != nullptr &&
         delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
-      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar");
+      atraso_s += 1.0f;
+      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);
     }
   }
 
