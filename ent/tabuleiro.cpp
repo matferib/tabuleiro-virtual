@@ -1056,7 +1056,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
@@ -1089,7 +1089,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n.release());
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -5176,7 +5176,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+    auto* e = NovaEntidade(ep, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }

@@ -27,13 +27,13 @@ using google::protobuf::StringPrintf;
 
 // Factory.
 Entidade* NovaEntidade(
-    const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
+    const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(tabelas, texturas, m3d, central, pd);
+      auto* entidade = new Entidade(tabelas, tabuleiro, texturas, m3d, central, pd);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -46,8 +46,9 @@ Entidade* NovaEntidade(
 
 // Entidade
 Entidade::Entidade(
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
-    : tabelas_(tabelas) {
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
+    : tabelas_(tabelas), tabuleiro_(tabuleiro) {
   vd_.texturas = texturas;
   vd_.m3d = m3d;
   parametros_desenho_ = pd;
@@ -167,12 +168,12 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
   return ExtraiVbo(proto, VariaveisDerivadas(), pd, mundo);
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.tipo() == TE_ENTIDADE) {
     return ExtraiVboEntidade(proto, vd, pd, mundo);
   } else if (proto.tipo() == TE_COMPOSTA) {
@@ -183,7 +184,7 @@ gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const V
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.has_modelo_3d()) {
     gl::VbosNaoGravados vbos;
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -327,7 +328,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   AtualizaModelo3d(novo_proto);
 
   // mantem o id, posicao (exceto Z) e destino.
-  ent::EntidadeProto proto_original(proto_);
+  EntidadeProto proto_original(proto_);
 
   // Eventos.
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
@@ -712,7 +713,14 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   if (proto_.has_luz()) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
-  if (proto_.voadora()) {
+  if (proto_.montado_em() && tabuleiro_ != nullptr) {
+    const auto* montaria = tabuleiro_->BuscaEntidade(proto_.montado_em());
+    if (montaria != nullptr) {
+      proto_.set_voadora(montaria->Proto().voadora());
+      vd_.altura_voo = montaria->vd_.altura_voo;  // melhor ficar sem altura, deixa jogador controlar.
+      vd_.angulo_disco_voo_rad = montaria->vd_.angulo_disco_voo_rad;  // oscila junto.
+    }
+  } else if (proto_.voadora()) {
 #if VBO_COM_MODELAGEM
     vbo_escopo.atualizar = true;
 #endif
@@ -1801,7 +1809,7 @@ int Entidade::BonusAtaqueToqueDistancia() const {
   return proto_.bba().distancia();
 }
 
-int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
+int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
   // Cada tipo de CA sabera compensar a esquiva.
@@ -1868,6 +1876,9 @@ bool Entidade::ImuneFurtivo() const {
 // static
 bool Entidade::DesenhaBase(const EntidadeProto& proto) {
   if (proto.morta()) {
+    return false;
+  }
+  if (proto.has_montado_em() && proto.voadora()) {
     return false;
   }
   if (proto.has_modelo_3d()) {

@@ -21,6 +21,7 @@ class CentralNotificacoes;
 namespace ent {
 
 class Entidade;
+class Tabuleiro;
 class DesenhoBase;
 class IluminacaoDirecional;
 
@@ -36,7 +37,8 @@ class Texturas {
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
 Entidade* NovaEntidade(
     const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -354,8 +356,11 @@ class Entidade {
 
  protected:
   friend Entidade* NovaEntidade(
-      const EntidadeProto& proto, const Tabelas& tabelas, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
-  Entidade(const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+      const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas*, const m3d::Modelos3d*,
+      ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(
+      const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+      ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
@@ -606,6 +611,7 @@ class Entidade {
  private:
   EntidadeProto proto_;
   const Tabelas& tabelas_;
+  const Tabuleiro* tabuleiro_ = nullptr;
   VariaveisDerivadas vd_;
   const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 

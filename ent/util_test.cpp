@@ -333,7 +333,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 
   EntidadeProto forma_filtrada = ProtoFormaAlternativa(forma);
 
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
   EXPECT_EQ(TM_PEQUENO, e->Proto().tamanho());
   {
     e->AtualizaParcial(forma_filtrada);
@@ -529,8 +529,8 @@ TEST(TesteDependencias, TesteDependencias) {
 
   EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);
 
-  auto* ea = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
-  auto* ed = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr);
+  auto* ea = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
+  auto* ed = NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
   // 16 normal +2 contra o bem.
   EXPECT_EQ(18, ed->CA(*ea, Entidade::CA_NORMAL));
   // 6 normal + 2 contra o bem.
@@ -857,7 +857,7 @@ TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
   Tabelas tabelas(nullptr);
   ntf::Notificacao n;
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
   std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
   PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, tabelas.Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   ASSERT_FALSE(n.entidade().evento().empty());
@@ -874,7 +874,7 @@ TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
     auto* ic = proto.add_info_classes();
     ic->set_id("mago");
     ic->set_nivel(3);
-    std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+    std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
     ntf::Notificacao n;
     std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
     PreencheNotificacaoEventoEfeitoAdicional(/*nivel*/3, *e, tabelas.Feitico("teia").acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
@@ -1318,7 +1318,7 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
 TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
 
   AcaoProto acao;
   acao.add_afeta_apenas(TIPO_MORTO_VIVO);
@@ -1330,7 +1330,7 @@ TEST(TesteAfetaApenas, TesteAfetaApenasPositivo) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
   proto.add_tipo_dnd(TIPO_MORTO_VIVO);
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
 
   AcaoProto acao;
   acao.add_afeta_apenas(TIPO_MORTO_VIVO);
@@ -1341,7 +1341,7 @@ TEST(TesteAfetaApenas, TesteAfetaApenasPositivo) {
 TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
 
   AcaoProto acao;
 
@@ -1382,7 +1382,7 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   proto.set_dano_nao_letal(2);
 
   ntf::Notificacao n;
-  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
   PreencheNotificacaoCuraAcelerada(*e, &n);
   e->AtualizaParcial(n.entidade());
 

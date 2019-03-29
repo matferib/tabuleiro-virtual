@@ -160,9 +160,14 @@ sub_menu {
     modelo { id: 'Humano Feiticeiro 5' }
   }
 
-  modelo { id: 'Humana Guerreira' }
-  modelo { id: 'Humano Guerreiro' }
-  modelo { id: 'Humano Guerreiro 5' }
+  sub_menu {
+    id: 'Guerreiros'
+    modelo { id: 'Humana Guerreira' texto: 'Humana 1' }
+    modelo { id: 'Humano Guerreiro' texto: 'Humano 1' }
+    modelo { id: 'Humano Guerreiro 5' texto: 'Humano 5' }
+    modelo { id: 'Humano Guerreiro 5' texto: 'Humana 5' }
+    modelo { id: 'Humano Guerreiro 7' texto: 'Humano 7' }
+  }
   sub_menu {
     id: 'Ladinos'
     modelo { id: 'Humano Ladino' }

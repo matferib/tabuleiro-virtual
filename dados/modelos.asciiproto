@@ -2832,6 +2832,49 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Guerreiro 7'
+  entidade {
+    # Elite.
+    dados_vida: '7d10+10+10'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 7 }
+    tesouro {
+      pocoes { id: 'escudo_fe_3' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      tesouro: 'espada bastarda +1, armadura de batalha +1, arco longo composto (3) OP\narmadura batalha'
+    }
+    dados_ataque {
+      grupo: 'atq total' rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_ARMA_ESCUDO bonus_magico: 1
+      ordem_ataque: 0
+    }
+    dados_ataque {
+      grupo: 'atq total' rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_ARMA_ESCUDO bonus_magico: 1
+      ordem_ataque: 1
+    }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' }
+    info_talentos {
+      gerais { id: 'usar_arma_exotica' complemento: 'espada_bastarda' }
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'trespassar' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
+      outros { id: 'trespassar_aprimorado' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humana Guerreira'
   entidade { dados_vida: '1d10' info_textura { id: 'fighter_female.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
