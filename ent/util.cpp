@@ -970,8 +970,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
-  if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
-    modificador += 2;
+  if (PossuiUmDosEventos({EFEITO_INVISIBILIDADE, EFEITO_CEGO}, ea)) {
+    if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
+      modificador += 2;
+    }
   }
   if (tipo_ataque == TipoAtaque::AGARRAR) {
     if (PossuiTalento("agarrar_aprimorado", ea)) modificador += 4;
@@ -3918,25 +3920,13 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
   return true;
 }
 
-bool IgnoraLutarAsCegas(TipoAcao tipo_acao) {
-  switch (tipo_acao) {
-    case ACAO_PROJETIL:
-    case ACAO_DISPERSAO:
-    case ACAO_RAIO:
-    case ACAO_PROJETIL_AREA:
-      return true;
-    default:
-      return false;
-  }
-}
-
 bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
   if (da == nullptr) return DestrezaNaCA(proto);
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
   }
   if (PossuiEvento(EFEITO_CEGO, proto) &&
-      (!PossuiTalento("lutar_as_cegas", proto) || IgnoraLutarAsCegas(da->tipo_acao()))) {
+      (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }
   return true;
