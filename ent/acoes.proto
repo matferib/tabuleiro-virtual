@@ -77,6 +77,7 @@ enum ModificadorComplementos {
   MC_1D4_MAIS_1_CADA_TRES_MAX_8 = 1;  // reflexos
   MC_1_CADA_3_MAX_3 = 2;  // auxilio divino
   MC_2_MAIS_1_CADA_6_MAX_5 = 3;  // escudo da fe.
+  MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
 }
 
 // Proximo id: 64.
