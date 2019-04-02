@@ -3132,6 +3132,102 @@ modelo {
 }
 
 modelo {
+  id: 'Humano Mago 18'
+  entidade {
+    dados_vida: '17d4+4+18' raca: 'humano'
+    info_textura { id: 'wizard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'mago' nivel: 18 }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'magia_combate' }
+      gerais { id: 'escrever_pergaminho' }
+      gerais { id: 'vitalidade' }
+    }
+    info_pericias { id: 'concentracao' pontos: 21 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 21 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 21 }
+    info_pericias { id: 'conhecimento_historia' pontos: 21 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'procurar' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'identificar_magia' pontos: 21 }
+    tesouro {
+      pocoes { id: 'nublar' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'velocidade' }
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      tesouro: '10 PO\npergaminho de confusão, bola de fogo x2, teia'
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'brilho' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'raio_gelo' }
+        conhecidos { id: 'ler_magias' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'leque_cromatico' }
+        conhecidos { id: 'identificacao' }
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'missil_magico' }
+        conhecidos { id: 'arma_magica' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'nublar' }
+        conhecidos { id: 'vigor_urso' }
+        conhecidos { id: 'poeira_ofuscante' }
+        conhecidos { id: 'arrombar' }
+        conhecidos { id: 'flecha_acida' }
+        conhecidos { id: 'resistencia_elementos' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'bola_fogo' }
+        conhecidos { id: 'velocidade' }
+        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+      }
+    }
+  }
+}
+
+
+modelo {
   id: 'Humano Monge'
   entidade { dados_vida: '1d8' info_textura { id: 'monk.png'} cor { r: 0.3 g: 0.1 b: 0.1 } }
 }
