@@ -119,9 +119,11 @@ acao {
 }
 acao {
   id: 'Pergaminho Arcano'
+  icone: 'icon_scroll.png'
 }
 acao {
   id: 'Pergaminho Divino'
+  icone: 'icon_scroll.png'
 }
 acao {
   id: 'Pedrada (gigante)'
