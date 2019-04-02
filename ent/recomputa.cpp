@@ -1226,6 +1226,9 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   // Aplica acao da arma.
   if (arma.has_acao()) {
     *da->mutable_acao() = arma.acao();
+    if (da->tipo_ataque().find("Pergaminho") == 0) {
+      da->mutable_acao()->set_icone("icon_scroll.png");
+    }
   }
   // Aplica acao fixa.
   if (da->has_acao_fixa()) {
@@ -1444,7 +1447,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     da->set_alcance_minimo_m(0);
   } else if (da->has_alcance_q()) {
     da->set_alcance_m(da->alcance_q() * QUADRADOS_PARA_METROS);
-  }else if (da->tipo_ataque() == "Ataque Corpo a Corpo") {
+  } else if (da->tipo_ataque() == "Ataque Corpo a Corpo") {
     // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
     // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
     int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
