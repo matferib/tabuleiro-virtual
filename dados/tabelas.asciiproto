@@ -1030,6 +1030,18 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_CEGO
+    nome: 'cego'
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'cego' } } }
+        # Chance de falha de 50%.
+        # Perde destreza na CA.
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_ORACAO_ALIADOS
     nome: 'oração (aliados)'
     consequencia {
@@ -5664,7 +5676,16 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_luz: true
       duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
+        efeito: EFEITO_POEIRA_OFUSCANTE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
         efeito: EFEITO_POEIRA_OFUSCANTE
         modificador_rodadas: MR_RODADAS_NIVEL
       }
@@ -6665,10 +6686,9 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
-        efeito: EFEITO_SANTUARIO
-        rodadas: 1  # 1/por nivel
-        modificador_rodadas: MR_MINUTOS_NIVEL
-        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+        efeito: EFEITO_AJUDA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_1_POR_NIVEL_MAX_10
       }
     }
   }
@@ -7092,7 +7112,7 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_salvacao: RS_ANULOU
-      icone: 'icon_confusion'
+      icone: 'icon_confusion.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
