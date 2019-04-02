@@ -1032,15 +1032,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_CEGO
     nome: 'cego'
-    consequencia {
-      dados_defesa {
-        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'cego' } } }
-        # Chance de falha de 50%.
-        # Perde destreza na CA.
-      }
-    }
   }
-
   efeitos {
     id: EFEITO_ORACAO_ALIADOS
     nome: 'oração (aliados)'
