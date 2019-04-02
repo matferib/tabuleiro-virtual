@@ -5672,7 +5672,7 @@ tabela_feiticos {
 
   armas {
     id: 'explosao_sonora' # sound burst
-    nome: 'explosao sonora'
+    nome: 'explosão sonora'
     alcance_quadrados: 5
     dano { invariavel: '1d8' }
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -6883,34 +6883,6 @@ tabela_feiticos {
         efeito: EFEITO_INVISIBILIDADE
         rodadas: 30  # 10/por nivel
       }
-    }
-  }
-  armas {
-    id: 'explosão sonora'
-    nome: 'explosão sonora'
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_DISPERSAO
-      cor { r: 0.7 g: 0.7 b: 0 }
-      raio_quadrados: 2
-      distancia_quadrados: 5 # + 1 a cada dois niveis
-      geometria: ACAO_GEO_ESFERA
-      efeito_area: true
-      permite_salvacao: true
-      icone: 'icon_burning_hands.png'
-      duracao_s: 0.350
-      # Esse feitico a salvacao e apenas para o efeito de atordoar.
-      dificuldade_salvacao: 12
-      tipo_salvacao: TS_FORTITUDE
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_SONICO
     }
   }
 
