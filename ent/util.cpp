@@ -970,7 +970,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
-  if (PossuiUmDosEventos({EFEITO_INVISIBILIDADE, EFEITO_CEGO}, ea)) {
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) || PossuiEvento(EFEITO_CEGO, ea)) {
     if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
       modificador += 2;
     }

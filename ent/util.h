@@ -462,6 +462,10 @@ EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);
 const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
+// Retorna true se possuir evento tipo_sim e nao possui evento tipo_nao.
+inline bool PossuiEventoNaoPossuiOutro(TipoEfeito tipo_sim, TipoEfeito tipo_nao, const EntidadeProto& proto) {
+  return PossuiEvento(tipo_sim, proto) && !PossuiEvento(tipo_nao, proto);
+}
 // Retorna verdadeiro se tiver um dos tipo de evento passado.
 bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto);
 bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);

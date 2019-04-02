@@ -254,7 +254,13 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_VENENO:
       break;
     case EFEITO_INVISIBILIDADE:
-      proto->set_visivel(false);
+      if (!PossuiEvento(EFEITO_POEIRA_OFUSCANTE, *proto)) {
+        proto->set_visivel(false);
+      }
+      break;
+    case EFEITO_POEIRA_OFUSCANTE:
+      proto->set_visivel(true);
+      proto->set_ignora_luz(true);
       break;
     case EFEITO_COMPETENCIA_PERICIA: {
       if (evento.complementos_str().empty()) return;
@@ -392,6 +398,9 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     break;
     case EFEITO_INVISIBILIDADE:
       proto->set_visivel(true);
+    break;
+    case EFEITO_POEIRA_OFUSCANTE:
+      proto->set_ignora_luz(false);
     break;
     case EFEITO_COMPETENCIA_PERICIA: {
       if (evento.complementos_str().empty()) return;

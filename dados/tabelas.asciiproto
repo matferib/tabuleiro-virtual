@@ -1148,9 +1148,6 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_POEIRA_OFUSCANTE
     nome: 'poeira ofuscante'
-    # TODO
-    # cego.
-    # visivel.
   }
 
   efeitos {
