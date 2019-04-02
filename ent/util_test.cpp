@@ -11,6 +11,25 @@ namespace ent {
 
 extern std::queue<int> g_dados_teste;
 
+TEST(TesteCA, TesteDestrezaCA) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(DestrezaNaCA(proto));
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_CEGO);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_FALSE(DestrezaNaCA(proto));
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("lutar_as_cegas");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(DestrezaNaCA(proto));
+  EntidadeProto::DadosAtaque da;
+  da.set_tipo_acao(ACAO_PROJETIL);
+  EXPECT_FALSE(DestrezaNaCAContraAtaque(&da, proto));
+}
+
 TEST(TestePergaminho, PodeLancar) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;

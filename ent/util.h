@@ -462,6 +462,8 @@ EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);
 const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
+// Retorna verdadeiro se tiver um dos tipo de evento passado.
+bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto);
 bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
@@ -821,6 +823,7 @@ bool PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto);
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);

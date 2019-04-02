@@ -1820,11 +1820,11 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL) {
-      return DestrezaNaCA(proto_)
+      return DestrezaNaCAContraAtaque(da, proto_)
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return DestrezaNaCA(proto_)
+      return DestrezaNaCAContraAtaque(da, proto_)
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
@@ -2152,6 +2152,7 @@ int Entidade::ChanceFalhaAtaque() const {
   // Chance de ficar etereo ao atacar.
   int chance = 0;
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_CEGO, proto_)) chance = 50;
   chance = std::max(chance, proto_.dados_ataque_global().chance_falha());
   return chance;
 }

@@ -2237,9 +2237,15 @@ int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
   }
 }
 
-bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
-  return c_any_of(entidade.evento(), [tipo] (const EntidadeProto::Evento& evento) {
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto) {
+  return c_any_of(proto.evento(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
+  });
+}
+
+bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto) {
+  return c_any_of(proto.evento(), [&tipos] (const EntidadeProto::Evento& evento) {
+    return c_any(tipos, evento.id_efeito());
   });
 }
 
@@ -3896,7 +3902,7 @@ std::string BonusParaString(const Bonus& bonus) {
 }
 
 bool PodeAgir(const EntidadeProto& proto) {
-  if (PossuiEvento(EFEITO_PASMAR, proto) || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO}, proto)) {
     return false;
   }
   return true;
@@ -3904,6 +3910,33 @@ bool PodeAgir(const EntidadeProto& proto) {
 
 bool DestrezaNaCA(const EntidadeProto& proto) {
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  if (PossuiEvento(EFEITO_CEGO, proto) && !PossuiTalento("lutar_as_cegas", proto)) {
+    return false;
+  }
+  return true;
+}
+
+bool IgnoraLutarAsCegas(TipoAcao tipo_acao) {
+  switch (tipo_acao) {
+    case ACAO_PROJETIL:
+    case ACAO_DISPERSAO:
+    case ACAO_RAIO:
+    case ACAO_PROJETIL_AREA:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+  if (da == nullptr) return DestrezaNaCA(proto);
+  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  if (PossuiEvento(EFEITO_CEGO, proto) &&
+      (!PossuiTalento("lutar_as_cegas", proto) || IgnoraLutarAsCegas(da->tipo_acao()))) {
     return false;
   }
   return true;
