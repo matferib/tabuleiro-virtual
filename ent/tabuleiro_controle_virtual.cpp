@@ -499,9 +499,15 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
                 ? ent::Tabuleiro::BIT_FALHA_50
                 : ent::Tabuleiro::BIT_FALHA_NEGATIVO);
       break;
-    case CONTROLE_VISIBILIDADE:
-      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+    case CONTROLE_VISIBILIDADE: {
+      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      if (alterna_selecao) {
+        RemoveEfeitoInvisibilidadeEntidadesNotificando();
+      } else {
+        AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+      }
       break;
+    }
     case CONTROLE_AGARRANDO:
       DesagarraEntidadesSelecionadasNotificando();
       break;

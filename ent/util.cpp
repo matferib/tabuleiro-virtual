@@ -2930,6 +2930,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
   switch (efeito_adicional.modificador_complementos()) {
+    case MC_1_POR_NIVEL_MAX_10: {
+      evento->add_complementos(std::min(10, nivel_conjurador));
+      break;
+    }
     case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
       int adicionais = std::min(4, nivel_conjurador / 3);
       evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
@@ -4124,6 +4128,18 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
 
 TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto) {
   return proto.dados_defesa().evasao();
+}
+
+void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+  for (const auto& evento_proto : proto.evento()) {
+    if (evento_proto.id_efeito() != te) continue;
+    *e_antes->add_evento() = evento_proto;
+    auto* evento_depois = e_depois->add_evento();
+    *evento_depois = evento_proto;
+    evento_depois->set_rodadas(-1);
+  }
 }
 
 }  // namespace ent

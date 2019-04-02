@@ -7876,4 +7876,18 @@ void Tabuleiro::PreencheNotificacoesDesmontar(
   }
 }
 
+void Tabuleiro::RemoveEfeitoInvisibilidadeEntidadesNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+    const auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr || !PossuiEvento(EFEITO_INVISIBILIDADE, entidade->Proto())) continue;
+    PreencheNotificacaoRemocaoEvento(entidade->Proto(), EFEITO_INVISIBILIDADE, grupo_notificacoes.add_notificacao()); 
+  }
+  if (grupo_notificacoes.notificacao().empty()) return;
+
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 }  // namespace ent

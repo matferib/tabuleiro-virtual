@@ -167,6 +167,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
+  /** Remove os efeitos de invisibilidade das entidades selecionadas. */
+  void RemoveEfeitoInvisibilidadeEntidadesNotificando();
+
   /** Liga/desliga evento de investida do personagem. */
   void AlternaInvestida();
 

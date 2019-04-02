@@ -361,6 +361,10 @@ void PreencheNotificacaoEventoComComplementoStr(
     unsigned int id_entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
+// Dado um tipo de evento, remove todos daquele tipo.
+void PreencheNotificacaoRemocaoEvento(
+    const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n);
+
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicional(
     int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
