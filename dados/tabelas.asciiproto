@@ -714,6 +714,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 12
     peso { medio: '1Kg' }
     tipo_dano: TD_PERFURANTE
@@ -725,6 +726,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 14
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
@@ -739,6 +741,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 20
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
@@ -750,6 +753,7 @@ tabela_armas {
     dano { medio: '1d8'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 22
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
@@ -6656,6 +6660,7 @@ tabela_feiticos {
   armas {
     id: 'ajuda'
     nome: 'ajuda'
+    categoria: CAT_CAC
     info_classes {
       id: 'clerigo'
       nivel: 2
