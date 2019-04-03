@@ -43,7 +43,7 @@ modelo {
     dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
-      rotulo: 'jato (1 vez so)' tipo_ataque: 'Relâmpago' dano_basico: '4d4'
+      rotulo: 'jato (1 vez so)' tipo_ataque: 'Raio' dano_basico: '4d4'
       acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
     }
   }
@@ -3151,15 +3151,24 @@ modelo {
       municao: 10
     }
     info_talentos {
-      gerais { id: 'preparar_pocao' }
+      outros { id: 'escrever_pergaminho' }
+      outros { id: 'dominar_magia' }
+      outros { id: 'magia_silenciosa' }
+      outros { id: 'magia_sem_gestos' }
+
       gerais { id: 'magia_combate' }
-      gerais { id: 'escrever_pergaminho' }
       gerais { id: 'vitalidade' }
+      gerais { id: 'magia_penetrante' }
+      gerais { id: 'magia_penetrante_maior' }
+      gerais { id: 'fortitude_maior' }
+      gerais { id: 'criar_item_maravilhoso' }
+      gerais { id: 'maximizar_magia' }
     }
+    info_pericias { id: 'oficios' pontos: 19 }
     info_pericias { id: 'concentracao' pontos: 21 }
-    info_pericias { id: 'conhecimento_arcano' pontos: 21 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 21 }
-    info_pericias { id: 'conhecimento_historia' pontos: 21 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 19 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 19 }
+    info_pericias { id: 'conhecimento_historia' pontos: 19 }
     info_pericias { id: 'ouvir' pontos: 2 }
     info_pericias { id: 'procurar' pontos: 4 }
     info_pericias { id: 'observar' pontos: 2 }
@@ -3200,6 +3209,8 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 2
@@ -3212,6 +3223,9 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 3
@@ -3220,6 +3234,8 @@ modelo {
         conhecidos { id: 'velocidade' }
         conhecidos { id: 'circulo_magico_contra_tendencia' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
     }

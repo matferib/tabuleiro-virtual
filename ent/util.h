@@ -318,7 +318,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);

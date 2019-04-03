@@ -942,7 +942,7 @@ MisturaPreNevoaEscopo::~MisturaPreNevoaEscopo() {
 }
 
 TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  if (da.ataque_distancia()) return TipoAtaque::DISTANCIA;
+  if (da.ataque_distancia() || da.tipo_acao() == ACAO_PROJETIL || da.tipo_acao() == ACAO_PROJETIL_AREA) return TipoAtaque::DISTANCIA;
   if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
   return TipoAtaque::CORPO_A_CORPO;
 }
@@ -1496,7 +1496,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
 }
 
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
     return std::make_tuple(true, "");;
@@ -1505,13 +1505,19 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
   const int nivel_conjurador = da != nullptr && da->has_nivel_conjurador_pergaminho()
     ? da->nivel_conjurador_pergaminho()
     : ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
-  const int total = d20 + nivel_conjurador;
-
-  if (d20 + nivel_conjurador < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("RM: anulou; %d < %d", total, rm));
+  int mod = nivel_conjurador;
+  if (PossuiTalento("magia_penetrante", ea.Proto())) {
+    mod += 2;
+  }
+  if (PossuiTalento("magia_penetrante_maior", ea.Proto())) {
+    mod += 2;
+  }
+  const int total = d20 + mod;
+  if (total < rm) {
+    return std::make_tuple(false, google::protobuf::StringPrintf("RM: anulou; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("RM: passsou; %d >= %d", total, rm));
+      true, google::protobuf::StringPrintf("RM: passsou; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
 }
 
 namespace {

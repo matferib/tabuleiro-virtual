@@ -30,6 +30,39 @@ TEST(TesteCA, TesteDestrezaCA) {
   EXPECT_FALSE(DestrezaNaCAContraAtaque(&da, proto));
 }
 
+TEST(TesteResistenciaMagia, TesteResistenciaMagia) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  proto.mutable_dados_defesa()->set_resistencia_magia(10);
+  std::unique_ptr<Entidade> ea(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> ed(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+
+  g_dados_teste.push(7);
+  bool sucesso;
+  std::string texto;
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  g_dados_teste.push(6);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  EXPECT_FALSE(sucesso) << texto;
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
+  std::unique_ptr<Entidade> eamp(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  g_dados_teste.push(5);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eamp, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
+  std::unique_ptr<Entidade> eampm(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  g_dados_teste.push(3);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eampm, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+}
+
 TEST(TestePergaminho, PodeLancar) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
