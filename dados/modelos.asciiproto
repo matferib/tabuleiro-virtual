@@ -3164,11 +3164,12 @@ modelo {
       gerais { id: 'criar_item_maravilhoso' }
       gerais { id: 'maximizar_magia' }
     }
-    info_pericias { id: 'oficios' pontos: 19 }
+    info_pericias { id: 'arte_fuga' pontos: 20 }
+    info_pericias { id: 'oficios' pontos: 10 }
     info_pericias { id: 'concentracao' pontos: 21 }
     info_pericias { id: 'conhecimento_arcano' pontos: 19 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 19 }
-    info_pericias { id: 'conhecimento_historia' pontos: 19 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 10 }
+    info_pericias { id: 'conhecimento_historia' pontos: 18 }
     info_pericias { id: 'ouvir' pontos: 2 }
     info_pericias { id: 'procurar' pontos: 4 }
     info_pericias { id: 'observar' pontos: 2 }
@@ -3220,23 +3221,96 @@ modelo {
         conhecidos { id: 'arrombar' }
         conhecidos { id: 'flecha_acida' }
         conhecidos { id: 'resistencia_elementos' }
+        conhecidos { id: 'invisibilidade' }
+        conhecidos { id: 'ver_invisibilidade' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'bola_fogo' }
+        conhecidos { id: 'relampago' }
         conhecidos { id: 'velocidade' }
         conhecidos { id: 'circulo_magico_contra_tendencia' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'tempestade_glacial' }
+        conhecidos { id: 'invisibilidade_maior' }
+        conhecidos { id: 'ancora_dimensional' }
+        conhecidos { id: 'escudo_fogo' }
+        conhecidos { id: 'metamorfose' }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'expulsao' }
+        conhecidos { id: 'malogro' }
+        conhecidos { id: 'metamorfose_torrida' }
+        conhecidos { id: 'telecinesia' }
+        conhecidos { id: 'cone_glacial' }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 6
+        conhecidos { id: 'globo_invulnerabilidade' }
+        conhecidos { id: 'proteger_fortalezas' }
+        conhecidos { id: 'circulo_morte' }
+        conhecidos { id: 'elucubracao' }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 7
+        conhecidos { id: 'palavra_poder_cegar' }
+        conhecidos { id: 'inverter_gravidade' }
+        conhecidos { id: 'banimento' }
+        conhecidos { id: 'desejo_restrito' }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 8
+        conhecidos { id: 'muralha_prismatica' }
+        conhecidos { id: 'invocar_criaturas_viii' }
+        conhecidos { id: 'explosao_solar' }
+        conhecidos { id: 'ondas_exaustao' }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 9
+        conhecidos { id: 'desejo' }
+        conhecidos { id: 'palavra_poder_matar' }
+        conhecidos { id: 'parar_tempo' }
+        conhecidos { id: 'circulo_teletransporte' }
+        para_lancar { nivel_conhecido: 9 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 9 indice_conhecido: 1 }
       }
     }
   }

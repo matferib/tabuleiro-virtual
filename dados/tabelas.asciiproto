@@ -7116,8 +7116,8 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'cone_de_gelo'
-    nome: 'cone de gelo'
+    id: 'cone_glacial'
+    nome: 'cone glacial'
     alcance_quadrados: 12
     info_classes {
       id: 'mago'
@@ -7129,11 +7129,10 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
-      id: 'Cone de Gelo'
       tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
       cor: { r: 0.3 b: 1.0 g: 0.3 }
       distancia_quadrados: 12  # quadrados
-      geometria: ACAO_GEO_CONE
       efeito_area: true
       permite_salvacao: true
       icone: 'icon_ice.png'
