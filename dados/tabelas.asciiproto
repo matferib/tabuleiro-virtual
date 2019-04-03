@@ -4767,7 +4767,33 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
-    id: 'luz_cegante'  # prayer
+    id: 'envenenamento'  # poison
+    nome: 'envenenamento'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
+    acao {
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Condição (feitiço)'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+
+    }
+  }
+  armas {
+    id: 'luz_cegante'  # searing light.
     nome: 'luz cegante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -4787,6 +4813,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       permite_ataque_vs_defesa: true
       ataque_toque: true
+      ataque_distancia: true
       ignora_luz: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
     }
