@@ -1900,7 +1900,13 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
 }
 
 bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
-bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+// TODO isso num ta muito certo. Tem armas que nao sao de distancia (lanca) que tem alcance > 0. Melhor deixar so as categorias.
+bool ArmaDistancia(const ArmaProto& arma) {
+  const bool distancia =
+      c_any_of(arma.categoria(), [](int cat) { return cat == CAT_DISTANCIA; }) ||
+      c_any_of(arma.categoria(), [](int cat) { return cat == CAT_ARREMESSO; });
+  return distancia || arma.alcance_quadrados() > 0;
+}
 
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
