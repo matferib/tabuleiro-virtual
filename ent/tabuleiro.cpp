@@ -1056,7 +1056,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
@@ -1089,7 +1089,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n.release());
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -2351,7 +2351,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 void Tabuleiro::RefrescaMovimentosParciais() {
   if (estado_ == ETAB_ENTS_PRESSIONADAS) {
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* e = BuscaEntidade(id);
       if (e == nullptr) {
         continue;
@@ -5176,7 +5176,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, tabelas_, texturas_, m3d_, central_, &parametros_desenho_);
+    auto* e = NovaEntidade(ep, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
@@ -6969,6 +6969,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return { IdCameraPresa() };
+  } else {
+    return IdsEntidadesSelecionadasEMontadas();
+  }
+}
+
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const {
   std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
@@ -6984,6 +6992,16 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
     }
   }
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+}
+
+std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadas() const {
+  std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+  for (unsigned int id : ids) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
+  }
+  return ids;
 }
 
 std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const {
@@ -7856,6 +7874,20 @@ void Tabuleiro::PreencheNotificacoesDesmontar(
       VLOG(1) << "Montaria " << RotuloEntidade(montaria) << " atualizada para " << e_depois->entidades_montadas().size() << " montadores.";
     }
   }
+}
+
+void Tabuleiro::RemoveEfeitoInvisibilidadeEntidadesNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+    const auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr || !PossuiEvento(EFEITO_INVISIBILIDADE, entidade->Proto())) continue;
+    PreencheNotificacaoRemocaoEvento(entidade->Proto(), EFEITO_INVISIBILIDADE, grupo_notificacoes.add_notificacao()); 
+  }
+  if (grupo_notificacoes.notificacao().empty()) return;
+
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 }  // namespace ent

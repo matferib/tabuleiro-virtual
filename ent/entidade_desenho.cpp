@@ -429,11 +429,14 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
   // Fumaca nao eh bem um efeito, mas eh chamado para translucido e nao translucido, sendo perfeito
   // para este caso. As decoracoes sao desenhadas junto com o objeto, e no caso solido, havera problema de ordem.
   // Aqui a chamada eh feita apos os solidos.
-  if (!vd_.fumaca.nuvens.empty() && pd->has_alfa_translucidos()) {
+  if (!vd_.fumaca.emissoes.empty() && pd->has_alfa_translucidos()) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));
     vd_.fumaca.vbo.Desenha();
     gl::Desabilita(GL_TEXTURE_2D);
+  }
+  if (!vd_.bolhas.emissoes.empty() && pd->has_alfa_translucidos()) {
+    vd_.bolhas.vbo.Desenha();
   }
 }
 
@@ -443,7 +446,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     return;
   }
   switch (efeito) {
-    case EFEITO_BORRAR: {
+    case EFEITO_NUBLAR: {
       if (!pd->has_alfa_translucidos()) {
         return;
       }
@@ -453,6 +456,21 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       escala_efeito->set_x(1.2);
       escala_efeito->set_y(1.2);
       escala_efeito->set_z(1.2);
+      MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
+      DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
+      pd->clear_escala_efeito();
+    }
+    break;
+    case EFEITO_DESLOCAMENTO: {
+      if (!pd->has_alfa_translucidos()) {
+        return;
+      }
+      // Desenha a entidade maior e translucida.
+      gl::MatrizEscopo salva_matriz;
+      auto* escala_efeito = pd->mutable_escala_efeito();
+      escala_efeito->set_x(1.5);
+      escala_efeito->set_y(1.5);
+      escala_efeito->set_z(1.5);
       MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
       DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
       pd->clear_escala_efeito();

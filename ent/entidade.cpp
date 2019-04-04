@@ -27,13 +27,13 @@ using google::protobuf::StringPrintf;
 
 // Factory.
 Entidade* NovaEntidade(
-    const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
+    const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(tabelas, texturas, m3d, central, pd);
+      auto* entidade = new Entidade(tabelas, tabuleiro, texturas, m3d, central, pd);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -46,8 +46,9 @@ Entidade* NovaEntidade(
 
 // Entidade
 Entidade::Entidade(
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
-    : tabelas_(tabelas) {
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
+    : tabelas_(tabelas), tabuleiro_(tabuleiro) {
   vd_.texturas = texturas;
   vd_.m3d = m3d;
   parametros_desenho_ = pd;
@@ -167,12 +168,12 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
   return ExtraiVbo(proto, VariaveisDerivadas(), pd, mundo);
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.tipo() == TE_ENTIDADE) {
     return ExtraiVboEntidade(proto, vd, pd, mundo);
   } else if (proto.tipo() == TE_COMPOSTA) {
@@ -183,7 +184,7 @@ gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const V
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.has_modelo_3d()) {
     gl::VbosNaoGravados vbos;
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -327,7 +328,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   AtualizaModelo3d(novo_proto);
 
   // mantem o id, posicao (exceto Z) e destino.
-  ent::EntidadeProto proto_original(proto_);
+  EntidadeProto proto_original(proto_);
 
   // Eventos.
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
@@ -465,62 +466,125 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     return;
   }
   if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
-    f.proxima_emissao_ms = f.proxima_emissao_ms;
-    // Emite nova particula.
-    DadosUmaNuvem nuvem;
-    nuvem.direcao.z = 1.0f;
-    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
-    nuvem.duracao_ms = f.duracao_nuvem_ms;
-    nuvem.velocidade_m_s = 0.25f;
-    nuvem.escala = 1.0f;
-    f.nuvens.emplace_back(std::move(nuvem));
+    EmiteNovaNuvem();
     f.proxima_emissao_ms = f.intervalo_emissao_ms;
   } else {
     f.proxima_emissao_ms -= intervalo_ms;
   }
-  // Atualiza as particulas existentes.
+
+  RemoveAtualizaEmissoes(intervalo_ms, &f);
+
+  // Recria o VBO. Deve ficar sempre de frente para camera.
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
+  Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
+  Vector3 dc = camera - PosParaVector3(PosicaoAltura(1.0f));
+  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+  // mais a diferenca de angulo.
+  float inclinacao_graus = 0.0f;
+  float dc_len = dc.length();
+  if (dc_len < 0.001f) {
+    inclinacao_graus = 0.0f;
+  } else {
+    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+  }
+  vbo_ng.RodaY(90.0f - inclinacao_graus);
+  // Agora roda no eixo z.
+  vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
+  RecriaVboEmissoes(vbo_ng, &f);
+}
+
+void Entidade::EmiteNovaBolha() {
+  auto& bolhas = vd_.bolhas;
+  DadosUmaEmissao bolha;
+  bolha.direcao.z = 1.0f;
+  bolha.pos = PosParaVector3(PosicaoAltura(1.0f));
+  bolha.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.duracao_ms = bolhas.duracao_nuvem_ms;
+  bolha.velocidade_m_s = 0.25f;
+  bolha.escala = 1.0f;
+  float aleatorio_r = Aleatorio() * 0.3;
+  float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
+  bolha.cor[0] = COR_LARANJA[0] - aleatorio_r;
+  bolha.cor[1] = COR_LARANJA[1] + aleatorio_g;
+  bolha.cor[2] = COR_LARANJA[2];
+  bolhas.emissoes.emplace_back(std::move(bolha));
+}
+
+void Entidade::EmiteNovaNuvem() {
+  auto& fumaca = vd_.fumaca;
+  DadosUmaEmissao nuvem;
+  nuvem.direcao.z = 1.0f;
+  nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+  nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.duracao_ms = fumaca.duracao_nuvem_ms;
+  nuvem.velocidade_m_s = 0.25f;
+  nuvem.escala = 1.0f;
+  nuvem.incremento_escala_s = 1.5f;
+  fumaca.emissoes.emplace_back(std::move(nuvem));
+}
+
+void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const {
   std::vector<unsigned int> a_remover;
   float intervalo_s = intervalo_ms / 1000.0f;
-  for (unsigned int i = 0; i < f.nuvens.size(); ++i) {
-    auto& nuvem = f.nuvens[i];
-    nuvem.duracao_ms -= intervalo_ms;
-    if (nuvem.duracao_ms <= 0) {
+  for (unsigned int i = 0; i < dados_emissao->emissoes.size(); ++i) {
+    auto& emissao = dados_emissao->emissoes[i];
+    emissao.duracao_ms -= intervalo_ms;
+    if (emissao.duracao_ms <= 0) {
       a_remover.push_back(i);
       continue;
     }
-    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
-    nuvem.escala += 1.5f * intervalo_s;
-    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / f.intervalo_emissao_ms;
+    emissao.pos += emissao.direcao * emissao.velocidade_m_s * intervalo_s;
+    emissao.escala += emissao.incremento_escala_s * intervalo_s;
+    emissao.cor[3] = static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms;
   }
   // Remove as que tem que remover.
   unsigned int removidas = 0;
   for (int i : a_remover) {
-    f.nuvens.erase(f.nuvens.begin() + (i - removidas));
+    dados_emissao->emissoes.erase(dados_emissao->emissoes.begin() + (i - removidas));
   }
+}
+
+void Entidade::RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const {
   // Recria o VBO.
   std::vector<gl::VboNaoGravado> vbos;
-  for (const auto& nuvem : f.nuvens) {
-    gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
-    Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
-    Vector3 dc = camera - nuvem.pos;
-    // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
-    // mais a diferenca de angulo.
-    float inclinacao_graus = 0.0f;
-    float dc_len = dc.length();
-    if (dc_len < 0.001f) {
-      inclinacao_graus = 0.0f;
-    } else {
-      inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
-    }
-    vbo_ng.RodaY(90.0f - inclinacao_graus);
-    // Agora roda no eixo z.
-    vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
-    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
-    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
-    vbo_ng.AtribuiCor(1.0f, 1.0f, 1.0f, nuvem.alfa);
+  for (const auto& emissao: dados_emissao->emissoes) {
+    gl::VboNaoGravado vbo_ng = vbo;
+    vbo_ng.Escala(emissao.escala, emissao.escala, emissao.escala);
+    vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
+    vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
     vbos.emplace_back(std::move(vbo_ng));
   }
-  f.vbo = gl::VbosNaoGravados(std::move(vbos));
+  dados_emissao->vbo = gl::VbosNaoGravados(std::move(vbos));
+}
+
+void Entidade::AtualizaBolhas(int intervalo_ms) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms -= intervalo_ms;
+  if (b.duracao_ms < 0) {
+    b.duracao_ms = 0;
+  }
+  bool fim = (b.duracao_ms == 0);
+  const bool nauseado = PossuiEvento(EFEITO_NAUSEA, proto_);
+  const bool envenenado = PossuiEvento(EFEITO_VENENO, proto_);
+  if (fim && (nauseado || envenenado)) {
+    AtivaBolhas(/*duracao_ms=*/1000, envenenado ? COR_VERDE : COR_LARANJA);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaBolhas(/*intervalo_ms=*/0);
+    return;
+  }
+  if (!fim && intervalo_ms >= b.proxima_emissao_ms) {
+    EmiteNovaBolha();
+    b.proxima_emissao_ms = b.intervalo_emissao_ms;
+  } else {
+    b.proxima_emissao_ms -= intervalo_ms;
+  }
+  RemoveAtualizaEmissoes(intervalo_ms, &b);
+  RecriaVboEmissoes(gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6), &b);
 }
 
 void Entidade::AtualizaMatrizes() {
@@ -612,6 +676,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaBolhas(intervalo_ms);
   AtualizaLuzAcao(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
@@ -648,7 +713,14 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   if (proto_.has_luz()) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
-  if (proto_.voadora()) {
+  if (proto_.montado_em() && tabuleiro_ != nullptr) {
+    const auto* montaria = tabuleiro_->BuscaEntidade(proto_.montado_em());
+    if (montaria != nullptr) {
+      proto_.set_voadora(montaria->Proto().voadora());
+      vd_.altura_voo = montaria->vd_.altura_voo;  // melhor ficar sem altura, deixa jogador controlar.
+      vd_.angulo_disco_voo_rad = montaria->vd_.angulo_disco_voo_rad;  // oscila junto.
+    }
+  } else if (proto_.voadora()) {
 #if VBO_COM_MODELAGEM
     vbo_escopo.atualizar = true;
 #endif
@@ -1693,7 +1765,7 @@ std::string Entidade::TipoAtaque() const {
 float Entidade::AlcanceAtaqueMetros() const {
   const auto* da = DadoCorrente();
   if (da == nullptr || !da->has_alcance_m()) {
-    return -1.5f;
+    return -TAMANHO_LADO_QUADRADO;
   }
   return da->alcance_m();
 }
@@ -1737,7 +1809,7 @@ int Entidade::BonusAtaqueToqueDistancia() const {
   return proto_.bba().distancia();
 }
 
-int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
+int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
   // Cada tipo de CA sabera compensar a esquiva.
@@ -1748,11 +1820,11 @@ int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL) {
-      return DestrezaNaCA(proto_)
+      return DestrezaNaCAContraAtaque(da, proto_)
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return DestrezaNaCA(proto_)
+      return DestrezaNaCAContraAtaque(da, proto_)
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
@@ -1804,6 +1876,9 @@ bool Entidade::ImuneFurtivo() const {
 // static
 bool Entidade::DesenhaBase(const EntidadeProto& proto) {
   if (proto.morta()) {
+    return false;
+  }
+  if (proto.has_montado_em() && proto.voadora()) {
     return false;
   }
   if (proto.has_modelo_3d()) {
@@ -2064,11 +2139,12 @@ std::string Entidade::ResumoEventos() const {
 
 int Entidade::ChanceFalhaDefesa() const {
   int chance = 0;
-  if (PossuiEvento(EFEITO_BORRAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_NUBLAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_DESLOCAMENTO, proto_)) chance = 50;
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
-  if (PossuiEvento(EFEITO_INVISIBILIDADE, proto_)) chance = 50;
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_)) chance = 50;
   return chance;
 }
 
@@ -2076,6 +2152,7 @@ int Entidade::ChanceFalhaAtaque() const {
   // Chance de ficar etereo ao atacar.
   int chance = 0;
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_CEGO, proto_)) chance = 50;
   chance = std::max(chance, proto_.dados_ataque_global().chance_falha());
   return chance;
 }
@@ -2126,6 +2203,17 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.intervalo_emissao_ms = 1000;
   f.duracao_nuvem_ms = 3000;
   f.proxima_emissao_ms = 0;
+}
+
+void Entidade::AtivaBolhas(int duracao_ms, const float* cor) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms = duracao_ms;
+  b.intervalo_emissao_ms = 1000;
+  b.duracao_nuvem_ms = 3000;
+  b.proxima_emissao_ms = 0;
+  b.cor[0] = cor[0];
+  b.cor[1] = cor[1];
+  b.cor[2] = cor[2];
 }
 
 void Entidade::ReiniciaAtaque() {

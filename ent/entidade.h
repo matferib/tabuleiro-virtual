@@ -21,6 +21,7 @@ class CentralNotificacoes;
 namespace ent {
 
 class Entidade;
+class Tabuleiro;
 class DesenhoBase;
 class IluminacaoDirecional;
 
@@ -36,7 +37,8 @@ class Texturas {
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
 Entidade* NovaEntidade(
     const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -59,6 +61,9 @@ class Entidade {
 
   /** faz alvo fumegar. */
   void AtivaFumegando(int duracao_ms);
+
+  /** Faz o alvo soltar bolhas, como nausea. */
+  void AtivaBolhas(int duracao_ms, const float* cor);
 
   /** Destroi a entidade. */
   ~Entidade();
@@ -351,8 +356,11 @@ class Entidade {
 
  protected:
   friend Entidade* NovaEntidade(
-      const EntidadeProto& proto, const Tabelas& tabelas, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
-  Entidade(const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+      const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas*, const m3d::Modelos3d*,
+      ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(
+      const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+      ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
@@ -374,17 +382,20 @@ class Entidade {
     std::vector<float> posicoes;
   };
 
-  struct DadosUmaNuvem {
+  // Dados de uma emissao, pode ser nuvem, bolha etc.
+  struct DadosUmaEmissao {
     // Vetor de direcao da fumaca. Unitario.
     Vector3 direcao;
     Vector3 pos;
-    float escala;
+    float escala = 1.0f;
     int duracao_ms = 0;
-    float alfa = 1.0f;
     float velocidade_m_s = 0.0f;
+    float incremento_escala_s = 0.0f;
+    float cor[4] = {1.0f, 1.0f, 1.0f, 1.0};  // Cor de uma emissao.
   };
 
-  struct DadosFumaca {
+  // Os dados da emissao toda.
+  struct DadosEmissao {
     // Ao chegar a zero, para de emitir.
     int duracao_ms = 0;
     // Intervalo entre emissoes.
@@ -394,9 +405,11 @@ class Entidade {
     // Quanto tempo vive uma nuvem.
     int duracao_nuvem_ms = 0;
     // Dados de cada nuvem.
-    std::vector<DadosUmaNuvem> nuvens;
+    std::vector<DadosUmaEmissao> emissoes;
     // O vbo da fumaca.
     gl::VbosNaoGravados vbo;
+    // Cor base da emissao.
+    float cor[3] = {0};
   };
 
   // Para luzes temporarias, como disparo de arma de fogo.
@@ -434,7 +447,8 @@ class Entidade {
     // Numero de ataques realizado na rodada.
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
-    DadosFumaca fumaca;
+    DadosEmissao fumaca;
+    DadosEmissao bolhas;
     DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
@@ -453,6 +467,14 @@ class Entidade {
     // Modelo 3d.
     const m3d::Modelos3d* m3d = nullptr;
   };
+
+  // Apos o intervalo de emissao, emite nova bolha ou nuvem.
+  void EmiteNovaBolha();
+  void EmiteNovaNuvem();
+  /** Atualiza os dados da emissao, baseado no intervalo. Remove as emissoes mortas, atualiza as existentes. */
+  void RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const;
+  /** Recria os VBOs da emissao. */
+  void RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const;
 
   // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.
@@ -480,6 +502,9 @@ class Entidade {
   void AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
+  /** Atualiza as bolhas da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaBolhas(int intervalo_ms);
+
   /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaLuzAcao(int intervalo_ms);
 
@@ -586,6 +611,7 @@ class Entidade {
  private:
   EntidadeProto proto_;
   const Tabelas& tabelas_;
+  const Tabuleiro* tabuleiro_ = nullptr;
   VariaveisDerivadas vd_;
   const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 

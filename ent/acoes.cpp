@@ -421,6 +421,7 @@ class AcaoDispersao : public Acao {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
         acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    duracao_s_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.35f;
   }
 
   ~AcaoDispersao() {
@@ -503,7 +504,7 @@ class AcaoDispersao : public Acao {
         }
       }
     }
-    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
+    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (duracao_s_ * 1000);
     if (Finalizada()) {
       AtualizaAlvo(intervalo_ms);
     }
@@ -514,8 +515,9 @@ class AcaoDispersao : public Acao {
   }
 
  private:
-  float efeito_maximo_;
-  float efeito_;
+  float efeito_maximo_ = 0.0f;
+  float efeito_ = 0.0f;
+  float duracao_s_ = 0.0f;
 };
 
 // Acao de dispersao, estilo bola de fogo.

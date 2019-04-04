@@ -411,7 +411,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_INVESTIDA:
       AlternaInvestida();
       break;
-    case CONTROLE_MONTAR:
+    case CONTROLE_MODO_MONTAR:
       AlternaMontar();
       break;
     case CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE:
@@ -499,9 +499,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
                 ? ent::Tabuleiro::BIT_FALHA_50
                 : ent::Tabuleiro::BIT_FALHA_NEGATIVO);
       break;
-    case CONTROLE_VISIBILIDADE:
-      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+    case CONTROLE_VISIBILIDADE: {
+      if (alterna_selecao) {
+        RemoveEfeitoInvisibilidadeEntidadesNotificando();
+      } else {
+        AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+      }
       break;
+    }
     case CONTROLE_AGARRANDO:
       DesagarraEntidadesSelecionadasNotificando();
       break;
@@ -797,6 +802,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
     case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
     case Tabuleiro::MODO_ESQUIVA:     return CONTROLE_MODO_ESQUIVA;
+    case Tabuleiro::MODO_MONTAR:      return CONTROLE_MODO_MONTAR;
     default:                          return CONTROLE_AJUDA;
   }
 }
@@ -1336,7 +1342,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_INVESTIDA,          [this] (const Entidade* entidade) {
       return entidade != nullptr && PossuiEvento(EFEITO_INVESTIDA, entidade->Proto());
     } },
-    { CONTROLE_MONTAR,             [this] (const Entidade* entidade) {
+    { CONTROLE_MODO_MONTAR,        [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_montado_em();
     } },
     { CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE, [this] (const Entidade* entidade) {

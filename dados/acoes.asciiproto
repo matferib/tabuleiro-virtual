@@ -119,9 +119,11 @@ acao {
 }
 acao {
   id: 'Pergaminho Arcano'
+  icone: 'icon_scroll.png'
 }
 acao {
   id: 'Pergaminho Divino'
+  icone: 'icon_scroll.png'
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -169,6 +171,15 @@ acao {
   consequencia: TC_INFLAMA_ALVO
   ataque_toque: true
   ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
+}
+acao {
+  id: 'Sopro'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_CONE
+  icone: 'icon_breath.png'
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
   ignora_reducao_dano_barbaro: true
 }
 acao {

@@ -51,6 +51,20 @@ void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
   }
 }
 
+int TipoEvasaoParaIndiceCombo(ent::TipoEvasao te) {
+  // TODO tratar com switch?
+  return (int)te;
+}
+
+void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.combo_evasao_estatica->blockSignals(true);
+  gerador.combo_evasao_dinamica->blockSignals(true);
+  gerador.combo_evasao_estatica->setCurrentIndex(TipoEvasaoParaIndiceCombo(proto.dados_defesa().evasao_estatica()));
+  gerador.combo_evasao_dinamica->setCurrentIndex(TipoEvasaoParaIndiceCombo(proto.dados_defesa().evasao()));
+  gerador.combo_evasao_dinamica->blockSignals(false);
+  gerador.combo_evasao_estatica->blockSignals(false);
+}
+
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
@@ -63,6 +77,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIPericias(tabelas, gerador, proto);
   AtualizaUIFeiticos(tabelas, gerador, proto);
   AtualizaUIEventos(tabelas, gerador, proto);
+  AtualizaUIEvasao(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {

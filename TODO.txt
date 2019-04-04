@@ -1,16 +1,24 @@
+Terminar modelo de mago 18: fazer itens magicos e magias.
+
+Fazer efeito de drenar temporario
+Fazer efeito de lâmina afiada.
+
 Anotacoes da sessao Tilverton:
-- Melir (clerigo 4): Feito.
-- Quairon ( mago 4): falta familiar.
-- Definir encontros.
+- Mago de guerra 5.
 - Fazer vangerdahast (mago 18)
-- Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias)
-- Resistencia magia variavel.
-- Veserab: pg 94 empire of the shade.
-- Outros vultos:
-  - guerreiros:
-- Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, 121).
-- Fazer Aris (gigante anciao): OK
-Veserab avancado: pg 119
+- Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, clerigo de Shar 121).
+
+- Definir encontros.
+- Resistencia magia variavel. ??
+
+- Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias): Feito.
+- Fazer Aris (gigante anciao): Feito.
+- Melir (clerigo 4): Feito.
+- Quairon ( mago 4): Feito.
+- Veserab: pg 95 empire of the shade: Feito.
+- Veserab avancado: pg 119: Feito.
+
+===============================================
 
 Resolver o vigor menor (como proceder com a parada do maximo que cura?)
 Implementar afeta apenas tendencia em acoes.
@@ -38,7 +46,6 @@ Anotacoes sessao Wheloon:
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
 Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
 Eventos nao estao sendo regerados ao tirar um efeito na mao.
-Colocar evasao e evasao aprimorada na UI.
 Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
 Nos complementos, ignorar case.
 Modelar multishot (tiro multiplo).

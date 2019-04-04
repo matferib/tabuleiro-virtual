@@ -714,6 +714,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 12
     peso { medio: '1Kg' }
     tipo_dano: TD_PERFURANTE
@@ -725,6 +726,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 14
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
@@ -739,6 +741,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 20
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
@@ -750,6 +753,7 @@ tabela_armas {
     dano { medio: '1d8'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 22
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
@@ -1030,6 +1034,10 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_CEGO
+    nome: 'cego'
+  }
+  efeitos {
     id: EFEITO_ORACAO_ALIADOS
     nome: 'oração (aliados)'
     consequencia {
@@ -1144,9 +1152,6 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_POEIRA_OFUSCANTE
     nome: 'poeira ofuscante'
-    # TODO
-    # cego.
-    # visivel.
   }
 
   efeitos {
@@ -2324,7 +2329,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'acelerar'
-    nome: 'Acelerar'
+    nome: 'Velocidade'
     duracao_rodadas: 5
     tipo_efeito: EFEITO_ACELERAR
     descricao: 'Acelera o personagem'
@@ -2530,9 +2535,16 @@ tabela_pocoes {
   pocoes {
     id: 'nublar'
     nome: 'Nublar'
-    tipo_efeito: EFEITO_BORRAR
+    tipo_efeito: EFEITO_NUBLAR
     custo_po: 300
     duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'deslocamento'
+    nome: 'Deslocamento'
+    tipo_efeito: EFEITO_DESLOCAMENTO
+    custo_po: 750
+    duracao_rodadas: 5
   }
   pocoes {
     id: 'armadura_arcana'
@@ -4767,6 +4779,27 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'lamina_afiada'  # keen edge
+    nome: 'lâmina afiada'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'lâmina afiada'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'envenenamento'  # poison
     nome: 'envenenamento'
     info_classes {
@@ -4793,6 +4826,28 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'deslocamento'  # displacement
+    nome: 'deslocamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_DESLOCAMENTO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
     id: 'luz_cegante'  # searing light.
     nome: 'luz cegante'
     alcance_quadrados: 20
@@ -4815,6 +4870,7 @@ tabela_feiticos {
       ataque_toque: true
       ataque_distancia: true
       ignora_luz: true
+      ignora_reducao_dano_barbaro: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
     }
     # TODO constructos levam apenas 1d6 a cada 2 niveis
@@ -4845,8 +4901,34 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'drenar_temporario'  # enervation
+    nome: 'drenar temporário'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: '1d4 niveis negativos'
+        modificador_rodadas: MR_HORAS_NIVEL_MAX_15
+      }
+    }
+    # TODO dano: 1d4 niveis negativos.
+    # TODO mortos vivos ganham 1d4+5 pontos de vida temporario por 1 hora.
+  }
+
+  armas {
     id: 'drenar_forca_vital'  # death knell
-    nome: 'condição'
+    nome: 'drenar força vital'
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -5345,6 +5427,33 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'desespero_esmagador' # crushing despair
+    nome: 'desespero esmagador'
+    alcance_quadrados: 6
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        descricao: 'desespero esmagador'
+      }
+
+    }
+  }
+
+  armas {
     # TODO
     id: 'invocar_criaturas_i'
     nome: 'invocar criaturas I'
@@ -5407,6 +5516,28 @@ tabela_feiticos {
       #id_modelo_entidade: 'Orc'
     #}
   }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_iv'
+    nome: 'invocar criaturas IV'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
+
 
   armas {
     id: 'toque_fadiga' #  touch of fatigue
@@ -5628,7 +5759,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       permite_salvacao: false
       efeitos_adicionais {
-        efeito: EFEITO_BORRAR
+        efeito: EFEITO_NUBLAR
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
@@ -5660,7 +5791,16 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_luz: true
       duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
+        efeito: EFEITO_POEIRA_OFUSCANTE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
         efeito: EFEITO_POEIRA_OFUSCANTE
         modificador_rodadas: MR_RODADAS_NIVEL
       }
@@ -5669,7 +5809,7 @@ tabela_feiticos {
 
   armas {
     id: 'explosao_sonora' # sound burst
-    nome: 'explosao sonora'
+    nome: 'explosão sonora'
     alcance_quadrados: 5
     dano { invariavel: '1d8' }
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5690,6 +5830,7 @@ tabela_feiticos {
       icone: 'icon_touch.png'
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: false
+      ignora_reducao_dano_barbaro: true
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
       duracao_s: 0.350
@@ -6641,6 +6782,7 @@ tabela_feiticos {
   armas {
     id: 'ajuda'
     nome: 'ajuda'
+    categoria: CAT_CAC
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -6660,10 +6802,9 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
-        efeito: EFEITO_SANTUARIO
-        rodadas: 1  # 1/por nivel
-        modificador_rodadas: MR_MINUTOS_NIVEL
-        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+        efeito: EFEITO_AJUDA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_1_POR_NIVEL_MAX_10
       }
     }
   }
@@ -6882,34 +7023,6 @@ tabela_feiticos {
       }
     }
   }
-  armas {
-    id: 'explosão sonora'
-    nome: 'explosão sonora'
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_DISPERSAO
-      cor { r: 0.7 g: 0.7 b: 0 }
-      raio_quadrados: 2
-      distancia_quadrados: 5 # + 1 a cada dois niveis
-      geometria: ACAO_GEO_ESFERA
-      efeito_area: true
-      permite_salvacao: true
-      icone: 'icon_burning_hands.png'
-      duracao_s: 0.350
-      # Esse feitico a salvacao e apenas para o efeito de atordoar.
-      dificuldade_salvacao: 12
-      tipo_salvacao: TS_FORTITUDE
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_SONICO
-    }
-  }
 
   armas {
     id: 'maos_flamejantes'
@@ -7115,7 +7228,7 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_salvacao: RS_ANULOU
-      icone: 'icon_confusion'
+      icone: 'icon_confusion.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
@@ -7125,8 +7238,8 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'cone_de_gelo'
-    nome: 'cone de gelo'
+    id: 'cone_glacial'
+    nome: 'cone glacial'
     alcance_quadrados: 12
     info_classes {
       id: 'mago'
@@ -7138,11 +7251,10 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
-      id: 'Cone de Gelo'
       tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
       cor: { r: 0.3 b: 1.0 g: 0.3 }
       distancia_quadrados: 12  # quadrados
-      geometria: ACAO_GEO_CONE
       efeito_area: true
       permite_salvacao: true
       icone: 'icon_ice.png'

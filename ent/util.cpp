@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
+#include "ent/comum.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
@@ -941,7 +942,7 @@ MisturaPreNevoaEscopo::~MisturaPreNevoaEscopo() {
 }
 
 TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
-  if (da.ataque_distancia()) return TipoAtaque::DISTANCIA;
+  if (da.ataque_distancia() || da.tipo_acao() == ACAO_PROJETIL || da.tipo_acao() == ACAO_PROJETIL_AREA) return TipoAtaque::DISTANCIA;
   if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
   return TipoAtaque::CORPO_A_CORPO;
 }
@@ -969,8 +970,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
-  if (PossuiEvento(EFEITO_INVISIBILIDADE, ea)) {
-    modificador += 2;
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) || PossuiEvento(EFEITO_CEGO, ea)) {
+    if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
+      modificador += 2;
+    }
   }
   if (tipo_ataque == TipoAtaque::AGARRAR) {
     if (PossuiTalento("agarrar_aprimorado", ea)) modificador += 4;
@@ -1460,7 +1463,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
     if (total >= ap.dificuldade_salvacao()) {
       salvou = true;
       if (ap.resultado_salvacao() == RS_MEIO) {
-        if (ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao", ed.Proto())) {
+        if (ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO) {
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
@@ -1474,7 +1477,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
       descricao_resultado = StringPrintf(
           "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && PossuiHabilidadeEspecial("evasao_aprimorada", ed.Proto())) {
+      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
@@ -1493,7 +1496,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
 }
 
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
+    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
     return std::make_tuple(true, "");;
@@ -1502,13 +1505,19 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
   const int nivel_conjurador = da != nullptr && da->has_nivel_conjurador_pergaminho()
     ? da->nivel_conjurador_pergaminho()
     : ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
-  const int total = d20 + nivel_conjurador;
-
-  if (d20 + nivel_conjurador < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("RM: anulou; %d < %d", total, rm));
+  int mod = nivel_conjurador;
+  if (PossuiTalento("magia_penetrante", ea.Proto())) {
+    mod += 2;
+  }
+  if (PossuiTalento("magia_penetrante_maior", ea.Proto())) {
+    mod += 2;
+  }
+  const int total = d20 + mod;
+  if (total < rm) {
+    return std::make_tuple(false, google::protobuf::StringPrintf("RM: anulou; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("RM: passsou; %d >= %d", total, rm));
+      true, google::protobuf::StringPrintf("RM: passsou; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
 }
 
 namespace {
@@ -1897,7 +1906,13 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
 }
 
 bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
-bool ArmaDistancia(const ArmaProto& arma) { return arma.alcance_quadrados() > 0; }
+// TODO isso num ta muito certo. Tem armas que nao sao de distancia (lanca) que tem alcance > 0. Melhor deixar so as categorias.
+bool ArmaDistancia(const ArmaProto& arma) {
+  const bool distancia =
+      c_any_of(arma.categoria(), [](int cat) { return cat == CAT_DISTANCIA; }) ||
+      c_any_of(arma.categoria(), [](int cat) { return cat == CAT_ARREMESSO; });
+  return distancia || arma.alcance_quadrados() > 0;
+}
 
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
@@ -2236,9 +2251,15 @@ int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
   }
 }
 
-bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& entidade) {
-  return c_any_of(entidade.evento(), [tipo] (const EntidadeProto::Evento& evento) {
+bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto) {
+  return c_any_of(proto.evento(), [tipo] (const EntidadeProto::Evento& evento) {
     return evento.id_efeito() == tipo;
+  });
+}
+
+bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto) {
+  return c_any_of(proto.evento(), [&tipos] (const EntidadeProto::Evento& evento) {
+    return c_any(tipos, evento.id_efeito());
   });
 }
 
@@ -2455,12 +2476,16 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   if (da.acao().has_dificuldade_salvacao()) {
     string_salvacao = StringPrintf(", CD: %d", da.acao().dificuldade_salvacao());
   }
+  std::string texto_veneno;
+  if (da.has_veneno()) {
+    texto_veneno = StringPrintf(", veneno CD %d", da.veneno().cd());
+  }
   return StringPrintf(
-      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
+      "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance,
       da.bonus_ataque_final(),
-      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(),
+      da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(), texto_veneno.c_str(),
       string_salvacao.c_str(),
       string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(),
@@ -2890,16 +2915,19 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
         modificador = nivel_conjurador;
         break;
       case MR_MINUTOS_NIVEL:
-        modificador = 10 * nivel_conjurador;
+        modificador = MINUTOS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_10_MINUTOS_NIVEL:
-        modificador = 100 * nivel_conjurador;
+        modificador = 10 * MINUTOS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_HORAS_NIVEL:
-        modificador = 600 * nivel_conjurador;
+        modificador = HORAS_PARA_RODADAS * nivel_conjurador;
+        break;
+      case MR_HORAS_NIVEL_MAX_15:
+        modificador = HORAS_PARA_RODADAS * std::min(nivel_conjurador, 15);
         break;
       case MR_2_HORAS_NIVEL:
-        modificador = 1200 * nivel_conjurador;
+        modificador = 2 * HORAS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_1D4:
         modificador = RolaValor("1d4");
@@ -2925,6 +2953,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
   switch (efeito_adicional.modificador_complementos()) {
+    case MC_1_POR_NIVEL_MAX_10: {
+      evento->add_complementos(std::min(10, nivel_conjurador));
+      break;
+    }
     case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
       int adicionais = std::min(4, nivel_conjurador / 3);
       evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
@@ -3887,7 +3919,7 @@ std::string BonusParaString(const Bonus& bonus) {
 }
 
 bool PodeAgir(const EntidadeProto& proto) {
-  if (PossuiEvento(EFEITO_PASMAR, proto) || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO}, proto)) {
     return false;
   }
   return true;
@@ -3895,6 +3927,21 @@ bool PodeAgir(const EntidadeProto& proto) {
 
 bool DestrezaNaCA(const EntidadeProto& proto) {
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  if (PossuiEvento(EFEITO_CEGO, proto) && !PossuiTalento("lutar_as_cegas", proto)) {
+    return false;
+  }
+  return true;
+}
+
+bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+  if (da == nullptr) return DestrezaNaCA(proto);
+  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  if (PossuiEvento(EFEITO_CEGO, proto) &&
+      (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }
   return true;
@@ -4115,6 +4162,22 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
             da.modificador_atributo_pergaminho()));
   }
   return std::make_pair(true, "");
+}
+
+TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto) {
+  return proto.dados_defesa().evasao();
+}
+
+void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+  for (const auto& evento_proto : proto.evento()) {
+    if (evento_proto.id_efeito() != te) continue;
+    *e_antes->add_evento() = evento_proto;
+    auto* evento_depois = e_depois->add_evento();
+    *evento_depois = evento_proto;
+    evento_depois->set_rodadas(-1);
+  }
 }
 
 }  // namespace ent

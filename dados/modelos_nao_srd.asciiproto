@@ -576,7 +576,8 @@ modelo {
   id: 'Vulto Guerreiro 5'
   id_entidade_base: 'Humano Guerreiro 5'
   entidade {
-    rotulo: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_fighter.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
     dados_ataque {
@@ -613,9 +614,10 @@ modelo {
   id: 'Vulto Feiticeiro 5'
   id_entidade_base: 'Humano Feiticeiro 5'
   entidade {
-    rotulo: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+    info_textura { id: 'shade_sorcerer.png' translacao_x: 0.25 largura: 0.5 }
     dados_ataque {
       grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       limite_vezes: 3
@@ -672,10 +674,11 @@ modelo {
 }
 modelo {
   # Atencao: nao é vulto! EotS 95
+  # Shadovar guard
   id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4'
   entidade {
     dados_vida: '9d4+14' raca: 'humano'
-    info_textura { id: 'shadovar_guard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'feiticeiro' nivel: 6 }
     info_classes { id: 'adepto_sombras' nivel: 4 }
     tendencia { simples: TD_LEAL_MAU }
@@ -766,10 +769,11 @@ modelo {
 modelo {
   # Atencao: nao é vulto! EotS 119
   # Done.
+  # Shadovar aerial scout.
   id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4'
   entidade {
     dados_vida: '4d10+2d8+4d4+21' raca: 'humano'
-    info_textura { id: 'shadovar_guard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_textura { id: 'ranger.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'guerreiro' nivel: 5 }
     info_classes { id: 'ranger' nivel: 2 }
     info_classes { id: 'feiticeiro' nivel: 4 }
@@ -927,7 +931,7 @@ modelo {
 
 
 modelo {
-  id: 'Humano Combatente Dragão Púrpura 2'
+  id: 'Humano Combatente Soldado Dragão Púrpura 2'
   id_entidade_base: 'Combatente Base'
   entidade {
     rotulo: 'humano combatente 2'
@@ -939,6 +943,20 @@ modelo {
     tesouro { tesouro: '2d20 PP' }
   }
 }
+modelo {
+  id: 'Humano Combatente Arqueiro Dragão Púrpura 2'
+  id_entidade_base: 'Combatente Base'
+  entidade {
+    rotulo: 'humano arqueiro 2'
+    dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_archer' }
+    info_classes { id: 'combatente' nivel: 2 }
+    dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
+    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
+    tesouro { tesouro: '2d20 PP' }
+  }
+}
+
 modelo {
   id: 'Veserab'
   entidade {
@@ -961,6 +979,7 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
     }
     dados_ataque_global {
+      # Cego.
       chance_falha: 50
     }
     info_talentos {
@@ -969,33 +988,36 @@ modelo {
     }
     info_pericias { id: 'ouvir' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
 
     dados_ataque {
       grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
       grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
       grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
 
     # Sopro
     dados_ataque {
-      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Ataque a Distância'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_CONE
         distancia_quadrados: 4
         permite_ataque_vs_defesa: false
         permite_salvacao: true
-        dificuldade_salvacao_base: 12  # +3 de constituicao.
+        dificuldade_salvacao_base: 12  # 10 + 1/2 HD.
         atributo_dificuldade_salvacao: TA_CONSTITUICAO
-        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
         icone: 'icon_breath.png'
         efeitos_adicionais {
           efeito: EFEITO_NAUSEA
@@ -1007,23 +1029,119 @@ modelo {
     # Bote.
     dados_ataque {
       grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
       grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
       grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
       grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
       grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
-      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    # apesar de ser grande, alcance 1.
+  }
+}
+modelo {
+  id: 'Veserab Avançado'
+  entidade {
+    dados_vida: '8d10+24' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
+    cor { r: 0.75 g: 0.75 b: 0.75 }
+    movimento {
+      terrestre_basico_q: 4
+      aereo_basico_q: 24
+    }
+
+    rotulo_especial: 'faro, sentido cego (48 q), bote (mergulhando), rasgar'
+    info_classes { id: 'besta_magica' nivel: 8 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    dados_ataque_global {
+      # Cego.
+      chance_falha: 50
+    }
+    info_talentos {
+      gerais { id: 'lutar_as_cegas' }
+      gerais { id: 'investida_aerea' }
+      gerais { id: 'ataques_multiplos' }
+    }
+    info_pericias { id: 'ouvir' pontos: 8 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+    }
+
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+
+    # Sopro
+    dados_ataque {
+      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 4
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14  # 10 + 1/2 HD
+        atributo_dificuldade_salvacao: TA_CONSTITUICAO
+        cor { r: 0.0 g: 0.7 b: 0.0 a: 0.7 }
+        icone: 'icon_breath.png'
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          modificador_rodadas: MR_1D4_MAIS_1
+        }
+      }
+    }
+
+    # Bote.
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     # apesar de ser grande, alcance 1.
   }

@@ -318,7 +318,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -360,6 +360,10 @@ void PreencheNotificacaoEvento(
 void PreencheNotificacaoEventoComComplementoStr(
     unsigned int id_entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
+// Dado um tipo de evento, remove todos daquele tipo.
+void PreencheNotificacaoRemocaoEvento(
+    const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n);
 
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicional(
@@ -458,6 +462,12 @@ EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);
 const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
+// Retorna true se possuir evento tipo_sim e nao possui evento tipo_nao.
+inline bool PossuiEventoNaoPossuiOutro(TipoEfeito tipo_sim, TipoEfeito tipo_nao, const EntidadeProto& proto) {
+  return PossuiEvento(tipo_sim, proto) && !PossuiEvento(tipo_nao, proto);
+}
+// Retorna verdadeiro se tiver um dos tipo de evento passado.
+bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto);
 bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
@@ -817,6 +827,7 @@ bool PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto);
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
@@ -826,6 +837,9 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
 
 // Computa o dano do dado de ataque baseado no modelo e nivel passado.
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da);
+
+// Retorna o tipo de evasao da entidade (ja computado).
+TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);
 
 }  // namespace ent
 

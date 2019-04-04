@@ -188,7 +188,7 @@ message EntidadeProto {
   // Evento de entidade. A cada rodada, o contador de rodadas diminuira ate zero.
   // Ao termino do contador, o tabuleiro sinalizara a entidade.
   message Evento {
-    optional int32 rodadas = 1;
+    optional int32 rodadas = 1;            // se -1, sinaliza remocao.
     optional bytes descricao = 2;          // aparentemente eu salvei coisa em formato binario aqui, nao funciona como string.
     optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     repeated int32 complementos = 3;       // Alguns efeitos tem complementos.
@@ -205,6 +205,7 @@ message EntidadeProto {
 
   // Dados para um ataque especifico.
   // Como depende de AcaoProto, nao movi para comum.
+  // Proximo id: 57.
   message DadosAtaque {
     // O rotulo de um ataque, para identificacao. Identifica uma arma.
     optional string rotulo = 9;
@@ -225,6 +226,7 @@ message EntidadeProto {
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
+    optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario). TODO: deprecar alcance_m.
     optional float alcance_minimo_m = 33;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     // A diferenca desses dois eh importante.
@@ -354,6 +356,32 @@ message EntidadeProto {
 
   optional DadosDefesa dados_defesa = 45;
 
+  message MunicaoPersonagem {
+    optional string id = 1;
+    optional int32 quantidade = 2;
+    repeated DescritorAtaque descritores_basicos = 3;
+    // Final: todos descritores.
+    repeated DescritorAtaque descritores = 4;
+    // Para referencias cruzadas. Deve ser unico dentro de sua categoria para o
+    // personagem.
+    optional int32 id_unico = 5;
+    // Os bonus do item.
+    optional Bonus bonus = 6;
+  }
+
+  message ArmaArmaduraOuEscudoPersonagem {
+    optional string id = 1;
+    // Isso nao muda.
+    repeated DescritorAtaque descritores_basicos = 2;
+    // Final: mistura tudo.
+    repeated DescritorAtaque descritores = 3;
+    // Para referencias cruzadas. deve ser unico dentro de sua categoria para o
+    // personagem.
+    optional int32 id_unico = 4;
+    // Os bonus do item.
+    optional Bonus bonus = 5;
+  }
+
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
@@ -365,6 +393,10 @@ message EntidadeProto {
     repeated ItemMagicoProto amuletos = 7;
     repeated ItemMagicoProto botas = 8;
     repeated ItemMagicoProto chapeus = 9;
+    repeated ArmaArmaduraOuEscudoPersonagem armas = 20;
+    repeated ArmaArmaduraOuEscudoPersonagem armaduras = 21;
+    repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;
+    repeated MunicaoPersonagem municoes = 23;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.

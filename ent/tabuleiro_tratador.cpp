@@ -1200,14 +1200,14 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     const Posicao& pos_origem = entidade_origem->PosicaoAcao();
     Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
     Vector3 vd(pos_destino->x(), pos_destino->y(), pos_destino->z());
-    LOG(INFO) << "va: " << va;
-    LOG(INFO) << "vd: " << vd;
+    VLOG(2) << "va: " << va;
+    VLOG(2) << "vd: " << vd;
     const float distancia_m = (va - vd).length();
     VLOG(1)
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1261,7 +1261,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool passou_rm;
-      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(da, *acao_proto, *entidade_origem, *entidade_destino);
+      std::tie(passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(da, *entidade_origem, *entidade_destino);
       por_entidade->set_texto(resultado_rm);
       AdicionaLogEvento(entidade_origem->Id(), resultado_rm);
       if (!passou_rm) {
@@ -1335,7 +1335,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %f m, maximo: %d m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1d m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1548,7 +1548,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::string resultado_rm;
       bool sucesso;
       std::tie(sucesso, resultado_rm) =
-          AtaqueVsResistenciaMagia(da, *acao_proto, *entidade_origem, *entidade_destino);
+          AtaqueVsResistenciaMagia(da, *entidade_origem, *entidade_destino);
       if (!sucesso) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;
@@ -1647,7 +1647,8 @@ float Tabuleiro::TrataAcaoIndividual(
     if (entidade_origem != nullptr && entidade_destino != nullptr &&
         delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
-      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar");
+      atraso_s += 1.0f;
+      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);
     }
   }
 
@@ -2511,7 +2512,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
     estado_anterior_ = ETAB_ENTS_SELECIONADAS;
     translacao_rotacao_ = TR_NENHUM;
     translacoes_rotacoes_escalas_antes_.clear();
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -2705,7 +2706,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   }
   // Colisao
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadas();
+  const std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
   Entidade* entidade_referencia = nullptr;
   if (ids_colisao.size() == 1) {
     entidade_referencia = BuscaEntidade(ids_colisao[0]);
@@ -2761,13 +2762,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  std::unordered_set<unsigned int> ids;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(IdCameraPresa());
-  } else {
-    ids = ids_entidades_selecionadas_;
-  }
-  for (unsigned int id : ids) {
+  for (unsigned int id : ids_colisao) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
@@ -2831,7 +2826,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
   } else {
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
       auto* entidade_selecionada = BuscaEntidade(id);
       if (entidade_selecionada == nullptr) {
         continue;

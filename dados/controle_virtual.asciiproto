@@ -1073,7 +1073,7 @@ pagina {
     rotulo: "M"
     cor_rotulo {}
     textura: "icon_mount.png"
-    id: CONTROLE_MONTAR
+    id: CONTROLE_MODO_MONTAR
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Montar/desmontar."
