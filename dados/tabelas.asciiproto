@@ -6897,11 +6897,86 @@ tabela_feiticos {
       icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_INVISIBILIDADE
-        rodadas: 30  # 10/por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
   }
-
+  armas {
+    id: 'invisibilidade_maior'
+    nome: 'invisibilidade maior'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'escudo_fogo'
+    nome: 'escudo de fogo'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'escudo de fogo'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'ancora_dimensional'
+    nome: 'âncora dimensional'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      ataque_toque: true
+      ataque_distancia: true
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'ancora dimensional'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
   armas {
     id: 'maos_flamejantes'
     nome: 'mãos flamejantes'
@@ -6931,6 +7006,24 @@ tabela_feiticos {
       elemento: DESC_FOGO
     }
   }
+  armas {
+    id: 'metamorfose'
+    nome: 'metamorfose'  # polymorph
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.7 g: 0.7 b: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'metamorfose'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
   armas {
     id: 'coluna_chamas'
     nome: 'coluna de chamas'
