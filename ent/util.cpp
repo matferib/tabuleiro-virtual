@@ -2915,16 +2915,19 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
         modificador = nivel_conjurador;
         break;
       case MR_MINUTOS_NIVEL:
-        modificador = 10 * nivel_conjurador;
+        modificador = MINUTOS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_10_MINUTOS_NIVEL:
-        modificador = 100 * nivel_conjurador;
+        modificador = 10 * MINUTOS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_HORAS_NIVEL:
-        modificador = 600 * nivel_conjurador;
+        modificador = HORAS_PARA_RODADAS * nivel_conjurador;
+        break;
+      case MR_HORAS_NIVEL_MAX_15:
+        modificador = HORAS_PARA_RODADAS * std::min(nivel_conjurador, 15);
         break;
       case MR_2_HORAS_NIVEL:
-        modificador = 1200 * nivel_conjurador;
+        modificador = 2 * HORAS_PARA_RODADAS * nivel_conjurador;
         break;
       case MR_1D4:
         modificador = RolaValor("1d4");

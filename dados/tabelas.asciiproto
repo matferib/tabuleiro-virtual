@@ -4779,6 +4779,53 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'lamina_afiada'  # keen edge
+    nome: 'lâmina afiada'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'lâmina afiada'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'envenenamento'  # poison
+    nome: 'envenenamento'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
+    acao {
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Condição (feitiço)'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+
+    }
+  }
+  armas {
     id: 'deslocamento'  # displacement
     nome: 'deslocamento'
     info_classes {
@@ -4800,9 +4847,8 @@ tabela_feiticos {
       }
     }
   }
-
   armas {
-    id: 'luz_cegante'  # searing light
+    id: 'luz_cegante'  # searing light.
     nome: 'luz cegante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -4822,6 +4868,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       permite_ataque_vs_defesa: true
       ataque_toque: true
+      ataque_distancia: true
       ignora_luz: true
       ignora_reducao_dano_barbaro: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
@@ -4854,8 +4901,34 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'drenar_temporario'  # enervation
+    nome: 'drenar temporário'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_RAIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      permite_ataque_vs_defesa: true
+      ataque_toque: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: '1d4 niveis negativos'
+        modificador_rodadas: MR_HORAS_NIVEL_MAX_15
+      }
+    }
+    # TODO dano: 1d4 niveis negativos.
+    # TODO mortos vivos ganham 1d4+5 pontos de vida temporario por 1 hora.
+  }
+
+  armas {
     id: 'drenar_forca_vital'  # death knell
-    nome: 'condição'
+    nome: 'drenar força vital'
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -5354,6 +5427,33 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'desespero_esmagador' # crushing despair
+    nome: 'desespero esmagador'
+    alcance_quadrados: 6
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        descricao: 'desespero esmagador'
+      }
+
+    }
+  }
+
+  armas {
     # TODO
     id: 'invocar_criaturas_i'
     nome: 'invocar criaturas I'
@@ -5416,6 +5516,28 @@ tabela_feiticos {
       #id_modelo_entidade: 'Orc'
     #}
   }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_iv'
+    nome: 'invocar criaturas IV'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
+
 
   armas {
     id: 'toque_fadiga' #  touch of fatigue

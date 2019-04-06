@@ -161,6 +161,11 @@ message ArmaProto {
     optional int32 capacidade_carga = 3;
   }
   optional Carregamento carregamento = 24;
+
+  // TODO NOVO: implementar na pratica.
+  // A arma requer ataque de toque.
+  optional bool ataque_toque = 26;
+  // fim NOVO.
 }
 
 message TabelaArmaduraOuEscudo {

@@ -1,5 +1,8 @@
 Terminar modelo de mago 18: fazer itens magicos e magias.
 
+Fazer efeito de drenar temporario
+Fazer efeito de lâmina afiada.
+
 Anotacoes da sessao Tilverton:
 - Mago de guerra 5.
 - Fazer vangerdahast (mago 18)

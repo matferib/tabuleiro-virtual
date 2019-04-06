@@ -356,6 +356,32 @@ message EntidadeProto {
 
   optional DadosDefesa dados_defesa = 45;
 
+  message MunicaoPersonagem {
+    optional string id = 1;
+    optional int32 quantidade = 2;
+    repeated DescritorAtaque descritores_basicos = 3;
+    // Final: todos descritores.
+    repeated DescritorAtaque descritores = 4;
+    // Para referencias cruzadas. Deve ser unico dentro de sua categoria para o
+    // personagem.
+    optional int32 id_unico = 5;
+    // Os bonus do item.
+    optional Bonus bonus = 6;
+  }
+
+  message ArmaArmaduraOuEscudoPersonagem {
+    optional string id = 1;
+    // Isso nao muda.
+    repeated DescritorAtaque descritores_basicos = 2;
+    // Final: mistura tudo.
+    repeated DescritorAtaque descritores = 3;
+    // Para referencias cruzadas. deve ser unico dentro de sua categoria para o
+    // personagem.
+    optional int32 id_unico = 4;
+    // Os bonus do item.
+    optional Bonus bonus = 5;
+  }
+
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
@@ -367,6 +393,10 @@ message EntidadeProto {
     repeated ItemMagicoProto amuletos = 7;
     repeated ItemMagicoProto botas = 8;
     repeated ItemMagicoProto chapeus = 9;
+    repeated ArmaArmaduraOuEscudoPersonagem armas = 20;
+    repeated ArmaArmaduraOuEscudoPersonagem armaduras = 21;
+    repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;
+    repeated MunicaoPersonagem municoes = 23;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
