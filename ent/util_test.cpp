@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <google/protobuf/text_format.h>
 #include <queue>
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
@@ -11,6 +12,54 @@
 namespace ent {
 
 extern std::queue<int> g_dados_teste;
+
+TEST(TesteBonus, TesteBonusCumulativo) {
+  Tabelas tabelas(nullptr);
+  Bonus bonus;
+  const char* bonus_texto = R"__(
+    bonus_individual {
+      tipo: TB_CIRCUNSTANCIA
+      por_origem { valor: 3 origem: 'origem0' }
+      # Nao acumula com anterior. Fica so o 5.
+      por_origem { valor: 5 origem: 'origem0' }
+      # Acumula, origem diferente.
+      por_origem { valor: 10 origem: 'origem1' }
+
+      # penalidades.
+      por_origem { valor: -2 origem: 'origempenalidade0' }
+      # Nao acumula.
+      por_origem { valor: -1 origem: 'origempenalidade0' }
+      # Acumula.
+      por_origem { valor: -1 origem: 'origempenalidade1' }
+    }
+  )__";
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(bonus_texto, &bonus));
+  EXPECT_EQ(12, BonusTotal(bonus));
+}
+
+TEST(TesteBonus, TesteBonusNaoCumulativo) {
+  Tabelas tabelas(nullptr);
+  Bonus bonus;
+  const char* bonus_texto = R"__(
+    bonus_individual {
+      tipo: TB_MELHORIA
+      por_origem { valor: 3 origem: 'origem0' }
+      # Nao acumula com anterior. Fica so o 5.
+      por_origem { valor: 5 origem: 'origem0' }
+      # Acumula, origem diferente.
+      por_origem { valor: 10 origem: 'origem1' }
+
+      # penalidades.
+      por_origem { valor: -2 origem: 'origempenalidade0' }
+      # Nao acumula.
+      #por_origem { valor: -1 origem: 'origempenalidade0' }
+      # Acumula.
+      #por_origem { valor: -1 origem: 'origempenalidade1' }
+    }
+  )__";
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(bonus_texto, &bonus));
+  EXPECT_EQ(8, BonusTotal(bonus));
+}
 
 TEST(TesteArmas, TestePedrada) {
   Tabelas tabelas(nullptr);
@@ -38,6 +87,85 @@ TEST(TesteArmas, TesteFunda) {
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteRaioEnfraquecimento) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("raio_enfraquecimento");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->alcance_m(), 6 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_RAIO) << "acao: " << acao.DebugString();
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
+  ASSERT_FALSE(acao.efeitos_adicionais().empty());
+
+  EntidadeProto proto_alvo;
+  AtribuiBaseAtributo(20, TA_FORCA, &proto_alvo);
+  std::unique_ptr<Entidade> alvo(NovaEntidade(proto_alvo, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  {
+    // Primeiro ataque.
+    g_dados_teste.push(3);
+    std::vector<int> ids_unicos;
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
+    ASSERT_FALSE(evento.complementos().empty());
+    EXPECT_EQ(evento.complementos(0), -4);
+    EXPECT_EQ(evento.id_unico(), 0);
+    // Ataque.
+    alvo->AtualizaParcial(n.entidade());
+    EXPECT_EQ(ModificadorAtributo(TA_FORCA, alvo->Proto()), ModificadorAtributo(16))
+        << "bonus: " << BonusAtributo(TA_FORCA, alvo->Proto()).DebugString();
+  }
+  {
+    // Segundo ataque: nao cumulativo, apenas o menor prevalece.
+    g_dados_teste.push(1);
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
+    ASSERT_FALSE(evento.complementos().empty());
+    EXPECT_EQ(evento.complementos(0), -2);
+    EXPECT_EQ(evento.id_unico(), 1);
+    // Ataque.
+    alvo->AtualizaParcial(n.entidade());
+    EXPECT_EQ(ModificadorAtributo(TA_FORCA, alvo->Proto()), ModificadorAtributo(16))
+        << "bonus: " << BonusAtributo(TA_FORCA, alvo->Proto()).DebugString();
+  }
+  {
+    // Terceiro ataque: nao cumulativo, apenas o maior prevalece.
+    g_dados_teste.push(5);
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
+    ASSERT_FALSE(evento.complementos().empty());
+    EXPECT_EQ(evento.complementos(0), -6);
+    EXPECT_EQ(evento.id_unico(), 2);
+    // Ataque.
+    alvo->AtualizaParcial(n.entidade());
+    EXPECT_EQ(ModificadorAtributo(TA_FORCA, alvo->Proto()), ModificadorAtributo(14))
+        << "bonus: " << BonusAtributo(TA_FORCA, alvo->Proto()).DebugString();
+  }
+
 }
 
 TEST(TesteArmas, TesteArcoLongo) {
@@ -880,7 +1008,7 @@ TEST(TesteDependencias, TesteAjuda) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(3);
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -907,8 +1035,8 @@ TEST(TesteDependencias, TesteAjuda2) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
-  ev = AdicionaEvento(EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   int id_segundo_evento = ev->id_unico();
   RecomputaDependencias(tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".

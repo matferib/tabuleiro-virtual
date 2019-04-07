@@ -1740,10 +1740,11 @@ void PreencheNotificacaoRecarregamento(
 }
 
 void PreencheNotificacaoEvento(
-    unsigned int id_entidade, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos,
+    ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
+  auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -1767,11 +1768,11 @@ void PreencheNotificacaoEventoEfeitoAdicional(
 }
 
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(tipo_efeito, rodadas, false, ids_unicos, e_depois);
+  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -1799,7 +1800,9 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
 bool PreencheNotificacaoEventoParaVenenoComum(
     unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  PreencheNotificacaoEvento(id_entidade, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  // A origem ficara veneno: %d, pois veneno é cumulativo.
+  std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
+  PreencheNotificacaoEvento(id_entidade, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -1941,26 +1944,52 @@ void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos) {
   CombinaBonus(atributos_novos.carisma(), atributos->mutable_carisma());
 }
 
+std::string ChaveMapaPorOrigem(const BonusIndividual::PorOrigem& por_origem) {
+  if (por_origem.valor() >= 0) {
+    return StringPrintf("%s:positivo", por_origem.origem().c_str());
+  } else {
+    return StringPrintf("%s:negativo", por_origem.origem().c_str());
+  }
+}
+
 // Retorna o total de um bonus individual, contabilizando acumulo caso as origens sejam diferentes.
 int BonusIndividualTotal(const BonusIndividual& bonus_individual) {
   if (BonusCumulativo(bonus_individual.tipo())) {
-    int total = 0;
     std::unordered_map<std::string, int> mapa_por_origem;
     for (const auto& por_origem : bonus_individual.por_origem()) {
-      auto it = mapa_por_origem.find(por_origem.origem());
-      if (it == mapa_por_origem.end() || por_origem.valor() > it->second) {
-        total += por_origem.valor();
-        mapa_por_origem[por_origem.origem()] = por_origem.valor();
+      std::string chave = ChaveMapaPorOrigem(por_origem);
+      auto it = mapa_por_origem.find(chave);
+      if (it == mapa_por_origem.end()) {
+        // Origem nao existe no mapa, pode usar.
+        mapa_por_origem[chave] = por_origem.valor();
+      } else {
+        // Origem existe no mapa. Usa o maior para positivos, menor para negativos.
+        int valor = por_origem.valor();
+        if ((valor < 0 && valor < it->second) || (valor >= 0 && valor > it->second)) {
+          mapa_por_origem[chave] = por_origem.valor();
+        }
       }
+    }
+    int total = 0;
+    for (const auto& par : mapa_por_origem) {
+      total += par.second;
     }
     return total;
   } else {
-    // TODO pensar no caso de origens dando penalidade e bonus. Acontece?
-    int maior = bonus_individual.por_origem().empty() ? 0 : std::numeric_limits<int>::min();
+    // Bonus nao cumulativo, nao importa origem, apenas o maior e menor se aplicam.
+    int maior = 0;
+    int menor = 0;
     for (const auto& por_origem : bonus_individual.por_origem()) {
-      maior = std::max(maior, por_origem.valor());
+      if (por_origem.valor() > 0) {
+        // Bonus.
+        maior = std::max(maior, por_origem.valor());
+      } else if (por_origem.valor() < 0) {
+        // Penalidade.
+        menor = std::min(menor, por_origem.valor());
+      }
     }
-    return maior;
+    // Atencao, menor é negativo, entao aqui deve ser soma.
+    return maior + menor;
   }
 }
 
@@ -2083,10 +2112,10 @@ BonusIndividual::PorOrigem* AtribuiBonusIndividual(int valor, const std::string&
   return po;
 }
 
-void AtribuiBonusIndividualSeMaior(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
+void AtribuiBonusPenalidadeIndividualSeMaior(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
   for (auto& por_origem : *bonus_individual->mutable_por_origem()) {
     if (por_origem.origem() == origem) {
-      if (valor > por_origem.valor()) {
+      if ((valor > 0 && valor > por_origem.valor()) || (valor < 0 && valor < por_origem.valor())) {
         por_origem.set_valor(valor);
       }
       return;
@@ -2110,10 +2139,10 @@ BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::s
   return AtribuiBonusIndividual(valor, origem, bi);
 }
 
-void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+void AtribuiBonusPenalidadeSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     if (bi.tipo() == tipo) {
-      AtribuiBonusIndividualSeMaior(valor, origem, &bi);
+      AtribuiBonusPenalidadeIndividualSeMaior(valor, origem, &bi);
       return;
     }
   }
@@ -2881,7 +2910,7 @@ int AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   // Pega antes de criar o evento.
   int id_unico = AchaIdUnicoEvento(*ids_unicos);
   auto* e = proto->add_evento();
@@ -2889,6 +2918,7 @@ EntidadeProto::Evento* AdicionaEvento(
   e->set_rodadas(continuo ? 1 : rodadas);
   e->set_continuo(continuo);
   e->set_id_unico(id_unico);
+  e->set_origem(origem);
   ids_unicos->push_back(id_unico);
   return e;
 }
@@ -2954,6 +2984,11 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
   switch (efeito_adicional.modificador_complementos()) {
+    case MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO: {
+      int adicionais = std::min(5, nivel_conjurador / 2);
+      evento->add_complementos(-RolaValor(StringPrintf("1d6+%d", adicionais)));
+      break;
+    }
     case MC_1_POR_NIVEL_MAX_10: {
       evento->add_complementos(std::min(10, nivel_conjurador));
       break;
@@ -2980,7 +3015,7 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos,  EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  auto* e = AdicionaEvento(efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, ids_unicos, proto);
+  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, ids_unicos, proto);
   PreencheComplementos(nivel_conjurador, efeito_adicional, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
@@ -3044,21 +3079,24 @@ void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto) {
 void AdicionaEventoItemMagico(
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
     std::vector<int>* ids_unicos, EntidadeProto* proto) {
-  std::vector<TipoEfeito> efeitos;
+  std::vector<std::pair<TipoEfeito, std::string>> efeitos_origens;
   if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
     if (indice < 0 || indice >= item.tipo_efeito().size()) {
       LOG(ERROR) << "indice de efeito de item invalido para " << item.DebugString();
     } else {
-      efeitos.push_back(item.tipo_efeito(indice));
+      efeitos_origens.push_back(std::make_pair(item.tipo_efeito(indice), indice < item.origens_size() ? item.origens(indice) : ""));
     }
   } else {
-    for (auto tipo_efeito : item.tipo_efeito()) {
-      efeitos.push_back((TipoEfeito)tipo_efeito);
+    for (int indice = 0; indice < item.tipo_efeito().size(); ++indice) {
+      auto tipo_efeito = item.tipo_efeito(indice);
+      efeitos_origens.push_back(std::make_pair((TipoEfeito)tipo_efeito, indice < item.origens_size() ? item.origens(indice) : ""));
     }
   }
 
-  for (auto tipo_efeito : efeitos) {
-    auto* evento = AdicionaEvento(tipo_efeito, rodadas, continuo, ids_unicos, proto);
+  for (unsigned int i = 0; i < efeitos_origens.size(); ++i) {
+    auto tipo_efeito = efeitos_origens[i].first;
+    const std::string& origem = efeitos_origens[i].second;
+    auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
     if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();
     }
@@ -3324,6 +3362,10 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
     }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_10D6: {
       da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(10, nivel_conjurador)));
+      return;
+    }
+    case ArmaProto::DANO_1D6_POR_NIVEL_MAX_15D6: {
+      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(15, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D8_CADA_2_NIVEIS_MAX_5D8: {

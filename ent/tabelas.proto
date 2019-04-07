@@ -149,6 +149,7 @@ message ArmaProto {
     CURA_1= 13;
     DANO_1= 14;
     DANO_1D4_POR_NIVEL_MAX_5D4 = 15;
+    DANO_1D6_POR_NIVEL_MAX_15D6 = 16;
   }
   // Se a arma for criada por feitico.
   optional ModeloDano modelo_dano = 25;

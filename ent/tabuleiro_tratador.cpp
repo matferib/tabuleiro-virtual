@@ -1533,8 +1533,9 @@ float Tabuleiro::TrataAcaoIndividual(
         {
           std::string veneno_proto_str;
           google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
+          std::string origem = StringPrintf("%d", AchaIdUnicoEvento(ids_unicos_entidade_destino));
           PreencheNotificacaoEventoComComplementoStr(
-              entidade_destino->Id(), EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10,
+              entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10,
               &ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
         }
         central_->AdicionaNotificacao(n_veneno.release());

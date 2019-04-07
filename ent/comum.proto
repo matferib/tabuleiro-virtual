@@ -33,7 +33,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 86.
+// Proximo id: 92.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -136,6 +136,12 @@ enum TipoEfeito {
   EFEITO_ORACAO_INIMIGOS = 83;
   EFEITO_DESLOCAMENTO = 84;
   EFEITO_CEGO = 85;
+  EFEITO_PENALIDADE_FORCA = 86;
+  EFEITO_PENALIDADE_DESTREZA = 87;
+  EFEITO_PENALIDADE_CONSTITUICAO = 88;
+  EFEITO_PENALIDADE_INTELIGENCIA = 89;
+  EFEITO_PENALIDADE_SABEDORIA = 90;
+  EFEITO_PENALIDADE_CARISMA = 91;
 }
 
 enum TipoEfeitoModelo {
@@ -753,6 +759,10 @@ message ItemMagicoProto {
   // Tipo do efeito do item (se causar algum).
   // Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
   repeated TipoEfeito tipo_efeito = 3;
+  // A origem de cada efeito, para efeitos cumulativos. Mesma cardinalidade do tipo_efeito.
+  // Na pratica, so sera necessario quando efeito for cumulativo. É preenchido com id do item em tabelas.cpp
+  // quando nao houver.
+  repeated string origens = 19;
   // Duracao do efeito.
   optional int32 duracao_rodadas = 4;
   // Custo em PO.

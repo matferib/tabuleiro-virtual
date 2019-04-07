@@ -3177,7 +3177,7 @@ modelo {
     tesouro {
       bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
       chapeus { id: 'tiara_intelecto_6' em_uso: true }
-      amuletos { id: 'armadura_natural_2' em_uso: true }
+      amuletos { id: 'amuleto_armadura_natural_2' em_uso: true }
       aneis { id: 'protecao_2' em_uso: true }
 
     }
@@ -3205,12 +3205,13 @@ modelo {
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
+        conhecidos { id: 'raio_enfraquecimento' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
       }
       feiticos_por_nivel {
         nivel: 2

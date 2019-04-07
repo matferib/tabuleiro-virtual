@@ -316,6 +316,9 @@ message EntidadeProto {
     optional int32 id_unico = 6;
     // Indica que efeito nao expira (nao precisa decrementar contador de rodadas).
     optional bool continuo = 7;
+    // A origem do evento, sera passada ao efeito. Origens iguais nao se acumulam.
+    // Por exemplo: mesmo feitico lançado multiplas vezes.
+    optional string origem = 9;
   }
   repeated Evento evento = 31;
 

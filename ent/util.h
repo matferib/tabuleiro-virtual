@@ -355,10 +355,10 @@ void PreencheNotificacaoRecarregamento(
 // Adiciona um evento do tipo passado a entidade.
 // Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
 void PreencheNotificacaoEvento(
-    unsigned int id_entidade, TipoEfeito te, int rodadas,
+    unsigned int id_entidade, const std::string& origem, TipoEfeito te, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Dado um tipo de evento, remove todos daquele tipo.
@@ -398,7 +398,7 @@ std::string NomeTipoBonus(TipoBonus tipo);
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
 BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
-void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+void AtribuiBonusPenalidadeSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
 // Limpa todos os bonus individuais presentes em bonus.
@@ -622,7 +622,7 @@ inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadePr
 // (normalmente proto preenchido nao contem tudo).
 // Params ids_unicos é in/out.
 EntidadeProto::Evento* AdicionaEvento(
-    TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
+    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, EntidadeProto* proto);

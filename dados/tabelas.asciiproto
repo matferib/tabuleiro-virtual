@@ -1394,7 +1394,7 @@ tabela_efeitos {
     consequencia {
       usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'armadura' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'efeito_armadura' } } }
       }
     }
   }
@@ -1658,6 +1658,72 @@ tabela_efeitos {
     formato_complementos: 'nome da arma que foi alinhada, igual ao que está nos dados de ataque e a tendência aplicada (exemplo: espada longa;bem)'
     consequencia {
       usa_complemento: true
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_FORCA
+    nome: 'penalidade em força'
+    formato_complementos: 'penalidade em força'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade força' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_DESTREZA
+    nome: 'penalidade em destreza'
+    formato_complementos: 'penalidade em destreza'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade destreza' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_CONSTITUICAO
+    nome: 'penalidade em constituição'
+    formato_complementos: 'penalidade em constituição'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade constituição' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_INTELIGENCIA
+    nome: 'penalidade em inteligência'
+    formato_complementos: 'penalidade em inteligência'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade inteligência' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_SABEDORIA
+    nome: 'penalidade em sabedoria'
+    formato_complementos: 'penalidade em sabedoria'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade sabedoria' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_CARISMA
+    nome: 'penalidade em carisma'
+    formato_complementos: 'penalidade em carisma'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade carisma' } } }
+      }
     }
   }
 }
@@ -2433,8 +2499,6 @@ tabela_pocoes {
     duracao_rodadas: 1800 # 3 horas
     custo_po: 300
   }
-
-
   pocoes {
     id: 'curar_ferimentos_leves'
     nome: 'Curar Ferimentos Leves'
@@ -4775,6 +4839,57 @@ tabela_pericias {
   }
 }
 tabela_feiticos {
+  armas {
+    id: 'malogro'  # blight 
+    nome: 'malogro'
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_MEIO
+      afeta_apenas: TIPO_PLANTA
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_FORCA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
+      }
+    }
+  }
+
+
+  armas {
+    id: 'raio_enfraquecimento'  # ray of enfeeblement 
+    nome: 'raio do enfraquecimento'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_FORCA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
+      }
+    }
+  }
+
   armas {
     id: 'teletransporte_maior'  # greater teleport
     nome: 'teletransporte maior'
@@ -7331,6 +7446,7 @@ tabela_feiticos {
     id: 'cone_glacial'
     nome: 'cone glacial'
     alcance_quadrados: 12
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6 
     info_classes {
       id: 'mago'
       nivel: 5
@@ -7699,6 +7815,7 @@ tabela_feiticos {
     id: 'relampago'
     nome: 'relâmpago'
     alcance_quadrados: 24
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6
     info_classes {
       id: 'mago'
       nivel: 3
@@ -7918,6 +8035,7 @@ tabela_chapeus {
     custo_po: 4000
     tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
     complementos: 4
+    origens: 'astucia_raposa'
   }
   chapeus {
     id: 'tiara_intelecto_4'
@@ -7925,6 +8043,7 @@ tabela_chapeus {
     custo_po: 16000
     tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
     complementos: 4
+    origens: 'astucia_raposa'
   }
   chapeus {
     id: 'tiara_intelecto_6'
@@ -7932,6 +8051,7 @@ tabela_chapeus {
     custo_po: 36000
     tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
     complementos: 6
+    origens: 'astucia_raposa'
   }
 }
 

@@ -118,11 +118,11 @@ const ArmaProto& ArmaOutraMao(
 }
 
 // Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
-void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
+void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
       if (po.valor() != 0) {
-        AtribuiBonus(po.valor(), bi.tipo(), po.origem(), alvo);
+        AtribuiBonusPenalidadeSeMaior(po.valor(), bi.tipo(), po.origem(), alvo);
       } else {
         RemoveBonus(bi.tipo(), po.origem(), alvo);
       }
@@ -223,28 +223,28 @@ DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
 // Aplica o efeito. Alguns especificos serao feitos aqui. Alguns efeitos sao aplicados apenas uma vez e usam processado como controle.
 void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   VLOG(2) << "consequencia: " << consequencia.DebugString();
-  AplicaBonusOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
-  AplicaBonusOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
-  AplicaBonusOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
-  AplicaBonusOuRemove(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
-  AplicaBonusOuRemove(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
-  AplicaBonusOuRemove(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
-  AplicaBonusOuRemove(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
-  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
-  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
-  AplicaBonusOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
-  AplicaBonusOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().forca(), proto->mutable_atributos()->mutable_forca());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().destreza(), proto->mutable_atributos()->mutable_destreza());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().constituicao(), proto->mutable_atributos()->mutable_constituicao());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().inteligencia(), proto->mutable_atributos()->mutable_inteligencia());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().sabedoria(), proto->mutable_atributos()->mutable_sabedoria());
+  AplicaBonusPenalidadeOuRemove(consequencia.atributos().carisma(), proto->mutable_atributos()->mutable_carisma());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
-    AplicaBonusOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
-    AplicaBonusOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
+    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusPenalidadeOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
 
-  AplicaBonusOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
+  AplicaBonusPenalidadeOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
   for (const auto& dp : consequencia.dados_pericia()) {
     auto* pericia = PericiaOuNullptr(dp.id(), proto);
     if (pericia == nullptr) continue;
-    AplicaBonusOuRemove(dp.bonus(), pericia->mutable_bonus());
+    AplicaBonusPenalidadeOuRemove(dp.bonus(), pericia->mutable_bonus());
   }
 }
 
@@ -272,7 +272,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       auto* po = bi->add_por_origem();
       po->set_valor(evento.complementos(0));
       po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
-      AplicaBonusOuRemove(bonus, pericia_proto->mutable_bonus());
+      AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
     case EFEITO_AJUDA:
@@ -411,7 +411,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       auto* po = bi->add_por_origem();
       po->set_valor(0);
       po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
-      AplicaBonusOuRemove(bonus, pericia_proto->mutable_bonus());
+      AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
     case EFEITO_AJUDA: {
@@ -465,10 +465,14 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
 // Adiciona o id unico a cada origem de bonus.
 // Preenche os bonus de acordo com o complemento se houver.
 void PreencheOrigemValor(
-    int id_unico, const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
+    const std::string& origem, const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(google::protobuf::StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
+      if (origem.empty()) {
+        po.set_origem(po.origem());
+      } else {
+        po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
+      }
       if (po.has_indice_complemento() && po.indice_complemento() >= 0 && po.indice_complemento() < complementos.size()) {
         po.set_valor(complementos.Get(po.indice_complemento()));
       }
@@ -477,10 +481,10 @@ void PreencheOrigemValor(
 }
 
 // Dado um efeito, preenche o valor com zero e seta origem para o id do evento.
-void PreencheOrigemZeraValor(int id_unico, Bonus* bonus) {
+void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(StringPrintf("%s, id: %d", po.origem().c_str(), id_unico));
+      po.set_origem(StringPrintf("%s, origem: %s", po.origem().c_str(), origem.c_str()));
       po.set_valor(0);
     }
   }
@@ -497,49 +501,49 @@ void ZeraValorBonus(Bonus* bonus) {
 
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
 ConsequenciaEvento PreencheConsequencia(
-    int id_unico,
+    const std::string& origem,
     const google::protobuf::RepeatedField<int>& complementos,
     const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
-  if (c.atributos().has_forca())        PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_forca());
-  if (c.atributos().has_destreza())     PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_destreza());
-  if (c.atributos().has_constituicao()) PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_constituicao());
-  if (c.atributos().has_inteligencia()) PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_inteligencia());
-  if (c.atributos().has_sabedoria())    PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_sabedoria());
-  if (c.atributos().has_carisma())      PreencheOrigemValor(id_unico, complementos, c.mutable_atributos()->mutable_carisma());
-  if (c.dados_defesa().has_ca())        PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_ca());
-  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(id_unico, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
-  if (c.has_jogada_ataque())            PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_ataque());
-  if (c.has_jogada_dano())              PreencheOrigemValor(id_unico, complementos, c.mutable_jogada_dano());
-  if (c.has_tamanho())                  PreencheOrigemValor(id_unico, complementos, c.mutable_tamanho());
+  if (c.atributos().has_forca())        PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      PreencheOrigemValor(origem, complementos, c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.has_jogada_ataque())            PreencheOrigemValor(origem, complementos, c.mutable_jogada_ataque());
+  if (c.has_jogada_dano())              PreencheOrigemValor(origem, complementos, c.mutable_jogada_dano());
+  if (c.has_tamanho())                  PreencheOrigemValor(origem, complementos, c.mutable_tamanho());
   for (auto& dp : *c.mutable_dados_pericia()) {
-    PreencheOrigemValor(id_unico, complementos, dp.mutable_bonus());
+    PreencheOrigemValor(origem, complementos, dp.mutable_bonus());
   }
   return c;
 }
 
 // Caso a consequencia use complemento, preenchera os valores existentes com ela.
-ConsequenciaEvento PreencheConsequenciaFim(int id_unico, const ConsequenciaEvento& consequencia_original) {
+ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const ConsequenciaEvento& consequencia_original) {
   ConsequenciaEvento c(consequencia_original);
-  if (c.atributos().has_forca())        PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_forca());
-  if (c.atributos().has_destreza())     PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_destreza());
-  if (c.atributos().has_constituicao()) PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_constituicao());
-  if (c.atributos().has_inteligencia()) PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_inteligencia());
-  if (c.atributos().has_sabedoria())    PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_sabedoria());
-  if (c.atributos().has_carisma())      PreencheOrigemZeraValor(id_unico, c.mutable_atributos()->mutable_carisma());
-  if (c.dados_defesa().has_ca())        PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_ca());
-  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())     PreencheOrigemZeraValor(id_unico, c.mutable_dados_defesa()->mutable_cura_acelerada());
-  if (c.has_jogada_ataque())            PreencheOrigemZeraValor(id_unico, c.mutable_jogada_ataque());
-  if (c.has_jogada_dano())              PreencheOrigemZeraValor(id_unico, c.mutable_jogada_dano());
-  if (c.has_tamanho())                  PreencheOrigemZeraValor(id_unico, c.mutable_tamanho());
+  if (c.atributos().has_forca())        PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_forca());
+  if (c.atributos().has_destreza())     PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_destreza());
+  if (c.atributos().has_constituicao()) PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_constituicao());
+  if (c.atributos().has_inteligencia()) PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_inteligencia());
+  if (c.atributos().has_sabedoria())    PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_sabedoria());
+  if (c.atributos().has_carisma())      PreencheOrigemZeraValor(origem, c.mutable_atributos()->mutable_carisma());
+  if (c.dados_defesa().has_ca())        PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_ca());
+  if (c.dados_defesa().has_salvacao_fortitude()) PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_fortitude());
+  if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_vontade());
+  if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
+  if (c.dados_defesa().has_cura_acelerada())     PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.has_jogada_ataque())            PreencheOrigemZeraValor(origem, c.mutable_jogada_ataque());
+  if (c.has_jogada_dano())              PreencheOrigemZeraValor(origem, c.mutable_jogada_dano());
+  if (c.has_tamanho())                  PreencheOrigemZeraValor(origem, c.mutable_tamanho());
   for (auto& dp : *c.mutable_dados_pericia()) {
-    PreencheOrigemZeraValor(id_unico, dp.mutable_bonus());
+    PreencheOrigemZeraValor(origem, dp.mutable_bonus());
   }
   return c;
 }
@@ -691,13 +695,13 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   auto* atributos = proto->mutable_atributos();
   const auto& atributos_raca = raca_tabelada.bonus_atributos();
-  AplicaBonusOuRemove(atributos_raca.forca(), atributos->mutable_forca());
-  AplicaBonusOuRemove(atributos_raca.destreza(), atributos->mutable_destreza());
-  AplicaBonusOuRemove(atributos_raca.constituicao(), atributos->mutable_constituicao());
-  AplicaBonusOuRemove(atributos_raca.inteligencia(), atributos->mutable_inteligencia());
-  AplicaBonusOuRemove(atributos_raca.sabedoria(), atributos->mutable_sabedoria());
-  AplicaBonusOuRemove(atributos_raca.carisma(), atributos->mutable_carisma());
-  AplicaBonusOuRemove(raca_tabelada.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.forca(), atributos->mutable_forca());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.destreza(), atributos->mutable_destreza());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.constituicao(), atributos->mutable_constituicao());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.inteligencia(), atributos->mutable_inteligencia());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.sabedoria(), atributos->mutable_sabedoria());
+  AplicaBonusPenalidadeOuRemove(atributos_raca.carisma(), atributos->mutable_carisma());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
@@ -1156,9 +1160,9 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
-        AplicaFimEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia_fim()), proto);
+        AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto);
       } else {
-        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.id_unico(), efeito.consequencia()), proto);
+        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.origem(), efeito.consequencia()), proto);
       }
       eventos_a_remover.insert(i);
     }
@@ -1177,6 +1181,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   // Computa os eventos ainda ativos. Os que nao se acumulam sao ignorados.
   std::unordered_set<int> efeitos_computados;
+  VLOG(1) << "Loop";
   for (auto& evento : *proto->mutable_evento()) {
     const bool computado = efeitos_computados.find(evento.id_efeito()) != efeitos_computados.end();
     efeitos_computados.insert(evento.id_efeito());
@@ -1186,7 +1191,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       continue;
     }
     VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
-    AplicaEfeito(evento, PreencheConsequencia(evento.id_unico(), evento.complementos(), efeito.consequencia()), proto);
+    AplicaEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto);
     evento.set_processado(true);
   }
   // Efeito de modelos.

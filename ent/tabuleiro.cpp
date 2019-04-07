@@ -1354,7 +1354,7 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEvento(entidade_selecionada->Id(), EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEvento(entidade_selecionada->Id(), /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -7661,7 +7661,7 @@ void Tabuleiro::AlternaFuria() {
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
       std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
-      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
+      auto* evento = AdicionaEvento("furia_barbaro", EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");
