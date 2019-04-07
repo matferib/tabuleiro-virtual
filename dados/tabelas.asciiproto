@@ -2526,6 +2526,29 @@ tabela_pocoes {
     custo_po: 300
   }
   pocoes {
+    id: 'forma_gasosa'
+    nome: 'Forma Gasosa'
+    duracao_rodadas: 50
+    custo_po: 750
+  }
+  pocoes {
+    id: 'neutralizar_venenos'
+    nome: 'Neutralizar Venenos'
+    custo_po: 750
+  }
+  pocoes {
+    id: 'remover_doenca'
+    nome: 'Remover Doença'
+    custo_po: 750
+  }
+  pocoes {
+    id: 'remover_maldicao'
+    nome: 'Remover Maldição'
+    custo_po: 750
+  }
+
+
+  pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
     tipo_efeito: EFEITO_AGILIDADE_GATO
@@ -4858,14 +4881,26 @@ tabela_feiticos {
       resultado_ao_salvar: RS_MEIO
       afeta_apenas: TIPO_PLANTA
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
-      efeitos_adicionais {
-        efeito: EFEITO_PENALIDADE_FORCA
-        modificador_rodadas: MR_MINUTOS_NIVEL
-        modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
-      }
     }
   }
-
+  armas {
+    id: 'transformacao'  # tenser transformation 
+    nome: 'transformação'
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'transformação'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    # TODO
+  }
 
   armas {
     id: 'raio_enfraquecimento'  # ray of enfeeblement 
@@ -5124,6 +5159,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Zona da Verdade'
     }
@@ -5160,6 +5196,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Escuridão'
     }
@@ -5190,6 +5227,7 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_CRIACAO_ENTIDADE
+      id: 'Criação de Entidade'
       id_modelo_entidade: 'Luz do Dia'
     }
   }
@@ -5466,6 +5504,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Alarme'
     }
@@ -5535,9 +5574,9 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Tentáculos Negros'
-      icone: 'icon_plus.png'
     }
   }
   armas {
@@ -5584,8 +5623,9 @@ tabela_feiticos {
       nivel: 1
     }
     #acao {
+    #  id: 'Criação de Entidade'
     #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
+    #  id_modelo_entidade: 'Orc'
     #}
   }
   armas {
@@ -5606,7 +5646,7 @@ tabela_feiticos {
     }
     #acao {
     #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
+    #  id_modelo_entidade: 'Orc'
     #}
   }
   armas {
@@ -6935,6 +6975,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (20/x2)'
     }
@@ -6955,6 +6996,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (20/x3)'
     }
@@ -6975,6 +7017,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
     }
@@ -7921,9 +7964,9 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Esfera Flamejante'
-      icone: 'icon_plus.png'
     }
   }
 
@@ -8021,9 +8064,9 @@ tabela_feiticos {
       nivel: 5
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Tempestade Glacial'
-      icone: 'ice.png'
     }
   }
 }
