@@ -1264,6 +1264,9 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (acao.has_ataque_distancia()) {
     da->set_ataque_distancia(acao.ataque_distancia());
   }
+  if (acao.has_resultado_ao_salvar()) {
+    da->set_resultado_ao_salvar(acao.resultado_ao_salvar());
+  }
 
   if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).

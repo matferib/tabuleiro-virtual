@@ -41,6 +41,7 @@ TEST(TesteArmas, TesteFeitico) {
   RecomputaDependencias(tabelas, &proto);
   EXPECT_EQ(da->dano_basico_fixo(), "3d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 13) << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
 }
 
 TEST(TesteArmas, TestePergaminho) {
