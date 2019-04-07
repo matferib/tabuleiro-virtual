@@ -12,6 +12,73 @@ namespace ent {
 
 extern std::queue<int> g_dados_teste;
 
+TEST(TesteArmas, TestePedrada) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Pedrada (gigante)");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteFunda) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* da = proto.add_dados_ataque();
+  da->set_id_arma("funda");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteArcoLongo) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* da = proto.add_dados_ataque();
+  da->set_id_arma("arco_longo");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteBoleadeira) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("boleadeira");
+  RecomputaDependencias(tabelas, &proto_ataque);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteEspada) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("espada_curta");
+  RecomputaDependencias(tabelas, &proto_ataque);
+  EXPECT_FALSE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_CORPO_A_CORPO) << "acao: " << acao.DebugString();
+}
+
 TEST(TesteArmas, TesteDanoIgnoraSalvacao) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
@@ -27,7 +94,7 @@ TEST(TesteArmas, TesteDanoIgnoraSalvacao) {
   EXPECT_TRUE(da->dano_ignora_salvacao()) << "DA completo: " << da->DebugString();
 }
 
-TEST(TesteArmas, TesteFeitico) {
+TEST(TesteArmas, TesteDispersao) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
@@ -39,9 +106,33 @@ TEST(TesteArmas, TesteFeitico) {
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("maos_flamejantes");
   RecomputaDependencias(tabelas, &proto);
-  EXPECT_EQ(da->dano_basico_fixo(), "3d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->dano(), "3d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 13) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_DISPERSAO) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteRaio) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("raio_ardente");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(da->dano(), "4d6") << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_toque());
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_RAIO) << "acao: " << acao.DebugString();
 }
 
 TEST(TesteArmas, TestePergaminho) {
@@ -57,7 +148,8 @@ TEST(TesteArmas, TestePergaminho) {
   da->set_id_arma("maos_flamejantes");
   da->set_nivel_conjurador_pergaminho(1);
   RecomputaDependencias(tabelas, &proto);
-  EXPECT_EQ(da->dano_basico_fixo(), "1d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
+  EXPECT_EQ(da->dano(), "1d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
 }
 
@@ -67,7 +159,7 @@ TEST(TesteArmas, TesteVeneno) {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos.asciiproto", &modelos);
   } catch (const std::logic_error& erro) {
-    EXPECT_TRUE(false) <<  erro.what();
+    ASSERT_TRUE(false) <<  erro.what();
   }
   std::unordered_map<std::string, const Modelo*> modelos_por_id;
   for (const auto& m : modelos.modelo()) {
@@ -88,19 +180,6 @@ TEST(TesteArmas, TesteArmaTemAcao) {
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL);
-}
-
-TEST(TesteArmas, TesteBoleadeira) {
-  Tabelas tabelas(nullptr);
-  EntidadeProto proto_ataque;
-  auto* da = proto_ataque.add_dados_ataque();
-  da->set_id_arma("boleadeira");
-  RecomputaDependencias(tabelas, &proto_ataque);
-  EXPECT_TRUE(da->has_acao());
-  const AcaoProto& acao = da->acao();
-  EXPECT_TRUE(acao.ataque_toque());
-  EXPECT_TRUE(acao.ataque_distancia());
-  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
 }
 
 TEST(TesteArmas, TesteProjetilArea) {
@@ -130,8 +209,9 @@ TEST(TesteCA, TesteDestrezaCA) {
   proto.mutable_info_talentos()->add_gerais()->set_id("lutar_as_cegas");
   RecomputaDependencias(tabelas, &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
+
   DadosAtaque da;
-  da.set_tipo_acao(ACAO_PROJETIL);
+  da.set_ataque_distancia(true);
   EXPECT_FALSE(DestrezaNaCAContraAtaque(&da, proto));
 }
 
@@ -177,22 +257,27 @@ TEST(TestePergaminho, PodeLancar) {
     ic->set_id("druida");
     ic->set_nivel(7);
     {
+      // Arcano: barrado.
       auto* da = proto.add_dados_ataque();
       da->set_tipo_ataque("Pergaminho Arcano");
       da->set_id_arma("curar_ferimentos_leves");
     }
     {
+      // Fora da lista.
       auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
       da->set_tipo_pergaminho(TM_DIVINA);
       da->set_id_arma("luz_cegante");
     }
     {
+      // Atributo invalido.
       auto* da = proto.add_dados_ataque();
       da->set_tipo_ataque("Pergaminho Divino");
       da->set_id_arma("curar_ferimentos_moderados");
       da->set_modificador_atributo_pergaminho(1);
     }
     {
+      // Esse vai.
       auto* da = proto.add_dados_ataque();
       da->set_tipo_ataque("Pergaminho Divino");
       da->set_id_arma("curar_ferimentos_leves");
@@ -1404,6 +1489,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   evento->add_complementos_str("mau");
   evento->set_rodadas(1);
   auto* da = proto_ataque.add_dados_ataque();
+  da->set_tipo_ataque("Ataque Corpo a Corpo");
   da->set_material_arma(DESC_FERRO_FRIO);
   da->set_rotulo("rotulo_teste");
   RecomputaDependencias(tabelas, &proto_ataque);

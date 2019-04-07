@@ -428,12 +428,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 3 dano_basico: '1d6'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
       alcance_m: 3 dano_basico: '2d6'
       empunhadura: EA_2_MAOS
@@ -467,12 +467,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 3 dano_basico: '1d6'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
       alcance_m: 3 dano_basico: '2d6'
       empunhadura: EA_2_MAOS
@@ -519,12 +519,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 4.5 dano_basico: '1d8'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d8' tipo_dano: TDV_DESTREZA dano_secundario: '1d8' tipo_dano_secundario: TDV_DESTREZA cd: 17 }
       alcance_m: 4.5 dano_basico: '2d8'
       empunhadura: EA_2_MAOS

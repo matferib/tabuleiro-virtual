@@ -81,11 +81,11 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
 }
 
-// Proximo id: 65.
+// Proximo id: 68.
 message AcaoProto {
-  // Identificador da acao, para menus.
+  // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
-  // Tipo da acao.
+  // Tipo da acao. A criacao do objeto de acao usa isso, e nao o id.
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
   optional float raio_quadrados = 3;  // quadrados.
@@ -162,6 +162,8 @@ message AcaoProto {
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
+  optional bool ataque_corpo_a_corpo = 66;
+  optional bool ataque_arremesso = 67;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
   // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
@@ -216,6 +218,7 @@ message AcaoProto {
   optional string id_modelo_entidade = 63;
   // O veneno da acao.
   optional VenenoProto veneno = 64;
+  optional TipoMagia tipo_pergaminho = 65;
 }
 
 // O arquivo de acoes é serializado desta forma.

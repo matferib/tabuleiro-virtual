@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 64.
+// Proximo id: 67.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -75,7 +75,7 @@ message DadosAtaque {
 
   // Deve casar com as strings de id do arquivo de dados das acoes.
   optional string tipo_ataque = 1;
-  optional TipoAcao tipo_acao = 39;
+  optional TipoAcao tipo_acao_deprecated = 39 [deprecated=true];
   // Bonus final para ataque.
   optional int32 bonus_ataque_final = 2;
   // O dano final da arma: 1d8+5.
@@ -125,16 +125,19 @@ message DadosAtaque {
   optional bool ataque_toque = 28;
   // Indica que o ataque eh a distancia.
   optional bool ataque_distancia = 29;
+  // Indica um ataque corpo a corpo.
+  optional bool ataque_corpo_a_corpo = 65;
+  optional bool ataque_arremesso = 66;
   // Indica ataque de agarrar.
   optional bool ataque_agarrar = 30;
+  // Para manobra agarrar.
+  optional bool ignora_ataque_toque = 35;
   // Bonus magico da arma. Modifica o bonus_ataque e bonus_dano.
   optional int32 bonus_magico = 31;
   // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
   optional int32 ordem_ataque = 32;
   // Ataque da dano nao letal.
   optional bool nao_letal = 34;
-  // Para agarrar.
-  optional bool ignora_ataque_toque = 35;
   // Para efeitos que criam dados ataque.
   optional int32 id_unico_efeito  = 36;
   // Municao para a arma.

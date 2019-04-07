@@ -942,7 +942,7 @@ MisturaPreNevoaEscopo::~MisturaPreNevoaEscopo() {
 }
 
 TipoAtaque DaParaTipoAtaque(const DadosAtaque& da) {
-  if (da.ataque_distancia() || da.tipo_acao() == ACAO_PROJETIL || da.tipo_acao() == ACAO_PROJETIL_AREA) return TipoAtaque::DISTANCIA;
+  if (da.ataque_distancia()) return TipoAtaque::DISTANCIA;
   if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
   return TipoAtaque::CORPO_A_CORPO;
 }

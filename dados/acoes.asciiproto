@@ -12,6 +12,7 @@ acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
   icone: 'icon_sword.png'
+  ataque_corpo_a_corpo: true
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
   ignora_resistencia_magia: true
@@ -120,10 +121,12 @@ acao {
 acao {
   id: 'Pergaminho Arcano'
   icone: 'icon_scroll.png'
+  tipo_pergaminho: TM_ARCANA
 }
 acao {
   id: 'Pergaminho Divino'
   icone: 'icon_scroll.png'
+  tipo_pergaminho: TM_DIVINA
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -137,6 +140,7 @@ acao {
   }
   icone: 'icon_stone.png'
   ataque_distancia: true
+  ataque_arremesso: true
   ignora_resistencia_magia: true
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO

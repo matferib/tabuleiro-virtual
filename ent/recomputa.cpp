@@ -301,7 +301,6 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         }
         da.set_rotulo(funda != nullptr ? "pedra encantada com funda" : "pedra encantada");
         da.set_tipo_ataque("Ataque a Distância");
-        da.set_tipo_acao(ACAO_PROJETIL);
         da.set_municao(3);
         InsereInicio(&da, proto->mutable_dados_ataque());
       }
@@ -1231,7 +1230,7 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, co
 // Aplica os dados de acoes que forem colocados soltos no ataque.
 void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const EntidadeProto& proto, DadosAtaque* da) {
   {
-    // O que for tabelado comum.
+    // O que for tabelado comum do tipo do ataque.
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
     da->mutable_acao()->MergeFrom(acao_tabelada);
   }
@@ -1241,22 +1240,17 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
 
   const AcaoProto& acao = da->acao();
-  if (acao.has_id()) {
+  if (acao.has_id() && da->tipo_ataque().empty()) {
     da->set_tipo_ataque(acao.id());
-    da->mutable_acao()->set_id(acao.id());
   }
-  if (acao.has_tipo()) {
-    da->set_tipo_acao(acao.tipo());
-    da->mutable_acao()->set_tipo(acao.tipo());
-  }
-
   if (acao.ignora_municao()) {
     da->clear_municao();
   }
+  if (acao.has_ataque_corpo_a_corpo()) {
+    da->set_ataque_corpo_a_corpo(acao.ataque_corpo_a_corpo());
+  }
   if (acao.has_ataque_agarrar()) {
     da->set_ataque_agarrar(acao.ataque_agarrar());
-  } else {
-    da->clear_ataque_agarrar();
   }
   if (acao.has_ataque_toque()) {
     da->set_ataque_toque(acao.ataque_toque());
@@ -1266,6 +1260,12 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
   if (acao.has_resultado_ao_salvar()) {
     da->set_resultado_ao_salvar(acao.resultado_ao_salvar());
+  }
+  if (acao.has_tipo_pergaminho()) {
+    da->set_tipo_pergaminho(acao.tipo_pergaminho());
+  }
+  if (acao.has_ataque_arremesso()) {
+    da->set_ataque_arremesso(true);
   }
 
   if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
@@ -1304,38 +1304,47 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
 void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
   // Aplica acao da arma.
   if (arma.has_acao()) {
-    *da->mutable_acao() = arma.acao();
+    if (arma.acao().has_id()) {
+      const auto& acao_tabelada = tabelas.Acao(arma.acao().id());
+      *da->mutable_acao() = acao_tabelada;
+      da->mutable_acao()->MergeFrom(arma.acao());
+    } else {
+      *da->mutable_acao() = arma.acao();
+    }
   }
   if (da->tipo_ataque().empty()) {
     if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
       da->set_tipo_ataque("Projétil de Área");
       da->mutable_acao()->set_id("Projétil de Área");
-      da->set_tipo_acao(ACAO_PROJETIL_AREA);
       da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
       da->set_tipo_ataque("Ataque a Distância");
       da->mutable_acao()->set_id("Ataque a Distância");
-      da->set_tipo_acao(ACAO_PROJETIL);
       da->mutable_acao()->set_tipo(ACAO_PROJETIL);
     } else {
       da->set_tipo_ataque("Ataque Corpo a Corpo");
       da->mutable_acao()->set_id("Ataque Corpo a Corpo");
-      da->set_tipo_acao(ACAO_CORPO_A_CORPO);
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
     }
   }
-  da->mutable_acao()->clear_ataque_toque();
-  da->mutable_acao()->clear_ataque_distancia();
   if (arma.has_ataque_toque()) {
-    da->mutable_acao()->set_ataque_toque(arma.ataque_toque());
+    da->set_ataque_toque(arma.ataque_toque());
+  }
+  if (PossuiCategoria(CAT_CAC, arma)) {
+    da->set_ataque_corpo_a_corpo(true);
   }
   if (PossuiCategoria(CAT_DISTANCIA, arma)) {
-    da->mutable_acao()->set_ataque_distancia(true);
+    da->set_ataque_distancia(true);
   }
   if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
-    da->mutable_acao()->set_ataque_toque(true);
-    da->mutable_acao()->set_ataque_distancia(true);
+    da->set_ataque_toque(true);
+    da->set_ataque_distancia(true);
   }
+  if (PossuiCategoria(CAT_ARREMESSO, arma)) {
+    da->set_ataque_distancia(true);
+    da->set_ataque_arremesso(true);
+  }
+
   if (arma.has_modelo_dano()) {
     if (da->has_nivel_conjurador_pergaminho()) {
       // Para pergaminhos computarem os efeitos.
@@ -1390,30 +1399,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
-
-    // tipo certo de ataque.
-    const bool projetil_area = PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    const bool distancia = PossuiCategoria(CAT_DISTANCIA, arma) || da->tipo_acao() == ACAO_RAIO || da->tipo_acao() == ACAO_PROJETIL;
-    const bool cac = PossuiCategoria(CAT_CAC, arma);
-    if (da->tipo_ataque().empty()) {
-      if (distancia && cac) {
-        // Se tipo nao estiver selecionado, pode ser qualquer um dos dois. Preferencia para distancia.
-        if (da->tipo_ataque() != "Ataque Corpo a Corpo" && da->tipo_ataque() != "Ataque a Distância") {
-          da->set_tipo_ataque("Ataque a Distância");
-          da->set_tipo_acao(ACAO_PROJETIL);
-        }
-      } else if (cac) {
-        da->set_tipo_ataque("Ataque Corpo a Corpo");
-        da->set_tipo_acao(ACAO_CORPO_A_CORPO);
-      } else if (projetil_area) {
-        da->set_tipo_ataque("Projétil de Área");
-        da->set_tipo_acao(ACAO_PROJETIL_AREA);
-      } else if (distancia) {
-        da->set_tipo_ataque("Ataque a Distância");
-        da->set_tipo_acao(ACAO_PROJETIL);
-      }
-    }
-    da->set_ataque_distancia(distancia && da->tipo_ataque() != "Ataque Corpo a Corpo");
 
     // Aplica diferenca de tamanho de arma.
     int tamanho = proto.tamanho();
@@ -1510,7 +1495,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     da->set_alcance_minimo_m(0);
   } else if (da->has_alcance_q()) {
     da->set_alcance_m(da->alcance_q() * QUADRADOS_PARA_METROS);
-  } else if (da->tipo_ataque() == "Ataque Corpo a Corpo" || !da->ataque_distancia() || da->tipo_acao() == ACAO_CORPO_A_CORPO) {
+  } else if (da->ataque_corpo_a_corpo()) {
     // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
     // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
     int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
@@ -1524,7 +1509,6 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
 
   int bba = 0;
-  const std::string& tipo_str = da->tipo_ataque();
   bool usar_forca_dano = false;
   const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
   if (da->ataque_distancia()) {
@@ -1535,15 +1519,13 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
         if (modificador_forca < arma.max_forca()) bba -= 2;
         usar_forca_dano = true;
       }
-    } else if (PossuiCategoria(CAT_ARREMESSO, arma)) {
-      usar_forca_dano = true;
-    } else if (tipo_str == "Pedrada (gigante)") {
+    } else if (da->ataque_arremesso()) {
       usar_forca_dano = true;
     }
   } else if (da->ataque_agarrar()) {
     bba = proto.bba().agarrar();
     usar_forca_dano = true;
-  } else if (tipo_str == "Ataque Corpo a Corpo") {
+  } else if (da->ataque_corpo_a_corpo()) {
     bba = da->acuidade() ? bba_distancia : bba_cac;
     usar_forca_dano = true;
   } else if (da->ataque_toque()) {
@@ -1647,37 +1629,10 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
     proto->mutable_dados_ataque()->DeleteSubrange(indice, 1);
   }
 
-  // Preenche os tipos de ataque automaticamente a partir do tipo_acao.
-  // Remover isso quando nao existir mais tipo_ataque.
-  // Apenas para as correspondencias 1x1.
-  for (auto& da : *proto->mutable_dados_ataque()) {
-    // Preenche tipo de pergaminho.
-    if (da.tipo_ataque() == "Pergaminho Divino") {
-      da.set_tipo_pergaminho(TM_DIVINA);
-    } else if (da.tipo_ataque() == "Pergaminho Arcano") {
-      da.set_tipo_pergaminho(TM_ARCANA);
-    }
-
-    if (da.has_tipo_ataque()) continue;
-
-    switch (da.tipo_acao()) {
-      case ACAO_AGARRAR: da.set_tipo_ataque("Agarrar"); break;
-      case ACAO_CORPO_A_CORPO: da.set_tipo_ataque("Ataque Corpo a Corpo"); break;
-      case ACAO_PROJETIL: da.set_tipo_ataque("Ataque a Distância"); break;
-      case ACAO_FEITICO_TOQUE: da.set_tipo_ataque("Feitiço de Toque"); break;
-      case ACAO_PROJETIL_AREA: da.set_tipo_ataque("Projétil de Área"); break;
-      case ACAO_RAIO: da.set_tipo_ataque("Raio"); break;
-      default:
-        ;
-    }
-  }
-
   // Se nao tiver agarrar, cria um.
   if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
-        [] (const DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" ||
-                                                           da.tipo_acao() == ACAO_AGARRAR; })) {
+        [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
     auto* da = proto->mutable_dados_ataque()->Add();
-    da->set_tipo_acao(ACAO_AGARRAR);
     da->set_tipo_ataque("Agarrar");
     da->set_rotulo("agarrar");
   }
