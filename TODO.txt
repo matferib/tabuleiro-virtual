@@ -1,8 +1,3 @@
-Diferenca de Acao e DadosAtaque:
-- A acao deve conter tudo que é necessario para se realizar e computar o ataque.
-- O DadosAtaque contem tudo que for gerado dinamicamente, modificador pelas acoes. Ao realizar o ataque, o DadoAtaque gera a acao.
-
-TESTAR SINALIZACAO 
 Terminar modelo de mago 18: fazer itens magicos e magias.
 
 Fazer efeito de drenar temporario

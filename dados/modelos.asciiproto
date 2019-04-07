@@ -3175,12 +3175,11 @@ modelo {
     info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'identificar_magia' pontos: 21 }
     tesouro {
-      pocoes { id: 'nublar' }
-      pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'velocidade' }
-      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de confusão, bola de fogo x2, teia'
+      bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
+      chapeus { id: 'tiara_intelecto_6' em_uso: true }
+      amuletos { id: 'armadura_natural_2' em_uso: true }
+      aneis { id: 'protecao_2' em_uso: true }
+
     }
 
     feiticos_classes {
@@ -3860,10 +3859,10 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'teletransporte maior' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'teletransporte maior' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'teletransporte_maior'
     }
     dados_ataque {
-      grupo: 'Nuvem Profana' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'Nuvem Profana' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'nuvem_profana'
       acao_fixa {
         cor { r: 1 b: 1 g: 1 }
         permite_salvacao: true

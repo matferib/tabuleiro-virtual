@@ -4776,6 +4776,19 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'teletransporte_maior'  # greater teleport
+    nome: 'teletransporte maior'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 7
+      dominio: true
+    }
+  }
+  armas {
     id: 'lamina_afiada'  # keen edge
     nome: 'lâmina afiada'
     info_classes {
@@ -7899,6 +7912,27 @@ tabela_feiticos {
 }
 
 tabela_chapeus {
+  chapeus {
+    id: 'tiara_intelecto_2'
+    nome: 'Tiara do Intelecto +2'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 4
+  }
+  chapeus {
+    id: 'tiara_intelecto_4'
+    nome: 'Tiara do Intelecto +4'
+    custo_po: 16000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 4
+  }
+  chapeus {
+    id: 'tiara_intelecto_6'
+    nome: 'Tiara do Intelecto +6'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 6
+  }
 }
 
 tabela_racas {
