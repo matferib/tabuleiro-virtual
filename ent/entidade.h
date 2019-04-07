@@ -206,10 +206,6 @@ class Entidade {
   /** Retorna a acao executada pela entidade ou uma acao padrao caso a entidade nao possua a acao. */
   std::string TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
 
-  // Retorna o tipo da acao e o icone, se houver.
-  std::pair<TipoAcao, std::string> TipoAcaoComIcone(
-      int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const;
-
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
   /** @return a posicao de algo a uma altura do personagem, dada por fator * ALTURA. */

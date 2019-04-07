@@ -58,6 +58,12 @@ message Movimento {
   optional int32 escalando_basico_q = 14;
 }
 
+// Diferenca de Acao e DadosAtaque:
+// - A acao deve conter tudo que é necessario para se realizar e computar o ataque. Ela é comum ao Dado de ataque e a arma.
+// Alem disso ela representa o que sera serializado e mostrado na UI.
+// - O DadosAtaque contem tudo que for gerado dinamicamente, modificador pelas acoes. Ao realizar o ataque, o DadoAtaque gera a acao,
+// com os danos e entidades afetadas.
+
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
 // Proximo id: 64.
