@@ -965,7 +965,7 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   // TODO
 }
 
-void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
   int bonus_maximo = std::numeric_limits<int>::max();
   if (dd->has_id_armadura()) {
@@ -975,19 +975,19 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
     bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
   }
   const int modificador_destreza = std::min(ModificadorAtributo(proto_retornado->atributos().destreza()), bonus_maximo);
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
+  AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", dd->mutable_ca());
   const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
-  ent::AtribuiBonus(10, ent::TB_BASE, "base",  dd->mutable_ca());
-  AtribuiOuRemoveBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
-  AtribuiOuRemoveBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, ent::TB_ARMADURA, "armadura", dd->mutable_ca());
+  ent::AtribuiBonus(10, TB_BASE, "base",  dd->mutable_ca());
+  AtribuiOuRemoveBonus(modificador_tamanho, TB_TAMANHO, "tamanho", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, TB_ARMADURA, "armadura", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_armadura()
-      ? dd->bonus_magico_armadura() : 0, ent::TB_ARMADURA_MELHORIA, "armadura_melhoria", dd->mutable_ca());
+      ? dd->bonus_magico_armadura() : 0, TB_ARMADURA_MELHORIA, "armadura_melhoria", dd->mutable_ca());
   if (dd->bonus_magico_armadura() > 0) {
     dd->set_armadura_obra_prima(true);
   }
-  AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, ent::TB_ESCUDO, "escudo", dd->mutable_ca());
+  AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, TB_ESCUDO, "escudo", dd->mutable_ca());
   AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
-      ? dd->bonus_magico_escudo() : 0, ent::TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
+      ? dd->bonus_magico_escudo() : 0, TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
   if (dd->bonus_magico_escudo() > 0) {
     dd->set_escudo_obra_prima(true);
   }
@@ -1004,13 +1004,13 @@ void RecomputaDependenciasCA(const ent::Tabelas& tabelas, EntidadeProto* proto_r
 }
 
 void RecomputaDependenciasSalvacoes(
-    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, const Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
 
   // Testes de resistencia.
-  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
-  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
+  AtribuiBonus(modificador_constituicao, TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
+  AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
+  AtribuiBonus(modificador_sabedoria, TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
 
   // Percorre todos os talentos que dao bonus em salvacao.
   for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
@@ -1024,12 +1024,12 @@ void RecomputaDependenciasSalvacoes(
   }
 
   const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
-  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
-  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_reflexo());
-  AtribuiBonus(mod_nivel_negativo, ent::TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
+  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
+  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_reflexo());
+  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
 }
 
-void RecomputaDependenciasEvasao(const ent::Tabelas& tabelas, EntidadeProto* proto_retornado) {
+void RecomputaDependenciasEvasao(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
   dd->clear_evasao();
   if (PossuiHabilidadeEspecial("evasao_aprimorada", *proto_retornado) || dd->evasao_estatica() == TE_EVASAO_APRIMORADA) {
@@ -1053,7 +1053,7 @@ void RecomputaDependenciaTamanho(EntidadeProto* proto) {
 }
 
 void RecomputaDependenciasIniciativa(int modificador_destreza, EntidadeProto* proto) {
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
+  AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
   AtribuiOuRemoveBonus(
       PossuiTalento("iniciativa_aprimorada", *proto) ? 4 : 0, TB_TALENTO, "talento", proto->mutable_bonus_iniciativa());
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
@@ -1666,9 +1666,9 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
-  //const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
+  //const int modificador_inteligencia = ModificadorAtributo(BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(proto->atributos().sabedoria());
-  //const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
+  //const int modificador_carisma      = ModificadorAtributo(BonusTotal(proto->atributos().carisma()));
 
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
