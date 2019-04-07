@@ -1274,7 +1274,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (acao_proto->permite_salvacao()) {
       std::string texto_salvacao;
       // pega o dano da acao.
-      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
+      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(da, *acao_proto, *entidade_origem, *entidade_destino);
       atraso_s += 1.5f;
       ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
@@ -1564,7 +1564,7 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.Sucesso() && (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor. Entao setamos antes e depois.
       por_entidade->set_delta(delta_pontos_vida);
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(*acao_proto, *entidade_origem, *entidade_destino);
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(da, *acao_proto, *entidade_origem, *entidade_destino);
       // Corrige o valor.
       por_entidade->set_delta(delta_pontos_vida);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
@@ -1574,8 +1574,8 @@ float Tabuleiro::TrataAcaoIndividual(
     // Reducao de dano.
     std::string texto_reducao;
     if (delta_pontos_vida < 0 &&
-        !IgnoraReducaoDano(*acao_proto) && entidade_destino != nullptr) {
-      google::protobuf::RepeatedField<int> descritores = acao_proto->descritores_ataque();
+        !IgnoraReducaoDano(da, *acao_proto) && entidade_destino != nullptr) {
+      google::protobuf::RepeatedField<int> descritores = da->descritores();
       std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       if (!texto_reducao.empty()) {
         atraso_s += 0.5f;
@@ -1697,6 +1697,7 @@ float Tabuleiro::TrataPreAcaoComum(
   if (!acao_proto->has_tipo()) {
     if (entidade_origem != nullptr) {
       AdicionaAcaoTextoLogado(entidade_origem->Id(), "Ação inválida: sem tipo", atraso_s);
+      LOG(WARNING) << "acao sem tipo: " << acao_proto->DebugString();
     }
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
@@ -1744,7 +1745,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
 
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  AcaoProto acao_proto = entidade_origem->Acao(mapa_acoes_);
+  AcaoProto acao_proto = entidade_origem->Acao();
   atraso_s = TrataPreAcaoComum(atraso_s, pos_tabuleiro, entidade_origem, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
@@ -1888,7 +1889,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   if (e == nullptr) {
     return;
   }
-  AcaoProto acao_executada = e->Acao(mapa_acoes_);
+  AcaoProto acao_executada = e->Acao();
   if (!acao_executada.has_tipo() || acao_executada.tipo() == ACAO_SINALIZACAO || acao_executada.id().empty()) {
     return;
   }

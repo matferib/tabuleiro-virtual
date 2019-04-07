@@ -950,7 +950,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   int indice = gerador.lista_ataques->currentRow();
   bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
-  ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
+  ent::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::DadosAtaque::default_instance();
   da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
 
   da.set_bonus_magico(gerador.spin_bonus_magico->value());

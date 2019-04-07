@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <queue>
+#include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabelas.h"
@@ -10,6 +11,109 @@
 namespace ent {
 
 extern std::queue<int> g_dados_teste;
+
+TEST(TesteArmas, TesteDanoIgnoraSalvacao) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_SABEDORIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Clérigo");
+  da->set_id_arma("explosao_sonora");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->dano_ignora_salvacao()) << "DA completo: " << da->DebugString();
+}
+
+TEST(TesteArmas, TesteFeitico) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("maos_flamejantes");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(da->dano_basico_fixo(), "3d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->dificuldade_salvacao(), 13) << "DA completo: " << da->DebugString();
+}
+
+TEST(TesteArmas, TestePergaminho) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Pergaminho Arcano");
+  da->set_id_arma("maos_flamejantes");
+  da->set_nivel_conjurador_pergaminho(1);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(da->dano_basico_fixo(), "1d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
+}
+
+TEST(TesteArmas, TesteVeneno) {
+  Tabelas tabelas(nullptr);
+  Modelos modelos;
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos.asciiproto", &modelos);
+  } catch (const std::logic_error& erro) {
+    EXPECT_TRUE(false) <<  erro.what();
+  }
+  std::unordered_map<std::string, const Modelo*> modelos_por_id;
+  for (const auto& m : modelos.modelo()) {
+    modelos_por_id[m.id()] = &m;
+  }
+  EntidadeProto proto = modelos_por_id["Centopéia Enorme"]->entidade();
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_FALSE(proto.dados_ataque().empty());
+  EXPECT_TRUE(proto.dados_ataque(0).has_veneno());
+}
+
+TEST(TesteArmas, TesteArmaTemAcao) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("adaga");
+  RecomputaDependencias(tabelas, &proto_ataque);
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL);
+}
+
+TEST(TesteArmas, TesteBoleadeira) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("boleadeira");
+  RecomputaDependencias(tabelas, &proto_ataque);
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_TRUE(acao.ataque_toque());
+  EXPECT_TRUE(acao.ataque_distancia());
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteProjetilArea) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("fogo_alquimico");
+  RecomputaDependencias(tabelas, &proto_ataque);
+  EXPECT_TRUE(da->ataque_toque());
+  EXPECT_TRUE(da->ataque_distancia());
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+}
 
 TEST(TesteCA, TesteDestrezaCA) {
   Tabelas tabelas(nullptr);
@@ -25,7 +129,7 @@ TEST(TesteCA, TesteDestrezaCA) {
   proto.mutable_info_talentos()->add_gerais()->set_id("lutar_as_cegas");
   RecomputaDependencias(tabelas, &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
-  EntidadeProto::DadosAtaque da;
+  DadosAtaque da;
   da.set_tipo_acao(ACAO_PROJETIL);
   EXPECT_FALSE(DestrezaNaCAContraAtaque(&da, proto));
 }
@@ -955,7 +1059,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     da->set_id_arma("bola_fogo");
     RecomputaDependencias(tabelas, &proto);
 
-    EXPECT_EQ(da->acao().dificuldade_salvacao(), 14);
+    EXPECT_EQ(da->dificuldade_salvacao(), 14);
   }
   {
     EntidadeProto proto;
@@ -968,7 +1072,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     da->set_id_arma("bola_fogo");
     RecomputaDependencias(tabelas, &proto);
 
-    EXPECT_EQ(da->acao().dificuldade_salvacao(), 15);
+    EXPECT_EQ(da->dificuldade_salvacao(), 15);
   }
 }
 
@@ -1181,7 +1285,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -1202,7 +1306,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -4) << msg;
 }
 
@@ -1225,7 +1329,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -1251,7 +1355,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -1278,7 +1382,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -10) << msg;
 }
 
@@ -1305,7 +1409,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 
   int delta;
   std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).acao().descritores_ataque());
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(delta, -4) << msg;
 }
 

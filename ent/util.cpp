@@ -941,7 +941,7 @@ MisturaPreNevoaEscopo::~MisturaPreNevoaEscopo() {
   gl::CorMisturaPreNevoa(salvo_[0], salvo_[1], salvo_[2], salvo_[3]);
 }
 
-TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da) {
+TipoAtaque DaParaTipoAtaque(const DadosAtaque& da) {
   if (da.ataque_distancia() || da.tipo_acao() == ACAO_PROJETIL || da.tipo_acao() == ACAO_PROJETIL_AREA) return TipoAtaque::DISTANCIA;
   if (da.ataque_agarrar()) return TipoAtaque::AGARRAR;
   return TipoAtaque::CORPO_A_CORPO;
@@ -1140,7 +1140,7 @@ int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& e
 
 namespace {
 
-Entidade::TipoCA CATipoAtaque(const EntidadeProto::DadosAtaque& da) {
+Entidade::TipoCA CATipoAtaque(const DadosAtaque& da) {
   auto tipo = da.ataque_toque() ? Entidade::CA_TOQUE : Entidade::CA_NORMAL;
   VLOG(1) << "tipo CA: " << tipo;
   return tipo;
@@ -1178,14 +1178,14 @@ std::string TextoOuNada(const std::string& texto) {
   return texto;
 }
 
-bool ArmaAbencoada(const EntidadeProto::DadosAtaque* da, const Entidade& ea) {
+bool ArmaAbencoada(const DadosAtaque* da, const Entidade& ea) {
   return PossuiEvento(EFEITO_ABENCOAR_ARMA, da->rotulo(), ea.Proto());
 }
 
 // Retorna o numero de vezes que o critico da dano e o texto para o critico.
 std::tuple<int, std::string> ComputaCritico(
     int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
-    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   assert(modificador_incrementos <= 0);
   if (d20 < ea.MargemCritico() || agarrar) return std::make_tuple(1, "");
   if (ed.ImuneCritico()) {
@@ -1237,7 +1237,7 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
 }
 
 // Retorna o resultado do ataque de toque o se acertou ou nao.
-std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   // TODO: aqui to hackeando pra pular o toque se ambos estiverem agarrando.
   if (da->ignora_ataque_toque() || AgarradoA(ed.Id(), ea.Proto())) {
     return std::make_tuple("", true);
@@ -1262,7 +1262,7 @@ enum resultado_ataque_reflexos {
   RAR_FALHA_CRITICA = 2,
 };
 std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
-    int outros_modificadores, const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    int outros_modificadores, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   const int d20 = RolaDado(20);
   if (d20 == 1) {
     return std::make_tuple("falha crítica", RAR_FALHA_CRITICA);
@@ -1283,12 +1283,12 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   const auto* da = ea.DadoCorrente();
-  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  if (da == nullptr) da = &DadosAtaque::default_instance();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
 }
 
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo) {
   const int ataque_origem = ea.BonusAtaque();
 
@@ -1434,9 +1434,10 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
 
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
-std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
-  std::string descricao_resultado;
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(
+    const DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
   int delta_pontos_vida = DeltaAcao(ap);
+  std::string descricao_resultado;
   bool salvou = false;
 
   if (ed.TemProximaSalvacao()) {
@@ -1455,48 +1456,48 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const E
     } else {
       descricao_resultado = "salvacao manual falhou";
     }
-  } else if (ap.has_dificuldade_salvacao()) {
+  } else if (da != nullptr && da->has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
-    int bonus = ed.Salvacao(ea, ap.tipo_salvacao());
+    int bonus = ed.Salvacao(ea, da->tipo_salvacao());
     int total = d20 + bonus;
     std::string str_evasao;
-    if (total >= ap.dificuldade_salvacao()) {
+    if (total >= da->dificuldade_salvacao()) {
       salvou = true;
-      if (ap.resultado_salvacao() == RS_MEIO) {
-        if (ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO) {
+      if (da->resultado_ao_salvar() == RS_MEIO) {
+        if (da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO) {
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
           delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
         }
-      } else if (ap.resultado_salvacao() == RS_QUARTO) {
+      } else if (da->resultado_ao_salvar() == RS_QUARTO) {
         delta_pontos_vida /= 4;
       } else {
         delta_pontos_vida = 0;
       }
       descricao_resultado = StringPrintf(
-          "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
-      if (ap.resultado_salvacao() == RS_MEIO && ap.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
+      if (da->resultado_ao_salvar() == RS_MEIO && da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
         delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
       descricao_resultado = StringPrintf(
-          "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, ap.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     salvou = true;
     descricao_resultado = StringPrintf("salvacao: acao sem dificuldade, dano: %d", -delta_pontos_vida);
   }
-  if (ap.dano_ignora_salvacao()) {
+  if (da != nullptr && da->dano_ignora_salvacao()) {
     delta_pontos_vida = DeltaAcao(ap);
-    descricao_resultado = StringPrintf("dano ignora salvacao: %d, salvou: %s", delta_pontos_vida, salvou ? "sim" : "não");
+    descricao_resultado = StringPrintf("dano ignora salvacao: %d; %s", delta_pontos_vida, descricao_resultado.c_str());
   }
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
 
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
     return std::make_tuple(true, "");;
@@ -1681,14 +1682,14 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
 
 namespace {
 
-bool AtaqueIgual(const EntidadeProto::DadosAtaque& lda, const EntidadeProto::DadosAtaque& rda) {
+bool AtaqueIgual(const DadosAtaque& lda, const DadosAtaque& rda) {
   return lda.rotulo() == rda.rotulo() &&
          lda.tipo_ataque() == rda.tipo_ataque() &&
          lda.grupo() == rda.grupo();
 }
 
 // Encontra determinado dado de ataque em um proto. Retorna nullptr caso nao encontre.
-EntidadeProto::DadosAtaque* EncontraAtaque(const EntidadeProto::DadosAtaque& da, EntidadeProto* proto) {
+DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   for (auto& pda : *proto->mutable_dados_ataque()) {
     if (AtaqueIgual(pda, da)) {
       return &pda;
@@ -1699,7 +1700,7 @@ EntidadeProto::DadosAtaque* EncontraAtaque(const EntidadeProto::DadosAtaque& da,
 }  // namespace
 
 void PreencheNotificacaoConsumoAtaque(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *proto = nullptr, *proto_antes = nullptr;
   std::tie(proto_antes, proto) =
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
@@ -1723,7 +1724,7 @@ void PreencheNotificacaoConsumoAtaque(
 }
 
 void PreencheNotificacaoRecarregamento(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *proto = nullptr, *proto_antes = nullptr;
   std::tie(proto_antes, proto) =
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
@@ -2383,7 +2384,7 @@ int NivelExpulsao(const Tabelas& tabelas, const ent::EntidadeProto& proto) {
   return total - proto.niveis_negativos();
 }
 
-std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
+std::string StringCritico(const DadosAtaque& da) {
   if (da.multiplicador_critico() == 2 && da.margem_critico() == 20) return "";
   std::string critico = "(";
   if (da.margem_critico() < 20) {
@@ -2399,7 +2400,7 @@ std::string StringCritico(const EntidadeProto::DadosAtaque& da) {
   return critico;
 }
 
-std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   int modificador = ModificadorAtaque(DaParaTipoAtaque(da), proto, EntidadeProto());
   std::string texto_modificador;
   if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
@@ -2418,7 +2419,7 @@ std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadePro
       StringCAParaAcao(da, proto).c_str());
 }
 
-std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+std::string StringCAParaAcao(const DadosAtaque& da, const EntidadeProto& proto) {
   const bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO && PermiteEscudo(proto);
   int normal, toque;
   std::string info = !permite_escudo && !proto.surpreso()
@@ -2445,7 +2446,7 @@ std::string StringDescritores(const google::protobuf::RepeatedField<int>& descri
   return google::protobuf::StringPrintf(" [%s] ", ret.c_str());
 }
 
-std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::DadosAtaque& da) {
+std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da) {
   // Monta a string.
   std::string string_rotulo = StringPrintf("%s (%s), ", da.grupo().c_str(), da.rotulo().c_str());
 
@@ -2469,12 +2470,12 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
   if (da.descarregada()) texto_descarregada = " [descarregada]";
 
   std::string texto_elementos;
-  if (da.acao().has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.acao().elemento()));
+  if (da.has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.elemento()));
 
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   std::string string_salvacao;
-  if (da.acao().has_dificuldade_salvacao()) {
-    string_salvacao = StringPrintf(", CD: %d", da.acao().dificuldade_salvacao());
+  if (da.has_dificuldade_salvacao()) {
+    string_salvacao = StringPrintf(", CD: %d", da.dificuldade_salvacao());
   }
   std::string texto_veneno;
   if (da.has_veneno()) {
@@ -2492,7 +2493,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::EntidadeProto::D
       string_escudo.c_str(), da.ca_surpreso());
 }
 
-std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
+std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
   int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, alvo);
   return google::protobuf::StringPrintf(
       "%s%s",
@@ -2502,7 +2503,7 @@ std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const Entid
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
-std::string StringDanoBasicoComCritico(const ent::EntidadeProto::DadosAtaque& da) {
+std::string StringDanoBasicoComCritico(const ent::DadosAtaque& da) {
   std::string critico = StringCritico(da);
   return google::protobuf::StringPrintf("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
 }
@@ -2784,7 +2785,7 @@ const InfoClasse& InfoClasseParaFeitico(
   return *ret;
 }
 
-int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+int NivelParaFeitico(const Tabelas& tabelas, const DadosAtaque& da, const EntidadeProto& proto) {
   return InfoClasseParaFeitico(tabelas, da.tipo_ataque(), proto).nivel();
 }
 
@@ -3269,8 +3270,12 @@ int ComputaLimiteVezes(
   }
 }
 
-void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da) {
+void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da) {
   switch (modelo_dano) {
+    case ArmaProto::DANO_1D4_POR_NIVEL_MAX_5D4: {
+      da->set_dano_basico_fixo(StringPrintf("%dd4", std::min(5, nivel_conjurador)));
+      return;
+    }
     case ArmaProto::CURA_1: {
       da->set_dano_basico_fixo("1");
       da->set_cura(true);
@@ -3935,7 +3940,7 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
   return true;
 }
 
-bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto) {
   if (da == nullptr) return DestrezaNaCA(proto);
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
@@ -4029,7 +4034,7 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       ic->set_nivel(modificador_ataque);
       ic->set_bba(modificador_ataque);
       // Salva o ataque como modelo para usar ao criar os demais.
-      auto da = modelo->dados_ataque().empty() ? EntidadeProto::DadosAtaque() : modelo->dados_ataque(0);
+      auto da = modelo->dados_ataque().empty() ? DadosAtaque() : modelo->dados_ataque(0);
       modelo->clear_dados_ataque();
       int ordem_ataque = 0;
       while (num_ataques-- > 0) {
@@ -4044,8 +4049,8 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
     switch (parametros.tipo_modificador_salvacao()) {
       case TMS_MODIFICADOR_CONJURACAO:
         for (auto& da : *modelo->mutable_dados_ataque()) {
-          da.mutable_acao_fixa()->set_dificuldade_salvacao(
-              da.acao_fixa().dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+          da.set_dificuldade_salvacao(
+              da.dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
         }
         break;
       case TMS_NENHUM:
@@ -4109,7 +4114,7 @@ int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_m
   return ic.has_nivel_conjurador() ? ic.nivel_conjurador() : -1;
 }
 
-ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da) {
+ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
   int nc = NivelConjuradorParaLancarPergaminho(tabelas, da.tipo_pergaminho(), da.id_arma(), proto);
   if (nc >= da.nivel_conjurador_pergaminho()) {
     return ResultadoPergaminho(/*ok=*/true);
@@ -4133,7 +4138,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
       StringPrintf("FIASCO! Teste conjuração: %d < %d, teste sabedoria: %d < 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
 }
 
-std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da) {
+std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
   // Tipo correto.
   TipoMagia tipo_magia = da.tipo_pergaminho();
   bool tipo_correto = false;

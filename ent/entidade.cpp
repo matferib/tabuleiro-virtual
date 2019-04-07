@@ -1299,29 +1299,9 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
+AcaoProto Entidade::Acao() const {
   const auto* da = DadoCorrente();
-  auto StringAcao = [this, da]() -> std::string {
-    if (da == nullptr) {
-      // Entidade nao possui ataques.
-      if (!proto_.ultima_acao().empty()) {
-        return proto_.ultima_acao();
-      }
-      return TipoAcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
-    }
-    return da->tipo_ataque();
-  };
-  std::string string_acao = StringAcao();
-  auto it = mapa_acoes.find(string_acao);
-  if (it == mapa_acoes.end()) {
-    return AcaoProto::default_instance();
-  }
-  AcaoProto acao = *it->second;
-  if (da != nullptr && da->has_acao()) {
-    // Merge das informacoes dos DadosAtaque.
-    CombinaAcoes(da->acao(), &acao);
-  }
-  return acao;
+  return da == nullptr ?  AcaoProto::default_instance() : da->acao();
 }
 
 template<class T>
@@ -1702,7 +1682,7 @@ std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
 
 std::string Entidade::StringCAParaAcao() const {
   const auto* da = DadoCorrente();
-  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  if (da == nullptr) da = &DadosAtaque::default_instance();
   return ent::StringCAParaAcao(*da, proto_);
 }
 
@@ -1718,8 +1698,8 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
-  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
+const DadosAtaque* Entidade::DadoCorrente() const {
+  std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
   if (ultima_acao.empty()) {
@@ -1745,7 +1725,7 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoAgarrar() const {
+const DadosAtaque* Entidade::DadoAgarrar() const {
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == "Agarrar") {
       return &da;

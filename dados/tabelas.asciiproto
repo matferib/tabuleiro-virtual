@@ -993,10 +993,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
-    acao {
-      ataque_toque: true
-      ataque_distancia: true
-    }
+    ataque_toque: true
   }
   armas {
     id: 'rede'
@@ -4785,11 +4782,11 @@ tabela_feiticos {
       id: 'mago'
       nivel: 3
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_FEITICO_TOQUE
       ignora_resistencia_magia: true
       permite_ataque_vs_defesa: false
-      ataque_toque: true
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -4811,11 +4808,11 @@ tabela_feiticos {
       nivel: 3
     }
     veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
+    ataque_toque: true
     acao {
       tipo: ACAO_RAIO
       ignora_resistencia_magia: false
       permite_ataque_vs_defesa: true
-      ataque_toque: true
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -4867,8 +4864,6 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: false
       permite_ataque_vs_defesa: true
-      ataque_toque: true
-      ataque_distancia: true
       ignora_luz: true
       ignora_reducao_dano_barbaro: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
@@ -4909,13 +4904,13 @@ tabela_feiticos {
       id: 'mago'
       nivel: 4
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_RAIO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
       ignora_resistencia_magia: false
       permite_salvacao: false
       permite_ataque_vs_defesa: true
-      ataque_toque: true
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: '1d4 niveis negativos'
@@ -4986,7 +4981,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       ignora_resistencia_magia: false
       afeta_apenas: TIPO_HUMANOIDE
       efeitos_adicionais {
@@ -5122,7 +5117,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: false
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       tipo_salvacao: TS_VONTADE
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -5401,8 +5396,6 @@ tabela_feiticos {
     acao {
       tipo: ACAO_RAIO
       icone: 'icon_ray.png'
-      ataque_toque: true
-      ataque_distancia: true
       elemento: DESC_ACIDO
       permite_salvacao: false
       permite_ataque_vs_defesa: true
@@ -5668,7 +5661,6 @@ tabela_feiticos {
       cor { r: 0.0 g: 1.0 b: 0.0 }
       icone: 'icon_bow.png'
       consequencia: TC_DESLOCA_ALVO
-      ataque_distancia: true
       permite_ataque_vs_defesa: true
       ignora_resistencia_magia: true
       permite_salvacao: false
@@ -5702,7 +5694,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       # Nao salvou, efeito completo.
       efeitos_adicionais {
         efeito: EFEITO_ENREDADO
@@ -5812,6 +5804,7 @@ tabela_feiticos {
     nome: 'explosão sonora'
     alcance_quadrados: 5
     dano { invariavel: '1d8' }
+    dano_ignora_salvacao: true
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
@@ -5835,7 +5828,6 @@ tabela_feiticos {
       tipo_salvacao: TS_FORTITUDE
       duracao_s: 0.350
       elemento: DESC_SONICO
-      dano_ignora_salvacao: true
       efeitos_adicionais {
         efeito: EFEITO_ATORDOADO
         rodadas: 1
@@ -5955,10 +5947,10 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_RAIO
       icone: 'icon_ray.png'
-      ataque_toque: true
       ataque_distancia: true
       elemento: DESC_FRIO
       permite_salvacao: false
@@ -6022,13 +6014,13 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    ataque_toque: true
     # Rodadas nivel.
     acao {
       tipo: ACAO_RAIO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       permite_ataque_vs_defesa: true
-      ataque_toque: true
       permite_salvacao: false
       elemento: DESC_FRIO
     }
@@ -6414,7 +6406,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
@@ -6470,7 +6462,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
     }
   }
   armas {
@@ -6525,7 +6517,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       dificuldade_salvacao_por_nivel: true
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -6581,7 +6573,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       dificuldade_salvacao_por_nivel: true
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -6799,7 +6791,7 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_AJUDA
@@ -7085,10 +7077,10 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 4
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_RAIO
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      ataque_toque: true
       ataque_distancia: true
       permite_salvacao: false
       ignora_resistencia_magia: false
@@ -7102,6 +7094,7 @@ tabela_feiticos {
   armas {
     id: 'maos_flamejantes'
     nome: 'mãos flamejantes'
+    modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
     info_classes {
       id: 'mago'
       nivel: 1
@@ -7121,8 +7114,8 @@ tabela_feiticos {
       icone: 'icon_burning_hands.png'
       duracao_s: 0.350
       consequencia: TC_INFLAMA_ALVO
-      resultado_salvacao: RS_MEIO
-      dificuldade_salvacao: 11
+      resultado_ao_salvar: RS_MEIO
+      dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
@@ -7181,7 +7174,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
@@ -7232,7 +7225,7 @@ tabela_feiticos {
       efeito_area: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       icone: 'icon_bane.png'
       duracao_s: 0.350
       efeitos_adicionais {
@@ -7290,7 +7283,7 @@ tabela_feiticos {
       consequencia: TC_INFLAMA_ALVO
       # Mais modificador de conjurador.
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
@@ -7320,7 +7313,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       icone: 'icon_confusion.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true
@@ -7354,7 +7347,7 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FRIO
@@ -7451,7 +7444,7 @@ tabela_feiticos {
       distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
       permite_ataque_vs_defesa: false
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       icone: 'icon_heart.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true
@@ -7511,7 +7504,7 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         # Apenas em criaturas leais.
@@ -7546,7 +7539,7 @@ tabela_feiticos {
       ignora_luz: false
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       ignora_reducao_dano_barbaro: true
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -7596,13 +7589,13 @@ tabela_feiticos {
       id: 'druida'
       nivel: 0
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       duracao_s: 0.5
       permite_salvacao: false
       permite_ataque_vs_defesa: false
-      ataque_toque: true
       ataque_distancia: false
       efeitos_adicionais {
         efeito: EFEITO_ORIENTACAO
@@ -7633,13 +7626,13 @@ tabela_feiticos {
       id: 'ranger'
       nivel: 1
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       duracao_s: 0.5
       permite_salvacao: false
       permite_ataque_vs_defesa: false
-      ataque_toque: true
       ataque_distancia: false
     }
   }
@@ -7660,13 +7653,13 @@ tabela_feiticos {
       nivel: 1
       dominio: true
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       duracao_s: 0.5
       permite_salvacao: false
       permite_ataque_vs_defesa: false
-      ataque_toque: true
       ataque_distancia: false
       efeitos_adicionais {
         efeito: EFEITO_PEDRA_ENCANTADA
@@ -7684,6 +7677,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 2
     }
+    ataque_toque: true
     acao {
       tipo: ACAO_RAIO
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
@@ -7696,7 +7690,6 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
       permite_ataque_vs_defesa: true
-      ataque_toque: true
       ataque_distancia: true
     }
   }
@@ -7719,7 +7712,7 @@ tabela_feiticos {
       info_textura { id: 'lightning.png' }
       ignora_luz: true
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_ELETRICIDADE
@@ -7842,7 +7835,7 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       dv_mais_alto: 4
       # TODO total de DV = 4.
       efeitos_adicionais {
@@ -7875,7 +7868,7 @@ tabela_feiticos {
       distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
       permite_ataque_vs_defesa: false
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       icone: 'icon_heart.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true

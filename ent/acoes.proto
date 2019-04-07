@@ -81,7 +81,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
 }
 
-// Proximo id: 64.
+// Proximo id: 65.
 message AcaoProto {
   // Identificador da acao, para menus.
   optional string id = 1;
@@ -121,16 +121,15 @@ message AcaoProto {
   // Acao tem dano direto e de area.
   optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
-  // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados.
-  optional bool dano_ignora_salvacao = 62;
-  optional ResultadoSalvacao resultado_salvacao = 32;
+  optional bool dano_ignora_salvacao_deprecated = 62;
+  optional ResultadoSalvacao resultado_ao_salvar = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;
   // Se presente, usara este atributo para calcular a dificuldade da salvacao.
   optional TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
   optional bool dificuldade_salvacao_por_nivel = 50;
-  optional int32 dificuldade_salvacao = 33;
+  optional int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
   // ira considerar sempre um acerto e pular esta etapa.
@@ -159,7 +158,7 @@ message AcaoProto {
     optional string texto = 4;  // texto da entidade.
   }
   repeated PorEntidade por_entidade = 35;
-  // Indica ataque de toque.
+  // Indica ataque de toque para este tipo de acao.
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
@@ -189,7 +188,7 @@ message AcaoProto {
   // Ataque elemental.
   optional DescritorAtaque elemento = 51;
   // Descritores do ataque: computado dinamicamente.
-  repeated DescritorAtaque descritores_ataque = 52;
+  repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
@@ -215,6 +214,8 @@ message AcaoProto {
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
   // Para entidades de criacao.
   optional string id_modelo_entidade = 63;
+  // O veneno da acao.
+  optional VenenoProto veneno = 64;
 }
 
 // O arquivo de acoes é serializado desta forma.

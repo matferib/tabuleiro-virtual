@@ -148,6 +148,7 @@ message ArmaProto {
     DANO_1D8_CADA_2_NIVEIS_MAX_10D8 = 12;
     CURA_1= 13;
     DANO_1= 14;
+    DANO_1D4_POR_NIVEL_MAX_5D4 = 15;
   }
   // Se a arma for criada por feitico.
   optional ModeloDano modelo_dano = 25;
@@ -162,10 +163,13 @@ message ArmaProto {
   }
   optional Carregamento carregamento = 24;
 
-  // TODO NOVO: implementar na pratica.
+  // Arma possui veneno.
+  optional VenenoProto veneno = 27;
+
   // A arma requer ataque de toque.
   optional bool ataque_toque = 26;
-  // fim NOVO.
+  // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados pela salvacao.
+  optional bool dano_ignora_salvacao = 28;
 }
 
 message TabelaArmaduraOuEscudo {

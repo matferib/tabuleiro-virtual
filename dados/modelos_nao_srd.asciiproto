@@ -658,8 +658,8 @@ modelo {
     dados_ataque {
       grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
       limite_vezes: 2
+      dificuldade_salvacao: 13
       acao_fixa {
-        dificuldade_salvacao: 13
         efeitos_adicionais {
           rodadas: 300
           combinar_com: 0

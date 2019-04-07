@@ -264,7 +264,7 @@ enum class TipoAtaque {
   DISTANCIA,
   AGARRAR
 };
-TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da);
+TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
@@ -295,14 +295,14 @@ struct ResultadoAtaqueVsDefesa {
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo);
 
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
 ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
 
 // Retorna true se o personagem puder lancar o tipo de pergaminho do ataque.
-std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da);
+std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
 
 // Resultado de um teste de lancar pergaminho. Se nao ok, pode ter fiasco.
 struct ResultadoPergaminho {
@@ -312,13 +312,13 @@ struct ResultadoPergaminho {
   std::string texto;
 };
 // Realiza o teste de lancar pergaminho.
-ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const EntidadeProto::DadosAtaque& da);
+ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
 
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
-std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(const DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const EntidadeProto::DadosAtaque* da, const Entidade& ea, const Entidade& ed);
+    const DadosAtaque* da, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -347,10 +347,10 @@ void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao
 
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 // Preenche uma notificacao de carregamento da arma.
 void PreencheNotificacaoRecarregamento(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Adiciona um evento do tipo passado a entidade.
 // Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
@@ -484,28 +484,28 @@ std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const Ent
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
 
 // Retorna a string de critico se for diferente de 20/x2. Exemplo: '(19-20/x3)'. Se for 20/x2, retorna vazio.
-std::string StringCritico(const EntidadeProto::DadosAtaque& da);
+std::string StringCritico(const DadosAtaque& da);
 
 // Retorna o resumo da arma, para display na UI. Nao inclui modificadores circunstanciais.
 // Algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
-std::string StringResumoArma(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da);
+std::string StringResumoArma(const Tabelas& tabelas, const DadosAtaque& da);
 
 // Retorna os detalhes da arma para display na lista de acoes, incluindo alguns modificadores de circunstancia (como caido, por exemplo).
 // Algo como: 'machado: +8+2, 1d8(x3)+2d6, CA 15/15/12'
-std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto);
 
 // Retorna a string de dano para o ataque, sem critico e com modificadores.
 // Exemplo: 1d8+5+2.
 // Usado para gerar dano.
-std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
+std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
 
 // Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
 // Exemplo: 1d8(19-20).
-std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
+std::string StringDanoBasicoComCritico(const DadosAtaque& da);
 
 // Retorna a string de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
 // Exemplo: '(esc+surp) 16, tq: 12'
-std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+std::string StringCAParaAcao(const DadosAtaque& da, const EntidadeProto& proto);
 
 // Retorna a string para o efeito passado.
 std::string StringEfeito(TipoEfeito efeito);
@@ -562,7 +562,7 @@ int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_m
 int NivelParaCalculoMagiasPorDia(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
-int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+int NivelParaFeitico(const Tabelas& tabelas, const DadosAtaque& da, const EntidadeProto& proto);
 // Retorna o nivel para testes de expulsar/fascinar mortos vivos.
 int NivelExpulsao(const Tabelas& tabelas, const EntidadeProto& proto);
 // Retorna o id de classe para um tipo de ataque. Por exemplo, 'Feitiço de Mago' retorna 'mago'.
@@ -773,7 +773,9 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 // Return true se a acao ignora reducao de dano.
-inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
+inline bool IgnoraReducaoDano(const DadosAtaque* da, const AcaoProto& acao) {
+  return (da != nullptr && da->has_elemento()) || acao.ignora_reducao_dano_barbaro();
+}
 
 // Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
 // alvos especificos, como agua benta, que afeta apenas mortos-vivos e
@@ -817,7 +819,7 @@ bool ModeloDesligavel(const Tabelas& tabelas, const ModeloDnD& modelo);
 ModeloDnD* EncontraModelo(TipoEfeitoModelo id_efeito, EntidadeProto* proto);
 
 // Retorna true se a entidade tiver algum modelo desligavel que esta ligado.
-bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto); 
+bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto);
 
 // Retorna a classe dentro do proto, ou default se nao houver.
 const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
@@ -827,7 +829,7 @@ bool PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
-bool DestrezaNaCAContraAtaque(const EntidadeProto::DadosAtaque* da, const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto);
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
@@ -836,7 +838,7 @@ bool PermiteEscudo(const EntidadeProto& proto);
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
 
 // Computa o dano do dado de ataque baseado no modelo e nivel passado.
-void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, EntidadeProto::DadosAtaque* da);
+void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da);
 
 // Retorna o tipo de evasao da entidade (ja computado).
 TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);

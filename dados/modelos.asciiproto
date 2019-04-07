@@ -44,7 +44,8 @@ modelo {
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
       rotulo: 'jato (1 vez so)' tipo_ataque: 'Raio' dano_basico: '4d4'
-      acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
+      dificuldade_salvacao: 14
+      acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} distancia_quadrados: 6 }
     }
   }
 }
@@ -254,7 +255,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_MORTE
         }
-        resultado_salvacao: RS_ANULOU
+        resultado_ao_salvar: RS_ANULOU
       }
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
@@ -657,7 +658,7 @@ modelo {
         permite_salvacao: true
         dificuldade_salvacao_base: 19
         tipo_salvacao: TS_FORTITUDE
-        resultado_salvacao: RS_ANULOU
+        resultado_ao_salvar: RS_ANULOU
         elemento: DESC_SONICO
         duracao_s: 0.250
         efeito_area: true
@@ -813,9 +814,9 @@ modelo {
       incrementos: 3  # maximo 6 qudrados.
       dano_basico: '0'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      ataque_toque: true
       acao_fixa {
         icone: 'icon_web.png'
-        ataque_toque: true
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
         }
@@ -1127,8 +1128,7 @@ modelo {
       acao_fixa {
         cor { r: 1.0 g: 1.0  b: 0.0 }
         permite_ataque_vs_defesa: false
-        tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
-        dificuldade_salvacao: 12
+        tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_ao_salvar: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         elemento: DESC_FOGO
       }
     }

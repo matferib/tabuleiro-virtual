@@ -40,7 +40,7 @@ int NivelFeitico(const Tabelas& tabelas, const std::string& id_classe, const Arm
   return -1;
 }
 
-void DobraMargemCritico(EntidadeProto::DadosAtaque* da) {
+void DobraMargemCritico(DadosAtaque* da) {
   int margem = 21 - da->margem_critico();
   margem *= 2;
   da->set_margem_critico(21 - margem);
@@ -72,12 +72,12 @@ int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
 }
 
 // Retorna o bonus de ataque para uma determinada arma.
-int CalculaBonusBaseParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+int CalculaBonusBaseParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   return BonusTotal(da.bonus_ataque());
 }
 
 // Retorna a string de dano para uma arma.
-std::string CalculaDanoParaAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   const int mod_final = BonusTotal(da.bonus_dano());
   return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
 }
@@ -96,8 +96,8 @@ std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho
 
 // Retorna a arma da outra mao.
 const ArmaProto& ArmaOutraMao(
-    const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da_mao, const EntidadeProto& proto) {
-  const EntidadeProto::DadosAtaque* da_outra_mao = &da_mao;
+    const Tabelas& tabelas, const DadosAtaque& da_mao, const EntidadeProto& proto) {
+  const DadosAtaque* da_outra_mao = &da_mao;
   for (const auto& da : proto.dados_ataque()) {
     if (da.rotulo() == da_mao.rotulo() && da.empunhadura() != da_mao.empunhadura()) {
       da_outra_mao = &da;
@@ -130,7 +130,7 @@ void AplicaBonusOuRemove(const Bonus& bonus, Bonus* alvo) {
   }
 }
 
-bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const EntidadeProto::DadosAtaque& da) {
+bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
   if (!consequencia.has_restricao_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
   if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0) return true;
@@ -138,7 +138,7 @@ bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const 
 }
 
 // Retorna o dado de ataque que contem a arma, ou nullptr;
-const EntidadeProto::DadosAtaque* DadosAtaque(const std::string& id_arma, const EntidadeProto& proto) {
+const DadosAtaque* DadosAtaqueProto(const std::string& id_arma, const EntidadeProto& proto) {
   for (const auto& da : proto.dados_ataque()) {
     if (da.id_arma() == id_arma) return &da;
   }
@@ -146,8 +146,8 @@ const EntidadeProto::DadosAtaque* DadosAtaque(const std::string& id_arma, const 
 }
 
 // Retorna os dado de ataque com o mesmo rotulo.
-std::vector<EntidadeProto::DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, EntidadeProto* proto) {
-  std::vector<EntidadeProto::DadosAtaque*> das;
+std::vector<DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, EntidadeProto* proto) {
+  std::vector<DadosAtaque*> das;
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (da.rotulo() == rotulo) das.push_back(&da);
   }
@@ -157,7 +157,7 @@ std::vector<EntidadeProto::DadosAtaque*> DadosAtaquePorRotulo(const std::string&
 #if 0
 bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
   return std::any_of(proto.dados_ataque().begin(), proto.dados_ataque().end(), [&id_arma] (
-        const EntidadeProto::DadosAtaque& da) {
+        const DadosAtaque& da) {
       return da.id_arma() == id_arma;
   });
 }
@@ -288,8 +288,8 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento.processado()) {
-        const auto* funda = DadosAtaque("funda", *proto);
-        EntidadeProto::DadosAtaque da;
+        const auto* funda = DadosAtaqueProto("funda", *proto);
+        DadosAtaque da;
         da.set_id_unico_efeito(evento.id_unico());
         da.set_bonus_magico(1);
         da.set_dano_basico_fixo("1d6");
@@ -308,7 +308,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     case EFEITO_ABENCOAR_ARMA: {
       if (evento.complementos_str().empty()) return;
-      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(DESC_BEM);
       }
@@ -317,7 +317,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_PRESA_MAGICA:
     case EFEITO_ARMA_MAGICA: {
       if (evento.complementos_str().empty()) return;
-      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         AtribuiBonus(1, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
@@ -327,7 +327,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       if (evento.complementos_str().size() != 2) return;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
       if (desc == DESC_NENHUM) return;
-      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(desc);
       }
@@ -449,7 +449,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     case EFEITO_PRESA_MAGICA:
     case EFEITO_ARMA_MAGICA: {
       if (evento.complementos_str().empty()) return;
-      std::vector<EntidadeProto::DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         LimpaBonus(TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
@@ -1228,21 +1228,43 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, co
   return 0;
 }
 
-// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
-  const auto& acao_proto = tabelas.Acao(da->tipo_ataque());
-  da->clear_acao();
-  // Aplica acao da arma.
-  if (arma.has_acao()) {
-    *da->mutable_acao() = arma.acao();
-    if (da->tipo_ataque().find("Pergaminho") == 0) {
-      da->mutable_acao()->set_icone("icon_scroll.png");
-    }
+// Aplica os dados de acoes que forem colocados soltos no ataque.
+void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const EntidadeProto& proto, DadosAtaque* da) {
+  {
+    // O que for tabelado comum.
+    const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
+    da->mutable_acao()->MergeFrom(acao_tabelada);
   }
-  // Aplica acao fixa.
+  // O que for especifico deste ataque.
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
+
+  const AcaoProto& acao = da->acao();
+  if (acao.has_id()) {
+    da->set_tipo_ataque(acao.id());
+    da->mutable_acao()->set_id(acao.id());
+  }
+  if (acao.has_tipo()) {
+    da->set_tipo_acao(acao.tipo());
+    da->mutable_acao()->set_tipo(acao.tipo());
+  }
+
+  if (acao.ignora_municao()) {
+    da->clear_municao();
+  }
+  if (acao.has_ataque_agarrar()) {
+    da->set_ataque_agarrar(acao.ataque_agarrar());
+  } else {
+    da->clear_ataque_agarrar();
+  }
+  if (acao.has_ataque_toque()) {
+    da->set_ataque_toque(acao.ataque_toque());
+  }
+  if (acao.has_ataque_distancia()) {
+    da->set_ataque_distancia(acao.ataque_distancia());
+  }
+
   if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
     // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
@@ -1254,54 +1276,82 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       base = da->acao().dificuldade_salvacao_base();
     } else {
       base += da->has_nivel_conjurador_pergaminho()
-        ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), arma)
-        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma);
+        ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico)
+        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico);
     }
     const int mod_atributo = da->has_modificador_atributo_pergaminho()
       ? da->modificador_atributo_pergaminho()
       : da->acao().has_atributo_dificuldade_salvacao()
         ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
         : ModificadorAtributoConjuracao(ic.id(), proto);
-    da->mutable_acao()->set_dificuldade_salvacao(base + mod_atributo);
+    const int cd_final = base + mod_atributo;
+    //da->mutable_acao()->set_dificuldade_salvacao(cd_final);
+    da->set_dificuldade_salvacao(cd_final);
   }
 
-  if (acao_proto.ignora_municao() || da->acao().ignora_municao()) {
-    da->clear_municao();
+  if (da->acao().has_icone()) {
+    da->set_icone(da->acao().icone());
   }
-  da->set_tipo_ataque(acao_proto.id());
-  da->set_tipo_acao(acao_proto.has_tipo() ? acao_proto.tipo() : da->acao().tipo());
-  if (da->tipo_ataque().empty() && da->has_id_arma()) {
-    da->set_tipo_ataque(PossuiCategoria(CAT_PROJETIL_AREA, arma)
-        ? "Projétil de Área"
-        : PossuiCategoria(CAT_DISTANCIA, arma) ? "Ataque a Distância" : "Ataque Corpo a Corpo");
-    da->set_tipo_acao(PossuiCategoria(CAT_PROJETIL_AREA, arma)
-        ? ACAO_PROJETIL_AREA
-        : PossuiCategoria(CAT_DISTANCIA, arma) ? ACAO_PROJETIL : ACAO_CORPO_A_CORPO);
-  }
-  if (PossuiCategoria(CAT_PROJETIL_AREA, arma) ||
-      acao_proto.ataque_toque() || da->acao().ataque_toque() ||
-      acao_proto.tipo() == ACAO_FEITICO_TOQUE || da->acao().tipo() == ACAO_FEITICO_TOQUE) {
-    da->set_ataque_toque(true);
-  } else {
-    da->clear_ataque_toque();
-  }
-  if (acao_proto.has_ataque_distancia()) {
-    da->set_ataque_distancia(acao_proto.ataque_distancia());
-  } else {
-    da->clear_ataque_distancia();
-  }
-  if (acao_proto.has_ataque_agarrar()) {
-    da->set_ataque_agarrar(acao_proto.ataque_agarrar());
-  } else {
-    da->clear_ataque_agarrar();
-  }
-  if (arma.has_modelo_dano() && da->has_nivel_conjurador_pergaminho()) {
-    // Para pergaminhos computarem os efeitos.
-    ComputaDano(arma.modelo_dano(), da->nivel_conjurador_pergaminho(), da);
+  if (da->tipo_ataque().find("Pergaminho") == 0) {
+    da->mutable_acao()->set_icone("icon_scroll.png");
   }
 }
 
-void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
+// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
+  // Aplica acao da arma.
+  if (arma.has_acao()) {
+    *da->mutable_acao() = arma.acao();
+  }
+  if (da->tipo_ataque().empty()) {
+    if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+      da->set_tipo_ataque("Projétil de Área");
+      da->mutable_acao()->set_id("Projétil de Área");
+      da->set_tipo_acao(ACAO_PROJETIL_AREA);
+      da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
+    } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
+      da->set_tipo_ataque("Ataque a Distância");
+      da->mutable_acao()->set_id("Ataque a Distância");
+      da->set_tipo_acao(ACAO_PROJETIL);
+      da->mutable_acao()->set_tipo(ACAO_PROJETIL);
+    } else {
+      da->set_tipo_ataque("Ataque Corpo a Corpo");
+      da->mutable_acao()->set_id("Ataque Corpo a Corpo");
+      da->set_tipo_acao(ACAO_CORPO_A_CORPO);
+      da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
+    }
+  }
+  da->mutable_acao()->clear_ataque_toque();
+  da->mutable_acao()->clear_ataque_distancia();
+  if (arma.has_ataque_toque()) {
+    da->mutable_acao()->set_ataque_toque(arma.ataque_toque());
+  }
+  if (PossuiCategoria(CAT_DISTANCIA, arma)) {
+    da->mutable_acao()->set_ataque_distancia(true);
+  }
+  if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+    da->mutable_acao()->set_ataque_toque(true);
+    da->mutable_acao()->set_ataque_distancia(true);
+  }
+  if (arma.has_modelo_dano()) {
+    if (da->has_nivel_conjurador_pergaminho()) {
+      // Para pergaminhos computarem os efeitos.
+      ComputaDano(arma.modelo_dano(), da->nivel_conjurador_pergaminho(), da);
+    } else {
+      const int nivel = NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
+      ComputaDano(arma.modelo_dano(), nivel, da);
+    }
+  }
+
+  if (arma.has_veneno()) {
+    *da->mutable_acao()->mutable_veneno() = arma.veneno();
+  }
+  if (arma.has_dano_ignora_salvacao()) {
+    da->set_dano_ignora_salvacao(arma.dano_ignora_salvacao());
+  }
+}
+
+void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaque* da) {
   if (!da->has_veneno() || da->veneno().nao_usar_cd_dinamico()) {
     return;
   }
@@ -1310,10 +1360,12 @@ void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, EntidadeP
   da->mutable_veneno()->set_cd(10 + mod_con + nivel / 2);
 }
 
-void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, EntidadeProto::DadosAtaque* da) {
+void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
+  *da->mutable_acao() = AcaoProto::default_instance();
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
+  AcaoParaDadosAtaque(tabelas, arma, proto, da);
   const bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.
   //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
@@ -1399,7 +1451,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     da->set_dano_basico(da->dano_basico_fixo());
   }
   // Tenta achar o primeiro da lista com mesmo rotulo para obter coisas derivadas do primeiro (municao, descritores).
-  const EntidadeProto::DadosAtaque* primeiro = nullptr;
+  const DadosAtaque* primeiro = nullptr;
   for (const auto& dda : proto.dados_ataque()) {
     if (dda.grupo() == da->grupo() && dda.tipo_ataque() == da->tipo_ataque() && dda.rotulo() == da->rotulo()) {
       primeiro = &dda;
@@ -1425,15 +1477,14 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   }
   // Descritores de ataque.
 
-  auto* acao = da->mutable_acao();
-  acao->clear_descritores_ataque();
-  if (da->material_arma() != DESC_NENHUM) acao->add_descritores_ataque(da->material_arma());
-  if (da->alinhamento() != DESC_NENHUM) acao->add_descritores_ataque(da->alinhamento());
-  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_ataque()) > 0) acao->add_descritores_ataque(DESC_MAGICO);
+  da->clear_descritores();
+  if (da->material_arma() != DESC_NENHUM) da->add_descritores(da->material_arma());
+  if (da->alinhamento() != DESC_NENHUM) da->add_descritores(da->alinhamento());
+  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_ataque()) > 0) da->add_descritores(DESC_MAGICO);
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
-              google::protobuf::RepeatedFieldBackInserter(acao->mutable_descritores_ataque()));
+              google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
   }
   // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
   if (arma.has_alcance_quadrados()) {
@@ -1620,7 +1671,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
 
   // Se nao tiver agarrar, cria um.
   if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
-        [] (const EntidadeProto::DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" ||
+        [] (const DadosAtaque& da) { return da.tipo_ataque() == "Agarrar" ||
                                                            da.tipo_acao() == ACAO_AGARRAR; })) {
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_acao(ACAO_AGARRAR);
