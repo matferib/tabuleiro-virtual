@@ -7614,14 +7614,30 @@ tabela_feiticos {
       nivel: 3
       dominio: true
     }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.7 g: 0.7 b: 0.7 }
-      permite_salvacao: false
-      icone: 'icon_touch.png'
-      duracao_s: 0.350
+  }
+  armas {
+    id: 'dissipar_magia_maior'
+    nome: 'dissipar magia maior'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 6
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
     }
   }
+
   armas {
     id: 'enfeiticar_monstro'
     nome: 'enfeitiçar monstro'
