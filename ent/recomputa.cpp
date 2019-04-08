@@ -1437,7 +1437,10 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
-    if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto)) {
+    // TODO o efeito de lamina afiada se aplica a uma arma. Aqui to robando, usando id arma. Se for uma arma diferente com o mesmo id
+    // vai dar errado (por exemplo, duas espadas iguais).
+    if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto) ||
+        (PossuiEvento(EFEITO_LAMINA_AFIADA, da->rotulo(), proto) && (c_any(da->descritores(), DESC_CORTANTE) || c_any(da->descritores(), DESC_PERFURANTE)))) {
       DobraMargemCritico(da);
     }
     if (PossuiCategoria(CAT_ARREMESSO, arma) || PossuiCategoria(CAT_PROJETIL_AREA, arma)) {

@@ -89,6 +89,33 @@ TEST(TesteArmas, TesteFunda) {
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
 }
 
+TEST(TesteArmas, TesteEspadaLaminaAfiada) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_rotulo("espada longa 1");
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_rotulo("espada longa 2");
+  }
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_GE(proto.dados_ataque().size(), 2);
+  EXPECT_EQ(proto.dados_ataque(0).margem_critico(), 19);
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_LAMINA_AFIADA);
+  evento->set_rodadas(1);
+  evento->add_complementos_str("espada longa 1");
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_GE(proto.dados_ataque().size(), 2);
+  EXPECT_EQ(proto.dados_ataque(0).margem_critico(), 17);
+  EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
+}
+
 TEST(TesteArmas, TesteRaioEnfraquecimento) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;

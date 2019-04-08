@@ -1031,6 +1031,12 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_LAMINA_AFIADA
+    nome: 'lâmina afiada'
+    formato_complementos: 'rótulo da arma afetada'
+  }
+
+  efeitos {
     id: EFEITO_FORMA_GASOSA
     nome: 'forma gasosa'
     consequencia {
@@ -4990,8 +4996,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'lâmina afiada'
+        efeito: EFEITO_LAMINA_AFIADA
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
