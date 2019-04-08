@@ -2091,11 +2091,9 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   });
 
   lambda_connect(gerador.spin_niveis_negativos, SIGNAL(valueChanged(int)), [&tabelas, &gerador, proto_retornado] () {
-    if (gerador.spin_niveis_negativos->value() > 0) {
-      proto_retornado->set_niveis_negativos(gerador.spin_niveis_negativos->value());
-    } else {
-      proto_retornado->clear_niveis_negativos();
-    }
+    ent::AtribuiOuRemoveBonus(
+        std::max(0, gerador.spin_niveis_negativos->value()), ent::TB_BASE, "base",
+        proto_retornado->mutable_niveis_negativos_dinamicos());
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 
