@@ -251,6 +251,14 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
 void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_FORMA_GASOSA:
+      if (!evento.processado()) {
+        auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
+        pd->add_descritores(DESC_MAGICO);
+        pd->set_valor(15);
+        pd->set_id_unico(evento.id_unico());
+      }
+      break;
     case EFEITO_VENENO:
       break;
     case EFEITO_INVISIBILIDADE:
@@ -393,6 +401,14 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_FORMA_GASOSA:
+      for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
+        if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
+          proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
+          break;
+        }
+      }
+      break;
     case EFEITO_VENENO:
     break;
     case EFEITO_INVISIBILIDADE:
@@ -1473,7 +1489,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   da->clear_descritores();
   if (da->material_arma() != DESC_NENHUM) da->add_descritores(da->material_arma());
   if (da->alinhamento() != DESC_NENHUM) da->add_descritores(da->alinhamento());
-  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_ataque()) > 0) da->add_descritores(DESC_MAGICO);
+  if (BonusIndividualTotal(TB_MELHORIA, da->bonus_dano()) > 0 || da->bonus_magico() > 0) {
+    da->add_descritores(DESC_MAGICO);
+  }
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
@@ -1543,7 +1561,7 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     auto* bonus_dano = da->mutable_bonus_dano();
     // Obra prima e bonus magico.
     AtribuiBonus(bba, TB_BASE, "base", bonus_ataque);
-    if (da->bonus_magico()) {
+    if (da->bonus_magico() > 0) {
       da->set_obra_prima(true);  // Toda arma magica eh obra prima.
       AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_ataque);
       AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_dano);

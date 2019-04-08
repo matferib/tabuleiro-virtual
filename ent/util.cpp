@@ -2942,6 +2942,9 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_2_MINUTOS_NIVEL:
+        modificador = nivel_conjurador * 2 * MINUTOS_PARA_RODADAS;
+        break;
       case MR_RODADAS_NIVEL:
         modificador = nivel_conjurador;
         break;
@@ -3580,8 +3583,13 @@ const char* TextoDescritor(int descritor) {
     case DESC_MITRAL: return "mitral";
     case DESC_PRATA_ALQUIMICA: return "prata alquímica";
     case DESC_COURO_DRAGAO: return "couro de dragão";
+    case DESC_MAGICO: return "mágico";
+    case DESC_ESTOURANTE: return "estourante";
+    case DESC_PERFURANTE: return "perfurante";
+    case DESC_CORTANTE: return "cortante";
   }
-  return "nenhum";
+  LOG(WARNING) << "descritor desconhecido: " << descritor;
+  return "desconhecido";
 }
 
 ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento) {
@@ -3610,18 +3618,19 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   return resultado;
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
-    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
-  const auto& dd = proto.dados_defesa();
-  if (!dd.has_reducao_dano()) {
-    return std::make_tuple(delta_pv, "");
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorUmaReducao(
+    int delta_pv, const ReducaoDano& rd, const google::protobuf::RepeatedField<int>& descritores) {
+  VLOG(1) << "rd: " << rd.DebugString();
+  for (int d : descritores) {
+    VLOG(1) << "descritor ataque: " << TextoDescritor(d);
   }
-  const auto& rd = dd.reducao_dano();
   if (rd.tipo_combinacao() == COMB_E) {
-    for (const auto& descritor : rd.descritores()) {
-      if (std::none_of(descritores.begin(), descritores.end(), [descritor] (int descritor_ataque) { return descritor_ataque == descritor; } )) {
-        delta_pv += dd.reducao_dano().valor();
-        return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("redução de dano: %d", rd.valor()));
+    for (const auto& descritor_defesa : rd.descritores()) {
+      if (c_none(descritores, descritor_defesa)) {
+        delta_pv += rd.valor();
+        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
+      } else {
+        VLOG(1) << "descritor defesa: " << TextoDescritor(descritor_defesa) << " bateu";
       }
     }
     return std::make_tuple(delta_pv, "redução de dano: não aplicada");
@@ -3632,8 +3641,26 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
       }
     }
     delta_pv += rd.valor();
-    return std::make_tuple(std::min(0, delta_pv), google::protobuf::StringPrintf("redução de dano: %d", rd.valor()));
+    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
   }
+}
+
+std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
+    int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
+  const auto& dd = proto.dados_defesa();
+  if (dd.reducao_dano().empty()) {
+    return std::make_tuple(delta_pv, "");
+  }
+  std::tuple<int, std::string> melhor_reducao = std::make_tuple(delta_pv, "");
+  for (const auto& rd : dd.reducao_dano()) {
+    int delta_alterado;
+    std::string texto;
+    std::tie(delta_alterado, texto) = AlteraDeltaPontosVidaPorUmaReducao(delta_pv, rd, descritores);
+    if (delta_alterado > delta_pv) {
+      melhor_reducao = std::tie(delta_alterado, texto);
+    }
+  }
+  return melhor_reducao;
 }
 
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv, const EntidadeProto& proto) {

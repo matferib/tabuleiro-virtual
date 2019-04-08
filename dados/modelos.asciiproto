@@ -3264,11 +3264,12 @@ modelo {
         conhecidos { id: 'ancora_dimensional' }
         conhecidos { id: 'escudo_fogo' }
         conhecidos { id: 'metamorfose' }
+        conhecidos { id: 'tentaculos_negros' }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 5 }
       }
       feiticos_por_nivel {
         nivel: 5

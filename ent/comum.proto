@@ -33,7 +33,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 92.
+// Proximo id: 93.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -142,6 +142,7 @@ enum TipoEfeito {
   EFEITO_PENALIDADE_INTELIGENCIA = 89;
   EFEITO_PENALIDADE_SABEDORIA = 90;
   EFEITO_PENALIDADE_CARISMA = 91;
+  EFEITO_FORMA_GASOSA = 92;
 }
 
 enum TipoEfeitoModelo {
@@ -361,6 +362,7 @@ message ReducaoDano {
   repeated DescritorAtaque descritores = 1;
   optional int32 valor = 2;
   optional TipoCombinacao tipo_combinacao = 3;
+  optional int32 id_unico = 4;
 }
 
 message ResistenciaElementos {
@@ -415,7 +417,7 @@ message DadosDefesa {
   optional ResistenciaMagiaVariavel resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
   // Reduz ataques que nao corresponderem aos descritores.
-  optional ReducaoDano reducao_dano = 18;
+  repeated ReducaoDano reducao_dano = 18;
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
   repeated ResistenciaElementos resistencia_elementos = 19;
   // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.

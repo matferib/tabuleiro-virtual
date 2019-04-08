@@ -71,6 +71,7 @@ enum ModificadorRodadas {
   MR_1D4 = 8;
   MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15 = 9;
   MR_HORAS_NIVEL_MAX_15 = 10;
+  MR_2_MINUTOS_NIVEL = 11;
 }
 
 enum ModificadorComplementos {

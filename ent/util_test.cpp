@@ -1345,6 +1345,31 @@ TEST(TesteImunidades, TesteImunidadeElemento) {
   }
 }
 
+TEST(TesteImunidades, TesteReducaoDanoFormaGasosa) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_FORMA_GASOSA);
+  evento->set_rodadas(1);
+  RecomputaDependencias(tabelas, &proto);
+
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("adaga");
+  da->set_obra_prima(true);
+  RecomputaDependencias(tabelas, &proto_ataque);
+
+  int delta;
+  std::string msg;
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(delta, 0) << msg;
+
+  da->set_bonus_magico(1);
+  RecomputaDependencias(tabelas, &proto_ataque);
+  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(delta, -10) << msg;
+}
+
 TEST(TesteImunidades, TesteReducaoDanoSimples) {
   Tabelas tabelas(nullptr);
   {
@@ -1360,7 +1385,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
   {
     google::protobuf::RepeatedField<int> descritores;
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
     RecomputaDependencias(tabelas, &proto);
@@ -1373,7 +1398,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
     RecomputaDependencias(tabelas, &proto);
@@ -1390,7 +1415,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1405,7 +1430,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_BEM);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1421,7 +1446,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     descritores.Add(DESC_BEM);
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1439,7 +1464,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
   {
     google::protobuf::RepeatedField<int> descritores;
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1454,7 +1479,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_BEM);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1469,7 +1494,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
-    auto* rd = proto.mutable_dados_defesa()->mutable_reducao_dano();
+    auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
@@ -1485,7 +1510,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_OU);
   rd->add_descritores(DESC_FERRO_FRIO);
@@ -1506,7 +1531,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
@@ -1527,7 +1552,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
@@ -1550,7 +1575,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
@@ -1576,7 +1601,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
@@ -1603,7 +1628,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto_defesa;
-  auto* rd = proto_defesa.mutable_dados_defesa()->mutable_reducao_dano();
+  auto* rd = proto_defesa.mutable_dados_defesa()->add_reducao_dano();
   rd->set_valor(6);
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);

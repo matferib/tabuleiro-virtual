@@ -1031,6 +1031,15 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_FORMA_GASOSA
+    nome: 'forma gasosa'
+    consequencia {
+      dados_defesa {
+        reducao_dano { descritores: DESC_FERRO_FRIO valor: 10 }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_CEGO
     nome: 'cego'
   }
@@ -2528,6 +2537,7 @@ tabela_pocoes {
   pocoes {
     id: 'forma_gasosa'
     nome: 'Forma Gasosa'
+    tipo_efeito: EFEITO_FORMA_GASOSA
     duracao_rodadas: 50
     custo_po: 750
   }
@@ -4863,7 +4873,35 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
-    id: 'malogro'  # blight 
+    id: 'forma_gasosa'  # gaseous form
+    nome: 'forma gasosa'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ar'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_FORMA_GASOSA
+        modificador_rodadas: MR_2_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'malogro'  # blight
     nome: 'malogro'
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
@@ -4884,7 +4922,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'transformacao'  # tenser transformation 
+    id: 'transformacao'  # tenser transformation
     nome: 'transformação'
     info_classes {
       id: 'mago'
@@ -4903,7 +4941,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'raio_enfraquecimento'  # ray of enfeeblement 
+    id: 'raio_enfraquecimento'  # ray of enfeeblement
     nome: 'raio do enfraquecimento'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS

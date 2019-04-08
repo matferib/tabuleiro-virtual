@@ -53,6 +53,15 @@ bool c_any(const C& c, const T& t) {
   return std::find(c.begin(), c.end(), t) != c.end();
 }
 
+template <class C, class F>
+bool c_none_of(const C& c, const F& f) {
+  return std::none_of(c.begin(), c.end(), f);
+}
+
+template <class C, class T>
+bool c_none(const C& c, const T& t) {
+  return std::find(c.begin(), c.end(), t) == c.end();
+}
 
 void IniciaUtil();
 

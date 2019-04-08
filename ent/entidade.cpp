@@ -1814,7 +1814,7 @@ bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico() || TemTipoDnD(TIPO_MORTO_VIVO) ||
          TemTipoDnD(TIPO_CONSTRUCTO) || TemTipoDnD(TIPO_PLANTA) ||
          TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) ||
-         TemSubTipoDnD(SUBTIPO_ENXAME);
+         TemSubTipoDnD(SUBTIPO_ENXAME) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_);
 }
 
 bool Entidade::ImuneFurtivo() const {
@@ -1850,6 +1850,11 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
     n->mutable_entidade()->mutable_modelo_3d()->set_id("heart");
+    central->AdicionaNotificacao(n.release());
+  }
+  {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id("cloud");
     central->AdicionaNotificacao(n.release());
   }
   {
@@ -2127,7 +2132,8 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
-  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO)) {
+  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO) ||
+      PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
