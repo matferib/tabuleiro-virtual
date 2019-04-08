@@ -3717,6 +3717,10 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
   if (acao_proto.has_dv_mais_alto() && Nivel(entidade.Proto()) > acao_proto.dv_mais_alto()) {
     return false;
   }
+  if (acao_proto.has_pv_mais_alto() && entidade.PontosVida() > acao_proto.pv_mais_alto()) {
+    return false;
+  }
+
   // Aqui tem que testar o vazio pra afetar, caso contrario o return da false e
   // nao afeta ninguem.
   if (acao_proto.afeta_apenas().empty()) return true;

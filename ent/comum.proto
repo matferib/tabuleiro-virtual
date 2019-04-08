@@ -33,7 +33,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 95.
+// Proximo id: 97.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -145,6 +145,8 @@ enum TipoEfeito {
   EFEITO_FORMA_GASOSA = 92;
   EFEITO_LAMINA_AFIADA = 93;
   EFEITO_DRENAR_TEMPORARIO = 94;
+  EFEITO_VITALIDADE_ILUSORIA = 95;
+  EFEITO_SEM_NOME_FORCA = 96;
 }
 
 enum TipoEfeitoModelo {
@@ -565,7 +567,7 @@ message InfoClasse {
   }
   optional ProgressaoFeitico progressao_feitico = 16;
   message HabilidadesEspeciaisPorNivel {
-    // Chave da habilidade especial na tabela de chaves.
+    // Chave da habilidade especial na tabela.
     optional string id = 1;
     // Em qual nivel se ganha.
     optional int32 nivel = 2;

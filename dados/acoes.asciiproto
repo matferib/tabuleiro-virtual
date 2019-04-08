@@ -92,6 +92,7 @@ acao {
   icone: 'icon_touch.png'
   ataque_toque: true
   ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
 }
 acao {
   id: 'Feitiço Pessoal'

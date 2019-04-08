@@ -1375,6 +1375,7 @@ float Tabuleiro::TrataAcaoIndividual(
   auto* nd = grupo_desfazer->add_notificacao();
   acao_proto->set_bem_sucedida(true);
   std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
+  std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
   if (HaValorListaPontosVida() && entidade_destino != nullptr) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
@@ -1601,6 +1602,20 @@ float Tabuleiro::TrataAcaoIndividual(
         atraso_s += 0.5f;
         // TODO criar tabela de nome dos efeitos.
         ConcatenaString(EfeitoParaString(efeito_adicional.efeito()), por_entidade->mutable_texto());
+      }
+      if (!salvou && !acao_proto->efeitos_adicionais_conjurador().empty()) {
+        auto* por_entidade = acao_proto->add_por_entidade();
+        por_entidade->set_id(entidade_origem->Id());
+        por_entidade->set_delta(0);
+        for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
+          std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+          PreencheNotificacaoEventoEfeitoAdicional(
+              NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_origem, efeito_adicional,
+              &ids_unicos_entidade_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n_efeito.release());
+          atraso_s += 0.5f;
+          ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
+        }
       }
     }
 

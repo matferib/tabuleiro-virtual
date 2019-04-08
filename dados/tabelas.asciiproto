@@ -1031,6 +1031,20 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_MORTE
+    nome: 'morte'
+  }
+  efeitos {
+    id: EFEITO_VITALIDADE_ILUSORIA
+    nome: 'vitalidade ilusória'
+    # 1d8 PV temporarios, +2 força, nivel conjurador +1, dura 10 m por HD do alvo.'
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vitalidade ilusória' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_DRENAR_TEMPORARIO
     nome: 'drenar temporário'
     formato_complementos: 'quantidade de niveis drenados.'
@@ -1434,6 +1448,17 @@ tabela_efeitos {
     id: EFEITO_FORCA_TOURO
     nome: 'força do touro'
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
+  }
+  efeitos {
+    id: EFEITO_SEM_NOME_FORCA
+    nome: 'bonus de força'
+    formato_complementos: 'bônus de força sem nome'
+    consequencia {
+      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'generico' } } }
+      }
+    }
   }
   efeitos {
     id: EFEITO_MELHORIA_FORCA
@@ -5763,8 +5788,53 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'criar_mortos_vivos_menor' #  animate dead 
+    nome: 'criar mortos vivos menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 3
+      dominio: true
+    }
+  }
 
-
+  armas {
+    id: 'vitalidade_ilusoria' #  death knell
+    nome: 'vitalidade ilusória'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais_conjurador {
+        efeito: EFEITO_VITALIDADE_ILUSORIA
+        # TODO 10 minutos por DV do alvo.
+        rodadas: 100
+      }
+    }
+  }
   armas {
     id: 'causar_medo' #  cause fear
     nome: 'causar medo'

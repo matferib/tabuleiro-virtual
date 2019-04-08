@@ -604,6 +604,31 @@ TEST(TesteTalentoPericias, AumentaNivelDeRanger) {
   EXPECT_EQ(NivelMaximoFeitico(tabelas, "ranger", 9), 2);
 }
 
+TEST(TesteTalentoPericias, AumentaNivelConjuradorVitalidadeIlusoria) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(7);
+  }
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("adepto_sombras");
+    ic->set_nivel(1);
+  }
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_VITALIDADE_ILUSORIA);
+    evento->set_rodadas(100);
+  }
+  AtribuiBaseAtributo(12, TA_FORCA, &proto);
+
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(tabelas, "clerigo", proto), 8);
+  EXPECT_EQ(NivelConjurador("clerigo", proto), 9);
+  EXPECT_EQ(ModificadorAtributo(proto.atributos().forca()), ModificadorAtributo(14));
+}
 
 TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
   Tabelas tabelas(nullptr);

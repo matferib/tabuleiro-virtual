@@ -83,7 +83,7 @@ enum ModificadorComplementos {
   MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
 }
 
-// Proximo id: 68.
+// Proximo id: 70.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -180,6 +180,8 @@ message AcaoProto {
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;
+  // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
+  optional int32 pv_mais_alto = 69;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -218,6 +220,8 @@ message AcaoProto {
     optional string origem = 12;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
+  // Alguns efeitos se aplicam no conjurador.
+  repeated EfeitoAdicional efeitos_adicionais_conjurador = 68;
   // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
   // Para entidades de criacao.

@@ -854,6 +854,10 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
 // Retorna o tipo de evasao da entidade (ja computado).
 TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);
 
+// Retorna true se o proto tiver o tipo passado.
+inline bool TemTipoDnD(TipoDnD tipo, const EntidadeProto& proto) { return c_any(proto.tipo_dnd(), tipo); }
+inline bool TemSubTipoDnD(SubTipoDnD sub_tipo, const EntidadeProto& proto) { return c_any(proto.sub_tipo_dnd(), sub_tipo); }
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

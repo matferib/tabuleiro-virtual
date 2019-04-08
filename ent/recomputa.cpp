@@ -239,10 +239,29 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   }
 }
 
+bool ImuneMorte(const EntidadeProto& proto) {
+  return TemTipoDnD(TIPO_CONSTRUCTO, proto) || TemTipoDnD(TIPO_MORTO_VIVO, proto);
+}
+
 bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento.id_efeito()) {
+    case EFEITO_MORTE:
+      if (!evento.processado() && !ImuneMorte(*proto)) {
+        proto->set_morta(true);
+        proto->set_caida(true);
+      }
+      break;
+    case EFEITO_VITALIDADE_ILUSORIA:
+      if (!evento.processado()) {
+        // Gera os pontos de vida temporarios.
+        const int tmp = RolaDado(8);
+        auto* po = AtribuiBonus(tmp, TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
+        // Nivel conjurador: hard coded.
+        // Forca: pelo comum.
+      }
+      break;
     case EFEITO_FORMA_GASOSA:
       if (!evento.processado()) {
         auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
@@ -401,6 +420,9 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_VITALIDADE_ILUSORIA:
+      LimpaBonus(TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
+      break;
     case EFEITO_FORMA_GASOSA:
       for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
         if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
@@ -892,19 +914,27 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
   }
 }
 
+int OutrosModificadoresNivelConjuracao(const EntidadeProto& proto) {
+  return PossuiEvento(EFEITO_VITALIDADE_ILUSORIA, proto) ? 1 : 0;
+}
 
 void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto, InfoClasse* ic) {
   int niveis_da_classe = NivelParaCalculoMagiasPorDia(tabelas, ic->id(), proto);
+  int valor = -proto.niveis_negativos() + OutrosModificadoresNivelConjuracao(proto);
   switch (tabelas.Classe(ic->id()).progressao_conjurador()) {
     case PCONJ_MEIO_MIN_4:
-      ic->set_nivel_conjurador(niveis_da_classe < 4 ? 0 : niveis_da_classe / 2);
+      valor += niveis_da_classe < 4 ? 0 : niveis_da_classe / 2;
       break;
     case PCONJ_UM:
-      ic->set_nivel_conjurador(niveis_da_classe);
+      valor += niveis_da_classe;
       break;
     case PCONJ_ZERO:
-    default:
-      ic->clear_nivel_conjurador();
+    default: ;
+  }
+  if (valor <= 0) {
+    ic->clear_nivel_conjurador();
+  } else {
+    ic->set_nivel_conjurador(valor);
   }
 }
 

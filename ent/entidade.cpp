@@ -90,13 +90,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
-  return std::any_of(proto_.tipo_dnd().begin(), proto_.tipo_dnd().end(),
-      [tipo] (const int t) { return t == tipo; });
+  return ent::TemTipoDnD(tipo, proto_); 
 }
 
 bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
-  return std::any_of(proto_.sub_tipo_dnd().begin(), proto_.sub_tipo_dnd().end(),
-      [sub_tipo] (const int st) { return st == sub_tipo; });
+  return ent::TemSubTipoDnD(sub_tipo, proto_); 
 }
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
