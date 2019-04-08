@@ -1767,7 +1767,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
-    if (tipo_ca == CA_NORMAL) {
+    if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
       return DestrezaNaCAContraAtaque(da, proto_)
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);

@@ -1351,13 +1351,19 @@ TEST(TesteImunidades, TesteReducaoDanoFormaGasosa) {
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_FORMA_GASOSA);
   evento->set_rodadas(1);
-  RecomputaDependencias(tabelas, &proto);
+  auto* dd = proto.mutable_dados_defesa();
+  dd->set_id_armadura("cota_malha");
+  dd->set_bonus_magico_armadura(2);
+  std::unique_ptr<Entidade> e(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  proto = e->Proto();
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("adaga");
   da->set_obra_prima(true);
   RecomputaDependencias(tabelas, &proto_ataque);
+  std::unique_ptr<Entidade> ea(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  EXPECT_EQ(e->CA(*ea, Entidade::CA_NORMAL), 10);
 
   int delta;
   std::string msg;
