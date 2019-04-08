@@ -3275,6 +3275,7 @@ modelo {
         conhecidos { id: 'escudo_fogo' }
         conhecidos { id: 'metamorfose' }
         conhecidos { id: 'tentaculos_negros' }
+        conhecidos { id: 'drenar_temporario' }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }

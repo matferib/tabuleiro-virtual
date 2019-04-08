@@ -2090,6 +2090,14 @@ void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
   }
 }
 
+void AtribuiOuRemoveBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  if (valor != 0) {
+    AtribuiBonus(valor, tipo, origem, bonus);
+  } else {
+    RemoveBonus(tipo, origem, bonus);
+  }
+}
+
 void LimpaBonus(const Bonus& bonus_a_remover, Bonus* bonus) {
   for (const auto& bi : bonus_a_remover.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
@@ -2986,6 +2994,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
 }
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
+  if (efeito_adicional.has_dado_complementos_str()) {
+    evento->add_complementos(RolaValor(efeito_adicional.dado_complementos_str()));
+    return;
+  }
   switch (efeito_adicional.modificador_complementos()) {
     case MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO: {
       int adicionais = std::min(5, nivel_conjurador / 2);

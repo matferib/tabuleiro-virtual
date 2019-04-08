@@ -176,7 +176,7 @@ message DadosAtaque {
   optional bool dano_ignora_salvacao = 63;
 }
 
-// Proximo id: 100.
+// Proximo id: 101.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -435,7 +435,9 @@ message EntidadeProto {
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;
+  // Valor final computado.
   optional int32 niveis_negativos = 83;
+  optional Bonus niveis_negativos_dinamicos = 100;
 
   // Bonus base de ataque.
   message InfoBBA {

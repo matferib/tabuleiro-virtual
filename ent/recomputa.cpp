@@ -54,15 +54,6 @@ int BonusTalento(const std::string& id_pericia, const TalentoProto& talento) {
   return 0;
 }
 
-// Atribui o bonus se valor != 0, remove caso contrario.
-void AtribuiOuRemoveBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
-  if (valor != 0) {
-    AtribuiBonus(valor, tipo, origem, bonus);
-  } else {
-    RemoveBonus(tipo, origem, bonus);
-  }
-}
-
 int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
@@ -248,8 +239,9 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   }
 }
 
-void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaEfeitoComum(consequencia, proto);
+  // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento.id_efeito()) {
     case EFEITO_FORMA_GASOSA:
       if (!evento.processado()) {
@@ -257,6 +249,13 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         pd->add_descritores(DESC_MAGICO);
         pd->set_valor(15);
         pd->set_id_unico(evento.id_unico());
+      }
+      break;
+    case EFEITO_DRENAR_TEMPORARIO:
+      if (!evento.processado()) {
+        if (evento.complementos().empty() || evento.complementos(0) <= 0) return false;
+        AtribuiBonus(
+            evento.complementos(0), TB_SEM_NOME, StringPrintf("drenar temporario %d", evento.id_unico()), proto->mutable_niveis_negativos_dinamicos());
       }
       break;
     case EFEITO_VENENO:
@@ -271,7 +270,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       proto->set_ignora_luz(true);
       break;
     case EFEITO_COMPETENCIA_PERICIA: {
-      if (evento.complementos_str().empty()) return;
+      if (evento.complementos_str().empty()) return false;
       // Encontra a pericia do efeito.
       auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
       Bonus bonus;
@@ -314,7 +313,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
-      if (evento.complementos_str().empty()) return;
+      if (evento.complementos_str().empty()) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(DESC_BEM);
@@ -323,7 +322,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     case EFEITO_PRESA_MAGICA:
     case EFEITO_ARMA_MAGICA: {
-      if (evento.complementos_str().empty()) return;
+      if (evento.complementos_str().empty()) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         AtribuiBonus(1, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
@@ -331,9 +330,9 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     }
     break;
     case EFEITO_TENDENCIA_EM_ARMA: {
-      if (evento.complementos_str().size() != 2) return;
+      if (evento.complementos_str().size() != 2) return false;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
-      if (desc == DESC_NENHUM) return;
+      if (desc == DESC_NENHUM) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(desc);
@@ -341,14 +340,14 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     }
     break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
-      if (evento.complementos_str().size() != 2) return;
+      if (evento.complementos_str().size() != 2) return false;
       DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
       if (descritor == DESC_NENHUM) {
         LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
-        return;
+        return false;
       }
       int valor = atoi(evento.complementos_str(1).c_str());
-      if (valor <= 0 || valor > 1000) return;
+      if (valor <= 0 || valor > 1000) return false;
       ResistenciaElementos re;
       re.set_valor(valor);
       re.set_descritor(descritor);
@@ -366,6 +365,7 @@ void AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     default: ;
   }
+  return true;
 }
 
 void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
@@ -408,6 +408,9 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
           break;
         }
       }
+      break;
+    case EFEITO_DRENAR_TEMPORARIO:
+      RemoveBonus(TB_SEM_NOME, StringPrintf("drenar temporario %d", evento.id_unico()), proto->mutable_niveis_negativos_dinamicos());
       break;
     case EFEITO_VENENO:
     break;
@@ -1207,8 +1210,9 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       continue;
     }
     VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
-    AplicaEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto);
-    evento.set_processado(true);
+    if (AplicaEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto)) {
+      evento.set_processado(true);
+    }
   }
   // Efeito de modelos.
   for (auto& modelo : *proto->mutable_modelos()) {
@@ -1220,6 +1224,10 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
 
   const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
+}
+
+void RecomputaDependenciasNiveisNegativos(const Tabelas& tabelas, EntidadeProto* proto) {
+  proto->set_niveis_negativos(BonusTotal(proto->niveis_negativos_dinamicos()));
 }
 
 void RecomputaDependenciasDestrezaLegado(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1678,6 +1686,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto);
+  RecomputaDependenciasNiveisNegativos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
   RecomputaDependenciasTalentos(tabelas, proto);

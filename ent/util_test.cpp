@@ -789,7 +789,7 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
     da->set_id_arma("espada_longa");
     da->set_empunhadura(EA_2_MAOS);
   }
-  proto.set_niveis_negativos(1);
+  AtribuiBonus(1, TB_BASE, "base", proto.mutable_niveis_negativos_dinamicos());
 
   RecomputaDependencias(tabelas, &proto);
   // Clerigo tem 2 de bonus.
@@ -803,6 +803,37 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
   // Perde 5 pontos vida.
   EXPECT_EQ(5, proto.pontos_vida());
   // TODO: penalidade de pericias e feiticos.
+}
+
+TEST(TesteDependencias, TesteNiveisNegativosDrenarTemporario) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(3);
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_DRENAR_TEMPORARIO);
+    evento->set_rodadas(1);
+    evento->add_complementos(1);
+    evento->set_id_unico(1);
+  }
+  AtribuiBonus(1, TB_BASE, "base", proto.mutable_niveis_negativos_dinamicos());
+
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(proto.niveis_negativos(), 2);
+
+  {
+    // Multiplos se acumulam.
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_DRENAR_TEMPORARIO);
+    evento->set_rodadas(1);
+    evento->add_complementos(2);
+    evento->set_id_unico(2);
+  }
+
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(proto.niveis_negativos(), 4);
 }
 
 TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
@@ -1805,7 +1836,7 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
     evento->add_complementos(5);
   }
   // Vai dar max de 15 PV. 2 de dano temporario, 10 de dano normal.
-  proto.set_niveis_negativos(1);
+  AtribuiBonus(1, TB_BASE, "base", proto.mutable_niveis_negativos_dinamicos());
   proto.set_max_pontos_vida(20);
   proto.set_pontos_vida(13);
   proto.set_dano_nao_letal(2);

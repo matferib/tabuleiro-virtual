@@ -1031,6 +1031,12 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_DRENAR_TEMPORARIO
+    nome: 'drenar temporário'
+    formato_complementos: 'quantidade de niveis drenados.'
+  }
+
+  efeitos {
     id: EFEITO_LAMINA_AFIADA
     nome: 'lâmina afiada'
     formato_complementos: 'rótulo da arma afetada'
@@ -5110,14 +5116,13 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
       ignora_resistencia_magia: false
       permite_salvacao: false
-      permite_ataque_vs_defesa: true
+      nao_afeta_tipo: TIPO_MORTO_VIVO
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: '1d4 niveis negativos'
+        efeito: EFEITO_DRENAR_TEMPORARIO
+        dado_complementos_str: "1d4"
         modificador_rodadas: MR_HORAS_NIVEL_MAX_15
       }
     }
-    # TODO dano: 1d4 niveis negativos.
     # TODO mortos vivos ganham 1d4+5 pontos de vida temporario por 1 hora.
   }
 

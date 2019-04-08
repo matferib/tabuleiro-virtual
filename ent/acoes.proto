@@ -212,6 +212,8 @@ message AcaoProto {
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
     optional ModificadorComplementos modificador_complementos = 9;
+    // Outra forma de gerar o complemento, rolara o dado passado.
+    optional string dado_complementos_str = 13;
     // A origem do efeito.
     optional string origem = 12;
   }
