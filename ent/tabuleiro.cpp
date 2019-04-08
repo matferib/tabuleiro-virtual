@@ -1354,7 +1354,7 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEvento(entidade_selecionada->Id(), EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEvento(entidade_selecionada->Id(), /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -2892,7 +2892,7 @@ void Tabuleiro::ProximaAcao() {
         continue;
       }
     }
-    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    std::string acao_str(entidade->Acao().id());
     if (acao_str.empty()) {
       acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
@@ -2933,7 +2933,7 @@ void Tabuleiro::AcaoAnterior() {
       }
     }
 
-    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    std::string acao_str(entidade->Acao().id());
     if (acao_str.empty()) {
       acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
@@ -6808,9 +6808,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao(mapa_acoes_).id());
+      id_acao.assign(entidade->Acao().id());
       achou = true;
-    } else if (id_acao != entidade->Acao(mapa_acoes_).id()) {
+    } else if (id_acao != entidade->Acao().id()) {
       id_acao.assign("acoes diferem");
       break;
     }
@@ -7661,7 +7661,7 @@ void Tabuleiro::AlternaFuria() {
       auto bc = entidade->Proto().atributos().constituicao();
       AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
       std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
-      auto* evento = AdicionaEvento(EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
+      auto* evento = AdicionaEvento("furia_barbaro", EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
       evento->add_complementos(complemento);
       evento->add_complementos(complemento / 2);
       evento->set_descricao("furia_barbaro");

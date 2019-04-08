@@ -138,6 +138,14 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   RecarregaMapas();
 }
 
+// Quando nao houver origem no item, usa o id dele como a origem do efeito.
+// So funcionara mesmo quando o id do item for igual ao do feitico.
+void AdicionaOrigemImplicita(ItemMagicoProto* item) {
+  if (item->tipo_efeito().size() == 1 && item->origens().empty()) {
+    item->add_origens(item->id());
+  }
+}
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -193,6 +201,14 @@ void Tabelas::RecarregaMapas() {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
     }
+    if (feitico.has_acao()) {
+      for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais()) {
+        ea.set_origem(feitico.id());
+      }
+      for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais_se_salvou()) {
+        ea.set_origem(feitico.id());
+      }
+    }
     feiticos_[feitico.id()] = &feitico;
   }
 
@@ -210,6 +226,7 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& pocao : *tabelas_.mutable_tabela_pocoes()->mutable_pocoes()) {
     pocao.set_tipo(TIPO_POCAO);
+    AdicionaOrigemImplicita(&pocao);
     pocoes_[pocao.id()] = &pocao;
   }
   for (auto& anel : *tabelas_.mutable_tabela_aneis()->mutable_aneis()) {

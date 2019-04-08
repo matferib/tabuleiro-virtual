@@ -181,6 +181,7 @@ sub_menu {
     modelo { id: 'Humano Mago' }
     modelo { id: 'Humano Mago 4' }
     modelo { id: 'Humano Mago 5' }
+    modelo { id: 'Humano Mago 18' }
   }
   modelo { id: 'Humano Monge' }
   modelo { id: 'Humano Paladino' }

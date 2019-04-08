@@ -1,16 +1,11 @@
-Terminar modelo de mago 18: fazer itens magicos e magias.
-
-Fazer efeito de drenar temporario
-Fazer efeito de lâmina afiada.
-
 Anotacoes da sessao Tilverton:
 - Mago de guerra 5.
-- Fazer vangerdahast (mago 18)
-- Obscuros (ver no livro anauroch empire of the shade, pg 119 e 95, clerigo de Shar 121).
 
 - Definir encontros.
 - Resistencia magia variavel. ??
 
+- Clerigo de Shar 5/1 vulto. Feito.
+- Fazer vangerdahast (mago 18): Feito.
 - Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias): Feito.
 - Fazer Aris (gigante anciao): Feito.
 - Melir (clerigo 4): Feito.

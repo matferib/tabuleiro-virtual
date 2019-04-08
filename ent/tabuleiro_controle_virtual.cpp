@@ -820,7 +820,11 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
         if (entidade == nullptr) {
           return textura_espada;
         }
-        unsigned int textura = texturas_->Textura(entidade->Acao(mapa_acoes_).icone());
+        const auto* da = entidade->DadoCorrente();
+        if (da == nullptr) {
+          return textura_espada;
+        }
+        unsigned int textura = texturas_->Textura(da->icone());
         return textura == GL_INVALID_VALUE ? textura_espada : textura;
       } else {
         auto it = mapa_botoes_controle_virtual_.find(ModoCliqueParaId(modo_clique_, forma_selecionada_));

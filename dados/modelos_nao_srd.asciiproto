@@ -658,8 +658,8 @@ modelo {
     dados_ataque {
       grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
       limite_vezes: 2
+      dificuldade_salvacao: 13
       acao_fixa {
-        dificuldade_salvacao: 13
         efeitos_adicionais {
           rodadas: 300
           combinar_com: 0
@@ -906,26 +906,123 @@ modelo {
   }
 }
 modelo {
-  # Atencao: nao é vulto! EotS 121
-  # TODO
-  id: 'Adepto das Sombras de Shar'
+  id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1'
   entidade {
-    dados_vida: '' raca: 'humano'
-    info_textura { id: 'sharran_shadow_adept.png'  largura: 0.6 translacao_x: 0.2 }
-    cor { r: 0.150 g: 0.150 b: 0.150 }
+    raca: 'humano'
+    dados_vida: '4d8+1d4+20'
+    # Nao tem como carregar texturas locais. Tem que carregar na UI.
+    info_textura { id: 'mudar para: 0:shar_cleric.png na UI!'  largura: 0.6 translacao_x: 0.2 }
     info_classes { id: 'clerigo' nivel: 5 }
-    info_classes { id: 'adepto_sombras' nivel: 7 }
+    info_classes { id: 'adepto_sombras' nivel: 1 }
     tendencia { simples: TD_LEAL_MAU }
+    cor { r: 0.150 g: 0.150 b: 0.150 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' bonus_magico_escudo: 1 }
+    dados_ataque {
+      id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 10
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      rotulo: 'toque morte 1/dia' grupo: 'dominio' empunhadura: EA_ARMA_ESCUDO
+      ataque_toque: true limite_vezes: 1
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        pv_mais_alto: 20 # 5d6
+        permite_salvacao: false
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_MORTE
+          rodadas: 1
+        }
+      }
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
+      gerais { id: 'magia_trama_sombras' }
+      gerais { id: 'reflexos_rapidos' }
+      outros { id: 'magia_perniciosa' }
+      outros { id: 'magia_traicoeira' }
+      outros { id: 'magia_tenaz' }
+    }
+    info_pericias { id: 'concentracao' pontos: 8 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
+      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'morte'
+      dominios: 'enganacao'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'maldicao_menor' }
+        conhecidos { id: 'bencao' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'causar_medo' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'arma_espiritual_mangual' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'curar_ferimentos_moderados' }
+        conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'vitalidade_ilusoria' dominio: true }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+      }
+    }
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8 com carisma 13.
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
     }
-    rotulo: ''
   }
 }
 

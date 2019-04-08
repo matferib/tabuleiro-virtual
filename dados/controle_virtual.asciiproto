@@ -230,10 +230,10 @@ fixo {
     linha: 5
     coluna: 15
     rotulo: "8"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -3.3 
+    #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_FEITICO_8 } }
   }
   dados_botoes {
@@ -253,10 +253,10 @@ fixo {
     linha: 5
     coluna: 16
     rotulo: "9"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -3.3 
+    #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
   dados_botoes {
@@ -265,7 +265,7 @@ fixo {
     linha: 4
     coluna: 16
     rotulo: "9"
-    id: CONTROLE_USAR_FEITICO_8
+    id: CONTROLE_USAR_FEITICO_9
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }

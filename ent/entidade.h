@@ -198,17 +198,13 @@ class Entidade {
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
-  /** Retorna a acao mais recente da entidade. Caso nao haja, retorna a primeira acao padrao. */
-  AcaoProto Acao(const MapaIdAcao& mapa_acoes) const;
+  /** Retorna a acao mais recente da entidade. Caso nao haja, proto vazio. */
+  AcaoProto Acao() const;
 
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);
   /** Retorna a acao executada pela entidade ou uma acao padrao caso a entidade nao possua a acao. */
   std::string TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
-
-  // Retorna o tipo da acao e o icone, se houver.
-  std::pair<TipoAcao, std::string> TipoAcaoComIcone(
-      int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const;
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
@@ -246,8 +242,8 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Retorna nullptr caso nao haja.
-  const EntidadeProto::DadosAtaque* DadoCorrente() const;
-  const EntidadeProto::DadosAtaque* DadoAgarrar() const;
+  const DadosAtaque* DadoCorrente() const;
+  const DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   // Retorna modificadores para ataques de toque.

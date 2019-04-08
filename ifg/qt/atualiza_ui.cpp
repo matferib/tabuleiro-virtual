@@ -195,7 +195,7 @@ void AtualizaUIClassesNiveis(
 
   BloqueiaSinais();
   AtualizaUINiveis(tabelas, gerador, proto);
-  gerador.spin_niveis_negativos->setValue(proto.niveis_negativos());
+  gerador.spin_niveis_negativos->setValue(ent::BonusIndividualTotal(ent::TB_BASE, proto.niveis_negativos_dinamicos()));
 
   const int indice = gerador.lista_niveis->currentRow();
   // Se tiver selecao, preenche.

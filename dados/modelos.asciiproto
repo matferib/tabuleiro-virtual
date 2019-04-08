@@ -44,7 +44,8 @@ modelo {
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
       rotulo: 'jato (1 vez so)' tipo_ataque: 'Raio' dano_basico: '4d4'
-      acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} dificuldade_salvacao: 14 distancia_quadrados: 6 }
+      dificuldade_salvacao: 14
+      acao_fixa { cor { r: 0 g: 1 b: 0 a: 0.9} distancia_quadrados: 6 }
     }
   }
 }
@@ -254,7 +255,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_MORTE
         }
-        resultado_salvacao: RS_ANULOU
+        resultado_ao_salvar: RS_ANULOU
       }
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
@@ -427,12 +428,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 3 dano_basico: '1d6'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
       alcance_m: 3 dano_basico: '2d6'
       empunhadura: EA_2_MAOS
@@ -466,12 +467,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 3 dano_basico: '1d6'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
       alcance_m: 3 dano_basico: '2d6'
       empunhadura: EA_2_MAOS
@@ -518,12 +519,12 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
       alcance_m: 4.5 dano_basico: '1d8'
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' tipo_acao: ACAO_AGARRAR
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d8' tipo_dano: TDV_DESTREZA dano_secundario: '1d8' tipo_dano_secundario: TDV_DESTREZA cd: 17 }
       alcance_m: 4.5 dano_basico: '2d8'
       empunhadura: EA_2_MAOS
@@ -657,7 +658,7 @@ modelo {
         permite_salvacao: true
         dificuldade_salvacao_base: 19
         tipo_salvacao: TS_FORTITUDE
-        resultado_salvacao: RS_ANULOU
+        resultado_ao_salvar: RS_ANULOU
         elemento: DESC_SONICO
         duracao_s: 0.250
         efeito_area: true
@@ -813,9 +814,9 @@ modelo {
       incrementos: 3  # maximo 6 qudrados.
       dano_basico: '0'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      ataque_toque: true
       acao_fixa {
         icone: 'icon_web.png'
-        ataque_toque: true
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
         }
@@ -1127,8 +1128,7 @@ modelo {
       acao_fixa {
         cor { r: 1.0 g: 1.0  b: 0.0 }
         permite_ataque_vs_defesa: false
-        tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_salvacao: RS_ANULOU consequencia: TC_INFLAMA_ALVO
-        dificuldade_salvacao: 12
+        tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_ao_salvar: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         elemento: DESC_FOGO
       }
     }
@@ -3147,9 +3147,38 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     dados_ataque {
-      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
-      municao: 10
+      id_arma: 'besta_de_mao' bonus_magico: 1 empunhadura: EA_ARMA_APENAS
+      municao: 20
     }
+    dados_ataque {
+      id_arma: 'bordao' bonus_magico: 1 empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      tipo_ataque: 'Pergaminho Arcano' id_arma: 'forma_gasosa'
+    }
+    dados_ataque {
+      tipo_ataque: 'Pergaminho Arcano' id_arma: 'dissipar_magia_maior'
+    }
+
+   # Tesouros.
+    tesouro {
+      bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
+      chapeus { id: 'tiara_intelecto_6' em_uso: true }
+      amuletos { id: 'amuleto_armadura_natural_3' em_uso: true }
+      aneis { id: 'protecao_3' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      botas { id: 'botas_levitacao' em_uso: true }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'neutralizar_venenos' }
+      pocoes { id: 'neutralizar_venenos' }
+      pocoes { id: 'remover_doenca' }
+      pocoes { id: 'remover_maldicao' }
+
+      tesouro: '1000 PO em componentes materiais, 100 PO, pergaminhos: ver ataques'
+    }
+
     info_talentos {
       outros { id: 'escrever_pergaminho' }
       outros { id: 'dominar_magia' }
@@ -3174,14 +3203,6 @@ modelo {
     info_pericias { id: 'procurar' pontos: 4 }
     info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'identificar_magia' pontos: 21 }
-    tesouro {
-      pocoes { id: 'nublar' }
-      pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'velocidade' }
-      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de confusão, bola de fogo x2, teia'
-    }
 
     feiticos_classes {
       id_classe: 'mago'
@@ -3206,12 +3227,13 @@ modelo {
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
+        conhecidos { id: 'raio_enfraquecimento' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
       }
       feiticos_por_nivel {
         nivel: 2
@@ -3223,12 +3245,13 @@ modelo {
         conhecidos { id: 'resistencia_elementos' }
         conhecidos { id: 'invisibilidade' }
         conhecidos { id: 'ver_invisibilidade' }
+        conhecidos { id: 'agilidade_gato' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 6 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 8 }
       }
       feiticos_por_nivel {
         nivel: 3
@@ -3237,12 +3260,12 @@ modelo {
         conhecidos { id: 'relampago' }
         conhecidos { id: 'velocidade' }
         conhecidos { id: 'circulo_magico_contra_tendencia' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
       }
       feiticos_por_nivel {
         nivel: 4
@@ -3251,11 +3274,13 @@ modelo {
         conhecidos { id: 'ancora_dimensional' }
         conhecidos { id: 'escudo_fogo' }
         conhecidos { id: 'metamorfose' }
+        conhecidos { id: 'tentaculos_negros' }
+        conhecidos { id: 'drenar_temporario' }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 5 }
       }
       feiticos_por_nivel {
         nivel: 5
@@ -3276,10 +3301,11 @@ modelo {
         conhecidos { id: 'proteger_fortalezas' }
         conhecidos { id: 'circulo_morte' }
         conhecidos { id: 'elucubracao' }
+        conhecidos { id: 'transformacao' }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 7
@@ -3860,10 +3886,10 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'teletransporte maior' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'teletransporte maior' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'teletransporte_maior'
     }
     dados_ataque {
-      grupo: 'Nuvem Profana' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'Nuvem Profana' rotulo: 'a vontade' tipo_ataque: 'Feitiço de Mago' id_arma: 'nuvem_profana'
       acao_fixa {
         cor { r: 1 b: 1 g: 1 }
         permite_salvacao: true

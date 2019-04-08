@@ -950,7 +950,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   int indice = gerador.lista_ataques->currentRow();
   bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
-  ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
+  ent::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::DadosAtaque::default_instance();
   da.set_tipo_ataque(CurrentData(gerador.combo_tipo_ataque).toString().toStdString());
 
   da.set_bonus_magico(gerador.spin_bonus_magico->value());
@@ -2091,11 +2091,9 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   });
 
   lambda_connect(gerador.spin_niveis_negativos, SIGNAL(valueChanged(int)), [&tabelas, &gerador, proto_retornado] () {
-    if (gerador.spin_niveis_negativos->value() > 0) {
-      proto_retornado->set_niveis_negativos(gerador.spin_niveis_negativos->value());
-    } else {
-      proto_retornado->clear_niveis_negativos();
-    }
+    ent::AtribuiOuRemoveBonus(
+        std::max(0, gerador.spin_niveis_negativos->value()), ent::TB_BASE, "base",
+        proto_retornado->mutable_niveis_negativos_dinamicos());
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 

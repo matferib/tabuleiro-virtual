@@ -90,13 +90,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
-  return std::any_of(proto_.tipo_dnd().begin(), proto_.tipo_dnd().end(),
-      [tipo] (const int t) { return t == tipo; });
+  return ent::TemTipoDnD(tipo, proto_); 
 }
 
 bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
-  return std::any_of(proto_.sub_tipo_dnd().begin(), proto_.sub_tipo_dnd().end(),
-      [sub_tipo] (const int st) { return st == sub_tipo; });
+  return ent::TemSubTipoDnD(sub_tipo, proto_); 
 }
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
@@ -1299,29 +1297,9 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
+AcaoProto Entidade::Acao() const {
   const auto* da = DadoCorrente();
-  auto StringAcao = [this, da]() -> std::string {
-    if (da == nullptr) {
-      // Entidade nao possui ataques.
-      if (!proto_.ultima_acao().empty()) {
-        return proto_.ultima_acao();
-      }
-      return TipoAcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
-    }
-    return da->tipo_ataque();
-  };
-  std::string string_acao = StringAcao();
-  auto it = mapa_acoes.find(string_acao);
-  if (it == mapa_acoes.end()) {
-    return AcaoProto::default_instance();
-  }
-  AcaoProto acao = *it->second;
-  if (da != nullptr && da->has_acao()) {
-    // Merge das informacoes dos DadosAtaque.
-    CombinaAcoes(da->acao(), &acao);
-  }
-  return acao;
+  return da == nullptr ?  AcaoProto::default_instance() : da->acao();
 }
 
 template<class T>
@@ -1386,38 +1364,6 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
     }
   }
   return acoes[indice_acao];
-}
-
-std::pair<TipoAcao, std::string> Entidade::TipoAcaoComIcone(
-    int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const {
-  if (indice_acao < 0 || static_cast<unsigned int>(indice_acao) >= MaxNumAcoes) {
-    return std::make_pair(ACAO_INVALIDA, "");
-  }
-  if (indice_acao < proto_.lista_acoes_size()) {
-    for (const auto& da : proto_.dados_ataque()) {
-      if (da.tipo_ataque() == proto_.lista_acoes(indice_acao)) {
-        return std::make_pair(da.tipo_acao(), da.acao().icone());
-      }
-    }
-    auto it = mapa_acoes.find(proto_.lista_acoes(indice_acao));
-    return it == mapa_acoes.end()
-        ? std::make_pair(ACAO_INVALIDA, "")
-        : std::make_pair(it->second->tipo(), it->second->icone());
-  }
-  // Junta as acoes da entidade com as padroes.
-  std::vector<std::string> acoes(proto_.lista_acoes().begin(), proto_.lista_acoes().end());
-  for (const std::string& acao_padrao : acoes_padroes) {
-    if (std::find(acoes.begin(), acoes.end(), acao_padrao) == acoes.end()) {
-      acoes.push_back(acao_padrao);
-    }
-    if (acoes.size() == MaxNumAcoes) {
-      break;
-    }
-  }
-  auto it = mapa_acoes.find(acoes[indice_acao]);
-  return it == mapa_acoes.end()
-      ? std::make_pair(ACAO_INVALIDA, "")
-      : std::make_pair(it->second->tipo(), it->second->icone());
 }
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
@@ -1702,7 +1648,7 @@ std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
 
 std::string Entidade::StringCAParaAcao() const {
   const auto* da = DadoCorrente();
-  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  if (da == nullptr) da = &DadosAtaque::default_instance();
   return ent::StringCAParaAcao(*da, proto_);
 }
 
@@ -1718,8 +1664,8 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
-  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
+const DadosAtaque* Entidade::DadoCorrente() const {
+  std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
   if (ultima_acao.empty()) {
@@ -1745,7 +1691,7 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoAgarrar() const {
+const DadosAtaque* Entidade::DadoAgarrar() const {
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == "Agarrar") {
       return &da;
@@ -1819,7 +1765,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
-    if (tipo_ca == CA_NORMAL) {
+    if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
       return DestrezaNaCAContraAtaque(da, proto_)
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
@@ -1866,7 +1812,7 @@ bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico() || TemTipoDnD(TIPO_MORTO_VIVO) ||
          TemTipoDnD(TIPO_CONSTRUCTO) || TemTipoDnD(TIPO_PLANTA) ||
          TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) ||
-         TemSubTipoDnD(SUBTIPO_ENXAME);
+         TemSubTipoDnD(SUBTIPO_ENXAME) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_);
 }
 
 bool Entidade::ImuneFurtivo() const {
@@ -1902,6 +1848,11 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
     n->mutable_entidade()->mutable_modelo_3d()->set_id("heart");
+    central->AdicionaNotificacao(n.release());
+  }
+  {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id("cloud");
     central->AdicionaNotificacao(n.release());
   }
   {
@@ -2179,7 +2130,8 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
-  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO)) {
+  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO) ||
+      PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });

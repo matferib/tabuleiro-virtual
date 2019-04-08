@@ -71,6 +71,7 @@ enum ModificadorRodadas {
   MR_1D4 = 8;
   MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15 = 9;
   MR_HORAS_NIVEL_MAX_15 = 10;
+  MR_2_MINUTOS_NIVEL = 11;
 }
 
 enum ModificadorComplementos {
@@ -79,13 +80,14 @@ enum ModificadorComplementos {
   MC_1_CADA_3_MAX_3 = 2;  // auxilio divino
   MC_2_MAIS_1_CADA_6_MAX_5 = 3;  // escudo da fe.
   MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
+  MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
 }
 
-// Proximo id: 64.
+// Proximo id: 70.
 message AcaoProto {
-  // Identificador da acao, para menus.
+  // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
-  // Tipo da acao.
+  // Tipo da acao. A criacao do objeto de acao usa isso, e nao o id.
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
   optional float raio_quadrados = 3;  // quadrados.
@@ -121,16 +123,15 @@ message AcaoProto {
   // Acao tem dano direto e de area.
   optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
-  // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados.
-  optional bool dano_ignora_salvacao = 62;
-  optional ResultadoSalvacao resultado_salvacao = 32;
+  optional bool dano_ignora_salvacao_deprecated = 62;
+  optional ResultadoSalvacao resultado_ao_salvar = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;
   // Se presente, usara este atributo para calcular a dificuldade da salvacao.
   optional TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
   optional bool dificuldade_salvacao_por_nivel = 50;
-  optional int32 dificuldade_salvacao = 33;
+  optional int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
   // ira considerar sempre um acerto e pular esta etapa.
@@ -159,10 +160,12 @@ message AcaoProto {
     optional string texto = 4;  // texto da entidade.
   }
   repeated PorEntidade por_entidade = 35;
-  // Indica ataque de toque.
+  // Indica ataque de toque para este tipo de acao.
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
+  optional bool ataque_corpo_a_corpo = 66;
+  optional bool ataque_arremesso = 67;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
   // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
@@ -177,6 +180,8 @@ message AcaoProto {
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;
+  // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
+  optional int32 pv_mais_alto = 69;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -189,7 +194,7 @@ message AcaoProto {
   // Ataque elemental.
   optional DescritorAtaque elemento = 51;
   // Descritores do ataque: computado dinamicamente.
-  repeated DescritorAtaque descritores_ataque = 52;
+  repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
@@ -209,12 +214,21 @@ message AcaoProto {
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
     optional ModificadorComplementos modificador_complementos = 9;
+    // Outra forma de gerar o complemento, rolara o dado passado.
+    optional string dado_complementos_str = 13;
+    // A origem do efeito.
+    optional string origem = 12;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
+  // Alguns efeitos se aplicam no conjurador.
+  repeated EfeitoAdicional efeitos_adicionais_conjurador = 68;
   // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
   // Para entidades de criacao.
   optional string id_modelo_entidade = 63;
+  // O veneno da acao.
+  optional VenenoProto veneno = 64;
+  optional TipoMagia tipo_pergaminho = 65;
 }
 
 // O arquivo de acoes é serializado desta forma.
