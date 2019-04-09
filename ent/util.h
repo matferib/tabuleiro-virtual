@@ -636,7 +636,7 @@ EntidadeProto::Evento* AdicionaEvento(
     const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito_adicional,
-    std::vector<int>* ids_unicos, EntidadeProto* proto);
+    std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.

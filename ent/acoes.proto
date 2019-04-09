@@ -71,6 +71,7 @@ enum ModificadorRodadas {
   MR_HORAS_NIVEL_MAX_15 = 10;
   MR_2_MINUTOS_NIVEL = 11;
   MR_DIAS_POR_NIVEL = 12;
+  MR_PALAVRA_PODER_ATORDOAR = 13;
 }
 
 enum ModificadorComplementos {

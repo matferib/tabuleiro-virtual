@@ -1758,7 +1758,7 @@ void PreencheNotificacaoEventoEfeitoAdicional(
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, efeito_adicional, ids_unicos, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, efeito_adicional, ids_unicos, entidade_destino, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2945,7 +2945,7 @@ EntidadeProto::Evento* AdicionaEventoOld(
   return e;
 }
 
-int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
+int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade& alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_dado_modificador_rodadas()) {
     int modificador = RolaValor(efeito_adicional.dado_modificador_rodadas());
@@ -2955,6 +2955,17 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_PALAVRA_PODER_ATORDOAR: {
+        const int pv = alvo.PontosVida();
+        if (pv <= 50) {
+          modificador = RolaValor("4d4");
+        } else if (pv <= 100) {
+          modificador = RolaValor("2d4");
+        } else {
+          modificador = RolaValor("1d4");
+        }
+      }
+      break;
       case MR_DIAS_POR_NIVEL:
         modificador = nivel_conjurador * 24 * HORAS_PARA_RODADAS;
         break;
@@ -2995,7 +3006,7 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
   return efeito_adicional.rodadas();
 }
 
-void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, EntidadeProto::Evento* evento) {
+void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade* alvo, EntidadeProto::Evento* evento) {
   if (efeito_adicional.has_dado_complementos_str()) {
     evento->add_complementos(RolaValor(efeito_adicional.dado_complementos_str()));
     return;
@@ -3030,10 +3041,10 @@ void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_ad
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
-    std::vector<int>* ids_unicos,  EntidadeProto* proto) {
+    std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
   const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional), continuo, ids_unicos, proto);
-  PreencheComplementos(nivel_conjurador, efeito_adicional, e);
+  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional, alvo), continuo, ids_unicos, proto);
+  PreencheComplementos(nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;

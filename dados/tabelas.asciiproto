@@ -8457,7 +8457,7 @@ tabela_feiticos {
   }
   armas {
     id: 'palavra_poder_atordoar'
-    nome: 'palavra do poder: Atordoar'
+    nome: 'palavra do poder: atordoar'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8469,15 +8469,49 @@ tabela_feiticos {
       nivel: 8
     }
     acao {
+      id: 'Feitiço de Toque a Distância'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
       duracao_s: 0.5
       permite_salvacao: false
       icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 150
+      efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        modificador_rodadas: MR_PALAVRA_PODER_ATORDOAR
+      }
     }
-    # afeta apenas se tiver menos de 150 PV.
-    # duracao variavel por PV.
   }
+  armas {
+    id: 'palavra_poder_matar'
+    nome: 'palavra do poder: matar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 9
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 100
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+        rodadas: 0
+      }
+    }
+  }
+
   armas {
     id: 'piscar'
     nome: 'piscar'
