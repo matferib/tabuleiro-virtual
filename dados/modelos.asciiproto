@@ -1084,6 +1084,44 @@ modelo {
   }
 }
 modelo {
+  id: 'Muralha de Gelo'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' translacao { z: 0.75 } }
+    info_textura { id: 'ice.png' }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    luz { cor { r: 1 g: 1 b: 0 a: 1 } raio_m: 6 }
+    escala { x: 1.5 y: 6.0  z: 1.5 }
+    ignora_luz: true
+    evento {
+      rodadas: 500
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+  }
+}
+
+modelo {
+  id: 'Muralha de Fogo'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' translacao { z: 0.75 } }
+    info_textura { id: 'fire.png' }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    luz { cor { r: 1 g: 1 b: 0 a: 1 } raio_m: 6 }
+    escala { x: 1.5 y: 6.0  z: 1.5 }
+    ignora_luz: true
+    evento {
+      rodadas: 500
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+modelo {
   id: 'Globo de Invulnerabilidade'
   entidade {
     tipo: TE_FORMA
