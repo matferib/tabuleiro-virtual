@@ -14,6 +14,15 @@ namespace qt {
 
 namespace {
 
+// Para efeitos especiais, que misturam os dois tipos.
+bool ComplementoEventoEspecial(const ent::EntidadeProto::Evento& evento) {
+  switch (evento.id_efeito()) {
+    case ent::EFEITO_ARMA_MAGICA:
+      return true;
+    default: return false;
+  }
+}
+
 bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
   switch (evento.id_efeito()) {
     case ent::EFEITO_VENENO:
@@ -21,14 +30,31 @@ bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
     case ent::EFEITO_ABENCOAR_ARMA:
     case ent::EFEITO_SUPORTAR_ELEMENTOS:
     case ent::EFEITO_RESISTENCIA_ELEMENTOS:
-    case ent::EFEITO_ARMA_MAGICA:
     case ent::EFEITO_PRESA_MAGICA:
       return true;
     default: return false;
   }
 }
 
-QString ComplementosParaString(const google::protobuf::RepeatedField<int>& complementos) {
+QString ComplementosEspecialParaString(const ent::EntidadeProto::Evento& evento) {
+  switch (evento.id_efeito()) {
+    case ent::EFEITO_ARMA_MAGICA: {
+      QString s;
+      if (!evento.complementos_str().empty()) {
+        s.append(evento.complementos_str(0).c_str());
+      }
+      s.append(";");
+      if (!evento.complementos().empty()) {
+        s.append(QString::number(evento.complementos(0)));
+      }
+      return s;
+    }
+    default:
+      return "";
+  }
+}
+
+QString ComplementosIntParaString(const google::protobuf::RepeatedField<int>& complementos) {
   QString s;
   for (int c : complementos) {
     s.append(" ");
@@ -52,6 +78,16 @@ QString ComplementosStrParaString(const google::protobuf::RepeatedPtrField<std::
   return s;
 }
 
+QString ComplementosParaString(const ent::EntidadeProto::Evento& evento) {
+  if (ComplementoEventoEspecial(evento)) {
+    return ComplementosEspecialParaString(evento);
+  } else if (ComplementoEventoString(evento)) {
+    return ComplementosStrParaString(evento.complementos_str());
+  } else {
+    return ComplementosIntParaString(evento.complementos());
+  }
+}
+
 const google::protobuf::RepeatedField<int> StringParaComplementos(const QString& complementos) {
   google::protobuf::RepeatedField<int> cs;
   QStringList lista = complementos.split(" ",  QString::SkipEmptyParts);
@@ -70,6 +106,41 @@ const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(
     *ss.Add() = s.toStdString();
   }
   return ss;
+}
+
+void StringEspecialParaComplementos(const QString& complementos, ent::EntidadeProto::Evento* evento) {
+  switch (evento->id_efeito()) {
+    case ent::EFEITO_ARMA_MAGICA: {
+      QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+      evento->clear_complementos_str();
+      evento->add_complementos_str("");
+      evento->clear_complementos();
+      evento->add_complementos(1);
+      if (lista.empty()) return;
+      if (lista.size() >= 1) {
+        evento->set_complementos_str(0, lista[0].toStdString());
+      }
+      if (lista.size() >= 2) {
+        bool ok;
+        int valor = lista[1].toInt(&ok);
+        if (!ok) valor = 1;
+        evento->set_complementos(0, valor);
+      }
+    }
+    return;
+    default:
+      return;
+  }
+}
+
+void StringParaComplementos(const QString& str, ent::EntidadeProto::Evento* evento) {
+  if (ComplementoEventoEspecial(*evento)) {
+    StringEspecialParaComplementos(str, evento);
+  } else if (ComplementoEventoString(*evento)) {
+    *evento->mutable_complementos_str() = StringParaComplementosStr(str);
+  } else {
+    *evento->mutable_complementos() = StringParaComplementos(str);
+  }
 }
 
 }  // namespace
@@ -154,8 +225,8 @@ class ModeloEvento : public QAbstractTableModel {
         return role == Qt::DisplayRole || role == Qt::ToolTipRole
             ? QVariant(QString::fromUtf8(StringEfeito(evento.id_efeito()).c_str()))
             : QVariant(evento.id_efeito());
-      case 1: return QVariant(ComplementoEventoString(evento) ?
-                  ComplementosStrParaString(evento.complementos_str()) : ComplementosParaString(evento.complementos()));
+      case 1:
+        return QVariant(ComplementosParaString(evento));
       case 2: {
         if (evento.continuo() && (role == Qt::DisplayRole || role == Qt::ToolTipRole)) {
           return QVariant("n/a");
@@ -193,11 +264,7 @@ class ModeloEvento : public QAbstractTableModel {
       }
       case 1: {
         AnulaEfeitoEmitindoMudanca(index, evento);
-        if (ComplementoEventoString(*evento)) {
-          *evento->mutable_complementos_str() = StringParaComplementosStr(value.toString());
-        } else {
-          *evento->mutable_complementos() = StringParaComplementos(value.toString());
-        }
+        StringParaComplementos(value.toString(), evento);
         evento->set_rodadas(rodadas);
         emit dataChanged(index, index);
         return true;

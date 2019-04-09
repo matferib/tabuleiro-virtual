@@ -120,22 +120,22 @@ public:
     QSpacerItem *horizontalSpacer_2;
     QPushButton *botao_luz;
     QGridLayout *gridLayout;
-    QHBoxLayout *horizontalLayout_26;
-    QLabel *label_19;
-    QDoubleSpinBox *spin_tex_trans_x;
-    QHBoxLayout *horizontalLayout_25;
-    QHBoxLayout *horizontalLayout_27;
-    QLabel *label_20;
-    QDoubleSpinBox *spin_tex_trans_y;
-    QHBoxLayout *horizontalLayout_23;
-    QLabel *label_18;
-    QDoubleSpinBox *spin_tex_largura;
+    QHBoxLayout *horizontalLayout_24;
+    QGroupBox *groupBox_10;
+    QGridLayout *gridLayout_21;
+    QComboBox *combo_textura;
     QHBoxLayout *horizontalLayout_22;
     QLabel *label_17;
     QDoubleSpinBox *spin_tex_altura;
-    QHBoxLayout *horizontalLayout_24;
-    QLabel *label_15;
-    QComboBox *combo_textura;
+    QHBoxLayout *horizontalLayout_23;
+    QLabel *label_18;
+    QDoubleSpinBox *spin_tex_largura;
+    QHBoxLayout *horizontalLayout_25;
+    QLabel *label_19;
+    QDoubleSpinBox *spin_tex_trans_x;
+    QHBoxLayout *horizontalLayout_26;
+    QLabel *label_20;
+    QDoubleSpinBox *spin_tex_trans_y;
     QWidget *tab_estatisticas;
     QGridLayout *gridLayout_17;
     QGroupBox *groupBox_5;
@@ -979,79 +979,26 @@ public:
 
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        horizontalLayout_26 = new QHBoxLayout();
-        horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
-        label_19 = new QLabel(tab_geral);
-        label_19->setObjectName(QStringLiteral("label_19"));
-        label_19->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        horizontalLayout_24 = new QHBoxLayout();
+        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
+        groupBox_10 = new QGroupBox(tab_geral);
+        groupBox_10->setObjectName(QStringLiteral("groupBox_10"));
+        gridLayout_21 = new QGridLayout(groupBox_10);
+        gridLayout_21->setObjectName(QStringLiteral("gridLayout_21"));
+        combo_textura = new QComboBox(groupBox_10);
+        combo_textura->setObjectName(QStringLiteral("combo_textura"));
 
-        horizontalLayout_26->addWidget(label_19);
-
-        spin_tex_trans_x = new QDoubleSpinBox(tab_geral);
-        spin_tex_trans_x->setObjectName(QStringLiteral("spin_tex_trans_x"));
-        spin_tex_trans_x->setDecimals(2);
-        spin_tex_trans_x->setMinimum(-1);
-        spin_tex_trans_x->setMaximum(1);
-        spin_tex_trans_x->setSingleStep(0.1);
-
-        horizontalLayout_26->addWidget(spin_tex_trans_x);
-
-
-        gridLayout->addLayout(horizontalLayout_26, 0, 1, 1, 1);
-
-        horizontalLayout_25 = new QHBoxLayout();
-        horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
-        horizontalLayout_27 = new QHBoxLayout();
-        horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
-        label_20 = new QLabel(tab_geral);
-        label_20->setObjectName(QStringLiteral("label_20"));
-        label_20->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_27->addWidget(label_20);
-
-        spin_tex_trans_y = new QDoubleSpinBox(tab_geral);
-        spin_tex_trans_y->setObjectName(QStringLiteral("spin_tex_trans_y"));
-        spin_tex_trans_y->setDecimals(2);
-        spin_tex_trans_y->setMinimum(-1);
-        spin_tex_trans_y->setMaximum(1);
-        spin_tex_trans_y->setSingleStep(0.1);
-
-        horizontalLayout_27->addWidget(spin_tex_trans_y);
-
-
-        horizontalLayout_25->addLayout(horizontalLayout_27);
-
-
-        gridLayout->addLayout(horizontalLayout_25, 1, 1, 1, 1);
-
-        horizontalLayout_23 = new QHBoxLayout();
-        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
-        label_18 = new QLabel(tab_geral);
-        label_18->setObjectName(QStringLiteral("label_18"));
-        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_23->addWidget(label_18);
-
-        spin_tex_largura = new QDoubleSpinBox(tab_geral);
-        spin_tex_largura->setObjectName(QStringLiteral("spin_tex_largura"));
-        spin_tex_largura->setDecimals(2);
-        spin_tex_largura->setMaximum(1);
-        spin_tex_largura->setSingleStep(0.1);
-
-        horizontalLayout_23->addWidget(spin_tex_largura);
-
-
-        gridLayout->addLayout(horizontalLayout_23, 0, 2, 1, 1);
+        gridLayout_21->addWidget(combo_textura, 0, 0, 1, 1);
 
         horizontalLayout_22 = new QHBoxLayout();
         horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
-        label_17 = new QLabel(tab_geral);
+        label_17 = new QLabel(groupBox_10);
         label_17->setObjectName(QStringLiteral("label_17"));
         label_17->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_22->addWidget(label_17);
 
-        spin_tex_altura = new QDoubleSpinBox(tab_geral);
+        spin_tex_altura = new QDoubleSpinBox(groupBox_10);
         spin_tex_altura->setObjectName(QStringLiteral("spin_tex_altura"));
         spin_tex_altura->setDecimals(2);
         spin_tex_altura->setMaximum(1);
@@ -1060,22 +1007,69 @@ public:
         horizontalLayout_22->addWidget(spin_tex_altura);
 
 
-        gridLayout->addLayout(horizontalLayout_22, 1, 2, 1, 1);
+        gridLayout_21->addLayout(horizontalLayout_22, 1, 0, 1, 1);
 
-        horizontalLayout_24 = new QHBoxLayout();
-        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
-        label_15 = new QLabel(tab_geral);
-        label_15->setObjectName(QStringLiteral("label_15"));
-        sizePolicy1.setHeightForWidth(label_15->sizePolicy().hasHeightForWidth());
-        label_15->setSizePolicy(sizePolicy1);
-        label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        horizontalLayout_23 = new QHBoxLayout();
+        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
+        label_18 = new QLabel(groupBox_10);
+        label_18->setObjectName(QStringLiteral("label_18"));
+        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_24->addWidget(label_15);
+        horizontalLayout_23->addWidget(label_18);
 
-        combo_textura = new QComboBox(tab_geral);
-        combo_textura->setObjectName(QStringLiteral("combo_textura"));
+        spin_tex_largura = new QDoubleSpinBox(groupBox_10);
+        spin_tex_largura->setObjectName(QStringLiteral("spin_tex_largura"));
+        spin_tex_largura->setDecimals(2);
+        spin_tex_largura->setMaximum(1);
+        spin_tex_largura->setSingleStep(0.1);
 
-        horizontalLayout_24->addWidget(combo_textura);
+        horizontalLayout_23->addWidget(spin_tex_largura);
+
+
+        gridLayout_21->addLayout(horizontalLayout_23, 3, 0, 1, 1);
+
+        horizontalLayout_25 = new QHBoxLayout();
+        horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
+        label_19 = new QLabel(groupBox_10);
+        label_19->setObjectName(QStringLiteral("label_19"));
+        label_19->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_25->addWidget(label_19);
+
+        spin_tex_trans_x = new QDoubleSpinBox(groupBox_10);
+        spin_tex_trans_x->setObjectName(QStringLiteral("spin_tex_trans_x"));
+        spin_tex_trans_x->setDecimals(2);
+        spin_tex_trans_x->setMinimum(-1);
+        spin_tex_trans_x->setMaximum(1);
+        spin_tex_trans_x->setSingleStep(0.1);
+
+        horizontalLayout_25->addWidget(spin_tex_trans_x);
+
+
+        gridLayout_21->addLayout(horizontalLayout_25, 1, 3, 1, 1);
+
+        horizontalLayout_26 = new QHBoxLayout();
+        horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
+        label_20 = new QLabel(groupBox_10);
+        label_20->setObjectName(QStringLiteral("label_20"));
+        label_20->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_26->addWidget(label_20);
+
+        spin_tex_trans_y = new QDoubleSpinBox(groupBox_10);
+        spin_tex_trans_y->setObjectName(QStringLiteral("spin_tex_trans_y"));
+        spin_tex_trans_y->setDecimals(2);
+        spin_tex_trans_y->setMinimum(-1);
+        spin_tex_trans_y->setMaximum(1);
+        spin_tex_trans_y->setSingleStep(0.1);
+
+        horizontalLayout_26->addWidget(spin_tex_trans_y);
+
+
+        gridLayout_21->addLayout(horizontalLayout_26, 3, 3, 1, 1);
+
+
+        horizontalLayout_24->addWidget(groupBox_10);
 
 
         gridLayout->addLayout(horizontalLayout_24, 0, 0, 2, 1);
@@ -2900,10 +2894,7 @@ public:
         QWidget::setTabOrder(combo_visao, spin_raio_visao_escuro_quad);
         QWidget::setTabOrder(spin_raio_visao_escuro_quad, checkbox_salvacao);
         QWidget::setTabOrder(checkbox_salvacao, combo_salvacao);
-        QWidget::setTabOrder(combo_salvacao, combo_textura);
-        QWidget::setTabOrder(combo_textura, spin_tex_trans_x);
-        QWidget::setTabOrder(spin_tex_trans_x, spin_tex_trans_y);
-        QWidget::setTabOrder(spin_tex_trans_y, spin_tex_largura);
+        QWidget::setTabOrder(combo_salvacao, spin_tex_largura);
         QWidget::setTabOrder(spin_tex_largura, spin_tex_altura);
         QWidget::setTabOrder(spin_tex_altura, combo_modelos_3d);
         QWidget::setTabOrder(combo_modelos_3d, lista_formas_alternativas);
@@ -3125,6 +3116,15 @@ public:
 #endif // QT_NO_TOOLTIP
         label_31->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", nullptr));
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", nullptr));
+        groupBox_10->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", nullptr));
+        label_17->setText(QApplication::translate("ifg::qt::DialogoEntidade", "altura", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_altura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Altura da textura, de 0 a 1", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Largura da textura, de 0 a 1", nullptr));
+#endif // QT_NO_TOOLTIP
         label_19->setText(QApplication::translate("ifg::qt::DialogoEntidade", "trans x", nullptr));
 #ifndef QT_NO_TOOLTIP
         spin_tex_trans_x->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", nullptr));
@@ -3133,15 +3133,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_tex_trans_y->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o da textura", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Largura da textura, de 0 a 1", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_17->setText(QApplication::translate("ifg::qt::DialogoEntidade", "altura", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_tex_altura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Altura da textura, de 0 a 1", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", nullptr));
         tabs->setTabText(tabs->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", nullptr));
         groupBox_5->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Salva\303\247\303\265es", nullptr));
         label_65->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Reflexos", nullptr));

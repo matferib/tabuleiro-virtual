@@ -920,156 +920,145 @@ QGroupBox::title {
        </item>
        <item row="2" column="1" rowspan="4">
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_26">
-           <item>
-            <widget class="QLabel" name="label_19">
-             <property name="text">
-              <string>trans x</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="spin_tex_trans_x">
-             <property name="toolTip">
-              <string>Translação da textura</string>
-             </property>
-             <property name="decimals">
-              <number>2</number>
-             </property>
-             <property name="minimum">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_25">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_27">
-             <item>
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>trans y</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="spin_tex_trans_y">
-               <property name="toolTip">
-                <string>Translação da textura</string>
-               </property>
-               <property name="decimals">
-                <number>2</number>
-               </property>
-               <property name="minimum">
-                <double>-1.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_23">
-           <item>
-            <widget class="QLabel" name="label_18">
-             <property name="text">
-              <string>largura</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="spin_tex_largura">
-             <property name="toolTip">
-              <string>Largura da textura, de 0 a 1</string>
-             </property>
-             <property name="decimals">
-              <number>2</number>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_22">
-           <item>
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>altura</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="spin_tex_altura">
-             <property name="toolTip">
-              <string>Altura da textura, de 0 a 1</string>
-             </property>
-             <property name="decimals">
-              <number>2</number>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item row="0" column="0" rowspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_24">
            <item>
-            <widget class="QLabel" name="label_15">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
+            <widget class="QGroupBox" name="groupBox_10">
+             <property name="title">
               <string>Textura</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
+             <layout class="QGridLayout" name="gridLayout_21">
+              <item row="0" column="0">
+               <widget class="QComboBox" name="combo_textura"/>
+              </item>
+              <item row="1" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_22">
+                <item>
+                 <widget class="QLabel" name="label_17">
+                  <property name="text">
+                   <string>altura</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_tex_altura">
+                  <property name="toolTip">
+                   <string>Altura da textura, de 0 a 1</string>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_23">
+                <item>
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
+                   <string>largura</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_tex_largura">
+                  <property name="toolTip">
+                   <string>Largura da textura, de 0 a 1</string>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="3">
+               <layout class="QHBoxLayout" name="horizontalLayout_25">
+                <item>
+                 <widget class="QLabel" name="label_19">
+                  <property name="text">
+                   <string>trans x</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_tex_trans_x">
+                  <property name="toolTip">
+                   <string>Translação da textura</string>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-1.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="3">
+               <layout class="QHBoxLayout" name="horizontalLayout_26">
+                <item>
+                 <widget class="QLabel" name="label_20">
+                  <property name="text">
+                   <string>trans y</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_tex_trans_y">
+                  <property name="toolTip">
+                   <string>Translação da textura</string>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-1.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="combo_textura"/>
            </item>
           </layout>
          </item>
@@ -4076,9 +4065,6 @@ QGroupBox::title {
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
   <tabstop>checkbox_salvacao</tabstop>
   <tabstop>combo_salvacao</tabstop>
-  <tabstop>combo_textura</tabstop>
-  <tabstop>spin_tex_trans_x</tabstop>
-  <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>spin_tex_largura</tabstop>
   <tabstop>spin_tex_altura</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
