@@ -3368,6 +3368,7 @@ modelo {
         conhecidos { id: 'inverter_gravidade' }
         conhecidos { id: 'banimento' }
         conhecidos { id: 'desejo_restrito' }
+        conhecidos { id: 'ondas_exaustao' }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
@@ -3378,7 +3379,7 @@ modelo {
         conhecidos { id: 'muralha_prismatica' }
         conhecidos { id: 'invocar_criaturas_viii' }
         conhecidos { id: 'explosao_solar' }
-        conhecidos { id: 'ondas_exaustao' }
+        conhecidos { id: 'palavra_poder_atordoar' }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 2 }

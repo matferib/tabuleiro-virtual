@@ -4985,6 +4985,46 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'muralha_prismatica'  # prismatic wall.
+    nome: 'muralha prismática'
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+  }
+
+  armas {
+    id: 'desejo'  # desejo.
+    nome: 'desejo'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+  }
+  armas {
+    id: 'circulo_teletransporte'  # teleportation circle.
+    nome: 'círculo de teletransporte'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+  }
+
+  armas {
+    id: 'parar_tempo'  # time stop.
+    nome: 'parar o tempo'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 9
+      dominio: true
+    }
+  }
+
+  armas {
     id: 'aliado_extra_planar_menor'  # planar ally.
     nome: 'aliado extra-planar menor'
     info_classes {
@@ -6147,7 +6187,23 @@ tabela_feiticos {
       #id_modelo_entidade: 'Orc'
     #}
   }
-
+  armas {
+    # TODO
+    id: 'invocar_criaturas_viii'
+    nome: 'invocar criaturas VIII'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
 
   armas {
     id: 'toque_fadiga' #  touch of fatigue
@@ -8007,6 +8063,70 @@ tabela_feiticos {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
+    }
+  }
+  armas {
+    id: 'ondas_exaustao' # waves of exhaustion
+    nome: 'onde de exaustão'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      raio_quadrados: 16
+      geometria: ACAO_GEO_CONE
+      distancia_quadrados: 12
+      efeito_area: true
+      permite_salvacao: false
+      duracao_s: 0.350
+      efeitos_adicionais {
+        # TODO exausto.
+        efeito: EFEITO_OUTRO
+        # permanente.
+      }
+    }
+  }
+
+  armas {
+    id: 'explosao_solar' # sunburst
+    nome: 'explosão solar'
+    dano { invariavel: '6d6' }
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 8
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 16
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      duracao_s: 0.350
+      ignora_luz: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_LUZ
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        # permanente.
+      }
+      # TODO: contra morto vivo: 1d6/nivel max 25d6.
     }
   }
   armas {
