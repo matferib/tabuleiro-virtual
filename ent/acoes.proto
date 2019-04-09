@@ -66,12 +66,11 @@ enum ModificadorRodadas {
   MR_10_MINUTOS_NIVEL = 3;
   MR_HORAS_NIVEL = 4;
   MR_2_HORAS_NIVEL = 5;
-  MR_1D4_MAIS_1 = 6;
   MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6 = 7;
-  MR_1D4 = 8;
   MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15 = 9;
   MR_HORAS_NIVEL_MAX_15 = 10;
   MR_2_MINUTOS_NIVEL = 11;
+  MR_DIAS_POR_NIVEL = 12;
 }
 
 enum ModificadorComplementos {
@@ -213,6 +212,9 @@ message AcaoProto {
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
+    // Outra forma de gerar rodadas, quando o modificador de rodadas so depende de dados.
+    optional string dado_modificador_rodadas = 14;
+    // Modificador dos complementos.
     optional ModificadorComplementos modificador_complementos = 9;
     // Outra forma de gerar o complemento, rolara o dado passado.
     optional string dado_complementos_str = 13;

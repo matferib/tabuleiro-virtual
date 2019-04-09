@@ -2947,9 +2947,17 @@ EntidadeProto::Evento* AdicionaEventoOld(
 
 int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
+  if (efeito_adicional.has_dado_modificador_rodadas()) {
+    int modificador = RolaValor(efeito_adicional.dado_modificador_rodadas());
+    VLOG(1) << "Calculo de rodadas por string, valor final: " << (efeito_adicional.rodadas_base() + modificador);
+    return efeito_adicional.rodadas_base() + modificador;
+  }
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_DIAS_POR_NIVEL:
+        modificador = nivel_conjurador * 24 * HORAS_PARA_RODADAS;
+        break;
       case MR_2_MINUTOS_NIVEL:
         modificador = nivel_conjurador * 2 * MINUTOS_PARA_RODADAS;
         break;
@@ -2970,12 +2978,6 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional) {
         break;
       case MR_2_HORAS_NIVEL:
         modificador = 2 * HORAS_PARA_RODADAS * nivel_conjurador;
-        break;
-      case MR_1D4:
-        modificador = RolaValor("1d4");
-        break;
-      case MR_1D4_MAIS_1:
-        modificador = RolaValor("1d4+1");
         break;
       case MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6:
         modificador = std::min(nivel_conjurador / 3, 6);

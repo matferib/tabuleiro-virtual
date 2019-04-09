@@ -225,6 +225,7 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
+  AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
@@ -560,6 +561,7 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.has_jogada_ataque())            PreencheOrigemValor(origem, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(origem, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(origem, complementos, c.mutable_tamanho());
+  if (c.has_bonus_iniciativa())         PreencheOrigemValor(origem, complementos, c.mutable_bonus_iniciativa());
   for (auto& dp : *c.mutable_dados_pericia()) {
     PreencheOrigemValor(origem, complementos, dp.mutable_bonus());
   }
@@ -605,6 +607,7 @@ ConsequenciaEvento PreencheConsequenciaFimParaModelos(const ConsequenciaEvento& 
   if (c.has_jogada_ataque())            ZeraValorBonus(c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              ZeraValorBonus(c.mutable_jogada_dano());
   if (c.has_tamanho())                  ZeraValorBonus(c.mutable_tamanho());
+  if (c.has_bonus_iniciativa())         ZeraValorBonus(c.mutable_bonus_iniciativa());
   return c;
 }
 

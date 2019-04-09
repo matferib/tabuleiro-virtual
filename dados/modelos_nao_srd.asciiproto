@@ -722,7 +722,7 @@ modelo {
         nivel: 0
         conhecidos { id: 'arcane_mark' } # TODO
         conhecidos { id: 'pasmar' } # TODO
-        conhecidos { id: 'maos_magicas' } 
+        conhecidos { id: 'maos_magicas' }
         conhecidos { id: 'mending' }  # TODO
         conhecidos { id: 'message' }  # TODO
         conhecidos { id: 'open/close' }  # TODO
@@ -1118,7 +1118,7 @@ modelo {
         icone: 'icon_breath.png'
         efeitos_adicionais {
           efeito: EFEITO_NAUSEA
-          modificador_rodadas: MR_1D4_MAIS_1
+          dado_modificador_rodadas: '1d4+1'
         }
       }
     }
@@ -1214,7 +1214,7 @@ modelo {
         icone: 'icon_breath.png'
         efeitos_adicionais {
           efeito: EFEITO_NAUSEA
-          modificador_rodadas: MR_1D4_MAIS_1
+          dado_modificador_rodadas: '1d4+1'
         }
       }
     }
@@ -1243,4 +1243,3 @@ modelo {
     # apesar de ser grande, alcance 1.
   }
 }
-

@@ -1031,6 +1031,23 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_MISSAO_MENOR
+    nome: 'missão menor'
+    formato_complementos: 'a penalidade em cada atributo.'
+    usa_complemento: true
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_MORTE
     nome: 'morte'
   }
@@ -1069,6 +1086,15 @@ tabela_efeitos {
     id: EFEITO_CEGO
     nome: 'cego'
   }
+  efeitos {
+    id: EFEITO_ENSURDECIDO
+    nome: 'ensurdecido'
+    # TODO: 20% de chance de falha para magias verbais. Falha em testes de ouvir. -4 iniciativa.
+    consequencia {
+      bonus_iniciativa { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'ensurdecido' } } }
+    }
+  }
+
   efeitos {
     id: EFEITO_ORACAO_ALIADOS
     nome: 'oração (aliados)'
@@ -4910,6 +4936,94 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'grito'  # shout
+    nome: 'grito'
+    dano_basico: '5d6'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      distancia_quadrados: 6
+      efeito_area: true
+      permite_salvacao: true
+      duracao_s: 0.350
+      dois_lados: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_resistencia_magia: false
+      elemento: DESC_SONICO
+      efeitos_adicionais {
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '2d6'
+      }
+    }
+  }
+
+  armas {
+    id: 'globo_invulnerabilidade_menor'  # globe of invulnerability, lesser
+    nome: 'globo de invulnerabilidade menor'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Globo de Invulnerabilidade'
+    }
+  }
+  armas {
+    id: 'missao_menor'  # geas, lesser
+    nome: 'missão menor'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_MISSAO_MENOR
+        modificador_rodadas: MR_DIAS_POR_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'remover_maldicao'  # remove curse
+    nome: 'remover_maldicao'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+  }
+
+  armas {
     id: 'falar_com_plantas'  # speak with plants
     nome: 'falar_com_plantas'
     info_classes {
@@ -5088,6 +5202,20 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
         modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
       }
+    }
+  }
+
+  armas {
+    id: 'teletransporte'  # teleport
+    nome: 'teletransporte'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 5
+      dominio: true
     }
   }
 
@@ -5961,7 +6089,7 @@ tabela_feiticos {
       dv_mais_alto: 5
       efeitos_adicionais {
         efeito: EFEITO_AMEDRONTADO
-        modificador_rodadas: MR_1D4
+        dado_modificador_rodadas: '1d4'
       }
       efeitos_adicionais_se_salvou {
         efeito: EFEITO_ABALADO

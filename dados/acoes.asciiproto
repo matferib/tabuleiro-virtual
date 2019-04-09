@@ -118,16 +118,19 @@ acao {
   ataque_toque: true
   ataque_distancia: true
   ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
 }
 acao {
   id: 'Pergaminho Arcano'
   icone: 'icon_scroll.png'
   tipo_pergaminho: TM_ARCANA
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Pergaminho Divino'
   icone: 'icon_scroll.png'
   tipo_pergaminho: TM_DIVINA
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Pedrada (gigante)'
