@@ -1298,7 +1298,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_ARMA_MAGICA
     nome: 'arma mágica'
-    formato_complementos: 'nome da arma que foi encantada, igual ao que está nos dados de ataque (exemplo: espada longa)'
+    formato_complementos: 'rótulo da arma que foi encantada (exemplo: espada longa); valor do bonus.'
     consequencia {
       usa_complemento: true
     }
@@ -2820,6 +2820,55 @@ tabela_pocoes {
     custo_po: 50
     duracao_rodadas: 10
     descricao: 'Arma Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_1'
+    nome: 'Arma Mágica Maior +1'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    custo_po: 750
+    duracao_rodadas: 3000
+    descricao: 'Arma Mágica Maior: +1 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_2'
+    nome: 'Arma Mágica Maior +2'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 2
+    custo_po: 1200
+    duracao_rodadas: 4800
+    descricao: 'Arma Mágica Maior: +2 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_3'
+    nome: 'Arma Mágica Maior +3'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 3
+    custo_po: 1800
+    duracao_rodadas: 7200
+    descricao: 'Arma Mágica Maior: +3 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_4'
+    nome: 'Arma Mágica Maior +4'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 4
+    custo_po: 2400
+    duracao_rodadas: 9600
+    descricao: 'Arma Mágica Maior: +4 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_5'
+    nome: 'Arma Mágica Maior +5'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 5
+    custo_po: 3000
+    duracao_rodadas: 12000
+    descricao: 'Arma Mágica Maior: +5 bonus de melhoria no ataque e dano para uma arma'
   }
   pocoes {
     id: 'presa_magica'
@@ -4936,6 +4985,38 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'aliado_extra_planar_menor'  # planar ally.
+    nome: 'aliado extra-planar menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+  }
+
+  armas {
+    id: 'controlar_agua'  # control water.
+    nome: 'controlar a água'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 4
+      dominio: true
+    }
+  }
+
+
+  armas {
     id: 'adivinhacao'  # divination.
     nome: 'adivinhação'
     info_classes {
@@ -6450,6 +6531,35 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'arma_magica_maior' # magic weapon, greater
+    nome: 'arma mágica maior'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMA_MAGICA
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
 
   armas {
     id: 'armadura_arcana'
@@ -7670,6 +7780,34 @@ tabela_feiticos {
         efeito: EFEITO_OUTRO
         descricao: 'ancora dimensional'
         modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'andar_ar'
+    nome: 'andar no ar'
+    info_classes {
+      id: 'ar'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'andar no ar'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
   }

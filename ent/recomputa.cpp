@@ -343,9 +343,14 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     case EFEITO_PRESA_MAGICA:
     case EFEITO_ARMA_MAGICA: {
       if (evento.complementos_str().empty()) return false;
+      int valor = 1;
+      if (!evento.complementos().empty()) {
+        valor = std::max(0, std::min(evento.complementos(0), 5));
+      }
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
       for (auto* da : das) {
-        AtribuiBonus(1, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+        AtribuiBonusPenalidadeSeMaior(
+            valor, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
     }
     break;
