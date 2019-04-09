@@ -1,3 +1,4 @@
+tabela_armaduras {
   armaduras { id: 'nenhuma'          nome: 'Nenhuma' bonus: 0 preco { po:  0  } tipo: TA_LEVE }
   armaduras { id: 'acolchoada'       nome: 'Acolchoada'  bonus: 1  max_bonus_destreza: 8  preco { po:  5  } tipo: TA_LEVE }
   armaduras { id: 'couro'            nome: 'Couro'  bonus: 2   max_bonus_destreza: 6  preco { po:  10  } tipo: TA_LEVE }
@@ -1033,8 +1034,8 @@ tabela_efeitos {
     id: EFEITO_MISSAO_MENOR
     nome: 'missão menor'
     formato_complementos: 'a penalidade em cada atributo.'
-    usa_complemento: true
     consequencia {
+      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
@@ -4935,9 +4936,23 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'adivinhacao'  # divination.
+    nome: 'adivinhação'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 4
+      dominio: true
+    }
+  }
+
+  armas {
     id: 'assassino_fantasmagorico'  # phantasmal killer.
     nome: 'assassino fantasmagórico'
-    dano_basico_fixo: '3d6'
+    dano { invariavel: '3d6' }
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -5006,7 +5021,7 @@ tabela_feiticos {
   armas {
     id: 'grito'  # shout
     nome: 'grito'
-    dano_basico: '5d6'
+    dano { invariavel: '3d6' }
     info_classes {
       id: 'bardo'
       nivel: 4
