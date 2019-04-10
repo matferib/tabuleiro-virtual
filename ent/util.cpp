@@ -2961,10 +2961,13 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_CONTINUO:
+        modificador = kEfeitoContinuo;
+      break;
       case MR_PALAVRA_PODER_ATORDOAR: {
         const int pv = alvo.PontosVida();
         if (pv <= 50) {
-          modificador = kEfeitoContinuo;
+          modificador = RolaValor("4d4");;
         } else if (pv <= 100) {
           modificador = RolaValor("2d4");
         } else {
@@ -2975,7 +2978,7 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
       case MR_PALAVRA_PODER_CEGAR: {
         const int pv = alvo.PontosVida();
         if (pv <= 50) {
-          modificador = RolaValor("4d4");
+          modificador = kEfeitoContinuo;
         } else if (pv <= 100) {
           modificador = RolaValor("1d4+1") * MINUTOS_PARA_RODADAS;
         } else {

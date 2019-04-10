@@ -73,6 +73,7 @@ enum ModificadorRodadas {
   MR_DIAS_POR_NIVEL = 12;
   MR_PALAVRA_PODER_ATORDOAR = 13;
   MR_PALAVRA_PODER_CEGAR = 14;
+  MR_CONTINUO = 15;
 }
 
 enum ModificadorComplementos {

@@ -116,6 +116,79 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
   EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
 }
 
+TEST(TesteArmas, TestePalavraDoPoderCegar) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(20);
+  AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("palavra_poder_cegar");
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->alcance_m(), 15 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
+  EXPECT_TRUE(da->has_acao());
+  EXPECT_FALSE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
+  const AcaoProto& acao = da->acao();
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
+  ASSERT_FALSE(acao.efeitos_adicionais().empty());
+  EXPECT_FALSE(da->acao().permite_salvacao()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->acao().ignora_resistencia_magia()) << "DA completo: " << da->DebugString();
+
+  EntidadeProto proto_alvo;
+  proto_alvo.set_max_pontos_vida(201);
+  {
+    proto_alvo.set_pontos_vida(50);
+    std::unique_ptr<Entidade> alvo(NovaEntidade(proto_alvo, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
+    std::vector<int> ids_unicos;
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
+    EXPECT_EQ(evento.id_unico(), 0);
+    EXPECT_TRUE(evento.continuo());
+  }
+  {
+    proto_alvo.set_pontos_vida(51);
+    std::unique_ptr<Entidade> alvo(NovaEntidade(proto_alvo, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
+    g_dados_teste.push(1);
+    std::vector<int> ids_unicos;
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
+    EXPECT_EQ(evento.id_unico(), 0);
+    EXPECT_EQ(evento.rodadas(), 20);
+  }
+  {
+    proto_alvo.set_pontos_vida(101);
+    std::unique_ptr<Entidade> alvo(NovaEntidade(proto_alvo, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
+    g_dados_teste.push(1);
+    std::vector<int> ids_unicos;
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
+    EXPECT_EQ(evento.id_unico(), 0);
+    EXPECT_EQ(evento.rodadas(), 2);
+  }
+  {
+    proto_alvo.set_pontos_vida(201);
+    std::unique_ptr<Entidade> alvo(NovaEntidade(proto_alvo, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_FALSE(AcaoAfetaAlvo(acao, *alvo)) << "acao: " << acao.DebugString();
+  }
+}
+
 TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
