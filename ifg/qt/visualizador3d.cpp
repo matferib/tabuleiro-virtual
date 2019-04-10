@@ -47,7 +47,6 @@
 #include "m3d/m3d.h"
 #include "net/util.h"
 #include "ntf/notificacao.pb.h"
-#include "tex/texturas.h"
 
 namespace ifg {
 namespace qt {
@@ -108,26 +107,6 @@ const QString TamanhoParaTexto(int tamanho) {
   }
   LOG(ERROR) << "Tamanho inválido: " << tamanho;
   return QObject::tr("desconhecido");
-}
-
-// Carrega os dados de uma textura pro proto 'info_textura' e tambem preenche plargura e paltura.
-bool PreencheInfoTextura(
-    const std::string& nome, arq::tipo_e tipo, ent::InfoTextura* info_textura,
-    unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
-  unsigned int largura = 0, altura = 0;
-  if (plargura == nullptr) {
-    plargura = &largura;
-  }
-  if (paltura == nullptr) {
-    paltura = &altura;
-  }
-  try {
-    tex::Texturas::LeDecodificaImagem(tipo, nome, info_textura, plargura, paltura);
-    return true;
-  } catch (...) {
-    LOG(ERROR) << "Textura inválida: " << info_textura->id();
-    return false;
-  }
 }
 
 // Mapeia a tecla do QT para do TratadorTecladoMouse.
@@ -293,7 +272,7 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
       if (dados.toInt() == arq::TIPO_TEXTURA_LOCAL) {
         VLOG(2) << "Textura local, recarregando.";
         info_textura->set_id(nome.toStdString());
-        PreencheInfoTextura(nome.split(":")[1].toStdString(),
+        ent::PreencheInfoTextura(nome.split(":")[1].toStdString(),
             arq::TIPO_TEXTURA_LOCAL, info_textura);
       } else {
         info_textura->set_id(nome.toStdString());
@@ -2745,7 +2724,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       } else {
         nome = gerador.combo_fundo->itemText(indice).toStdString();
       }
-      PreencheInfoTextura(nome, tipo, &textura, &largura, &altura);
+      ent::PreencheInfoTextura(nome, tipo, &textura, &largura, &altura);
       proto_retornado->set_largura(largura / 8);
       proto_retornado->set_altura(altura / 8);
     } else {
