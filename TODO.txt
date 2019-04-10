@@ -1,3 +1,5 @@
+Carregar texturas locais.
+
 Anotacoes da sessao Tilverton:
 - Mago de guerra 5.
 

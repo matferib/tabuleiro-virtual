@@ -5038,13 +5038,14 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: 'virou sapo'
+        modificador_rodadas: MR_CONTINUO
       }
     }
   }
 
   armas {
     id: 'desejo_restrito'  # limited wish.
-    nome: 'desejo_restrito'
+    nome: 'desejo restrito'
     info_classes {
       id: 'mago'
       nivel: 7
@@ -5275,11 +5276,13 @@ tabela_feiticos {
   armas {
     id: 'globo_invulnerabilidade'  # globe of invulnerability
     nome: 'globo de invulnerabilidade'
+    alcance_quadrados: 1
     info_classes {
       id: 'mago'
       nivel: 6
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Globo de Invulnerabilidade'
     }
@@ -6938,7 +6941,6 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       dificuldade_salvacao_por_nivel: true
       dv_mais_alto: 4
-      afeta_max
       efeitos_adicionais {
         efeito: EFEITO_PASMAR
         rodadas: 1
@@ -8220,7 +8222,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque a Distância'
       tipo: ACAO_DISPERSAO
-      geometria: GEO_ESFERA
+      geometria: ACAO_GEO_ESFERA
       raio_quadrados: 6
       efeito_area: true
       permite_salvacao: true
@@ -8228,6 +8230,7 @@ tabela_feiticos {
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
+      cor { r: 1 g: 1 b: 1 a: 0.9 }
       # 2 DV por nivel de criaturas.
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8238,6 +8241,7 @@ tabela_feiticos {
   armas {
     id: 'ondas_exaustao' # waves of exhaustion
     nome: 'onde de exaustão'
+    alcance_quadrados: 12
     info_classes {
       id: 'mago'
       nivel: 7
@@ -8253,7 +8257,7 @@ tabela_feiticos {
       duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_EXAUSTO
-        # permanente.
+        modificador_rodadas: MR_CONTINUO
       }
     }
   }
@@ -8783,7 +8787,7 @@ tabela_feiticos {
       cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
       duracao_s: 0.5
       permite_salvacao: false
-      icone: "icon_power_word.png"
+      #icone: "icon_power_word.png"
       permite_ataque_vs_defesa: false
       pv_mais_alto: 200
       efeitos_adicionais {
@@ -8812,7 +8816,7 @@ tabela_feiticos {
       cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
       duracao_s: 0.5
       permite_salvacao: false
-      icone: "icon_power_word.png"
+      #icone: "icon_power_word.png"
       permite_ataque_vs_defesa: false
       pv_mais_alto: 150
       efeitos_adicionais {
@@ -8840,7 +8844,7 @@ tabela_feiticos {
       cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
       duracao_s: 0.5
       permite_salvacao: false
-      icone: "icon_power_word.png"
+      #icone: "icon_power_word.png"
       permite_ataque_vs_defesa: false
       pv_mais_alto: 100
       efeitos_adicionais {

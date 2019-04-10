@@ -1243,6 +1243,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_.montado_em() == IdInvalido) {
     proto_.clear_montado_em();
   }
+
   RecomputaDependencias(tabelas_, &proto_);
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }

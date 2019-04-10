@@ -3020,15 +3020,18 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
         break;
     }
     VLOG(1) << "Calculo de rodadas, valor final: " << (efeito_adicional.rodadas_base() + modificador);
-    return efeito_adicional.rodadas_base() + modificador;
+    return modificador == kEfeitoContinuo ? kEfeitoContinuo : efeito_adicional.rodadas_base() + modificador;
   }
   if (efeito_adicional.has_rodadas_base()) {
+    VLOG(1) << "Calculo de rodadas base, valor final: " << (efeito_adicional.rodadas_base());
     return efeito_adicional.rodadas_base();
   }
+  VLOG(1) << "Sem dado para rodadas, retornando efeito contínuo";
   return kEfeitoContinuo;
 }
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade* alvo, EntidadeProto::Evento* evento) {
+  *evento->mutable_complementos_str() = efeito_adicional.complementos_str();
   if (efeito_adicional.has_dado_complementos_str()) {
     evento->add_complementos(RolaValor(efeito_adicional.dado_complementos_str()));
     return;
@@ -3072,7 +3075,6 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
   auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
   PreencheComplementos(nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
-  *e->mutable_complementos_str() = efeito_adicional.complementos_str();
   return e;
 }
 
@@ -3156,6 +3158,9 @@ void AdicionaEventoItemMagico(
     }
     if (!item.complementos_str().empty()) {
       *evento->mutable_complementos_str() = item.complementos_str();
+    }
+    if (continuo) {
+      evento->set_requer_pai(true);
     }
     evento->set_descricao(item.descricao().empty() ? item.nome() : item.descricao());
   }
@@ -3443,10 +3448,11 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
   }
 }
 
-bool FeiticoGeraAcao(const ArmaProto& feitico_tabelado) {
+bool FeiticoGeraAcao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) {
   // Ha varias condicoes que fazem o feitico gerar uma acao. Vamos tentar varias.
   switch (feitico_tabelado.acao().tipo()) {
     case ACAO_INVALIDA:
+      return tabelas.Acao(feitico_tabelado.acao().id()).tipo() != ACAO_INVALIDA;
       return false;
     default:
       return true;
@@ -3500,7 +3506,7 @@ bool NotificacaoConsequenciaFeitico(
     // Adiciona uma acao de feitico pessoal.
     PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
     return false;
-  } else if (FeiticoGeraAcao(feitico_tabelado)) {
+  } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
     ntf::Notificacao* n;
     ent::EntidadeProto *e_antes, *e_depois;
     std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
