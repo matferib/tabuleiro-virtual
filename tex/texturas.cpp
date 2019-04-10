@@ -548,8 +548,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura_const) {
         }
         texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/, info_lido)));
       } catch (const std::exception& e) {
-        LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what()
-                   << ", info_textura: " << info_textura.ShortDebugString();
+        LOG(ERROR) << "Textura inválida: {" << info_textura.ShortDebugString() << "}, excecao: " << e.what();
         // Cria textura fake.
         texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
       }
@@ -623,7 +622,7 @@ void Texturas::LeDecodificaImagem(
   DecodificaImagem(info_textura->bits_crus(), largura, altura, &nao_usado);
 }
 
-void Texturas::LeDecodificaImagem(
+void Texturas::LeDecodificaImagemTipo(
     arq::tipo_e tipo, const std::string& nome, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura) {
   std::vector<unsigned char> dados_arquivo;
   LeImagem(tipo, nome, &dados_arquivo);
