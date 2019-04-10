@@ -1031,6 +1031,22 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_PASMAR
+    nome: 'pasmo'
+  }
+  efeitos {
+    id: EFEITO_EXAUSTO
+    nome: 'exausto'
+    consequencia {
+      atributos {
+        # Usa a mesma origem que fadiga para evitar acumulo.
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 6 origem: 'fadiga' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 6 origem: 'fadiga' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_MISSAO_MENOR
     nome: 'missão menor'
     formato_complementos: 'a penalidade em cada atributo.'
@@ -4992,9 +5008,51 @@ tabela_feiticos {
       nivel: 8
     }
   }
+  armas {
+    id: 'telecinesia'  # telekinesis.
+    nome: 'telecinésia'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+  }
+  armas {
+    id: 'metamorfose_torrida'  # baleful polymorph.
+    nome: 'metamorfose tórrida'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'virou sapo'
+      }
+    }
+  }
 
   armas {
-    id: 'desejo'  # desejo.
+    id: 'desejo_restrito'  # limited wish.
+    nome: 'desejo_restrito'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+  }
+
+  armas {
+    id: 'desejo'  # wish.
     nome: 'desejo'
     info_classes {
       id: 'mago'
@@ -5169,6 +5227,61 @@ tabela_feiticos {
         efeito: EFEITO_ENSURDECIDO
         dado_modificador_rodadas: '2d6'
       }
+    }
+  }
+  armas {
+    id: 'proteger_fortalezas'  # guards and wards
+    nome: 'proteger fortalezas'
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+  }
+  armas {
+    id: 'elucubracao'  # mage's lucubration
+    nome: 'elucubração'
+    alcance_quadrados: 20
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+    }
+  }
+  armas {
+    id: 'circulo_morte'  # círculo da morte
+    nome: 'círculo da morte'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      dv_mais_alto: 8
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      raio_quadrados: 8
+      cor { r: 0 g: 0 b: 0 a: 0.8 }
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+      # TODO: limite de dados de vida do feitico: 1d4 por nivel conjurador, max 20d4.
+    }
+  }
+  armas {
+    id: 'globo_invulnerabilidade'  # globe of invulnerability
+    nome: 'globo de invulnerabilidade'
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Globo de Invulnerabilidade'
     }
   }
 
@@ -6824,7 +6937,8 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       dificuldade_salvacao_por_nivel: true
-      # TODO: afeta apenas 4 HD ou menos.
+      dv_mais_alto: 4
+      afeta_max
       efeitos_adicionais {
         efeito: EFEITO_PASMAR
         rodadas: 1
@@ -8066,6 +8180,62 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'expulsao' # dismissal
+    nome: 'expulsão'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      # TODO dificuldade_salvacao: # ESPECIAL: DC = normal modificador pelo nivel conjurador - HD alvo.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'expulso'
+      }
+    }
+  }
+  armas {
+    id: 'banimento' # banishment
+    nome: 'banimento'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: GEO_ESFERA
+      raio_quadrados: 6
+      efeito_area: true
+      permite_salvacao: true
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      # 2 DV por nivel de criaturas.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'expulso'
+      }
+    }
+  }
+  armas {
     id: 'ondas_exaustao' # waves of exhaustion
     nome: 'onde de exaustão'
     info_classes {
@@ -8082,8 +8252,7 @@ tabela_feiticos {
       permite_salvacao: false
       duracao_s: 0.350
       efeitos_adicionais {
-        # TODO exausto.
-        efeito: EFEITO_OUTRO
+        efeito: EFEITO_EXAUSTO
         # permanente.
       }
     }
@@ -8575,6 +8744,55 @@ tabela_feiticos {
       elemento: DESC_ELETRICIDADE
     }
   }
+  armas {
+    id: 'inverter_gravidade'  # reverse gravity
+    nome: 'inverter gravidade'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Gravidade Invertida'
+    }
+  }
+
+  armas {
+    id: 'palavra_poder_cegar'
+    nome: 'palavra do poder: cegar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 7
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 200
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        modificador_rodadas: MR_PALAVRA_PODER_CEGAR
+      }
+    }
+  }
+
   armas {
     id: 'palavra_poder_atordoar'
     nome: 'palavra do poder: atordoar'

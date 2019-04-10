@@ -2945,8 +2945,14 @@ EntidadeProto::Evento* AdicionaEventoOld(
   return e;
 }
 
+// Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo.
+constexpr int kEfeitoContinuo = std::numeric_limits<int>::max();
 int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade& alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
+  if (efeito_adicional.has_rodadas()) {
+    VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
+    return efeito_adicional.rodadas();
+  }
   if (efeito_adicional.has_dado_modificador_rodadas()) {
     int modificador = RolaValor(efeito_adicional.dado_modificador_rodadas());
     VLOG(1) << "Calculo de rodadas por string, valor final: " << (efeito_adicional.rodadas_base() + modificador);
@@ -2958,11 +2964,22 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
       case MR_PALAVRA_PODER_ATORDOAR: {
         const int pv = alvo.PontosVida();
         if (pv <= 50) {
-          modificador = RolaValor("4d4");
+          modificador = kEfeitoContinuo;
         } else if (pv <= 100) {
           modificador = RolaValor("2d4");
         } else {
           modificador = RolaValor("1d4");
+        }
+      }
+      break;
+      case MR_PALAVRA_PODER_CEGAR: {
+        const int pv = alvo.PontosVida();
+        if (pv <= 50) {
+          modificador = RolaValor("4d4");
+        } else if (pv <= 100) {
+          modificador = RolaValor("1d4+1") * MINUTOS_PARA_RODADAS;
+        } else {
+          modificador = RolaValor("1d4+1");
         }
       }
       break;
@@ -3002,8 +3019,10 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
     VLOG(1) << "Calculo de rodadas, valor final: " << (efeito_adicional.rodadas_base() + modificador);
     return efeito_adicional.rodadas_base() + modificador;
   }
-  VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
-  return efeito_adicional.rodadas();
+  if (efeito_adicional.has_rodadas_base()) {
+    return efeito_adicional.rodadas_base();
+  }
+  return kEfeitoContinuo;
 }
 
 void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade* alvo, EntidadeProto::Evento* evento) {
@@ -3042,8 +3061,12 @@ void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_ad
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
-  const bool continuo = !efeito_adicional.has_rodadas() && !efeito_adicional.has_modificador_rodadas();
-  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), Rodadas(nivel_conjurador, efeito_adicional, alvo), continuo, ids_unicos, proto);
+  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, alvo);
+  const bool continuo = rodadas == kEfeitoContinuo ||
+                        (!efeito_adicional.has_rodadas() &&
+                         !efeito_adicional.has_modificador_rodadas() &&
+                         !efeito_adicional.has_dado_modificador_rodadas());
+  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
   PreencheComplementos(nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   *e->mutable_complementos_str() = efeito_adicional.complementos_str();
