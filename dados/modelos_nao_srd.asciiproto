@@ -911,7 +911,7 @@ modelo {
     raca: 'humano'
     dados_vida: '4d8+1d4+20'
     # Nao tem como carregar texturas locais. Tem que carregar na UI.
-    info_textura { id: 'mudar para: 0:shar_cleric.png na UI!'  largura: 0.6 translacao_x: 0.2 }
+    info_textura { id: '0:shar_cleric.png'  largura: 0.6 translacao_x: 0.2 }
     info_classes { id: 'clerigo' nivel: 5 }
     info_classes { id: 'adepto_sombras' nivel: 1 }
     tendencia { simples: TD_LEAL_MAU }
@@ -1026,6 +1026,15 @@ modelo {
   }
 }
 
+
+modelo {
+  id: 'Humano Arcano de Guerra 5'
+  id_entidade_base: 'Humano Mago 5'
+  entidade {
+    rotulo: 'arcano de guerra 5'
+    info_textura { id: '0:war_wizard.png' }
+  }
+}
 
 modelo {
   id: 'Humano Combatente Soldado Dragão Púrpura 2'
