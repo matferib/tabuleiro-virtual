@@ -28,6 +28,7 @@
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
 #include "goog/stringprintf.h"
 #include "log/log.h"
+#include "tex/texturas.h"
 
 namespace ent {
 
@@ -4312,6 +4313,25 @@ void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te,
     auto* evento_depois = e_depois->add_evento();
     *evento_depois = evento_proto;
     evento_depois->set_rodadas(-1);
+  }
+}
+
+bool PreencheInfoTextura(
+    const std::string& nome, arq::tipo_e tipo, InfoTextura* info_textura,
+    unsigned int* plargura, unsigned int* paltura) {
+  unsigned int largura = 0, altura = 0;
+  if (plargura == nullptr) {
+    plargura = &largura;
+  }
+  if (paltura == nullptr) {
+    paltura = &altura;
+  }
+  try {
+    tex::Texturas::LeDecodificaImagemTipo(tipo, nome, info_textura, plargura, paltura);
+    return true;
+  } catch (...) {
+    LOG(ERROR) << "Textura inválida: " << info_textura->id();
+    return false;
   }
 }
 
