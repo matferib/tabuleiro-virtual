@@ -241,7 +241,9 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
 }
 
 bool ImuneMorte(const EntidadeProto& proto) {
-  return TemTipoDnD(TIPO_CONSTRUCTO, proto) || TemTipoDnD(TIPO_MORTO_VIVO, proto);
+  return TemTipoDnD(TIPO_CONSTRUCTO, proto) ||
+         TemTipoDnD(TIPO_MORTO_VIVO, proto) ||
+         PossuiEvento(EFEITO_PROTECAO_CONTRA_MORTE, proto);
 }
 
 bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
@@ -249,16 +251,19 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento.id_efeito()) {
     case EFEITO_MORTE:
-      if (!evento.processado() && !ImuneMorte(*proto)) {
-        proto->set_morta(true);
-        proto->set_caida(true);
+      if (!evento.processado()) {
+        if (!ImuneMorte(*proto)) {
+          proto->set_morta(true);
+          proto->set_caida(true);
+          // TODO salvar estado do evento.
+        }
       }
       break;
     case EFEITO_VITALIDADE_ILUSORIA:
       if (!evento.processado()) {
         // Gera os pontos de vida temporarios.
         const int tmp = RolaDado(8);
-        auto* po = AtribuiBonus(tmp, TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
+        AtribuiBonus(tmp, TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
         // Nivel conjurador: hard coded.
         // Forca: pelo comum.
       }

@@ -1031,6 +1031,10 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_LUZ
+    nome: 'luz'
+  }
+  efeitos {
     id: EFEITO_PASMAR
     nome: 'pasmo'
   }
@@ -4999,7 +5003,243 @@ tabela_pericias {
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
+
 tabela_feiticos {
+  armas {
+    id: 'criar_alimentos'  # create food and water
+    nome: 'criar alimentos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+  }
+
+  armas {
+    id: 'chama_continua'  # continual flame
+    nome: 'chama contínua'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+  }
+
+  armas {
+    id: 'praga'  # contagion
+    nome: 'praga'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Doença: ver tabela da magia praga'
+      }
+    }
+  }
+
+  armas {
+    id: 'rogar_maldicao'  # bestow curse
+    nome: 'rogar maldição'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'maldição: -6 a uma habilidade ou -4 em ataques, salvações, testes e perícias, ou 50% de não fazer nada.'
+      }
+    }
+  }
+
+  armas {
+    id: 'silencio'  # silence
+    nome: 'silêncio'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    # TODO criacao de uma esfera de 4 quadrados.
+  }
+
+  armas {
+    id: 'augurio'  # augury
+    nome: 'augúrio'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+    }
+  }
+
+  armas {
+    id: 'invisibilidade_contra_mortos_vivos'  # hide from undead
+    nome: 'invisibilidade contra mortos-vivos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE_CONTRA_MORTOS_VIVOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'comando'  # command
+    nome: 'comando'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Comando'
+        rodadas: 1
+      }
+    }
+  }
+
+
+  armas {
+    id: 'compreender_idiomas'  # comprehend languages
+    nome: 'compreender idiomas'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Compreender idiomas'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'purificar_alimentos'  # purify food and drink
+    nome: 'purificar alimentos'
+    info_classes {
+      id: 'duida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'luz'  # light
+    nome: 'luz'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1 g: 1 b: 1 }
+      efeitos_adicionais {
+        efeito: EFEITO_LUZ
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'criar_agua'  # create water
+    nome: 'criar água'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+  }
+
   armas {
     id: 'muralha_prismatica'  # prismatic wall.
     nome: 'muralha prismática'
@@ -5316,6 +5556,55 @@ tabela_feiticos {
         efeito: EFEITO_MISSAO_MENOR
         modificador_rodadas: MR_DIAS_POR_NIVEL
       }
+    }
+  }
+
+  armas {
+    id: 'protecao_contra_morte'  # death ward
+    nome: 'proteção contra a morte'
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_MORTE
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'remover_doencas'  # remove disease
+    nome: 'remover_maldicao'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
     }
   }
 
@@ -7306,7 +7595,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'infligir_ferimentos_moderados'  # cure moderate wounds
+    id: 'infligir_ferimentos_moderados'  # inflict moderate wounds
     nome: 'infligir ferimentos moderados'
     modelo_dano: DANO_2D8_MAIS_1_POR_NIVEL_MAX_10
     info_classes {
@@ -8364,7 +8653,23 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'detectar_magia'
+    id: 'detectar_mal' # detect evil
+    nome: 'detectar o mal'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        tipo_efeito: EFEITO_OUTRO
+        descricao: 'Detectar o mal, cone 12 quadrados'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'detectar_magia' # detect magic
     nome: 'detectar magia'
     info_classes {
       id: 'bardo'
@@ -8393,6 +8698,37 @@ tabela_feiticos {
       duracao_s: 0.350
     }
   }
+  armas {
+    id: '' #
+    nome: ''
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.7 g: 0.7 b: 0.7 }
+      distancia_quadrados: 12
+      geometria: ACAO_GEO_CONE
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_touch.png'
+      duracao_s: 0.350
+    }
+  }
+
   armas {
     id: 'dissipar_magia'
     nome: 'dissipar magia'
