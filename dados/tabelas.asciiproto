@@ -7772,8 +7772,9 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'circulo_magico_contra_tendencia'
-    nome: 'círculo mágico contra tendência'
+    id: 'circulo_magico_contra_mal' # magic circle against evil
+    nome: 'círculo mágico contra o mal'
+    alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
       nivel: 3
@@ -7791,23 +7792,125 @@ tabela_feiticos {
       nivel: 3
       dominio: true
     }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_MAL
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_bem' # magic circle against good
+    nome: 'círculo mágico contra o bem'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
     info_classes {
       id: 'mal'
       nivel: 3
       dominio: true
     }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_BEM
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_caos' # magic circle against chaos
+    nome: 'círculo mágico contra o caos'
+    alcance_quadrados: 1
     info_classes {
-      id: 'caos'
+      id: 'clerigo'
       nivel: 3
-      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
     }
     info_classes {
       id: 'ordem'
       nivel: 3
       dominio: true
     }
-    # TODO
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_CAOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+
   }
+  armas {
+    id: 'circulo_magico_contra_ordem' # magic circle against law
+    nome: 'círculo mágico contra a ordem'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'chaos'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+
+  }
+
+
   armas {
     id: 'protecao_contra_elementos'
     nome: 'proteção contra elementos'
