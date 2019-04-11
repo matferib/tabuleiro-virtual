@@ -1208,7 +1208,7 @@ std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) 
 
 // Retorna true se o item que criou o evento nao existe mais.
 bool EventoOrfao(const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens) {
-  return evento.continuo() && ids_itens.find(evento.id_unico()) == ids_itens.end();
+  return evento.requer_pai() && c_none(ids_itens, evento.id_unico());
 }
 
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {

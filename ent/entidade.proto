@@ -319,6 +319,8 @@ message EntidadeProto {
     // A origem do evento, sera passada ao efeito. Origens iguais nao se acumulam.
     // Por exemplo: mesmo feitico lançado multiplas vezes.
     optional string origem = 9;
+    // Se o evento for continuo e vier de um item magico, deve setar isso para true. Eventos orfaos serao removidos em recomputa.
+    optional bool requer_pai = 10;
   }
   repeated Evento evento = 31;
 

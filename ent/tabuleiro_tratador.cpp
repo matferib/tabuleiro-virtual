@@ -1335,7 +1335,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1d m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("AAFora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }

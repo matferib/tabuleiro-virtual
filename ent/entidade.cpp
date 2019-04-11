@@ -308,14 +308,20 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
-    VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
+    const std::string& id = novo_proto.info_textura().id();
+    VLOG(1) << "Carregando textura: " << id;
     auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
+    *nc->add_info_textura() = novo_proto.info_textura();
+    if (id.find(':') != std::string::npos && !novo_proto.info_textura().has_bits_crus()) {
+      // Aqui ainda tem que usar o id do cliente para ficar mais certo, mas assim ja funciona.
+      // Aqui é um modelo que tem 0: no nome. Tem que carregar os bits crus.
+      std::string nome_arquivo = id.substr(id.find(':') + 1);
+      PreencheInfoTextura(nome_arquivo, arq::TIPO_TEXTURA_LOCAL, nc->mutable_info_textura(0));
+    }
+    *proto_atual->mutable_info_textura() = nc->info_textura(0);
     central->AdicionaNotificacao(nc.release());
   }
-  if (novo_proto.info_textura().id().size() > 0) {
-    proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
-  } else {
+  if (novo_proto.info_textura().id().empty()) {
     proto_atual->clear_info_textura();
   }
 }
@@ -1243,6 +1249,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_.montado_em() == IdInvalido) {
     proto_.clear_montado_em();
   }
+
   RecomputaDependencias(tabelas_, &proto_);
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }

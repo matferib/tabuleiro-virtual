@@ -10,6 +10,7 @@
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
+#include "arq/arquivo.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
@@ -857,6 +858,10 @@ TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);
 // Retorna true se o proto tiver o tipo passado.
 inline bool TemTipoDnD(TipoDnD tipo, const EntidadeProto& proto) { return c_any(proto.tipo_dnd(), tipo); }
 inline bool TemSubTipoDnD(SubTipoDnD sub_tipo, const EntidadeProto& proto) { return c_any(proto.sub_tipo_dnd(), sub_tipo); }
+
+bool PreencheInfoTextura(
+    const std::string& nome, arq::tipo_e tipo, InfoTextura* info_textura,
+    unsigned int* plargura = nullptr, unsigned int* paltura = nullptr);
 
 }  // namespace ent
 
