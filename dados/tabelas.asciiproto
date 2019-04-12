@@ -2307,6 +2307,20 @@ tabela_amuletos {
     tipo_efeito: EFEITO_MELHORIA_SABEDORIA
     complementos: 6
   }
+  amuletos {
+    id: 'escaravelho_protecao'
+    nome: 'Escaravelho da Proteção'
+    descricao: 'RM 20, absorve 12 ataques de energia negativa ou efeitos de morte.'
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_MORTE
+    custo_po: 38000
+  }
+  amuletos {
+    id: 'escaravelho_anti_golem'
+    nome: 'Escaravelho Anti-golem'
+    descricao: 'Detecta golems em 12 quadrados, ignora redução de dano de golems.'
+    custo_po: 2500
+    # TODO
+  }
 }
 tabela_luvas {
   luvas {
@@ -2381,12 +2395,6 @@ tabela_mantos {
     complementos: 5
   }
   mantos {
-    id: 'manto_carisma_2'
-    nome: 'Manto do carisma +2'
-    custo_po: 4000
-    # propriedades: { atributos: { carisma: 2 } }
-  }
-  mantos {
     id: 'manto_resistencia_2'
     nome: 'Manto da resistência +2'
     custo_po: 4000
@@ -2416,10 +2424,25 @@ tabela_mantos {
     custo_po: 14000
   }
   mantos {
+    id: 'manto_carisma_2'
+    nome: 'Manto do carisma +2'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 2
+  }
+  mantos {
     id: 'manto_carisma_4'
     nome: 'Manto do carisma +4'
     custo_po: 16000
-    # propriedades: { atributos: { carisma: 4 } }
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 4
+  }
+  mantos {
+    id: 'manto_carisma_6'
+    nome: 'Manto do carisma +6'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 6
   }
   mantos {
     id: 'manto_resistencia_4'
@@ -2444,12 +2467,6 @@ tabela_mantos {
     id: 'manto_morcego'
     nome: 'Manto do morcego'
     custo_po: 26000
-  }
-  mantos {
-    id: 'manto_carisma_6'
-    nome: 'Manto do carisma +6'
-    custo_po: 36000
-    # propriedades: { atributos: { carisma: 6 } }
   }
   mantos {
     id: 'manto_deslocamento_maior'
@@ -9461,6 +9478,29 @@ tabela_feiticos {
 }
 
 tabela_chapeus {
+  chapeus {
+    id: 'elmo_acao_subaquatica'
+    nome: 'Elmo da Ação Subaquática'
+    custo_po: 57000
+  }
+  chapeus {
+    id: 'elmo_brilhante'
+    nome: 'Elmo Brilhante'
+    custo_po: 125000
+  }
+  chapeus {
+    id: 'elmo_telepatia'
+    nome: 'Elmo da Telepatia'
+    custo_po: 27000
+    descricao: 'Sugestão 1/dia, comunicação telepática.'
+  }
+  chapeus {
+    id: 'elmo_teletransporte'
+    nome: 'Elmo do Teletransporte'
+    custo_po: 38000
+    descricao: 'Teletransporte 3/dia.'
+  }
+
   chapeus {
     id: 'tiara_intelecto_2'
     nome: 'Tiara do Intelecto +2'

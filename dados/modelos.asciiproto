@@ -3222,34 +3222,31 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     dados_ataque {
-      id_arma: 'besta_de_mao' bonus_magico: 1 empunhadura: EA_ARMA_APENAS
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 20
     }
     dados_ataque {
       id_arma: 'bordao' bonus_magico: 1 empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
-      tipo_ataque: 'Pergaminho Arcano' id_arma: 'forma_gasosa'
+      tipo_ataque: 'Pergaminho Arcano' id_arma: 'dissipar_magia_maior'
     }
     dados_ataque {
-      tipo_ataque: 'Pergaminho Arcano' id_arma: 'dissipar_magia_maior'
+      tipo_ataque: 'Pergaminho Arcano' id_arma: 'remover_maldicao'
     }
 
    # Tesouros.
     tesouro {
       bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
       chapeus { id: 'tiara_intelecto_6' em_uso: true }
-      amuletos { id: 'amuleto_armadura_natural_3' em_uso: true }
-      aneis { id: 'protecao_3' em_uso: true }
-      mantos { id: 'manto_resistencia_1' em_uso: true }
-      botas { id: 'botas_levitacao' em_uso: true }
+      amuletos { id: 'escaravelho_protecao' em_uso: true }
+      capas { id: 'manto_resistencia_1' }
+      aneis { id: 'protecao_2' em_uso: true }
       pocoes { id: 'curar_ferimentos_serios' }
       pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'remover_doenca' }
-      pocoes { id: 'remover_maldicao' }
+      pocoes { id: 'forma_gasosa' }
 
       tesouro: '1000 PO em componentes materiais, 100 PO, pergaminhos: ver ataques'
     }
@@ -3354,8 +3351,8 @@ modelo {
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 5
