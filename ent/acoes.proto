@@ -84,6 +84,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
   MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
   MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
+  MC_1_POR_NIVEL = 7;  // poder divino.
 }
 
 // Proximo id: 70.
@@ -224,6 +225,8 @@ message AcaoProto {
     optional string dado_complementos_str = 13;
     // A origem do efeito.
     optional string origem = 12;
+
+    optional int32 pontos_vida_temporarios = 15;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.

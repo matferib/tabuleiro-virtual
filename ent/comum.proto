@@ -634,9 +634,6 @@ message ConsequenciaEvento {
   repeated InfoPericia dados_pericia = 5;
   //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
 
-  // se verdadeiro, usara complemento ao inves do valor passado.
-  optional bool usa_complemento = 10;
-
   optional Bonus bonus_iniciativa = 11;
 }
 

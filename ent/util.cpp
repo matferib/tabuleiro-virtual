@@ -2121,18 +2121,19 @@ BonusIndividual::PorOrigem* AtribuiBonusIndividual(int valor, const std::string&
   return po;
 }
 
-void AtribuiBonusPenalidadeIndividualSeMaior(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
+BonusIndividual::PorOrigem* AtribuiBonusPenalidadeIndividualSeMaior(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
   for (auto& por_origem : *bonus_individual->mutable_por_origem()) {
     if (por_origem.origem() == origem) {
       if ((valor > 0 && valor > por_origem.valor()) || (valor < 0 && valor < por_origem.valor())) {
         por_origem.set_valor(valor);
       }
-      return;
+      return &por_origem;
     }
   }
   auto* po = bonus_individual->add_por_origem();
   po->set_valor(valor);
   po->set_origem(origem);
+  return po;
 }
 
 
@@ -2148,16 +2149,15 @@ BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::s
   return AtribuiBonusIndividual(valor, origem, bi);
 }
 
-void AtribuiBonusPenalidadeSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+BonusIndividual::PorOrigem* AtribuiBonusPenalidadeSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     if (bi.tipo() == tipo) {
-      AtribuiBonusPenalidadeIndividualSeMaior(valor, origem, &bi);
-      return;
+      return AtribuiBonusPenalidadeIndividualSeMaior(valor, origem, &bi);
     }
   }
   auto* bi = bonus->add_bonus_individual();
   bi->set_tipo(tipo);
-  AtribuiBonusIndividual(valor, origem, bi);
+  return AtribuiBonusIndividual(valor, origem, bi);
 }
 
 
@@ -3043,6 +3043,10 @@ void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_ad
       evento->add_complementos(-RolaValor(StringPrintf("1d6+%d", adicionais)));
       break;
     }
+    case MC_1_POR_NIVEL: {
+      evento->add_complementos(nivel_conjurador);
+      break;
+    }
     case MC_1_POR_NIVEL_MAX_10: {
       evento->add_complementos(std::min(10, nivel_conjurador));
       break;
@@ -3370,7 +3374,7 @@ int ComputaLimiteVezes(
 
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da) {
   switch (modelo_dano) {
-    case ArmaProto::DANO_3D6_MAIS_UM_POR_NIVEL: {
+    case ArmaProto::DANO_3D6_MAIS_1_POR_NIVEL: {
       da->set_dano_basico_fixo(StringPrintf("3d6+%d", nivel_conjurador));
       return;
     }

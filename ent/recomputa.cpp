@@ -55,6 +55,9 @@ int BonusTalento(const std::string& id_pericia, const TalentoProto& talento) {
 }
 
 int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
+  if (PossuiEvento(EFEITO_PODER_DIVINO, proto)) {
+    return Nivel(proto);
+  }
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
     bba += info_classe.bba();
@@ -314,7 +317,15 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
         if (complemento < 3) complemento = 3;
         else if (complemento > 10) complemento = 10;
         const int tmp = RolaDado(8) + complemento;
-        auto* po = AtribuiBonus(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
+        auto* po = AtribuiBonusPenalidadeSeMaior(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
+        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+      }
+    break;
+    case EFEITO_PODER_DIVINO:
+      if (!evento.processado()) {
+        // Gera os pontos de vida temporarios.
+        int complemento = evento.complementos().empty() ? 7 : evento.complementos(0);
+        auto* po = AtribuiBonusPenalidadeSeMaior(complemento, TB_SEM_NOME, "poder_divino", proto->mutable_pontos_vida_temporarios_por_fonte());
         if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
       }
     break;
@@ -484,6 +495,25 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
     }
     break;
+    case EFEITO_PODER_DIVINO: {
+      auto* bi = BonusIndividualSePresente(TB_SEM_NOME, proto->mutable_pontos_vida_temporarios_por_fonte());
+      auto* po = OrigemSePresente("poder_divino", bi);
+      if (po == nullptr) {
+        break;
+      }
+      if (evento.has_id_unico()) {
+        // Se tiver id unico, respeita o id.
+        RemoveSe<BonusIndividual::PorOrigem>([&evento] (const BonusIndividual::PorOrigem& ipo) {
+          return ipo.id_unico() == evento.id_unico();
+        }, bi->mutable_por_origem());
+      } else {
+        // Nao tem id, remove a ajuda por completo. Pode dar merda.
+        LOG(WARNING) << "Removendo poder_divino sem id unico.";
+        RemoveBonus(TB_SEM_NOME, "poder_divino", proto->mutable_pontos_vida_temporarios_por_fonte());
+      }
+    }
+    break;
+
     case EFEITO_FURIA_BARBARO:
       AplicaFimFuriaBarbaro(proto);
     break;
