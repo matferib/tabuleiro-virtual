@@ -1,6 +1,5 @@
-Circulo magico contra o ... (separar)
-
 Anotacoes da sessao Tilverton:
+- Fazer bardo 5 vulto.
 - Talentos das sombras.
 - Definir encontros.
 - Resistencia magia variavel. ??
