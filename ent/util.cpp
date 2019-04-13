@@ -2744,15 +2744,21 @@ RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str
 }
 
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
+  Bonus b;
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
       (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
       (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
       (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
-    Bonus b;
     AtribuiBonus(2, TB_DEFLEXAO, "protecao_contra_tendencia", &b);
-    return b;
   }
-  return Bonus();
+  if ((Bom(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_BEM, proto_defesa)) ||
+      (Mal(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_MAL, proto_defesa)) ||
+      (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_ORDEM, proto_defesa)) ||
+      (Caotico(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_CAOS, proto_defesa))) {
+    Bonus b;
+    AtribuiBonus(4, TB_DEFLEXAO, "dissipar_tendencia", &b);
+  }
+  return b;
 }
 
 Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {

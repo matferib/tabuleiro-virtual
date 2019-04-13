@@ -1055,6 +1055,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_RESISTENCIA_MAGIA
     nome: 'resistência à magia'
+    formato_complementos: 'A resistência a magia.'
     # TODO fazer.
   }
 

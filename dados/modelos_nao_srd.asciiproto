@@ -177,7 +177,7 @@ modelo {
     }
 
     dados_defesa {
-      resistencia_magia: 18
+      resistencia_magia_racial: 18
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
       }
@@ -481,7 +481,7 @@ modelo {
     # Ferrao nao tem modificador de forca.
     dados_ataque { rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano: '1d8' }
     dados_defesa {
-      resistencia_magia: 23
+      resistencia_magia_racial: 23
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 18 } } }
     }
     info_talentos {

@@ -323,6 +323,46 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   }
 }
 
+TEST(TesteArmas, TestePoderDivino) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(10);
+  }
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(5);
+  }
+
+  AtribuiBaseAtributo(10, TA_FORCA, &proto);
+  AtribuiBaseAtributo(20, TA_SABEDORIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Clérigo");
+  da->set_id_arma("poder_divino");
+  RecomputaDependencias(tabelas, &proto);
+  const AcaoProto& acao = da->acao();
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
+  ASSERT_FALSE(acao.efeitos_adicionais().empty());
+
+  std::unique_ptr<Entidade> alvo(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  {
+    std::vector<int> ids_unicos;
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoEfeitoAdicional(nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    ASSERT_FALSE(n.entidade().evento().empty());
+    const auto& evento = n.entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_PODER_DIVINO);
+    alvo->AtualizaParcial(n.entidade());
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, alvo->Proto())), 16);
+    EXPECT_EQ(alvo->Proto().bba().base(), 15);
+    EXPECT_EQ(BonusTotal(alvo->Proto().pontos_vida_temporarios_por_fonte()), 10);
+  }
+}
+
 TEST(TesteArmas, TestePalavraDoPoderMatar) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
@@ -626,7 +666,56 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia) {
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(3);
-  proto.mutable_dados_defesa()->set_resistencia_magia(10);
+  {
+    // Sera ignorada.
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_RESISTENCIA_MAGIA);
+    evento->set_rodadas(100);
+    evento->add_complementos(3);
+  }
+  proto.mutable_dados_defesa()->set_resistencia_magia_racial(10);
+
+  std::unique_ptr<Entidade> ea(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  std::unique_ptr<Entidade> ed(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+
+  g_dados_teste.push(7);
+  bool sucesso;
+  std::string texto;
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  g_dados_teste.push(6);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  EXPECT_FALSE(sucesso) << texto;
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
+  std::unique_ptr<Entidade> eamp(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  g_dados_teste.push(5);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eamp, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
+  std::unique_ptr<Entidade> eampm(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+  g_dados_teste.push(3);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eampm, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+}
+
+TEST(TesteResistenciaMagia, TesteResistenciaMagia2) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  {
+    // Sera ignorada.
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_RESISTENCIA_MAGIA);
+    evento->set_rodadas(100);
+    evento->add_complementos(10);
+  }
+  proto.mutable_dados_defesa()->set_resistencia_magia_racial(3);
+
   std::unique_ptr<Entidade> ea(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
   std::unique_ptr<Entidade> ed(NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
 

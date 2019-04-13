@@ -310,6 +310,17 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
+    case EFEITO_RESISTENCIA_MAGIA:
+      if (evento.complementos().empty()) return false;
+      if (!evento.processado()) {
+        // Gera os pontos de vida temporarios.
+        int complemento = evento.complementos(0);
+        if (complemento < 0) return false;
+        auto* po = AtribuiBonusPenalidadeSeMaior(
+            complemento, TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+      }
+    break;
     case EFEITO_AJUDA:
       if (!evento.processado()) {
         // Gera os pontos de vida temporarios.
@@ -475,6 +486,20 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       po->set_valor(0);
       po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
       AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
+    }
+    break;
+    case EFEITO_RESISTENCIA_MAGIA: {
+      if (evento.has_id_unico()) {
+        // Se tiver id unico, respeita o id.
+        auto* bi = BonusIndividualSePresente(TB_BASE, proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+        RemoveSe<BonusIndividual::PorOrigem>([&evento] (const BonusIndividual::PorOrigem& ipo) {
+          return ipo.id_unico() == evento.id_unico();
+        }, bi->mutable_por_origem());
+      } else {
+        // Nao tem id, remove a ajuda por completo. Pode dar merda.
+        LOG(WARNING) << "Removendo ajuda sem id unico.";
+        RemoveBonus(TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+      }
     }
     break;
     case EFEITO_AJUDA: {
@@ -917,6 +942,7 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
 
 
 void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
+  // TODO fazer isso igual ao de resistencia a magia, usando TB_BASE.
   auto* bpv = proto->mutable_pontos_vida_temporarios_por_fonte();
   // Remove todos que nao sao sem nome.
   RemoveSe<BonusIndividual>([] (const BonusIndividual& bi) {
@@ -954,6 +980,22 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
   const int max_pontos_vida = proto->max_pontos_vida() - proto->niveis_negativos() * 5;
   if (proto->pontos_vida() > max_pontos_vida) {
     proto->set_pontos_vida(max_pontos_vida);
+  }
+}
+
+void RecomputaDependenciasResistenciaMagia(EntidadeProto* proto) {
+  auto* brm = proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel();
+  AtribuiBonus(proto->dados_defesa().resistencia_magia_racial(), TB_BASE, "racial", brm);
+  // Remove todos que nao sao BASE.
+  RemoveSe<BonusIndividual>([] (const BonusIndividual& bi) {
+    return bi.tipo() != TB_BASE;
+  }, brm->mutable_bonus_individual());
+  // Aqui so tem BASE, entao pode pegar o bonus total.
+  int total = BonusTotal(*brm);
+  if (total > 0) {
+    proto->mutable_dados_defesa()->set_resistencia_magia(BonusTotal(*brm));
+  } else {
+    proto->mutable_dados_defesa()->clear_resistencia_magia();
   }
 }
 
@@ -1766,6 +1808,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   RecomputaDependenciaTamanho(proto);
   RecomputaDependenciasPontosVidaTemporarios(proto);
   RecomputaDependenciasPontosVida(proto);
+  RecomputaDependenciasResistenciaMagia(proto);
 
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
