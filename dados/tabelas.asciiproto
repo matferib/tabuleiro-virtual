@@ -1033,22 +1033,22 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_DISSIPAR_MAL
     nome: 'dissipar mal'
-    descricao: '+4 deflexão contra criaturas más, pode banir criaturas e dissipar magias de encantamento e com descritor mal.'
+    # descricao: '+4 deflexão contra criaturas más, pode banir criaturas e dissipar magias de encantamento e com descritor mal.'
   }
   efeitos {
     id: EFEITO_DISSIPAR_BEM
     nome: 'dissipar mal'
-    descricao: '+4 deflexão contra criaturas boas, pode banir criaturas e dissipar magias de encantamento e com descritor bem.'
+    # descricao: '+4 deflexão contra criaturas boas, pode banir criaturas e dissipar magias de encantamento e com descritor bem.'
   }
   efeitos {
     id: EFEITO_DISSIPAR_CAOS
     nome: 'dissipar caos'
-    descricao: '+4 deflexão contra criaturas caóticas, pode banir criaturas e dissipar magias de encantamento e com descritor caos.'
+    # descricao: '+4 deflexão contra criaturas caóticas, pode banir criaturas e dissipar magias de encantamento e com descritor caos.'
   }
   efeitos {
     id: EFEITO_DISSIPAR_ORDEM
     nome: 'dissipar ordem'
-    descricao: '+4 deflexão contra criaturas leais, pode banir criaturas e dissipar magias de encantamento e com descritor ordem.'
+    # descricao: '+4 deflexão contra criaturas leais, pode banir criaturas e dissipar magias de encantamento e com descritor ordem.'
   }
 
 
@@ -1061,10 +1061,11 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_PODER_DIVINO
     nome: 'poder divino'
+    formato_complementos: 'Pontos de vida adicionais.'
     consequencia {
       atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 6 origem: 'poder_divino' } } } }
-      # TODO 1 PV/nivel conjurador
-      # TODO bonus base de ataque igual ao do personagem.
+      # 1 PV/nivel conjurador
+      # bonus base de ataque igual ao do personagem: feito hardcoded.
     }
   }
   efeitos {
@@ -1092,7 +1093,6 @@ tabela_efeitos {
     nome: 'missão menor'
     formato_complementos: 'a penalidade em cada atributo.'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
@@ -1320,9 +1320,6 @@ tabela_efeitos {
     id: EFEITO_ABENCOAR_ARMA
     nome: 'abençoar arma'
     formato_complementos: 'nome da arma que foi abençoada, igual ao que está nos dados de ataque (exemplo: espada longa)'
-    consequencia {
-      usa_complemento: true
-    }
   }
   efeitos {
     id: EFEITO_ACELERAR
@@ -1346,7 +1343,6 @@ tabela_efeitos {
     nome: 'ajuda'
     formato_complementos: 'adicionar aos PV (1d8+complemento)'
     consequencia {
-      usa_complemento: true
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
@@ -1356,9 +1352,6 @@ tabela_efeitos {
     id: EFEITO_ARMA_MAGICA
     nome: 'arma mágica'
     formato_complementos: 'rótulo da arma que foi encantada (exemplo: espada longa); valor do bonus.'
-    consequencia {
-      usa_complemento: true
-    }
   }
   efeitos {
     id: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
@@ -1386,7 +1379,6 @@ tabela_efeitos {
     nome: 'dano de atributo por veneno'
     formato_complementos: 'as 6 mudancas de atributo na ordem: for, des, con, int, sab, car (exemplo: 2 0 0 3 0 0)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
@@ -1401,7 +1393,6 @@ tabela_efeitos {
     id: EFEITO_DEFLEXAO_CA
     nome: 'deflexão CA'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'deflexao_ca' } } }
       }
@@ -1446,7 +1437,6 @@ tabela_efeitos {
     nome: 'pele de árvore'
     formato_complementos: 'bônus de melhoria em armadura natural'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
       }
@@ -1457,7 +1447,6 @@ tabela_efeitos {
     nome: 'resistência em salvação'
     formato_complementos: 'bônus aplicado em todos os testes de resistência (salvação)'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         salvacao_fortitude {
           bonus_individual { tipo: TB_RESISTENCIA por_origem { indice_complemento: 0 origem: 'resistencia_salvacao' } }
@@ -1476,7 +1465,6 @@ tabela_efeitos {
     nome: 'roupa encantada'
     formato_complementos: 'bônus de melhoria em armadura'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
@@ -1487,7 +1475,6 @@ tabela_efeitos {
     nome: 'escudo encantado'
     formato_complementos: 'bônus de melhoria em escudo'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantado' } } }
       }
@@ -1510,7 +1497,6 @@ tabela_efeitos {
     nome: 'armadura'
     formato_complementos: 'bônus de armadura'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'efeito_armadura' } } }
       }
@@ -1521,7 +1507,6 @@ tabela_efeitos {
     nome: 'armadura natural, melhoria'
     formato_complementos: 'bônus de melhoria de armadura natural'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'armadura_natural_melhoria' } } }
       }
@@ -1537,7 +1522,6 @@ tabela_efeitos {
     nome: 'bonus de força'
     formato_complementos: 'bônus de força sem nome'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'generico' } } }
       }
@@ -1548,7 +1532,6 @@ tabela_efeitos {
     nome: 'melhoria em força'
     formato_complementos: 'bônus de melhoria em força'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
       }
@@ -1559,7 +1542,6 @@ tabela_efeitos {
     nome: 'melhoria em destreza'
     formato_complementos: 'bônus de melhoria em destreza'
     consequencia {
-      usa_complemento: true
       atributos {
         destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
       }
@@ -1571,7 +1553,6 @@ tabela_efeitos {
     nome: 'melhoria em constituição'
     formato_complementos: 'bônus de melhoria em constituição'
     consequencia {
-      usa_complemento: true
       atributos {
         constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_constituicao' } } }
       }
@@ -1582,7 +1563,6 @@ tabela_efeitos {
     nome: 'melhoria em inteligência'
     formato_complementos: 'bônus de melhoria em inteligência'
     consequencia {
-      usa_complemento: true
       atributos {
         inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_inteligencia' } } }
       }
@@ -1593,7 +1573,6 @@ tabela_efeitos {
     nome: 'melhoria em sabedoria'
     formato_complementos: 'bônus de melhoria em sabedoria'
     consequencia {
-      usa_complemento: true
       atributos {
         sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_sabedoria' } } }
       }
@@ -1604,7 +1583,6 @@ tabela_efeitos {
     nome: 'melhoria em carisma'
     formato_complementos: 'bônus de melhoria em carisma'
     consequencia {
-      usa_complemento: true
       atributos {
         carisma { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_carisma' } } }
       }
@@ -1615,7 +1593,6 @@ tabela_efeitos {
     nome: 'melhoria em destreza'
     formato_complementos: 'bônus de melhoria em destreza'
     consequencia {
-      usa_complemento: true
       atributos {
         destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
       }
@@ -1647,7 +1624,6 @@ tabela_efeitos {
     nome: 'escudo da fé'
     formato_complementos: 'bônus de deflexão'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'escudo_fe' } } }
       }
@@ -1710,7 +1686,6 @@ tabela_efeitos {
     nome: 'fúria'
     formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
         constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
@@ -1727,7 +1702,6 @@ tabela_efeitos {
     nome: 'fúria de bárbaro'
     formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
         constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
@@ -1767,9 +1741,6 @@ tabela_efeitos {
     id: EFEITO_PRESA_MAGICA
     nome: 'presa mágica'
     formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra)'
-    consequencia {
-      usa_complemento: true
-    }
   }
   efeitos {
     id: EFEITO_IMUNIDADE_ELEMENTO
@@ -1785,16 +1756,12 @@ tabela_efeitos {
     id: EFEITO_TENDENCIA_EM_ARMA
     nome: 'tendência em arma'
     formato_complementos: 'nome da arma que foi alinhada, igual ao que está nos dados de ataque e a tendência aplicada (exemplo: espada longa;bem)'
-    consequencia {
-      usa_complemento: true
-    }
   }
   efeitos {
     id: EFEITO_PENALIDADE_FORCA
     nome: 'penalidade em força'
     formato_complementos: 'penalidade em força'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade força' } } }
       }
@@ -1805,7 +1772,6 @@ tabela_efeitos {
     nome: 'penalidade em destreza'
     formato_complementos: 'penalidade em destreza'
     consequencia {
-      usa_complemento: true
       atributos {
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade destreza' } } }
       }
@@ -1816,7 +1782,6 @@ tabela_efeitos {
     nome: 'penalidade em constituição'
     formato_complementos: 'penalidade em constituição'
     consequencia {
-      usa_complemento: true
       atributos {
         constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade constituição' } } }
       }
@@ -1827,7 +1792,6 @@ tabela_efeitos {
     nome: 'penalidade em inteligência'
     formato_complementos: 'penalidade em inteligência'
     consequencia {
-      usa_complemento: true
       atributos {
         inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade inteligência' } } }
       }
@@ -1838,7 +1802,6 @@ tabela_efeitos {
     nome: 'penalidade em sabedoria'
     formato_complementos: 'penalidade em sabedoria'
     consequencia {
-      usa_complemento: true
       atributos {
         sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade sabedoria' } } }
       }
@@ -1849,7 +1812,6 @@ tabela_efeitos {
     nome: 'penalidade em carisma'
     formato_complementos: 'penalidade em carisma'
     consequencia {
-      usa_complemento: true
       atributos {
         carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade carisma' } } }
       }
@@ -5489,7 +5451,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       efeitos_adicionais {
-        tipo_efeito: EFEITO_OUTRO
+        efeito: EFEITO_OUTRO
         descricao: 'Movimentação livre.'
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
@@ -5511,8 +5473,9 @@ tabela_feiticos {
     acao {
       id: 'Feitiço Pessoal'
       efeitos_adicionais {
-        tipo_efeito: EFEITO_PODER_DIVINO
+        efeito: EFEITO_PODER_DIVINO
         modificador_rodadas: MR_RODADAS_NIVEL
+        modificador_complementos: MC_1_POR_NIVEL
       }
     }
   }
@@ -8717,7 +8680,7 @@ tabela_feiticos {
   }
   armas {
     id: 'praga_insetos' # insect plague
-    nome: praga de insetos'
+    nome: 'praga de insetos'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
@@ -9045,7 +9008,7 @@ tabela_feiticos {
     id: 'cone_glacial'
     nome: 'cone glacial'
     alcance_quadrados: 12
-    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6 
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
       id: 'mago'
       nivel: 5
@@ -9082,7 +9045,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço Pessoal'
       efeitos_adicionais {
-        tipo_efeito: EFEITO_OUTRO
+        efeito: EFEITO_OUTRO
         descricao: 'Detectar o mal, cone 12 quadrados'
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
@@ -9807,7 +9770,7 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_RESISTENCIA_MAGIA
         modificador_rodadas: MR_MINUTOS_NIVEL
-        modificador_complementos: MC_12_MAIS_UM_POR_NIVEL
+        modificador_complementos: MC_12_MAIS_1_POR_NIVEL
       }
     }
   }
@@ -9816,6 +9779,7 @@ tabela_feiticos {
     id: 'matar'  # slay living
     nome: 'matar'
     modelo_dano: DANO_3D6_MAIS_1_POR_NIVEL
+    dano_ignora_salvacao: true
     info_classes {
       id: 'clerigo'
       nivel: 5
@@ -9828,7 +9792,6 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       permite_salvacao: true
-      dano_ignora_salvacao: true
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }

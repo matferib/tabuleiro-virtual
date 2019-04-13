@@ -3240,7 +3240,7 @@ modelo {
       bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
       chapeus { id: 'tiara_intelecto_6' em_uso: true }
       amuletos { id: 'escaravelho_protecao' em_uso: true }
-      capas { id: 'manto_resistencia_1' }
+      mantos { id: 'manto_resistencia_1' }
       aneis { id: 'protecao_2' em_uso: true }
       pocoes { id: 'curar_ferimentos_serios' }
       pocoes { id: 'curar_ferimentos_serios' }
