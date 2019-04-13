@@ -83,6 +83,7 @@ enum ModificadorComplementos {
   MC_2_MAIS_1_CADA_6_MAX_5 = 3;  // escudo da fe.
   MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
   MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
+  MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
 }
 
 // Proximo id: 70.

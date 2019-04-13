@@ -150,6 +150,7 @@ message ArmaProto {
     DANO_1= 14;
     DANO_1D4_POR_NIVEL_MAX_5D4 = 15;
     DANO_1D6_POR_NIVEL_MAX_15D6 = 16;
+    DANO_3D6_MAIS_UM_POR_NIVEL = 17;
   }
   // Se a arma for criada por feitico.
   optional ModeloDano modelo_dano = 25;
