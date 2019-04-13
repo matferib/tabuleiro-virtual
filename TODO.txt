@@ -1,4 +1,10 @@
-Circulo magico contra o ... (separar)
+Implementar cargas de escaravelho de protecao.
+Implementar poder divino.
+Implementar geracao de feiticos aleatoria.
+Implementar movimentação livre (bem sucedido em agarrar).
+Implementar duracao de entidades conjuradas vinda da magia (por exemplo, enxame de gafanhotos pode vir de praga de insetos).
+Implementar efeito de resistencia a magia.
+Implementar efeitos de dissipar mal, ordem, caos bem.
 
 Anotacoes da sessao Tilverton:
 - Talentos das sombras.

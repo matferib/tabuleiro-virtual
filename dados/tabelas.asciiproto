@@ -1031,6 +1031,43 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_DISSIPAR_MAL
+    nome: 'dissipar mal'
+    descricao: '+4 deflexão contra criaturas más, pode banir criaturas e dissipar magias de encantamento e com descritor mal.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_BEM
+    nome: 'dissipar mal'
+    descricao: '+4 deflexão contra criaturas boas, pode banir criaturas e dissipar magias de encantamento e com descritor bem.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_CAOS
+    nome: 'dissipar caos'
+    descricao: '+4 deflexão contra criaturas caóticas, pode banir criaturas e dissipar magias de encantamento e com descritor caos.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_ORDEM
+    nome: 'dissipar ordem'
+    descricao: '+4 deflexão contra criaturas leais, pode banir criaturas e dissipar magias de encantamento e com descritor ordem.'
+  }
+
+
+  efeitos {
+    id: EFEITO_RESISTENCIA_MAGIA
+    nome: 'resistência à magia'
+    # TODO fazer.
+  }
+
+  efeitos {
+    id: EFEITO_PODER_DIVINO
+    nome: 'poder divino'
+    consequencia {
+      atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 6 origem: 'poder_divino' } } } }
+      # TODO 1 PV/nivel conjurador
+      # TODO bonus base de ataque igual ao do personagem.
+    }
+  }
+  efeitos {
     id: EFEITO_LUZ
     nome: 'luz'
   }
@@ -5023,6 +5060,39 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'neutralizar_venenos'  # neutralize poison
+    nome: 'neutralizar venenos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'neutralizar venenos.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'criar_alimentos'  # create food and water
     nome: 'criar alimentos'
     info_classes {
@@ -5210,6 +5280,27 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'consertar'  # mending
+    nome: 'consertar'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
     id: 'luz'  # light
     nome: 'luz'
     info_classes {
@@ -5368,6 +5459,61 @@ tabela_feiticos {
       id: 'agua'
       nivel: 4
       dominio: true
+    }
+  }
+
+  armas {
+    id: 'movimentacao_livre'  # freedom of movement
+    nome: 'movimentação livre'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      efeitos_adicionais {
+        tipo_efeito: EFEITO_OUTRO
+        descricao: 'Movimentação livre.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'poder_divino'  # divine power
+    nome: 'poder divino'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        tipo_efeito: EFEITO_PODER_DIVINO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
     }
   }
 
@@ -5540,7 +5686,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Globo de Invulnerabilidade'
     }
   }
@@ -6078,7 +6223,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Zona da Verdade'
     }
   }
@@ -6115,7 +6259,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Escuridão'
     }
   }
@@ -6145,9 +6288,119 @@ tabela_feiticos {
     }
     acao {
       tipo: ACAO_CRIACAO_ENTIDADE
-      id: 'Criação de Entidade'
       id_modelo_entidade: 'Luz do Dia'
     }
+  }
+
+  armas {
+    id: 'quebrar_encantamento'  # break enchantment
+    nome: 'quebrar encantamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+    }
+  }
+  armas {
+    id: 'comando_maior'  # command, greater
+    nome: 'comando maior'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Comando'
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO uma criatura por nivel.
+        # TODO uma salvacao por rodada.
+      }
+    }
+  }
+
+  armas {
+    id: 'idiomas'  # tongues
+    nome: 'idiomas'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Idiomas'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'enviar_mensagem'  # sending
+    nome: 'enviar mensagem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+  }
+
+  armas {
+    id: 'restauracao'  # restoration
+    nome: 'restauracao'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    # TODO eliminar fadiga, exausto para fadiga, cura pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
+    # Restaura nivel negativo, niveis perdidos por drenagem.
   }
 
   armas {
@@ -6423,7 +6676,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Alarme'
     }
   }
@@ -6493,7 +6745,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Tentáculos Negros'
     }
   }
@@ -7194,7 +7445,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'brilho'
+    id: 'brilho'  # flare
     nome: 'brilho'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7383,7 +7634,36 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'resistencia'
+    id: 'virtude' # virtue
+    nome: 'virtude'
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'virtude, 1 PV temporário.'
+        rodadas: 10
+      }
+    }
+  }
+
+  armas {
+    id: 'resistencia' # resistance
     nome: 'resistência'
     info_classes {
       id: 'bardo'
@@ -7957,9 +8237,8 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_AJUDA
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -7984,7 +8263,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (20/x2)'
     }
   }
@@ -8005,7 +8283,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (20/x3)'
     }
   }
@@ -8026,7 +8303,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
     }
   }
@@ -8439,9 +8715,29 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'praga_insetos' # insect plague
+    nome: praga de insetos'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    # TODO invoca enxames de gafanhotos 1 min/ nivel
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Enxame (gafanhotos)'
+      # duracao: 1 min/nivel.
+    }
+  }
 
   armas {
-    id: 'coluna_chamas'
+    id: 'coluna_chamas' # flame strike
     nome: 'coluna de chamas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -9063,6 +9359,18 @@ tabela_feiticos {
     }
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
+  armas {
+    id: 'intuir_direcao'  # know direction
+    nome: 'intuir direcao'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+  }
 
   armas {
     id: 'orientacao'  # guidance.
@@ -9219,7 +9527,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Gravidade Invertida'
     }
   }
@@ -9305,7 +9612,6 @@ tabela_feiticos {
       pv_mais_alto: 100
       efeitos_adicionais {
         efeito: EFEITO_MORTE
-        rodadas: 0
       }
     }
   }
@@ -9357,6 +9663,192 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'dissipar_mal'  # dispel evil
+    nome: 'dissipar o mal'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_MAL
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_bem'  # dispel good
+    nome: 'dissipar o bem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_BEM
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_caos'  # dispel chaos
+    nome: 'dissipar o caos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_CAOS
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_ordem'  # dispel law
+    nome: 'dissipar a ordem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_ORDEM
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'visao_verdade'  # true seeing
+    nome: 'visão da verdade'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 7
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Visão da verdade.'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'resistencia_magia'  # spell resistance
+    nome: 'resistência à magia'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'magia'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_MAGIA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_12_MAIS_UM_POR_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'matar'  # slay living
+    nome: 'matar'
+    modelo_dano: DANO_3D6_MAIS_1_POR_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      dano_ignora_salvacao: true
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+    }
+  }
+
+  armas {
+    id: 'viagem_planar'  # plane shift
+    nome: 'viagem planar'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+  }
+
+  armas {
     id: 'esfera_flamejante'
     nome: 'esfera flamejante'
     alcance_quadrados: 20
@@ -9371,7 +9863,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Esfera Flamejante'
     }
   }
@@ -9471,7 +9962,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Tempestade Glacial'
     }
   }

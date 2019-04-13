@@ -3370,6 +3370,10 @@ int ComputaLimiteVezes(
 
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da) {
   switch (modelo_dano) {
+    case ArmaProto::DANO_3D6_MAIS_UM_POR_NIVEL: {
+      da->set_dano_basico_fixo(StringPrintf("3d6+%d", nivel_conjurador));
+      return;
+    }
     case ArmaProto::DANO_1D4_POR_NIVEL_MAX_5D4: {
       da->set_dano_basico_fixo(StringPrintf("%dd4", std::min(5, nivel_conjurador)));
       return;
