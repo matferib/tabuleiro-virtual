@@ -1216,13 +1216,20 @@ std::tuple<int, std::string> ComputaCritico(
 
 // Retorna -1 para falha critica, 0, para falha e total para sucesso.
 std::tuple<int, std::string, bool> ComputaAcertoOuErro(
-    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar, const EntidadeProto& pea, const EntidadeProto& ped) {
+    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
+    const EntidadeProto& pea, const EntidadeProto& ped) {
   assert(modificador_incrementos <= 0);
   int total = d20 + ataque_origem + modificador_incrementos + outros_modificadores;
   if (d20 == 1) {
     VLOG(1) << "Falha critica";
     return std::make_tuple(-1, "falha critica", false);
-  } else if ((d20 != 20 || agarrar) && total < ca_destino) {
+  }
+
+  if (agarrar && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
+    return std::make_tuple(0, "Defensor com moviumentação livre", false);
+  }
+
+  if ((d20 != 20 || agarrar) && total < ca_destino) {
     std::string texto = google::protobuf::StringPrintf(
         "falhou: %d%+d%s%s= %d < %d", d20, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, ca_destino);

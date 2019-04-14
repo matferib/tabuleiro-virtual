@@ -5,6 +5,7 @@
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/recomputa.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "log/log.h"
@@ -166,10 +167,10 @@ TEST(TesteArmas, TesteMetamorfoseTorrida) {
   alvo->AtualizaParcial(n.entidade());
   ASSERT_FALSE(alvo->Proto().evento().empty());
   const auto& evento = alvo->Proto().evento(0);
-  EXPECT_EQ(evento.id_efeito(), EFEITO_OUTRO);
+  EXPECT_EQ(evento.id_efeito(), EFEITO_METAMORFOSE_TORRIDA);
   EXPECT_EQ(evento.id_unico(), 0);
   EXPECT_TRUE(evento.continuo());
-  EXPECT_EQ(evento.descricao(), "virou sapo");
+  EXPECT_EQ(alvo->Proto().info_textura().id(), "toad.png");
 }
 
 TEST(TesteArmas, TestePalavraDoPoderCegar) {

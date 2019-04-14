@@ -87,7 +87,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL = 7;  // poder divino.
 }
 
-// Proximo id: 70.
+// Proximo id: 71.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -238,6 +238,13 @@ message AcaoProto {
   // O veneno da acao.
   optional VenenoProto veneno = 64;
   optional TipoMagia tipo_pergaminho = 65;
+  // Algumas acoes precisam de mais detalhes para serem executadas, e isso deve ser passado pelo usuário.
+  // Por exemplo, feiticos que tem varias formas possiveis, ou a arma que sera alvo de uma magia.
+  // TODO fazer isso funcionar.
+  enum DetalhesAdicionais {
+    IA_NENHUMA = 0;
+  }
+  optional DetalhesAdicionais detalhes_adicionais = 70;
 }
 
 // O arquivo de acoes é serializado desta forma.

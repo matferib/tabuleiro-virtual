@@ -398,9 +398,6 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
 // Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
 
-// Recomputa as dependencias do proto.
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
-
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
 std::string NomeTipoBonus(TipoBonus tipo);

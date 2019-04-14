@@ -8,6 +8,7 @@
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/recomputa.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "goog/stringprintf.h"
@@ -161,7 +162,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
 
   AtualizaVbo(parametros_desenho_);
-  RecomputaDependencias(tabelas_, &proto_);
+  RecomputaDependencias();
   proto_.clear_proxima_salvacao();
 }
 
@@ -399,7 +400,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   }
 #endif
   AtualizaVbo(parametros_desenho_);
-  RecomputaDependencias(tabelas_, &proto_);
+  RecomputaDependencias();
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
@@ -1050,20 +1051,26 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_entidades_montadas();
   }
 
-  // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
-  if (proto_parcial.evento_size() > 0) {
-    std::vector<int> a_remover;
-    int i = 0;
-    for (const auto& evento : proto_.evento()) {
-      if (PossuiEventoEspecifico(proto_parcial, evento)) {
-        a_remover.push_back(i);
+  // Eventos.
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
+  // Os novos serao simplesmente mergeados e atualizados serao mergeados. Mas tem um catch: os eventos de rodadas == -1
+  // Serao chamados duas vezes, porque havera o modificado e o que for anexado.
+  std::vector<int> eventos_a_remover;
+  int indice = 0;
+  int tamanho_eventos_pre = proto_.evento_size();
+  for (const auto& evento : proto_parcial.evento()) {
+    auto* evento_atualizado = AchaEvento(evento.id_unico(), &proto_);
+    if (evento_atualizado != nullptr) {
+      evento_atualizado->set_rodadas(-1);
+      if (evento.rodadas() == -1) {
+        // Ja sera processado por causa do -1 acima. Nao precisa fazer de novo.
+        eventos_a_remover.push_back(tamanho_eventos_pre + indice);
       }
-      ++i;
+      VLOG(1) << "evento_atualizado: " << evento_atualizado->DebugString();
+    } else {
+      VLOG(1) << "nao achei evento id unico: " << evento.id_unico();
     }
-    // Faz invertido para nao atrapalhar os indices.
-    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
-      proto_.mutable_evento()->DeleteSubrange(*it, 1);
-    }
+    ++indice;
   }
 
   // Se encontrar alguma resistencia que ja existe, remove pro MergeFromCorrigir.
@@ -1136,6 +1143,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  for (auto it = eventos_a_remover.rbegin(); it != eventos_a_remover.rend(); ++it) {
+    proto_.mutable_evento()->DeleteSubrange(*it, 1);
+  }
 
   if (!modelos_dnd.empty()) {
     modelos_dnd.Swap(proto_.mutable_modelos());
@@ -1250,7 +1261,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_montado_em();
   }
 
-  RecomputaDependencias(tabelas_, &proto_);
+  RecomputaDependencias();
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
 
@@ -2177,6 +2188,10 @@ void Entidade::AtivaBolhas(int duracao_ms, const float* cor) {
 
 void Entidade::ReiniciaAtaque() {
   vd_.ataques_na_rodada = 0;
+}
+
+void Entidade::RecomputaDependencias() {
+  ent::RecomputaDependencias(tabelas_, &proto_, this);
 }
 
 }  // namespace ent

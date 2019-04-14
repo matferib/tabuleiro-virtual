@@ -249,21 +249,45 @@ bool ImuneMorte(const EntidadeProto& proto) {
          PossuiEvento(EFEITO_PROTECAO_CONTRA_MORTE, proto);
 }
 
-bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+// Entidade pode ser nullptr em testes.
+bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
-  switch (evento.id_efeito()) {
+  switch (evento->id_efeito()) {
+    case EFEITO_METAMORFOSE_TORRIDA:
+      if (!evento->processado()) {
+        EntidadeProto proto_salvo;
+        if (proto->has_info_textura()) *proto_salvo.mutable_info_textura() = proto->info_textura();
+        if (proto->has_modelo_3d()) *proto_salvo.mutable_modelo_3d() = proto->modelo_3d();
+        AtribuiBonus(BonusIndividualPorOrigem(TB_BASE, "base", proto->bonus_tamanho()), TB_BASE, "base", proto_salvo.mutable_bonus_tamanho());
+        evento->set_estado_anterior(proto_salvo.SerializeAsString());
+
+        if (entidade != nullptr) {
+          EntidadeProto proto_sapo;
+          proto_sapo.mutable_info_textura()->set_id("toad.png");
+          entidade->AtualizaTexturas(proto_sapo);
+          entidade->AtualizaModelo3d(proto_sapo);
+        }
+        // Para UI funcionar.
+        proto->mutable_info_textura()->set_id("toad.png");
+        proto->clear_modelo_3d();
+        AtribuiBonus(TM_DIMINUTO, TB_BASE, "base", proto->mutable_bonus_tamanho());
+      }
+      break;
     case EFEITO_MORTE:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
+          EntidadeProto proto_salvo;
+          proto_salvo.set_morta(proto->morta());
+          proto_salvo.set_caida(proto->caida());
+          evento->set_estado_anterior(proto_salvo.SerializeAsString());
           proto->set_morta(true);
           proto->set_caida(true);
-          // TODO salvar estado do evento.
         }
       }
       break;
     case EFEITO_VITALIDADE_ILUSORIA:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
         const int tmp = RolaDado(8);
         AtribuiBonus(tmp, TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
@@ -272,18 +296,18 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
       break;
     case EFEITO_FORMA_GASOSA:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
         pd->add_descritores(DESC_MAGICO);
         pd->set_valor(15);
-        pd->set_id_unico(evento.id_unico());
+        pd->set_id_unico(evento->id_unico());
       }
       break;
     case EFEITO_DRENAR_TEMPORARIO:
-      if (!evento.processado()) {
-        if (evento.complementos().empty() || evento.complementos(0) <= 0) return false;
+      if (!evento->processado()) {
+        if (evento->complementos().empty() || evento->complementos(0) <= 0) return false;
         AtribuiBonus(
-            evento.complementos(0), TB_SEM_NOME, StringPrintf("drenar temporario %d", evento.id_unico()), proto->mutable_niveis_negativos_dinamicos());
+            evento->complementos(0), TB_SEM_NOME, StringPrintf("drenar temporario %d", evento->id_unico()), proto->mutable_niveis_negativos_dinamicos());
       }
       break;
     case EFEITO_VENENO:
@@ -298,53 +322,53 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       proto->set_ignora_luz(true);
       break;
     case EFEITO_COMPETENCIA_PERICIA: {
-      if (evento.complementos_str().empty()) return false;
+      if (evento->complementos_str().empty()) return false;
       // Encontra a pericia do efeito.
-      auto* pericia_proto = PericiaCriando(evento.complementos_str(0), proto);
+      auto* pericia_proto = PericiaCriando(evento->complementos_str(0), proto);
       Bonus bonus;
       auto* bi = bonus.add_bonus_individual();
       bi->set_tipo(TB_COMPETENCIA);
       auto* po = bi->add_por_origem();
-      po->set_valor(evento.complementos(0));
-      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
+      po->set_valor(evento->complementos(0));
+      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento->id_unico()));
       AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
     case EFEITO_RESISTENCIA_MAGIA:
-      if (evento.complementos().empty()) return false;
-      if (!evento.processado()) {
+      if (evento->complementos().empty()) return false;
+      if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
-        int complemento = evento.complementos(0);
+        int complemento = evento->complementos(0);
         if (complemento < 0) return false;
         auto* po = AtribuiBonusPenalidadeSeMaior(
             complemento, TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
-        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+        if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
     case EFEITO_AJUDA:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
-        int complemento = evento.complementos().empty() ? 3 : evento.complementos(0);
+        int complemento = evento->complementos().empty() ? 3 : evento->complementos(0);
         if (complemento < 3) complemento = 3;
         else if (complemento > 10) complemento = 10;
         const int tmp = RolaDado(8) + complemento;
         auto* po = AtribuiBonusPenalidadeSeMaior(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
-        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+        if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
     case EFEITO_PODER_DIVINO:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
-        int complemento = evento.complementos().empty() ? 7 : evento.complementos(0);
+        int complemento = evento->complementos().empty() ? 7 : evento->complementos(0);
         auto* po = AtribuiBonusPenalidadeSeMaior(complemento, TB_SEM_NOME, "poder_divino", proto->mutable_pontos_vida_temporarios_por_fonte());
-        if (evento.has_id_unico()) po->set_id_unico(evento.id_unico());
+        if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
     case EFEITO_PEDRA_ENCANTADA:
-      if (!evento.processado()) {
+      if (!evento->processado()) {
         const auto* funda = DadosAtaqueProto("funda", *proto);
         DadosAtaque da;
-        da.set_id_unico_efeito(evento.id_unico());
+        da.set_id_unico_efeito(evento->id_unico());
         da.set_bonus_magico(1);
         da.set_dano_basico_fixo("1d6");
         if (funda != nullptr) {
@@ -360,8 +384,8 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
-      if (evento.complementos_str().empty()) return false;
-      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      if (evento->complementos_str().empty()) return false;
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(DESC_BEM);
       }
@@ -369,42 +393,42 @@ bool AplicaEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento&
     break;
     case EFEITO_PRESA_MAGICA:
     case EFEITO_ARMA_MAGICA: {
-      if (evento.complementos_str().empty()) return false;
+      if (evento->complementos_str().empty()) return false;
       int valor = 1;
-      if (!evento.complementos().empty()) {
-        valor = std::max(0, std::min(evento.complementos(0), 5));
+      if (!evento->complementos().empty()) {
+        valor = std::max(0, std::min(evento->complementos(0), 5));
       }
-      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
         AtribuiBonusPenalidadeSeMaior(
-            valor, TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+            valor, TB_MELHORIA, evento->id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
     }
     break;
     case EFEITO_TENDENCIA_EM_ARMA: {
-      if (evento.complementos_str().size() != 2) return false;
-      DescritorAtaque desc = StringParaDescritorAlinhamento(evento.complementos_str(1));
+      if (evento->complementos_str().size() != 2) return false;
+      DescritorAtaque desc = StringParaDescritorAlinhamento(evento->complementos_str(1));
       if (desc == DESC_NENHUM) return false;
-      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
         da->set_alinhamento(desc);
       }
     }
     break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
-      if (evento.complementos_str().size() != 2) return false;
-      DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
+      if (evento->complementos_str().size() != 2) return false;
+      DescritorAtaque descritor = StringParaDescritorElemento(evento->complementos_str(0));
       if (descritor == DESC_NENHUM) {
-        LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
+        LOG(ERROR) << "descritor invalido: " << evento->complementos_str(0);
         return false;
       }
-      int valor = atoi(evento.complementos_str(1).c_str());
+      int valor = atoi(evento->complementos_str(1).c_str());
       if (valor <= 0 || valor > 1000) return false;
       ResistenciaElementos re;
       re.set_valor(valor);
       re.set_descritor(descritor);
-      re.set_id_unico(evento.id_unico());
-      auto* re_corrente = AchaResistenciaElemento(evento.id_unico(), proto);
+      re.set_id_unico(evento->id_unico());
+      auto* re_corrente = AchaResistenciaElemento(evento->id_unico(), proto);
       if (re_corrente == nullptr) {
         re_corrente = proto->mutable_dados_defesa()->add_resistencia_elementos();
       }
@@ -450,9 +474,33 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
   }
 }
 
-void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_MORTE: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      proto->set_morta(proto_salvo.morta());
+    }
+    break;
+    case EFEITO_METAMORFOSE_TORRIDA: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      if (entidade != nullptr) {
+        entidade->AtualizaTexturas(proto_salvo);
+        if (proto_salvo.has_modelo_3d()) {
+          entidade->AtualizaModelo3d(proto_salvo);
+        }
+      } else {
+        if (proto_salvo.has_info_textura()) *proto->mutable_info_textura() = proto_salvo.info_textura();
+        if (proto_salvo.has_modelo_3d()) *proto->mutable_modelo_3d() = proto_salvo.modelo_3d();
+      }
+      AtribuiBonus(BonusIndividualPorOrigem(TB_BASE, "base", proto_salvo.bonus_tamanho()), TB_BASE, "base", proto->mutable_bonus_tamanho());
+    }
+    break;
     case EFEITO_VITALIDADE_ILUSORIA:
       LimpaBonus(TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
       break;
@@ -1283,7 +1331,7 @@ bool EventoOrfao(const EntidadeProto::Evento& evento, const std::unordered_set<u
   return evento.requer_pai() && c_none(ids_itens, evento.id_unico());
 }
 
-void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) {
+void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   std::set<int, std::greater<int>> eventos_a_remover;
   const std::unordered_set<unsigned int> ids_itens = IdsItensComEfeitos(*proto);
   int i = 0;
@@ -1294,9 +1342,9 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
-        AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto);
+        AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto, entidade);
       } else {
-        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.origem(), efeito.consequencia()), proto);
+        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.origem(), efeito.consequencia()), proto, entidade);
       }
       eventos_a_remover.insert(i);
     }
@@ -1325,7 +1373,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto) 
       continue;
     }
     VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
-    if (AplicaEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto)) {
+    if (AplicaEfeito(&evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto, entidade)) {
       evento.set_processado(true);
     }
   }
@@ -1793,14 +1841,14 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
 
 }  // namespace
 
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
+void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
 
   RecomputaDependenciasRaciais(tabelas, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
-  RecomputaDependenciasEfeitos(tabelas, proto);
+  RecomputaDependenciasEfeitos(tabelas, proto, entidade);
   RecomputaDependenciasNiveisNegativos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);

@@ -321,6 +321,8 @@ message EntidadeProto {
     optional string origem = 9;
     // Se o evento for continuo e vier de um item magico, deve setar isso para true. Eventos orfaos serao removidos em recomputa.
     optional bool requer_pai = 10;
+    // Para eventos que precisam salvar estado anterior. Especifico por tipo de efeito.
+    optional bytes estado_anterior = 11;
   }
   repeated Evento evento = 31;
 

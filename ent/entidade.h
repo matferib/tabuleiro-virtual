@@ -345,6 +345,12 @@ class Entidade {
   /** Remove e retorna a sub forma da entidade. */
   EntidadeProto RemoveSubForma(int indice);
 
+  /** Realiza as notificacoes referentes a modelos 3d. */
+  void AtualizaModelo3d(const EntidadeProto& novo_proto);
+
+  /** Realiza as chamadas de notificacao para as texturas. */
+  void AtualizaTexturas(const EntidadeProto& novo_proto);
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
@@ -504,12 +510,7 @@ class Entidade {
   /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaLuzAcao(int intervalo_ms);
 
-  /** Realiza as chamadas de notificacao para as texturas. */
-  void AtualizaTexturas(const EntidadeProto& novo_proto);
   static void AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
-
-  /** Realiza as notificacoes referentes a modelos 3d. */
-  void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
   /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto.
   * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
@@ -534,6 +535,8 @@ class Entidade {
   void DesenhaEfeitos(ParametrosDesenho* pd);
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
+
+  void RecomputaDependencias();
 
   struct MatrizesDesenho {
     Matrix4 modelagem;

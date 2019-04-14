@@ -1031,6 +1031,15 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_METAMORFOSE_TORRIDA
+    nome: 'metamorfose tórrida'
+  }
+  efeitos {
+    id: EFEITO_MOVIMENTACAO_LIVRE
+    nome: 'movimentação livre'
+    # descricao: 'Imune a névoa sólida, lentidão, teia, paralisia e bem sucedido em agarrar defensivos.'
+  }
+  efeitos {
     id: EFEITO_DISSIPAR_MAL
     nome: 'dissipar mal'
     # descricao: '+4 deflexão contra criaturas más, pode banir criaturas e dissipar magias de encantamento e com descritor mal.'
@@ -2370,7 +2379,7 @@ tabela_luvas {
   }
   luvas {
     id: 'manoplas_poder_ogro'
-    nome: 'Manoplas do Poder do Ogro'
+    nome: 'Manoplas do Poder do Ogro +2'
     descricao: '+2 melhoria em força.'
     custo_po: 4000
     tipo_efeito: EFEITO_MELHORIA_FORCA
@@ -5347,8 +5356,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: true
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'virou sapo'
+        efeito: EFEITO_METAMORFOSE_TORRIDA
         modificador_rodadas: MR_CONTINUO
       }
     }
@@ -5452,8 +5460,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'Movimentação livre.'
+        efeito: EFEITO_MOVIMENTACAO_LIVRE
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
