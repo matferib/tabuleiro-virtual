@@ -1,4 +1,5 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
+modelo { id: 'Área Escorregadia' }
 modelo { id: 'Esfera Flamejante' }
 modelo { id: 'Tentáculos Negros' }
 sub_menu {
