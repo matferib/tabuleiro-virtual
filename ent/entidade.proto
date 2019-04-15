@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 67.
+// Proximo id: 68.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -160,6 +160,8 @@ message DadosAtaque {
   optional bool descarregada = 50;
   // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
   optional bool derrubar_automatico = 51;
+  // Parecido com anterior, mas se bem sucedida, derruba sem teste.
+  optional bool derruba_sem_teste = 67;
 
   // Para pergaminhos, que já vem com estas variaveis definidas.
   optional int32 nivel_conjurador_pergaminho = 52;
