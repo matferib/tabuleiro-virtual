@@ -1031,6 +1031,10 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_PARALISIA
+    nome: 'paralisia'
+  }
+  efeitos {
     id: EFEITO_METAMORFOSE_TORRIDA
     nome: 'metamorfose tórrida'
   }
@@ -5032,6 +5036,97 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'remover_medo'  # remove fear
+    nome: 'remover medo'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+  }
+
+  armas {
+    id: 'abrir_fechar'  # open/close
+    nome: 'abrir/fechar'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'invocar_instrumento'  # summon instrument
+    nome: 'invocar instrumento'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+  }
+  armas {
+    id: 'cancao_ninar'  # lullaby
+    nome: 'canção de ninar'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 2
+      efeito_area: true
+      permite_salvacao: true
+      ignora_resistencia_magia: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Canção de ninar, -5 observar e ouvir, -2 em vontade vs sono.'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+
+    }
+  }
+  armas {
+    id: 'imobilizar_pessoa'  # hold person
+    nome: 'imobilizar pessoa'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'neutralizar_venenos'  # neutralize poison
     nome: 'neutralizar venenos'
     info_classes {
@@ -6684,6 +6779,10 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
   }
   armas {
     id: 'raio_acido'  # acid splash
@@ -6872,7 +6971,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'criar_mortos_vivos_menor' #  animate dead 
+    id: 'criar_mortos_vivos_menor' #  animate dead
     nome: 'criar mortos vivos menor'
     info_classes {
       id: 'clerigo'
@@ -7403,15 +7502,6 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 0
-    }
-    ataque_toque: true
-    # Rodadas nivel.
-    acao {
-      id: 'Raio'
-      tipo: ACAO_RAIO
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      permite_salvacao: false
-      elemento: DESC_FRIO
     }
   }
 
@@ -8979,9 +9069,52 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'confusao'
+    id: 'area_escorregadia'  # grease 
+    nome: 'área escorregadia'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Criação'
+      id_modelo_entidade: 'Área Escorregadia'
+    }
+  }
+
+  armas {
+    id: 'confusao_menor'  # confusion, lesser
+    nome: 'confusão menor'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_CONFUSAO
+        rodadas: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'confusao'  # confusion
     nome: 'confusão'
-    alcance_quadrados: 20  # +2/niveis
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'mago'
       nivel: 4
@@ -8996,19 +9129,19 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 3
       cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
-      distancia_quadrados: 20  # quadrados + 2 / nivel
       permite_ataque_vs_defesa: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
-      icone: 'icon_confusion.png'
-      duracao_s: 0.350
-      dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
         efeito: EFEITO_CONFUSAO
-        rodadas: 1 # por nivel
+        rodadas: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
   }

@@ -1068,6 +1068,35 @@ modelo {
   }
 }
 modelo {
+  id: 'Área Escorregadia'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' }
+    escala { x: 1.5 y: 6.0  z: 0.1 }
+    cor { r: 0 g: 0 b: 0 a: 1 }
+    dados_ataque {
+      rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque'
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_ESFERA
+        cor: { r: 1 b: 1 g: 1 a: 0.8 }
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+      }
+    }
+    evento {
+      rodadas: 1
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Luz do Dia'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
@@ -3009,6 +3038,80 @@ modelo {
     dados_ataque_global { dano_furtivo: '4d6' }
   }
 }
+modelo {
+  id: 'Humano Bardo 5'
+  entidade {
+    dados_vida: '4d6+10' raca: 'humano'
+    info_textura { id: 'human_bard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'bardo' nivel: 5 }
+    atributos {
+      # Usa o array elite 10, 13, 12, 14, 8, 15+1
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 }  } }
+    }
+    dados_ataque {
+      id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'mobilidade' }
+    }
+    info_pericias { id: 'arte_da_fuga' pontos: 6 }
+    info_pericias { id: 'acrobacias' pontos: 3 }
+    info_pericias { id: 'blefar' pontos: 5 }
+    info_pericias { id: 'sentir_motivacao' pontos: 6 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 5 }
+    info_pericias { id: 'atuacao' pontos: 6 }
+    info_pericias { id: 'obter_informacao' pontos: 5 }
+    info_pericias { id: 'intimidacao' pontos: 6 }
+    info_pericias { id: 'decifrar_escrita' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 3 }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'escudo_fe_3' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'protecao_contra_mal' }
+      tesouro: '10 PO'
+    }
+    feiticos_classes {
+      id_classe: 'bardo'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'abrir_fechar' }
+        conhecidos { id: 'invocar_instrumento' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'confusao_menor' }
+        conhecidos { id: 'curar_ferimentos_leves' }
+        conhecidos { id: 'area_escorregadia' }
+        conhecidos { id: 'remover_medo' }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'esplendor_aguia' }
+        conhecidos { id: 'explosao_sonora' }
+      }
+    }
+  }
+}
+
+
 modelo {
   id: 'Humano Mago'
   entidade {
