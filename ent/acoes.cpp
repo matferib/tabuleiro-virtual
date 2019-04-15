@@ -1007,7 +1007,8 @@ class AcaoFeitico : public Acao {
  public:
   AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
-      LOG(ERROR) << "Acao de feitico de toque requer origem e destino";
+      LOG(ERROR) << "Acao de feitico de toque requer origem e destino, tem origem? "
+        << acao_proto_.has_id_entidade_origem() << ", destino vazio? " << acao_proto_.por_entidade().empty();
       terminado_ = true;
       return;
     }

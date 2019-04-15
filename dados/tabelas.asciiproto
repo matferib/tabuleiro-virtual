@@ -1031,6 +1031,17 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_INSPIRAR_CORAGEM
+    nome: 'inpirar coragem'
+    formato_complementos: 'Bônus de moral em ataque e dano.'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      # TODO bonus em salvacao contra encantamento e medo.
+    }
+  }
+
+  efeitos {
     id: EFEITO_PARALISIA
     nome: 'paralisia'
   }
@@ -9069,7 +9080,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'area_escorregadia'  # grease 
+    id: 'area_escorregadia'  # grease
     nome: 'área escorregadia'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -9082,7 +9093,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      id: 'Feitiço de Criação'
+      id: 'Criação de Entidade'
       id_modelo_entidade: 'Área Escorregadia'
     }
   }
@@ -9195,36 +9206,6 @@ tabela_feiticos {
   armas {
     id: 'detectar_magia' # detect magic
     nome: 'detectar magia'
-    info_classes {
-      id: 'bardo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'clerigo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 0
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 0
-    }
-    acao {
-      tipo: ACAO_DISPERSAO
-      cor { r: 0.7 g: 0.7 b: 0.7 }
-      distancia_quadrados: 12
-      geometria: ACAO_GEO_CONE
-      efeito_area: true
-      permite_salvacao: false
-      icone: 'icon_touch.png'
-      duracao_s: 0.350
-    }
-  }
-  armas {
-    id: '' #
-    nome: ''
     info_classes {
       id: 'bardo'
       nivel: 0

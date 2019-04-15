@@ -96,7 +96,10 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
 }
 
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
-        ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+  if (pai->tipo() != ntf::TN_GRUPO_NOTIFICACOES) {
+    LOG(WARNING) << "Notificacao pai nao eh grupo, conferir se chamou errado usando pai->add_notificacao().";
+  }
   auto* n = pai->add_notificacao();
   n->set_tipo(tipo);
   n->mutable_entidade_antes()->set_id(proto.id());
@@ -964,6 +967,9 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   // ataque.
   if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
+  }
+  if (Indefeso(ed) && tipo_ataque == TipoAtaque::CORPO_A_CORPO) {
+    modificador += 4;
   }
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
     // era tiro_queima_roupa
@@ -4079,6 +4085,10 @@ bool PodeAgir(const EntidadeProto& proto) {
   if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO}, proto)) {
     return false;
   }
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -4087,6 +4097,9 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
     return false;
   }
   if (PossuiEvento(EFEITO_CEGO, proto) && !PossuiTalento("lutar_as_cegas", proto)) {
+    return false;
+  }
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
     return false;
   }
   return true;
@@ -4354,6 +4367,16 @@ bool PreencheInfoTextura(
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
     return false;
   }
+}
+
+bool Indefeso(const EntidadeProto& proto) {
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
+    return true;
+  }
+  if (PossuiEvento(EFEITO_SONO, proto)) {
+    return true;
+  }
+  return false;
 }
 
 }  // namespace ent

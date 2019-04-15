@@ -1566,6 +1566,7 @@ void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaq
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   *da->mutable_acao() = AcaoProto::default_instance();
+
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
@@ -1849,6 +1850,20 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, *proto)) {
+    // Zera destreza e força.
+    auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
+    const int forca = BonusTotal(*bonus_forca);
+    if (forca > 0) {
+      AtribuiBonus(-forca, TB_SEM_NOME, "paralisia", bonus_forca);
+    }
+    auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
+    const int destreza = BonusTotal(*bonus_destreza);
+    if (destreza > 0) {
+      AtribuiBonus(-destreza, TB_SEM_NOME, "paralisia", bonus_destreza);
+    }
+  }
+
   RecomputaDependenciasNiveisNegativos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);

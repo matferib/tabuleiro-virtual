@@ -273,8 +273,8 @@ fixo {
   # Linha 5.
   dados_botoes {
     tamanho: 1
-    linha: 5
-    coluna: 3
+    linha: 6
+    coluna: 4
     rotulo: "Mf"
     cor_rotulo {}
     textura: "icon_shapechange.png"
@@ -286,8 +286,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
-    coluna: 4
+    linha: 7
+    coluna: 3
     rotulo: "F"
     cor_rotulo {}
     textura: "icon_sneak.png"
@@ -299,7 +299,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
+    linha: 6
     coluna: 5
     rotulo: "Es"
     cor_rotulo {}

@@ -1303,6 +1303,16 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       }
     }
 
+    if (da->derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
+      acao_proto->set_consequencia(TC_DERRUBA_ALVO);
+      // Apenas para desfazer, pois a consequencia derrubara.
+      auto* nd = grupo_desfazer->add_notificacao();
+      std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
+      PreencheNotificacaoDerrubar(*entidade_destino, n_derrubar.get(), nd);
+      central_->AdicionaNotificacao(n_derrubar.release());
+      ConcatenaString("derruba sem teste", por_entidade->mutable_texto());
+    }
+
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pv_pos_salvacao);
@@ -1439,8 +1449,15 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Acao realizada, ao terminar funcao, roda isso.
-    RodaNoRetorno roda_no_retorno([entidade_origem, da]() {
+    RodaNoRetorno roda_no_retorno([entidade_origem, da, grupo_desfazer]() {
       if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
+        ntf::Notificacao* filha;
+        EntidadeProto *e_antes, *e_depois;
+        std::tie(filha, e_antes, e_depois) =
+            NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
+        // O refazer vai falhar, mas fodas.
+        e_antes->set_reiniciar_ataque(true);
+        e_depois->set_reiniciar_ataque(false);
         entidade_origem->ProximoAtaque();
       }
     });
@@ -1619,8 +1636,14 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    if (resultado.Sucesso() && da->derrubar_automatico() && !entidade_destino->Proto().caida()) {
-      ResultadoAtaqueVsDefesa resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
+    if (resultado.Sucesso() && (da->derrubar_automatico() || da->derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
+      ResultadoAtaqueVsDefesa resultado_derrubar;
+      if (da->derruba_sem_teste()) {
+        resultado_derrubar.resultado = RA_SUCESSO;
+        resultado_derrubar.texto = "derruba sem teste";
+      } else {
+        resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
+      }
       if (resultado_derrubar.Sucesso()) {
         acao_proto->set_consequencia(TC_DERRUBA_ALVO);
         // Apenas para desfazer, pois a consequencia derrubara.
@@ -1809,7 +1832,10 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
   }
   auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
-  n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(entidade_defensora->Proto().dados_defesa().entidade_esquiva());
+  n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(
+      entidade_defensora->Proto().dados_defesa().has_entidade_esquiva()
+      ? entidade_defensora->Proto().dados_defesa().entidade_esquiva()
+      : Entidade::IdInvalido);
   n->mutable_entidade()->set_id(entidade_defensora->Id());
   n->mutable_entidade()->mutable_dados_defesa()->set_entidade_esquiva(id);
   AdicionaNotificacaoListaEventos(*n);
@@ -2904,6 +2930,23 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
       AdicionaNotificacaoListaEventos(grupo_desfazer);
     }
   }
+}
+
+void Tabuleiro::DesligaEsquivaNotificando() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade para usar feitico";
+    return;
+  }
+  if (!e->Proto().dados_defesa().has_entidade_esquiva()) {
+    LOG(INFO) << "Entidade nao esta esquivando";
+    return;
+  }
+  ntf::Notificacao n;
+  PreencheNotificacaoEsquiva(Entidade::IdInvalido, *e, &n, nullptr);
+  AdicionaLogEvento(e->Id(), StringPrintf("desligando esquiva"));
+  TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 void Tabuleiro::DescansaPersonagemNotificando() {

@@ -64,6 +64,7 @@ sub_menu {
 }
 sub_menu {
   id: 'Vultos e Obscuros'
+  modelo { id: 'Vulto Bardo 5' }
   modelo { id: 'Vulto Guerreiro 5' }
   modelo { id: 'Vulto Feiticeiro 5' }
   modelo { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' }

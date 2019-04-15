@@ -860,6 +860,9 @@ bool PreencheInfoTextura(
     const std::string& nome, arq::tipo_e tipo, InfoTextura* info_textura,
     unsigned int* plargura = nullptr, unsigned int* paltura = nullptr);
 
+// Retorna true se proto estiver indefeso.
+bool Indefeso(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

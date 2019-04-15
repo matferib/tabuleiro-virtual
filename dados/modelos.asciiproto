@@ -3060,6 +3060,21 @@ modelo {
       id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 10
     }
+    dados_ataque {
+      tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      alcance_q: 6
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        ignora_resistencia_magia: true
+        permite_salvacao: false
+        efeitos_adicionais {
+          efeito: EFEITO_INSPIRAR_CORAGEM
+          rodadas: 5
+          complementos: 0
+        }
+      }
+    }
+
     info_talentos {
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }

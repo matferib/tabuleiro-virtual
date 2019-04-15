@@ -330,7 +330,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       AlternaModoTerreno();
       break;
     case CONTROLE_MODO_ESQUIVA:
-      AlternaModoEsquiva();
+      if (alterna_selecao) {
+        DesligaEsquivaNotificando();
+      } else {
+        AlternaModoEsquiva();
+      }
       break;
     case CONTROLE_FURIA:
       AlternaFuria();

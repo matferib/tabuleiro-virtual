@@ -611,6 +611,43 @@ modelo {
   }
 }
 modelo {
+  id: 'Vulto Bardo 5'
+  id_entidade_base: 'Humano Bardo 5'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true }
+    info_textura { id: 'shade_bard.png' translacao_x: 0.25 largura: 0.5 }
+    dados_ataque {
+      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      limite_vezes: 3
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          complementos: 3  # 1d4+1
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
+  }
+}
+
+modelo {
   id: 'Vulto Feiticeiro 5'
   id_entidade_base: 'Humano Feiticeiro 5'
   entidade {

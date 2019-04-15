@@ -1997,7 +1997,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
       if (acao == nullptr || acao->Finalizada()) {
-        LOG(INFO) << "Finalizando ação construida, acao: " << (acao == nullptr ? "nullptr" : acao->Proto().DebugString().c_str());
+        LOG(INFO) << "Finalizando ação construida ja finalizada, acao: " << (acao == nullptr ? "nullptr" : acao->Proto().DebugString().c_str());
         return true;
       }
       acoes_.push_back(std::move(acao));
@@ -5895,6 +5895,11 @@ namespace {
 const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
   ntf::Notificacao n_inversa;
   n_inversa.set_tipo(ntf::TN_ERRO);
+  if (!n_original.has_tipo()) {
+    LOG(ERROR) << "Notificacao sem tipo!";
+    return n_inversa;
+  }
+  VLOG(1) << "invertendo " << ntf::Tipo_Name(n_original.tipo());
   switch (n_original.tipo()) {
     // Tipos de notificacao que podem ser desfeitas.
     case ntf::TN_GRUPO_NOTIFICACOES:
@@ -5989,13 +5994,14 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
       VLOG(1) << "Invertendo TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL";
+      if (n_original.entidade_antes().has_reiniciar_ataque()) LOG(INFO) << "aqui!!!!!!";
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
         break;
       }
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-      n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
+      *n_inversa.mutable_entidade() = n_original.entidade_antes();
       break;
     case ntf::TN_ATUALIZAR_ENTIDADE:
       if (!n_original.has_entidade_antes()) {

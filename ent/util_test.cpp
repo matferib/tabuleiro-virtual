@@ -81,6 +81,27 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
   ASSERT_TRUE(proto.evento().empty());
 }
 
+TEST(TesteItemMagico, TesteItemMagicoParalisia) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(12, TA_FORCA, &proto);
+  AtribuiBaseAtributo(12, TA_DESTREZA, &proto);
+  auto* luvas = proto.mutable_tesouro()->add_luvas();
+  luvas->set_id("luvas_destreza_2");
+  luvas->set_em_uso(true);
+  RecomputaDependencias(tabelas, &proto);
+  EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_FORCA, proto)));
+  EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PARALISIA);
+  evento->set_rodadas(1);
+  RecomputaDependencias(tabelas, &proto);
+
+  EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_FORCA, proto)));
+  EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
+}
+
 TEST(TesteArmas, TestePedrada) {
   Tabelas tabelas(nullptr);
   EntidadeProto proto;
