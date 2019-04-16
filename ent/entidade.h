@@ -9,16 +9,19 @@
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
-#include "m3d/m3d.h"
 
 #define VBO_COM_MODELAGEM 0
 
+namespace m3d {
+class Modelos3d;
+}  // namespace m3d
 namespace ntf {
 class CentralNotificacoes;
 }  // namespace ntf
 namespace ent {
 
 class Entidade;
+class Tabuleiro;
 class DesenhoBase;
 class IluminacaoDirecional;
 
@@ -34,7 +37,8 @@ class Texturas {
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
 Entidade* NovaEntidade(
     const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -57,6 +61,9 @@ class Entidade {
 
   /** faz alvo fumegar. */
   void AtivaFumegando(int duracao_ms);
+
+  /** Faz o alvo soltar bolhas, como nausea. */
+  void AtivaBolhas(int duracao_ms, const float* cor);
 
   /** Destroi a entidade. */
   ~Entidade();
@@ -92,7 +99,7 @@ class Entidade {
   */
   gl::VbosNaoGravados ExtraiVbo(const ParametrosDesenho* pd, bool mundo) const { return ExtraiVbo(Proto(), vd_, pd, mundo); }
   // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVbo(const EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -118,8 +125,8 @@ class Entidade {
 
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
-  int PontosVida() const { return proto_.pontos_vida(); }
-  int MaximoPontosVida() const { return proto_.max_pontos_vida() - proto_.niveis_negativos() * 5; }
+  int PontosVida() const { return proto_.pontos_vida() + proto_.pontos_vida_temporarios(); }
+  int MaximoPontosVida() const { return proto_.max_pontos_vida() - proto_.niveis_negativos() * 5 + proto_.pontos_vida_temporarios(); }
   int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
   int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
 
@@ -128,11 +135,15 @@ class Entidade {
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
   /** @return o nivel de conjurador do personagem. */
-  int NivelConjurador() const;
+  int NivelConjurador(const std::string& classe) const;
   /** Bonus base de ataque total do personagem. */
   int BonusBaseAtaque() const;
   /** Modificador do atributo de conjuracao. Exemplo: sab para clérigos. */
   int ModificadorAtributoConjuracao() const;
+  /** Retorna o modificador de um atributo do personagem, com todos modificadores. */
+  int ModificadorAtributo(TipoAtributo atributo) const;
+  /** Retorna true se a entidade tiver mais de duas pernas. */
+  bool MaisDeDuasPernas() const { return proto_.mais_de_duas_pernas(); }
 
   /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
   EntidadeProto::TipoTransicao TipoTransicao() const;
@@ -187,17 +198,13 @@ class Entidade {
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
-  /** Retorna a acao mais recente da entidade. Caso nao haja, retorna a primeira acao padrao. */
-  AcaoProto Acao(const MapaIdAcao& mapa_acoes) const;
+  /** Retorna a acao mais recente da entidade. Caso nao haja, proto vazio. */
+  AcaoProto Acao() const;
 
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);
   /** Retorna a acao executada pela entidade ou uma acao padrao caso a entidade nao possua a acao. */
   std::string TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
-
-  // Retorna o tipo da acao e o icone, se houver.
-  std::pair<TipoAcao, std::string> TipoAcaoComIcone(
-      int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const;
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
@@ -235,8 +242,8 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Retorna nullptr caso nao haja.
-  const EntidadeProto::DadosAtaque* DadoCorrente() const;
-  const EntidadeProto::DadosAtaque* DadoAgarrar() const;
+  const DadosAtaque* DadoCorrente() const;
+  const DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   // Retorna modificadores para ataques de toque.
@@ -256,7 +263,7 @@ class Entidade {
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(const ent::Entidade& atacante, TipoCA tipo) const;
+  int CA(const Entidade& atacante, TipoCA tipo) const;
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;
@@ -307,10 +314,10 @@ class Entidade {
   void AtualizaDirecaoDeQueda(float x, float y, float z);
 
   // Acesso a tendencia.
-  bool Bom() const { return ent::Bom(proto_); }
-  bool Mal() const { return ent::Mal(proto_); }
-  bool Ordeiro() const { return ent::Ordeiro(proto_); }
-  bool Caotico() const { return ent::Caotico(proto_); }
+  bool Bom() const { return ::ent::Bom(proto_); }
+  bool Mal() const { return ::ent::Mal(proto_); }
+  bool Ordeiro() const { return ::ent::Ordeiro(proto_); }
+  bool Caotico() const { return ::ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
@@ -335,6 +342,15 @@ class Entidade {
   // Reinicia os dados de ataque da entidade.
   void ReiniciaAtaque();
 
+  /** Remove e retorna a sub forma da entidade. */
+  EntidadeProto RemoveSubForma(int indice);
+
+  /** Realiza as notificacoes referentes a modelos 3d. */
+  void AtualizaModelo3d(const EntidadeProto& novo_proto);
+
+  /** Realiza as chamadas de notificacao para as texturas. */
+  void AtualizaTexturas(const EntidadeProto& novo_proto);
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
@@ -342,16 +358,24 @@ class Entidade {
 
  protected:
   friend Entidade* NovaEntidade(
-      const EntidadeProto& proto, const Tabelas& tabelas, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
-  Entidade(const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+      const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas*, const m3d::Modelos3d*,
+      ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(
+      const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+      ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 15;
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12, VBO_BASE_PECA = 13, VBO_MOLDURA_PECA = 14;
+  constexpr static unsigned short NUM_VBOS = 17;
+  constexpr static unsigned short
+      VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3,
+      VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7,
+      VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11,
+      VBO_CILINDRO_FECHADO = 12, VBO_BASE_PECA = 13, VBO_MOLDURA_PECA = 14,
+      VBO_HEMISFERIO = 15, VBO_PIRAMIDE_FECHADA = 16;
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
@@ -360,17 +384,20 @@ class Entidade {
     std::vector<float> posicoes;
   };
 
-  struct DadosUmaNuvem {
+  // Dados de uma emissao, pode ser nuvem, bolha etc.
+  struct DadosUmaEmissao {
     // Vetor de direcao da fumaca. Unitario.
     Vector3 direcao;
     Vector3 pos;
-    float escala;
+    float escala = 1.0f;
     int duracao_ms = 0;
-    float alfa = 1.0f;
     float velocidade_m_s = 0.0f;
+    float incremento_escala_s = 0.0f;
+    float cor[4] = {1.0f, 1.0f, 1.0f, 1.0};  // Cor de uma emissao.
   };
 
-  struct DadosFumaca {
+  // Os dados da emissao toda.
+  struct DadosEmissao {
     // Ao chegar a zero, para de emitir.
     int duracao_ms = 0;
     // Intervalo entre emissoes.
@@ -380,9 +407,11 @@ class Entidade {
     // Quanto tempo vive uma nuvem.
     int duracao_nuvem_ms = 0;
     // Dados de cada nuvem.
-    std::vector<DadosUmaNuvem> nuvens;
+    std::vector<DadosUmaEmissao> emissoes;
     // O vbo da fumaca.
     gl::VbosNaoGravados vbo;
+    // Cor base da emissao.
+    float cor[3] = {0};
   };
 
   // Para luzes temporarias, como disparo de arma de fogo.
@@ -420,7 +449,8 @@ class Entidade {
     // Numero de ataques realizado na rodada.
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
-    DadosFumaca fumaca;
+    DadosEmissao fumaca;
+    DadosEmissao bolhas;
     DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
@@ -433,47 +463,54 @@ class Entidade {
     Matrix4 matriz_modelagem_tela_textura;
     Matrix4 matriz_deslocamento_textura;
 
-    // As texturas da entidade.
+    // Abaixo sao variaveis que valem para todos (como se fossem globais).
+    // As texturas.
     const Texturas* texturas = nullptr;
-    // Modelo 3d para entidades que o possuem.
+    // Modelo 3d.
     const m3d::Modelos3d* m3d = nullptr;
   };
 
+  // Apos o intervalo de emissao, emite nova bolha ou nuvem.
+  void EmiteNovaBolha();
+  void EmiteNovaNuvem();
+  /** Atualiza os dados da emissao, baseado no intervalo. Remove as emissoes mortas, atualiza as existentes. */
+  void RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const;
+  /** Recria os VBOs da emissao. */
+  void RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const;
+
   // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.
-  static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void CorrigeVboRaiz(const EntidadeProto& proto, VariaveisDerivadas* vd);
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
   // Extracao de VBO por tipo.
-  static gl::VbosNaoGravados ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
-  static gl::VbosNaoGravados ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
-  static gl::VbosNaoGravados ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboForma(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboComposta(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
 
   // Inicializacao por tipo.
-  static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
-  static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void InicializaForma(const EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void InicializaComposta(const EntidadeProto& proto, VariaveisDerivadas* vd);
 
   // Atualizacao por tipo.
   static void AtualizaProtoForma(
-      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
+      const EntidadeProto& proto_original, const EntidadeProto& proto_novo, VariaveisDerivadas* vd);
   static void AtualizaProtoComposta(
-      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
+      const EntidadeProto& proto_original, const EntidadeProto& proto_novo, VariaveisDerivadas* vd);
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();
   void AtualizaEfeito(TipoEfeito id_efeito, ComplementoEfeito* complemento);
   /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaFumaca(int intervalo_ms);
+  /** Atualiza as bolhas da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaBolhas(int intervalo_ms);
+
   /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaLuzAcao(int intervalo_ms);
 
-  /** Realiza as chamadas de notificacao para as texturas. */
-  void AtualizaTexturas(const EntidadeProto& novo_proto);
   static void AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
-
-  /** Realiza as notificacoes referentes a modelos 3d. */
-  void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
   /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto.
   * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
@@ -498,6 +535,8 @@ class Entidade {
   void DesenhaEfeitos(ParametrosDesenho* pd);
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
+
+  void RecomputaDependencias();
 
   struct MatrizesDesenho {
     Matrix4 modelagem;
@@ -571,6 +610,7 @@ class Entidade {
  private:
   EntidadeProto proto_;
   const Tabelas& tabelas_;
+  const Tabuleiro* tabuleiro_ = nullptr;
   VariaveisDerivadas vd_;
   const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 

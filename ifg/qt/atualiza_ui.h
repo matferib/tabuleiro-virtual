@@ -21,6 +21,9 @@ namespace qt {
 // Chama todas atualizacoes de UI.
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Atualiza combos de evasao.
+void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
 // Atualiza sliders de tendencia.
 void AtualizaUITendencia(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
@@ -100,6 +103,7 @@ void AtualizaFeiticosConhecidosNivel(
 void AdicionaItemFeiticoConhecido(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int indice,
+    const ent::EntidadeProto& proto_retornado,
     QTreeWidgetItem* pai);
 
 // Atualiza os feiticos para lancar de um nivel.

@@ -177,7 +177,7 @@ modelo {
     }
 
     dados_defesa {
-      resistencia_magia: 18
+      resistencia_magia_racial: 18
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
       }
@@ -201,7 +201,7 @@ modelo {
       }
     }
     info_talentos {
-      gerais { id: 'tiro_queima_roupa' }
+      gerais { id: 'tiro_certeiro' }
       gerais { id: 'tiro_preciso' }
       gerais { id: 'tiro_rapido' }
       gerais { id: 'foco_em_arma' complemento: 'arco_longo_composto_5' }
@@ -332,6 +332,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_PISCAR
           rodadas: 4
+          combinar_com: 0
         }
       }
     }
@@ -480,7 +481,7 @@ modelo {
     # Ferrao nao tem modificador de forca.
     dados_ataque { rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano: '1d8' }
     dados_defesa {
-      resistencia_magia: 23
+      resistencia_magia_racial: 23
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 18 } } }
     }
     info_talentos {
@@ -569,5 +570,760 @@ modelo {
     }
     dados_vida: '19d8+57' tamanho: TM_ENORME modelo_3d { id: "phaerimm" } voadora: true
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
+  }
+}
+modelo {
+  id: 'Vulto Guerreiro 5'
+  id_entidade_base: 'Humano Guerreiro 5'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_fighter.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    dados_ataque {
+      limite_vezes: 3
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          dado_complementos_str: '1d4+1'
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
+  }
+}
+modelo {
+  id: 'Vulto Bardo 5'
+  id_entidade_base: 'Humano Bardo 5'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    info_textura { id: 'shade_bard.png' translacao_x: 0.25 largura: 0.5 }
+    dados_ataque {
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      limite_vezes: 3
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          dado_complementos_str: '1d4+1'
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
+    tesouro {
+      pocoes { id: 'protecao_contra_bem' }
+      pocoes { id: 'ajuda' }
+      tesouro: '10 PO'
+    }
+
+  }
+}
+
+modelo {
+  id: 'Vulto Feiticeiro 5'
+  id_entidade_base: 'Humano Feiticeiro 5'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    info_textura { id: 'shade_sorcerer.png' translacao_x: 0.25 largura: 0.5 }
+    dados_ataque {
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      limite_vezes: 3
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 50
+          dado_complementos_str: '1d4+1'
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 50
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'pergaminho' rotulo: 'flecha ácida' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'flecha_acida'
+      limite_vezes: 4
+      acao_fixa {
+        efeitos_adicionais {
+          rodadas_base: 2
+          modificador_rodadas: MR_NENHUM
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
+      limite_vezes: 2
+      dificuldade_salvacao: 13
+      acao_fixa {
+        efeitos_adicionais {
+          rodadas: 300
+          combinar_com: 0
+        }
+      }
+    }
+
+    tesouro {
+      pocoes { id: 'protecao_contra_bem' }
+      tesouro: '10 PO\nflecha acida x4, teia x2'
+    }
+  }
+}
+modelo {
+  # Atencao: nao é vulto! EotS 95
+  # Shadovar guard
+  id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4'
+  entidade {
+    dados_vida: '9d4+14' raca: 'humano'
+    info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'feiticeiro' nivel: 6 }
+    info_classes { id: 'adepto_sombras' nivel: 4 }
+    tendencia { simples: TD_LEAL_MAU }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'magia_combate' }
+      gerais { id: 'criar_varinha' }
+      gerais { id: 'aumentar_magia' }
+      gerais { id: 'magia_traicoeira' }
+      gerais { id: 'magia_perniciosa' }
+      gerais { id: 'magia_trama_sombras' }
+      gerais { id: 'magia_tenaz' }
+    }
+    info_pericias { id: 'blefar' pontos: 13 }
+    info_pericias { id: 'concentracao' pontos: 13 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'intimidacao' pontos: 2 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 9 }
+    info_pericias { id: 'identificar_magia' pontos: 11 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+    }
+    tesouro {
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      mantos { id: 'manto_resistencia_2' em_uso: true }
+    }
+
+    rotulo: ''
+    feiticos_classes {
+      id_classe: 'mago'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'arcane_mark' } # TODO
+        conhecidos { id: 'pasmar' } # TODO
+        conhecidos { id: 'maos_magicas' }
+        conhecidos { id: 'mending' }  # TODO
+        conhecidos { id: 'message' }  # TODO
+        conhecidos { id: 'open/close' }  # TODO
+        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'resistance' } # TODO
+        conhecidos { id: 'toque_fadiga' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'suportar_elementos' }
+        conhecidos { id: 'feather_fall' }  #TODO
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'protecao_contra_bem' } #TODO
+        conhecidos { id: 'shield' } #TODO
+        para_lancar { usado: true }
+        para_lancar { usado: true }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'invisibilidade' }
+        conhecidos { id: 'resist energy' }  # TODO
+        conhecidos { id: 'summon swarm' }  # TODO
+        conhecidos { id: 'whispering wind' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'gaseous_form' } # TODO
+        conhecidos { id: 'ray_of_exhaustion' }  # TODO
+        conhecidos { id: 'tongues' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'stoneskin' } # TODO
+        conhecidos { id: 'summon_monster_iv' }  # TODO
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'cloudkill' } # TODO
+      }
+    }
+
+  }
+}
+modelo {
+  # Atencao: nao é vulto! EotS 119
+  # Done.
+  # Shadovar aerial scout.
+  id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4'
+  entidade {
+    dados_vida: '4d10+2d8+4d4+21' raca: 'humano'
+    info_textura { id: 'ranger.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    info_classes { id: 'ranger' nivel: 2 }
+    info_classes { id: 'feiticeiro' nivel: 4 }
+    tendencia { simples: TD_NEUTRO_MAU }
+    dados_ataque_global {
+      inimigos_prediletos {
+        classe: 'ranger'
+        vezes: 1
+        tipo: TIPO_HUMANOIDE
+        sub_tipo: SUBTIPO_ELFO
+      }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'disciplina' }
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'combate_montado' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'tiro_rapido' }
+      gerais { id: 'investida_montada' }
+      gerais { id: 'investida_implacavel' }
+      gerais { id: 'rastrear' }
+    }
+    info_pericias { id: 'escalar' pontos: 7 }
+    info_pericias { id: 'concentracao' pontos: 9 }
+    info_pericias { id: 'adestrar_animais' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 7 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'cavalgar' pontos: 10 }
+    info_pericias { id: 'indentificar_magia' pontos: 7 }
+    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'usar_cordas' pontos: 1 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8 com carisma 13.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+    evento {
+      rodadas: 40
+      id_efeito: EFEITO_ESCUDO_ARCANO
+    }
+    evento {
+      rodadas: 40
+      id_efeito: EFEITO_AGILIDADE_GATO
+    }
+    evento {
+      rodadas: 14400 # 24h
+      id_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' bonus_magico_armadura: 2
+    }
+
+    feiticos_classes {
+      id_classe: 'feiticeiro'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'romper_morto_vivo' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'maos_magicas' }
+        conhecidos { id: 'mensagem' }
+        conhecidos { id: 'resistencia' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'suportar_elementos' }
+        conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'ataque_certeiro' }
+        para_lancar { usado: true }
+        para_lancar { usado: true }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'agilidade_gato' }
+        para_lancar { usado: true }
+      }
+    }
+
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+      municao: 20
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 1
+    }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
+
+    # Lanças podem ser usadas com uma mão quando montado e dá dano duplo (ou seja, x4).
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 0
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 1
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+
+    dados_ataque { grupo: 'fogo alquimico' id_arma: 'fogo_alquimico' }
+
+    tesouro {
+      aneis { id: 'protecao_1' em_uso: true }
+      aneis { id: 'queda_suave' em_uso: true }
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'protecao_contra_bem' }
+      tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
+    }
+  }
+}
+modelo {
+  id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1'
+  entidade {
+    raca: 'humano'
+    dados_vida: '4d8+1d4+20'
+    # Nao tem como carregar texturas locais. Tem que carregar na UI.
+    info_textura { id: '0:shar_cleric.png'  largura: 0.6 translacao_x: 0.2 }
+    info_classes { id: 'clerigo' nivel: 5 }
+    info_classes { id: 'adepto_sombras' nivel: 1 }
+    tendencia { simples: TD_LEAL_MAU }
+    cor { r: 0.150 g: 0.150 b: 0.150 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 17 }
+    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' bonus_magico_escudo: 1 }
+    dados_ataque {
+      id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 10
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      rotulo: 'toque morte 1/dia' grupo: 'dominio' empunhadura: EA_ARMA_ESCUDO
+      ataque_toque: true limite_vezes: 1
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        pv_mais_alto: 20 # 5d6
+        permite_salvacao: false
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_MORTE
+          rodadas: 1
+        }
+      }
+    }
+    dados_ataque {
+      limite_vezes: 3
+      grupo: '3/dia reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_REFLEXOS
+          rodadas: 60
+          dado_complementos_str: '1d4+2'
+          combinar_com: 0
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'a vontade invisibilidade' rotulo: 'invisibilidade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      acao_fixa {
+        tipo: ACAO_FEITICO_PESSOAL
+        ignora_resistencia_magia: true
+        efeitos_adicionais {
+          efeito: EFEITO_INVISIBILIDADE
+          rodadas: 60
+          combinar_com: 0
+        }
+      }
+    }
+
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
+      gerais { id: 'magia_trama_sombras' }
+      gerais { id: 'reflexos_rapidos' }
+      outros { id: 'magia_perniciosa' }
+      outros { id: 'magia_traicoeira' }
+      outros { id: 'magia_tenaz' }
+    }
+    info_pericias { id: 'concentracao' pontos: 8 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'protecao_contra_bem' }
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
+      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'morte'
+      dominios: 'enganacao'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'maldicao_menor' }
+        conhecidos { id: 'bencao' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'causar_medo' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'arma_espiritual_mangual' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'curar_ferimentos_moderados' }
+        conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'vitalidade_ilusoria' dominio: true }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+      }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+  }
+}
+
+
+modelo {
+  id: 'Humano Arcano de Guerra 5'
+  id_entidade_base: 'Humano Mago 5'
+  entidade {
+    rotulo: 'arcano de guerra 5'
+    info_textura { id: '0:war_wizard.png' }
+  }
+}
+
+modelo {
+  id: 'Humano Combatente Soldado Dragão Púrpura 2'
+  id_entidade_base: 'Combatente Base'
+  entidade {
+    rotulo: 'humano combatente 2'
+    dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_warrior' }
+    info_classes { id: 'combatente' nivel: 2 }
+    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
+    dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
+    tesouro { tesouro: '2d20 PP' }
+  }
+}
+modelo {
+  id: 'Humano Combatente Arqueiro Dragão Púrpura 2'
+  id_entidade_base: 'Combatente Base'
+  entidade {
+    rotulo: 'humano arqueiro 2'
+    dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_archer' }
+    info_classes { id: 'combatente' nivel: 2 }
+    dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
+    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
+    tesouro { tesouro: '2d20 PP' }
+  }
+}
+
+modelo {
+  id: 'Veserab'
+  entidade {
+    dados_vida: '5d10+15' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
+    movimento {
+      terrestre_basico_q: 4
+      aereo_basico_q: 24
+    }
+
+    rotulo_especial: 'faro, sentido cego (48 q), bote (mergulhando), rasgar'
+    info_classes { id: 'besta_magica' nivel: 5 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    dados_ataque_global {
+      # Cego.
+      chance_falha: 50
+    }
+    info_talentos {
+      gerais { id: 'investida_aerea' }
+      gerais { id: 'ataques_multiplos' }
+    }
+    info_pericias { id: 'ouvir' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+
+    # Sopro
+    dados_ataque {
+      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 4
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        dificuldade_salvacao_base: 12  # 10 + 1/2 HD.
+        atributo_dificuldade_salvacao: TA_CONSTITUICAO
+        cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+        icone: 'icon_breath.png'
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          dado_modificador_rodadas: '1d4+1'
+        }
+      }
+    }
+
+    # Bote.
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    # apesar de ser grande, alcance 1.
+  }
+}
+modelo {
+  id: 'Veserab Avançado'
+  entidade {
+    dados_vida: '8d10+24' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
+    cor { r: 0.75 g: 0.75 b: 0.75 }
+    movimento {
+      terrestre_basico_q: 4
+      aereo_basico_q: 24
+    }
+
+    rotulo_especial: 'faro, sentido cego (48 q), bote (mergulhando), rasgar'
+    info_classes { id: 'besta_magica' nivel: 8 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    dados_ataque_global {
+      # Cego.
+      chance_falha: 50
+    }
+    info_talentos {
+      gerais { id: 'lutar_as_cegas' }
+      gerais { id: 'investida_aerea' }
+      gerais { id: 'ataques_multiplos' }
+    }
+    info_pericias { id: 'ouvir' pontos: 8 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+    }
+
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+
+    # Sopro
+    dados_ataque {
+      grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 4
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        dificuldade_salvacao_base: 14  # 10 + 1/2 HD
+        atributo_dificuldade_salvacao: TA_CONSTITUICAO
+        cor { r: 0.0 g: 0.7 b: 0.0 a: 0.7 }
+        icone: 'icon_breath.png'
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          dado_modificador_rodadas: '1d4+1'
+        }
+      }
+    }
+
+    # Bote.
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+    # apesar de ser grande, alcance 1.
   }
 }

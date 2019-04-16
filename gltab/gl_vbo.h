@@ -46,6 +46,8 @@ class VboNaoGravado {
   void AtribuiCor(float r, float g, float b, float a);
   // Cores independentes, como array por vertice.
   void AtribuiCores(const float* cores);
+  // Multiplica as cores do objeto pelas cores passadas.
+  void MesclaCores(float r, float g, float b, float a);
 
   // Concatena um vbo a outro, ajustando os indices.
   // @throw caso os objetos nao sejam compativeis.
@@ -213,6 +215,7 @@ class VbosNaoGravados {
   bool Vazio() const { return vbos_.empty(); }
   void Multiplica(const Matrix4& m);
   void AtribuiCor(float r, float g, float b, float a);
+  void MesclaCores(float r, float g, float b, float a);
   std::string ParaString(bool completo) const;
 
  private:
@@ -260,6 +263,11 @@ inline void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num
 VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
 inline void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   DesenhaVbo(VboEsferaSolida(raio, num_fatias, num_tocos));
+}
+
+VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos);
+inline void HemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+  DesenhaVbo(VboHemisferioSolido(raio, num_fatias, num_tocos));
 }
 
 VboNaoGravado VboCuboSolido(GLfloat tam_lado);

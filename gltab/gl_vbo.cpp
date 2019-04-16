@@ -3,10 +3,14 @@
 #include <limits>
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
-#include "net/util.h"
 
 namespace gl {
+
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 bool ImprimeSeErro(const char* mais = nullptr);
 
@@ -39,6 +43,7 @@ enum Vbos {
   VBO_CONE,
   VBO_CONE_FECHADO,
   VBO_CILINDRO_FECHADO,
+  VBO_HEMISFERIO,
   VBO_NUM
 };
 static std::vector<gl::VboGravado> g_vbos;
@@ -60,6 +65,13 @@ void IniciaVbos() {
     auto& vbo = vbos_nao_gravados[VBO_ESFERA];
     vbo = gl::VboEsferaSolida(0.5f, 24, 12);
     vbo.Nomeia("Esfera unitaria");
+  }
+
+  // Hemisferio.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_HEMISFERIO];
+    vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
+    vbo.Nomeia("Hemisferio unitario");
   }
 
   // Piramide.
@@ -153,6 +165,12 @@ void VbosNaoGravados::AtribuiCor(float r, float g, float b, float a) {
   }
 }
 
+void VbosNaoGravados::MesclaCores(float r, float g, float b, float a) {
+  for (auto& vbo : vbos_) {
+    vbo.MesclaCores(r, g, b, a);
+  }
+}
+
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);
@@ -198,7 +216,7 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
   std::string ret;
   int i = 0;
   for (const auto& vbo : vbos_) {
-    ret += net::to_string(i++) + ") " + vbo.ParaString(completo) + "\n";
+    ret += StringPrintf("%d) %s\n", i++, vbo.ParaString(completo).c_str());
   }
   return ret;
 }
@@ -494,6 +512,19 @@ void VboNaoGravado::AtribuiCores(const float* cores) {
   tem_cores_ = true;
 }
 
+void VboNaoGravado::MesclaCores(float r, float g, float b, float a) {
+  if (!tem_cores_) {
+    AtribuiCor(r, g, b, a);
+  } else {
+    for (unsigned int i = 0; i < cores_.size(); i += 4) {
+      cores_[i] *= r;
+      cores_[i + 1] *= g;
+      cores_[i + 2] *= b;
+      cores_[i + 3] *= a;
+    }
+  }
+}
+
 VboNaoGravado VboNaoGravado::ExtraiVboNormais() const {
   if (num_dimensoes_ != 3) {
     throw std::logic_error("extracao de normais nao suportado para n != 3");
@@ -528,7 +559,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
   std::string coords;
   if (completo) {
     for (unsigned int i = 0; i < coordenadas_.size(); ++i) {
-      coords += net::to_string(coordenadas_[i]);
+      coords += StringPrintf("%f", coordenadas_[i]);
       if ((i > 0) && i % NumDimensoes() == 0) {
         coords += ";";
       }
@@ -925,6 +956,126 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   vbo.Nomeia("esfera");
   return vbo;
 }
+
+VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+  // Vertices.
+  const int num_vertices_por_fatia = 4;
+  const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
+  const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
+  const int num_indices_por_fatia = 6;
+  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
+  const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos;
+  const int num_indices_total = num_indices_por_toco * num_tocos;
+  const int num_coordenadas_textura_total = num_vertices_por_toco * num_tocos * 2;
+
+  float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
+  std::vector<unsigned short> indices(num_indices_total);
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+
+  float v_base[2];
+  v_base[0] = 0;
+  v_base[1] = 0;
+  float v_topo[2];
+  v_topo[0] = 0;
+  v_topo[1] = raio;
+  float h_topo = 0;
+
+  int i_coordenadas = 0;
+  int i_indices = 0;
+  int coordenada_inicial = 0;
+
+  int i_coordenadas_textura = 0;
+
+  float raio_topo = raio;
+  float inc_textura_h = 1.0f / num_fatias;
+  float inc_textura_v = -0.5f / num_tocos;
+
+  for (int i = 1; i <= num_tocos; ++i) {
+    float h_base = h_topo;
+    // Novas alturas e base.
+    float angulo_h_rad_vezes_i = angulo_h_rad * i;
+    h_topo = sinf(angulo_h_rad_vezes_i) * raio;
+    v_base[0] = 0.0f;
+    v_base[1] = raio_topo;
+    v_topo[0] = 0.0f;
+    raio_topo = raio * cosf(angulo_h_rad_vezes_i);
+    v_topo[1] = raio_topo;
+    float coordenada_textura_h = 0.0f;
+    float coordenada_textura_v = 0.5f + (i - 1) * inc_textura_v;
+
+    for (int i = 0; i < num_fatias; ++i) {
+      // Cada faceta do hemisferio possui 4 vertices (anti horario). Cada vertice sera a propria normal.
+      // V0 = vbase.
+      coordenadas[i_coordenadas] = v_base[0];
+      coordenadas[i_coordenadas + 1] = v_base[1];
+      coordenadas[i_coordenadas + 2] = h_base;
+      coordenadas_textura[i_coordenadas_textura]     = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 1] = coordenada_textura_v;
+
+      // V1 = vbase rodado.
+      float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
+      float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
+      v_base[0] = v_base_0_rodado;
+      v_base[1] = v_base_1_rodado;
+      coordenadas[i_coordenadas + 3] = v_base[0];
+      coordenadas[i_coordenadas + 4] = v_base[1];
+      coordenadas[i_coordenadas + 5] = h_base;
+      coordenadas_textura[i_coordenadas_textura + 2]  = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 3]  = coordenada_textura_v;
+      // v3 = vtopo.
+      coordenadas[i_coordenadas + 9] = v_topo[0];
+      coordenadas[i_coordenadas + 10] = v_topo[1];
+      coordenadas[i_coordenadas + 11] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 6] = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 7] = coordenada_textura_v + inc_textura_v;
+      // V2 = vtopo rodado.
+      float v_topo_0_rodado = v_topo[0] * cos_fatia - v_topo[1] * sen_fatia;
+      float v_topo_1_rodado = v_topo[0] * sen_fatia + v_topo[1] * cos_fatia;
+      v_topo[0] = v_topo_0_rodado;
+      v_topo[1] = v_topo_1_rodado;
+      coordenadas[i_coordenadas + 6] = v_topo[0];
+      coordenadas[i_coordenadas + 7] = v_topo[1];
+      coordenadas[i_coordenadas + 8] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 4]  = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 5]  = coordenada_textura_v + inc_textura_v;
+
+      // Indices: V0, V1, V2, V0, V2, V3.
+      indices[i_indices] = coordenada_inicial;
+      indices[i_indices + 1] = coordenada_inicial + 1;
+      indices[i_indices + 2] = coordenada_inicial + 2;
+      indices[i_indices + 3] = coordenada_inicial;
+      indices[i_indices + 4] = coordenada_inicial + 2;
+      indices[i_indices + 5] = coordenada_inicial + 3;
+
+      i_indices += 6;
+      i_coordenadas += 12;
+      i_coordenadas_textura += 8;
+      coordenada_textura_h += inc_textura_h;
+      coordenada_inicial += 4;
+    }
+  }
+  //LOG(INFO) << "raio: " << raio;
+  //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i];
+  //}
+  //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: "
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
+  //}
+
+  VboNaoGravado vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  vbo.AtribuiNormais(coordenadas.data());  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  vbo.AtribuiIndices(indices.data(), num_indices_total);
+  vbo.AtribuiTexturas(coordenadas_textura.data());
+  vbo.Nomeia("hemisferio");
+  return vbo;
+}
+
 
 VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_tocos) {
   // Vertices.

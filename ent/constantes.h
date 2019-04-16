@@ -88,6 +88,7 @@ extern const float COR_VERDE[];
 extern const float COR_AZUL[];
 extern const float COR_AZUL_ALFA[];
 extern const float COR_AMARELA[];
+extern const float COR_LARANJA[];
 
 // Offset de profundidade para formas 2d sobre tabuleiro.
 constexpr float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
@@ -142,6 +143,8 @@ constexpr float QUADRADOS_PARA_METROS = 1.5f;
 constexpr float METROS_PARA_QUADRADOS = 1.0f / 1.5f;
 
 constexpr int DIA_EM_RODADAS = 10 * 60 * 24;
+
+constexpr float DISTANCIA_LUZ_DIRECIONAL_METROS = 150.0f;
 
 }  // namespace ent
 

@@ -3,6 +3,7 @@ package ent;
 import "ent/comum.proto";
 import "ent/entidade.proto";
 
+// Proximo id: 144, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -43,12 +44,14 @@ enum IdBotao {
   CONTROLE_DESENHO_CIRCULO = 33;
   CONTROLE_DESENHO_TRIANGULO = 34;
   CONTROLE_DESENHO_ESFERA = 35;
+  CONTROLE_DESENHO_HEMISFERIO = 138;
   CONTROLE_DESENHO_PIRAMIDE = 36;
   CONTROLE_DESENHO_CUBO = 37;
   CONTROLE_DESENHO_CILINDRO = 38;
   CONTROLE_DESENHO_CONE = 39;
   CONTROLE_DESENHO_AGRUPAR = 40;
   CONTROLE_DESENHO_DESAGRUPAR  = 41;
+  CONTROLE_MODO_REMOVER_DE_GRUPO = 139;
   CONTROLE_DESENHO_COR_VERMELHO = 42;
   CONTROLE_DESENHO_COR_VERDE = 43;
   CONTROLE_DESENHO_COR_AZUL = 44;
@@ -119,6 +122,8 @@ enum IdBotao {
 
   CONTROLE_PAGINACAO_LISTA_LOG_CIMA = 111;
   CONTROLE_PAGINACAO_LISTA_LOG_BAIXO = 112;
+  CONTROLE_PAGINACAO_LISTA_LOG_ESQUERDA = 141;
+  CONTROLE_PAGINACAO_LISTA_LOG_DIREITA = 142;
   // Usado para items que nao fazem nada.
   CONTROLE_PAGINACAO_DUMMY = 113;
 
@@ -147,12 +152,11 @@ enum IdBotao {
 
   CONTROLE_DESCANSAR_PERSONAGEM = 134;
   CONTROLE_INVESTIDA = 137;
+  CONTROLE_MODO_MONTAR = 140;
+  CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE = 143;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
-  CONTROLE_ULTIMA_ACAO_0 = 201;
-  CONTROLE_ULTIMA_ACAO_1 = 202;
-  CONTROLE_ULTIMA_ACAO_2 = 203;
   // Este deve ser o ultimo sempre.
   CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 }
@@ -275,12 +279,15 @@ message ControleVirtualProto {
   optional Fixo fixo = 1;
   repeated Pagina pagina = 2;
   optional int32 pagina_corrente = 3;
+  optional bool modo_debug = 4;
 }
 
 enum TipoDuracao {
   TD_RODADAS_NIVEL = 0;
   TD_MINUTOS_NIVEL = 1;
   TD_HORAS_NIVEL   = 2;
+  TD_2_HORAS_NIVEL = 3;
+  TD_10_MINUTOS_NIVEL = 4;
   TD_OUTRA_DURACAO = 20;
 }
 
@@ -319,7 +326,7 @@ message Modelo {
   optional EntidadeProto entidade = 2;
   // Se presente, lera a entidade com o id_passado e apenas fara o merge com
   // entidade.
-  optional string id_entidade_base = 4;
+  repeated string id_entidade_base = 4;
 }
 
 // O arquivo eh serializado como uma repeticao de modelos em formato texto.

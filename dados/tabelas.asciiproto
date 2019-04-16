@@ -664,6 +664,8 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
+    alcance_quadrados: 2
+    alcance_minimo_quadrados: 1
     haste: true
   }
   armas {
@@ -712,6 +714,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 12
     peso { medio: '1Kg' }
     tipo_dano: TD_PERFURANTE
@@ -723,6 +726,7 @@ tabela_armas {
     dano { medio: '1d6'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 14
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
@@ -737,6 +741,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 20
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
@@ -748,6 +753,7 @@ tabela_armas {
     dano { medio: '1d8'  }
     multiplicador_critico: 3
     categoria: CAT_ARCO
+    categoria: CAT_DISTANCIA
     alcance_quadrados: 22
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
@@ -987,10 +993,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
-    acao {
-      ataque_toque: true
-      ataque_distancia: true
-    }
+    ataque_toque: true
   }
   armas {
     id: 'rede'
@@ -1024,12 +1027,324 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_OUTRO
+    nome: 'outros'
+  }
+  efeitos {
+    id: EFEITO_INSPIRAR_CORAGEM
+    nome: 'inpirar coragem'
+    formato_complementos: 'Bônus de moral em ataque e dano.'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      # TODO bonus em salvacao contra encantamento e medo.
+    }
+  }
+
+  efeitos {
+    id: EFEITO_PARALISIA
+    nome: 'paralisia'
+  }
+  efeitos {
+    id: EFEITO_METAMORFOSE_TORRIDA
+    nome: 'metamorfose tórrida'
+  }
+  efeitos {
+    id: EFEITO_MOVIMENTACAO_LIVRE
+    nome: 'movimentação livre'
+    # descricao: 'Imune a névoa sólida, lentidão, teia, paralisia e bem sucedido em agarrar defensivos.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_MAL
+    nome: 'dissipar mal'
+    # descricao: '+4 deflexão contra criaturas más, pode banir criaturas e dissipar magias de encantamento e com descritor mal.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_BEM
+    nome: 'dissipar mal'
+    # descricao: '+4 deflexão contra criaturas boas, pode banir criaturas e dissipar magias de encantamento e com descritor bem.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_CAOS
+    nome: 'dissipar caos'
+    # descricao: '+4 deflexão contra criaturas caóticas, pode banir criaturas e dissipar magias de encantamento e com descritor caos.'
+  }
+  efeitos {
+    id: EFEITO_DISSIPAR_ORDEM
+    nome: 'dissipar ordem'
+    # descricao: '+4 deflexão contra criaturas leais, pode banir criaturas e dissipar magias de encantamento e com descritor ordem.'
+  }
+
+
+  efeitos {
+    id: EFEITO_RESISTENCIA_MAGIA
+    nome: 'resistência à magia'
+    formato_complementos: 'A resistência a magia.'
+    # TODO fazer.
+  }
+
+  efeitos {
+    id: EFEITO_PODER_DIVINO
+    nome: 'poder divino'
+    formato_complementos: 'Pontos de vida adicionais.'
+    consequencia {
+      atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 6 origem: 'poder_divino' } } } }
+      # 1 PV/nivel conjurador
+      # bonus base de ataque igual ao do personagem: feito hardcoded.
+    }
+  }
+  efeitos {
+    id: EFEITO_LUZ
+    nome: 'luz'
+  }
+  efeitos {
+    id: EFEITO_PASMAR
+    nome: 'pasmo'
+  }
+  efeitos {
+    id: EFEITO_EXAUSTO
+    nome: 'exausto'
+    consequencia {
+      atributos {
+        # Usa a mesma origem que fadiga para evitar acumulo.
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 6 origem: 'fadiga' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 6 origem: 'fadiga' } } }
+      }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_MISSAO_MENOR
+    nome: 'missão menor'
+    formato_complementos: 'a penalidade em cada atributo.'
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'missão menor' } } }
+      }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_MORTE
+    nome: 'morte'
+  }
+  efeitos {
+    id: EFEITO_VITALIDADE_ILUSORIA
+    nome: 'vitalidade ilusória'
+    # 1d8 PV temporarios, +2 força, nivel conjurador +1, dura 10 m por HD do alvo.'
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vitalidade ilusória' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_DRENAR_TEMPORARIO
+    nome: 'drenar temporário'
+    formato_complementos: 'quantidade de niveis drenados.'
+  }
+
+  efeitos {
+    id: EFEITO_LAMINA_AFIADA
+    nome: 'lâmina afiada'
+    formato_complementos: 'rótulo da arma afetada'
+  }
+
+  efeitos {
+    id: EFEITO_FORMA_GASOSA
+    nome: 'forma gasosa'
+    consequencia {
+      dados_defesa {
+        reducao_dano { descritores: DESC_FERRO_FRIO valor: 10 }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_CEGO
+    nome: 'cego'
+  }
+  efeitos {
+    id: EFEITO_ENSURDECIDO
+    nome: 'ensurdecido'
+    # TODO: 20% de chance de falha para magias verbais. Falha em testes de ouvir. -4 iniciativa.
+    consequencia {
+      bonus_iniciativa { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'ensurdecido' } } }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_ORACAO_ALIADOS
+    nome: 'oração (aliados)'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+        # pericias
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
+    }
+  }
+  efeitos {
+    id: EFEITO_ORACAO_INIMIGOS
+    nome: 'oração (inimigos)'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+        # pericias
+      }
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_PROTEGER_OUTRO
+    nome: 'proteger outro'
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 1 origem: 'proteger outro' } } }
+      }
+    }
+    # TODO dividir pontos de vida.
+  }
+  efeitos {
+    id: EFEITO_CURA_ACELERADA
+    nome: 'cura acelerada'
+    formato_complementos: 'Valor da cura acelerada'
+    consequencia {
+      dados_defesa {
+        cura_acelerada { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'cura acelerada' } } }
+      }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_REFLEXOS
+    nome: 'reflexos'
+    formato_complementos: 'Número de reflexos.'
+    nao_cumulativo: true
+  }
+
+  efeitos {
+    id: EFEITO_AUXILIO_DIVINO # divine favor
+    nome: 'auxílio divino'
+    # +1 bonus sorte em atauqe e dano para armas apenas!
+    formato_complementos: 'Bônus de sorte em ataque e dano ao usar armas (mesmo para os dois, máximo 3).'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { indice_complemento: 0  origem: 'auxilio divino' } } }
+      jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { indice_complemento: 0  origem: 'auxilio divino' } } }
+    }
+    # TODO apenas para armas, nao afeta feiticos.
+  }
+
+  efeitos {
+    id: EFEITO_ABALADO  # shaken
+    nome: 'abalado'
+    # -2 penalty on attack rolls, saving throws, skill checks, and ability checks.
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+      }
+    }
+    # TODO -2 em pericias e testes de habilidade.
+  }
+  efeitos {
+    id: EFEITO_AMEDRONTADO  # frightened
+    nome: 'amedrontado'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+      }
+    }
+    # A criatura deve fugir e so atacar se acuada.
+    # TODO -2 em pericias e testes de habilidade.
+  }
+
+  efeitos {
+    id: EFEITO_ATORDOADO # stunned.
+    nome: 'atordoado'
+    # A stunned creature drops everything held, can’t take actions, -2 penalty to AC, and loses his Dexterity bonus to AC (if any).
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'atordoado' } } }
+      }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_POEIRA_OFUSCANTE
+    nome: 'poeira ofuscante'
+  }
+
+  efeitos {
+    id: EFEITO_LER_MAGIAS
+    nome: 'ler magias'
+  }
+
+  efeitos {
+    id: EFEITO_OFUSCADO
+    nome: 'ofuscado'
+    nao_cumulativo: true
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } }
+      dados_pericia { id: 'procurar' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } } }
+      dados_pericia { id: 'observar' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'ofuscado' } } } }
+    }
+  }
+
+  efeitos {
+    id: EFEITO_ATAQUE_CERTEIRO
+    nome: 'ataque certeiro'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_INTUICAO por_origem { valor: 20 origem: 'ataque certeiro' } } }
+      # TODO ignora chance de falha contra alvos camuflados.
+    }
+  }
+
+  efeitos {
+    id: EFEITO_SUPORTAR_ELEMENTOS
+    nome: 'suportar elementos'
+    # Criatura fica confortavel no calor e frio.
+  }
+
+  efeitos {
+    id: EFEITO_BENCAO
+    nome: 'benção'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'benção' } } }
+      # +1 em salvacoes vs medo.
+    }
+  }
+  efeitos {
+    id: EFEITO_MALDICAO_MENOR
+    nome: 'maldição menor'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: -1 origem: 'maldicao_menor' } } }
+      # -1 em salvacoes vs medo.
+    }
+  }
+  efeitos {
     id: EFEITO_ABENCOAR_ARMA
     nome: 'abençoar arma'
     formato_complementos: 'nome da arma que foi abençoada, igual ao que está nos dados de ataque (exemplo: espada longa)'
-    consequencia {
-      usa_complemento: true
-    }
   }
   efeitos {
     id: EFEITO_ACELERAR
@@ -1053,7 +1368,6 @@ tabela_efeitos {
     nome: 'ajuda'
     formato_complementos: 'adicionar aos PV (1d8+complemento)'
     consequencia {
-      usa_complemento: true
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
@@ -1062,10 +1376,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_ARMA_MAGICA
     nome: 'arma mágica'
-    formato_complementos: 'nome da arma que foi encantada, igual ao que está nos dados de ataque (exemplo: espada longa)'
-    consequencia {
-      usa_complemento: true
-    }
+    formato_complementos: 'rótulo da arma que foi encantada (exemplo: espada longa); valor do bonus.'
   }
   efeitos {
     id: EFEITO_COMPETENCIA_ATAQUE_DANO_ARQUEARIA
@@ -1082,12 +1393,17 @@ tabela_efeitos {
     nome: 'competência em perícia'
     formato_complementos: 'primeiro em ataque, segundo em dano'
   }
+
+  efeitos {
+    id: EFEITO_CONFUSAO
+    nome: 'confusão'
+  }
+
   efeitos {
     id: EFEITO_DANO_ATRIBUTO_VENENO
     nome: 'dano de atributo por veneno'
     formato_complementos: 'as 6 mudancas de atributo na ordem: for, des, con, int, sab, car (exemplo: 2 0 0 3 0 0)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'veneno' } } }
         destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 1 origem: 'veneno' } } }
@@ -1102,7 +1418,6 @@ tabela_efeitos {
     id: EFEITO_DEFLEXAO_CA
     nome: 'deflexão CA'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'deflexao_ca' } } }
       }
@@ -1147,7 +1462,6 @@ tabela_efeitos {
     nome: 'pele de árvore'
     formato_complementos: 'bônus de melhoria em armadura natural'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'pele_arvore' } } }
       }
@@ -1158,7 +1472,6 @@ tabela_efeitos {
     nome: 'resistência em salvação'
     formato_complementos: 'bônus aplicado em todos os testes de resistência (salvação)'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         salvacao_fortitude {
           bonus_individual { tipo: TB_RESISTENCIA por_origem { indice_complemento: 0 origem: 'resistencia_salvacao' } }
@@ -1177,7 +1490,6 @@ tabela_efeitos {
     nome: 'roupa encantada'
     formato_complementos: 'bônus de melhoria em armadura'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
@@ -1188,20 +1500,40 @@ tabela_efeitos {
     nome: 'escudo encantado'
     formato_complementos: 'bônus de melhoria em escudo'
     consequencia {
-      usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantada' } } }
+        ca { bonus_individual { tipo: TB_ESCUDO_MELHORIA por_origem { indice_complemento:0 origem: 'escudo_encantado' } } }
       }
     }
   }
+  efeitos {
+    id: EFEITO_ESCUDO_ARCANO
+    nome: 'escudo arcano'
+    # TODO anular misseis magicos.
+    # TODO funciona contra ataques incorporeos.
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ESCUDO por_origem { valor: 4 origem: 'escudo_arcano' } } }
+      }
+    }
+  }
+
   efeitos {
     id: EFEITO_ARMADURA
     nome: 'armadura'
     formato_complementos: 'bônus de armadura'
     consequencia {
-      usa_complemento: true
       dados_defesa {
-        ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'armadura' } } }
+        ca { bonus_individual { tipo: TB_ARMADURA por_origem { indice_complemento: 0 origem: 'efeito_armadura' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_ARMADURA_NATURAL_MELHORIA
+    nome: 'armadura natural, melhoria'
+    formato_complementos: 'bônus de melhoria de armadura natural'
+    consequencia {
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL_MELHORIA por_origem { indice_complemento: 0 origem: 'armadura_natural_melhoria' } } }
       }
     }
   }
@@ -1211,11 +1543,20 @@ tabela_efeitos {
     consequencia { atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'forca_touro' } } } } }
   }
   efeitos {
+    id: EFEITO_SEM_NOME_FORCA
+    nome: 'bonus de força'
+    formato_complementos: 'bônus de força sem nome'
+    consequencia {
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'generico' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_MELHORIA_FORCA
     nome: 'melhoria em força'
     formato_complementos: 'bônus de melhoria em força'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_forca' } } }
       }
@@ -1226,12 +1567,63 @@ tabela_efeitos {
     nome: 'melhoria em destreza'
     formato_complementos: 'bônus de melhoria em destreza'
     consequencia {
-      usa_complemento: true
       atributos {
         destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
       }
     }
   }
+
+  efeitos {
+    id: EFEITO_MELHORIA_CONSTITUICAO
+    nome: 'melhoria em constituição'
+    formato_complementos: 'bônus de melhoria em constituição'
+    consequencia {
+      atributos {
+        constituicao { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_constituicao' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_INTELIGENCIA
+    nome: 'melhoria em inteligência'
+    formato_complementos: 'bônus de melhoria em inteligência'
+    consequencia {
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_inteligencia' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_SABEDORIA
+    nome: 'melhoria em sabedoria'
+    formato_complementos: 'bônus de melhoria em sabedoria'
+    consequencia {
+      atributos {
+        sabedoria { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_sabedoria' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_CARISMA
+    nome: 'melhoria em carisma'
+    formato_complementos: 'bônus de melhoria em carisma'
+    consequencia {
+      atributos {
+        carisma { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_carisma' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_MELHORIA_DESTREZA
+    nome: 'melhoria em destreza'
+    formato_complementos: 'bônus de melhoria em destreza'
+    consequencia {
+      atributos {
+        destreza { bonus_individual { tipo: TB_MELHORIA por_origem { indice_complemento: 0 origem: 'melhoria_destreza' } } }
+      }
+    }
+  }
+
   efeitos {
     id: EFEITO_VIGOR_URSO
     nome: 'vigor do urso'
@@ -1257,7 +1649,6 @@ tabela_efeitos {
     nome: 'escudo da fé'
     formato_complementos: 'bônus de deflexão'
     consequencia {
-      usa_complemento: true
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { indice_complemento: 0 origem: 'escudo_fe' } } }
       }
@@ -1274,6 +1665,13 @@ tabela_efeitos {
       }
     }
   }
+  efeitos {
+    id: EFEITO_ORIENTACAO
+    nome: 'Orientação'
+    # Nao da pra modelar: enquanto em efeito ate ser usado, entidade pode escolher:
+    # +1 competencia: ataque, salvacao ou teste de pericia.
+  }
+
   efeitos {
     id: EFEITO_REDUZIR_PESSOA
     nome: 'reduzir pessoa'
@@ -1313,7 +1711,6 @@ tabela_efeitos {
     nome: 'fúria'
     formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
         constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
@@ -1330,7 +1727,6 @@ tabela_efeitos {
     nome: 'fúria de bárbaro'
     formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
     consequencia {
-      usa_complemento: true
       atributos {
         forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
         constituicao { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
@@ -1363,12 +1759,18 @@ tabela_efeitos {
     nome: 'veneno'
   }
   efeitos {
+    id: EFEITO_VOO
+    nome: 'vôo'
+  }
+  efeitos {
     id: EFEITO_PRESA_MAGICA
     nome: 'presa mágica'
     formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra)'
-    consequencia {
-      usa_complemento: true
-    }
+  }
+  efeitos {
+    id: EFEITO_IMUNIDADE_ELEMENTO
+    nome: 'proteção a elementos (imunidade)'
+    formato_complementos: 'descritor;quantidade'
   }
   efeitos {
     id: EFEITO_RESISTENCIA_ELEMENTOS
@@ -1379,8 +1781,65 @@ tabela_efeitos {
     id: EFEITO_TENDENCIA_EM_ARMA
     nome: 'tendência em arma'
     formato_complementos: 'nome da arma que foi alinhada, igual ao que está nos dados de ataque e a tendência aplicada (exemplo: espada longa;bem)'
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_FORCA
+    nome: 'penalidade em força'
+    formato_complementos: 'penalidade em força'
     consequencia {
-      usa_complemento: true
+      atributos {
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade força' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_DESTREZA
+    nome: 'penalidade em destreza'
+    formato_complementos: 'penalidade em destreza'
+    consequencia {
+      atributos {
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade destreza' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_CONSTITUICAO
+    nome: 'penalidade em constituição'
+    formato_complementos: 'penalidade em constituição'
+    consequencia {
+      atributos {
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade constituição' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_INTELIGENCIA
+    nome: 'penalidade em inteligência'
+    formato_complementos: 'penalidade em inteligência'
+    consequencia {
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade inteligência' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_SABEDORIA
+    nome: 'penalidade em sabedoria'
+    formato_complementos: 'penalidade em sabedoria'
+    consequencia {
+      atributos {
+        sabedoria { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade sabedoria' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PENALIDADE_CARISMA
+    nome: 'penalidade em carisma'
+    formato_complementos: 'penalidade em carisma'
+    consequencia {
+      atributos {
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'penalidade carisma' } } }
+      }
     }
   }
 }
@@ -1787,26 +2246,106 @@ tabela_amuletos {
   amuletos {
     id: 'amuleto_saude_2'
     nome: 'Amuleto da Saúde +2'
+    descricao: 'Bônus de +2 de melhoria na constituição.'
     custo_po: 4000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 2
   }
   amuletos {
     id: 'amuleto_saude_4'
     nome: 'Amuleto da Saúde +4'
+    descricao: 'Bônus de +4 de melhoria na constituição.'
     custo_po: 16000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 4
   }
   amuletos {
     id: 'amuleto_saude_6'
     nome: 'Amuleto da Saúde +6'
+    descricao: 'Bônus de +6 de melhoria na constituição.'
     custo_po: 36000
-    tipo_efeito: EFEITO_RESISTENCIA_SALVACAO
+    tipo_efeito: EFEITO_MELHORIA_CONSTITUICAO
     complementos: 6
   }
+  amuletos {
+    id: 'amuleto_armadura_natural_1'
+    nome: 'Amuleto de Armadura Natural +1'
+    descricao: 'Bônus de +1 de melhoria de armadura natural.'
+    custo_po: 2000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 1
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_2'
+    nome: 'Amuleto de Armadura Natural +2'
+    descricao: 'Bônus de +2 de melhoria de armadura natural.'
+    custo_po: 8000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 2
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_3'
+    nome: 'Amuleto de Armadura Natural +3'
+    descricao: 'Bônus de +3 de melhoria de armadura natural.'
+    custo_po: 18000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 3
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_4'
+    nome: 'Amuleto de Armadura Natural +4'
+    descricao: 'Bônus de +4 de melhoria de armadura natural.'
+    custo_po: 32000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 4
+  }
+  amuletos {
+    id: 'amuleto_armadura_natural_5'
+    nome: 'Amuleto de Armadura Natural +5'
+    descricao: 'Bônus de +5 de melhoria de armadura natural.'
+    custo_po: 50000
+    tipo_efeito: EFEITO_ARMADURA_NATURAL_MELHORIA
+    complementos: 5
+  }
+  amuletos {
+    id: 'periapto_sabedoria_2'
+    nome: 'Periapto da Sabedoria +2'
+    descricao: 'Bônus de melhoria de +2 na sabedoria.'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 2
+  }
+  amuletos {
+    id: 'periapto_sabedoria_4'
+    nome: 'Periapto da Sabedoria +4'
+    descricao: 'Bônus de melhoria de +4 na sabedoria.'
+    custo_po: 16000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 4
+  }
+  amuletos {
+    id: 'periapto_sabedoria_6'
+    nome: 'Periapto da Sabedoria +6'
+    descricao: 'Bônus de melhoria de +6 na sabedoria.'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_SABEDORIA
+    complementos: 6
+  }
+  amuletos {
+    id: 'escaravelho_protecao'
+    nome: 'Escaravelho da Proteção'
+    descricao: 'RM 20, absorve 12 ataques de energia negativa ou efeitos de morte.'
+    tipo_efeito: EFEITO_PROTECAO_CONTRA_MORTE
+    custo_po: 38000
+  }
+  amuletos {
+    id: 'escaravelho_anti_golem'
+    nome: 'Escaravelho Anti-golem'
+    descricao: 'Detecta golems em 12 quadrados, ignora redução de dano de golems.'
+    custo_po: 2500
+    # TODO
+  }
 }
-
 tabela_luvas {
   luvas {
     id: 'luvas_apanhar_flechas'
@@ -1855,7 +2394,8 @@ tabela_luvas {
   }
   luvas {
     id: 'manoplas_poder_ogro'
-    nome: 'Manoplas do Poder do Ogro'
+    nome: 'Manoplas do Poder do Ogro +2'
+    descricao: '+2 melhoria em força.'
     custo_po: 4000
     tipo_efeito: EFEITO_MELHORIA_FORCA
     complementos: 2
@@ -1877,12 +2417,6 @@ tabela_mantos {
     tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos_str: "esconderse"
     complementos: 5
-  }
-  mantos {
-    id: 'manto_carisma_2'
-    nome: 'Manto do carisma +2'
-    custo_po: 4000
-    # propriedades: { atributos: { carisma: 2 } }
   }
   mantos {
     id: 'manto_resistencia_2'
@@ -1914,10 +2448,25 @@ tabela_mantos {
     custo_po: 14000
   }
   mantos {
+    id: 'manto_carisma_2'
+    nome: 'Manto do carisma +2'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 2
+  }
+  mantos {
     id: 'manto_carisma_4'
     nome: 'Manto do carisma +4'
     custo_po: 16000
-    # propriedades: { atributos: { carisma: 4 } }
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 4
+  }
+  mantos {
+    id: 'manto_carisma_6'
+    nome: 'Manto do carisma +6'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_CARISMA
+    complementos: 6
   }
   mantos {
     id: 'manto_resistencia_4'
@@ -1942,12 +2491,6 @@ tabela_mantos {
     id: 'manto_morcego'
     nome: 'Manto do morcego'
     custo_po: 26000
-  }
-  mantos {
-    id: 'manto_carisma_6'
-    nome: 'Manto do carisma +6'
-    custo_po: 36000
-    # propriedades: { atributos: { carisma: 6 } }
   }
   mantos {
     id: 'manto_deslocamento_maior'
@@ -1981,31 +2524,34 @@ tabela_pocoes {
     custo_po: 50
   }
   pocoes {
-    id: 'acelerar'
-    nome: 'Acelerar'
+    id: 'velocidade'
+    nome: 'Velocidade'
     duracao_rodadas: 5
     tipo_efeito: EFEITO_ACELERAR
     descricao: 'Acelera o personagem'
     custo_po: 750
   }
   pocoes {
-    id: 'aumentar_pessoa'
-    nome: 'Aumentar Pessoa'
-    tipo_efeito: EFEITO_AUMENTAR_PESSOA
-    duracao_rodadas: 10
-    custo_po: 250
-  }
-  pocoes {
-    id: 'reduzir_pessoa'
-    nome: 'Reduzir Pessoa'
-    tipo_efeito: EFEITO_REDUZIR_PESSOA
-    duracao_rodadas: 10
-    custo_po: 250
+    id: 'acelerar'  # so pra nao dar pau.
+    nome: 'Velocidade'
+    duracao_rodadas: 5
+    tipo_efeito: EFEITO_ACELERAR
+    descricao: 'Acelera o personagem'
+    custo_po: 750
   }
 
   pocoes {
+    id: 'aumentar_pessoa'
+    nome: 'Aumentar Pessoa'
+    tipo_efeito: EFEITO_AUMENTAR_PESSOA
+    descricao: 'Aumenta a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para força, -2 para destreza e todas as consequências do tamanho aumentado (-1 ataque e classe de armadura, por exemplo).'
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+  pocoes {
     id: 'ajuda'
     nome: 'Ajuda'
+    descricao: '+1 de moral nos ataques e testes de resitência contra medo, além de 1d8+3 PV.'
     tipo_efeito: EFEITO_AJUDA
     duracao_rodadas: 30
     custo_po: 300
@@ -2073,7 +2619,28 @@ tabela_pocoes {
     duracao_rodadas: 10
     custo_po: 50
   }
-
+  pocoes {
+    id: 'reduzir_pessoa'
+    nome: 'Reduzir Pessoa'
+    descricao: 'Reduz a categoria de tamanho da criatura em 1, dando +2 bônus de tamanho para destreza, -2 de penalidade em força e todas as consequências do tamanho reduzido (+1 ataque e classe de armadura, por exemplo).'
+    tipo_efeito: EFEITO_REDUZIR_PESSOA
+    duracao_rodadas: 10
+    custo_po: 250
+  }
+  pocoes {
+    id: 'restauracao_menor'
+    nome: 'Restauração Menor'
+    descricao: 'Dissipa efeitos mágicos que reduzam atributos ou cura 1d4 pontos de dano temporário a atributos. Elimina fadiga e melhora exaustão para fadigado.'
+    duracao_rodadas: 0
+    custo_po: 300
+  }
+  pocoes {
+    id: 'visao_escuro'
+    nome: 'Visão no Escuro'
+    descricao: 'Ganha visão no escuro, 12 quadrados.'
+    duracao_rodadas: 1800 # 3 horas
+    custo_po: 300
+  }
   pocoes {
     id: 'curar_ferimentos_leves'
     nome: 'Curar Ferimentos Leves'
@@ -2088,7 +2655,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'curar_ferimentos_serios'
-    nome: 'Curar Ferimentos Sérios'
+    nome: 'Curar Ferimentos Graves'
     delta_pontos_vida: '3d8+5'
     custo_po: 750
   }
@@ -2100,6 +2667,30 @@ tabela_pocoes {
     duracao_rodadas: 30
     custo_po: 300
   }
+  pocoes {
+    id: 'forma_gasosa'
+    nome: 'Forma Gasosa'
+    tipo_efeito: EFEITO_FORMA_GASOSA
+    duracao_rodadas: 50
+    custo_po: 750
+  }
+  pocoes {
+    id: 'neutralizar_venenos'
+    nome: 'Neutralizar Venenos'
+    custo_po: 750
+  }
+  pocoes {
+    id: 'remover_doenca'
+    nome: 'Remover Doença'
+    custo_po: 750
+  }
+  pocoes {
+    id: 'remover_maldicao'
+    nome: 'Remover Maldição'
+    custo_po: 750
+  }
+
+
   pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
@@ -2171,9 +2762,16 @@ tabela_pocoes {
   pocoes {
     id: 'nublar'
     nome: 'Nublar'
-    tipo_efeito: EFEITO_BORRAR
+    tipo_efeito: EFEITO_NUBLAR
     custo_po: 300
     duracao_rodadas: 30
+  }
+  pocoes {
+    id: 'deslocamento'
+    nome: 'Deslocamento'
+    tipo_efeito: EFEITO_DESLOCAMENTO
+    custo_po: 750
+    duracao_rodadas: 5
   }
   pocoes {
     id: 'armadura_arcana'
@@ -2243,6 +2841,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_2'
     nome: 'Pele de Árvore (2)'
+    descricao: '+2 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 300
     duracao_rodadas: 300
@@ -2251,6 +2850,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_3'
     nome: 'Pele de Árvore (3)'
+    descricao: '+3 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 600
     duracao_rodadas: 600
@@ -2259,6 +2859,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_4'
     nome: 'Pele de Árvore (4)'
+    descricao: '+4 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 900
     duracao_rodadas: 900
@@ -2267,6 +2868,7 @@ tabela_pocoes {
   pocoes {
     id: 'pele_arvore_5'
     nome: 'Pele de Árvore (5)'
+    descricao: '+5 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
     custo_po: 1200
     duracao_rodadas: 1200
@@ -2275,6 +2877,7 @@ tabela_pocoes {
   pocoes {
     id: 'santuario'
     nome: 'Santuário'
+    descricao: 'Oponentes que tentarem atacar o alvo devem passar em um teste de vontade CD 11.'
     tipo_efeito: EFEITO_SANTUARIO
     custo_po: 50
     duracao_rodadas: 1
@@ -2289,6 +2892,55 @@ tabela_pocoes {
     descricao: 'Arma Mágica: +1 bonus de melhoria no ataque e dano para uma arma'
   }
   pocoes {
+    id: 'arma_magica_maior_1'
+    nome: 'Arma Mágica Maior +1'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    custo_po: 750
+    duracao_rodadas: 3000
+    descricao: 'Arma Mágica Maior: +1 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_2'
+    nome: 'Arma Mágica Maior +2'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 2
+    custo_po: 1200
+    duracao_rodadas: 4800
+    descricao: 'Arma Mágica Maior: +2 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_3'
+    nome: 'Arma Mágica Maior +3'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 3
+    custo_po: 1800
+    duracao_rodadas: 7200
+    descricao: 'Arma Mágica Maior: +3 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_4'
+    nome: 'Arma Mágica Maior +4'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 4
+    custo_po: 2400
+    duracao_rodadas: 9600
+    descricao: 'Arma Mágica Maior: +4 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
+    id: 'arma_magica_maior_5'
+    nome: 'Arma Mágica Maior +5'
+    tipo_efeito: EFEITO_ARMA_MAGICA
+    complementos_str: ''
+    complementos: 5
+    custo_po: 3000
+    duracao_rodadas: 12000
+    descricao: 'Arma Mágica Maior: +5 bonus de melhoria no ataque e dano para uma arma'
+  }
+  pocoes {
     id: 'presa_magica'
     nome: 'Presa Mágica'
     tipo_efeito: EFEITO_PRESA_MAGICA
@@ -2301,38 +2953,45 @@ tabela_pocoes {
     id: 'suportar_elementos'
     nome: 'Suportar Elementos'
     tipo_efeito: EFEITO_SUPORTAR_ELEMENTOS
+    descricao: 'Criatura protegida não sofre por estar no calor ou frio, podendo ficar confortável entre -45 e 60 graus celsius.'
     custo_po: 50
     duracao_rodadas: 14400 # 24 horas.
   }
   pocoes {
     id: 'resistencia_elementos_10'
     nome: 'Resistência a Elementos (10)'
+    descricao: 'Dá resistência 10 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 300
     duracao_rodadas: 300
     complementos: 10
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'resistencia_elementos_20'
     nome: 'Resistência a Elementos (20)'
+    descricao: 'Dá resistência 20 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 700
     duracao_rodadas: 700
     complementos: 20
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'resistencia_elementos_30'
     nome: 'Resistência a Elementos (30)'
+    descricao: 'Dá resistência 30 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
     custo_po: 1100
     duracao_rodadas: 1100
     complementos: 30
+    tipo_complemento: TCIM_ENERGIA
   }
   pocoes {
     id: 'voo'
     nome: 'Vôo'
     duracao_rodadas: 50
-    tipo_efeito: EFEITO_OUTRO
+    tipo_efeito: EFEITO_VOO
     descricao: 'Alvo pode voar com velocidade 12 quadrados (8 em armadura média ou pesada).'
     custo_po: 750
   }
@@ -2432,13 +3091,6 @@ tabela_talentos {
     #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
     descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
   }
-  talentos {
-    id: 'tiro_queima_roupa'
-    nome: 'Tiro Queima Roupa'
-    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
-    descricao: '+1 ataque da no para tiros até 6 quadrados.'
-  }
-
   talentos {
     id: 'acrobatico'
     nome: 'Acrobático'
@@ -2849,10 +3501,11 @@ tabela_talentos {
     descricao: 'Saca uma arma branca como ação livre.'
   }
   talentos {
+    # Seria melhor: tiro_queima_roupa.
     id: 'tiro_certeiro'
     nome: 'Tiro Certeiro'
     # guerreiro: true
-    descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros.'
+    descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros (6 quadrados).'
   }
   talentos {
     id: 'tiro_multiplo'
@@ -3107,12 +3760,18 @@ tabela_talentos {
     # Pre requisito: voar.
   }
   talentos {
+    id: 'investida_aerea'  # flyby attack
+    nome: 'Investida Aérea'
+    descricao: 'Pode atacar durante o movimento, mas não pode dobrar o movimento.'
+    monstro: true
+    # Pre requisito: voar.
+  }
+  talentos {
     id: 'pairar'  # hover 
     nome: 'Pairar'
     descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
     # Pre requisito: voar.
   }
-
 }
 
 # Lista de pericias na ordem em ingles para faciliar.
@@ -3182,6 +3841,7 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'cavalgar'
     pericias: 'natacao'
+    pericias_por_nivel: 2
 
     salvacoes_fortes: TS_FORTITUDE
   }
@@ -3194,13 +3854,16 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'cavalgar'
     pericias: 'natacao'
+    pericias_por_nivel: 2
 
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
+    progressao_expulsao: PEXP_UM
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31' }
@@ -3225,6 +3888,7 @@ tabela_classes {
       para_nivel { magias_por_dia: '6555554444' }
     }
 
+    pericias_por_nivel: 2
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3241,10 +3905,13 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'identificar_magia'
 
-    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+    salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE
+    atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
     id: 'adepto' nome: 'Adepto' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
+    tipo_classe: TC_PDM
     precisa_memorizar: true
     progressao_feitico {
       para_nivel {}
@@ -3269,6 +3936,7 @@ tabela_classes {
       para_nivel { magias_por_dia: '333332' }
       para_nivel { magias_por_dia: '333332' }
     }
+    pericias_por_nivel: 2
     pericias: 'concentracao'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3297,6 +3965,7 @@ tabela_classes {
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
 
+    pericias_por_nivel: 4
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3316,8 +3985,11 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
+    pericias_por_nivel: 6
     progressao_feitico {
+      nao_possui_nivel_zero: true
       para_nivel {}
       para_nivel { magias_por_dia: '' }
       para_nivel { magias_por_dia: '' }
@@ -3371,7 +4043,9 @@ tabela_classes {
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
+    pericias_por_nivel: 4
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31' }
@@ -3418,8 +4092,12 @@ tabela_classes {
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    tipo_magia: TM_DIVINA
     precisa_memorizar: true
+    progressao_expulsao: PEXP_UM_MENOS_TRES
+    pericias_por_nivel: 2
     progressao_feitico {
+      nao_possui_nivel_zero: true
       para_nivel {}
       para_nivel { magias_por_dia: '' }
       para_nivel { magias_por_dia: '' }
@@ -3462,6 +4140,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+    pericias_por_nivel: 8
 
     pericias: 'avaliacao'
     pericias: 'equilibrio'
@@ -3502,6 +4181,8 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
+    pericias_por_nivel: 6
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '2' conhecidos: '4' }
@@ -3570,6 +4251,8 @@ tabela_classes {
   }
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
+    pericias_por_nivel: 2
     precisa_memorizar: true
     progressao_feitico {
       para_nivel {}
@@ -3620,7 +4303,9 @@ tabela_classes {
   }
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    tipo_magia: TM_ARCANA
     id_para_magia: 'mago'
+    pericias_por_nivel: 2
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '53' conhecidos: '42' }
@@ -3662,6 +4347,7 @@ tabela_classes {
   info_classes {
     id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
 
+    pericias_por_nivel: 4
     pericias: 'equilibrio'
     pericias: 'escalar'
     pericias: 'concentracao'
@@ -3693,7 +4379,8 @@ tabela_classes {
   }
   info_classes {
     id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
-
+    tipo_classe: TC_PDM
+    pericias_por_nivel: 4
     pericias: 'avaliacao'
     pericias: 'blefar'
     pericias: 'diplomacia'
@@ -3726,7 +4413,9 @@ tabela_classes {
   }
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
+    tipo_classe: TC_PDM
 
+    pericias_por_nivel: 2
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3747,8 +4436,10 @@ tabela_classes {
   }
   info_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
+    tipo_classe: TC_PDM
 
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
+    pericias_por_nivel: 6
     pericias: 'avaliacao'
     pericias: 'equilibrio'
     pericias: 'blefar'
@@ -3801,6 +4492,179 @@ tabela_classes {
     pericias: 'usar_cordas'
 
     salvacoes_fortes: TS_VONTADE
+  }
+
+  info_classes {
+    id: 'aberracao' nome: 'Aberração'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
+    # d8
+  }
+
+  info_classes {
+    id: 'animal' nome: 'Animal'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
+    # Visao na penumbra
+  }
+  info_classes {
+    id: 'animal_atroz' nome: 'Animal Atroz'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
+    # Visao na penumbra
+  }
+   info_classes {
+    id: 'besta_magica' nome: 'Besta Mágica'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    # DV: 10
+    # Visao no escuro 12 quadrados.
+    pericias_por_nivel: 2
+  }
+  info_classes {
+    id: 'constructo' nome: 'Constructo'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    # Nao tem salvacoes fortes.
+    pericias_por_nivel: 2
+    # DV: 10
+  }
+  info_classes {
+    id: 'dragao' nome: 'Dragão'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 6
+    # d12
+    # visao_escuro: 12 quadrados
+    # imune a sono e paralisia
+  }
+  info_classes {
+    id: 'elemental_agua_terra' nome: 'Elemental (Água ou Terra)'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # visao_escuro: 12 quadrados
+    # imune a veneno, sono, paralisia, atordoamento
+    # imune a critico ou flanqueamento
+  }
+  info_classes {
+    id: 'elemental_fogo_ar' nome: 'Elemental (Fogo ou Ar)'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
+    # visao_escuro: 12 quadrados
+    # imune a veneno, sono, paralisia, atordoamento
+    # imune a critico ou flanqueamento
+    # d8
+  }
+  info_classes {
+    id: 'fada' nome: 'Fada'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 6
+    # visao na penumbra_
+    # d6
+  }
+  info_classes {
+    id: 'humanoide' nome: 'Humanóide'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_REFLEXO
+    pericias_por_nivel: 2
+    # d8
+  }
+
+  info_classes {
+    id: 'humanoide_monstruoso' nome: 'Humanóide Monstruoso'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 2
+    # d8
+    # visao escuro: 12 q
+  }
+  info_classes {
+    id: 'gigante' nome: 'Gigante'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+  }
+  info_classes {
+    id: 'limo' nome: 'Limo'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    # sem salvacao boa.
+    pericias_por_nivel: 2
+    # d10
+    # Sem mente, imune a efeitos mentais.
+    # cego com blindsight.
+    # imune a ataques de olhar
+  }
+  info_classes {
+    id: 'extra_planar' nome: 'Extra-Planar'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_UM
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_REFLEXO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 8
+    # d8
+    # visao escuro: 12
+  }
+  info_classes {
+    id: 'planta' nome: 'Planta'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_TRES_QUARTOS
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # visao penumbra
+    # imune a efeitos mentais
+    # imune a veneno, sono, paralisia, polimorfismo, atordoamento.
+    # imune a critico
+  }
+  info_classes {
+    id: 'morto_vivo' nome: 'Morto-Vivo'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 4
+    # d12
+    # visao escuro 12q
+    # imune a efeitos mentais
+    # imune a veneno, sono, paralisia, atordoamento, doenca, efeitos de morte.
+    # imune a critico, dano nao letal, dreno de habilidade, dreno de energia, fadiga, exaustao
+    # imune a efeitos que demandem fortitude save.
+  }
+  info_classes {
+    id: 'verme' nome: 'Verme'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_FORTITUDE
+    pericias_por_nivel: 2
+    # d8
+    # sem mente: imune a efeitos mentais.
+    # visao escuro 12q
   }
 }
 
@@ -4189,10 +5053,3817 @@ tabela_pericias {
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
+
 tabela_feiticos {
   armas {
+    id: 'constricao'  # entangle
+    nome: 'constrição'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'plantas'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Constrição'
+    }
+  }
+
+  armas {
+    id: 'detectar_animais_plantar'  # detect animals or plants
+    nome: 'detectar animais ou plantas'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+  }
+  armas {
+    id: 'detectar_armadilhas'  # detect snares and traps
+    nome: 'detectar armadilhas'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+  }
+
+
+  armas {
+    id: 'enfeiticar_pessoa'  # charm person
+    nome: 'enfeitiçar pessoa'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas: TIPO_HUMANOIDE
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'enfeiticar_animal'  # charm animal
+    nome: 'enfeitiçar animal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas: TIPO_ANIMAL
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'acalmar_animais'  # calm animals
+    nome: 'acalmar animais'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'animais'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      afeta_apenas: TIPO_ANIMAL
+      # TODO maximo DV 2d4 + nivel conjurador.
+      # TODO animais atrozes tem salvacao.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Calmo'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'remover_medo'  # remove fear
+    nome: 'remover medo'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+  }
+
+  armas {
+    id: 'abrir_fechar'  # open/close
+    nome: 'abrir/fechar'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'invocar_instrumento'  # summon instrument
+    nome: 'invocar instrumento'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+  }
+  armas {
+    id: 'cancao_ninar'  # lullaby
+    nome: 'canção de ninar'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 2
+      efeito_area: true
+      permite_salvacao: true
+      ignora_resistencia_magia: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Canção de ninar, -5 observar e ouvir, -2 em vontade vs sono.'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+
+    }
+  }
+  armas {
+    id: 'imobilizar_pessoa'  # hold person
+    nome: 'imobilizar pessoa'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'neutralizar_venenos'  # neutralize poison
+    nome: 'neutralizar venenos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'neutralizar venenos.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'criar_alimentos'  # create food and water
+    nome: 'criar alimentos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+  }
+
+  armas {
+    id: 'chama_continua'  # continual flame
+    nome: 'chama contínua'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+  }
+
+  armas {
+    id: 'praga'  # contagion
+    nome: 'praga'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Doença: ver tabela da magia praga'
+      }
+    }
+  }
+
+  armas {
+    id: 'rogar_maldicao'  # bestow curse
+    nome: 'rogar maldição'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'maldição: -6 a uma habilidade ou -4 em ataques, salvações, testes e perícias, ou 50% de não fazer nada.'
+      }
+    }
+  }
+
+  armas {
+    id: 'silencio'  # silence
+    nome: 'silêncio'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    # TODO criacao de uma esfera de 4 quadrados.
+  }
+
+  armas {
+    id: 'augurio'  # augury
+    nome: 'augúrio'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+    }
+  }
+
+  armas {
+    id: 'invisibilidade_contra_mortos_vivos'  # hide from undead
+    nome: 'invisibilidade contra mortos-vivos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE_CONTRA_MORTOS_VIVOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'comando'  # command
+    nome: 'comando'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Comando'
+        rodadas: 1
+      }
+    }
+  }
+
+
+  armas {
+    id: 'compreender_idiomas'  # comprehend languages
+    nome: 'compreender idiomas'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Compreender idiomas'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'purificar_alimentos'  # purify food and drink
+    nome: 'purificar alimentos'
+    info_classes {
+      id: 'duida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'consertar'  # mending
+    nome: 'consertar'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'luz'  # light
+    nome: 'luz'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1 g: 1 b: 1 }
+      efeitos_adicionais {
+        efeito: EFEITO_LUZ
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'criar_agua'  # create water
+    nome: 'criar água'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+  }
+
+  armas {
+    id: 'muralha_prismatica'  # prismatic wall.
+    nome: 'muralha prismática'
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+  }
+  armas {
+    id: 'telecinesia'  # telekinesis.
+    nome: 'telecinésia'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+  }
+  armas {
+    id: 'metamorfose_torrida'  # baleful polymorph.
+    nome: 'metamorfose tórrida'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      efeitos_adicionais {
+        efeito: EFEITO_METAMORFOSE_TORRIDA
+        modificador_rodadas: MR_CONTINUO
+      }
+    }
+  }
+
+  armas {
+    id: 'desejo_restrito'  # limited wish.
+    nome: 'desejo restrito'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+  }
+
+  armas {
+    id: 'desejo'  # wish.
+    nome: 'desejo'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+  }
+  armas {
+    id: 'circulo_teletransporte'  # teleportation circle.
+    nome: 'círculo de teletransporte'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+  }
+
+  armas {
+    id: 'parar_tempo'  # time stop.
+    nome: 'parar o tempo'
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 9
+      dominio: true
+    }
+  }
+
+  armas {
+    id: 'aliado_extra_planar_menor'  # planar ally.
+    nome: 'aliado extra-planar menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+  }
+
+  armas {
+    id: 'controlar_agua'  # control water.
+    nome: 'controlar a água'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 4
+      dominio: true
+    }
+  }
+
+  armas {
+    id: 'movimentacao_livre'  # freedom of movement
+    nome: 'movimentação livre'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      efeitos_adicionais {
+        efeito: EFEITO_MOVIMENTACAO_LIVRE
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'poder_divino'  # divine power
+    nome: 'poder divino'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_PODER_DIVINO
+        modificador_rodadas: MR_RODADAS_NIVEL
+        modificador_complementos: MC_1_POR_NIVEL
+      }
+    }
+  }
+
+
+  armas {
+    id: 'adivinhacao'  # divination.
+    nome: 'adivinhação'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 4
+      dominio: true
+    }
+  }
+
+  armas {
+    id: 'assassino_fantasmagorico'  # phantasmal killer.
+    nome: 'assassino fantasmagórico'
+    dano { invariavel: '3d6' }
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_PROJETIL
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      resultado_ao_salvar: RS_ANULOU
+      tipo_salvacao: TS_VONTADE  # ilusao, depois tem um de fortitude contra o efeito de morte por medo.
+      # TODO efeito de morte por medo.
+    }
+  }
+
+  armas {
+    id: 'muralha_gelo'  # wall of ice.
+    nome: 'muralha de gelo'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Muralha de Gelo'
+    }
+  }
+
+  armas {
+    id: 'muralha_fogo'  # wall of fire.
+    nome: 'muralha de fogo'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Muralha de Fogo'
+    }
+  }
+
+  armas {
+    id: 'conjuracao_sombras'  # shadow conjuration
+    nome: 'conjuração das sombras'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+  }
+
+  armas {
+    id: 'grito'  # shout
+    nome: 'grito'
+    dano { invariavel: '3d6' }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      distancia_quadrados: 6
+      efeito_area: true
+      permite_salvacao: true
+      duracao_s: 0.350
+      dois_lados: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_resistencia_magia: false
+      elemento: DESC_SONICO
+      efeitos_adicionais {
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '2d6'
+      }
+    }
+  }
+  armas {
+    id: 'proteger_fortalezas'  # guards and wards
+    nome: 'proteger fortalezas'
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+  }
+  armas {
+    id: 'elucubracao'  # mage's lucubration
+    nome: 'elucubração'
+    alcance_quadrados: 20
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+    }
+  }
+  armas {
+    id: 'circulo_morte'  # círculo da morte
+    nome: 'círculo da morte'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      dv_mais_alto: 8
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_ANULOU
+      raio_quadrados: 8
+      cor { r: 0 g: 0 b: 0 a: 0.8 }
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+      # TODO: limite de dados de vida do feitico: 1d4 por nivel conjurador, max 20d4.
+    }
+  }
+  armas {
+    id: 'globo_invulnerabilidade'  # globe of invulnerability
+    nome: 'globo de invulnerabilidade'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Globo de Invulnerabilidade'
+    }
+  }
+
+  armas {
+    id: 'globo_invulnerabilidade_menor'  # globe of invulnerability, lesser
+    nome: 'globo de invulnerabilidade menor'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Globo de Invulnerabilidade'
+    }
+  }
+  armas {
+    id: 'missao_menor'  # geas, lesser
+    nome: 'missão menor'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_MISSAO_MENOR
+        modificador_rodadas: MR_DIAS_POR_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'protecao_contra_morte'  # death ward
+    nome: 'proteção contra a morte'
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_MORTE
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'remover_doencas'  # remove disease
+    nome: 'remover_maldicao'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+  }
+
+  armas {
+    id: 'remover_maldicao'  # remove curse
+    nome: 'remover_maldicao'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+  }
+
+  armas {
+    id: 'falar_com_plantas'  # speak with plants
+    nome: 'falar_com_plantas'
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'falar com plantas'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'forma_gasosa'  # gaseous form
+    nome: 'forma gasosa'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ar'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_FORMA_GASOSA
+        modificador_rodadas: MR_2_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'remover_paralisia'  # remove paralysis
+    nome: 'remover paralisia'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+  }
+
+  armas {
+    id: 'salto'  # jump
+    nome: 'salto'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'salto'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'presa_magica'  # magic fang.
+    nome: 'presa mágica'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      ataque_toque: true
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'presa magica'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'malogro'  # blight
+    nome: 'malogro'
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      resultado_ao_salvar: RS_MEIO
+      afeta_apenas: TIPO_PLANTA
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+    }
+  }
+  armas {
+    id: 'transformacao'  # tenser transformation
+    nome: 'transformação'
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'transformação'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    # TODO
+  }
+
+  armas {
+    id: 'raio_enfraquecimento'  # ray of enfeeblement
+    nome: 'raio do enfraquecimento'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_FORCA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
+      }
+    }
+  }
+
+  armas {
+    id: 'teletransporte'  # teleport
+    nome: 'teletransporte'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 5
+      dominio: true
+    }
+  }
+
+  armas {
+    id: 'teletransporte_maior'  # greater teleport
+    nome: 'teletransporte maior'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 7
+      dominio: true
+    }
+  }
+  armas {
+    id: 'lamina_afiada'  # keen edge
+    nome: 'lâmina afiada'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    ataque_toque: true
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_LAMINA_AFIADA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'envenenamento'  # poison
+    nome: 'envenenamento'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
+    ataque_toque: true
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
+    }
+  }
+  armas {
+    id: 'deslocamento'  # displacement
+    nome: 'deslocamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_DESLOCAMENTO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'luz_cegante'  # searing light.
+    nome: 'luz cegante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    modelo_dano: DANO_1D8_CADA_2_NIVEIS_MAX_5D8
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      ignora_luz: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+    }
+    # TODO constructos levam apenas 1d6 a cada 2 niveis
+    # mortos vivos levam 1d6 por nivel (max 10d6).
+    # mortos vivos vulneraveis a luz levam 1d8 por nivel (max 10d8)
+  }
+
+  armas {
+    id: 'oracao'  # prayer
+    nome: 'oração'
+    alcance_quadrados: 8
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+    }
+    # TODO aliados ganham +1 sorte em ataque, dano com armas, salvacoes e pericias.
+    # Inimigos ganham -1 de penalidade no mesmo.
+  }
+
+  armas {
+    id: 'drenar_temporario'  # enervation
+    nome: 'drenar temporário'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    ataque_toque: true
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      nao_afeta_tipo: TIPO_MORTO_VIVO
+      efeitos_adicionais {
+        efeito: EFEITO_DRENAR_TEMPORARIO
+        dado_complementos_str: "1d4"
+        modificador_rodadas: MR_HORAS_NIVEL_MAX_15
+      }
+    }
+    # TODO mortos vivos ganham 1d4+5 pontos de vida temporario por 1 hora.
+  }
+
+  armas {
+    id: 'drenar_forca_vital'  # death knell
+    nome: 'drenar força vital'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+    }
+    # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
+    # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
+  }
+
+  armas {
+    id: 'condicao'  # status
+    nome: 'condição'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Condição (feitiço)'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'zona_verdade'  # zone of truth
+    nome: 'zona da verdade'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Zona da Verdade'
+    }
+  }
+  armas {
+    id: 'tendencia_arma'  # align weapon
+    nome: 'tendência em arma'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      efeitos_adicionais {
+        efeito: EFEITO_TENDENCIA_EM_ARMA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'escuridao'  # darkness
+    nome: 'escuridão'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Escuridão'
+    }
+  }
+
+  armas {
+    id: 'luz_dia'  # daylight
+    nome: 'luz do dia'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Luz do Dia'
+    }
+  }
+
+  armas {
+    id: 'quebrar_encantamento'  # break enchantment
+    nome: 'quebrar encantamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+    }
+  }
+  armas {
+    id: 'comando_maior'  # command, greater
+    nome: 'comando maior'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Comando'
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO uma criatura por nivel.
+        # TODO uma salvacao por rodada.
+      }
+    }
+  }
+
+  armas {
+    id: 'idiomas'  # tongues
+    nome: 'idiomas'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Idiomas'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'enviar_mensagem'  # sending
+    nome: 'enviar mensagem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+  }
+
+  armas {
+    id: 'restauracao'  # restoration
+    nome: 'restauracao'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    # TODO eliminar fadiga, exausto para fadiga, cura pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
+    # Restaura nivel negativo, niveis perdidos por drenagem.
+  }
+
+  armas {
+    id: 'restauracao_menor'  # lesser restoration
+    nome: 'restauracao menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    # TODO eliminar fadiga, exausto para fadiga, cura 1d4 pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
+  }
+
+  armas {
+    id: 'cativar'  # enthrall
+    nome: 'cativar'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'nobreza'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 20  # TODO variavel: 2 quad por nivel.
+      efeito_area: true
+      duracao_s: 0.350
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      resultado_ao_salvar: RS_ANULOU
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'cativado, ver feitiço.'
+        rodadas: 600  # 1 hora enquanto ficar falando + 1d3 apos
+      }
+    }
+  }
+
+  armas {
+    id: 'proteger_outro'  # shield other
+    nome: 'proteger_outro'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_PROTEGER_OUTRO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'detectar_portas_secretas'  # detect secret doors
+    nome: 'detectar portas secretas'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar portas secretas'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'auxilio_divino'  # divine favor
+    nome: 'auxílio divino'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'nobreza'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_AUXILIO_DIVINO
+        rodadas: 10  # fixo.
+        modificador_complementos: MC_1_CADA_3_MAX_3
+      }
+    }
+  }
+
+  armas {
+    id: 'protecao_contra_mal'
+    nome: 'proteção contra o mal'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_MAL
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'protecao_contra_bem'
+    nome: 'proteção contra o bem'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_BEM
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'protecao_contra_ordem'
+    nome: 'proteção contra a ordem'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'protecao_contra_caos'
+    nome: 'proteção contra o caos'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_CAOS
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'alarme'  # alarm
+    nome: 'alarme'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Alarme'
+    }
+  }
+  armas {
+    id: 'aumentar_pessoa'  # enlarge person
+    nome: 'aumentar pessoa'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      icone: 'icon_touch.png'
+      permite_salvacao: true
+      ignora_resistencia_magia: false
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_AUMENTAR_PESSOA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'prestigidacao'  # prestigidation
+    nome: 'prestigidação'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+  }
+  armas {
+    id: 'raio_acido'  # acid splash
+    nome: 'raio de ácido'
+    dano { invariavel: '1d3' }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      elemento: DESC_ACIDO
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      info_textura { id: 'ice.png' }
+      cor { r: 0.2 g: 1.0 b: .2 a: 0.7 }
+    }
+  }
+  armas {
+    id: 'tentaculos_negros'
+    nome: 'tentáculos negros'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Tentáculos Negros'
+    }
+  }
+  armas {
+    id: 'desespero_esmagador' # crushing despair
+    nome: 'desespero esmagador'
+    alcance_quadrados: 6
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        descricao: 'desespero esmagador'
+      }
+
+    }
+  }
+
+  armas {
+    # TODO
+    id: 'invocar_criaturas_i'
+    nome: 'invocar criaturas I'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    #acao {
+    #  id: 'Criação de Entidade'
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+    #  id_modelo_entidade: 'Orc'
+    #}
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_ii'
+    nome: 'invocar criaturas II'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+    #  id_modelo_entidade: 'Orc'
+    #}
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_iii'
+    nome: 'invocar criaturas III'
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_iv'
+    nome: 'invocar criaturas IV'
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_viii'
+    nome: 'invocar criaturas VIII'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+  }
+
+  armas {
+    id: 'toque_fadiga' #  touch of fatigue
+    nome: 'toque da fadiga'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: true
+      ignora_resistencia_magia: true
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      efeitos_adicionais {
+        efeito: EFEITO_FADIGA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'criar_mortos_vivos_menor' #  animate dead
+    nome: 'criar mortos vivos menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 3
+      dominio: true
+    }
+  }
+
+  armas {
+    id: 'vitalidade_ilusoria' #  death knell
+    nome: 'vitalidade ilusória'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais_conjurador {
+        efeito: EFEITO_VITALIDADE_ILUSORIA
+        # TODO 10 minutos por DV do alvo.
+        rodadas: 100
+      }
+    }
+  }
+  armas {
+    id: 'causar_medo' #  cause fear
+    nome: 'causar medo'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 1
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
+      dv_mais_alto: 5
+      efeitos_adicionais {
+        efeito: EFEITO_AMEDRONTADO
+        dado_modificador_rodadas: '1d4'
+      }
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_ABALADO
+        rodadas: 1
+      }
+    }
+  }
+
+
+  armas {
+    id: 'resistencia_elementos' #  resist energy
+    nome: 'resistência a elementos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_ELEMENTOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'flecha_acida' #  acid arrow
+    nome: 'flecha ácida'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    dano { invariavel: '2d4' }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_PROJETIL
+      geometria: ACAO_GEO_CUBO
+      escala { x: 1.0 y: 0.05 z: 0.05 }
+      cor { r: 0.0 g: 1.0 b: 0.0 }
+      icone: 'icon_bow.png'
+      consequencia: TC_DESLOCA_ALVO
+      permite_ataque_vs_defesa: true
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      elemento: DESC_ACIDO
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: '2d4 de acido por rodada'
+        rodadas_base: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'teia' #  web
+    nome: 'teia'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 4
+      efeito_area: true
+      duracao_s: 0.350
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_web.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: true
+      resultado_ao_salvar: RS_ANULOU
+      # Nao salvou, efeito completo.
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'não pode mover, ver descricao.'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      # Se salvou, fica enredado.
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_ENREDADO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'arrombar' #  knock
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    nome: 'arrombar'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+    }
+  }
+
+  armas {
+    id: 'nublar' # blur
+    nome: 'nublar'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_NUBLAR
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'poeira_ofuscante' # glitterdust
+    nome: 'poeira ofuscante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      raio_quadrados: 2
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_luz: true
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      efeitos_adicionais {
+        efeito: EFEITO_POEIRA_OFUSCANTE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
+        efeito: EFEITO_POEIRA_OFUSCANTE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'explosao_sonora' # sound burst
+    nome: 'explosão sonora'
+    alcance_quadrados: 5
+    dano { invariavel: '1d8' }
+    dano_ignora_salvacao: true
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      raio_quadrados: 2
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: false
+      ignora_reducao_dano_barbaro: true
+      permite_salvacao: true
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_FORTITUDE
+      duracao_s: 0.350
+      elemento: DESC_SONICO
+      efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        rodadas: 1
+      }
+    }
+  }
+
+  armas {
+    id: 'arma_magica'
+    nome: 'arma mágica'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 1
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMA_MAGICA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'arma_magica_maior' # magic weapon, greater
+    nome: 'arma mágica maior'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMA_MAGICA
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+
+  armas {
+    id: 'armadura_arcana'
+    nome: 'armadura arcana'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ARMADURA
+        modificador_rodadas: MR_HORAS_NIVEL
+        complementos: 4
+      }
+      # TODO efeito de forca.
+    }
+  }
+
+  armas {
+    id: 'identificacao'
+    nome: 'identificação'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'magia'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'leque_cromatico'
+    nome: 'leque cromático'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
+      distancia_quadrados: 3
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_LEQUE_CROMATICO
+        # totalmente variavel a duracao de acordo com nivel do alvo.
+      }
+    }
+  }
+
+  armas {
+    id: 'raio_gelo'
+    nome: 'raio de gelo'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '1d3' }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    ataque_toque: true
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      elemento: DESC_FRIO
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      info_textura { id: 'ice.png' }
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+    }
+  }
+
+  armas {
+    id: 'ler_magias'
+    nome: 'ler magias'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_LER_MAGIAS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'som_fantasma'
+    nome: 'som fantasma'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'brilho'  # flare
+    nome: 'brilho'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      elemento: DESC_LUZ
+      efeitos_adicionais {
+        efeito: EFEITO_OFUSCADO
+        rodadas: 10
+      }
+    }
+  }
+
+  armas {
+    id: 'pasmar'
+    nome: 'pasmar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
+      dv_mais_alto: 4
+      efeitos_adicionais {
+        efeito: EFEITO_PASMAR
+        rodadas: 1
+      }
+    }
+  }
+
+  armas {
+    id: 'velocidade'
+    nome: 'velocidade'
+    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_ACELERAR
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'ataque_certeiro'
+    nome: 'ataque certeiro'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ATAQUE_CERTEIRO
+        rodadas: 1
+      }
+    }
+  }
+  armas {
+    id: 'romper_morto_vivo'
+    nome: 'romper morto-vivo'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '1d6' }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      afeta_apenas: TIPO_MORTO_VIVO
+      ignora_resistencia_magia: false
+      permite_salvacao: false
+      distancia_quadrados: 5
+    }
+  }
+  armas {
+    id: 'mensagem'
+    nome: 'mensagem'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+    }
+  }
+  armas {
+    id: 'suportar_elementos'
+    nome: 'suportar elementos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_SUPORTAR_ELEMENTOS
+        rodadas: 14400 # 24 h
+      }
+    }
+  }
+  armas {
+    id: 'maos_magicas'
+    nome: 'mãos mágicas'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+  }
+  armas {
+    id: 'virtude' # virtue
+    nome: 'virtude'
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'virtude, 1 PV temporário.'
+        rodadas: 10
+      }
+    }
+  }
+
+  armas {
+    id: 'resistencia' # resistance
+    nome: 'resistência'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_SALVACAO
+        rodadas: 10
+      }
+    }
+  }
+  armas {
+    id: 'escudo_arcano'
+    nome: 'escudo arcano'
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_ESCUDO_ARCANO
+        rodadas: 10
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'luz'
+    nome: 'luz'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_LUZ
+        rodadas: 10
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'resistencia'
+    nome: 'resistência'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_SALVACAO
+        rodadas: 10
+        complementos: 1
+      }
+    }
+  }
+  armas {
+    id: 'curar_ferimentos_minimos'  # cure minor wounds
+    nome: 'curar ferimentos mínimos'
+    modelo_dano: CURA_1
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'curar_ferimentos_leves'  # cure light wounds
+    nome: 'curar ferimentos leves'
+    modelo_dano: CURA_1D8_MAIS_1_POR_NIVEL_MAX_5
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+  armas {
+    id: 'infligir_ferimentos_leves'  # inflict light wounds
+    nome: 'infligir ferimentos leves'
+    modelo_dano: DANO_1D8_MAIS_1_POR_NIVEL_MAX_5
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      dificuldade_salvacao_por_nivel: true
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+  armas {
+    id: 'curar_ferimentos_moderados'  # cure moderate wounds
+    nome: 'curar ferimentos moderados'
+    modelo_dano: CURA_2D8_MAIS_1_POR_NIVEL_MAX_10
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+  armas {
+    id: 'infligir_ferimentos_moderados'  # inflict moderate wounds
+    nome: 'infligir ferimentos moderados'
+    modelo_dano: DANO_2D8_MAIS_1_POR_NIVEL_MAX_10
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      dificuldade_salvacao_por_nivel: true
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+    }
+  }
+  armas {
+    id: 'curar_ferimentos_graves'  # cure serious wounds
+    nome: 'curar ferimentos graves'
+    modelo_dano: CURA_3D8_MAIS_1_POR_NIVEL_MAX_15
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 4
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'infligir_ferimentos_graves'  # inflict serious wounds
+    nome: 'infligir ferimentos graves'
+    modelo_dano: DANO_3D8_MAIS_1_POR_NIVEL_MAX_15
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+      dificuldade_salvacao_por_nivel: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'curar_ferimentos_criticos'  # cure critical wounds
+    nome: 'curar ferimentos críticos'
+    modelo_dano: CURA_4D8_MAIS_1_POR_NIVEL_MAX_20
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
+    id: 'infligir_ferimentos_criticos'  # inflict critical wounds
+    nome: 'infligir ferimentos críticos'
+    modelo_dano: DANO_4D8_MAIS_1_POR_NIVEL_MAX_20
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+      dificuldade_salvacao_por_nivel: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+
+  armas {
+    id: 'forca_touro'  # bull's strength
+    nome: 'força do touro'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_FORCA_TOURO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'sabedoria_coruja'  # owl's wisdom
+    nome: 'sabedoria da coruja'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_SABEDORIA_CORUJA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'agilidade_gato'  # cat's grace
+    nome: 'agilidade do gato'
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_AGILIDADE_GATO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'esplendor_aguia'  # eagle's splendor
+    nome: 'esplendor da águia'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ESPLENDOR_AGUIA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'vigor_urso'  # bear's endurance
+    nome: 'vigor do urso'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_VIGOR_URSO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'astucia_raposa'  # fox's cunning
+    nome: 'astúcia da raposa'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ASTUCIA_RAPOSA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'ajuda'
+    nome: 'ajuda'
+    categoria: CAT_CAC
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 2
+      dominio: true
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_AJUDA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_1_POR_NIVEL_MAX_10
+      }
+    }
+  }
+
+  armas {
+    id: 'arma_espiritual_mangual'
+    nome: 'arma espiritual mangual (20/x2)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Arma Espiritual (20/x2)'
+    }
+  }
+
+  armas {
+    id: 'arma_espiritual_machado_martelo'
+    nome: 'arma espiritual machado ou martelo (20/x3)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Arma Espiritual (20/x3)'
+    }
+  }
+
+  armas {
+    id: 'arma_espiritual_espada'
+    nome: 'arma espiritual espada (19-20/x2)'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
+    }
+  }
+
+  armas {
+    id: 'escudo_fe'
+    nome: 'escudo da fé'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_ESCUDO_FE
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_2_MAIS_1_CADA_6_MAX_5
+      }
+    }
+  }
+
+  armas {
+    id: 'santuario'
+    nome: 'santuário'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_SANTUARIO
+        rodadas: 1  # 1/por nivel
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_mal' # magic circle against evil
+    nome: 'círculo mágico contra o mal'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_MAL
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_bem' # magic circle against good
+    nome: 'círculo mágico contra o bem'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_BEM
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'circulo_magico_contra_caos' # magic circle against chaos
+    nome: 'círculo mágico contra o caos'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_CAOS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+
+  }
+  armas {
+    id: 'circulo_magico_contra_ordem' # magic circle against law
+    nome: 'círculo mágico contra a ordem'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'chaos'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_DISPERSAO  # o toque gera dispersao.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1 g: 1 b: 1 }
+      efeito_area: true
+      raio_quadrados: 2
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_PROTECAO_CONTRA_ORDEM
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+
+  }
+
+
+  armas {
+    id: 'protecao_contra_elementos'
+    nome: 'proteção contra elementos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+
+    info_classes {
+      id: 'sorte'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 3
+      dominio: true
+    }
+
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_IMUNIDADE_ELEMENTO
+        rodadas: 300  # 100/por nivel
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
+      }
+    }
+  }
+
+
+  armas {
+    id: 'invisibilidade'
+    nome: 'invisibilidade'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'invisibilidade_maior'
+    nome: 'invisibilidade maior'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'escudo_fogo'
+    nome: 'escudo de fogo'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'escudo de fogo'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'ancora_dimensional'
+    nome: 'âncora dimensional'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    ataque_toque: true
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'ancora dimensional'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'andar_ar'
+    nome: 'andar no ar'
+    info_classes {
+      id: 'ar'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'andar no ar'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
     id: 'maos_flamejantes'
-    nome: 'Mãos Flamejantes'
+    nome: 'mãos flamejantes'
+    modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
     info_classes {
       id: 'mago'
       nivel: 1
@@ -4212,16 +8883,54 @@ tabela_feiticos {
       icone: 'icon_burning_hands.png'
       duracao_s: 0.350
       consequencia: TC_INFLAMA_ALVO
-      resultado_salvacao: RS_MEIO
-      dificuldade_salvacao: 11
+      resultado_ao_salvar: RS_MEIO
+      dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
   }
   armas {
-    id: 'coluna_chamas'
-    nome: 'Coluna de Chamas'
+    id: 'metamorfose'
+    nome: 'metamorfose'  # polymorph
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.7 g: 0.7 b: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'metamorfose'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'praga_insetos' # insect plague
+    nome: 'praga de insetos'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    # TODO invoca enxames de gafanhotos 1 min/ nivel
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Enxame (gafanhotos)'
+      # duracao: 1 min/nivel.
+    }
+  }
+
+  armas {
+    id: 'coluna_chamas' # flame strike
+    nome: 'coluna de chamas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -4254,17 +8963,97 @@ tabela_feiticos {
       duracao_s: 0.350
       dois_lados: true
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
   }
   armas {
-    id: 'bola_de_fogo'
-    nome: 'Bola de Fogo'
+    id: 'bencao'
+    nome: 'benção'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 10  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_bless.png'
+      duracao_s: 0.350
+      ignora_luz: true
+      efeitos_adicionais {
+        efeito: EFEITO_BENCAO
+        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'maldicao_menor'
+    nome: 'maldição menor'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      raio_quadrados: 10  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      icone: 'icon_bane.png'
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_MALDICAO_MENOR
+        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'criar_agua'
+    nome: 'criar água'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladin'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'bola_fogo'
+    nome: 'bola de fogo'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6
     info_classes {
       id: 'mago'
       nivel: 3
@@ -4283,16 +9072,215 @@ tabela_feiticos {
       consequencia: TC_INFLAMA_ALVO
       # Mais modificador de conjurador.
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
   }
   armas {
-    id: 'cone_de_gelo'
-    nome: 'Cone de Gelo'
+    id: 'expulsao' # dismissal
+    nome: 'expulsão'
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      # TODO dificuldade_salvacao: # ESPECIAL: DC = normal modificador pelo nivel conjurador - HD alvo.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'expulso'
+      }
+    }
+  }
+  armas {
+    id: 'banimento' # banishment
+    nome: 'banimento'
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      efeito_area: true
+      permite_salvacao: true
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      cor { r: 1 g: 1 b: 1 a: 0.9 }
+      # 2 DV por nivel de criaturas.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'expulso'
+      }
+    }
+  }
+  armas {
+    id: 'ondas_exaustao' # waves of exhaustion
+    nome: 'onde de exaustão'
     alcance_quadrados: 12
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      raio_quadrados: 16
+      geometria: ACAO_GEO_CONE
+      distancia_quadrados: 12
+      efeito_area: true
+      permite_salvacao: false
+      duracao_s: 0.350
+      efeitos_adicionais {
+        efeito: EFEITO_EXAUSTO
+        modificador_rodadas: MR_CONTINUO
+      }
+    }
+  }
+
+  armas {
+    id: 'explosao_solar' # sunburst
+    nome: 'explosão solar'
+    dano { invariavel: '6d6' }
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 8
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 16
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      duracao_s: 0.350
+      ignora_luz: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_LUZ
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        # permanente.
+      }
+      # TODO: contra morto vivo: 1d6/nivel max 25d6.
+    }
+  }
+  armas {
+    id: 'area_escorregadia'  # grease
+    nome: 'área escorregadia'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Área Escorregadia'
+    }
+  }
+
+  armas {
+    id: 'confusao_menor'  # confusion, lesser
+    nome: 'confusão menor'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_CONFUSAO
+        rodadas: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'confusao'  # confusion
+    nome: 'confusão'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 3
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_CONFUSAO
+        rodadas: 1
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'cone_glacial'
+    nome: 'cone glacial'
+    alcance_quadrados: 12
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
       id: 'mago'
       nivel: 5
@@ -4303,26 +9291,126 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
-      id: 'Cone de Gelo'
       tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
       cor: { r: 0.3 b: 1.0 g: 0.3 }
       distancia_quadrados: 12  # quadrados
-      geometria: ACAO_GEO_CONE
       efeito_area: true
       permite_salvacao: true
       icone: 'icon_ice.png'
       duracao_s: 0.350
       dois_lados: true
       dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
+      resultado_ao_salvar: RS_MEIO
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FRIO
     }
   }
   armas {
-    id: 'enfeiticar_monstro'
-    nome: 'Enfeitiçar Monstro'
+    id: 'detectar_mal' # detect evil
+    nome: 'detectar o mal'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar o mal, cone 12 quadrados'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+  }
+  armas {
+    id: 'detectar_magia' # detect magic
+    nome: 'detectar magia'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.7 g: 0.7 b: 0.7 }
+      distancia_quadrados: 12
+      geometria: ACAO_GEO_CONE
+      efeito_area: true
+      permite_salvacao: false
+      icone: 'icon_touch.png'
+      duracao_s: 0.350
+    }
+  }
+
+  armas {
+    id: 'dissipar_magia'
+    nome: 'dissipar magia'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 3
+    }
+    info_classes {
+      id: 'magia'
+      nivel: 3
+      dominio: true
+    }
+  }
+  armas {
+    id: 'dissipar_magia_maior'
+    nome: 'dissipar magia maior'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 6
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+  }
+
+  armas {
+    id: 'enfeiticar_monstro' # charm monster
+    nome: 'enfeitiçar monstro'
     alcance_quadrados: 12
     info_classes {
       id: 'mago'
@@ -4338,22 +9426,26 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE 
+      tipo: ACAO_FEITICO_TOQUE
       cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
       distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
       permite_ataque_vs_defesa: false
       permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
       icone: 'icon_heart.png'
       duracao_s: 0.350
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        modificador_rodadas: MR_DIAS_POR_NIVEL
+      }
     }
   }
   armas {
     id: 'heroismo'
-    nome: 'Heroismo'
+    nome: 'heroismo'
     info_classes {
       id: 'mago'
       nivel: 3
@@ -4373,123 +9465,79 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'raio_flamejante'
-    nome: 'Raio Flamejante'
-    alcance_quadrados: 5
-    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
-    dano { invariavel: '4d6' }
+    id: 'martelo_caos'
+    nome: 'martelo do caos'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    # dano { invariavel: '1d8' }
+    # 1d8 a cada 2 nivels, max 5d8 e da efeito de lentidão.
+    # Se for neutro, eh metade do dano e nao tem lentidao.
     info_classes {
-      id: 'mago'
-      nivel: 2
-    }
-    acao {
-      tipo: ACAO_RAIO
-      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      duracao_s: 0.5
-      permite_salvacao: false
-      icone: 'icon_fireball.png'
-      info_textura { id: 'fire.png' }
-      ignora_luz: true
-      consequencia: TC_INFLAMA_ALVO
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_FOGO
-      permite_ataque_vs_defesa: true
-      ataque_toque: true
-      ataque_distancia: true
-    }
-  }
-  armas {
-    id: 'relampago'
-    nome: 'Relâmpago'
-    alcance_quadrados: 24
-    info_classes {
-      id: 'mago'
-      nivel: 3
-    }
-    acao {
-      tipo: ACAO_RAIO
-      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
-      duracao_s: 0.5
-      efeito_area: true
-      distancia_quadrados: 14  # quadrados
-      permite_salvacao: true
-      icone: "icon_lightning.png"
-      info_textura { id: 'lightning.png' }
-      ignora_luz: true
-      dificuldade_salvacao_por_nivel: true
-      resultado_salvacao: RS_MEIO
-      tipo_salvacao: TS_REFLEXO
-      ignora_reducao_dano_barbaro: true
-      elemento: DESC_ELETRICIDADE
-    }
-  }
-  armas {
-    id: 'sugestao'
-    nome: 'Sugestão'
-    alcance_quadrados: 5  # 1/2 niveis
-    info_classes {
-      id: 'mago'
-      nivel: 3
-    }
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'encantamento'
-      nivel: 3
-      dominio: true
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE 
-      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
-      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
-      permite_ataque_vs_defesa: false
-      permite_salvacao: true
-      resultado_salvacao: RS_ANULOU
-      icone: 'icon_heart.png'
-      duracao_s: 0.350
-      dificuldade_salvacao_por_nivel: true
-      tipo_salvacao: TS_VONTADE
-      ignora_reducao_dano_barbaro: true
-    }
-  }
-  armas {
-    id: 'tempestade_glacial'
-    nome: 'Tempestade Glacial'
-    alcance_quadrados: 80
-    modificador_alcance: MOD_8_QUAD_NIVEL
-    info_classes {
-      id: 'druida'
+      id: 'caos'
       nivel: 4
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 4
-    }
-    info_classes {
-      id: 'agua'
       dominio: true
-      nivel: 5
     }
     acao {
       tipo: ACAO_DISPERSAO
-      cor { r: 1 g: 1 b: 1 a: 0.5 }
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 4  # quadrados.
-      geometria: ACAO_GEO_CILINDRO
       efeito_area: true
-      permite_salvacao: false
-      icone: 'icon_ice.png'
-      info_textura { id: 'ice.png' }
+      permite_salvacao: true
+      icone: 'icon_chaos_hammer'
       duracao_s: 0.350
-      dois_lados: true
+      ignora_luz: false
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
-      elemento: DESC_FRIO
+      resultado_ao_salvar: RS_MEIO
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        # Apenas em criaturas leais.
+        rodadas: 3  # 1d6 rodadas
+      }
     }
   }
+
+  armas {
+    id: 'nuvem_profana'
+    nome: 'nuvem profana'
+    # Unholy blight
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    # dano 1d8 a cada 2 niveis, maximo 5d8 criaturas boas.
+    # dano 1d6 por nivel se for extra planar bom + doenca por 1d4 rodadas.
+    # Se for neutro, dano eh metade e 1/4 sem doenca.
+    info_classes {
+      id: 'mal'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 4  # quadrados.
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_chaos_hammer'
+      duracao_s: 0.350
+      ignora_luz: false
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+      ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        # Apenas em criaturas boas.
+        rodadas: 3  # 1d4 rodadas
+      }
+    }
+  }
+
   armas {
     id: 'missil_magico'
-    nome: 'Míssil Mágico'
+    nome: 'míssil mágico'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
@@ -4516,8 +9564,265 @@ tabela_feiticos {
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
   }
   armas {
+    id: 'intuir_direcao'  # know direction
+    nome: 'intuir direcao'
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+  }
+
+  armas {
+    id: 'orientacao'  # guidance.
+    nome: 'orientação'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    ataque_toque: true
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_distancia: false
+      efeitos_adicionais {
+        efeito: EFEITO_ORIENTACAO
+        rodadas: 10
+      }
+    }
+  }
+  armas {
+    id: 'detectar_veneno'
+    nome: 'detectar veneno'
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    ataque_toque: true
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_distancia: false
+    }
+  }
+
+  armas {
+    id: 'pedra_encantada'
+    nome: 'pedra encantada'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 1
+      dominio: true
+    }
+    ataque_toque: true
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ataque_distancia: false
+      efeitos_adicionais {
+        efeito: EFEITO_PEDRA_ENCANTADA
+        rodadas: 300
+      }
+    }
+  }
+  armas {
+    id: 'raio_ardente'
+    nome: 'raio ardente'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano { invariavel: '4d6' }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    ataque_toque: true
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      icone: 'fire.png'
+      info_textura { id: 'fire.png' }
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      elemento: DESC_FOGO
+    }
+  }
+  armas {
+    id: 'relampago'
+    nome: 'relâmpago'
+    alcance_quadrados: 24
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      efeito_area: true
+      distancia_quadrados: 14  # quadrados
+      permite_salvacao: true
+      icone: "icon_lightning.png"
+      info_textura { id: 'lightning.png' }
+      ignora_luz: true
+      dificuldade_salvacao_por_nivel: true
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_ELETRICIDADE
+    }
+  }
+  armas {
+    id: 'inverter_gravidade'  # reverse gravity
+    nome: 'inverter gravidade'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Gravidade Invertida'
+    }
+  }
+
+  armas {
+    id: 'palavra_poder_cegar'
+    nome: 'palavra do poder: cegar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 7
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      #icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 200
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        modificador_rodadas: MR_PALAVRA_PODER_CEGAR
+      }
+    }
+  }
+
+  armas {
+    id: 'palavra_poder_atordoar'
+    nome: 'palavra do poder: atordoar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 8
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 8
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      #icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 150
+      efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        modificador_rodadas: MR_PALAVRA_PODER_ATORDOAR
+      }
+    }
+  }
+  armas {
+    id: 'palavra_poder_matar'
+    nome: 'palavra do poder: matar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 9
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
+      duracao_s: 0.5
+      permite_salvacao: false
+      #icone: "icon_power_word.png"
+      permite_ataque_vs_defesa: false
+      pv_mais_alto: 100
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+    }
+  }
+
+  armas {
     id: 'piscar'
-    nome: 'Piscar'
+    nome: 'piscar'
     info_classes {
       id: 'mago'
       nivel: 3
@@ -4540,7 +9845,7 @@ tabela_feiticos {
   }
   armas {
     id: 'reflexos'
-    nome: 'Reflexos'
+    nome: 'reflexos'
     info_classes {
       id: 'mago'
       nivel: 2
@@ -4550,19 +9855,225 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      tipo: ACAO_FEITICO_PESSOAL
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
+      icone: 'icon_personal.png'
       efeitos_adicionais {
         efeito: EFEITO_REFLEXOS
-        rodadas: 10  # por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_1D4_MAIS_1_CADA_TRES_MAX_8
       }
     }
   }
- 
+
+  armas {
+    id: 'dissipar_mal'  # dispel evil
+    nome: 'dissipar o mal'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_MAL
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_bem'  # dispel good
+    nome: 'dissipar o bem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_BEM
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_caos'  # dispel chaos
+    nome: 'dissipar o caos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_CAOS
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'dissipar_ordem'  # dispel law
+    nome: 'dissipar a ordem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_DISSIPAR_ORDEM
+        modificador_rodadas: MR_RODADAS_NIVEL
+        # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
+      }
+    }
+  }
+  armas {
+    id: 'visao_verdade'  # true seeing
+    nome: 'visão da verdade'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 7
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Visão da verdade.'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'resistencia_magia'  # spell resistance
+    nome: 'resistência à magia'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'magia'
+      nivel: 5
+      dominio: true
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_RESISTENCIA_MAGIA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        modificador_complementos: MC_12_MAIS_1_POR_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'matar'  # slay living
+    nome: 'matar'
+    modelo_dano: DANO_3D6_MAIS_1_POR_NIVEL
+    dano_ignora_salvacao: true
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 5
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: true
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+    }
+  }
+
+  armas {
+    id: 'viagem_planar'  # plane shift
+    nome: 'viagem planar'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+  }
+
+  armas {
+    id: 'esfera_flamejante'
+    nome: 'esfera flamejante'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Esfera Flamejante'
+    }
+  }
+
   armas {
     id: 'sono'
-    nome: 'Sono'
+    nome: 'sono'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -4583,22 +10094,331 @@ tabela_feiticos {
       permite_salvacao: true
       icone: 'icon_sleep.png'
       duracao_s: 0.350
-      ignora_luz: false 
+      ignora_luz: false
       # Mais modificador de conjurador.
       dificuldade_salvacao_por_nivel: true
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
-      resultado_salvacao: RS_ANULOU
+      resultado_ao_salvar: RS_ANULOU
+      dv_mais_alto: 4
+      # TODO total de DV = 4.
       efeitos_adicionais {
         efeito: EFEITO_SONO
-        rodadas: 10  # por nivel
+        modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
   }
 
+  armas {
+    id: 'sugestao'
+    nome: 'sugestão'
+    alcance_quadrados: 5  # 1/2 niveis
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'encantamento'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor: { r: 1 b: 0.0 g: 0.0 a: 0.8 }
+      distancia_quadrados: 5  # quadrados + 1 a cada dois niveis
+      permite_ataque_vs_defesa: false
+      permite_salvacao: true
+      resultado_ao_salvar: RS_ANULOU
+      icone: 'icon_heart.png'
+      duracao_s: 0.350
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      efeitos_adicionais {
+        efeito: EFEITO_SUGESTAO
+        rodadas: 600  # 1h por nivel.
+        descricao: 'sugestão'
+      }
+    }
+  }
+
+  armas {
+    id: 'tempestade_glacial'
+    nome: 'tempestade glacial'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'agua'
+      dominio: true
+      nivel: 5
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Tempestade Glacial'
+    }
+  }
 }
 
 tabela_chapeus {
+  chapeus {
+    id: 'elmo_acao_subaquatica'
+    nome: 'Elmo da Ação Subaquática'
+    custo_po: 57000
+  }
+  chapeus {
+    id: 'elmo_brilhante'
+    nome: 'Elmo Brilhante'
+    custo_po: 125000
+  }
+  chapeus {
+    id: 'elmo_telepatia'
+    nome: 'Elmo da Telepatia'
+    custo_po: 27000
+    descricao: 'Sugestão 1/dia, comunicação telepática.'
+  }
+  chapeus {
+    id: 'elmo_teletransporte'
+    nome: 'Elmo do Teletransporte'
+    custo_po: 38000
+    descricao: 'Teletransporte 3/dia.'
+  }
+
+  chapeus {
+    id: 'tiara_intelecto_2'
+    nome: 'Tiara do Intelecto +2'
+    custo_po: 4000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 4
+    origens: 'astucia_raposa'
+  }
+  chapeus {
+    id: 'tiara_intelecto_4'
+    nome: 'Tiara do Intelecto +4'
+    custo_po: 16000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 4
+    origens: 'astucia_raposa'
+  }
+  chapeus {
+    id: 'tiara_intelecto_6'
+    nome: 'Tiara do Intelecto +6'
+    custo_po: 36000
+    tipo_efeito: EFEITO_MELHORIA_INTELIGENCIA
+    complementos: 6
+    origens: 'astucia_raposa'
+  }
+}
+
+tabela_racas {
+  racas {
+    id: 'outra'
+    nome: 'Não Tabelada'
+    descricao: 'Para raças não tabeladas.'
+  }
+  racas {
+    id: 'anao'
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ANAO
+    nome: 'Anão do Escudo'
+    descricao: 'Raça mais comum de anões.'
+    bonus_atributos {
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_MEDIO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ELFO
+    id: 'elfo'
+    nome: 'Elfo da Lua'
+    descricao: 'Raça mais comum de elfos.'
+    bonus_atributos {
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_MEDIO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_HALFLING
+    id: 'halfling'
+    nome: 'Halfling Pés Leves'
+    descricao: ''
+    bonus_atributos {
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_PEQUENO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_HUMANO
+    id: 'humano'
+    nome: 'Humano'
+    descricao: 'Humanos são versáteis.'
+    tamanho: TM_MEDIO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_GNOMO
+    id: 'gnomo'
+    nome: 'Gnomo das Rochas'
+    descricao: 'Brincalhões, desconfiados das raças grandes.'
+    bonus_atributos {
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_PEQUENO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ELFO
+    id: 'meio_elfo'
+    nome: 'Meio-Elfo'
+    descricao: 'Mistura entre elfos e humanos.'
+    tamanho: TM_MEDIO
+  }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ORC
+    id: 'meio_orc'
+    nome: 'Meio-Orc'
+    descricao: 'Mistura entre orcs e humanos.'
+    bonus_atributos {
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_MEDIO
+  }
+}
+
+tabela_dominios {
+  dominios {
+    id: 'agua'
+    nome: 'água'
+    descricao: 'Expulsa ou destrói criaturas do fogo como um clérigo bondoso usaria Expulsar. Fascina ou comanda criaturas da água como um clérigo maligno usaria Fascinar. Essa habilidade pode ser usada uma quantidade de vezes equivalente a 3+ seu modificador de Carisma por dia. Este poder concedido é uma habilidade sobrenatural.'
+  }
+  dominios {
+    id: 'animais'
+    nome: 'animais'
+    descricao: 'Você pode lançar falar com animais uma vez por dia como uma habilidade similar a magia. Conhecimento (natureza) passa a ser uma perícia de classe.'
+  }
+  dominios {
+    id: 'ar'
+    nome: 'ar'
+    descricao: 'Expulsa ou destrói criaturas da terra como um clérigo bondoso usaria Expulsar. Fascina ou comanda criaturas do ar como um clérigo maligno usaria Fascinar. Essa habilidade pode ser usada uma quantidade de vezes equivalente a 3+ seu modificador de Carisma por dia. Este poder concedido é uma habilidade sobrenatural.'
+  }
+
+  dominios {
+    id: 'bem'
+    nome: 'bem'
+    descricao: 'Você conjura magias do bem com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'caos'
+    nome: 'caos'
+    descricao: 'Você conjura magias do caos com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'conhecimento'
+    nome: 'conhecimento'
+    descricao: 'Todas as perícias de Conhecimento passam a ser perícias de classe. Você conjura magias de adivinhação com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'cura'
+    nome: 'cura'
+    descricao: 'Você conjura magias de cura com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'destruicao'
+    nome: 'destruição'
+    descricao: 'Uma vez por dia, você ganha o poder de destruir, uma habilidade sobrenatural; pode-se realizar um único ataque corpo a corpo com +4 de bônus na jogada de ataque e um modificador de dano equivalente ao seu nível de clérigo (caso você acerte). Você precisa declarar o uso do poder antes de fazer a jogada de ataque.'
+  }
+  dominios {
+    id: 'enganacao'
+    nome: 'enganação'
+    descricao: 'Blefar, Disfarces e Esconder-se passam a ser perícias de classe.'
+  }
+  dominios {
+    id: 'fogo'
+    nome: 'fogo'
+    descricao: 'Expulsa ou destrói criaturas da água como um clérigo bondoso usaria Expulsar. Fascina ou comanda criaturas do fogo como um clérigo maligno usaria Fascinar. Essa habilidade pode ser usada uma quantidade de vezes equivalente a 3+ seu modificador de Carisma por dia. Este poder concedido é uma habilidade sobrenatural.'
+  }
+  dominios {
+    id: 'forca'
+    nome: 'força'
+    descricao: 'Você pode realizar um feito de força, uma habilidade sobrenatural que concede um bônus de melhoria para sua Força igual ao seu nível de clérigo. Ativar esse poder é uma ação livre. Ele pode ser usado uma vez por dia e dura 1 rodada.'
+  }
+  dominios {
+    id: 'guerra'
+    nome: 'guerra'
+    descricao: 'Adquire o talento Usar Arma Comum (se necessário) e Foco em Arma da arma predileta de seu deus.'
+  }
+  dominios {
+    descricao: 'Você usa pergaminhos, varinhas e outros itens mágicos de complemento a magia ou ativação de magia como um mago com metade de seu nível de clérigo (no mínimo 1° nível). Se você também for um mago, seu nível de mago e esses níveis são somados para esses fins.'
+    id: 'magia'
+    nome: 'magia'
+  }
+  dominios {
+    id: 'mal'
+    nome: 'mal'
+    descricao: 'Você conjura magias do Mau com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'morte'
+    nome: 'morte'
+    descricao: 'Você pode usar o toque da morte uma vez por dia, uma habilidade sobrenatural que gera um efeito de morte. É preciso realizar um ataque de toque corporal contra uma criatura viva (usando as regras para magias de toque). Caso acerte, jogue 1d6 por nível de clérigo. Se o total igualar ou superar os pontos de vida do alvo, ele morre (sem testes de resistência).'
+  }
+  dominios {
+    id: 'ordem'
+    nome: 'ordem'
+    descricao: 'Você conjura magias da ordem com +1 no nível de conjurador.'
+  }
+  dominios {
+    id: 'plantas'
+    nome: 'plantas'
+    descricao: 'Fascina ou comanda criaturas da terra como um clérigo maligno usaria Fascinar. Essa habilidade pode ser usada uma quantidade de vezes equivalente a 3+ seu modificador de Carisma por dia. Este poder concedido é uma habilidade sobrenatural. Conhecimento (natureza) passa a ser uma perícia de classe.'
+  }
+  dominios {
+    id: 'protecao'
+    nome: 'proteção'
+    descricao: 'Você pode gerar um escudo de proteção, uma habilidade sobrenatural que concede ao alvo tocado um bônus de resistência no próximo teste de resistência igual ao seu nível de clérigo. Ativar este poder usa uma ação padrão. O escudo de proteção é um efeito de abjuração, com duração de 1 hora, que pode ser usado uma vez por dia.'
+  }
+  dominios {
+    id: 'sol'
+    nome: 'sol'
+    descricao: 'Uma vez por dia, você pode usar a Expulsão Aprimorada contra mortos-vivos no lugar de uma Expulsão comum. A Expulsão Aprimorada é idêntica à Expulsão normal, mas todos os mortos-vivos que seriam expulsos, serão destruídos.'
+  }
+  dominios {
+    id: 'sorte'
+    nome: 'sorte'
+    descricao: 'Você adquire o poder da boa sorte, que pode ser usado uma vez por dia. Esta habilidade extraordinária lhe permite realizar novamente uma jogada. Você é obrigado a ficar com o novo resultado, mesmo se este for pior que o resultado original.'
+  }
+  dominios {
+    id: 'terra'
+    nome: 'terra'
+    descricao: 'Expulsa ou destrói criaturas do ar como um clérigo bondoso usaria Expulsar. Fascina ou comanda criaturas da terra como um clérigo maligno usaria Fascinar. Essa habilidade pode ser usada uma quantidade de vezes equivalente a 3+ seu modificador de Carisma por dia. Este poder concedido é uma habilidade sobrenatural.'
+  }
+  dominios {
+    id: 'viagem'
+    nome: 'viagem'
+    descricao: 'Durante 1 rodada/nível de clérigo por dia, você pode agir sem ser incomodado por efeitos mágicos que impedem o movimento (similar ao efeito da magia movimentação livre). Esse efeito é automático e permanece até seu tempo máximo diário se esgotar ou não ser mais necessário. Ele pode ser ativado várias vezes em um dia (até a quantidade máxima de rodadas disponível). Essa é uma habilidade sobrenatural. A Sobrevivência passa a ser uma perícia de classe.'
+  }
+
 }
 
 #tabela_venenos {

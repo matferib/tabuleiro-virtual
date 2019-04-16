@@ -4,7 +4,8 @@
 #include <vector>
 #include <string>
 
-#include "ent/constantes.h"
+//#include "ent/constantes.h"
+#include "goog/stringprintf.h"
 // para depurar android e ios.
 //#define VLOG_NIVEL 1
 #include "log/log.h"
@@ -14,6 +15,9 @@
 #include "ntf/notificacao.pb.h"
 
 namespace net {
+namespace {
+using google::protobuf::StringPrintf;
+}  // namespace
 
 Cliente::Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
   sincronizador_ = sincronizador;
@@ -119,12 +123,14 @@ void Cliente::AutoConecta(const std::string& id) {
         }
         LOG(INFO) << "RECEBI de: " << endereco_descoberto_
                   << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
-        std::string endereco_str(endereco_descoberto_);
-        if (num_bytes > 0) {
-          endereco_str.append(":");
-          endereco_str.append(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes);
+        std::string endereco_str(StringPrintf("[%s]", endereco_descoberto_.c_str()));
+        if (num_bytes > 0 && num_bytes < 10) {
+          endereco_str = StringPrintf("%s:%s",
+              endereco_str.c_str(),
+              std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.begin() + num_bytes).c_str());
         }
-        Conecta(id, endereco_str, 0);
+        LOG(INFO) << "CONECTANDO EM: " << endereco_str;
+        Conecta(id, endereco_str, /*porta_local=*/0);
       }
   );
   //LOG(INFO) << "zerando timer";
@@ -138,25 +144,53 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str, in
         ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, "Já há um descobrimento em curso."));
     return;
   }
-  std::vector<std::string> endereco_porta;
-  boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
-  if (endereco_porta.size() == 0) {
-    // Endereco padrao.
-    LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem porta";
-    endereco_porta.push_back("localhost");
-  } else if (endereco_porta[0].empty()) {
-    endereco_porta[0] = "localhost";
-  }
-  if (endereco_porta.size() == 1) {
-    // Porta padrao.
-    endereco_porta.push_back(to_string(PortaPadrao()));
+  std::string endereco_parseado;
+  std::string porta_parseada;
+  if (endereco_str.empty()) {
+    endereco_parseado = "localhost";
+  } else if (endereco_str[0] == '[') {
+    // IPV6 com []
+    // Mesmo que use token compress, o primeiro [ gerara um token vazio.
+    std::vector<std::string> endereco_tokenizado;
+    std::string endereco_sem_primeiro = endereco_str.substr(1);
+    boost::split(endereco_tokenizado, endereco_sem_primeiro, boost::algorithm::is_any_of("]"));
+    if (endereco_tokenizado.empty()) {
+      endereco_parseado = "localhost";
+      porta_parseada = to_string(PortaPadrao());
+    } else {
+      endereco_parseado = endereco_tokenizado[0];
+      if (endereco_tokenizado.size() < 2 || endereco_tokenizado[1].size() < 2) {
+        porta_parseada = to_string(PortaPadrao());
+      } else {
+        porta_parseada = endereco_tokenizado[1].substr(1);
+      }
+    }
+  } else if (std::count(endereco_str.begin(), endereco_str.end(), ':') > 1) {
+    // IPV6 sem [] e sem porta.
+    endereco_parseado = endereco_str;
+    porta_parseada = to_string(PortaPadrao());
+  } else {
+    // host[:porta].
+    std::vector<std::string> endereco_tokenizado;
+    boost::split(endereco_tokenizado, endereco_str, boost::algorithm::is_any_of(":"));
+    if (endereco_tokenizado.empty()) {
+      endereco_parseado = "localhost";
+      porta_parseada = to_string(PortaPadrao());
+    } else if (endereco_tokenizado.size() == 1) {
+      endereco_parseado = endereco_tokenizado[0];
+      porta_parseada = to_string(PortaPadrao());
+    } else {
+      endereco_parseado = endereco_tokenizado[0];
+      porta_parseada = endereco_tokenizado[1];
+    }
   }
   try {
     socket_.reset(new Socket(sincronizador_));
     if (porta_local > 1024) {
       socket_->PortaLocal(porta_local);
     }
-    socket_->Conecta(endereco_porta[0], endereco_porta[1]);
+    LOG(INFO) << "Pronto para conectar, servidor: " << endereco_parseado << ", porta: " << porta_parseada;
+    socket_->Conecta(endereco_parseado, porta_parseada);
 #if 0
     //boost::asio::socket_base::receive_buffer_size option(50000);
     boost::asio::socket_base::receive_buffer_size option;
@@ -187,7 +221,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str, in
   } catch (std::exception& e) {
     socket_.reset();
     central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_RESPOSTA_CONEXAO, e.what()));
-    VLOG(1) << "Falha de conexão com " << endereco_porta[0] << ":" << endereco_porta[1];
+    VLOG(1) << "Falha de conexão com " << endereco_parseado << ":" << porta_parseada;
     return;
   }
 }

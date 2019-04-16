@@ -109,7 +109,7 @@ class Tabuleiro : public ntf::Receptor {
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Faz a entidade beber a pocao, recebendo seus efeitos. Indice da pocao indica qual pocao a entidade esta bebendo (na ordem do tesouro). */
-  void BebePocaoNotificando(unsigned int id_entidade, unsigned int indice_pocao, unsigned int indice_efeito = 0);
+  void BebePocaoNotificando(unsigned int id_entidade, int indice_pocao, unsigned int indice_efeito = 0);
 
   /** Seleciona todas as entidades do cenario corrente.
   * @param fixas se as entidades fixas devem ser selecionadas.
@@ -167,8 +167,17 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
+  /** Remove os efeitos de invisibilidade das entidades selecionadas. */
+  void RemoveEfeitoInvisibilidadeEntidadesNotificando();
+
   /** Liga/desliga evento de investida do personagem. */
   void AlternaInvestida();
+
+  /* Se estiver montado, desmonta. Caso contrario, entra no modo de clicar para montar. */
+  void AlternaMontar();
+
+  /** Alterna todos os modelos desligaveis de uma entidade (por exemplo, vulto na luz). */
+  void AlternaModelosDesligaveisNotificando();
 
   /** Ao inves de notificar, apenas preenche grupo. */
   void PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bits, bool valor, ntf::Notificacao* grupo);
@@ -392,7 +401,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
 
-  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao 
+  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao
   * coladas referentes a camera.
   */
   void ColaEntidadesSelecionadas(bool ref_camera);
@@ -453,8 +462,13 @@ class Tabuleiro : public ntf::Receptor {
 
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
+
   /** No modo esquiva, o clique seleciona contra quem a entidade se esquivara. */
   void AlternaModoEsquiva();
+
+  /** No modo remocao de grupo, o clique remove uma entidade de uma entidade
+   * composta. */
+  void AlternaModoRemocaoDeGrupo();
 
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
@@ -474,6 +488,8 @@ class Tabuleiro : public ntf::Receptor {
     MODO_ROTACAO,      // modo de rotacao da camera.
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
     MODO_ESQUIVA,      // Usado para escolher a entidade de esquiva.
+    MODO_REMOCAO_DE_GRUPO,  // usado para remover entidades de grupos.
+    MODO_MONTAR,            // usado para montar entidades em outras.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -481,7 +497,7 @@ class Tabuleiro : public ntf::Receptor {
   /** @return true se houver personagens selecionaveis. */
   bool HaEntidadesSelecionaveis() const;
 
-  /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
+  /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar
   * mestres secundarios tambem.
   */
   bool EmModoMestre() const {
@@ -514,6 +530,13 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaCameraIsometrica();
   /** Alterna entre a camera em primeira pessoa e a normal. */
   void AlternaCameraPrimeiraPessoa();
+  /** Retorna a entidade de primeira pessoa ou null se nao tiver. */
+  const Entidade* EntidadePrimeiraPessoa() const;
+
+  /** Retorna a largura e a altura do viewport do tabuleiro. */
+  std::pair<int, int> LarguraAlturaViewport() const {
+    return std::make_pair(largura_, altura_);
+  }
 
   /** Alterna entre visao do jogador e do mestre. */
   void AlternaVisaoJogador();
@@ -556,8 +579,8 @@ class Tabuleiro : public ntf::Receptor {
   /** @return o proto do sub cenario, ou nullptr se nao houver. Versao const. */
   const TabuleiroProto* BuscaSubCenario(int id_cenario) const;
 
-  /** Remove a versao passada. Nao salva, nem nada. */
-  void RemoveVersao(int versao);
+  /** Remove as versoes passadas. Nao salva, nem nada. */
+  void RemoveVersoes(const std::vector<int>& versao);
 
  private:
   struct DadosIniciativa {
@@ -569,6 +592,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Descansa o personagem: cura 1 PV por nivel e restaura feiticos. */
   void DescansaPersonagemNotificando();
+
+  /** Desliga a esquiva da primeira pessoa ou selecionado, notificando clientes. */
+  void DesligaEsquivaNotificando();
 
   /** Botao de usar feitico clicado. */
   void TrataBotaoUsarFeitico(int nivel);
@@ -696,14 +722,24 @@ class Tabuleiro : public ntf::Receptor {
   float TrataAcaoUmaEntidade(
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s);
+  /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
+  float TrataPreAcaoComum(
+      float atraso_s, const Posicao& pos_tabuleiro, const Entidade* entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
+      ntf::Notificacao* grupo_desfazer);
   float TrataAcaoEfeitoArea(
-      float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+      float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
+      ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
+  float TrataAcaoExpulsarFascinarMortosVivos(
+      float atraso_s, const Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
   float TrataAcaoIndividual(
       unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
   float TrataAcaoProjetilArea(
       unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
+      ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
+  float TrataAcaoCriacao(
+      float atraso_s, const Posicao& pos_entidade, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
 
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
@@ -717,6 +753,12 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola um dado de faces_dado_ para as entidades selecionadas e notifica. */
   void TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d);
+
+  /** Remove um objeto de dentro de um composto. */
+  void TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+
+  /** Monta em um objeto. */
+  void TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
 
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
@@ -758,6 +800,14 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<unsigned int> IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const;
   /** O contrario, se houver selecao retorna o que esta selecionado. Caso contrario, retorna primeira pessoa (se houver). */
   std::vector<unsigned int> IdsEntidadesSelecionadasOuPrimeiraPessoa() const;
+
+  /** Retorna os ids das entidades selecionadas e montadas nelas. */
+  std::vector<unsigned int> IdsEntidadesSelecionadasEMontadas() const;
+  /** Retorna os ids das entidades selecionadas e tambem daquelas montadas nelas. */
+  std::vector<unsigned int> IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const;
+  /** Se estiver em primeira pessoa, retorna o id dela, senao das entidades selecionadas e montadas. */
+  std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const;
+
   /** Retorna a entidade selecionada se houver apenas uma, ou a primeira pessoa. */
   Entidade* EntidadeSelecionadaOuPrimeiraPessoa();
   const Entidade* EntidadeSelecionadaOuPrimeiraPessoa() const;
@@ -831,7 +881,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o x3d e y3d do SW do quadrado. */
   void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
   void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
-  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */ 
+  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */
   void XYQuadrado(unsigned int id_quadrado, int *x, int* y);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
@@ -850,7 +900,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaEntidadesSelecionaveisJogador() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
-  ntf::Notificacao* SerializaPropriedades() const;
+  std::unique_ptr<ntf::Notificacao> SerializaPropriedades() const;
 
   /** @return uma notificacao do tipo TN_ATUALIZAR_RELEVO_TABULEIRO preenchida. */
   ntf::Notificacao* SerializaRelevoCenario() const;
@@ -893,11 +943,26 @@ class Tabuleiro : public ntf::Receptor {
   */
   int GeraIdTabuleiro();
 
-  /** Recarrega todas as texturas, incluindo sub cenarios. */
-  void AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal);
+  /** Recarrega todas as texturas, incluindo sub cenarios. Usado ao abrir um tabuleiro. */
+  void AtualizaPisoCeuIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal);
+
+  // Retorna o cenario que contem as informacoes de piso para o sub cenario.
+  const TabuleiroProto& CenarioPiso(const TabuleiroProto& sub_cenario) const;
+
+  // Retorna o cenario que contem as informacoes de ceu para o sub cenario.
+  const TabuleiroProto& CenarioCeu(const TabuleiroProto& sub_cenario) const;
+
+  // Retorna o cenario que contem as informacoes de iluminacao direcional e ambiente para o sub cenario.
+  const TabuleiroProto& CenarioIluminacao(const TabuleiroProto& sub_cenario) const;
+
+  // Retorna o cenario que contem as informacoes de nevoa para o sub cenario.
+  const TabuleiroProto& CenarioNevoa(const TabuleiroProto& sub_cenario) const;
+
+  // Retorna se a nevoa sera usada na renderizacao.
+  bool UsaNevoa() const;
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
-  void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
+  void AtualizaPisoCeuCenario(const ent::TabuleiroProto& novo_proto);
 
   /** Carrega o controle virtual. */
   void CarregaControleVirtual();
@@ -920,8 +985,8 @@ class Tabuleiro : public ntf::Receptor {
   * de callback para controle virtual.
   * Os valores coluna e linha sao usados para posicionar o raster inicialmente. A origem eh esquerda embaixo.
   */
-  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
-      int nome_cima, int nome_baixo, int tipo_lista,
+  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, int pagina_corrente_horizontal, const char* titulo, const float* cor_titulo,
+      int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
       const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
       std::function<int(int)> f_id);
 
@@ -1050,10 +1115,11 @@ class Tabuleiro : public ntf::Receptor {
   }
 
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
-  void AtualizaEventosAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
   void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);
@@ -1070,8 +1136,18 @@ class Tabuleiro : public ntf::Receptor {
   void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb);
   void GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb);
 
+  float DistanciaPlanoCorteDistante() const;
+
   void DesativaWatchdog();
   void ReativaWatchdog();
+
+  // Funcoes de preenchimento que requerem o tabuleiro por causa de entidades dinamicas.
+  // Configura as notificacoes para varias entidades montarem em montaria.
+  void PreencheNotificacoesMontarEm(
+      const std::vector<const Entidade*>& montandos, const Entidade* montaria, ntf::Notificacao* grupo) const;
+  // Configura as notificacoes para varias entidades desmontarem de montaria.
+  void PreencheNotificacoesDesmontar(
+      const std::vector<const Entidade*>& desmontandos, ntf::Notificacao* grupo) const;
 
  private:
   const Tabelas& tabelas_;
@@ -1190,6 +1266,7 @@ class Tabuleiro : public ntf::Receptor {
 
   std::list<std::string> log_eventos_;
   int pagina_log_eventos_;
+  int pagina_horizontal_log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
@@ -1238,7 +1315,7 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_uma_renderizacao_controle_virtual_;
   /** computa o tempo para renderizar os mapas de luz e oclusao. */
   boost::timer::cpu_timer timer_renderizacao_mapas_;
-  
+
   // Listas que armazenam os ultimos tempos computados pelos timers.
   std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_
   std::list<uint64_t> tempos_uma_renderizacao_completa_;  // timer_uma_renderizacao_completa_
@@ -1261,7 +1338,7 @@ class Tabuleiro : public ntf::Receptor {
   int faces_dado_ = 0;
 
   // Variaveis de estado de alguns botoes.
-  bool modo_dano_automatico_ = false;
+  bool modo_dano_automatico_ = true;
   bool bonus_dano_negativo_ = false;
   bool bonus_ataque_negativo_ = false;
 

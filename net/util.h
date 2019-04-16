@@ -9,6 +9,8 @@
 
 namespace net {
 
+constexpr int INTERVALO_ANUNCIO_MS = 100;
+
 // Codifica tamanho da mensagem em 4 bytes e usa de prefixo.
 const std::string CodificaDados(const std::string& dados);
 // Decodifica tamanho (lendo 4 bytes do iterador).

@@ -1,4 +1,5 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
+#modo_debug: true
 fixo {
   # Coisas da primeira pessoa ou selecionada.
   # Linha 4.
@@ -68,10 +69,10 @@ fixo {
     linha: 5
     coluna: 8
     rotulo: "1"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -0.3 
+    #translacao_y: -0.3
     visibilidade { referencia { tipo: VIS_FEITICO_1 } }
   }
   dados_botoes {
@@ -229,10 +230,10 @@ fixo {
     linha: 5
     coluna: 15
     rotulo: "8"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -3.3 
+    #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_FEITICO_8 } }
   }
   dados_botoes {
@@ -252,10 +253,10 @@ fixo {
     linha: 5
     coluna: 16
     rotulo: "9"
-    id: CONTROLE_NOP 
+    id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
-    #translacao_y: -3.3 
+    #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
   dados_botoes {
@@ -264,7 +265,7 @@ fixo {
     linha: 4
     coluna: 16
     rotulo: "9"
-    id: CONTROLE_USAR_FEITICO_8
+    id: CONTROLE_USAR_FEITICO_9
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
@@ -272,8 +273,8 @@ fixo {
   # Linha 5.
   dados_botoes {
     tamanho: 1
-    linha: 5
-    coluna: 3
+    linha: 6
+    coluna: 4
     rotulo: "Mf"
     cor_rotulo {}
     textura: "icon_shapechange.png"
@@ -285,8 +286,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
-    coluna: 4
+    linha: 7
+    coluna: 3
     rotulo: "F"
     cor_rotulo {}
     textura: "icon_sneak.png"
@@ -298,7 +299,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
+    linha: 6
     coluna: 5
     rotulo: "Es"
     cor_rotulo {}
@@ -554,30 +555,6 @@ pagina {
     tamanho: 1
     linha: 2
     coluna: 1
-    id: CONTROLE_ULTIMA_ACAO_0
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 2
-    id: CONTROLE_ULTIMA_ACAO_1
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 3
-    id: CONTROLE_ULTIMA_ACAO_2
-    forma: FORMA_RETANGULO
-    dica: "Seleciona esta ação para o personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 4
     id: CONTROLE_ACAO_SINALIZACAO
     forma: FORMA_RETANGULO
     textura: 'icon_signal.png'
@@ -598,7 +575,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 5
+    coluna: 2
     rotulo: "<"
     cor_rotulo {}
     textura: ""
@@ -609,7 +586,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 6
+    coluna: 3
     rotulo: ">"
     cor_rotulo {}
     textura: ""
@@ -632,7 +609,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 7
+    coluna: 4
     rotulo: "A"
     cor_rotulo {}
     textura: ""
@@ -1079,6 +1056,30 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 3
+    coluna: 13
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_templates.png"
+    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Alterna os modelos desligaveis da entidade."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 12
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_mount.png"
+    id: CONTROLE_MODO_MONTAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Montar/desmontar."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 2
     coluna: 10
     rotulo: "00"
@@ -1429,6 +1430,17 @@ pagina {
   # Desenho 3D.
   dados_botoes {
     tamanho: 1
+    linha: 2
+    coluna: 1
+    rotulo: "HS"
+    cor_rotulo {}
+    textura: "icon_hemisphere.png"
+    id: CONTROLE_DESENHO_HEMISFERIO
+    forma: FORMA_RETANGULO
+    dica: "Desenho livre."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 0
     coluna: 3
     rotulo: "Es"
@@ -1516,12 +1528,22 @@ pagina {
     forma: FORMA_RETANGULO
     dica: "Desagrupa formas."
   }
-
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 6
+    rotulo: "Rc"
+    cor_rotulo {}
+    textura: "icon_remove_from.png"
+    id: CONTROLE_MODO_REMOVER_DE_GRUPO
+    forma: FORMA_RETANGULO
+    dica: "Alterna modo de remoção de entidade de composta."
+  }
   # Texturas.
   dados_botoes {
     largura: 5
     altura: 1
-    linha: 2
+    linha: 3
     coluna: 1
     rotulo: "Textura:"
     id: CONTROLE_NOP
@@ -1530,7 +1552,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 3
     coluna: 6
     rotulo: "<"
     id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
@@ -1539,33 +1561,33 @@ pagina {
   dados_botoes {
     altura: 1
     largura: 9
-    linha: 2
+    linha: 3
     coluna: 7
     id: CONTROLE_TEXTURA_ENTIDADE
     forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 3
     coluna: 16
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
   }
   # Modelos.
-#dados_botoes {
-#    tamanho: 1
-#    linha: 2
-#    coluna: 13
-#    rotulo: "<"
-#    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
-#    forma: FORMA_RETANGULO
-#    dica: "Seleciona modelo de entidade anterior."
-#  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 6
+    rotulo: "<"
+    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
+    forma: FORMA_RETANGULO
+    dica: "Seleciona modelo de entidade anterior."
+  }
   dados_botoes {
     altura: 1
     largura: 5
-    linha: 3
+    linha: 4
     coluna: 1
     id: CONTROLE_NOP
     forma: FORMA_NULA
@@ -1574,22 +1596,22 @@ pagina {
   }
   dados_botoes {
     altura: 1
-    largura: 10
-    linha: 3
-    coluna: 6
+    largura: 9
+    linha: 4
+    coluna: 7
     id: CONTROLE_MODELO_ENTIDADE
     forma: FORMA_RETANGULO
     dica: "O modelo de entidade padrão (ao adicionar)."
   }
-#  dados_botoes {
-#    tamanho: 1
-#    linha: 2
-#    coluna: 24
-#    rotulo: ">"
-#    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
-#    forma: FORMA_RETANGULO
-#    dica: "Seleciona próximo modelo de entidade."
-#  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 16
+    rotulo: ">"
+    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
+    forma: FORMA_RETANGULO
+    dica: "Seleciona próximo modelo de entidade."
+  }
   # Cores
   dados_botoes {
     tamanho: 1

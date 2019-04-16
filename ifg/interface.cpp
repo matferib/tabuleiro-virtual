@@ -15,7 +15,7 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 using std::placeholders::_5;
-
+using google::protobuf::StringPrintf;
 
 namespace ifg {
 
@@ -104,7 +104,7 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, unsigned int indice_pericia) {
+void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, int indice_pericia) {
   if (ok && indice_pericia <= notificacao.entidade().info_pericias_size()) {
     tabuleiro_->TrataRolarPericiaNotificando(indice_pericia, notificacao.entidade());
   }
@@ -134,7 +134,7 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, unsigned int indice_pocao) {
+void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, int indice_pocao) {
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
   if (!ok || indice_pocao >= pocoes_entidade.size()) {
     VoltaEscolherEfeito(notificacao, 0, false, 0);
@@ -247,15 +247,18 @@ void InterfaceGrafica::TrataSalvarTabuleiro(const ntf::Notificacao& notificacao)
   EscolheArquivoSalvarTabuleiro(
       std::bind(
           &ifg::InterfaceGrafica::VoltaSalvarTabuleiro,
-          this, notificacao.entidade().has_modelo_3d(),_1));
+          this, notificacao.entidade().has_modelo_3d(), !notificacao.tabuleiro().versoes().empty(), _1));
 }
 
 void InterfaceGrafica::VoltaSalvarTabuleiro(
-    bool modelo_3d, const std::string& nome) {
+    bool modelo_3d, bool versionar, const std::string& nome) {
   auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
   if (modelo_3d) {
     n->mutable_entidade()->mutable_modelo_3d();
+  }
+  if (versionar) {
+    n->mutable_tabuleiro()->mutable_versoes()->Add();
   }
   central_->AdicionaNotificacao(n.release());
   tabuleiro_->ReativaWatchdogSeMestre();
@@ -307,7 +310,7 @@ void InterfaceGrafica::TrataEscolherVersao() {
   EscolheVersaoTabuleiro("Escolha versão a ser restaurada", [this](int versao) {
     if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
       auto notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO);
-      *notificacao->mutable_tabuleiro() = tabuleiro_->Proto().versoes(versao);
+      notificacao->mutable_tabuleiro()->ParseFromString(tabuleiro_->Proto().versoes(versao).dados());
       *notificacao->mutable_tabuleiro()->mutable_versoes() = tabuleiro_->Proto().versoes();
       central_->AdicionaNotificacao(notificacao.release());
     }
@@ -320,10 +323,8 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheVersaoTabuleiro("Escolha versão a ser removida", [this](int versao) {
-    if (versao >= 0 && versao < tabuleiro_->Proto().versoes().size()) {
-      tabuleiro_->RemoveVersao(versao);
-    }
+  EscolheVersoesTabuleiro("Escolha versões a serem removida", [this](const std::vector<int>& versoes) {
+    tabuleiro_->RemoveVersoes(versoes);
     tabuleiro_->ReativaWatchdogSeMestre();
   });
 }
@@ -331,6 +332,15 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
+std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
+  if (!c.id().empty()) {
+    const auto& feitico = tabelas.Feitico(c.id());
+    if (!feitico.nome().empty()) return feitico.nome();
+  }
+  if (!c.nome().empty()) return c.nome();
+  return c.id();
+}
+
 void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().feiticos_classes().empty() ||
       notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
@@ -341,7 +351,15 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   const auto& fc = notificacao.entidade().feiticos_classes(0);
   const auto& id_classe = fc.id_classe();
   std::vector<std::string> lista;
-  std::vector<std::pair<int, int>> items;
+  // Cada item, contendo o nivel do feitico e o indice do feitico e o indice gasto.
+  struct NivelIndiceIndiceGasto {
+    NivelIndiceIndiceGasto(int nivel, int indice, int indice_gasto)
+      : nivel(nivel), indice(indice), indice_gasto(indice_gasto) {}
+    int nivel = 0;
+    int indice = 0;
+    int indice_gasto = 0;
+  };
+  std::vector<NivelIndiceIndiceGasto> items;
   int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
   if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
     // Monta lista de feiticos para lancar do nivel.
@@ -351,61 +369,105 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       if (pl.usado()) continue;
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
-      lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, c.nome().c_str()));
-      items.push_back(std::make_pair(nivel_gasto, indice));
+      lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str()));
+      items.emplace_back(nivel_gasto, indice, indice);
     }
     if (lista.empty()) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
   } else {
     // Monta lista de feiticos conhecidos ate o nivel.
-    int indice_gasto = ent::IndiceFeiticoDisponivel(id_classe, nivel_gasto, notificacao.entidade());
+    const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
+    if (entidade == nullptr) {
+      LOG(ERROR) << "entidade invalida";
+      return;
+    }
+    int indice_gasto = IndiceFeiticoDisponivel(id_classe, nivel_gasto, entidade->Proto());
     if (indice_gasto == -1) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(google::protobuf::StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
     for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
       const auto& fn = fc.feiticos_por_nivel(nivel);
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
-        lista.push_back(google::protobuf::StringPrintf("nivel %d[%d]: %s", nivel, indice, c.nome().c_str()));
+        lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, NomeFeitico(c, tabelas_).c_str()));
         // Gasta do nivel certo.
-        items.push_back(std::make_pair(nivel_gasto, indice_gasto));
+        items.emplace_back(nivel, indice, indice_gasto);
       }
     }
   }
 
   EscolheItemLista("Escolha o Feitiço", lista,
-      [this, notificacao, id_classe, items](bool ok, int indice_lista) {
+      [this, notificacao, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
     if (!ok) {
       LOG(INFO) << "Nao usando feitico";
       return;
     }
     // Consome o feitico.
-    int nivel;
-    int indice;
-    std::tie(nivel, indice) = items[indice_lista];
+    const auto& item = items[indice_lista];
 
     ntf::Notificacao grupo_notificacao;
     grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
-    {
-      auto n_uso = ent::NotificacaoUsarFeitico(
-          tabelas_, id_classe, nivel, indice, notificacao.entidade());
-      if (n_uso != nullptr) {
-        *grupo_notificacao.add_notificacao() = *n_uso;
-        central_->AdicionaNotificacao(n_uso.release());
-      }
+    const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
+    if (entidade == nullptr) {
+      LOG(INFO) << "Erro, entidade nao existe";
+      return;
+    }
+    if (ent::NotificacaoConsequenciaFeitico(
+        tabelas_, id_classe, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
     }
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
-        id_classe, nivel, indice, true /*usado*/, notificacao.entidade());
+        id_classe, nivel_gasto, item.indice_gasto, /*usado=*/true, notificacao.entidade());
     *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
+
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
-    central_->AdicionaNotificacao(n_alteracao_feitico.release());
+    tabuleiro_->TrataNotificacao(grupo_notificacao);
+    VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
+  });
+}
+
+void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
+  std::vector<std::string> items;
+  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
+    const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
+    if (descricao.empty()) {
+      items.push_back(StringPrintf("versão %d", i + 1));
+    } else {
+      items.push_back(descricao);
+    }
+  }
+  EscolheItemLista(titulo, items, [this, funcao_volta](bool aceito, int indice) {
+    if (aceito && indice >= 0 && indice < tabuleiro_->Proto().versoes().size()) {
+      funcao_volta(indice);
+    } else {
+      funcao_volta(-1);
+    }
+  });
+}
+
+void InterfaceGrafica::EscolheVersoesTabuleiro(const std::string& titulo, std::function<void(const std::vector<int>&)> funcao_volta) {
+  std::vector<std::string> items;
+  for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
+    const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
+    if (descricao.empty()) {
+      items.push_back(StringPrintf("versão %d", i + 1));
+    } else {
+      items.push_back(descricao);
+    }
+  }
+  EscolheItemsLista(titulo, items, [this, funcao_volta](bool aceito, const std::vector<int>& indices) {
+    if (aceito && !indices.empty()) {
+      funcao_volta(indices);
+    } else {
+      funcao_volta({});
+    }
   });
 }
 

@@ -6,6 +6,11 @@ sub_menu {
   modelo { id: 'Beholder' }
 }
 sub_menu {
+  id: 'Bestas Mágicas'
+  modelo { id: 'Veserab' }
+  modelo { id: 'Veserab Avançado' }
+}
+sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Flecha' texto: 'Flecha' }
   modelo { id: 'Peticionário Sacerdote Abismo (mane)' }
@@ -30,6 +35,9 @@ modelo { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Bruxo' }
+  modelo { id: 'Humano Combatente Arqueiro Dragão Púrpura 2' texto: 'Dragão Púrpura Arqueiro 2' }
+  modelo { id: 'Humano Combatente Soldado Dragão Púrpura 2' texto: 'Dragão Púrpura Soldado 2' }
+  modelo { id: 'Humano Arcano de Guerra 5' texto: 'Dragão Púrpura Arcano de Guerra 5' }
 }
 sub_menu {
   id: 'Phaerimm'
@@ -53,4 +61,13 @@ sub_menu {
   modelo { id: 'Guarda de Bane' }
   modelo { id: 'Guarda de Bane Atroz' }
   modelo { id: 'Morto de Bane' }
+}
+sub_menu {
+  id: 'Vultos e Obscuros'
+  modelo { id: 'Vulto Bardo 5' }
+  modelo { id: 'Vulto Guerreiro 5' }
+  modelo { id: 'Vulto Feiticeiro 5' }
+  modelo { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' }
+  modelo { id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4' }
+  modelo { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4' }
 }

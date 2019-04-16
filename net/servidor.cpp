@@ -2,7 +2,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-#include "ent/constantes.h"
+//#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/servidor.h"
@@ -25,7 +25,7 @@ Servidor::~Servidor() {
 bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
     ++timer_anuncio_;
-    if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
+    if (timer_anuncio_ * INTERVALO_ANUNCIO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
         VLOG(3) << "ANUNCIO ENVIADO";

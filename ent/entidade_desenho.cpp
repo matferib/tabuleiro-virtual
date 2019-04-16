@@ -248,7 +248,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
-      float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
+      float porcentagem = static_cast<float>(PontosVida()) / MaximoPontosVida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       gl::Translada(0, 0, delta);
@@ -262,20 +262,10 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
   // Eventos.
   if (pd->desenha_eventos_entidades()) {
-    bool santuario = false;
-    bool coracao = false;
-    bool enredado = false;
     bool ha_evento = false;
     std::string descricao;
     int num_descricoes = 0;
     for (auto& e : *proto_.mutable_evento()) {
-      if (e.id_efeito() == EFEITO_SANTUARIO) {
-        santuario = true;
-      } else if (e.id_efeito() == EFEITO_ENFEITICADO || e.id_efeito() == EFEITO_SUGESTAO) {
-        coracao = true;
-      } else if (e.id_efeito() == EFEITO_ENREDADO) {
-        enredado = true;
-      }
       if (e.rodadas() == 0) {
         ha_evento = true;
         if (!e.descricao().empty()) {
@@ -286,47 +276,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         }
       }
     }
-    if (santuario) {
-      const auto* aureola = vd_.m3d->Modelo("halo");
-      if (aureola != nullptr) {
-        // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
-        gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
-        gl::CarregaNome(Id());
-        gl::DesabilitaEscopo de(GL_LIGHTING);
-        gl::MatrizEscopo salva_matriz;
-        MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-        // Hack para ajustar a aureola. O centro de gravidade dela eh um pouco desviado.
-        gl::Translada(-0.1f, 0.0f, ALTURA * 1.5f);
-        aureola->vbos_gravados.Desenha();
-      }
-    }
-    if (coracao) {
-      const auto* coracao = vd_.m3d->Modelo("heart");
-      if (coracao != nullptr) {
-        // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
-        gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
-        gl::CarregaNome(Id());
-        gl::DesabilitaEscopo de(GL_LIGHTING);
-        gl::MatrizEscopo salva_matriz;
-        MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-        gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
-        MisturaPreNevoaEscopo blend_escopo(CorParaProto(COR_VERMELHA), pd);
-        coracao->vbos_gravados.Desenha();
-      }
-    }
-    if (enredado) {
-      const auto* rede = vd_.m3d->Modelo("builtin:piramide");
-      if (rede != nullptr) {
-        // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
-        gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
-        gl::CarregaNome(Id());
-        gl::MatrizEscopo salva_matriz;
-        MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-        gl::Escala(1.5f, 1.5f, 1.0f);
-        rede->vbos_gravados.Desenha();
-      }
-    }
-
     if (ha_evento) {
       // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
       gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
@@ -429,11 +378,14 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
   // Fumaca nao eh bem um efeito, mas eh chamado para translucido e nao translucido, sendo perfeito
   // para este caso. As decoracoes sao desenhadas junto com o objeto, e no caso solido, havera problema de ordem.
   // Aqui a chamada eh feita apos os solidos.
-  if (!vd_.fumaca.nuvens.empty() && pd->has_alfa_translucidos()) {
+  if (!vd_.fumaca.emissoes.empty() && pd->has_alfa_translucidos()) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));
     vd_.fumaca.vbo.Desenha();
     gl::Desabilita(GL_TEXTURE_2D);
+  }
+  if (!vd_.bolhas.emissoes.empty() && pd->has_alfa_translucidos()) {
+    vd_.bolhas.vbo.Desenha();
   }
 }
 
@@ -443,7 +395,64 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     return;
   }
   switch (efeito) {
-    case EFEITO_BORRAR: {
+    case EFEITO_FORMA_GASOSA: {
+      if (!pd->has_alfa_translucidos()) return;
+      // Este evento ocupa boa parte do personagem, fazer nao clicavel.
+      const auto* nuvem = vd_.m3d->Modelo("cloud");
+      if (nuvem == nullptr) return;
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2);
+      gl::Escala(0.8f, 0.8f, 0.8f);
+      Cor cor;
+      cor.set_a(0.4f);
+      MisturaPreNevoaEscopo blend_escopo(cor, pd);
+      nuvem->vbos_gravados.Desenha();
+    }
+    break;
+    case EFEITO_ENREDADO: {
+      if (pd->has_alfa_translucidos()) return;
+      // Este evento ocupa boa parte do personagem, fazer nao clicavel.
+      const auto* rede = vd_.m3d->Modelo("builtin:piramide");
+      if (rede == nullptr) return;
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      gl::Escala(1.5f, 1.5f, 1.0f);
+      rede->vbos_gravados.Desenha();
+    }
+    break;
+    case EFEITO_SANTUARIO: {
+      if (pd->has_alfa_translucidos()) return;
+      const auto* aureola = vd_.m3d->Modelo("halo");
+      if (aureola == nullptr) return;
+      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+      gl::CarregaNome(Id());
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      // Hack para ajustar a aureola. O centro de gravidade dela eh um pouco desviado.
+      gl::Translada(-0.1f, 0.0f, ALTURA * 1.5f);
+      aureola->vbos_gravados.Desenha();
+    }
+    break;
+    case EFEITO_ENFEITICADO:
+    case EFEITO_CONFUSAO: {
+      if (pd->has_alfa_translucidos()) return;
+      const auto* coracao = vd_.m3d->Modelo("heart");
+      if (coracao == nullptr) return;
+      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+      gl::CarregaNome(Id());
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
+      MisturaPreNevoaEscopo blend_escopo(CorParaProto(COR_VERMELHA), pd);
+      coracao->vbos_gravados.Desenha();
+    }
+    break;
+    case EFEITO_NUBLAR: {
       if (!pd->has_alfa_translucidos()) {
         return;
       }
@@ -453,6 +462,21 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       escala_efeito->set_x(1.2);
       escala_efeito->set_y(1.2);
       escala_efeito->set_z(1.2);
+      MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
+      DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
+      pd->clear_escala_efeito();
+    }
+    break;
+    case EFEITO_DESLOCAMENTO: {
+      if (!pd->has_alfa_translucidos()) {
+        return;
+      }
+      // Desenha a entidade maior e translucida.
+      gl::MatrizEscopo salva_matriz;
+      auto* escala_efeito = pd->mutable_escala_efeito();
+      escala_efeito->set_x(1.5);
+      escala_efeito->set_y(1.5);
+      escala_efeito->set_z(1.5);
       MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
       DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
       pd->clear_escala_efeito();

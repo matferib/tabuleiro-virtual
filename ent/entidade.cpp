@@ -1,14 +1,18 @@
+#include "ent/entidade.h"
 #include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+#include "ent/acoes.h"
 #include "ent/constantes.h"
-#include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/recomputa.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "goog/stringprintf.h"
+#include "m3d/m3d.h"
 #include "net/util.h"
 
 #include "log/log.h"
@@ -24,13 +28,13 @@ using google::protobuf::StringPrintf;
 
 // Factory.
 Entidade* NovaEntidade(
-    const EntidadeProto& proto,
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
+    const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(tabelas, texturas, m3d, central, pd);
+      auto* entidade = new Entidade(tabelas, tabuleiro, texturas, m3d, central, pd);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -43,8 +47,9 @@ Entidade* NovaEntidade(
 
 // Entidade
 Entidade::Entidade(
-    const Tabelas& tabelas, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
-    : tabelas_(tabelas) {
+    const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central, const ParametrosDesenho* pd)
+    : tabelas_(tabelas), tabuleiro_(tabuleiro) {
   vd_.texturas = texturas;
   vd_.m3d = m3d;
   parametros_desenho_ = pd;
@@ -86,13 +91,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
-  return std::any_of(proto_.tipo_dnd().begin(), proto_.tipo_dnd().end(),
-      [tipo] (const int t) { return t == tipo; });
+  return ent::TemTipoDnD(tipo, proto_); 
 }
 
 bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
-  return std::any_of(proto_.sub_tipo_dnd().begin(), proto_.sub_tipo_dnd().end(),
-      [sub_tipo] (const int st) { return st == sub_tipo; });
+  return ent::TemSubTipoDnD(sub_tipo, proto_); 
 }
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
@@ -159,17 +162,17 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
 
   AtualizaVbo(parametros_desenho_);
-  RecomputaDependencias(tabelas_, &proto_);
+  RecomputaDependencias();
   proto_.clear_proxima_salvacao();
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
   return ExtraiVbo(proto, VariaveisDerivadas(), pd, mundo);
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.tipo() == TE_ENTIDADE) {
     return ExtraiVboEntidade(proto, vd, pd, mundo);
   } else if (proto.tipo() == TE_COMPOSTA) {
@@ -180,7 +183,7 @@ gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const V
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.has_modelo_3d()) {
     gl::VbosNaoGravados vbos;
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -265,6 +268,7 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
+  if (central_ == nullptr) return;
   VLOG(2) << "Atualizando modelo3d novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (!proto_.modelo_3d().id().empty() &&
@@ -294,6 +298,7 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
+  if (central == nullptr) return;
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
@@ -304,14 +309,20 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
-    VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
+    const std::string& id = novo_proto.info_textura().id();
+    VLOG(1) << "Carregando textura: " << id;
     auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
+    *nc->add_info_textura() = novo_proto.info_textura();
+    if (id.find(':') != std::string::npos && !novo_proto.info_textura().has_bits_crus()) {
+      // Aqui ainda tem que usar o id do cliente para ficar mais certo, mas assim ja funciona.
+      // Aqui é um modelo que tem 0: no nome. Tem que carregar os bits crus.
+      std::string nome_arquivo = id.substr(id.find(':') + 1);
+      PreencheInfoTextura(nome_arquivo, arq::TIPO_TEXTURA_LOCAL, nc->mutable_info_textura(0));
+    }
+    *proto_atual->mutable_info_textura() = nc->info_textura(0);
     central->AdicionaNotificacao(nc.release());
   }
-  if (novo_proto.info_textura().id().size() > 0) {
-    proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
-  } else {
+  if (novo_proto.info_textura().id().empty()) {
     proto_atual->clear_info_textura();
   }
 }
@@ -322,7 +333,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   AtualizaModelo3d(novo_proto);
 
   // mantem o id, posicao (exceto Z) e destino.
-  ent::EntidadeProto proto_original(proto_);
+  EntidadeProto proto_original(proto_);
 
   // Eventos.
   // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
@@ -389,7 +400,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   }
 #endif
   AtualizaVbo(parametros_desenho_);
-  RecomputaDependencias(tabelas_, &proto_);
+  RecomputaDependencias();
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
@@ -452,66 +463,133 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   bool fim = f.duracao_ms == 0;
   if (fim && PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_)) {
     AtivaFumegando(1000);
-    AtualizaFumaca(intervalo_ms);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaFumaca(/*intervalo_ms=*/0);
     return;
   }
   if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
-    f.proxima_emissao_ms = f.proxima_emissao_ms;
-    // Emite nova particula.
-    DadosUmaNuvem nuvem;
-    nuvem.direcao.z = 1.0f;
-    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
-    nuvem.duracao_ms = f.duracao_nuvem_ms;
-    nuvem.velocidade_m_s = 0.25f;
-    nuvem.escala = 1.0f;
-    f.nuvens.emplace_back(std::move(nuvem));
+    EmiteNovaNuvem();
     f.proxima_emissao_ms = f.intervalo_emissao_ms;
   } else {
     f.proxima_emissao_ms -= intervalo_ms;
   }
-  // Atualiza as particulas existentes.
+
+  RemoveAtualizaEmissoes(intervalo_ms, &f);
+
+  // Recria o VBO. Deve ficar sempre de frente para camera.
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
+  Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
+  Vector3 dc = camera - PosParaVector3(PosicaoAltura(1.0f));
+  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+  // mais a diferenca de angulo.
+  float inclinacao_graus = 0.0f;
+  float dc_len = dc.length();
+  if (dc_len < 0.001f) {
+    inclinacao_graus = 0.0f;
+  } else {
+    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+  }
+  vbo_ng.RodaY(90.0f - inclinacao_graus);
+  // Agora roda no eixo z.
+  vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
+  RecriaVboEmissoes(vbo_ng, &f);
+}
+
+void Entidade::EmiteNovaBolha() {
+  auto& bolhas = vd_.bolhas;
+  DadosUmaEmissao bolha;
+  bolha.direcao.z = 1.0f;
+  bolha.pos = PosParaVector3(PosicaoAltura(1.0f));
+  bolha.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2 * MultiplicadorTamanho();
+  bolha.duracao_ms = bolhas.duracao_nuvem_ms;
+  bolha.velocidade_m_s = 0.25f;
+  bolha.escala = 1.0f;
+  float aleatorio_r = Aleatorio() * 0.3;
+  float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
+  bolha.cor[0] = COR_LARANJA[0] - aleatorio_r;
+  bolha.cor[1] = COR_LARANJA[1] + aleatorio_g;
+  bolha.cor[2] = COR_LARANJA[2];
+  bolhas.emissoes.emplace_back(std::move(bolha));
+}
+
+void Entidade::EmiteNovaNuvem() {
+  auto& fumaca = vd_.fumaca;
+  DadosUmaEmissao nuvem;
+  nuvem.direcao.z = 1.0f;
+  nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+  nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  nuvem.duracao_ms = fumaca.duracao_nuvem_ms;
+  nuvem.velocidade_m_s = 0.25f;
+  nuvem.escala = 1.0f;
+  nuvem.incremento_escala_s = 1.5f;
+  fumaca.emissoes.emplace_back(std::move(nuvem));
+}
+
+void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const {
   std::vector<unsigned int> a_remover;
   float intervalo_s = intervalo_ms / 1000.0f;
-  for (unsigned int i = 0; i < f.nuvens.size(); ++i) {
-    auto& nuvem = f.nuvens[i];
-    nuvem.duracao_ms -= intervalo_ms;
-    if (nuvem.duracao_ms <= 0) {
+  for (unsigned int i = 0; i < dados_emissao->emissoes.size(); ++i) {
+    auto& emissao = dados_emissao->emissoes[i];
+    emissao.duracao_ms -= intervalo_ms;
+    if (emissao.duracao_ms <= 0) {
       a_remover.push_back(i);
       continue;
     }
-    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
-    nuvem.escala += 1.5f * intervalo_s;
-    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / f.intervalo_emissao_ms;
+    emissao.pos += emissao.direcao * emissao.velocidade_m_s * intervalo_s;
+    emissao.escala += emissao.incremento_escala_s * intervalo_s;
+    emissao.cor[3] = static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms;
   }
   // Remove as que tem que remover.
   unsigned int removidas = 0;
   for (int i : a_remover) {
-    f.nuvens.erase(f.nuvens.begin() + (i - removidas));
+    dados_emissao->emissoes.erase(dados_emissao->emissoes.begin() + (i - removidas));
   }
+}
+
+void Entidade::RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const {
   // Recria o VBO.
   std::vector<gl::VboNaoGravado> vbos;
-  for (const auto& nuvem : f.nuvens) {
-    gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
-    Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
-    Vector3 dc = camera - nuvem.pos;
-    // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
-    // mais a diferenca de angulo.
-    float inclinacao_graus = 0.0f;
-    float dc_len = dc.length();
-    if (dc_len < 0.001f) {
-      inclinacao_graus = 0.0f;
-    } else {
-      inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
-    }
-    vbo_ng.RodaY(90.0f - inclinacao_graus);
-    // Agora roda no eixo z.
-    vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
-    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
-    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
-    vbo_ng.AtribuiCor(1.0f, 1.0f, 1.0f, nuvem.alfa);
+  for (const auto& emissao: dados_emissao->emissoes) {
+    gl::VboNaoGravado vbo_ng = vbo;
+    vbo_ng.Escala(emissao.escala, emissao.escala, emissao.escala);
+    vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
+    vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
     vbos.emplace_back(std::move(vbo_ng));
   }
-  f.vbo = gl::VbosNaoGravados(std::move(vbos));
+  dados_emissao->vbo = gl::VbosNaoGravados(std::move(vbos));
+}
+
+void Entidade::AtualizaBolhas(int intervalo_ms) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms -= intervalo_ms;
+  if (b.duracao_ms < 0) {
+    b.duracao_ms = 0;
+  }
+  bool fim = (b.duracao_ms == 0);
+  const bool nauseado = PossuiEvento(EFEITO_NAUSEA, proto_);
+  const bool envenenado = PossuiEvento(EFEITO_VENENO, proto_);
+  if (fim && (nauseado || envenenado)) {
+    AtivaBolhas(/*duracao_ms=*/1000, envenenado ? COR_VERDE : COR_LARANJA);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim da fumaca, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaBolhas(/*intervalo_ms=*/0);
+    return;
+  }
+  if (!fim && intervalo_ms >= b.proxima_emissao_ms) {
+    EmiteNovaBolha();
+    b.proxima_emissao_ms = b.intervalo_emissao_ms;
+  } else {
+    b.proxima_emissao_ms -= intervalo_ms;
+  }
+  RemoveAtualizaEmissoes(intervalo_ms, &b);
+  RecriaVboEmissoes(gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6), &b);
 }
 
 void Entidade::AtualizaMatrizes() {
@@ -578,7 +656,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 #if DEBUG
   glFinish();
 #endif
-  timer->stop();
+  if (timer != nullptr) timer->stop();
 
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaEscopo {
@@ -603,6 +681,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaBolhas(intervalo_ms);
   AtualizaLuzAcao(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
@@ -639,7 +718,14 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   if (proto_.has_luz()) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
-  if (proto_.voadora()) {
+  if (proto_.montado_em() && tabuleiro_ != nullptr) {
+    const auto* montaria = tabuleiro_->BuscaEntidade(proto_.montado_em());
+    if (montaria != nullptr) {
+      proto_.set_voadora(montaria->Proto().voadora());
+      vd_.altura_voo = montaria->vd_.altura_voo;  // melhor ficar sem altura, deixa jogador controlar.
+      vd_.angulo_disco_voo_rad = montaria->vd_.angulo_disco_voo_rad;  // oscila junto.
+    }
+  } else if (proto_.voadora()) {
 #if VBO_COM_MODELAGEM
     vbo_escopo.atualizar = true;
 #endif
@@ -859,13 +945,8 @@ int Entidade::NivelPersonagem() const {
   return total - proto_.niveis_negativos();
 }
 
-int Entidade::NivelConjurador() const {
-  for (const auto& info_classe : proto_.info_classes()) {
-    if (info_classe.nivel_conjurador() > 0) {
-      return info_classe.nivel_conjurador();
-    }
-  }
-  return 0;
+int Entidade::NivelConjurador(const std::string& id_classe) const {
+  return ::ent::NivelConjurador(id_classe, proto_);
 }
 
 int Entidade::ModificadorAtributoConjuracao() const {
@@ -875,6 +956,10 @@ int Entidade::ModificadorAtributoConjuracao() const {
     }
   }
   return 0;
+}
+
+int Entidade::ModificadorAtributo(TipoAtributo ta) const {
+  return ent::ModificadorAtributo(ta, proto_);
 }
 
 int Entidade::BonusBaseAtaque() const {
@@ -950,20 +1035,42 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
-  // Evento: se encontrar algum que ja existe, remove para o MergeFrom corrigir.
-  if (proto_parcial.evento_size() > 0) {
-    std::vector<int> a_remover;
-    int i = 0;
-    for (const auto& evento : proto_.evento()) {
-      if (PossuiEventoEspecifico(proto_parcial, evento)) {
-        a_remover.push_back(i);
+  // Copia quaisquer modelos.
+  google::protobuf::RepeatedPtrField<ModeloDnD> modelos_dnd;
+  if (!proto_parcial.modelos().empty()) {
+    modelos_dnd.Swap(proto_.mutable_modelos());
+  }
+
+  // Formas alternativa: atualiza todas ou nada.
+  if (!proto_parcial.formas_alternativas().empty()) {
+    proto_.clear_formas_alternativas();
+  }
+
+  // Se tiver, deixa o MergeFrom fazer o servico.
+  if (!proto_parcial.entidades_montadas().empty()) {
+    proto_.clear_entidades_montadas();
+  }
+
+  // Eventos.
+  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
+  // Os novos serao simplesmente mergeados e atualizados serao mergeados. Mas tem um catch: os eventos de rodadas == -1
+  // Serao chamados duas vezes, porque havera o modificado e o que for anexado.
+  std::vector<int> eventos_a_remover;
+  int indice = 0;
+  int tamanho_eventos_pre = proto_.evento_size();
+  for (const auto& evento : proto_parcial.evento()) {
+    auto* evento_atualizado = AchaEvento(evento.id_unico(), &proto_);
+    if (evento_atualizado != nullptr) {
+      evento_atualizado->set_rodadas(-1);
+      if (evento.rodadas() == -1) {
+        // Ja sera processado por causa do -1 acima. Nao precisa fazer de novo.
+        eventos_a_remover.push_back(tamanho_eventos_pre + indice);
       }
-      ++i;
+      VLOG(1) << "evento_atualizado: " << evento_atualizado->DebugString();
+    } else {
+      VLOG(1) << "nao achei evento id unico: " << evento.id_unico();
     }
-    // Faz invertido para nao atrapalhar os indices.
-    for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
-      proto_.mutable_evento()->DeleteSubrange(*it, 1);
-    }
+    ++indice;
   }
 
   // Se encontrar alguma resistencia que ja existe, remove pro MergeFromCorrigir.
@@ -983,6 +1090,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.tesouro().pocoes_size() > 0) {
     proto_.mutable_tesouro()->clear_pocoes();
   }
+  // Limpa itens que vierem no parcial, pois serao mergeados.
+  for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
+    RemoveItem(*item, &proto_);
+  }
+
   if (proto_parcial.lista_acoes_size() > 0) {
     // repeated.
     proto_.clear_lista_acoes();
@@ -1031,6 +1143,25 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  for (auto it = eventos_a_remover.rbegin(); it != eventos_a_remover.rend(); ++it) {
+    proto_.mutable_evento()->DeleteSubrange(*it, 1);
+  }
+
+  if (!modelos_dnd.empty()) {
+    modelos_dnd.Swap(proto_.mutable_modelos());
+    // Encontra os modelos parciais a serem atualizados.
+    for (const auto& modelo_parcial : modelos_dnd) {
+      auto* modelo = EncontraModelo(modelo_parcial.id_efeito(), &proto_);
+      if (modelo != nullptr) {
+        modelo->MergeFrom(modelo_parcial);
+      }
+    }
+  }
+
+  if (!proto_parcial.entidades_montadas().empty() && proto_.entidades_montadas(0) == IdInvalido) {
+    proto_.clear_entidades_montadas();
+  }
 
   if (proto_.dados_defesa().entidade_esquiva() == IdInvalido) {
     proto_.mutable_dados_defesa()->clear_entidade_esquiva();
@@ -1126,7 +1257,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     proto_.clear_reiniciar_ataque();
     ReiniciaAtaque();
   }
-  RecomputaDependencias(tabelas_, &proto_);
+  if (proto_.montado_em() == IdInvalido) {
+    proto_.clear_montado_em();
+  }
+
+  RecomputaDependencias();
   VLOG(2) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
 
@@ -1180,29 +1315,9 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
+AcaoProto Entidade::Acao() const {
   const auto* da = DadoCorrente();
-  auto StringAcao = [this, da]() -> std::string {
-    if (da == nullptr) {
-      // Entidade nao possui ataques.
-      if (!proto_.ultima_acao().empty()) {
-        return proto_.ultima_acao();
-      }
-      return TipoAcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
-    }
-    return da->tipo_ataque();
-  };
-  std::string string_acao = StringAcao();
-  auto it = mapa_acoes.find(string_acao);
-  if (it == mapa_acoes.end()) {
-    return AcaoProto();
-  }
-  AcaoProto acao = *it->second;
-  if (da != nullptr && da->has_acao()) {
-    // Merge das informacoes dos DadosAtaque.
-    acao.MergeFrom(da->acao());
-  }
-  return acao;
+  return da == nullptr ?  AcaoProto::default_instance() : da->acao();
 }
 
 template<class T>
@@ -1269,38 +1384,6 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
   return acoes[indice_acao];
 }
 
-std::pair<TipoAcao, std::string> Entidade::TipoAcaoComIcone(
-    int indice_acao, const std::vector<std::string>& acoes_padroes, const MapaIdAcao& mapa_acoes) const {
-  if (indice_acao < 0 || static_cast<unsigned int>(indice_acao) >= MaxNumAcoes) {
-    return std::make_pair(ACAO_INVALIDA, "");
-  }
-  if (indice_acao < proto_.lista_acoes_size()) {
-    for (const auto& da : proto_.dados_ataque()) {
-      if (da.tipo_ataque() == proto_.lista_acoes(indice_acao)) {
-        return std::make_pair(da.tipo_acao(), da.acao().icone());
-      }
-    }
-    auto it = mapa_acoes.find(proto_.lista_acoes(indice_acao));
-    return it == mapa_acoes.end()
-        ? std::make_pair(ACAO_INVALIDA, "")
-        : std::make_pair(it->second->tipo(), it->second->icone());
-  }
-  // Junta as acoes da entidade com as padroes.
-  std::vector<std::string> acoes(proto_.lista_acoes().begin(), proto_.lista_acoes().end());
-  for (const std::string& acao_padrao : acoes_padroes) {
-    if (std::find(acoes.begin(), acoes.end(), acao_padrao) == acoes.end()) {
-      acoes.push_back(acao_padrao);
-    }
-    if (acoes.size() == MaxNumAcoes) {
-      break;
-    }
-  }
-  auto it = mapa_acoes.find(acoes[indice_acao]);
-  return it == mapa_acoes.end()
-      ? std::make_pair(ACAO_INVALIDA, "")
-      : std::make_pair(it->second->tipo(), it->second->icone());
-}
-
 const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
   matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
@@ -1328,9 +1411,13 @@ const Posicao Entidade::PosicaoAcao() const {
     Matrix4 matriz;
     matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
     Vector4 ponto(PosParaVector4(proto_.posicao_acao()));
-    return Vector4ParaPosicao(matriz * ponto);
+    auto pos = Vector4ParaPosicao(matriz * ponto);
+    pos.set_id_cenario(IdCenario());
+    return pos;
   }
-  return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+  auto pos = PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+  pos.set_id_cenario(IdCenario());
+  return pos;
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
@@ -1579,7 +1666,7 @@ std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
 
 std::string Entidade::StringCAParaAcao() const {
   const auto* da = DadoCorrente();
-  if (da == nullptr) da = &EntidadeProto::DadosAtaque::default_instance();
+  if (da == nullptr) da = &DadosAtaque::default_instance();
   return ent::StringCAParaAcao(*da, proto_);
 }
 
@@ -1595,8 +1682,8 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
-  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
+const DadosAtaque* Entidade::DadoCorrente() const {
+  std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
   if (ultima_acao.empty()) {
@@ -1605,7 +1692,7 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   }
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
-      VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
+      VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
     }
   }
@@ -1615,11 +1702,14 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
             << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
-  VLOG(3) << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque();
+  VLOG(3)
+      << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque()
+      << ", grupo: " << ataques_casados[vd_.ataques_na_rodada]->grupo();
+  VLOG(4) << "Ataque retornado: " << ataques_casados[vd_.ataques_na_rodada]->DebugString();
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
-const EntidadeProto::DadosAtaque* Entidade::DadoAgarrar() const {
+const DadosAtaque* Entidade::DadoAgarrar() const {
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == "Agarrar") {
       return &da;
@@ -1639,7 +1729,7 @@ std::string Entidade::TipoAtaque() const {
 float Entidade::AlcanceAtaqueMetros() const {
   const auto* da = DadoCorrente();
   if (da == nullptr || !da->has_alcance_m()) {
-    return -1.5f;
+    return -TAMANHO_LADO_QUADRADO;
   }
   return da->alcance_m();
 }
@@ -1683,7 +1773,7 @@ int Entidade::BonusAtaqueToqueDistancia() const {
   return proto_.bba().distancia();
 }
 
-int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
+int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
   // Cada tipo de CA sabera compensar a esquiva.
@@ -1692,15 +1782,15 @@ int Entidade::CA(const ent::Entidade& atacante, TipoCA tipo_ca) const {
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
-    bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
-    if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso()
-          ? CASurpreso(proto_, permite_escudo, outros_bonus)
-          : CATotal(proto_, permite_escudo, outros_bonus);
+    bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
+    if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
+      return DestrezaNaCAContraAtaque(da, proto_)
+          ? CATotal(proto_, permite_escudo, outros_bonus)
+          : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return proto_.surpreso()
-          ? CAToqueSurpreso(proto_, outros_bonus)
-          : CAToque(proto_, outros_bonus);
+      return DestrezaNaCAContraAtaque(da, proto_)
+          ? CAToque(proto_, outros_bonus)
+          : CAToqueSurpreso(proto_, outros_bonus);
     }
   }
   if (da == nullptr) {
@@ -1740,7 +1830,7 @@ bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico() || TemTipoDnD(TIPO_MORTO_VIVO) ||
          TemTipoDnD(TIPO_CONSTRUCTO) || TemTipoDnD(TIPO_PLANTA) ||
          TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) ||
-         TemSubTipoDnD(SUBTIPO_ENXAME);
+         TemSubTipoDnD(SUBTIPO_ENXAME) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_);
 }
 
 bool Entidade::ImuneFurtivo() const {
@@ -1750,6 +1840,9 @@ bool Entidade::ImuneFurtivo() const {
 // static
 bool Entidade::DesenhaBase(const EntidadeProto& proto) {
   if (proto.morta()) {
+    return false;
+  }
+  if (proto.has_montado_em() && proto.voadora()) {
     return false;
   }
   if (proto.has_modelo_3d()) {
@@ -1773,6 +1866,11 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
     n->mutable_entidade()->mutable_modelo_3d()->set_id("heart");
+    central->AdicionaNotificacao(n.release());
+  }
+  {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id("cloud");
     central->AdicionaNotificacao(n.release());
   }
   {
@@ -1872,11 +1970,32 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     vbo.Nomeia("Esfera unitaria");
   }
 
+  // Hemisferio.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_HEMISFERIO];
+    vbo = gl::VboHemisferioSolido(0.5f, /*fatias=*/24, /*tocos=*/12);
+    // O hemisferio tem altura propria, nao igual ao raio.
+    vbo.Escala(1.0f, 1.0f, 2.0f);
+    vbo.Nomeia("Hemisferio unitario");
+  }
+
   // Piramide.
   {
     auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE];
     vbo = gl::VboPiramideSolida(1.0f, 1.0f);
     vbo.Nomeia("Piramide");
+  }
+
+  // Piramide fechada.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE_FECHADA];
+    vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+    {
+      gl::VboNaoGravado vbo_base = gl::VboRetangulo(1.0f);
+      vbo_base.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_base);
+    }
+    vbo.Nomeia("Piramide fechada");
   }
 
   // Cilindro.
@@ -1989,11 +2108,12 @@ std::string Entidade::ResumoEventos() const {
 
 int Entidade::ChanceFalhaDefesa() const {
   int chance = 0;
-  if (PossuiEvento(EFEITO_BORRAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_NUBLAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_DESLOCAMENTO, proto_)) chance = 50;
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
-  if (PossuiEvento(EFEITO_INVISIBILIDADE, proto_)) chance = 50;
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_)) chance = 50;
   return chance;
 }
 
@@ -2001,6 +2121,7 @@ int Entidade::ChanceFalhaAtaque() const {
   // Chance de ficar etereo ao atacar.
   int chance = 0;
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
+  if (PossuiEvento(EFEITO_CEGO, proto_)) chance = 50;
   chance = std::max(chance, proto_.dados_ataque_global().chance_falha());
   return chance;
 }
@@ -2027,7 +2148,8 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 }
 
 bool Entidade::ImuneVeneno() const {
-  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO)) {
+  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO) ||
+      PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
@@ -2043,7 +2165,6 @@ void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
   luz_acao.tempo_desde_inicio_ms = 0;
   luz_acao.inicio.set_raio_m(luz.raio_m());
   *luz_acao.inicio.mutable_cor() = luz.cor();
-  LOG(INFO) << "Luz acao ligada";
 }
 
 void Entidade::AtivaFumegando(int duracao_ms) {
@@ -2054,8 +2175,23 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.proxima_emissao_ms = 0;
 }
 
+void Entidade::AtivaBolhas(int duracao_ms, const float* cor) {
+  auto& b = vd_.bolhas;
+  b.duracao_ms = duracao_ms;
+  b.intervalo_emissao_ms = 1000;
+  b.duracao_nuvem_ms = 3000;
+  b.proxima_emissao_ms = 0;
+  b.cor[0] = cor[0];
+  b.cor[1] = cor[1];
+  b.cor[2] = cor[2];
+}
+
 void Entidade::ReiniciaAtaque() {
   vd_.ataques_na_rodada = 0;
+}
+
+void Entidade::RecomputaDependencias() {
+  ent::RecomputaDependencias(tabelas_, &proto_, this);
 }
 
 }  // namespace ent

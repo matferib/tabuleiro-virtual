@@ -75,6 +75,7 @@ message StringPorTamanho {
 enum TipoCarregamento {
   TC_LIVRE = 0;
   TC_MOVIMENTO = 1;
+  TC_PADRAO = 3;
   TC_RODADA_COMPLETA = 2;
 }
 
@@ -126,9 +127,34 @@ message ArmaProto {
   enum ModeloLimiteVezes {
     LIMITE_UM = 0;
     LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
+    LIMITE_UM_POR_NIVEL = 2;  // velocidade
   }
   // Se a arma for criada por um feitico.
   optional ModeloLimiteVezes modelo_limite_vezes = 23;
+
+  enum ModeloDano {
+    DANO_1D6_POR_NIVEL_MAX_10D6 = 0;
+    CURA_1D8_MAIS_1_POR_NIVEL_MAX_5 = 1;
+    DANO_1D8_MAIS_1_POR_NIVEL_MAX_5 = 2;
+    CURA_2D8_MAIS_1_POR_NIVEL_MAX_10 = 3;
+    DANO_2D8_MAIS_1_POR_NIVEL_MAX_10 = 4;
+    CURA_3D8_MAIS_1_POR_NIVEL_MAX_15 = 5;
+    DANO_3D8_MAIS_1_POR_NIVEL_MAX_15 = 6;
+    CURA_4D8_MAIS_1_POR_NIVEL_MAX_20 = 7;
+    DANO_4D8_MAIS_1_POR_NIVEL_MAX_20 = 8;
+    DANO_1D8_CADA_2_NIVEIS_MAX_5D8 = 9;
+    DANO_1D8_POR_NIVEL_MAX_10D8 = 10;
+    DANO_1D6_CADA_2_NIVEIS_MAX_5D6 = 11;
+    DANO_1D8_CADA_2_NIVEIS_MAX_10D8 = 12;
+    CURA_1= 13;
+    DANO_1= 14;
+    DANO_1D4_POR_NIVEL_MAX_5D4 = 15;
+    DANO_1D6_POR_NIVEL_MAX_15D6 = 16;
+    DANO_3D6_MAIS_1_POR_NIVEL = 17;
+  }
+  // Se a arma for criada por feitico.
+  optional ModeloDano modelo_dano = 25;
+
   // Arma requer carregamento.
   message Carregamento {
     optional bool requer_carregamento = 1;
@@ -138,6 +164,14 @@ message ArmaProto {
     optional int32 capacidade_carga = 3;
   }
   optional Carregamento carregamento = 24;
+
+  // Arma possui veneno.
+  optional VenenoProto veneno = 27;
+
+  // A arma requer ataque de toque.
+  optional bool ataque_toque = 26;
+  // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados pela salvacao.
+  optional bool dano_ignora_salvacao = 28;
 }
 
 message TabelaArmaduraOuEscudo {
@@ -155,6 +189,10 @@ message TabelaFeiticos {
 
 message TabelaEfeitos {
   repeated EfeitoProto efeitos = 1;
+}
+
+message TabelaEfeitosModelos {
+  repeated EfeitoModeloProto efeitos = 1;
 }
 
 message TabelaPocoes {
@@ -205,6 +243,14 @@ message TabelaVenenos {
   repeated VenenoProto venenos = 1;
 }
 
+message TabelaRacas {
+  repeated RacaProto racas = 1;
+}
+
+message TabelaDominios {
+  repeated DominioProto dominios = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
@@ -214,6 +260,8 @@ message TodasTabelas {
   optional TabelaTalentos tabela_talentos = 5;
   optional TabelaPericias tabela_pericias =  6;
   optional TabelaFeiticos tabela_feiticos = 7;
+  optional TabelaEfeitosModelos tabela_efeitos_modelos = 8;
+  optional TabelaRacas tabela_racas = 9;
   optional TabelaPocoes tabela_pocoes = 50;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
@@ -224,4 +272,5 @@ message TodasTabelas {
   optional TabelaAmuletos tabela_amuletos = 58;
   optional TabelaChapeus tabela_chapeus = 59;
   optional TabelaVenenos tabela_venenos = 57;
+  optional TabelaDominios tabela_dominios = 60;
 }

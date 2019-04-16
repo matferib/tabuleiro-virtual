@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QItemDelegate>
+#include <QToolTip>
 #include "ent/tabelas.h"
 #include "goog/stringprintf.h"
 #include "log/log.h"
@@ -18,9 +19,9 @@ int MaximoEmUso(ent::TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo);
 
-// Retorna o item do personagem de acordo com tipo.
-const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(ent::TipoItem tipo, const ent::EntidadeProto& proto);
-google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(ent::TipoItem tipo, ent::EntidadeProto* proto);
+// Retorna a string de descricao do item.
+std::string DescricaoParaLista(
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
 
 // Retorna o nome do item seguido por 'em uso' ou 'não usado'.
 std::string NomeParaLista(
@@ -68,6 +69,26 @@ class ItemMagicoDelegate : public QItemDelegate {
     return s;
   }
 
+  bool helpEvent(
+      QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option,
+      const QModelIndex & index) override {
+    if (event == nullptr || event->type() != QEvent::ToolTip || view == nullptr) {
+      return false;
+    }
+    QListWidget* parent = qobject_cast<QListWidget*>(view);
+    if (parent == nullptr) {
+      return false;
+    }
+    int indice = parent->row(parent->itemAt(event->pos()));
+    if (indice < 0) {
+      return false;
+    }
+    QToolTip::showText(
+        event->globalPos(),
+        QString::fromUtf8(DescricaoParaLista(tabelas_, tipo_, ItemDoProto(indice)).c_str()));
+    return true;
+  }
+
  private:
   // Retorna o id do item corrente do combo.
   std::string IdCorrenteDoCombo(QComboBox* combo) const {
@@ -80,23 +101,27 @@ class ItemMagicoDelegate : public QItemDelegate {
   }
 
   const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem() const {
-    return ifg::qt::ItensPersonagem(tipo_, *proto_);
+    return ent::ItensProto(tipo_, *proto_);
   }
 
   google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel() const {
-    return ifg::qt::ItensPersonagemMutavel(tipo_, proto_);
+    return ent::ItensProtoMutavel(tipo_, proto_);
   }
 
   // Retorna o item do personagem.
   const ent::ItemMagicoProto& ItemCorrenteDoProto() const {
-    const int indice_proto = lista_->currentRow();
+    return ItemDoProto(lista_->currentRow());
+  }
+
+  const ent::ItemMagicoProto& ItemDoProto(int indice_proto) const {
     const auto& itens = ItensPersonagem();
     if (indice_proto < 0 || indice_proto >= itens.size()) {
-      LOG(ERROR) << "indice invalido em ItemCorrenteDoProto: " << indice_proto;
+      LOG(ERROR) << "indice invalido em ItemDoPRoto: " << indice_proto;
       return ent::ItemMagicoProto::default_instance();
     }
     return itens.Get(indice_proto);
   }
+
 
   // Retorna o id do item corrente.
   const char* IdCorrenteDoProto() const {
@@ -156,40 +181,6 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
   return tabelas.todas().tabela_aneis().aneis();
 }
 
-inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem(
-    ent::TipoItem tipo, const ent::EntidadeProto& proto) {
-  switch (tipo) {
-    case ent::TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
-    case ent::TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
-    case ent::TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
-    case ent::TipoItem::TIPO_BRACADEIRAS: return proto.tesouro().bracadeiras();
-    case ent::TipoItem::TIPO_POCAO: return proto.tesouro().pocoes();
-    case ent::TipoItem::TIPO_AMULETO: return proto.tesouro().amuletos();
-    case ent::TipoItem::TIPO_BOTAS: return proto.tesouro().botas();
-    case ent::TipoItem::TIPO_CHAPEU: return proto.tesouro().chapeus();
-    default: ;
-  }
-  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
-  return proto.tesouro().aneis();
-}
-
-inline google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel(
-    ent::TipoItem tipo, ent::EntidadeProto* proto) {
-  switch (tipo) {
-    case ent::TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
-    case ent::TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
-    case ent::TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
-    case ent::TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
-    case ent::TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
-    case ent::TipoItem::TIPO_BOTAS: return proto->mutable_tesouro()->mutable_botas();
-    case ent::TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
-    default: ;
-  }
-  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
-  return proto->mutable_tesouro()->mutable_aneis();
-}
-
-// Retorna o nome do item seguido por em uso ou nao usado.
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
@@ -198,6 +189,13 @@ inline std::string NomeParaLista(
       item_tabela.nome().c_str(),
       item_pc.em_uso() ? " (em uso)" : " (não usado)");
 }
+
+inline std::string DescricaoParaLista(
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
+  const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
+  return item_tabela.descricao().c_str();
+}
+
 
 inline int MaximoEmUso(ent::TipoItem tipo) {
   switch (tipo) {

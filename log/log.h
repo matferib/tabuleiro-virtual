@@ -18,7 +18,7 @@
 #define INFO 1
 #define WARNING 2
 #define ERROR 3
-#else 
+#else
 #error info defined
 #endif
 
@@ -54,6 +54,7 @@ class StringLogger {
 #else
 
 // TODO dar um jeito de anular essas macros se nao tiver log.
+#include <cstrrchr>
 #include <iostream>
 // Arquivos querendo VLOG devem definir esse VLOG_NIVEL no android.
 #ifndef VLOG_NIVEL

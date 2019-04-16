@@ -48,6 +48,26 @@ class PocaoDelegate : public QItemDelegate {
     return s;
   }
 
+  bool helpEvent(
+      QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option,
+      const QModelIndex & index) override {
+    if (event == nullptr || event->type() != QEvent::ToolTip || view == nullptr) {
+      return false;
+    }
+    QListWidget* parent = qobject_cast<QListWidget*>(view);
+    if (parent == nullptr) {
+      return false;
+    }
+    int indice = parent->row(parent->itemAt(event->pos()));
+    if (indice < 0) {
+      return false;
+    }
+    QToolTip::showText(
+        event->globalPos(),
+        QString::fromUtf8(DescricaoPocao(indice)));
+    return true;
+  }
+
  private:
   // Retorna o id da pocao corrente do combo.
   std::string IdPocaoCorrenteDoCombo(QComboBox* combo) const {
@@ -61,7 +81,10 @@ class PocaoDelegate : public QItemDelegate {
 
   // Retorna o id da pocao do item corrente.
   const char* IdPocaoCorrenteDoProto() const {
-    const int indice_proto = lista_->currentRow();
+    return IdPocaoDoProto(lista_->currentRow());
+  }
+
+  const char* IdPocaoDoProto(int indice_proto) const {
     if (indice_proto < 0 || indice_proto >= proto_->tesouro().pocoes_size()) {
       LOG(ERROR) << "indice invalido em IdPocao: " << indice_proto;
       return "";
@@ -69,9 +92,14 @@ class PocaoDelegate : public QItemDelegate {
     return proto_->tesouro().pocoes(indice_proto).id().c_str();
   }
 
+  const char* DescricaoPocao(int indice_proto) const {
+    return tabelas_.Pocao(IdPocaoDoProto(indice_proto)).descricao().c_str();
+  }
+
   const char* NomePocaoCorrente() const {
     return tabelas_.Pocao(IdPocaoCorrenteDoProto()).nome().c_str();
   }
+
 
   // Retorna o proprio combo por conveniencia. Preenche com as pocoes da tabela, ordenado por nome.
   // O dado de cada linha sera o id da pocao. Configura o combo para fechar e submeter os dados quando

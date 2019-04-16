@@ -1,6 +1,73 @@
 tabela_classes {
   info_classes {
+    id: 'adepto_sombras' nome: 'Adepto das Sombras' progressao_bba: PBBA_MEIO
+    # d4
+    tipo_classe: TC_PRESTIGIO
+    aumenta_nivel_conjurador: true
+    pericias: 'blefar'
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'disfarces'
+    pericias: 'esconderse'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'profissao'
+    pericias: 'identificar_magia'
+    pericias_por_nivel: 2
+
+    salvacoes_fortes: TS_VONTADE
+  }
+
+  info_classes {
+    id: 'hathran' nome: 'Hathran' progressao_bba: PBBA_MEIO
+    tipo_classe: TC_PRESTIGIO
+    aumenta_nivel_conjurador: true
+    pericias: 'concentracao'
+    pericias: 'oficios'
+    pericias: 'oficios_alquimia'
+    pericias: 'oficios_armoraria'
+    pericias: 'oficios_arquearia'
+    pericias: 'oficios_armeiro'
+    pericias: 'oficios_armadilharia'
+    pericias: 'diplomacia'
+    pericias: 'conhecimento_arcano'
+    pericias: 'conhecimento_arquitetura_e_engenharia'
+    pericias: 'conhecimento_masmorras'
+    pericias: 'conhecimento_geografia'
+    pericias: 'conhecimento_historia'
+    pericias: 'conhecimento_local'
+    pericias: 'conhecimento_natureza'
+    pericias: 'conhecimento_nobreza_e_realeza'
+    pericias: 'conhecimento_religiao'
+    pericias: 'conhecimento_planos'
+    pericias: 'atuacao'
+    pericias: 'profissao'
+    pericias: 'natacao'
+    pericias: 'falar_idioma'
+    pericias: 'identificar_magia'
+    pericias: 'sobrevivencia'
+    pericias_por_nivel: 2
+
+    salvacoes_fortes: TS_FORTITUDE
+    salvacoes_fortes: TS_VONTADE
+  }
+  info_classes {
     id: 'agente_harpista' nome: 'Agente Harpista'
+    aumenta_nivel_conjurador: true
+    tipo_classe: TC_PRESTIGIO
     progressao_bba: PBBA_TRES_QUARTOS
     # Dados de vida: d6
     salvacoes_fortes: TS_VONTADE
@@ -35,7 +102,6 @@ tabela_classes {
     pericias: 'saltar'
     pericias: 'sentir_motivacao'
     pericias: 'sobrevivencia'
-    # Progressao de feitico: +1 classe anterior.
   }
 }
 tabela_armas {
@@ -49,9 +115,10 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 10
     tipo_dano: TD_OUTRO
+    categoria_pericia: CATPER_EXOTICA
     carregamento {
       requer_carregamento: true
-      tipo_carregamento: TC_RODADA_COMPLETA
+      tipo_carregamento: TC_PADRAO
     }
     acao {
       cor { r: 1 g: 0.5 b: 0 }
@@ -72,6 +139,42 @@ tabela_armas {
 }
 tabela_talentos {
   talentos {
+    id: 'disciplina'
+    nome: 'Disciplina'
+    descricao: '+2 em testes de vontade e concetração.'
+    regional: true
+    livro: 'PGtF'
+    bonus_salvacao {
+      tipo: TS_VONTADE
+      bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'disciplina' valor: 2 } } }
+    }
+    bonus_pericias { id: 'concentracao' valor: 2 }
+  }
+  talentos {
+    id: 'magia_traicoeira'
+    nome: 'Magia Traiçoeira'
+    descricao: 'Personagem pode usar a trama das sombras para tornar suas magias mais difíceis de serem detectadas.'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_perniciosa'
+    nome: 'Magia Perniciosa'
+    descricao: '+4 em testes de superar resistência a magia de usuários da trama.'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_trama_sombras'
+    nome: 'Magia da Trama das Sombras'
+    descricao: 'Personagem pode usar magia através da Trama das Sombras'
+    livro: 'PGtF'
+  }
+  talentos {
+    id: 'magia_tenaz'
+    nome: 'Magia Tenaz'
+    descricao: 'Testes de dissipar contra as magias da trama das sombras tem CD base 15 ao invés de 10.'
+    livro: 'PGtF'
+  }
+  talentos {
     id: 'sorte_dos_herois'
     nome: 'Sorte dos Herois'
     # guerreiro: true Ataque Poderoso
@@ -90,6 +193,284 @@ tabela_talentos {
     }
     bonus_ca {
       bonus_individual { tipo: TB_SORTE por_origem { origem: 'sorte_dos_herois' valor: 1 } }
+    }
+    regional: true
+    livro: 'FR'
+  }
+}
+tabela_efeitos_modelos {
+  efeitos {
+    id: EFEITO_MODELO_VULTO
+    nome: 'modelo de vulto'
+    # Complementos: RM.
+    desligavel: true
+    consequencia {
+      atributos {
+        constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
+        carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
+      }
+      # visao no escuro. 18m
+      #dados_ataque {
+      # reflexos 3/dia
+      # invisibilidade a vontade
+      # controlar luz
+      # atravessar sombras se > 8 nivel
+      # viajar pelas sombras. se > 12 nivel
+      #}
+      jogada_ataque { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
+      jogada_dano { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
+      dados_defesa {
+        ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
+        cura_acelerada { bonus_individual { tipo: TB_BASE por_origem { valor: 2 origem: 'vulto' } } }
+        resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'vulto' } } }
+        # pericias: +4 racial esconderse e furtividade.
+      }
+    }
+  }
+}  # tabela efeito de modelos.
+
+tabela_racas {
+  racas {
+    id: 'aarakocra'
+    tipo: TIPO_HUMANOIDE_MONSTRUOSO
+
+    nome: 'Aarakocra'
+    bonus_atributos {
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'racial' } } }
+    }
+    tamanho: TM_MEDIO
+    # +2 oficios e conhecimento (natureza)
+    # Claustrofobico: -4 circunstancia ataque e pericias em areas fechadas.
+    # ajuste de nivel: 2
+    # Proficiencia em azagaia.
+  }
+  racas {
+    tipo: TIPO_EXTRA_PLANAR
+    sub_tipo: SUBTIPO_NATIVO
+    id: 'aasimar'
+    nome: 'Aasimar'
+    bonus_atributos {
+      sabedoria { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { valor: 1 origem: 'racial' } } }
+      resistencia_elementos { descritor: DESC_ACIDO valor: 5 }
+      resistencia_elementos { descritor: DESC_FOGO valor: 5 }
+      resistencia_elementos { descritor: DESC_FRIO valor: 5 }
+    }
+    tamanho: TM_MEDIO
+    # resistencia acido, frio e eletricidade 5.
+    # luz 1/dia
+    # +2 ouvir e observar
+    # visao no escuro 12 q
+    # ajuste de nivel: 1
+  }
+}  # tabela_racas
+
+tabela_dominios {
+  dominios {
+    id: 'anoes'
+    nome: 'anões'
+    descricao: 'Talento Grande Fortitude.'
+  }
+  dominios {
+    id: 'aranhas'
+    nome: 'aranhas'
+    descricao: 'Controlar/fascinar aranhas.'
+  }
+  dominios {
+    id: 'cavernas'
+    nome: 'cavernas'
+    descricao: 'Ligação com pedras (como anões) ou aumenta para +4 se já tiver.'
+  }
+  dominios {
+    id: 'comercio'
+    nome: 'comércio'
+    descricao: 'Detectar pensamentos uma vez por dia (SM) como ação livre, duração 10 rodadas / bonus carisma. '
+  }
+  dominios {
+    id: 'destino'
+    nome: 'destino'
+    descricao: 'Esquiva sobrenatural de ladino de 3o nivel. Se já tiver, adiciona +3 ao nivel efetivo da esquiva.'
+  }
+  dominios {
+    id: 'drow'
+    nome: 'drow'
+    descricao: 'Talento reflexos rápidos.'
+  }
+  dominios {
+    id: 'elfos'
+    nome: 'elfos'
+    descricao: 'Talento tiro certeiro.'
+  }
+  dominios {
+    id: 'encantamento'
+    nome: 'encantamento'
+    descricao: 'Elevar carisma em 4 pontos como ação livre por 1 minuto uma vez por dia.'
+  }
+  dominios {
+    id: 'escamosos'
+    nome: 'escamosos'
+    descricao: 'Controlar/fascinar animais répteis e ofídeos.'
+  }
+  dominios {
+    id: 'escuridao'
+    nome: 'escuridão'
+    descricao: 'Talento lutar às cegas.'
+  }
+  dominios {
+    id: 'familia'
+    nome: 'família'
+    descricao: 'Fornece +4 de esquiva a um número de criaturas (a 2 quadrados) igual a seu carisma uma vez por dia por 1 rodada por nível. Pode afetar o próprio clérigo.'
+  }
+  dominios {
+    id: 'feitico'
+    nome: 'feitiço'
+    descricao: '+2 testes de concentração e identificar magias.'
+  }
+  dominios {
+    id: 'gnomos'
+    nome: 'gnomos'
+    descricao: '+1 nível de conjurador para magias de ilusão.'
+  }
+  dominios {
+    id: 'halflings'
+    nome: 'halflings'
+    descricao: 'Uma vez por dia, por 10 minutos, adiciona carisma em escalar, saltar, furtividade e esconder-se.'
+  }
+  dominios {
+    id: 'ilusao'
+    nome: 'ilusão'
+    descricao: '+1 nível de conjurador para magias de ilusão.'
+  }
+  dominios {
+    id: 'lodo'
+    nome: 'lodo'
+    descricao: 'Controlar/fascinar limos/muco/gosmas.'
+  }
+  dominios {
+    id: 'lua'
+    nome: 'lua'
+    descricao: 'Expulsar/destruir licantropos.'
+  }
+  dominios {
+    id: 'mentalidade'
+    nome: 'mentalidade'
+    descricao: 'Uma vez por dia, proteção mental (SM), toqaue. Bônus de resistência em vontade igual a nível +2, por 1 hora.'
+  }
+  dominios {
+    id: 'metais'
+    nome: 'metais'
+    descricao: 'Usar arma comum (ou exótica) e foco em arma em um martelo escolhido.'
+  }
+  dominios {
+    id: 'mortos_vivos'
+    nome: 'mortos-vivos'
+    descricao: 'Talento expulsão adicional.'
+  }
+  dominios {
+    id: 'nobreza'
+    nome: 'nobreza'
+    descricao: 'Uma vez por dia por rodadas igual ao bônus de carisma, inspirar aliados: +2 moral em testes de resistência, ataque e dano, habilidade e perícia. Devem ser capazes de ouvir o personagem.'
+  }
+  dominios {
+    id: 'oceano'
+    nome: 'oceano'
+    descricao: 'Habilidade de respirar na água, total de 10 rodadas por nível de personagem.'
+  }
+  dominios {
+    id: 'odio'
+    nome: 'ódio'
+    descricao: '+2 de bônus profanos em ataque, resistência e CA contra um oponente, 1 vez por dia durante 10 rodadas.'
+  }
+  dominios {
+    id: 'oficios'
+    nome: 'ofícios'
+    descricao: 'Todas magias de criação com +1 de nível de conjurador e adquire foco em perícia (+2 em uma perícia de ofício)'
+  }
+  dominios {
+    id: 'orcs'
+    nome: 'orcs'
+    descricao: 'Destruição em um ataque por dia: bônus no dano igual ao nível de clérigo, +4 se for anão ou elfo.'
+  }
+  dominios {
+    id: 'planejamento'
+    nome: 'planejamento'
+    descricao: 'Talento estender magia'
+  }
+  dominios {
+    id: 'portais'
+    nome: 'portais'
+    descricao: 'Detectar portal, ativo ou inativo, como porta secreta comum (CD 20).'
+  }
+  dominios {
+    id: 'renovacao'
+    nome: 'renovação'
+    descricao: 'Cura 1d8+modificador carisma caso caia para 0 ou menos PV, uma vez por dia (não impede morte direta).'
+  }
+  dominios {
+    id: 'retribuicao'
+    nome: 'retribuição'
+    descricao: 'Uma vez por dia, pode desferir um golpe de vingança na próxima ação, que se acertar o agressor, causará o dano máximo (exceto críticos).'
+  }
+  dominios {
+    id: 'runas'
+    nome: 'runas'
+    descricao: 'Talento escrever pergaminhos.'
+  }
+  dominios {
+    id: 'sofrimento'
+    nome: 'sofrimento'
+    descricao: 'Toque de dor uma vez por dia: se acertar ataque de toque, alvo sofre -2 em força e destreza por 1 minuto. Não afeta criaturas imunes a críticos.'
+  }
+  dominios {
+    id: 'tempestade'
+    nome: 'tempestade'
+    descricao: 'Resistência a eletricidade 5.'
+  }
+  dominios {
+    id: 'tempo'
+    nome: 'tempo'
+    descricao: 'Talento Iniciativa Aprimorada.'
+  }
+  dominios {
+    id: 'tirania'
+    nome: 'tirania'
+    descricao: '+2 CD em magias de compulsão.'
+  }
+}
+tabela_feiticos {
+  armas {
+    id: 'vigor_menor'  # vigor lesser
+    nome: 'vigor menor'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      icone: 'icon_touch.png'
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_CURA_ACELERADA
+        complementos: 1
+        modificador_rodadas: MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15
+      }
     }
   }
 }

@@ -96,8 +96,8 @@ class ModeloPericias : public QAbstractTableModel {
       return QVariant();
     }
 
-    const int row = index.row();
-    if (row < 0 || row >= modelo_.size()) return QVariant();
+    const unsigned int row = index.row();
+    if (row >= modelo_.size()) return QVariant();
     const int column = index.column();
     switch (column) {
       case 0: {
@@ -129,6 +129,8 @@ class ModeloPericias : public QAbstractTableModel {
       case 5: {
         if (role == Qt::DisplayRole) {
           return QVariant(BonusTotal(modelo_[row].bonus()));
+        } else if (role == Qt::ToolTipRole) {
+          return QVariant(QString::fromUtf8(BonusParaString(modelo_[row].bonus()).c_str()));
         } else {
           // Nao editavel.
           return QVariant();
@@ -149,8 +151,8 @@ class ModeloPericias : public QAbstractTableModel {
       return false;
     }
 
-    const int row = index.row();
-    if (row < 0 || row >= modelo_.size()) {
+    const unsigned int row = index.row();
+    if (row >= modelo_.size()) {
       LOG(INFO) << "Linha invalida " << row;
       return false;
     }

@@ -114,6 +114,12 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
 const std::string& TextoAcao(const AcaoProto& acao_proto);
 int DeltaAcao(const AcaoProto& acao_proto);
 
+// Combina os efeitos adicionais com combina_com.
+void CombinaEfeitos(AcaoProto* acao);
+
+// Retorna true se a acao for um efeito de area.
+bool EfeitoArea(const AcaoProto& acao_proto);
+
 }  // namespace ent
 
 #endif  // ENT_ACOES_H

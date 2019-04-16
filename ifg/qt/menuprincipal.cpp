@@ -55,16 +55,20 @@ const char* g_menuitem_strs[] = {
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Iniciar jogo mestre"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Proxy"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Conectar no jogo mestre"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sair"), g_fim,
   // Tabuleiro.
-  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"),
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar Versão"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versão"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versões"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Selecionar modelo para &feitiço"),
@@ -544,7 +548,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 3.5.6\n"
+        tr("Tabuleiro virtual versão 3.6.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

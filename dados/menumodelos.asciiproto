@@ -29,11 +29,21 @@ sub_menu {
 sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
+  sub_menu {
+    id: 'Cobras'
+    sub_menu {
+      id: 'Víboras'
+      modelo { id: 'Cobra, víbora miúda' texto: 'Miúda' }
+    }
+  }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Atroz' }
+  modelo { id: 'Lobo' }
+  modelo { id: 'Lobo Atroz' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
+  modelo { id: 'Sapo' }
   modelo { id: 'Tubarão Médio' }
   modelo { id: 'Tubarão Grande' }
   modelo { id: 'Tubarão Imenso' }
@@ -41,15 +51,18 @@ sub_menu {
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
-modelo { id: 'Ankheg' }
+sub_menu {
+  id: 'Bestas Mágicas'
+  modelo { id: 'Ankheg' }
+  modelo { id: 'Bulette' }
+  modelo { id: 'Cão Teleportador'}
+  modelo { id: 'Coruja Gigante'}
+}
 sub_menu {
   id: 'Anões'
   modelo { id: 'Anão' }
 }
 modelo { id: 'Barghest' }
-modelo { id: 'Bulette' }
-modelo { id: 'Cão Teleportador'}
-modelo { id: 'Coruja Gigante'}
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
@@ -98,6 +111,7 @@ sub_menu {
   id: 'Gigantes'
   modelo { id: 'Gigante das Colinas' }
   modelo { id: 'Gigante das Pedras' }
+  modelo { id: 'Gigante das Pedras, Ancião' }
   modelo { id: 'Gigante das Tempestades' }
 }
 modelo { id: 'Grifo' }
@@ -110,17 +124,54 @@ sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Adepto 3' }
   modelo { id: 'Humano Bárbaro' }
-  modelo { id: 'Humano Clérigo' }
+  sub_menu {
+    id: 'Bardos'
+    modelo { id: 'Humano Bardo 5' }
+  }
+  sub_menu {
+    id: 'Clérigos'
+    modelo { id: 'Humano Clérigo' }
+    modelo { id: 'Humano Clérigo 4' }
+    modelo { id: 'Humano Clérigo 5' }
+  }
+  sub_menu {
+    id: 'Aristocratas'
+    modelo { id: 'Humano Aristocrata 5' }
+    modelo { id: 'Humana Aristocrata 5' }
+    modelo { id: 'Humano Aristocrata 6' }
+    modelo { id: 'Humana Aristocrata 6' }
+  }
   sub_menu {
     id: 'Combatentes'
     modelo { id: 'Humano Combatente 1' }
     modelo { id: 'Humano Combatente 2' }
     modelo { id: 'Humano Combatente 4' }
   }
-  modelo { id: 'Humano Druida' }
-  modelo { id: 'Humana Guerreira' }
-  modelo { id: 'Humano Guerreiro' }
-  modelo { id: 'Humano Guerreiro 5' }
+  sub_menu {
+    id: 'Plebeus'
+    modelo { id: 'Humano Plebeu 1' }
+    modelo { id: 'Humana Plebeia 1' }
+    modelo { id: 'Humano Plebeu 2' }
+    modelo { id: 'Humana Plebeia 2' }
+  }
+  sub_menu {
+    id: 'Druidas'
+    modelo { id: 'Humano Druida 1' }
+    modelo { id: 'Humano Druida 2' }
+  }
+  sub_menu {
+    id: 'Feiticeiros'
+    modelo { id: 'Humano Feiticeiro 5' }
+  }
+
+  sub_menu {
+    id: 'Guerreiros'
+    modelo { id: 'Humana Guerreira' texto: 'Humana 1' }
+    modelo { id: 'Humano Guerreiro' texto: 'Humano 1' }
+    modelo { id: 'Humano Guerreiro 5' texto: 'Humano 5' }
+    modelo { id: 'Humano Guerreiro 5' texto: 'Humana 5' }
+    modelo { id: 'Humano Guerreiro 7' texto: 'Humano 7' }
+  }
   sub_menu {
     id: 'Ladinos'
     modelo { id: 'Humano Ladino' }
@@ -129,7 +180,13 @@ sub_menu {
     modelo { id: 'Humano Ladino 5' }
     modelo { id: 'Humano Ladino 7' }
   }
-  modelo { id: 'Humano Mago' }
+  sub_menu {
+    id: 'Magos'
+    modelo { id: 'Humano Mago' }
+    modelo { id: 'Humano Mago 4' }
+    modelo { id: 'Humano Mago 5' }
+    modelo { id: 'Humano Mago 18' }
+  }
   modelo { id: 'Humano Monge' }
   modelo { id: 'Humano Paladino' }
 }

@@ -19,6 +19,9 @@
 namespace ifg {
 namespace qt {
 
+using google::protobuf::StringPrintf;
+using google::protobuf::StringAppendF;
+
 void AtualizaUIEventos(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   auto* model = qobject_cast<ModeloEvento*>(gerador.tabela_lista_eventos->model());
@@ -48,6 +51,20 @@ void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
   }
 }
 
+int TipoEvasaoParaIndiceCombo(ent::TipoEvasao te) {
+  // TODO tratar com switch?
+  return (int)te;
+}
+
+void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.combo_evasao_estatica->blockSignals(true);
+  gerador.combo_evasao_dinamica->blockSignals(true);
+  gerador.combo_evasao_estatica->setCurrentIndex(TipoEvasaoParaIndiceCombo(proto.dados_defesa().evasao_estatica()));
+  gerador.combo_evasao_dinamica->setCurrentIndex(TipoEvasaoParaIndiceCombo(proto.dados_defesa().evasao()));
+  gerador.combo_evasao_dinamica->blockSignals(false);
+  gerador.combo_evasao_estatica->blockSignals(false);
+}
+
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
@@ -60,6 +77,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIPericias(tabelas, gerador, proto);
   AtualizaUIFeiticos(tabelas, gerador, proto);
   AtualizaUIEventos(tabelas, gerador, proto);
+  AtualizaUIEvasao(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -106,7 +124,7 @@ std::string StringSalvacoesFortes(const ent::InfoClasse& ic) {
 }
 
 // Atualiza a UI com a lista de niveis e os totais.
-void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // nivel total.
   int total = 0;
   int total_bba = 0;
@@ -122,14 +140,23 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   gerador.lista_niveis->clear();
   for (const auto& ic : proto.info_classes()) {
     std::string string_nivel;
-    google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
+    StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
     if (ic.nivel_conjurador() > 0) {
-      google::protobuf::StringAppendF(
+      StringAppendF(
           &string_nivel, ", conjurador: %d, mod (%s): %d",
           ic.nivel_conjurador(), TipoAtributo_Name(ic.atributo_conjuracao()).substr(3, 3).c_str(),
           ic.modificador_atributo_conjuracao());
     }
-    google::protobuf::StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
+    StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    if (classe_tabelada.possui_dominio()) {
+      const auto& fc = ent::FeiticosClasse(ic.id(), proto);
+      if (fc.dominios_size() == 2) {
+        StringAppendF(&string_nivel, ", dominios: %s, %s", tabelas.Dominio(fc.dominios(0)).nome().c_str(), tabelas.Dominio(fc.dominios(1)).nome().c_str());
+      } else {
+        LOG(ERROR) << "dominios de tamanho errado";
+      }
+    }
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
   }
   if (indice_antes < proto.info_classes().size()) {
@@ -139,9 +166,8 @@ void AtualizaUINiveis(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   }
 }
 
-int IdClasseParaIndice(const std::string& id, const QComboBox* combo) {
-  int indice = combo->findData(id.c_str());
-  return indice < 0 ? combo->findData("outro") : indice;
+void SelecionaIndicePorId(const std::string& id, QComboBox* combo) {
+  combo->setCurrentIndex(combo->findData(id.c_str()));
 }
 
 }  // namespace
@@ -157,7 +183,8 @@ void AtualizaUIClassesNiveis(
   // Objetos da UI a serem bloqueados. Passa por copia.
   std::vector<QObject*> objs = {
       gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
-      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe
+      gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe, gerador.combo_raca,
+      gerador.combo_dominio_1, gerador.combo_dominio_2,
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -167,15 +194,15 @@ void AtualizaUIClassesNiveis(
   };
 
   BloqueiaSinais();
-  AtualizaUINiveis(gerador, proto);
-  gerador.spin_niveis_negativos->setValue(proto.niveis_negativos());
+  AtualizaUINiveis(tabelas, gerador, proto);
+  gerador.spin_niveis_negativos->setValue(ent::BonusIndividualTotal(ent::TB_BASE, proto.niveis_negativos_dinamicos()));
 
   const int indice = gerador.lista_niveis->currentRow();
   // Se tiver selecao, preenche.
   if (indice >= 0 && indice < proto.info_classes_size()) {
     const auto& info_classe = proto.info_classes(indice);
     gerador.botao_remover_nivel->setEnabled(true);
-    gerador.combo_classe->setCurrentIndex(IdClasseParaIndice(info_classe.id(), gerador.combo_classe));
+    SelecionaIndicePorId(info_classe.id(), gerador.combo_classe);
     gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
     gerador.spin_nivel_classe->setValue(info_classe.nivel());
     gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
@@ -183,6 +210,25 @@ void AtualizaUIClassesNiveis(
     gerador.combo_mod_conjuracao->setCurrentIndex(info_classe.atributo_conjuracao());
     gerador.label_mod_conjuracao->setText(NumeroSinalizado(info_classe.modificador_atributo_conjuracao()));
     gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(info_classe));
+    const auto& classe_tabelada = tabelas.Classe(info_classe.id());
+    if (classe_tabelada.possui_dominio()) {
+      gerador.combo_dominio_1->setEnabled(true);
+      gerador.combo_dominio_2->setEnabled(true);
+      const auto& fc = ent::FeiticosClasse(classe_tabelada.id(), proto);
+      std::string dominio_1 = fc.dominios().size() == 2 ? fc.dominios(0) : "nenhum";
+      SelecionaIndicePorId(dominio_1, gerador.combo_dominio_1);
+      gerador.combo_dominio_1->setToolTip(gerador.combo_dominio_1->tr(tabelas.Dominio(dominio_1).descricao().c_str()));
+      std::string dominio_2 = fc.dominios().size() == 2 ? fc.dominios(1) : "nenhum";
+      SelecionaIndicePorId(dominio_2, gerador.combo_dominio_2);
+      gerador.combo_dominio_2->setToolTip(gerador.combo_dominio_2->tr(tabelas.Dominio(dominio_2).descricao().c_str()));
+    } else {
+      gerador.combo_dominio_1->setEnabled(false);
+      gerador.combo_dominio_2->setEnabled(false);
+      SelecionaIndicePorId("nenhum", gerador.combo_dominio_1);
+      gerador.combo_dominio_1->setToolTip("");
+      SelecionaIndicePorId("nenhum", gerador.combo_dominio_2);
+      gerador.combo_dominio_2->setToolTip("");
+    }
   }
 
   // Override de coisas tabeladas, independente de selecao.
@@ -200,6 +246,7 @@ void AtualizaUIClassesNiveis(
     gerador.combo_salvacoes_fortes->setCurrentIndex(SalvacoesFortesParaIndice(classe_tabelada));
   }
 
+  gerador.combo_raca->setCurrentIndex(gerador.combo_raca->findData(QVariant(proto.raca().c_str())));
   DesbloqueiaSinais();
 }
 
@@ -253,17 +300,18 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_bonus_dano->setText("0");
   gerador.spin_bonus_magico->setValue(0);
   gerador.spin_municao->setValue(0);
+  gerador.spin_limite_vezes->setValue(0);
   gerador.linha_dano->clear();
   gerador.spin_alcance_quad->setValue(0);
 }
 
-void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque) {
+void PreencheComboArma(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque, const ent::EntidadeProto& proto) {
   const bool cac = tipo_ataque == "Ataque Corpo a Corpo";
   const bool projetil_area = tipo_ataque == "Projétil de Área";
   const bool distancia = tipo_ataque == "Ataque a Distância";
-  const bool feitico_mago = tipo_ataque == "Feitiço de Mago";
-  const bool feitico_clerigo = tipo_ataque == "Feitiço de Clérigo";
-  const bool feitico_druida = tipo_ataque == "Feitiço de Druida";
+  const bool feitico_de = tipo_ataque.find("Feitiço de ") == 0;
+  const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
   std::map<std::string, std::string> nome_id_map;
   if (cac || projetil_area || distancia) {
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -274,9 +322,18 @@ void PreencheComboArma(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
         nome_id_map[arma.nome()] = arma.id();
       }
     }
-  } else if (feitico_mago || feitico_clerigo || feitico_druida) {
-    for (const auto& arma : tabelas.todas().tabela_feiticos().armas()) {
-      nome_id_map[arma.nome()] = arma.id();
+  } else if (feitico_de) {
+    std::string id_classe = TipoAtaqueParaClasse(tabelas, tipo_ataque);
+    const int nivel_para_conjuracao = NivelParaCalculoMagiasPorDia(tabelas, id_classe, proto);
+    const int nivel_maximo_feitico = NivelMaximoFeitico(tabelas, id_classe, nivel_para_conjuracao);
+    for (const auto& feitico : tabelas.todas().tabela_feiticos().armas()) {
+      if (PodeConjurarFeitico(feitico, nivel_maximo_feitico, IdParaMagia(tabelas, id_classe))) {
+        nome_id_map[feitico.nome()] = feitico.id();
+      }
+    }
+  } else if (pergaminho) {
+    for (const auto& feitico : tabelas.todas().tabela_feiticos().armas()) {
+      nome_id_map[feitico.nome()] = feitico.id();
     }
   }
   gerador.combo_arma->clear();
@@ -321,9 +378,10 @@ int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.spin_municao,
-       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
+       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.spin_limite_vezes, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
-       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma };
+       gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma,
+       gerador.spin_nivel_conjurador_pergaminho, gerador.spin_modificador_atributo_pergaminho };
   for (auto* obj : objs) obj->blockSignals(true);
 
   // Tem que vir antes do clear.
@@ -357,10 +415,14 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
+  const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
   gerador.combo_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância" || tipo_ataque == "Projétil de Área" ||
-      tipo_ataque == "Feitiço de Mago" || tipo_ataque == "Feitiço de Clérigo" || tipo_ataque == "Feitiço de Druida");
-  PreencheComboArma(tabelas, gerador, tipo_ataque);
+      tipo_ataque.find("Feitiço de ") == 0 || pergaminho);
+  PreencheComboArma(tabelas, gerador, tipo_ataque, proto);
+  gerador.spin_nivel_conjurador_pergaminho->setEnabled(pergaminho);
+  gerador.spin_modificador_atributo_pergaminho->setEnabled(pergaminho);
+
   gerador.combo_material_arma->setEnabled(
       tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque == "Ataque a Distância");
   if (!linha_valida) {
@@ -384,6 +446,11 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_municao->setValue(da.municao());
+  gerador.spin_limite_vezes->setValue(da.limite_vezes());
+  if (pergaminho) {
+    gerador.spin_nivel_conjurador_pergaminho->setValue(da.nivel_conjurador_pergaminho());
+    gerador.spin_modificador_atributo_pergaminho->setValue(da.modificador_atributo_pergaminho());
+  }
   // A ordem eh indexada em 0, mas usuarios entendem primeiro como 1.
   gerador.spin_ordem_ataque->setValue(da.ordem_ataque() + 1);
 
@@ -476,7 +543,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
-  for (const auto& item : ItensPersonagem(tipo, proto)) {
+  for (const auto& item : ent::ItensProto(tipo, proto)) {
     auto* wi = new QListWidgetItem(QString::fromUtf8(
           NomeParaLista(tabelas, tipo, item).c_str()), lista);
     wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -522,6 +589,16 @@ void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Enti
   gerador.spin_max_pontos_vida->setValue(proto.max_pontos_vida());
 }
 
+void AtualizaPontosGastosPericia(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  int total_gasto = 0;
+  for (const auto& ip : proto.info_pericias()) {
+    total_gasto += ip.pontos();
+  }
+  int total_permitido = TotalPontosPericiaPermitidos(tabelas, proto);
+  gerador.label_pericias->setText(QString("Perícias: pontos gastos %1, permitidos: %2").arg(total_gasto).arg(total_permitido));
+}
+
 void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   // Se no windows nao tiver Moc vai dar erro de linker. Ai, transformar isso em reinterpret_cast.
   auto* modelo = qobject_cast<ModeloPericias*>(gerador.tabela_pericias->model());
@@ -531,15 +608,17 @@ void AtualizaUIPericias(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
     LOG(ERROR) << "modelo eh nullptr";
   }
   gerador.tabela_pericias->update();
+  AtualizaPontosGastosPericia(tabelas, gerador, proto);
 }
 
 // Feiticos.
 void AdicionaItemFeiticoConhecido(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id, const std::string& nome, const std::string& id_classe, int nivel, int slot,
+    const ent::EntidadeProto& proto,
     QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, pai);
+  auto* item_feitico = new ItemFeiticoConhecido(tabelas, id_classe, nivel, proto, pai);
   item_feitico->setIdNome(QString::fromUtf8(id.c_str()), QString::fromUtf8(nome.c_str()));
   item_feitico->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(CONHECIDO));
   item_feitico->setData(TCOL_ID_CLASSE, Qt::UserRole, QVariant(id_classe.c_str()));
@@ -561,7 +640,10 @@ void AtualizaFeiticosConhecidosNivel(
   const auto& feiticos_nivel = ent::FeiticosNivel(id_classe, nivel, proto);
   int slot = 0;
   for (const auto& conhecido : feiticos_nivel.conhecidos()) {
-    AdicionaItemFeiticoConhecido(tabelas, gerador, conhecido.id(), conhecido.nome(), id_classe, nivel, slot++, pai);
+    AdicionaItemFeiticoConhecido(
+        tabelas, gerador, conhecido.id(),
+        conhecido.has_nome() ? conhecido.nome() : tabelas.Feitico(conhecido.id()).nome(),
+        id_classe, nivel, slot++, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
   }
   gerador.arvore_feiticos->blockSignals(false);
@@ -584,34 +666,42 @@ QCheckBox* CriaCheckboxUsado(
 }
 
 void PreencheComboParaLancar(
+    const ent::Tabelas& tabelas,
     const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
     const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico, QComboBox* combo) {
-  QStringList lista;
   // Mapeia os indices do combo para (nivel_conhecido, indice_conhecido).
   std::vector<std::pair<int, int>> mapa;
   const auto& fn_para_lancar = FeiticoParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto);
   int indice_corrente = -1;
   combo->clear();
   for (int nivel_conhecido = nivel_para_lancar; nivel_conhecido >= 0; --nivel_conhecido) {
+    QStringList lista;
+    combo->addItem(QString(combo->tr("Nível %1")).arg(nivel_conhecido));
+    mapa.push_back(std::make_pair(nivel_conhecido, -1));
     const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
     int indice_conhecido = 0;
     for (const auto& c : fn.conhecidos()) {
-      lista.push_back(QString::fromUtf8(c.nome().c_str()));
+      lista.push_back(QString::fromUtf8(c.has_nome() ? c.nome().c_str() : tabelas.Feitico(c.id()).nome().c_str()));
+      mapa.push_back(std::make_pair(nivel_conhecido, indice_conhecido));
       if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
           fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
+        // Dados do feitico conhecido selecionado.
         indice_corrente = mapa.size();
         item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(nivel_conhecido));
         item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(indice_conhecido));
       }
-      mapa.push_back(std::make_pair(nivel_conhecido, indice_conhecido));
       ++indice_conhecido;
     }
+    combo->addItems(lista);
   }
-  combo->addItems(lista);
   combo->setCurrentIndex(indice_corrente);
   combo->disconnect();
   ExpandeComboBox(combo);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [item_feitico, mapa] (int indice) {
+      if (mapa[indice].second == -1) {
+        // Selecionou o label.
+        return;
+      }
       // Trigar apenas 1 evento.
       item_feitico->treeWidget()->blockSignals(true);
       item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(mapa[indice].first));
@@ -622,11 +712,12 @@ void PreencheComboParaLancar(
 
 // Preenche o item da arvore com um combo que possui todos os feiticos conhecidos ate o nivel passado.
 QComboBox* CriaComboParaLancar(
+    const ent::Tabelas& tabelas,
     const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
     const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico) {
   auto* combo = new QComboBox();
   combo->setObjectName("combo_para_lancar");
-  PreencheComboParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto, item_feitico, combo);
+  PreencheComboParaLancar(tabelas, id_classe, nivel_para_lancar, indice_para_lancar, proto, item_feitico, combo);
   return combo;
 }
 
@@ -645,7 +736,7 @@ void AdicionaItemFeiticoParaLancar(
   auto* hbox = new QHBoxLayout;
   hbox->addWidget(CriaCheckboxUsado(id_classe, nivel, indice, proto, item_feitico), 0, Qt::AlignLeft);
   if (ent::ClassePrecisaMemorizar(tabelas, id_classe)) {
-    hbox->addWidget(CriaComboParaLancar(id_classe, nivel, indice, proto, item_feitico));
+    hbox->addWidget(CriaComboParaLancar(tabelas, id_classe, nivel, indice, proto, item_feitico));
   }
   hwidget->setLayout(hbox);
   item_feitico->treeWidget()->setItemWidget(item_feitico, 0, hwidget);
@@ -732,7 +823,7 @@ void AtualizaCombosParaLancarDoNivel(
       continue;
     }
     combo->blockSignals(true);
-    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    PreencheComboParaLancar(tabelas, id_classe, nivel, i, proto, item_para_lancar, combo);
     combo->blockSignals(false);
   }
 }
@@ -783,7 +874,7 @@ void AtualizaCombosParaLancarDoNivel(
     auto* combo = ComboParaLancar(item_para_lancar, gerador.arvore_feiticos);
     if (combo == nullptr) continue;
     combo->blockSignals(true);
-    PreencheComboParaLancar(id_classe, nivel, i, proto, item_para_lancar, combo);
+    PreencheComboParaLancar(tabelas, id_classe, nivel, i, proto, item_para_lancar, combo);
     combo->blockSignals(false);
   }
 }

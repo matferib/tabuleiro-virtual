@@ -96,51 +96,54 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   if (central_ != nullptr) {
     central_->RegistraReceptor(this);
   }
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_nao_srd.asciiproto", &tabelas_);
-  } catch (const arq::ParseProtoException & e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas_nao_srd.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_nao_srd.asciiproto: " << e.what();
+
+  std::vector<const char*> arquivos_tabelas = {"tabelas_nao_srd.asciiproto", "tabelas_homebrew.asciiproto", "tabelas.asciiproto"};
+  // Tabelas.
+  for (const char* arquivo : arquivos_tabelas) {
+    try {
+      TodasTabelas tabelas;
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, arquivo, &tabelas);
+      tabelas_.MergeFrom(tabelas);
+    } catch (const arq::ParseProtoException& e) {
+      LOG(WARNING) << "Erro lendo tabela: " << arquivo << ": " << e.what();
+      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+          StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Erro lendo tabela: " << arquivo << ": " << e.what();
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErro(
+              StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+      }
+    }
   }
+  // Acoes.
   try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas_homebrew.asciiproto", &tabelas_);
-  } catch (const arq::ParseProtoException & e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas_homebrew.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas_homebrew.asciiproto: " << e.what();
-  }
-  try {
-    TodasTabelas tabelas_padroes;
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_padroes);
-    tabelas_.MergeFrom(tabelas_padroes);
-  } catch (const arq::ParseProtoException& e) {
-    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
-    central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-        StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
-  } catch (const std::exception& e) {
-    LOG(ERROR) << "Erro lendo tabela: tabelas.asciiproto: " << e.what();
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
+  } catch (const arq::ParseProtoException& ppe) {
+    LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto: " << ppe.what();
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo tabela: tabelas.asciiproto: %s", e.what())));
+            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", ppe.what())));
     }
-  }
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "acoes.asciiproto", &tabela_acoes_);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            google::protobuf::StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
+            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
   RecarregaMapas();
+}
+
+// Quando nao houver origem no item, usa o id dele como a origem do efeito.
+// So funcionara mesmo quando o id do item for igual ao do feitico.
+void AdicionaOrigemImplicita(ItemMagicoProto* item) {
+  if (item->tipo_efeito().size() == 1 && item->origens().empty()) {
+    item->add_origens(item->id());
+  }
 }
 
 void Tabelas::RecarregaMapas() {
@@ -149,6 +152,7 @@ void Tabelas::RecarregaMapas() {
   armas_.clear();
   feiticos_.clear();
   efeitos_.clear();
+  efeitos_modelos_.clear();
   pocoes_.clear();
   aneis_.clear();
   mantos_.clear();
@@ -161,6 +165,16 @@ void Tabelas::RecarregaMapas() {
   pericias_.clear();
   classes_.clear();
   acoes_.clear();
+  racas_.clear();
+  dominios_.clear();
+
+  for (const auto& dominio : tabelas_.tabela_dominios().dominios()) {
+    dominios_[dominio.id()] = &dominio;
+  }
+
+  for (const auto& raca : tabelas_.tabela_racas().racas()) {
+    racas_[raca.id()] = &raca;
+  }
 
   for (const auto& armadura : tabelas_.tabela_armaduras().armaduras()) {
     armaduras_[armadura.id()] = &armadura;
@@ -187,6 +201,14 @@ void Tabelas::RecarregaMapas() {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
     }
+    if (feitico.has_acao()) {
+      for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais()) {
+        ea.set_origem(feitico.id());
+      }
+      for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais_se_salvou()) {
+        ea.set_origem(feitico.id());
+      }
+    }
     feiticos_[feitico.id()] = &feitico;
   }
 
@@ -204,6 +226,7 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& pocao : *tabelas_.mutable_tabela_pocoes()->mutable_pocoes()) {
     pocao.set_tipo(TIPO_POCAO);
+    AdicionaOrigemImplicita(&pocao);
     pocoes_[pocao.id()] = &pocao;
   }
   for (auto& anel : *tabelas_.mutable_tabela_aneis()->mutable_aneis()) {
@@ -249,6 +272,10 @@ void Tabelas::RecarregaMapas() {
     efeitos_[efeito.id()] = &efeito;
   }
 
+  for (const auto& efeito : tabelas_.tabela_efeitos_modelos().efeitos()) {
+    efeitos_modelos_[efeito.id()] = &efeito;
+  }
+
   for (const auto& classe : tabelas_.tabela_classes().info_classes()) {
     classes_[classe.id()] = &classe;
   }
@@ -290,6 +317,11 @@ const ArmaProto& Tabelas::ArmaOuFeitico(const std::string& id) const {
 const EfeitoProto& Tabelas::Efeito(TipoEfeito tipo) const {
   auto it = efeitos_.find(tipo);
   return it == efeitos_.end() ? EfeitoProto::default_instance() : *it->second;
+}
+
+const EfeitoModeloProto& Tabelas::EfeitoModelo(TipoEfeitoModelo tipo) const {
+  auto it = efeitos_modelos_.find(tipo);
+  return it == efeitos_modelos_.end() ? EfeitoModeloProto::default_instance() : *it->second;
 }
 
 const AcaoProto& Tabelas::Acao(const std::string& id) const {
@@ -345,6 +377,16 @@ const TalentoProto& Tabelas::Talento(const std::string& id) const {
 const InfoClasse& Tabelas::Classe(const std::string& id) const {
   auto it = classes_.find(id);
   return it == classes_.end() ? InfoClasse::default_instance() : *it->second;
+}
+
+const RacaProto& Tabelas::Raca(const std::string& id) const {
+  auto it = racas_.find(id);
+  return it == racas_.end() ? RacaProto::default_instance() : *it->second;
+}
+
+const DominioProto& Tabelas::Dominio(const std::string& id) const {
+  auto it = dominios_.find(id);
+  return it == dominios_.end() ? DominioProto::default_instance() : *it->second;
 }
 
 const PericiaProto& Tabelas::Pericia(const std::string& id) const {

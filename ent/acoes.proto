@@ -13,9 +13,12 @@ enum TipoAcao {
   ACAO_DELTA_PONTOS_VIDA = 5;
   ACAO_CORPO_A_CORPO = 6;
   ACAO_FEITICO_TOQUE = 7;
+  ACAO_FEITICO_PESSOAL = 12;
   ACAO_AGARRAR = 8;
   ACAO_POCAO = 9;
   ACAO_PROJETIL_AREA = 10;
+  ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS = 11;
+  ACAO_CRIACAO_ENTIDADE = 13;
 }
 
 // Algumas acoes causam consequencias, como deslocamento do alvo.
@@ -25,6 +28,7 @@ enum TipoConsequencia {
   TC_INFLAMA_ALVO      = 2;
   TC_AGARRA_ALVO       = 3;
   TC_ILUMINA_ALVO      = 4;
+  TC_DERRUBA_ALVO      = 5;
 }
 
 enum GeometriaAcao {
@@ -48,18 +52,46 @@ message Translacao {
 
 message Velocidade {
   // Em m/s.
-  optional float inicial_m_s = 1;
+  optional float inicial_m_s = 1 [default = 50.0];
   optional TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
-  optional float aceleracao_m_s_2 = 3;
-  optional float delta_aceleracao_m_s_3 = 4 [default=0];
+  optional float aceleracao_m_s_2 = 3 [default = 0];
+  optional float delta_aceleracao_m_s_3 = 4 [default = 0];
   optional float maxima_m_s = 5 [default=50.0];
 }
 
-// Proximo id: 59.
+enum ModificadorRodadas {
+  MR_NENHUM = 0;
+  MR_RODADAS_NIVEL = 1;
+  MR_MINUTOS_NIVEL = 2;
+  MR_10_MINUTOS_NIVEL = 3;
+  MR_HORAS_NIVEL = 4;
+  MR_2_HORAS_NIVEL = 5;
+  MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6 = 7;
+  MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15 = 9;
+  MR_HORAS_NIVEL_MAX_15 = 10;
+  MR_2_MINUTOS_NIVEL = 11;
+  MR_DIAS_POR_NIVEL = 12;
+  MR_PALAVRA_PODER_ATORDOAR = 13;
+  MR_PALAVRA_PODER_CEGAR = 14;
+  MR_CONTINUO = 15;
+}
+
+enum ModificadorComplementos {
+  MC_NENHUM = 0;
+  MC_1D4_MAIS_1_CADA_TRES_MAX_8 = 1;  // reflexos
+  MC_1_CADA_3_MAX_3 = 2;  // auxilio divino
+  MC_2_MAIS_1_CADA_6_MAX_5 = 3;  // escudo da fe.
+  MC_1_POR_NIVEL_MAX_10 = 4;  // ajuda.
+  MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
+  MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
+  MC_1_POR_NIVEL = 7;  // poder divino.
+}
+
+// Proximo id: 72.
 message AcaoProto {
-  // Identificador da acao, para menus.
+  // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
-  // Tipo da acao.
+  // Tipo da acao. A criacao do objeto de acao usa isso, e nao o id.
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
   optional float raio_quadrados = 3;  // quadrados.
@@ -95,12 +127,15 @@ message AcaoProto {
   // Acao tem dano direto e de area.
   optional bool efeito_projetil_area = 42;
   optional bool permite_salvacao = 23;
-  optional ResultadoSalvacao resultado_salvacao = 32;
+  optional bool dano_ignora_salvacao_deprecated = 62;
+  optional ResultadoSalvacao resultado_ao_salvar = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
   optional int32 dificuldade_salvacao_base = 49;
+  // Se presente, usara este atributo para calcular a dificuldade da salvacao.
+  optional TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
   optional bool dificuldade_salvacao_por_nivel = 50;
-  optional int32 dificuldade_salvacao = 33;
+  optional int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
   // ira considerar sempre um acerto e pular esta etapa.
@@ -125,14 +160,18 @@ message AcaoProto {
   message PorEntidade {
     optional uint32 id = 1;     // id da entidade destino.
     optional int32 delta = 2;   // delta da entidade.
+    // Se verdadeiro, aplica a consequencia independente de delta.
+    optional bool forca_consequencia = 5;
     optional bool omite_texto = 3 [deprecated=true];
     optional string texto = 4;  // texto da entidade.
   }
   repeated PorEntidade por_entidade = 35;
-  // Indica ataque de toque.
+  // Indica ataque de toque para este tipo de acao.
   optional bool ataque_toque = 36;
   // Indica ataque a distancia.
   optional bool ataque_distancia = 37;
+  optional bool ataque_corpo_a_corpo = 66;
+  optional bool ataque_arremesso = 67;
   // O ataque eh de agarrar.
   optional bool ataque_agarrar = 38;
   // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
@@ -145,6 +184,10 @@ message AcaoProto {
   repeated TipoDnD nao_afeta_tipo = 56;
   repeated SubTipoDnD nao_afeta_sub_tipo = 57;
   optional bool nao_afeta_origem = 58;
+  // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
+  optional int32 dv_mais_alto = 61;
+  // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
+  optional int32 pv_mais_alto = 69;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -157,17 +200,54 @@ message AcaoProto {
   // Ataque elemental.
   optional DescritorAtaque elemento = 51;
   // Descritores do ataque: computado dinamicamente.
-  repeated DescritorAtaque descritores_ataque = 52;
+  repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
+    // Para efeitos de cura ou dano.
+    optional string delta_pontos_vida = 10;
+    // Para efeitos que afetam apenas um tipo de alinhamento.
+    optional TendenciaSimplificada afeta_apenas_tendencia = 11;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
     optional int32 rodadas = 2;
     repeated int32 complementos = 3;
     repeated string complementos_str = 4;
     optional string descricao = 5;
+    // Se presente, ao inves de fazer merge com repeated, ira combinar com o
+    // efeito ja existente no indice passado.
+    optional int32 combinar_com = 6;
+    // Para mudar o valor de rodadas.
+    optional int32 rodadas_base = 7;
+    optional ModificadorRodadas modificador_rodadas = 8;
+    // Outra forma de gerar rodadas, quando o modificador de rodadas so depende de dados.
+    optional string dado_modificador_rodadas = 14;
+    // Modificador dos complementos.
+    optional ModificadorComplementos modificador_complementos = 9;
+    // Outra forma de gerar o complemento, rolara o dado passado.
+    optional string dado_complementos_str = 13;
+    // A origem do efeito.
+    optional string origem = 12;
+
+    optional int32 pontos_vida_temporarios = 15;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
+  // Alguns efeitos se aplicam no conjurador.
+  repeated EfeitoAdicional efeitos_adicionais_conjurador = 68;
+  // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
+  repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
+  // Para entidades de criacao.
+  optional string id_modelo_entidade = 63;
+  // O veneno da acao.
+  optional VenenoProto veneno = 64;
+  optional TipoMagia tipo_pergaminho = 65;
+  // Algumas acoes precisam de mais detalhes para serem executadas, e isso deve ser passado pelo usuário.
+  // Por exemplo, feiticos que tem varias formas possiveis, ou a arma que sera alvo de uma magia.
+  // TODO fazer isso funcionar.
+  enum DetalhesAdicionais {
+    IA_NENHUMA = 0;
+  }
+  optional DetalhesAdicionais detalhes_adicionais = 70;
+  optional bool ignora_reflexos = 71;
 }
 
 // O arquivo de acoes é serializado desta forma.

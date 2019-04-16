@@ -56,6 +56,7 @@ message OpcoesProto {
 }
 
 // Mensagem enviada para os clientes de um jogo.
+// Proximo id: 30
 message TabuleiroProto {
   // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
   optional int32 id_cenario = 17 [default = -1];
@@ -68,15 +69,15 @@ message TabuleiroProto {
   // Iluminacao do tabuleiro.
   optional IluminacaoDirecional luz_direcional = 3;
   optional Cor luz_ambiente = 7;
-  // Textura do tabuleiro.
-  optional InfoTextura info_textura = 5;
-  // Se presente, aplicara cor de piso.
+  // Textura do tabuleiro. Se herdado, usara do pai.
+  optional InfoTextura info_textura_piso = 5;
+  // Se presente, aplicara cor de piso. Se herdado, usara do pai.
   optional Cor cor_piso = 23;
-  // Caixa do ceu (skybox).
+  // Caixa do ceu (skybox). Se herdado, usara do pai.
   optional InfoTextura info_textura_ceu = 16;
-  // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao.
+  // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao. Se herdado, usara do pai.
   optional bool aplicar_luz_ambiente_textura_ceu = 20 [default = true];
-  // Aplicar a textura de forma ladrilhada.
+  // Aplicar a textura de forma ladrilhada. Se herdado, usara do pai.
   optional bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
@@ -104,8 +105,23 @@ message TabuleiroProto {
   repeated TabuleiroProto sub_cenario = 18;
   // Para atualizacao de iniciativa.
   optional int32 indice_iniciativa = 22;
-  // Cada vez que salva, uma versao do tabuleiro é salva para poder ser restaurada.
-  repeated TabuleiroProto versoes = 24;
+
+  repeated TabuleiroProto deprecated_versoes = 24;
+  message Versao {
+    // Proto serializado, performance.
+    optional bytes dados = 1;
+    // Descricao da versao.
+    optional string descricao = 2;
+  }
+  // Cada vez que salva, uma versao do tabuleiro é salva para poder ser restaurada. Por motivos de eficiencia, manter como byte string.
+  repeated Versao versoes = 25;
+
+  // Caso estas variaveis esteja preenchidas, usara a textura de ceu e piso de
+  // outro tabuleiro.
+  optional int32 herdar_piso_de = 26;
+  optional int32 herdar_ceu_de = 27;
+  optional int32 herdar_iluminacao_de = 28;
+  optional int32 herdar_nevoa_de = 29;
 }
 
 // Para copiar e colar.

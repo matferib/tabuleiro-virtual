@@ -1,24 +1,60 @@
-Anotacoes da sessao:
-- Criar uma tabela homebrew (coisas que fizemos e que podemos distribuir).
-- Adicionar chapeus de tesouro na tabela.
-- Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
-- Forma alternativa: itens continuam a fazer efeito.
-- UI para horas.
+Anotacoes da sessao Tilverton:
+- Talentos das sombras.
+- Definir encontros.
+- Resistencia magia variavel. ??
 
+- Mago Arcano de guerra 5. Feito.
+- Clerigo de Shar 5/1 vulto. Feito.
+- Fazer vangerdahast (mago 18): Feito.
+- Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias): Feito.
+- Fazer Aris (gigante anciao): Feito.
+- Melir (clerigo 4): Feito.
+- Quairon ( mago 4): Feito.
+- Veserab: pg 95 empire of the shade: Feito.
+- Veserab avancado: pg 119: Feito.
+
+Testar constrição.
+Testar monstros com combinar_com (criar um novo campo: combinar_efeito?).
+Implementar teste de concentracao de feitico automatico quando enredado.
+Implementar geracao de feiticos aleatoria.
+Implementar cargas de escaravelho de protecao.
+Implementar geracao de feiticos aleatoria.
+Implementar duracao de entidades conjuradas vinda da magia (por exemplo, enxame de gafanhotos pode vir de praga de insetos).
+
+Resolver o vigor menor (como proceder com a parada do maximo que cura?)
+Implementar afeta apenas tendencia em acoes.
+Permitir feiticos de nivel acima para pergaminhos na UI.
+Efeito de invisibilidade: ao atacar (com dano ou efeito adicional) terminar o efeito.
+Mostrar apenas feiticos de dominio na UI de clerigo no slot de dominio.
+
+Tipo e subtipo de formas alternativas.
+Feiticos de feiticeiro marcados com TODO.
+Capar pericias e talentos.
+Pergaminhos.
+Permitir a uma classe modificar o nivel de magia de outra por UI (ao inves de ser fixo)
+Fazer o modificador de rodadas funcionar nos efeitos adicionais.
+Colocar modificador de besta com escudo.
+Permitir nomear versoes.
+Mostrar salvacoes do mestre apenas para mestre.
+Permitir mais de uma textura por objeto (util para compostos).
+- Filtrar combo de classes para so mostrar nao monstros.
+>>>>>>> 5f94d48dc3a19b726fb3db6b73d3c926d8dd3c6f
+- UI para horas.
+- Rever a logica de pontos de vida ta um caos. Provavelmente tem gente com mais PV que o maximo. Nao esta claro o que eh computado.
+
+Anotacoes sessao Wheloon:
+- Adicionar ataques de glabrezu nas tabelas, especialmente modelar martelo caos e nuvem profana e palavra do poder atordoar.
 
 Permitir atraso nas notificacoes da central para os efeitos acontecerem depois.
 Colocar na acao: complemento variavel (tipo de vrock, 1d4+4). Mesma coisa pra rodada variavel.
 Eventos nao estao sendo regerados ao tirar um efeito na mao.
-Tooltip de descricao de talentos na UI.
-Colocar evasao e evasao aprimorada na UI.
 Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
-Nos complmentos, ignorar case.
+Nos complementos, ignorar case.
 Modelar multishot (tiro multiplo).
 Pontos raciais de elfo.
 Sugestao: desfazer dar mensagem.
 Zerar botoes ao passar rodada.
-Reflexos some no inicio da acao.
-Colocar botao de carga (+2 ataque, -2 CA)
+Reflexos some no inicio da acao (nao espera ela acontecer).
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
 Colocar arte da fuga no agarrar.
 Botao de remover feitico na UI de feiticos.
@@ -28,11 +64,8 @@ Dados rolados para alguns tipos nao estao aparecendo no log.
 Aplicar dano em fim de efeito ao clicar.
 Barra de status das entidades.
 UI para Ataque poderoso.
-Imunidade a ataque furtivo.
 Ao agarrar, ignora reflexos.
 Contador de movimento: colocar no proto (por tipo de movimento) e terminar (e procurar por string mov: pra achar no controle virtual). zerar na atualizacao de rodadas.
-
-Aura do mestre apenas: para ver efeitos do monstor, como alcance de olhar e medo.
 
 Problema na iluminacao:
 Luz pontual esta estranha em objetos compostos (Ver sofa do ape, por exemplo).
@@ -126,7 +159,6 @@ Versao 2.6.0
 
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
-- Entidades montadas.
 - Relogio marcando horas e controlando iluminacao?
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
 - Botao de rotacao de entidades.
@@ -146,7 +178,6 @@ Versao 2.6.0
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
-- Descricao de cenarios (melhorar UI com drop down).
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Fazer rotacao Z ser suavizada como destino do movimento.
@@ -162,7 +193,6 @@ Versao 2.6.0
 - Traducoes ANDROID e IOS.
 - Android e ipad: voltar para UI principal caso falhe a conexao.
 - Adicionar mais unit tests (comecar pelos simples).
-- Adicionar modelos diversos.
 - Unit teste dos glVbo roda.
 - Objetos compostos com transparencia.
 

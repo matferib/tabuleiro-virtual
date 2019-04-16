@@ -606,7 +606,7 @@ SocketUdp::SocketUdp(Sincronizador* sincronizador)
     : interno_(new Interno(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io))) {}
 
 SocketUdp::SocketUdp(Sincronizador* sincronizador, int porta) {
-  boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v4(), porta);
+  boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v6(), porta);
   interno_.reset(new Interno(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io, endereco)));
 }
 
@@ -614,7 +614,7 @@ SocketUdp::~SocketUdp() {}
 
 void SocketUdp::Abre() {
   boost::system::error_code erro;
-  interno_->socket->open(boost::asio::ip::udp::v4(), erro);
+  interno_->socket->open(boost::asio::ip::udp::v6(), erro);
   boost::asio::socket_base::broadcast option(true);
   interno_->socket->set_option(option);
 }
@@ -684,9 +684,9 @@ void Socket::Fecha() {
 }
 
 void Socket::PortaLocal(int porta_local) {
-  interno_->socket->open(boost::asio::ip::tcp::v4());
+  interno_->socket->open(boost::asio::ip::tcp::v6());
   boost::system::error_code ec;
-  interno_->socket->bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta_local), ec);
+  interno_->socket->bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), porta_local), ec);
   if (ec) {
     throw std::logic_error(StringPrintf("Erro no bind do cliente na porta %d", porta_local));
   }
@@ -747,7 +747,7 @@ bool Aceitador::Liga(int porta,
           Socket* socket_cliente,
           CallbackConexaoCliente callback_conexao_cliente) {
   interno_->aceitador.reset(new boost::asio::ip::tcp::acceptor(
-      *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
+      *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), porta)));
   // Funcao recursiva para ser chamada a cada conexao.
   // Primeiro a gente cria o objeto para poder passa-lo para ele mesmo no lambda.
   auto* callback_conexao = new std::function<void(boost::system::error_code, CallbackConexaoCliente)>;

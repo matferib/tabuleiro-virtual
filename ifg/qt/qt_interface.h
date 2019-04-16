@@ -32,6 +32,12 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) override;
 
+  void EscolheItemsLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, std::vector<int>)> funcao_volta) override;
+
+
   void EscolheCor(
       float r, float g, float b, float a,
       std::function<void(bool, float, float, float, float)> funcao_volta) override;
@@ -45,8 +51,6 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
       std::function<void(const std::string& nome)> funcao_volta) override;
 
   void EscolheModeloEntidade(const MenuModelos& modelos, std::function<void(const std::string& nome)> funcao_volta) override;
-
-  void EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int versao)> funcao_volta) override;
 
  private:
   QWidget* pai_ = nullptr;

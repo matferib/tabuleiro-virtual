@@ -67,6 +67,11 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
     break;
     case TF_PIRAMIDE: {
       vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+      {
+        gl::VboNaoGravado vbo_base = gl::VboRetangulo(1.0f);
+        vbo_base.Escala(-1.0f, 1.0f, -1.0f);
+        vbo.Concatena(vbo_base);
+      }
     }
     break;
     case TF_RETANGULO: {
@@ -79,6 +84,11 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
     break;
     case TF_ESFERA: {
       vbo = gl::VboEsferaSolida(0.5f, 24, 12);
+    }
+    break;
+    case TF_HEMISFERIO: {
+      vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
+      vbo.Escala(1.0f, 1.0f, 2.0f);
     }
     break;
     case TF_LIVRE: {
@@ -158,6 +168,10 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
     }
     break;
     case TF_ESFERA: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_HEMISFERIO: {
       matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
     }
     break;
@@ -257,7 +271,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
                       (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
                        proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO || proto.sub_tipo() == TF_ESFERA ||
-                       proto.sub_tipo() == TF_CILINDRO || proto.sub_tipo() == TF_CONE);
+                       proto.sub_tipo() == TF_CILINDRO || proto.sub_tipo() == TF_CONE || proto.sub_tipo() == TF_HEMISFERIO || proto.sub_tipo() == TF_LIVRE);
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
   if (id_textura != GL_INVALID_VALUE) {
@@ -297,7 +311,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     break;
     case TF_PIRAMIDE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE]);
+      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE_FECHADA]);
     }
     break;
     case TF_RETANGULO: {
@@ -311,6 +325,11 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     case TF_ESFERA: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
+    }
+    break;
+    case TF_HEMISFERIO: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_HEMISFERIO]);
     }
     break;
     case TF_LIVRE: {

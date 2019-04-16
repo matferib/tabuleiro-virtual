@@ -28,6 +28,7 @@ class Tabelas : public ntf::Receptor {
   const ArmaProto& Feitico(const std::string& id) const;
   const ArmaProto& ArmaOuFeitico(const std::string& id) const;
   const EfeitoProto& Efeito(TipoEfeito tipo) const;
+  const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
@@ -41,6 +42,8 @@ class Tabelas : public ntf::Receptor {
   const InfoClasse& Classe(const std::string& id) const;
   const PericiaProto& Pericia(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
+  const RacaProto& Raca(const std::string& id) const;
+  const DominioProto& Dominio(const std::string& id) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
@@ -55,6 +58,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const ArmaProto*> armas_;
   std::unordered_map<std::string, const ArmaProto*> feiticos_;
   std::unordered_map<int, const EfeitoProto*> efeitos_;
+  std::unordered_map<int, const EfeitoModeloProto*> efeitos_modelos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;
   std::unordered_map<std::string, const ItemMagicoProto*> aneis_;
   std::unordered_map<std::string, const ItemMagicoProto*> mantos_;
@@ -66,7 +70,9 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const TalentoProto*> talentos_;
   std::unordered_map<std::string, const PericiaProto*> pericias_;
   std::unordered_map<std::string, const InfoClasse*> classes_;
+  std::unordered_map<std::string, const RacaProto*> racas_;
   std::unordered_map<std::string, const AcaoProto*> acoes_;
+  std::unordered_map<std::string, const DominioProto*> dominios_;
 
   ntf::CentralNotificacoes* central_;
 };

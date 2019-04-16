@@ -6,9 +6,12 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
+#include "arq/arquivo.h"
+#include "ent/controle_virtual.pb.h"
 #include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.pb.h"
@@ -41,14 +44,30 @@ bool c_any_of(const C& c, const F& f) {
   return std::any_of(c.begin(), c.end(), f);
 }
 
+template <class C, class F>
+bool c_all_of(const C& c, const F& f) {
+  return std::all_of(c.begin(), c.end(), f);
+}
+
 template <class C, class T>
 bool c_any(const C& c, const T& t) {
   return std::find(c.begin(), c.end(), t) != c.end();
 }
 
+template <class C, class F>
+bool c_none_of(const C& c, const F& f) {
+  return std::none_of(c.begin(), c.end(), f);
+}
+
+template <class C, class T>
+bool c_none(const C& c, const T& t) {
+  return std::find(c.begin(), c.end(), t) == c.end();
+}
 
 void IniciaUtil();
 
+/** Cria uma notificacao do tipo TN_GRUPO_NOTIFICACOES. */
+std::unique_ptr<ntf::Notificacao> NovoGrupoNotificacoes();
 /** Cria uma nova notificacao do tipo passado para a entidade, preenchendo id antes e depois dela. */
 std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const EntidadeProto& proto);
 /** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
@@ -173,7 +192,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 Matrix4 MatrizRotacao(const Vector3& v);
 
 /** @return quadrado da distancia entre as posicoes. */
-float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2);
+float DistanciaEmMetrosAoQuadrado(const Posicao& pos1, const Posicao& pos2);
 
 /** Roda o vetor no eixo Z. */
 void RodaVetor2d(float graus, Posicao* vetor);
@@ -186,6 +205,9 @@ void PosicionaRaster2d(int x, int y);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
 TipoEfeito StringParaEfeito(const std::string& s);
+// Devia se chamar EfeitoParaString.
+std::string StringEfeito(TipoEfeito efeito);
+inline std::string EfeitoParaString(TipoEfeito efeito) { return StringEfeito(efeito); }
 
 // Trim functions from: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring.
 static inline std::string& ltrim(std::string& s) {
@@ -252,7 +274,7 @@ enum class TipoAtaque {
   DISTANCIA,
   AGARRAR
 };
-TipoAtaque DaParaTipoAtaque(const EntidadeProto::DadosAtaque& da);
+TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
@@ -283,13 +305,30 @@ struct ResultadoAtaqueVsDefesa {
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const EntidadeProto::DadosAtaque* da,
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
     const Entidade& ed, const Posicao& pos_alvo);
 
+// Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
+
+// Retorna true se o personagem puder lancar o tipo de pergaminho do ataque.
+std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
+
+// Resultado de um teste de lancar pergaminho. Se nao ok, pode ter fiasco.
+struct ResultadoPergaminho {
+  ResultadoPergaminho(bool ok, bool fiasco = false, const std::string& texto = "") : ok(ok), fiasco(fiasco), texto(texto) {}
+  bool ok;
+  bool fiasco;  // se falhar, pode ser fiasco.
+  std::string texto;
+};
+// Realiza o teste de lancar pergaminho.
+ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
+
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
-std::tuple<int, bool, std::string> AtaqueVsSalvacao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(const DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
-std::tuple<bool, std::string> AtaqueVsResistenciaMagia(const AcaoProto& ap, const Entidade& ea, const Entidade& ed);
+std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
+    const DadosAtaque* da, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -314,35 +353,61 @@ enum tipo_dano_e {
 };
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
 
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 // Preenche uma notificacao de carregamento da arma.
 void PreencheNotificacaoRecarregamento(
-    const Entidade& entidade, const EntidadeProto::DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+    const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Adiciona um evento do tipo passado a entidade.
-void PreencheNotificacaoEventoContinuo(const Entidade& entidade, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEvento(const Entidade& entidade, TipoEfeito te, const std::string& complemento_str, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEvento(const Entidade& entidade, const AcaoProto::EfeitoAdicional& efeito_adicional, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEventoParaVenenoPrimario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
-void PreencheNotificacaoEventoParaVenenoSecundario(const Entidade& entidade, const VenenoProto& veneno, int rodadas, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+// Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
+void PreencheNotificacaoEvento(
+    unsigned int id_entidade, const std::string& origem, TipoEfeito te, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoComComplementoStr(
+    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
+// Dado um tipo de evento, remove todos daquele tipo.
+void PreencheNotificacaoRemocaoEvento(
+    const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n);
+
+// Retorna o id unico gerado (-1 em caso de erro).
+void PreencheNotificacaoEventoEfeitoAdicional(
+    int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoPrimario(
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoParaVenenoSecundario(
+    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
 // Retorna entidade antes e depois dentro de n.
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n);
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* n);
+std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
+    ntf::Tipo tipo, uint32_t id_entidade, ntf::Notificacao* n);
 
-// Recomputa as dependencias do proto.
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
+// Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
+void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
 
+// Retorna uma string com o resumo do bonus.
+std::string BonusParaString(const Bonus& bonus);
+std::string NomeTipoBonus(TipoBonus tipo);
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
 BonusIndividual::PorOrigem* AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
-void AtribuiBonusSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+BonusIndividual::PorOrigem* AtribuiBonusPenalidadeSeMaior(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+// Atribui o bonus se valor != 0, remove caso contrario.
+void AtribuiOuRemoveBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 inline void LimpaBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) { RemoveBonus(tipo, origem, bonus); }
 // Limpa todos os bonus individuais presentes em bonus.
@@ -402,51 +467,54 @@ bool ArmaDistancia(const ArmaProto& arma);
 bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs);
 
 // Retorna o evento pelo id unico. Retorna nullptr se nao houver.
-EntidadeProto::Evento* AchaEvento(uint32_t id_unico, EntidadeProto* proto);
-const EntidadeProto::Evento* AchaEvento(uint32_t id_unico, const EntidadeProto& proto);
+EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);
+const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
+// Retorna true se possuir evento tipo_sim e nao possui evento tipo_nao.
+inline bool PossuiEventoNaoPossuiOutro(TipoEfeito tipo_sim, TipoEfeito tipo_nao, const EntidadeProto& proto) {
+  return PossuiEvento(tipo_sim, proto) && !PossuiEvento(tipo_nao, proto);
+}
+// Retorna verdadeiro se tiver um dos tipo de evento passado.
+bool PossuiUmDosEventos(const std::vector<TipoEfeito>& tipos, const EntidadeProto& proto);
 bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const EntidadeProto& proto);
 // Retorna verdadeiro se a entidade tiver um evento com mesmo id unico (ou todos campos identicos).
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
 // Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
 bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
 // Retorna a resistencia a elementos gerada pelo evento de id_unico ou nullptr se nao houver.
-ResistenciaElementos* AchaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
-void LimpaResistenciaElemento(uint32_t id_unico, EntidadeProto* proto);
+ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto);
+void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto);
 
 // Retorna os eventos do tipo passado.
 std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
-
-// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, EntidadeProto::DadosAtaque* dados_ataque);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
 
 // Retorna a string de critico se for diferente de 20/x2. Exemplo: '(19-20/x3)'. Se for 20/x2, retorna vazio.
-std::string StringCritico(const EntidadeProto::DadosAtaque& da);
+std::string StringCritico(const DadosAtaque& da);
 
 // Retorna o resumo da arma, para display na UI. Nao inclui modificadores circunstanciais.
 // Algo como id: rotulo, alcance: 10 q, 5 incrementos, bonus +3, dano: 1d8(x3), CA: 15, toque: 12, surpresa: 13.
-std::string StringResumoArma(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da);
+std::string StringResumoArma(const Tabelas& tabelas, const DadosAtaque& da);
 
 // Retorna os detalhes da arma para display na lista de acoes, incluindo alguns modificadores de circunstancia (como caido, por exemplo).
 // Algo como: 'machado: +8+2, 1d8(x3)+2d6, CA 15/15/12'
-std::string StringAtaque(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto);
 
 // Retorna a string de dano para o ataque, sem critico e com modificadores.
 // Exemplo: 1d8+5+2.
 // Usado para gerar dano.
-std::string StringDanoParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
+std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
 
 // Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
 // Exemplo: 1d8(19-20).
-std::string StringDanoBasicoComCritico(const EntidadeProto::DadosAtaque& da);
+std::string StringDanoBasicoComCritico(const DadosAtaque& da);
 
 // Retorna a string de CA para uma determinada configuracao de ataque. Inclui bonus circunstanciais.
 // Exemplo: '(esc+surp) 16, tq: 12'
-std::string StringCAParaAcao(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+std::string StringCAParaAcao(const DadosAtaque& da, const EntidadeProto& proto);
 
 // Retorna a string para o efeito passado.
 std::string StringEfeito(TipoEfeito efeito);
@@ -479,6 +547,8 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
 
 // Retorna se a pericia eh considerada de classe para o proto.
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto);
+// Retorna o total de pontos de pericia permitido para e entidade.
+int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& proto);
 
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
@@ -493,9 +563,17 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 int Nivel(const std::string& id, const EntidadeProto& proto);
 // Nivel total da entidade.
 int Nivel(const EntidadeProto& proto);
+// Retorna o nivel de conjuracao para a classe.
+int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
+// Retorna o nivel de conjurador do personagem para lancar um pergaminho. Caso nao haja, retorna -1.
+int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto);
+// Retorna o nivel da classe com modificadores para fins de calculo de numeros de magia.
+int NivelParaCalculoMagiasPorDia(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel da classe para um tipo de ataque.
 // Se o tipo de ataque pertecencer a mais de duas classes, usa a mais alta.
-int NivelParaFeitico(const Tabelas& tabelas, const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto);
+int NivelParaFeitico(const Tabelas& tabelas, const DadosAtaque& da, const EntidadeProto& proto);
+// Retorna o nivel para testes de expulsar/fascinar mortos vivos.
+int NivelExpulsao(const Tabelas& tabelas, const EntidadeProto& proto);
 // Retorna o id de classe para um tipo de ataque. Por exemplo, 'Feitiço de Mago' retorna 'mago'.
 // Vazio caso contrario.
 std::string TipoAtaqueParaClasse(const Tabelas& tabelas, const std::string& tipo_ataque);
@@ -509,8 +587,17 @@ const InfoClasse& InfoClasseParaFeitico(
 // possuem sua propria lista de magias. Renomear para IdParaConjuracao?
 const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_classe);
 
+// Retorna se o feitico pode ser conjurado no nivel passado pela classe cujo id para magia foi passado.
+bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo, const std::string& id_classe_para_magia);
+
+// Retorna true se o feitico for pessoal.
+bool FeiticoPessoal(const ArmaProto& feitico_tabelado);
+
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);
+
+// Retorna o nivel maximo de feitico que a classe pode conjurar com o nivel de conjurador passado.
+int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_conjurador);
 
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
@@ -526,51 +613,52 @@ bool LutandoDefensivamente(const EntidadeProto& proto);
 std::string RotuloEntidade(const Entidade* entidade);
 std::string RotuloEntidade(const EntidadeProto& proto);
 
-// Remove os campos para os quais predicado retornar true.
-template <class T>
-void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c);
-template <class T>
-void Redimensiona(int tam, google::protobuf::RepeatedPtrField<T>* c);
+// Retorna os ids unicos da entidade.
+std::vector<int> IdsUnicosProto(const EntidadeProto& proto);
+std::vector<int> IdsUnicosEntidade(const Entidade& entidade);
 
 // Acha um id unico de evento para o proto passado. Normalmente o eventos_entidade vem do proto da entidade e o outro vem do proto que esta sendo
 // gerado para atualizar a entidade.
-uint32_t AchaIdUnicoEvento(
+int AchaIdUnicoEvento(const std::vector<int>& ids_unicos);
+int AchaIdUnicoEvento(
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_entidade,
     const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos_sendo_gerados);
-inline uint32_t AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
+inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos) {
   return AchaIdUnicoEvento(eventos, google::protobuf::RepeatedPtrField<EntidadeProto::Evento>());
 }
 
 // Adiciona um evento ao proto, gerando o id do efeito automaticamente. Os eventos devem vir da entidade, para correto preenchimento do id unico
 // (normalmente proto preenchido nao contem tudo).
+// Params ids_unicos é in/out.
 EntidadeProto::Evento* AdicionaEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto);
-EntidadeProto::Evento* AdicionaEvento(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const AcaoProto::EfeitoAdicional& efeito_adicional, EntidadeProto* proto);
-
+    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
+EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
+    int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
 // Dado um item magico, adiciona o efeito dele ao proto.
 // Retorna os ids unicos dos eventos criados.
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
 // TODO: rodadas automatico?
-std::vector<int> AdicionaEventoItemMagico(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo, EntidadeProto* proto);
-inline std::vector<int> AdicionaEventoItemMagico(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    const ItemMagicoProto& item, int rodadas, bool continuo, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, -1, rodadas, continuo, proto);
+void AdicionaEventoItemMagico(
+    const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
+    std::vector<int>* ids_unicos, EntidadeProto* proto);
+
+inline void AdicionaEventoItemMagicoEfeitoSimples(
+    const ItemMagicoProto& item, int rodadas, bool continuo,
+    std::vector<int>* ids_unicos, EntidadeProto* proto) {
+  AdicionaEventoItemMagico(item, /*indice=*/-1, rodadas, continuo, ids_unicos, proto);
 }
-inline std::vector<int> AdicionaEventoItemMagicoContinuo(
-    const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, const ItemMagicoProto& item, EntidadeProto* proto) {
-  return AdicionaEventoItemMagico(eventos, item, -1, 1, true, proto);
+inline void AdicionaEventoItemMagicoContinuo(
+    const ItemMagicoProto& item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+  AdicionaEventoItemMagico(item, /*indice=*/-1, /*rodadas=*/1, /*continuo=*/true, ids_unicos, proto);
 }
 // Aqui o item eh do proto, e nao da tabela.
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, const google::protobuf::RepeatedPtrField<EntidadeProto::Evento>& eventos, ItemMagicoProto* item, EntidadeProto* proto);
+    const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto);
 
 // Marca a duracao do evento para -1.
-void ExpiraEventoItemMagico(uint32_t id_unico, EntidadeProto* proto);
+void ExpiraEventoItemMagico(int id_unico, EntidadeProto* proto);
 // Expira todos os eventos do item.
 void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto);
 
@@ -578,7 +666,8 @@ void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto);
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
 
 // Retorna false se nao houver alcance ou municao, com texto descritivo. O valor float eh a distancia computada.
-std::tuple<std::string, bool, float> VerificaAlcanceMunicao(const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
+    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
 
 // Retorna o modificador de incrementos. Assume alcance e municao.
 int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
@@ -608,7 +697,10 @@ EntidadeProto::FeiticosPorNivel* FeiticosNivel(
 EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
     const std::string& id_classe, int nivel, EntidadeProto* proto);
 
-// Retorna o indice de um feitico disponivel para a entidade. Retorna -1 se nao houver.
+// Retorna se a classe tem feitico para o nivel.
+bool TemFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
+// Retorna o indice do feitico disponivel da classe (para saber qual gastar, para feiticeiros e bardos por exemplo).
+// Retorna -1 se nao houver.
 int IndiceFeiticoDisponivel(const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 // Retorna true se a classe tiver que conhecer feiticos para lancar, como bardos e feiticeiros.
@@ -642,11 +734,12 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 // Retorna uma notificacao de alterar feitico para um personagem.
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
-// Cria uma notificacao de consequencia de uso do feitico, normalmente a criacao de ataques com limite de vezes
-// para a entidade.
-// Caso feitico nao tenha efeito, retorna nullptr.
-std::unique_ptr<ntf::Notificacao> NotificacaoUsarFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto);
+
+// Preenche as notificacoes de consequencia de um feitico. Para feiticos pessoais, o efeito sera aplicado.
+// Para os demais, cria um ataque com o efeito do feitico.
+// Retorna true se criou um ataque.
+bool NotificacaoConsequenciaFeitico(
+    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
@@ -689,7 +782,9 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 // Return true se a acao ignora reducao de dano.
-inline bool IgnoraReducaoDano(const AcaoProto& acao) { return acao.has_elemento() || acao.ignora_reducao_dano_barbaro(); }
+inline bool IgnoraReducaoDano(const DadosAtaque* da, const AcaoProto& acao) {
+  return (da != nullptr && da->has_elemento()) || acao.ignora_reducao_dano_barbaro();
+}
 
 // Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
 // alvos especificos, como agua benta, que afeta apenas mortos-vivos e
@@ -706,6 +801,67 @@ const ItemMagicoProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id);
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
 
+// Retorna o repeated do tipo passado para o proto.
+const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
+google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
+// Retorna todos os itens do proto, exceto pocoes.
+std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
+std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
+// Remove o item de proto.
+void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
+
+// Retorna a cura acelerada do alvo, ou 0 se houver.
+int CuraAcelerada(const EntidadeProto& proto);
+
+// https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+Vector3 RotationMatrixToAngles(const Matrix3& matrix);
+
+// Gera a matriz de decomposicao do pai para filhos.
+Matrix4 MatrizDecomposicaoPai(const EntidadeProto& pai);
+// Decompoe o filho, usando a matriz do pai e a dele proprio.
+void DecompoeFilho(const Matrix4& matriz_pai, EntidadeProto* filho);
+
+// Retorna true se o modelo for desligavel.
+bool ModeloDesligavel(const Tabelas& tabelas, const ModeloDnD& modelo);
+
+// Encontra o modelo de entidade com o efeito passado. Retorna nullptr se nao houver.
+ModeloDnD* EncontraModelo(TipoEfeitoModelo id_efeito, EntidadeProto* proto);
+
+// Retorna true se a entidade tiver algum modelo desligavel que esta ligado.
+bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadeProto& proto);
+
+// Retorna a classe dentro do proto, ou default se nao houver.
+const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
+
+// Retorna true se a entidade pode agir. Alguns efeitos nao permite (pasmar, atordoado, etc).
+bool PodeAgir(const EntidadeProto& proto);
+
+// Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
+bool DestrezaNaCA(const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto);
+
+// Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
+bool PermiteEscudo(const EntidadeProto& proto);
+
+// Dado os parametros e a entidade de referencia, preenche `modelo`.
+void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
+
+// Computa o dano do dado de ataque baseado no modelo e nivel passado.
+void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da);
+
+// Retorna o tipo de evasao da entidade (ja computado).
+TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto);
+
+// Retorna true se o proto tiver o tipo passado.
+inline bool TemTipoDnD(TipoDnD tipo, const EntidadeProto& proto) { return c_any(proto.tipo_dnd(), tipo); }
+inline bool TemSubTipoDnD(SubTipoDnD sub_tipo, const EntidadeProto& proto) { return c_any(proto.sub_tipo_dnd(), sub_tipo); }
+
+bool PreencheInfoTextura(
+    const std::string& nome, arq::tipo_e tipo, InfoTextura* info_textura,
+    unsigned int* plargura = nullptr, unsigned int* paltura = nullptr);
+
+// Retorna true se proto estiver indefeso.
+bool Indefeso(const EntidadeProto& proto);
 
 }  // namespace ent
 

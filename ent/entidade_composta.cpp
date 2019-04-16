@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -21,6 +22,14 @@ void Entidade::AtualizaProtoComposta(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
 }
 
+EntidadeProto Entidade::RemoveSubForma(int indice) {
+  if (indice < 0 || indice >= proto_.sub_forma_size()) return EntidadeProto::default_instance();
+  EntidadeProto sub_forma = proto_.sub_forma(indice);
+  proto_.mutable_sub_forma()->DeleteSubrange(indice, 1);
+  DecompoeFilho(MatrizDecomposicaoPai(proto_), &sub_forma);
+  return sub_forma;
+}
+
 gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   gl::VbosNaoGravados vbos;
   gl::VbosNaoGravados sub_vbos;
@@ -32,6 +41,12 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
       sub_vbos = ExtraiVboForma(sub, vd, pd, true   /*mundo*/);
     }
     vbos.Concatena(&sub_vbos);
+  }
+  if (proto.has_cor()) {
+    const auto& c = proto.cor();
+    vbos.MesclaCores(c.r(), c.g(), c.b(), c.a());
+  } else {
+    vbos.MesclaCores(1.0f, 1.0f, 1.0f, 1.0f);
   }
   if (mundo) {
     Matrix4 m;
@@ -47,11 +62,32 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  //AlteraBlendEscopo blend_escopo(pd, proto.cor());
+  if (pd->has_desenha_objeto_desmembrado() && pd->desenha_objeto_desmembrado() == proto.id()) {
+    // Usado em picking para decomposicao de objetos.
+    pd->clear_desenha_objeto_desmembrado();
+    pd->set_regera_vbo(true);
+    Tabelas t(nullptr);
+
+    // Transformacoes do objeto pai.
+    Matrix4 m_pai = MatrizDecomposicaoPai(proto);
+    for (int i = 0; i < proto.sub_forma_size(); ++i) {
+      auto sub_forma = proto.sub_forma(i);
+      DecompoeFilho(m_pai, &sub_forma);
+      std::unique_ptr<Entidade> s(NovaEntidade(sub_forma, t, /*tabuleiro=*/nullptr, vd.texturas, vd.m3d, nullptr, pd));
+      s->Atualiza(0, nullptr);
+      gl::CarregaNome(i);
+      s->DesenhaObjeto(pd);
+    }
+    pd->set_desenha_objeto_desmembrado(proto.id());
+    pd->clear_regera_vbo();
+    return;
+  }
+
   std::unique_ptr<MisturaPreNevoaEscopo> blend_escopo;
   if (proto.cor().has_r() || proto.cor().a() < 1.0f || pd->has_alfa_translucidos() || pd->entidade_selecionada()) {
     blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
   }
+
 #if !VBO_COM_MODELAGEM
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());

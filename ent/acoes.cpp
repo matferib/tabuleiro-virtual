@@ -242,25 +242,57 @@ class AcaoAgarrar : public Acao {
   bool finalizada_ = false;
 };
 
-// Sobe um numero verde ou vermelho de acordo com o dano causado.
+// Antigamente: sobe um numero verde ou vermelho de acordo com o dano causado.
+// Hoje serve para texto tb.
+// Renomear para AcaoTexto.
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
   AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
       : Acao(acao_proto, tabuleiro, texturas) {
-    Entidade* entidade_destino = nullptr;
+    Entidade* entidade_destino = BuscaEntidadeDestino(acao_proto, tabuleiro);
     if (!acao_proto_.has_pos_entidade()) {
-      if ((entidade_destino = BuscaEntidadeDestino(acao_proto, tabuleiro)) == nullptr) {
+      if (entidade_destino == nullptr) {
         faltam_ms_ = 0;
         VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
         return;
       }
-      pos_ = entidade_destino->Pos();
-      pos_.set_z(entidade_destino->ZOlho());
-      VLOG(2) << "Acao usando entidade destino " << pos_.ShortDebugString();
+      if (tabuleiro_ == nullptr) {
+        faltam_ms_ = 0;
+        LOG(ERROR) << "Tabuleiro é nullptr!";
+        return;
+      }
+      const auto* entidade_primeira_pessoa = tabuleiro_->EntidadePrimeiraPessoa();
+      if (entidade_primeira_pessoa == nullptr || entidade_primeira_pessoa->Id() != entidade_destino->Id()) {
+        pos_ = entidade_destino->Pos();
+        pos_.set_z(entidade_destino->ZOlho());
+        VLOG(1) << "Acao usando entidade destino " << pos_.ShortDebugString();
+      } else {
+        // Entidade destino é a mesma da primeira pessoa. Vamos colocar a acao
+        // no meio da tela.
+        int largura, altura;
+        std::tie(largura, altura) = tabuleiro_->LarguraAlturaViewport();
+        pos_2d_.set_x(largura / 2);
+        pos_2d_.set_y(altura / 2);
+        max_delta_y_ = altura / 10;
+        VLOG(1) << "Acao posicao primeira pessoa";
+      }
     } else {
-      pos_ = acao_proto_.pos_entidade();
-      VLOG(2) << "Acao usando posicao entidade " << pos_.ShortDebugString();
+      const auto* entidade_primeira_pessoa = tabuleiro_->EntidadePrimeiraPessoa();
+      if (entidade_primeira_pessoa == nullptr || entidade_destino == nullptr ||
+          entidade_primeira_pessoa->Id() != entidade_destino->Id()) {
+        pos_ = acao_proto_.pos_entidade();
+        VLOG(1) << "Acao usando posicao entidade " << pos_.ShortDebugString();
+      } else {
+        // Entidade destino é a mesma da primeira pessoa. Vamos colocar a acao
+        // no meio da tela.
+        int largura, altura;
+        std::tie(largura, altura) = tabuleiro_->LarguraAlturaViewport();
+        pos_2d_.set_x(largura / 2);
+        pos_2d_.set_y(altura / 2);
+        max_delta_y_ = altura / 10;
+        VLOG(1) << "Acao posicao primeira pessoa";
+      }
     }
     faltam_ms_ = 0;
     // Monta a string de delta.
@@ -304,7 +336,9 @@ class AcaoDeltaPontosVida : public Acao {
     } else {
       MudaCorAplicandoNevoa(COR_VERMELHA, pd);
     }
-    DesenhaStringDelta();
+    if (!string_delta_.empty()) {
+      DesenhaStringDelta();
+    }
 
     if (!string_texto_.empty()) {
       if (acao_proto_.has_cor()) {
@@ -322,7 +356,11 @@ class AcaoDeltaPontosVida : public Acao {
       // Primeiro frame. Apenas posiciona na posicao inicial. Importante pos UI para nao pular o efeito.
       --faltam_ms_;
     } else {
-      pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
+      if (pos_2d_.has_y()) {
+        pos_2d_.set_y(pos_2d_.y() + (static_cast<float>(intervalo_ms) * max_delta_y_) / duracao_total_ms_);
+      } else {
+        pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
+      }
       faltam_ms_ -= intervalo_ms;
     }
     if (faltam_ms_ <= 0) {
@@ -338,16 +376,28 @@ class AcaoDeltaPontosVida : public Acao {
   void DesenhaStringDelta() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-    if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-      gl::DesenhaString(StringSemUtf8(string_delta_));
+    if (pos_2d_.has_x()) {
+      if (gl::PosicaoRasterAbsoluta(pos_2d_.x(), pos_2d_.y())) {
+        gl::DesenhaString(StringSemUtf8(string_delta_));
+      }
+    } else {
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        gl::DesenhaString(StringSemUtf8(string_delta_));
+      }
     }
   }
 
   void DesenhaStringTexto() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-    if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
-      gl::DesenhaString(StringSemUtf8(string_texto_));
+    if (pos_2d_.has_x()) {
+      if (gl::PosicaoRasterAbsoluta(pos_2d_.x(), pos_2d_.y())) {
+        gl::DesenhaString(StringSemUtf8(string_texto_));
+      }
+    } else {
+      if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
+        gl::DesenhaString(StringSemUtf8(string_texto_));
+      }
     }
   }
 
@@ -359,7 +409,9 @@ class AcaoDeltaPontosVida : public Acao {
   std::string string_delta_;
   int duracao_total_ms_ = 0;
   Posicao pos_;
+  Posicao pos_2d_;
   int faltam_ms_;
+  int max_delta_y_ = 0;
 };
 
 // Acao de dispersao, estilo bola de fogo.
@@ -369,6 +421,7 @@ class AcaoDispersao : public Acao {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
         acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    duracao_s_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.35f;
   }
 
   ~AcaoDispersao() {
@@ -451,7 +504,7 @@ class AcaoDispersao : public Acao {
         }
       }
     }
-    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
+    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (duracao_s_ * 1000);
     if (Finalizada()) {
       AtualizaAlvo(intervalo_ms);
     }
@@ -462,8 +515,9 @@ class AcaoDispersao : public Acao {
   }
 
  private:
-  float efeito_maximo_;
-  float efeito_;
+  float efeito_maximo_ = 0.0f;
+  float efeito_ = 0.0f;
+  float duracao_s_ = 0.0f;
 };
 
 // Acao de dispersao, estilo bola de fogo.
@@ -741,7 +795,7 @@ class AcaoProjetil : public Acao {
 class AcaoRaio : public Acao {
  public:
   AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
-    duracao_ = acao_proto.duracao_s();
+    duracao_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.5f;
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id origem.";
@@ -948,12 +1002,18 @@ class AcaoCorpoCorpo : public Acao {
   constexpr static int DURACAO_MS = 180;
 };
 
-// Acao de feitico de toque.
-class AcaoFeiticoToque : public Acao {
+// Acao de feitico.
+class AcaoFeitico : public Acao {
  public:
-  AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
-      VLOG(1) << "Acao de feitico de toque requer origem e destino";
+      LOG(ERROR) << "Acao de feitico de toque requer origem e destino, tem origem? "
+        << acao_proto_.has_id_entidade_origem() << ", destino vazio? " << acao_proto_.por_entidade().empty();
+      terminado_ = true;
+      return;
+    }
+    if (acao_proto.tipo() == ACAO_FEITICO_PESSOAL && acao_proto_.id_entidade_origem() != acao_proto_.por_entidade(0).id()) {
+      LOG(ERROR) << "Acao de feitico de toque pessoal requer origem e destino iguais";
       terminado_ = true;
       return;
     }
@@ -979,7 +1039,7 @@ class AcaoFeiticoToque : public Acao {
   void AtualizaAposAtraso(int intervalo_ms) override {
     auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.por_entidade(0).id());
     if (e == nullptr) {
-      VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
+      LOG(ERROR) << "Terminando acao feitico: origem ou destino nao existe mais.";
       terminado_ = true;
       return;
     }
@@ -989,6 +1049,7 @@ class AcaoFeiticoToque : public Acao {
       if (raio_ <= 0) {
         desenhando_origem_ = false;
         AtualizaAlvo(intervalo_ms);
+        raio_ = 0.0f;
       }
     } else {
       raio_ += DELTA_RAIO;
@@ -1003,10 +1064,29 @@ class AcaoFeiticoToque : public Acao {
   }
 
  private:
-  constexpr static int DURACAO_MS = 480;
+  constexpr static int DURACAO_MS = 300;
   bool desenhando_origem_;
   float raio_;
   bool terminado_;
+};
+
+// Nao faz nada.
+class AcaoCriacaoEntidade : public Acao {
+ public:
+  AcaoCriacaoEntidade(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+  }
+
+  void AtualizaAposAtraso(int intervalo_ms) override {
+  }
+
+  bool Finalizada() const override {
+    return true;
+  }
+
+ private:
 };
 
 }  // namespace
@@ -1074,7 +1154,7 @@ void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDese
     return;
   }
   if (IdCenario() != pd->pos_olho().id_cenario()) {
-    VLOG(1) << "Nao desenhando acao pois id cenario: " << IdCenario() 
+    VLOG(1) << "Nao desenhando acao pois id cenario: " << IdCenario()
             << " vs olho id: " << pd->pos_olho().id_cenario();
     return;
   }
@@ -1231,13 +1311,32 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
-      if (por_entidade.delta() == 0) continue;
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
         continue;
       }
       entidade_destino->AtivaFumegando(/*duracao_ms*/5000);
+    }
+    return false;
+  } else if (acao_proto_.consequencia() == TC_DERRUBA_ALVO) {
+    if (!acao_proto_.bem_sucedida()) {
+      VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
+    for (const auto& por_entidade : acao_proto_.por_entidade()) {
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
+      const auto id = por_entidade.id();
+      auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
+      if (entidade_destino == nullptr) {
+        continue;
+      }
+      AtualizaDirecaoQuedaAlvo(entidade_destino);
+      EntidadeProto parcial;
+      parcial.set_caida(true);
+      entidade_destino->AtualizaParcial(parcial);
     }
     return false;
   } else if (acao_proto_.consequencia() == TC_AGARRA_ALVO) {
@@ -1331,6 +1430,7 @@ Posicao Acao::AjustaPonto(
 
   switch (acao_proto.tipo()) {
     case ACAO_DISPERSAO:
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA:
         case ACAO_GEO_CILINDRO:
@@ -1446,7 +1546,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
   switch (acao_proto.tipo()) {
     case ACAO_PROJETIL_AREA: {
       const float dq_m2 =
-        DistanciaQuadrado(
+        DistanciaEmMetrosAoQuadrado(
             pos_ponto, acao_proto.pos_tabuleiro());
       // Admite uma certa tolerancia, porque o raio normalmente eh pequeno.
       const float distancia_maxima_m2 = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO * 1.10f, 2);
@@ -1454,10 +1554,11 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       return dq_m2 <= distancia_maxima_m2;
     }
     case ACAO_DISPERSAO:
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA: {
           const float dq =
-            DistanciaQuadrado(
+            DistanciaEmMetrosAoQuadrado(
                 pos_ponto, acao_proto.pos_tabuleiro());
           const float distancia_maxima = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
           VLOG(1) << "Distancia quadrado: " << dq << ", maximo: " << distancia_maxima;
@@ -1560,6 +1661,7 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
       return new AcaoSinalizacao(acao_proto, tabuleiro, texturas);
     case ACAO_PROJETIL:
       return new AcaoProjetil(acao_proto, tabuleiro, texturas);
+    case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
     case ACAO_DISPERSAO:
       return new AcaoDispersao(acao_proto, tabuleiro, texturas);
     case ACAO_DELTA_PONTOS_VIDA:
@@ -1569,13 +1671,16 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas*
     case ACAO_CORPO_A_CORPO:
       return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
     case ACAO_FEITICO_TOQUE:
-      return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
+    case ACAO_FEITICO_PESSOAL:
+      return new AcaoFeitico(acao_proto, tabuleiro, texturas);
     case ACAO_AGARRAR:
       return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
     case ACAO_POCAO:
       return new AcaoPocao(acao_proto, tabuleiro, texturas);
     case ACAO_PROJETIL_AREA:
       return new AcaoProjetilArea(acao_proto, tabuleiro, texturas);
+    case ACAO_CRIACAO_ENTIDADE:
+      return new AcaoCriacaoEntidade(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
@@ -1595,4 +1700,39 @@ int DeltaAcao(const AcaoProto& acao_proto) {
   }
   return acao_proto.delta_pontos_vida();
 }
+
+void CombinaEfeitos(AcaoProto* acao) {
+  std::set<int, std::greater<int>> a_remover;
+  std::unordered_map<int, AcaoProto::EfeitoAdicional*> efeito_por_id;
+  for (int i = 0; i < acao->efeitos_adicionais_size(); ++i) {
+    auto* ea = acao->mutable_efeitos_adicionais(i);
+    if (ea->has_combinar_com()) {
+      // Vou ignorar o valor e simplesmente pegar pelo id do efeito se houver.
+      auto it = efeito_por_id.find(ea->efeito());
+      if (it != efeito_por_id.end()) {
+        it->second->MergeFrom(*ea);
+        it->second->clear_combinar_com();
+        VLOG(1) << "combinado por id: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
+      } else if (ea->combinar_com() >= 0 && ea->combinar_com() < acao->efeitos_adicionais_size() && i != ea->combinar_com()) {
+        acao->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
+        acao->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
+        LOG(WARNING) << "combinado por posicao: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
+      } else {
+        LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
+                   << ", i: " << i << ", tamanho: " << acao->efeitos_adicionais_size();
+      }
+      a_remover.insert(i);
+    } else if (ea->has_efeito()) {
+      efeito_por_id[ea->efeito()] = ea;
+    }
+  }
+  for (int i : a_remover) {
+    acao->mutable_efeitos_adicionais()->DeleteSubrange(i, 1);
+  }
+}
+
+bool EfeitoArea(const AcaoProto& acao_proto) {
+  return acao_proto.efeito_area() || acao_proto.tipo() == ACAO_DISPERSAO;
+}
+
 }  // namespace ent

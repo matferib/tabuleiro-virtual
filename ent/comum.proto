@@ -1,6 +1,12 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum TipoMagia {
+  TM_NENHUMA = 0;
+  TM_ARCANA = 1;
+  TM_DIVINA = 2;
+}
+
 enum TendenciaSimplificada {
   TD_LEAL_BOM = 0;
   TD_LEAL_NEUTRO = 1;
@@ -27,19 +33,20 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 58.
+// Proximo id: 113.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
   EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
   EFEITO_PISCAR = 2;
-  EFEITO_BORRAR = 3;
+  EFEITO_NUBLAR = 3;
   EFEITO_FORCA_TOURO = 4;
   EFEITO_AGILIDADE_GATO = 5;
   EFEITO_ACELERAR = 6;
   EFEITO_AUMENTAR_PESSOA = 7;
   EFEITO_REDUZIR_PESSOA = 8;
   EFEITO_ARMADURA = 9;
+  EFEITO_ARMADURA_NATURAL_MELHORIA = 59;
   EFEITO_ESCUDO_FE       = 10;
   EFEITO_SABEDORIA_CORUJA = 11;
   EFEITO_ASTUCIA_RAPOSA = 12;
@@ -47,12 +54,16 @@ enum TipoEfeito {
   EFEITO_VIGOR_URSO = 14;
   EFEITO_ROUPA_ENCANTADA = 15;
   EFEITO_ESCUDO_ENCANTADO = 16;
+  EFEITO_ESCUDO_ARCANO = 68;
   EFEITO_HEROISMO = 17;
   EFEITO_PELE_ARVORE = 18;
   EFEITO_PROTECAO_CONTRA_MAL = 19;
   EFEITO_PROTECAO_CONTRA_BEM = 20;
   EFEITO_PROTECAO_CONTRA_CAOS = 21;
   EFEITO_PROTECAO_CONTRA_ORDEM = 22;
+  EFEITO_PROTECAO_CONTRA_ELEMENTOS = 69;
+  EFEITO_IMUNIDADE_ELEMENTO = 66;
+  EFEITO_LUZ = 67;
   EFEITO_FURIA = 23;
   // A furia do barbaro tem alguns efeitos a mais, como fadiga apos efeito e bonus de vontade contra encantamento.
   EFEITO_FURIA_BARBARO = 24;
@@ -62,9 +73,11 @@ enum TipoEfeito {
   EFEITO_AJUDA = 27;
   EFEITO_SUPORTAR_ELEMENTOS = 28;
   EFEITO_RESISTENCIA_ELEMENTOS = 29;
-  EFEITO_SANTUARIO = 30;              // TODO
+  EFEITO_SANTUARIO = 30;
   // Complemento é o rotulo.
   EFEITO_ABENCOAR_ARMA = 31;
+  EFEITO_BENCAO = 64;
+  EFEITO_MALDICAO_MENOR = 65;
 
   EFEITO_PEDRA_ENCANTADA = 32;
   EFEITO_DEFLEXAO_CA = 33;
@@ -102,6 +115,58 @@ enum TipoEfeito {
   EFEITO_SUGESTAO = 51;
   EFEITO_NAUSEA = 52;
   EFEITO_INVESTIDA = 53;
+  EFEITO_CONFUSAO = 58;
+  EFEITO_ORIENTACAO = 60;
+  EFEITO_MORTO_VIVO_EXPULSO = 61;
+  EFEITO_MORTO_VIVO_FASCINADO = 62;
+  EFEITO_VOO = 63;
+  EFEITO_ATAQUE_CERTEIRO = 70;
+  EFEITO_PASMAR = 71;
+  EFEITO_OFUSCADO = 72;
+  EFEITO_LER_MAGIAS = 73;
+  EFEITO_LEQUE_CROMATICO = 74;
+  EFEITO_POEIRA_OFUSCANTE = 75;
+  EFEITO_AMEDRONTADO = 76;
+  EFEITO_ABALADO = 77;
+  EFEITO_AUXILIO_DIVINO = 78;
+  EFEITO_PROTEGER_OUTRO = 79;
+  EFEITO_IMOBILIZADO = 80;
+  EFEITO_CURA_ACELERADA = 81;
+  EFEITO_ORACAO_ALIADOS = 82;
+  EFEITO_ORACAO_INIMIGOS = 83;
+  EFEITO_DESLOCAMENTO = 84;
+  EFEITO_CEGO = 85;
+  EFEITO_PENALIDADE_FORCA = 86;
+  EFEITO_PENALIDADE_DESTREZA = 87;
+  EFEITO_PENALIDADE_CONSTITUICAO = 88;
+  EFEITO_PENALIDADE_INTELIGENCIA = 89;
+  EFEITO_PENALIDADE_SABEDORIA = 90;
+  EFEITO_PENALIDADE_CARISMA = 91;
+  EFEITO_FORMA_GASOSA = 92;
+  EFEITO_LAMINA_AFIADA = 93;
+  EFEITO_DRENAR_TEMPORARIO = 94;
+  EFEITO_VITALIDADE_ILUSORIA = 95;
+  EFEITO_SEM_NOME_FORCA = 96;
+  EFEITO_MISSAO_MENOR = 97;
+  EFEITO_ENSURDECIDO = 98;
+  EFEITO_EXAUSTO = 99;
+  EFEITO_INVISIBILIDADE_CONTRA_MORTOS_VIVOS = 101;
+  EFEITO_PROTECAO_CONTRA_MORTE = 102;
+  EFEITO_PODER_DIVINO = 103;
+  EFEITO_RESISTENCIA_MAGIA = 104;
+  EFEITO_DISSIPAR_MAL = 105;
+  EFEITO_DISSIPAR_BEM = 106;
+  EFEITO_DISSIPAR_CAOS = 107;
+  EFEITO_DISSIPAR_ORDEM = 108;
+  EFEITO_MOVIMENTACAO_LIVRE = 109;
+  EFEITO_METAMORFOSE_TORRIDA = 110;
+  EFEITO_PARALISIA = 111;
+  EFEITO_INSPIRAR_CORAGEM = 112;
+}
+
+enum TipoEfeitoModelo {
+  EFEITO_MODELO_INVALIDO = 0;
+  EFEITO_MODELO_VULTO = 1;
 }
 
 // Tipo de visao para entidades e camera.
@@ -145,6 +210,8 @@ enum TipoDnD {
   TIPO_CONSTRUCTO = 8;
   TIPO_ELEMENTAL = 9;
   TIPO_LIMO = 10;
+  TIPO_GIGANTE = 11;
+  TIPO_HUMANOIDE_MONSTRUOSO = 12;
   // TODO outros.
 }
 
@@ -170,6 +237,7 @@ enum SubTipoDnD {
   SUBTIPO_AGUA = 18;
   SUBTIPO_ENXAME = 19;
   SUBTIPO_DEMONIO = 20;
+  SUBTIPO_PLANAR = 21;
 }
 
 enum DescritorAtaque {
@@ -313,6 +381,7 @@ message ReducaoDano {
   repeated DescritorAtaque descritores = 1;
   optional int32 valor = 2;
   optional TipoCombinacao tipo_combinacao = 3;
+  optional int32 id_unico = 4;
 }
 
 message ResistenciaElementos {
@@ -322,8 +391,19 @@ message ResistenciaElementos {
   optional int32 id_unico = 4;
 }
 
+enum VariacaoRM {
+  VRM_BASE = 0;
+  VRM_BASE_MAIS_UM_POR_NIVEL = 1;
+}
+
+enum TipoEvasao {
+  TE_NENHUM = 0;
+  TE_EVASAO = 1;
+  TE_EVASAO_APRIMORADA = 2;
+}
+
 // Dados de defesa global (independe de ataque).
-// Proximo id: 23.
+// Proximo id: 28.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -348,11 +428,19 @@ message DadosDefesa {
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
   optional int32 reducao_dano_barbaro = 15;
   optional int32 resistencia_magia = 16;
+  optional int32 resistencia_magia_racial = 27;
+  optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
   // Reduz ataques que nao corresponderem aos descritores.
-  optional ReducaoDano reducao_dano = 18;
+  repeated ReducaoDano reducao_dano = 18;
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
   repeated ResistenciaElementos resistencia_elementos = 19;
+  // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.
+  optional Bonus cura_acelerada = 23;
+  // Evasao: dinamico.
+  optional TipoEvasao evasao = 25;
+  // Para casos de evasao sem ser por classe, exemplo, familiar.
+  optional TipoEvasao evasao_estatica = 26;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
@@ -406,7 +494,7 @@ message BonusIndividual {
     // Para preenchimento do valor atraves de complemento.
     optional int32 indice_complemento = 3;
     // Para associar com eventos.
-    optional uint32 id_unico = 4;
+    optional int32 id_unico = 4;
   }
   repeated PorOrigem por_origem = 2;
 }
@@ -429,6 +517,19 @@ enum ProgressaoConjurador {
   PCONJ_MEIO_MIN_4 = 2; // ranger, paladino
 }
 
+enum ProgressaoExpulsao {
+  PEXP_ZERO = 0;          // sem progressao.
+  PEXP_UM = 1;            // um por nivel
+  PEXP_UM_MENOS_TRES = 2; // nivel menos tres.
+}
+
+enum TipoClasse {
+  TC_BASICA = 0;
+  TC_PRESTIGIO = 1;
+  TC_PDM = 2;
+  TC_MONSTRO = 3;
+}
+
 // Informacoes sobre a classe de um personagem.
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
@@ -436,6 +537,7 @@ message InfoClasse {
   optional string id = 1;
   optional string nome = 9;
   optional int32 nivel = 2;
+  // Este valor é recomputado para conter os aumentos de classes de prestigio.
   optional int32 nivel_conjurador = 3;
   // Bonus base de ataque do nivel.
   optional int32 bba = 4;
@@ -453,30 +555,48 @@ message InfoClasse {
   // Essas nao vem da tabela de classe, mas sim do modelo do monstro. Ver gaviao-seta como exemplo.
   // Atencao: esta aqui nao eh limpa no merge, portanto NUNCA deve aparecer na tabela de classes.
   repeated string pericias_monstro = 20;
+  // Numero de pericias por nivel que a classe ganha.
+  optional int32 pericias_por_nivel = 25;
   // Qual o tipo de magia para o classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12;
+  // Pode lancar magia arcna? Divina? Nenhum tipo.
+  optional TipoMagia tipo_magia = 28;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
   optional string id_para_progressao_de_magia = 18;
   optional bool possui_dominio = 14;
   optional bool precisa_memorizar = 17;
   // Representa os slots para cada nivel de magia. Por exemplo, slots[0] eh o numero de slots de nivel zero para o nivel.
   message ProgressaoParaNivel {
-    optional string magias_por_dia = 2;  // Para facilitar a tabela. Comeca sempre do nivel 0.
+    optional string magias_por_dia = 2;  // Comeca do nivel 0 se a classe possuir feiticos nivel 0, caso contrario, 1.
     optional string conhecidos = 3;      // Comeca sempre do nivel 0.
   }
   // A progressao apresenta os slots para cada nivel da classe. Por exemplo, slots_para_nivel[1] representa os slots para
   // nivel 1 da classe. O indice zero sempre eh vazio.
   message ProgressaoFeitico {
     repeated ProgressaoParaNivel para_nivel = 1;
+    optional bool nao_possui_nivel_zero = 2;
   }
   optional ProgressaoFeitico progressao_feitico = 16;
   message HabilidadesEspeciaisPorNivel {
-    // Chave da habilidade especial na tabela de chaves.
+    // Chave da habilidade especial na tabela.
     optional string id = 1;
     // Em qual nivel se ganha.
     optional int32 nivel = 2;
   }
   repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
+  // Indica que na verdade eh uma progressao de classe de monstro.
+  optional bool monstro = 21;
+  // Se presente, faz merge com classe ja existente ao inves de criar.
+  optional int32 combinar_com = 22;
+  // Se presente, classe pode expulsar morto vivo com a progressao passada.
+  optional ProgressaoExpulsao progressao_expulsao = 23;
+  // Aumenta o nivel de conjurador da primeira classe que tiver nivel de conjurador. Se quiser especificar,
+  // tem que preencher aumenta_nivel_conjurador_de.
+  optional bool aumenta_nivel_conjurador = 27;
+  // Se presente, a classe contribui com nivel de conjurador de outra classe.
+  optional string aumenta_nivel_conjurador_de = 24;
+  // Indica o tipo da classe tabelada.
+  optional TipoClasse tipo_classe = 26;
 }
 
 // Informacao sobre a pericia do personagem.
@@ -511,10 +631,10 @@ message ConsequenciaEvento {
   // Alteracao no tamanho da entidade.
   optional Bonus tamanho = 4;
   // Alteracao na pericia.
-  optional InfoPericia dados_pericia = 5;
+  repeated InfoPericia dados_pericia = 5;
+  //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
 
-  // se verdadeiro, usara complemento ao inves do valor passado.
-  optional bool usa_complemento = 10;
+  optional Bonus bonus_iniciativa = 11;
 }
 
 message EfeitoProto {
@@ -529,6 +649,16 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
   optional ConsequenciaEvento consequencia_fim = 3;
+}
+
+message EfeitoModeloProto {
+  optional TipoEfeitoModelo id = 1;  // id do efeito.
+  optional string nome = 5;  // nome do efeito, legibilidade.
+  // O que ocorre com a entidade quando efeito comeca.
+  optional ConsequenciaEvento consequencia = 2;
+  // Indica que o template pode ser desligado, tipo vulto com luz.
+  optional bool desligavel = 3;
+  optional string descricao = 4;
 }
 
 // Como os efeitos de uma pocao se combinam.
@@ -602,6 +732,12 @@ message TalentoProto {
   repeated BonusSalvacao bonus_salvacao = 9;
 
   optional Bonus bonus_ca = 10;
+
+  // Indica talento regional (FR).
+  optional bool regional = 11;
+
+  // De onde veio o talento.  
+  optional string livro = 12;
 }
 
 message HabilidadeEspecialProto {
@@ -623,6 +759,11 @@ enum TipoItem {
   TIPO_CHAPEU = 7;
 }
 
+enum TipoComplementoItemMagico {
+  TCIM_NENHUM = 0;
+  TCIM_ENERGIA = 1;  // resistencia a elementos.
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
@@ -634,6 +775,10 @@ message ItemMagicoProto {
   // Tipo do efeito do item (se causar algum).
   // Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
   repeated TipoEfeito tipo_efeito = 3;
+  // A origem de cada efeito, para efeitos cumulativos. Mesma cardinalidade do tipo_efeito.
+  // Na pratica, so sera necessario quando efeito for cumulativo. É preenchido com id do item em tabelas.cpp
+  // quando nao houver.
+  repeated string origens = 19;
   // Duracao do efeito.
   optional int32 duracao_rodadas = 4;
   // Custo em PO.
@@ -660,6 +805,8 @@ message ItemMagicoProto {
   optional int32 max_cargas = 15;
   // Cargas correntes do item.
   optional int32 cargas = 16;
+  // Tipo de complemento requerido pelo item magico. Usado pela UI.
+  optional TipoComplementoItemMagico tipo_complemento = 18;
 }
 
 message AnelProto {
@@ -785,6 +932,9 @@ message ParametrosDesenho {
 
   // Se verdadeiro, desenhara a ligacao de agarrar das entidades.
   optional bool desenha_ligacao_agarrar = 60 [default=true];
+
+  // Se presente, apenas a entidade devera ser desenhada e nada mais, de forma decomposta.
+  optional uint32 desenha_objeto_desmembrado = 61;
 }
 
 enum TipoVeneno {
@@ -820,4 +970,30 @@ message VenenoProto {
   // Classe de dificuldade.
   optional int32 cd = 10;
   optional int32 preco_po = 11;
+  // Indica pra nao computar CD usando a formula 10 + 1/2 HD + mod CON.
+  optional bool nao_usar_cd_dinamico = 12;
+}
+
+// Os templates de D&D.
+message ModeloDnD {
+  optional TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+  optional bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
+  repeated int32 complementos = 3;             // variaveis do modelo.
+}
+
+message RacaProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
+  optional Atributos bonus_atributos = 4;
+  optional TamanhoEntidade tamanho = 5 [default=TM_MEDIO];
+  optional DadosDefesa dados_defesa = 6;
+  optional TipoDnD tipo = 7;
+  optional SubTipoDnD sub_tipo = 8;
+}
+
+message DominioProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
 }

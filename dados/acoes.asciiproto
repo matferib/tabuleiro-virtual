@@ -1,4 +1,7 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes (repeated de AcaoProto).
+# Ele é um template de atributos por tipo de ação e muitos campos são sobrescritos depois de acordo com cada ataque.
+# Na hierarquia, ele é o primeiro a ser aplicado.
+# O id é a chave.
 acao {
   id: 'Agarrar'
   tipo: ACAO_AGARRAR
@@ -12,6 +15,7 @@ acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
   icone: 'icon_sword.png'
+  ataque_corpo_a_corpo: true
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
   ignora_resistencia_magia: true
@@ -33,12 +37,40 @@ acao {
   ignora_resistencia_magia: true
 }
 acao {
+  id: 'Expulsar Mortos Vivos'
+  tipo: ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS
+  geometria: ACAO_GEO_ESFERA
+  duracao_s: 0.5
+  afeta_apenas: TIPO_MORTO_VIVO
+  raio_quadrados: 12
+  cor { r: 1 g: 1 b: 1 a: 1 }
+  icone: 'icon_turn_undead.png'
+}
+acao {
+  id: 'Fascinar Mortos Vivos'
+  tipo: ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS
+  geometria: ACAO_GEO_ESFERA
+  duracao_s: 0.5
+  afeta_apenas: TIPO_MORTO_VIVO
+  raio_quadrados: 12
+  cor { r: 0 g: 0 b: 0 a: 1 }
+  icone: 'icon_turn_undead.png'
+}
+acao {
+  id: 'Feitiço de Bardo'
+  classe_conjuracao: 'bardo'
+}
+acao {
   id: 'Feitiço de Clérigo'
   classe_conjuracao: 'clerigo'
 }
 acao {
   id: 'Feitiço de Druida'
   classe_conjuracao: 'druida'
+}
+acao {
+  id: 'Feitiço de Feiticeiro'
+  classe_conjuracao: 'feiticeiro'
 }
 acao {
   id: 'Feitiço de Mago'
@@ -63,6 +95,21 @@ acao {
   icone: 'icon_touch.png'
   ataque_toque: true
   ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
+  permite_salvacao: true
+  ignora_resistencia_magia: false
+}
+acao {
+  id: 'Feitiço Pessoal'
+  tipo: ACAO_FEITICO_PESSOAL
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+  icone: 'icon_personal.png'
+  permite_ataque_vs_defesa: false
+  ignora_resistencia_magia: true
+  ignora_reducao_dano_barbaro: true
 }
 acao {
   id: 'Feitiço de Toque a Distância'
@@ -75,6 +122,19 @@ acao {
   icone: 'icon_ranged_touch.png'
   ataque_toque: true
   ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
+}
+acao {
+  id: 'Pergaminho Arcano'
+  icone: 'icon_scroll.png'
+  tipo_pergaminho: TM_ARCANA
+  ignora_reducao_dano_barbaro: true
+}
+acao {
+  id: 'Pergaminho Divino'
+  icone: 'icon_scroll.png'
+  tipo_pergaminho: TM_DIVINA
   ignora_reducao_dano_barbaro: true
 }
 acao {
@@ -89,7 +149,10 @@ acao {
   }
   icone: 'icon_stone.png'
   ataque_distancia: true
+  ataque_arremesso: true
   ignora_resistencia_magia: true
+  permite_ataque_vs_defesa: true
+  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Projétil de Área'
@@ -124,8 +187,22 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
+  id: 'Sopro'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_CONE
+  icone: 'icon_breath.png'
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  ignora_reducao_dano_barbaro: true
+}
+acao {
   id: 'Sinalização'
   tipo: ACAO_SINALIZACAO
   icone: 'icon_signal.png'
   ignora_luz: true
+}
+acao {
+  id: 'Criação de Entidade'
+  tipo: ACAO_CRIACAO_ENTIDADE
+  icone: 'icon_plus.png'
 }

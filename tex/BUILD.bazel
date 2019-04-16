@@ -1,0 +1,21 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+  name = "tex",
+  hdrs = [
+    "texturas.h",
+    "lodepng.h",
+  ],
+  srcs = [
+    "texturas.cpp",
+  ],
+  copts = [],
+  deps = [
+    "//arq",
+    "//ent:ent_cc_proto",
+    "//ent:ent_headers",
+    "//gltab",
+    "//log",
+    "//ntf:ntf_cc_proto",
+  ]
+)
