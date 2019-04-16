@@ -1305,6 +1305,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     if (da->derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
       acao_proto->set_consequencia(TC_DERRUBA_ALVO);
+      por_entidade->set_forca_consequencia(true);
       // Apenas para desfazer, pois a consequencia derrubara.
       auto* nd = grupo_desfazer->add_notificacao();
       std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
@@ -1580,7 +1581,9 @@ float Tabuleiro::TrataAcaoIndividual(
 
     std::string resultado_salvacao;
     bool salvou = false;
-    if (resultado.Sucesso() && (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
+    if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
+        (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
+         (da != nullptr && (da->derrubar_automatico() || da->derruba_sem_teste())))) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor. Entao setamos antes e depois.
       por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(da, *acao_proto, *entidade_origem, *entidade_destino);
@@ -1639,12 +1642,18 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.Sucesso() && (da->derrubar_automatico() || da->derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
       ResultadoAtaqueVsDefesa resultado_derrubar;
       if (da->derruba_sem_teste()) {
-        resultado_derrubar.resultado = RA_SUCESSO;
-        resultado_derrubar.texto = "derruba sem teste";
+        if (!salvou) {
+          resultado_derrubar.resultado = RA_SUCESSO;
+          resultado_derrubar.texto = "derruba sem teste";
+        } else {
+          resultado_derrubar.resultado = RA_FALHA_REFLEXO;
+          resultado_derrubar.texto = "salvou";
+        }
       } else {
         resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
       }
       if (resultado_derrubar.Sucesso()) {
+        por_entidade->set_forca_consequencia(true);
         acao_proto->set_consequencia(TC_DERRUBA_ALVO);
         // Apenas para desfazer, pois a consequencia derrubara.
         auto* nd = grupo_desfazer->add_notificacao();

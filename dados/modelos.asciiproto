@@ -1070,17 +1070,15 @@ modelo {
 modelo {
   id: 'Área Escorregadia'
   entidade {
-    modelo_3d { id: 'builtin:cubo' }
-    escala { x: 1.5 y: 6.0  z: 0.1 }
+    modelo_3d { id: 'builtin:esfera' escala { x: 2 y: 2  z: 0.1 } }
     cor { r: 0 g: 0 b: 0 a: 1 }
     dados_ataque {
-      rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque' alcance_q: 2 derruba_sem_teste: true
+      dificuldade_salvacao: 11
       acao_fixa {
-        tipo: ACAO_DISPERSAO
-        geometria: ACAO_GEO_ESFERA
         cor: { r: 1 b: 1 g: 1 a: 0.8 }
+        dificuldade_salvacao_por_nivel: false
         permite_ataque_vs_defesa: false
-        permite_salvacao: true
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
       }

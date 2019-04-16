@@ -5896,7 +5896,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
   ntf::Notificacao n_inversa;
   n_inversa.set_tipo(ntf::TN_ERRO);
   if (!n_original.has_tipo()) {
-    LOG(ERROR) << "Notificacao sem tipo!";
+    LOG(ERROR) << "Notificacao sem tipo: " << n_original.DebugString();
     return n_inversa;
   }
   VLOG(1) << "invertendo " << ntf::Tipo_Name(n_original.tipo());
@@ -5994,7 +5994,6 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
       VLOG(1) << "Invertendo TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL";
-      if (n_original.entidade_antes().has_reiniciar_ataque()) LOG(INFO) << "aqui!!!!!!";
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();

@@ -1460,7 +1460,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     da->set_ataque_arremesso(true);
   }
 
-  if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
+  if (da->acao().has_dificuldade_salvacao_base() || da->acao().dificuldade_salvacao_por_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
     // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)

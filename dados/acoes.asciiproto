@@ -1,4 +1,7 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes (repeated de AcaoProto).
+# Ele é um template de atributos por tipo de ação e muitos campos são sobrescritos depois de acordo com cada ataque.
+# Na hierarquia, ele é o primeiro a ser aplicado.
+# O id é a chave.
 acao {
   id: 'Agarrar'
   tipo: ACAO_AGARRAR
@@ -93,6 +96,8 @@ acao {
   ataque_toque: true
   ignora_reducao_dano_barbaro: true
   dificuldade_salvacao_por_nivel: true
+  permite_salvacao: true
+  ignora_resistencia_magia: false
 }
 acao {
   id: 'Feitiço Pessoal'

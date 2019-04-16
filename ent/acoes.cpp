@@ -1311,7 +1311,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
-      if (por_entidade.delta() == 0) continue;
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
@@ -1327,7 +1327,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
-      if (por_entidade.delta() == 0) continue;
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
