@@ -3070,7 +3070,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_INSPIRAR_CORAGEM
           rodadas: 5
-          complementos: 0
+          complementos: 1
         }
       }
     }
