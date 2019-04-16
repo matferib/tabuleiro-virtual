@@ -202,6 +202,7 @@ tabela_efeitos_modelos {
   efeitos {
     id: EFEITO_MODELO_VULTO
     nome: 'modelo de vulto'
+    # Complementos: RM.
     desligavel: true
     consequencia {
       atributos {
@@ -224,7 +225,7 @@ tabela_efeitos_modelos {
         salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         cura_acelerada { bonus_individual { tipo: TB_BASE por_origem { valor: 2 origem: 'vulto' } } }
-        # resistencia magia 11 + nivel PC
+        resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'vulto' } } }
         # pericias: +4 racial esconderse e furtividade.
       }
     }
