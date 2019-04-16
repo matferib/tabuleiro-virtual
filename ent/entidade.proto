@@ -444,7 +444,7 @@ message EntidadeProto {
   // Algumas entidades tem varias formas. Neste caso, a primeira sera a original para poder reverter
   // enquanto as outras serao as alternativas. Ou seja, eh 0 ou 2+.
   repeated EntidadeProto formas_alternativas = 60;
-  // Modelos sao como efeitos permanentes de uma entidade. Vamos ver se dessa forma funciona.
+  // Modelos (templates) sao como efeitos permanentes de uma entidade. Vamos ver se dessa forma funciona.
   repeated ModeloDnD modelos = 95;
   // Se houver forma alternativa, indica qual esta em uso.
   optional int32 forma_alternativa_corrente = 74;
