@@ -5126,6 +5126,7 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       ignora_resistencia_magia: false
@@ -6258,35 +6259,6 @@ tabela_feiticos {
     }
   }
 
-  armas {
-    id: 'imobilizar_pessoa'  # hold person
-    nome: 'imobilizar pessoa'
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 3
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      permite_ataque_vs_defesa: false
-      permite_salvacao: true
-      tipo_salvacao: TS_VONTADE
-      resultado_ao_salvar: RS_ANULOU
-      ignora_resistencia_magia: false
-      afeta_apenas: TIPO_HUMANOIDE
-      efeitos_adicionais {
-        efeito: EFEITO_IMOBILIZADO
-        modificador_rodadas: MR_RODADAS_NIVEL
-      }
-    }
-  }
   armas {
     id: 'zona_verdade'  # zone of truth
     nome: 'zona da verdade'
