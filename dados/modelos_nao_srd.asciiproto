@@ -644,6 +644,12 @@ modelo {
         }
       }
     }
+    tesouro {
+      pocoes { id: 'protecao_contra_bem' }
+      pocoes { id: 'ajuda' }
+      tesouro: '10 PO'
+    }
+
   }
 }
 
@@ -705,6 +711,7 @@ modelo {
     }
 
     tesouro {
+      pocoes { id: 'protecao_contra_bem' }
       tesouro: '10 PO\nflecha acida x4, teia x2'
     }
   }
@@ -938,6 +945,7 @@ modelo {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'protecao_contra_bem' }
       tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
     }
   }
@@ -993,6 +1001,7 @@ modelo {
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'protecao_contra_bem' }
       aneis { id: 'protecao_1' em_uso: true }
       amuletos { id: 'periapto_sabedoria_2' em_uso: true }
       tesouro: '10 PO\nsimbolo sagrado\n6tochas'
