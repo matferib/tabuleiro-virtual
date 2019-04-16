@@ -582,7 +582,7 @@ modelo {
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     dados_ataque {
       limite_vezes: 3
-      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
@@ -596,7 +596,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
@@ -619,7 +619,7 @@ modelo {
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_bard.png' translacao_x: 0.25 largura: 0.5 }
     dados_ataque {
-      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       limite_vezes: 3
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
@@ -633,7 +633,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
@@ -662,7 +662,7 @@ modelo {
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_sorcerer.png' translacao_x: 0.25 largura: 0.5 }
     dados_ataque {
-      grupo: 'reflexos' rotulo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       limite_vezes: 3
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
@@ -676,7 +676,7 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'invisibilidade' rotulo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       acao_fixa {
         tipo: ACAO_FEITICO_PESSOAL
         ignora_resistencia_magia: true
@@ -1010,7 +1010,7 @@ modelo {
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_INVISIBILIDADE
-          rodadas: 50
+          rodadas: 60
           combinar_com: 0
         }
       }

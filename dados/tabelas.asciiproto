@@ -6315,6 +6315,7 @@ tabela_feiticos {
   armas {
     id: 'luz_dia'  # daylight
     nome: 'luz do dia'
+    alcance_quadrados: 1
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -6336,7 +6337,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_CRIACAO_ENTIDADE
+      id: 'Criação de Entidade'
       id_modelo_entidade: 'Luz do Dia'
     }
   }

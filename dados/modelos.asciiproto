@@ -627,7 +627,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
           rodadas: 12
-          complementos: 6  # 1d4+4
+          dado_complementos_str: '1d4+4'
           combinar_com: 0
         }
       }
@@ -1075,12 +1075,14 @@ modelo {
     dados_ataque {
       rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque' alcance_q: 2 derruba_sem_teste: true
       dificuldade_salvacao: 11
+      incrementa_proximo_ataque: false
       acao_fixa {
         cor: { r: 1 b: 1 g: 1 a: 0.8 }
         dificuldade_salvacao_por_nivel: false
         permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
+        ignora_resistencia_magia: true
       }
     }
     evento {
@@ -1097,8 +1099,8 @@ modelo {
 modelo {
   id: 'Luz do Dia'
   entidade {
-    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
-    cor { r: 1 g: 1 b: 1 a: 1 }
+    modelo_3d { id: 'builtin:esfera' escala { x: 0.5 y: 0.5 z: 0.5 } translacao { z: 0.75 } }
+    cor { r: 1 g: 1 b: 0 a: 1 }
     luz { cor { r: 1 g: 1 b: 1 a: 1 } raio_m: 18 }
     ignora_luz: true
     evento {
@@ -4056,6 +4058,7 @@ modelo {
         permite_salvacao: true
         dificuldade_salvacao_base: 14
         efeitos_adicionais {
+          efeito: EFEITO_CONFUSAO
           combinar_com: 0
           rodadas: 14
         }
