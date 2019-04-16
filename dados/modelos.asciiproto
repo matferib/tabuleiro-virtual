@@ -3062,6 +3062,8 @@ modelo {
     }
     dados_ataque {
       tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      ignora_reflexos: true
+      incrementa_proximo_ataque: false
       alcance_q: 6
       acao_fixa {
         permite_ataque_vs_defesa: false

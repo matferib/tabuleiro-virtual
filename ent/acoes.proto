@@ -87,7 +87,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL = 7;  // poder divino.
 }
 
-// Proximo id: 71.
+// Proximo id: 72.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -247,6 +247,7 @@ message AcaoProto {
     IA_NENHUMA = 0;
   }
   optional DetalhesAdicionais detalhes_adicionais = 70;
+  optional bool ignora_reflexos = 71;
 }
 
 // O arquivo de acoes é serializado desta forma.

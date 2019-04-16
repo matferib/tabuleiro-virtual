@@ -2524,13 +2524,22 @@ tabela_pocoes {
     custo_po: 50
   }
   pocoes {
-    id: 'acelerar'
+    id: 'velocidade'
     nome: 'Velocidade'
     duracao_rodadas: 5
     tipo_efeito: EFEITO_ACELERAR
     descricao: 'Acelera o personagem'
     custo_po: 750
   }
+  pocoes {
+    id: 'acelerar'  # so pra nao dar pau.
+    nome: 'Velocidade'
+    duracao_rodadas: 5
+    tipo_efeito: EFEITO_ACELERAR
+    descricao: 'Acelera o personagem'
+    custo_po: 750
+  }
+
   pocoes {
     id: 'aumentar_pessoa'
     nome: 'Aumentar Pessoa'

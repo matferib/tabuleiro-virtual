@@ -1438,6 +1438,9 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   CombinaEfeitos(da->mutable_acao());
 
   const AcaoProto& acao = da->acao();
+  if (acao.has_ignora_reflexos()) {
+    da->set_ignora_reflexos(acao.ignora_reflexos());
+  }
   if (acao.has_id() && da->tipo_ataque().empty()) {
     da->set_tipo_ataque(acao.id());
   }
