@@ -1,6 +1,7 @@
 #include "ent/recomputa.h"
 
 #include <unordered_set>
+#include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
@@ -1434,6 +1435,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
+  CombinaEfeitos(da->mutable_acao());
 
   const AcaoProto& acao = da->acao();
   if (acao.has_id() && da->tipo_ataque().empty()) {

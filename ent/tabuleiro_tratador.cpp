@@ -1075,6 +1075,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
   // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
   const bool ha_valor = HaValorListaPontosVida();
 
+  const auto* da = entidade == nullptr ? nullptr : entidade->DadoCorrente();
+  const bool incrementa_ataque = da != nullptr && da->incrementa_proximo_ataque();
   atraso_s += TrataAcaoIndividual(
       id_entidade_destino, atraso_s, pos_entidade_destino, entidade, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
@@ -1088,7 +1090,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   const bool acertou_direto = acao_proto->bem_sucedida();
 
   // A acao individual incrementou o ataque.
-  if (entidade != nullptr) entidade->AtaqueAnterior();
+  if (incrementa_ataque) entidade->AtaqueAnterior();
 
   if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
@@ -1170,7 +1172,9 @@ float Tabuleiro::TrataAcaoProjetilArea(
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
-  if (entidade != nullptr) entidade->ProximoAtaque();
+  if (incrementa_ataque) {
+    entidade->ProximoAtaque();
+  }
   return atraso_s;
 }
 
@@ -1226,7 +1230,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (da != nullptr && da->cura()) {
       delta_pontos_vida = -delta_pontos_vida;
     }
-    entidade_origem->ProximoAtaque();
+    if (da != nullptr && da->incrementa_proximo_ataque()) {
+      entidade_origem->ProximoAtaque();
+    }
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
   }
@@ -1346,7 +1352,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("AAFora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1451,7 +1457,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Acao realizada, ao terminar funcao, roda isso.
     RodaNoRetorno roda_no_retorno([entidade_origem, da, grupo_desfazer]() {
-      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
+      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1) && da->incrementa_proximo_ataque()) {
         ntf::Notificacao* filha;
         EntidadeProto *e_antes, *e_depois;
         std::tie(filha, e_antes, e_depois) =
