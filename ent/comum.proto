@@ -978,7 +978,7 @@ message VenenoProto {
 message ModeloDnD {
   optional TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
   optional bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
-  optional int32 complementos = 3;             // variaveis do modelo.
+  repeated int32 complementos = 3;             // variaveis do modelo.
 }
 
 message RacaProto {

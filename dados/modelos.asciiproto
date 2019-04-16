@@ -3103,7 +3103,7 @@ modelo {
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'luz' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'ler_magias' }
         conhecidos { id: 'abrir_fechar' }
         conhecidos { id: 'invocar_instrumento' }
       }
@@ -3189,7 +3189,7 @@ modelo {
         conhecidos { id: 'detectar_veneno' }
         conhecidos { id: 'brilho' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_de_gelo' }
+        conhecidos { id: 'raio_gelo' }
         conhecidos { id: 'ler_magias' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
