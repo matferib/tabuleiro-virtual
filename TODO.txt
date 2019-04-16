@@ -1,5 +1,4 @@
 Anotacoes da sessao:
-- Versionar tabuleiro ao salvar: permitir apagar versoes.
 - Criar uma tabela homebrew (coisas que fizemos e que podemos distribuir).
 - Adicionar chapeus de tesouro na tabela.
 - Forma alternativa: salvar o estado anterior antes de abrir dialogo dela pra nao perder as edicoes.
