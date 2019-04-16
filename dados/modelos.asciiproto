@@ -1068,10 +1068,42 @@ modelo {
   }
 }
 modelo {
+  id: 'Constrição'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 6.0  z: 0.1 } }
+    cor { r: 0 g: 0 b: 0 a: 1 }
+    dados_ataque {
+      rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_ESFERA
+        raio_quadrados: 8
+        cor: { r: 0 b: 0 g: 1 a: 0.8 }
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+        efeitos_adicionais {
+          efeito: EFEITO_ENREDADO
+          duracao_rodada: 1
+        }
+      }
+    }
+    evento {
+      rodadas: 1
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Área Escorregadia'
   entidade {
-    modelo_3d { id: 'builtin:cubo' }
-    escala { x: 1.5 y: 6.0  z: 0.1 }
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 6.0  z: 0.1 } }
     cor { r: 0 g: 0 b: 0 a: 1 }
     dados_ataque {
       rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque'

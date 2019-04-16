@@ -1,8 +1,4 @@
-#include <algorithm>
-#include <cmath>
-#include <stdexcept>
-#include <string>
-#include <functional>
+#include "ifg/qt/visualizador3d.h"
 
 #include <QBoxLayout>
 #include <QColorDialog>
@@ -19,9 +15,15 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QString>
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <stdexcept>
+#include <string>
 
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
+#include "ent/recomputa.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -36,12 +38,11 @@
 #include "ifg/qt/pericias_util.h"
 #include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/talentos_util.h"
-#include "ifg/qt/ui/entidade.h"
-#include "ifg/qt/util.h"
-#include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/cenario.h"
+#include "ifg/qt/ui/entidade.h"
+#include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/opcoes.h"
-#include "ifg/qt/visualizador3d.h"
+#include "ifg/qt/util.h"
 #include "ifg/tecladomouse.h"
 #include "log/log.h"
 #include "m3d/m3d.h"
@@ -983,7 +984,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
-  RecomputaDependencias(tabelas, proto_retornado);
+  ent::RecomputaDependencias(tabelas, proto_retornado);
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
@@ -1109,7 +1110,7 @@ void PreencheConfiguraEventos(
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [this_, proto_retornado, &gerador, modelo] () {
     *proto_retornado->mutable_evento() = modelo->LeEventos();
-    RecomputaDependencias(this_->tabelas(), proto_retornado);
+    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
   });
 }
@@ -1197,9 +1198,10 @@ ent::TipoEvasao IndiceComboParaTipoEvasao(int indice) {
   return (ent::TipoEvasao)indice;
 }
 
-void PreencheConfiguraEvasao(
-	  Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
-	  ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraEvasao(Visualizador3d* this_,
+                             ifg::qt::Ui::DialogoEntidade& gerador,
+                             const ent::EntidadeProto& proto,
+                             ent::EntidadeProto* proto_retornado) {
   AtualizaUIEvasao(this_->tabelas(), gerador, proto);
   const ent::Tabelas& tabelas = this_->tabelas();
   lambda_connect(gerador.combo_evasao_estatica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1214,42 +1216,43 @@ void PreencheConfiguraEvasao(
   });
 }
 
-void PreencheConfiguraInimigosPrediletos(
-	  Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
-	  ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraInimigosPrediletos(Visualizador3d* this_,
+                                         ifg::qt::Ui::DialogoEntidade& gerador,
+                                         const ent::EntidadeProto& proto,
+                                         ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
 
   auto* modelo(new ModeloInimigoPredileto(tabelas, *proto_retornado, gerador.tabela_inimigos_prediletos));
-	std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_inimigos_prediletos->selectionModel());
+  std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_inimigos_prediletos->selectionModel());
 
-	TrocaDelegateColuna(2, new TipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
-	TrocaDelegateColuna(3, new SubTipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
+  TrocaDelegateColuna(2, new TipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
+  TrocaDelegateColuna(3, new SubTipoDnDDelegate(tabelas, modelo, gerador.tabela_inimigos_prediletos), gerador.tabela_inimigos_prediletos);
 
-	gerador.tabela_inimigos_prediletos->setModel(modelo);
-	lambda_connect(gerador.botao_adicionar_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
-		const int linha = modelo->rowCount();
-		modelo->insertRows(linha, 1, QModelIndex());
-		gerador.tabela_inimigos_prediletos->selectRow(linha);
-	});
-	lambda_connect(gerador.botao_remover_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
-		std::set<int, std::greater<int>> linhas;
-		for (const QModelIndex& index : gerador.tabela_inimigos_prediletos->selectionModel()->selectedIndexes()) {
-			linhas.insert(index.row());
-		}
-		for (int linha : linhas) {
-			modelo->removeRows(linha, 1, QModelIndex());
-		}
-	});
+  gerador.tabela_inimigos_prediletos->setModel(modelo);
+  lambda_connect(gerador.botao_adicionar_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
+    const int linha = modelo->rowCount();
+    modelo->insertRows(linha, 1, QModelIndex());
+    gerador.tabela_inimigos_prediletos->selectRow(linha);
+  });
+  lambda_connect(gerador.botao_remover_inimigo_predileto, SIGNAL(clicked()), [&gerador, modelo]() {
+    std::set<int, std::greater<int>> linhas;
+    for (const QModelIndex& index : gerador.tabela_inimigos_prediletos->selectionModel()->selectedIndexes()) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->removeRows(linha, 1, QModelIndex());
+    }
+  });
 
-	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-	gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+  gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+  gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+  gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
-	lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-		[&tabelas, &gerador, proto_retornado, modelo]() {
-		*proto_retornado->mutable_dados_ataque_global()->mutable_inimigos_prediletos() = modelo->Converte();
-		ent::RecomputaDependencias(tabelas, proto_retornado);
+  lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                 [&tabelas, &gerador, proto_retornado, modelo]() {
+    *proto_retornado->mutable_dados_ataque_global()->mutable_inimigos_prediletos() = modelo->Converte();
+    ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }

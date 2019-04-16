@@ -5047,6 +5047,144 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'constricao'  # entangle
+    nome: 'constrição'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'plantas'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Constrição'
+    }
+  }
+
+  armas {
+    id: 'detectar_animais_plantar'  # detect animals or plants
+    nome: 'detectar animais ou plantas'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+  }
+  armas {
+    id: 'detectar_armadilhas'  # detect snares and traps
+    nome: 'detectar armadilhas'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+  }
+
+
+  armas {
+    id: 'enfeiticar_pessoa'  # charm person
+    nome: 'enfeitiçar pessoa'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas: TIPO_HUMANOIDE
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'enfeiticar_animal'  # charm animal
+    nome: 'enfeitiçar animal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas: TIPO_ANIMAL
+      efeitos_adicionais {
+        efeito: EFEITO_ENFEITICADO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+  }
+
+  armas {
+    id: 'acalmar_animais'  # calm animals
+    nome: 'acalmar animais'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'animais'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      afeta_apenas: TIPO_ANIMAL
+      # TODO maximo DV 2d4 + nivel conjurador.
+      # TODO animais atrozes tem salvacao.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Calmo'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+  }
+
+  armas {
     id: 'remover_medo'  # remove fear
     nome: 'remover medo'
     info_classes {
@@ -9289,7 +9427,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'enfeiticar_monstro'
+    id: 'enfeiticar_monstro' # charm monster
     nome: 'enfeitiçar monstro'
     alcance_quadrados: 12
     info_classes {
@@ -9319,8 +9457,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       efeitos_adicionais {
         efeito: EFEITO_ENFEITICADO
-        rodadas: 600  # 1h por nivel.
-        descricao: 'enfeiticado'
+        modificador_rodadas: MR_DIAS_POR_NIVEL
       }
     }
   }
