@@ -1085,7 +1085,7 @@ modelo {
         resultado_ao_salvar: RS_ANULOU
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
-          duracao_rodada: 1
+          rodadas: 1
         }
       }
     }
