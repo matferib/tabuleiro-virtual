@@ -22,6 +22,7 @@
 
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
+#include "ent/recomputa.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -983,7 +984,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
-  RecomputaDependencias(tabelas, proto_retornado);
+  ent::RecomputaDependencias(tabelas, proto_retornado);
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
@@ -1109,7 +1110,7 @@ void PreencheConfiguraEventos(
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [this_, proto_retornado, &gerador, modelo] () {
     *proto_retornado->mutable_evento() = modelo->LeEventos();
-    RecomputaDependencias(this_->tabelas(), proto_retornado);
+    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
   });
 }
@@ -1616,12 +1617,14 @@ void PreencheConfiguraDadosDefesa(
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
-  gerador.spin_rm->setValue(proto.dados_defesa().resistencia_magia());
+  gerador.spin_rm->setValue(
+      ent::BonusIndividualPorOrigem(ent::TB_BASE, "manual", proto_retornado->dados_defesa().resistencia_magia_variavel()));
   lambda_connect(gerador.spin_rm, SIGNAL(valueChanged(int)), [&gerador, proto_retornado]() {
+    auto* bonus = proto_retornado->mutable_dados_defesa()->mutable_resistencia_magia_variavel();
     if (gerador.spin_rm->value() > 0) {
-      proto_retornado->mutable_dados_defesa()->set_resistencia_magia(gerador.spin_rm->value());
+      ent::AtribuiBonus(gerador.spin_rm->value(), ent::TB_BASE, "manual", bonus);
     } else {
-      proto_retornado->mutable_dados_defesa()->clear_resistencia_magia();
+      ent::RemoveBonus(ent::TB_BASE, "manual", bonus);
     }
   });
 

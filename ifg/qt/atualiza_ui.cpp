@@ -669,32 +669,39 @@ void PreencheComboParaLancar(
     const ent::Tabelas& tabelas,
     const std::string& id_classe, int nivel_para_lancar, int indice_para_lancar,
     const ent::EntidadeProto& proto, QTreeWidgetItem* item_feitico, QComboBox* combo) {
-  QStringList lista;
   // Mapeia os indices do combo para (nivel_conhecido, indice_conhecido).
   std::vector<std::pair<int, int>> mapa;
   const auto& fn_para_lancar = FeiticoParaLancar(id_classe, nivel_para_lancar, indice_para_lancar, proto);
   int indice_corrente = -1;
   combo->clear();
   for (int nivel_conhecido = nivel_para_lancar; nivel_conhecido >= 0; --nivel_conhecido) {
+    QStringList lista;
+    combo->addItem(QString(combo->tr("Nível %1")).arg(nivel_conhecido));
+    mapa.push_back(std::make_pair(nivel_conhecido, -1));
     const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
     int indice_conhecido = 0;
     for (const auto& c : fn.conhecidos()) {
       lista.push_back(QString::fromUtf8(c.has_nome() ? c.nome().c_str() : tabelas.Feitico(c.id()).nome().c_str()));
+      mapa.push_back(std::make_pair(nivel_conhecido, indice_conhecido));
       if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
           fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
+        // Dados do feitico conhecido selecionado.
         indice_corrente = mapa.size();
         item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(nivel_conhecido));
         item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(indice_conhecido));
       }
-      mapa.push_back(std::make_pair(nivel_conhecido, indice_conhecido));
       ++indice_conhecido;
     }
+    combo->addItems(lista);
   }
-  combo->addItems(lista);
   combo->setCurrentIndex(indice_corrente);
   combo->disconnect();
   ExpandeComboBox(combo);
   lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [item_feitico, mapa] (int indice) {
+      if (mapa[indice].second == -1) {
+        // Selecionou o label.
+        return;
+      }
       // Trigar apenas 1 evento.
       item_feitico->treeWidget()->blockSignals(true);
       item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(mapa[indice].first));
