@@ -2696,7 +2696,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
         conhecidos { id: 'protecao_contra_elementos' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
