@@ -1,6 +1,7 @@
 #include "ent/recomputa.h"
 
 #include <unordered_set>
+#include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
@@ -228,6 +229,7 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().resistencia_magia_variavel(), proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
@@ -671,6 +673,7 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.dados_defesa().has_resistencia_magia_variavel())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   if (c.has_jogada_ataque())            PreencheOrigemValor(origem, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(origem, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(origem, complementos, c.mutable_tamanho());
@@ -695,6 +698,7 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.dados_defesa().has_cura_acelerada())     PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.dados_defesa().has_resistencia_magia_variavel())     PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(origem, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(origem, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(origem, c.mutable_tamanho());
@@ -1353,9 +1357,10 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Modelos desativados.
   for (auto& modelo : *proto->mutable_modelos()) {
     if (!ModeloDesligavel(tabelas, modelo) || modelo.ativo()) continue;
-    const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
-    VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
-    AplicaEfeitoComum(PreencheConsequenciaFimParaModelos(efeito.consequencia()), proto);
+    const auto& efeito_modelo = tabelas.EfeitoModelo(modelo.id_efeito());
+    VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito_modelo.id());
+    //AplicaEfeitoComum(PreencheConsequenciaFimParaModelos(efeito.consequencia()), proto);
+    AplicaEfeitoComum(PreencheConsequenciaFim(efeito_modelo.nome(), efeito_modelo.consequencia()), proto);
   }
 
   for (int i : eventos_a_remover) {
@@ -1380,9 +1385,9 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Efeito de modelos.
   for (auto& modelo : *proto->mutable_modelos()) {
     if (ModeloDesligavel(tabelas, modelo) && !modelo.ativo()) continue;
-    const auto& efeito = tabelas.EfeitoModelo(modelo.id_efeito());
-    VLOG(1) << "aplicando efeito de modelo: " << TipoEfeitoModelo_Name(efeito.id());
-    AplicaEfeitoComum(efeito.consequencia(), proto);
+    const auto& efeito_modelo = tabelas.EfeitoModelo(modelo.id_efeito());
+    VLOG(1) << "aplicando efeito de modelo: " << TipoEfeitoModelo_Name(efeito_modelo.id());
+    AplicaEfeitoComum(PreencheConsequencia(efeito_modelo.nome(), modelo.complementos(), efeito_modelo.consequencia()), proto);
   }
 
   const int total_constituicao_depois = BonusTotal(proto->atributos().constituicao());
@@ -1430,8 +1435,12 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->has_acao_fixa()) {
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
+  CombinaEfeitos(da->mutable_acao());
 
   const AcaoProto& acao = da->acao();
+  if (acao.has_ignora_reflexos()) {
+    da->set_ignora_reflexos(acao.ignora_reflexos());
+  }
   if (acao.has_id() && da->tipo_ataque().empty()) {
     da->set_tipo_ataque(acao.id());
   }
@@ -1460,7 +1469,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     da->set_ataque_arremesso(true);
   }
 
-  if (da->acao().has_dificuldade_salvacao_base() || da->acao().has_dificuldade_salvacao_por_nivel()) {
+  if (da->acao().has_dificuldade_salvacao_base() || da->acao().dificuldade_salvacao_por_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
     // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)

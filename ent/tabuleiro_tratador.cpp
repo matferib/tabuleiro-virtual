@@ -1075,6 +1075,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
   // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
   const bool ha_valor = HaValorListaPontosVida();
 
+  const auto* da = entidade == nullptr ? nullptr : entidade->DadoCorrente();
+  const bool incrementa_ataque = da != nullptr && da->incrementa_proximo_ataque();
   atraso_s += TrataAcaoIndividual(
       id_entidade_destino, atraso_s, pos_entidade_destino, entidade, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
@@ -1088,7 +1090,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   const bool acertou_direto = acao_proto->bem_sucedida();
 
   // A acao individual incrementou o ataque.
-  if (entidade != nullptr) entidade->AtaqueAnterior();
+  if (incrementa_ataque) entidade->AtaqueAnterior();
 
   if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
@@ -1170,7 +1172,9 @@ float Tabuleiro::TrataAcaoProjetilArea(
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
-  if (entidade != nullptr) entidade->ProximoAtaque();
+  if (incrementa_ataque) {
+    entidade->ProximoAtaque();
+  }
   return atraso_s;
 }
 
@@ -1226,7 +1230,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (da != nullptr && da->cura()) {
       delta_pontos_vida = -delta_pontos_vida;
     }
-    entidade_origem->ProximoAtaque();
+    if (da != nullptr && da->incrementa_proximo_ataque()) {
+      entidade_origem->ProximoAtaque();
+    }
     acao_proto->set_delta_pontos_vida(delta_pontos_vida);
     acao_proto->set_afeta_pontos_vida(true);
   }
@@ -1305,6 +1311,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     if (da->derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
       acao_proto->set_consequencia(TC_DERRUBA_ALVO);
+      por_entidade->set_forca_consequencia(true);
       // Apenas para desfazer, pois a consequencia derrubara.
       auto* nd = grupo_desfazer->add_notificacao();
       std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
@@ -1345,7 +1352,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("AAFora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1450,7 +1457,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Acao realizada, ao terminar funcao, roda isso.
     RodaNoRetorno roda_no_retorno([entidade_origem, da, grupo_desfazer]() {
-      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1)) {
+      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1) && da->incrementa_proximo_ataque()) {
         ntf::Notificacao* filha;
         EntidadeProto *e_antes, *e_depois;
         std::tie(filha, e_antes, e_depois) =
@@ -1580,7 +1587,9 @@ float Tabuleiro::TrataAcaoIndividual(
 
     std::string resultado_salvacao;
     bool salvou = false;
-    if (resultado.Sucesso() && (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty()) && acao_proto->permite_salvacao()) {
+    if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
+        (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
+         (da != nullptr && (da->derrubar_automatico() || da->derruba_sem_teste())))) {
       // A funcao AtaqueVsSalvacao usa o delta para retornar o valor. Entao setamos antes e depois.
       por_entidade->set_delta(delta_pontos_vida);
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(da, *acao_proto, *entidade_origem, *entidade_destino);
@@ -1639,12 +1648,18 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.Sucesso() && (da->derrubar_automatico() || da->derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
       ResultadoAtaqueVsDefesa resultado_derrubar;
       if (da->derruba_sem_teste()) {
-        resultado_derrubar.resultado = RA_SUCESSO;
-        resultado_derrubar.texto = "derruba sem teste";
+        if (!salvou) {
+          resultado_derrubar.resultado = RA_SUCESSO;
+          resultado_derrubar.texto = "derruba sem teste";
+        } else {
+          resultado_derrubar.resultado = RA_FALHA_REFLEXO;
+          resultado_derrubar.texto = "salvou";
+        }
       } else {
         resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
       }
       if (resultado_derrubar.Sucesso()) {
+        por_entidade->set_forca_consequencia(true);
         acao_proto->set_consequencia(TC_DERRUBA_ALVO);
         // Apenas para desfazer, pois a consequencia derrubara.
         auto* nd = grupo_desfazer->add_notificacao();

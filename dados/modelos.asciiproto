@@ -627,7 +627,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_REFLEXOS
           rodadas: 12
-          complementos: 6  # 1d4+4
+          dado_complementos_str: '1d4+4'
           combinar_com: 0
         }
       }
@@ -1103,18 +1103,19 @@ modelo {
 modelo {
   id: 'Área Escorregadia'
   entidade {
-    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 6.0  z: 0.1 } }
+    modelo_3d { id: 'builtin:esfera' escala { x: 2 y: 2  z: 0.1 } }
     cor { r: 0 g: 0 b: 0 a: 1 }
     dados_ataque {
-      rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque' alcance_q: 2 derruba_sem_teste: true
+      dificuldade_salvacao: 11
+      incrementa_proximo_ataque: false
       acao_fixa {
-        tipo: ACAO_DISPERSAO
-        geometria: ACAO_GEO_ESFERA
         cor: { r: 1 b: 1 g: 1 a: 0.8 }
+        dificuldade_salvacao_por_nivel: false
         permite_ataque_vs_defesa: false
-        permite_salvacao: true
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
+        ignora_resistencia_magia: true
       }
     }
     evento {
@@ -1131,8 +1132,8 @@ modelo {
 modelo {
   id: 'Luz do Dia'
   entidade {
-    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
-    cor { r: 1 g: 1 b: 1 a: 1 }
+    modelo_3d { id: 'builtin:esfera' escala { x: 0.5 y: 0.5 z: 0.5 } translacao { z: 0.75 } }
+    cor { r: 1 g: 1 b: 0 a: 1 }
     luz { cor { r: 1 g: 1 b: 1 a: 1 } raio_m: 18 }
     ignora_luz: true
     evento {
@@ -2728,7 +2729,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
         conhecidos { id: 'protecao_contra_elementos' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
@@ -3094,6 +3095,8 @@ modelo {
     }
     dados_ataque {
       tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      ignora_reflexos: true
+      incrementa_proximo_ataque: false
       alcance_q: 6
       acao_fixa {
         permite_ataque_vs_defesa: false
@@ -3102,7 +3105,7 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_INSPIRAR_CORAGEM
           rodadas: 5
-          complementos: 0
+          complementos: 1
         }
       }
     }
@@ -3137,7 +3140,7 @@ modelo {
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'luz' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'ler_magia' }
+        conhecidos { id: 'ler_magias' }
         conhecidos { id: 'abrir_fechar' }
         conhecidos { id: 'invocar_instrumento' }
       }
@@ -3223,7 +3226,7 @@ modelo {
         conhecidos { id: 'detectar_veneno' }
         conhecidos { id: 'brilho' }
         conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_de_gelo' }
+        conhecidos { id: 'raio_gelo' }
         conhecidos { id: 'ler_magias' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -4090,6 +4093,7 @@ modelo {
         permite_salvacao: true
         dificuldade_salvacao_base: 14
         efeitos_adicionais {
+          efeito: EFEITO_CONFUSAO
           combinar_com: 0
           rodadas: 14
         }

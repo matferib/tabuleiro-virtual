@@ -1311,7 +1311,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
-      if (por_entidade.delta() == 0) continue;
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
@@ -1327,7 +1327,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       return false;
     }
     for (const auto& por_entidade : acao_proto_.por_entidade()) {
-      if (por_entidade.delta() == 0) continue;
+      if (por_entidade.delta() == 0 && !por_entidade.forca_consequencia()) continue;
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
@@ -1701,24 +1701,33 @@ int DeltaAcao(const AcaoProto& acao_proto) {
   return acao_proto.delta_pontos_vida();
 }
 
-void CombinaAcoes(const AcaoProto& acao, AcaoProto* acao_destino) {
-  acao_destino->MergeFrom(acao);
+void CombinaEfeitos(AcaoProto* acao) {
   std::set<int, std::greater<int>> a_remover;
-  for (int i = 0; i < acao_destino->efeitos_adicionais_size(); ++i) {
-    auto* ea = acao_destino->mutable_efeitos_adicionais(i);
+  std::unordered_map<int, AcaoProto::EfeitoAdicional*> efeito_por_id;
+  for (int i = 0; i < acao->efeitos_adicionais_size(); ++i) {
+    auto* ea = acao->mutable_efeitos_adicionais(i);
     if (ea->has_combinar_com()) {
-      if (ea->combinar_com() >= 0 && ea->combinar_com() < acao_destino->efeitos_adicionais_size() && i != ea->combinar_com()) {
-        acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
-        acao_destino->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
+      // Vou ignorar o valor e simplesmente pegar pelo id do efeito se houver.
+      auto it = efeito_por_id.find(ea->efeito());
+      if (it != efeito_por_id.end()) {
+        it->second->MergeFrom(*ea);
+        it->second->clear_combinar_com();
+        VLOG(1) << "combinado por id: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
+      } else if (ea->combinar_com() >= 0 && ea->combinar_com() < acao->efeitos_adicionais_size() && i != ea->combinar_com()) {
+        acao->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
+        acao->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
+        LOG(WARNING) << "combinado por posicao: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
       } else {
         LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
-                   << ", i: " << i << ", tamanho: " << acao_destino->efeitos_adicionais_size();
+                   << ", i: " << i << ", tamanho: " << acao->efeitos_adicionais_size();
       }
       a_remover.insert(i);
+    } else if (ea->has_efeito()) {
+      efeito_por_id[ea->efeito()] = ea;
     }
   }
   for (int i : a_remover) {
-    acao_destino->mutable_efeitos_adicionais()->DeleteSubrange(i, 1);
+    acao->mutable_efeitos_adicionais()->DeleteSubrange(i, 1);
   }
 }
 

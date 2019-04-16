@@ -87,7 +87,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL = 7;  // poder divino.
 }
 
-// Proximo id: 71.
+// Proximo id: 72.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -160,6 +160,8 @@ message AcaoProto {
   message PorEntidade {
     optional uint32 id = 1;     // id da entidade destino.
     optional int32 delta = 2;   // delta da entidade.
+    // Se verdadeiro, aplica a consequencia independente de delta.
+    optional bool forca_consequencia = 5;
     optional bool omite_texto = 3 [deprecated=true];
     optional string texto = 4;  // texto da entidade.
   }
@@ -245,6 +247,7 @@ message AcaoProto {
     IA_NENHUMA = 0;
   }
   optional DetalhesAdicionais detalhes_adicionais = 70;
+  optional bool ignora_reflexos = 71;
 }
 
 // O arquivo de acoes é serializado desta forma.

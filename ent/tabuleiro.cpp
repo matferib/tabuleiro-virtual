@@ -5896,7 +5896,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
   ntf::Notificacao n_inversa;
   n_inversa.set_tipo(ntf::TN_ERRO);
   if (!n_original.has_tipo()) {
-    LOG(ERROR) << "Notificacao sem tipo!";
+    LOG(ERROR) << "Notificacao sem tipo: " << n_original.DebugString();
     return n_inversa;
   }
   VLOG(1) << "invertendo " << ntf::Tipo_Name(n_original.tipo());
@@ -5994,7 +5994,6 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL:
       VLOG(1) << "Invertendo TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL";
-      if (n_original.entidade_antes().has_reiniciar_ataque()) LOG(INFO) << "aqui!!!!!!";
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
@@ -6357,6 +6356,17 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   }
   // Ordena as luzes pela distancia.
   std::sort(entidades_com_luz.begin(), entidades_com_luz.end(), [entidade_presa, &pos_comp] (const Entidade* lhs, const Entidade* rhs) {
+    // Luzes muito grandes tem prioridade.
+    const float lhs_raio_q = lhs->Proto().luz().raio_m() * METROS_PARA_QUADRADOS;
+    const float rhs_raio_q = rhs->Proto().luz().raio_m() * METROS_PARA_QUADRADOS;
+    // Luzes grandes tem prioridade.
+    if (lhs_raio_q >= 12 && rhs_raio_q < 12) {
+      return true;
+    } else if (rhs_raio_q >= 12 && lhs_raio_q < 12) {
+      return false;
+    } else if (lhs_raio_q >= 12 && lhs_raio_q >= 12) {
+      return lhs_raio_q >= rhs_raio_q;
+    }
     if (lhs == entidade_presa) {
       return true;
     } else if (rhs == entidade_presa) {

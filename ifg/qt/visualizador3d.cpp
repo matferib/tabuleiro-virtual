@@ -1619,12 +1619,14 @@ void PreencheConfiguraDadosDefesa(
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
-  gerador.spin_rm->setValue(proto.dados_defesa().resistencia_magia());
+  gerador.spin_rm->setValue(
+      ent::BonusIndividualPorOrigem(ent::TB_BASE, "manual", proto_retornado->dados_defesa().resistencia_magia_variavel()));
   lambda_connect(gerador.spin_rm, SIGNAL(valueChanged(int)), [&gerador, proto_retornado]() {
+    auto* bonus = proto_retornado->mutable_dados_defesa()->mutable_resistencia_magia_variavel();
     if (gerador.spin_rm->value() > 0) {
-      proto_retornado->mutable_dados_defesa()->set_resistencia_magia(gerador.spin_rm->value());
+      ent::AtribuiBonus(gerador.spin_rm->value(), ent::TB_BASE, "manual", bonus);
     } else {
-      proto_retornado->mutable_dados_defesa()->clear_resistencia_magia();
+      ent::RemoveBonus(ent::TB_BASE, "manual", bonus);
     }
   });
 

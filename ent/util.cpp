@@ -1326,7 +1326,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
   const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
-  if (ea.Id() != ed.Id()) {
+  if (ea.Id() != ed.Id() && !da->ignora_reflexos()) {
     const int numero_reflexos = NumeroReflexos(ed.Proto());
     if (numero_reflexos > 0) {
       int num_total = numero_reflexos + 1;

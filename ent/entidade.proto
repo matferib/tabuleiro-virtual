@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 68.
+// Proximo id: 70.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -147,6 +147,9 @@ message DadosAtaque {
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
   optional int32 limite_vezes = 43;
+  // Se false, ao realizar o ataque nao passa para o proximo. Isso ocorre com algumas entidades conjuradas com varios ataques na rodada
+  // que sao muito dificeis de modelar como um so.
+  optional bool incrementa_proximo_ataque = 68 [default=true];
   // TODO: passar isso tudo pra acao? Me parece mais adequado.
   // Ferro frio, adamante etc.
   optional DescritorAtaque material_arma = 46;
@@ -176,6 +179,7 @@ message DadosAtaque {
   // O que acontece quando salva.
   optional ResultadoSalvacao resultado_ao_salvar = 62;
   optional bool dano_ignora_salvacao = 63;
+  optional bool ignora_reflexos = 69;
 }
 
 // Proximo id: 101.
@@ -444,7 +448,7 @@ message EntidadeProto {
   // Algumas entidades tem varias formas. Neste caso, a primeira sera a original para poder reverter
   // enquanto as outras serao as alternativas. Ou seja, eh 0 ou 2+.
   repeated EntidadeProto formas_alternativas = 60;
-  // Modelos sao como efeitos permanentes de uma entidade. Vamos ver se dessa forma funciona.
+  // Modelos (templates) sao como efeitos permanentes de uma entidade. Vamos ver se dessa forma funciona.
   repeated ModeloDnD modelos = 95;
   // Se houver forma alternativa, indica qual esta em uso.
   optional int32 forma_alternativa_corrente = 74;

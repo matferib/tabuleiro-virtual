@@ -1,14 +1,4 @@
-Teste de concentracao de feitico automatico quando enredado.
-Testar inspirar coragem e colocar uma sinalizacao visual.
-Testar area escorregadia e constrição.
-Fazer ataques que nao passam para proxima acao (caso de feiticos de entidades conjuradas que simulam varios efeitos em uma area).
-Implementar paralisia.
-Implementar cargas de escaravelho de protecao.
-Implementar geracao de feiticos aleatoria.
-Implementar duracao de entidades conjuradas vinda da magia (por exemplo, enxame de gafanhotos pode vir de praga de insetos).
-
 Anotacoes da sessao Tilverton:
-- Fazer bardo 5 vulto.
 - Talentos das sombras.
 - Definir encontros.
 - Resistencia magia variavel. ??
@@ -24,6 +14,14 @@ Anotacoes da sessao Tilverton:
 - Veserab avancado: pg 119: Feito.
 
 ===============================================
+
+Testar constrição.
+Testar monstros com combinar_com (criar um novo campo: combinar_efeito?).
+Implementar teste de concentracao de feitico automatico quando enredado.
+Implementar geracao de feiticos aleatoria.
+Implementar cargas de escaravelho de protecao.
+Implementar geracao de feiticos aleatoria.
+Implementar duracao de entidades conjuradas vinda da magia (por exemplo, enxame de gafanhotos pode vir de praga de insetos).
 
 Resolver o vigor menor (como proceder com a parada do maximo que cura?)
 Implementar afeta apenas tendencia em acoes.
