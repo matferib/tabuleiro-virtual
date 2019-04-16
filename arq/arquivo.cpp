@@ -170,7 +170,7 @@ void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados)
 }
 
 void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
-  throw ParseProtoException(google::protobuf::StringPrintf("Erro lendo arquivo: %s", message.c_str()));
+  throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
 }
 
 struct ScopedLogHandler {
@@ -196,7 +196,7 @@ void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::p
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::string dados;
   LeArquivo(tipo, nome_arquivo, &dados);
-  
+
   ScopedLogHandler slh;
   mensagem->ParseFromString(dados);
 }
