@@ -1,5 +1,3 @@
-Testar inspirar coragem e colocar uma sinalizacao visual.
-Testar area escorregadia.
 Fazer ataques que nao passam para proxima acao (caso de feiticos de entidades conjuradas que simulam varios efeitos em uma area).
 Implementar paralisia.
 Implementar cargas de escaravelho de protecao.
