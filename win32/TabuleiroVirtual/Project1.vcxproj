@@ -53,6 +53,7 @@
     <ClCompile Include="..\..\ent\entidade_composta.cpp" />
     <ClCompile Include="..\..\ent\entidade_desenho.cpp" />
     <ClCompile Include="..\..\ent\entidade_forma.cpp" />
+    <ClCompile Include="..\..\ent\recomputa.cpp" />
     <ClCompile Include="..\..\ent\tabelas.cpp" />
     <ClCompile Include="..\..\ent\tabelas.pb.cc" />
     <ClCompile Include="..\..\ent\tabuleiro.cpp" />
@@ -118,6 +119,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\arq\arquivo.h" />
     <ClInclude Include="..\..\ent\constantes.h" />
+    <ClInclude Include="..\..\ent\recomputa.h" />
     <ClInclude Include="..\..\ent\tabelas.h" />
     <ClInclude Include="..\..\ent\tabuleiro.h" />
     <ClInclude Include="..\..\ent\util.h" />

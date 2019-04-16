@@ -200,6 +200,9 @@
     <ClCompile Include="..\..\ifg\qt\moc_evento_util.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ent\recomputa.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
@@ -266,6 +269,9 @@
       <Filter>ifg\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ent\tabuleiro.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ent\recomputa.h">
       <Filter>ent\Headers</Filter>
     </ClInclude>
   </ItemGroup>
