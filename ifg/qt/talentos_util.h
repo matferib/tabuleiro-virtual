@@ -123,7 +123,7 @@ class ModeloTalentos : public QAbstractTableModel {
     }
 
     const unsigned int row = index.row();
-    if (row < 0 || row >= modelo_.size()) return QVariant();
+    if (row >= modelo_.size()) return QVariant();
     const int column = index.column();
     switch (column) {
       case 0:
@@ -135,7 +135,7 @@ class ModeloTalentos : public QAbstractTableModel {
         } else if (role == Qt::EditRole) {
           return QVariant(modelo_[row].id.c_str());
         }
-      case 1: 
+      case 1:
         // complemento.
         return role == Qt::DisplayRole || role == Qt::EditRole ? QVariant(QString::fromUtf8(modelo_[row].complemento.c_str())) : QVariant();
       case 2:
@@ -153,7 +153,7 @@ class ModeloTalentos : public QAbstractTableModel {
     }
 
     const unsigned int row = index.row();
-    if (row < 0 || row >= modelo_.size()) {
+    if (row >= modelo_.size()) {
       LOG(INFO) << "Linha invalida " << row;
       return false;
     }

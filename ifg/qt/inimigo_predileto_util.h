@@ -73,7 +73,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     }
 
     unsigned int row = index.row();
-    if (row < 0 || row >= modelo_.size()) return QVariant();
+    if (row >= modelo_.size()) return QVariant();
     const int column = index.column();
     switch (column) {
       case 0: return QVariant(modelo_[row].classe().c_str());
@@ -97,7 +97,7 @@ class ModeloInimigoPredileto : public QAbstractTableModel {
     }
 
     const unsigned int row = index.row();
-    if (row < 0 || row >= modelo_.size()) {
+    if (row >= modelo_.size()) {
       LOG(INFO) << "Linha invalida " << row;
       return false;
     }
