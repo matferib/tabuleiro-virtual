@@ -2237,6 +2237,37 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteModelo) {
+  Tabelas tabelas(nullptr);
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(1);
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Ataque Corpo a Corpo");
+      da->set_id_arma("clava");
+    }
+  }
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_GE(proto.dados_ataque().size(), 1);
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 0);
+
+  auto* vulto = proto.add_modelos();
+  vulto->set_id_efeito(EFEITO_MODELO_VULTO);
+  vulto->set_ativo(true);
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_GE(proto.dados_ataque().size(), 1);
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 2);
+
+  vulto->set_ativo(false);
+  RecomputaDependencias(tabelas, &proto);
+  ASSERT_GE(proto.dados_ataque().size(), 1);
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 0);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

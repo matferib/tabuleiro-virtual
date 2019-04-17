@@ -641,7 +641,7 @@ void PreencheOrigemValor(
 void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(StringPrintf("%s, origem: %s", po.origem().c_str(), origem.c_str()));
+      po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
       po.set_valor(0);
     }
   }
@@ -707,27 +707,6 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   }
   return c;
 }
-
-ConsequenciaEvento PreencheConsequenciaFimParaModelos(const ConsequenciaEvento& consequencia_original) {
-  ConsequenciaEvento c(consequencia_original);
-  if (c.atributos().has_forca())        ZeraValorBonus(c.mutable_atributos()->mutable_forca());
-  if (c.atributos().has_destreza())     ZeraValorBonus(c.mutable_atributos()->mutable_destreza());
-  if (c.atributos().has_constituicao()) ZeraValorBonus(c.mutable_atributos()->mutable_constituicao());
-  if (c.atributos().has_inteligencia()) ZeraValorBonus(c.mutable_atributos()->mutable_inteligencia());
-  if (c.atributos().has_sabedoria())    ZeraValorBonus(c.mutable_atributos()->mutable_sabedoria());
-  if (c.atributos().has_carisma())      ZeraValorBonus(c.mutable_atributos()->mutable_carisma());
-  if (c.dados_defesa().has_ca())        ZeraValorBonus(c.mutable_dados_defesa()->mutable_ca());
-  if (c.dados_defesa().has_salvacao_fortitude()) ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-  if (c.dados_defesa().has_salvacao_vontade())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (c.dados_defesa().has_salvacao_reflexo())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())     ZeraValorBonus(c.mutable_dados_defesa()->mutable_cura_acelerada());
-  if (c.has_jogada_ataque())            ZeraValorBonus(c.mutable_jogada_ataque());
-  if (c.has_jogada_dano())              ZeraValorBonus(c.mutable_jogada_dano());
-  if (c.has_tamanho())                  ZeraValorBonus(c.mutable_tamanho());
-  if (c.has_bonus_iniciativa())         ZeraValorBonus(c.mutable_bonus_iniciativa());
-  return c;
-}
-
 
 // Adiciona eventos nao presentes.
 // Retorna o bonus base de uma salvacao, dado o nivel. Forte indica que a salvacao eh forte.
@@ -1359,7 +1338,6 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
     if (!ModeloDesligavel(tabelas, modelo) || modelo.ativo()) continue;
     const auto& efeito_modelo = tabelas.EfeitoModelo(modelo.id_efeito());
     VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito_modelo.id());
-    //AplicaEfeitoComum(PreencheConsequenciaFimParaModelos(efeito.consequencia()), proto);
     AplicaEfeitoComum(PreencheConsequenciaFim(efeito_modelo.nome(), efeito_modelo.consequencia()), proto);
   }
 
