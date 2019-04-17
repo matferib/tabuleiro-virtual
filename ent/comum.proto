@@ -997,3 +997,26 @@ message DominioProto {
   optional string nome = 2;
   optional string descricao = 3;
 }
+
+enum TipoDuracao {
+  TD_RODADAS_NIVEL = 0;
+  TD_MINUTOS_NIVEL = 1;
+  TD_HORAS_NIVEL   = 2;
+  TD_2_HORAS_NIVEL = 3;
+  TD_10_MINUTOS_NIVEL = 4;
+  TD_OUTRA_DURACAO = 20;
+}
+
+enum TipoModificadorAtaque {
+  // Usa BBA + modificador do atributo de conjurador.
+  TMA_BBA_MAIS_ATRIBUTO_CONJURACAO = 0;
+  TMA_BBA_NIVEL_CONJURADOR         = 1;
+  TMA_OUTROS                       = 100;
+}
+
+enum TipoModificadorSalvacao {
+  // Padrao para feiticos.
+  TMS_MODIFICADOR_CONJURACAO = 0;
+  // Nao modifica pelo atributo.
+  TMS_NENHUM = 1;
+}

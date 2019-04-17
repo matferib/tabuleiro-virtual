@@ -1,4 +1,4 @@
-# Este arquivo é uma representação texto do proto ent::Modelos definido no controle_virtual.proto.
+# Este arquivo é uma representação texto do proto ent::Modelos definido no entidade.proto.
 # Para aparecer no jogo, deve ser adicionado em menu_modelos.asciiproto tb.
 modelo {
   id: 'Abocanhador Matraqueante'
@@ -1262,11 +1262,13 @@ modelo {
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
+      dificuldade_salvacao: 12  # template vai adicionar os modificadores de atributo.
       acao_fixa {
         cor { r: 1.0 g: 1.0  b: 0.0 }
         permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_ao_salvar: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         elemento: DESC_FOGO
+        dificuldade_salvacao_por_nivel: false  # ja vai vir pronto do template.
       }
     }
     ignora_luz: true

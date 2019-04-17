@@ -8863,6 +8863,7 @@ tabela_feiticos {
   armas {
     id: 'maos_flamejantes'
     nome: 'mãos flamejantes'
+    alcance_quadrados: 3
     modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
     info_classes {
       id: 'mago'
@@ -8874,6 +8875,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_DISPERSAO
       cor { r: 0.7 g: 0.7 b: 0 }
       distancia_quadrados: 3

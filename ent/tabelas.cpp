@@ -98,6 +98,7 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
 
   std::vector<const char*> arquivos_tabelas = {"tabelas_nao_srd.asciiproto", "tabelas_homebrew.asciiproto", "tabelas.asciiproto"};
+  tabelas_.Clear();
   // Tabelas.
   for (const char* arquivo : arquivos_tabelas) {
     try {
@@ -135,6 +136,28 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
             StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
+  // Modelos de entidades.
+  tabela_modelos_entidades_.Clear();
+  std::vector<const char*> arquivos_modelos= {"modelos.asciiproto", "modelos_nao_srd.asciiproto"};
+  for (const char* arquivo : arquivos_modelos) {
+    try {
+      Modelos modelos_arquivo;
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, arquivo, &modelos_arquivo);
+      tabela_modelos_entidades_.MergeFrom(modelos_arquivo);
+    } catch (const arq::ParseProtoException& e) {
+      LOG(WARNING) << "Erro lendo modelo: " << arquivo << ": " << e.what();
+      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+          StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Erro lendo modelo: " << arquivo << ": " << e.what();
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErro(
+              StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+      }
+    }
+  }
+
   RecarregaMapas();
 }
 
@@ -167,6 +190,7 @@ void Tabelas::RecarregaMapas() {
   acoes_.clear();
   racas_.clear();
   dominios_.clear();
+  modelos_entidades_.clear();
 
   for (const auto& dominio : tabelas_.tabela_dominios().dominios()) {
     dominios_[dominio.id()] = &dominio;
@@ -287,6 +311,10 @@ void Tabelas::RecarregaMapas() {
   for (const auto& acao : tabela_acoes_.acao()) {
     acoes_[acao.id()] = &acao;
   }
+
+  for (const auto& modelo : tabela_modelos_entidades_.modelo()) {
+    modelos_entidades_[modelo.id()] = &modelo;
+  }
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -327,6 +355,11 @@ const EfeitoModeloProto& Tabelas::EfeitoModelo(TipoEfeitoModelo tipo) const {
 const AcaoProto& Tabelas::Acao(const std::string& id) const {
   auto it = acoes_.find(id);
   return it == acoes_.end() ? AcaoProto::default_instance() : *it->second;
+}
+
+const Modelo& Tabelas::ModeloEntidade(const std::string& id) const {
+  auto it = modelos_entidades_.find(id);
+  return it == modelos_entidades_.end() ? Modelo::default_instance() : *it->second;
 }
 
 const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {

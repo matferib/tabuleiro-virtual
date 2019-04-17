@@ -537,3 +537,32 @@ message EntidadeProto {
   repeated uint32 entidades_montadas = 97;
   optional bool mais_de_duas_pernas = 98;
 }
+
+// Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
+message Modelo {
+  optional string id = 1;
+  // Para entidades templatizadas.
+  message Parametros {
+    optional TipoDuracao tipo_duracao = 1;
+    // Dano.
+    optional string dano_fixo = 2;
+    optional float multiplicador_nivel_dano = 3;
+    optional int32 maximo_modificador_dano = 4;
+    // Ataque.
+    optional TipoModificadorAtaque tipo_modificador_ataque = 5;
+    // Modificador da salvacao.
+    optional TipoModificadorSalvacao tipo_modificador_salvacao = 6;
+    // Outros.
+    repeated string rotulo_especial = 10;
+  }
+  optional Parametros parametros = 3;
+  optional EntidadeProto entidade = 2;
+  // Se presente, lera a entidade com o id_passado e apenas fara o merge com
+  // entidade.
+  repeated string id_entidade_base = 4;
+}
+
+// O arquivo eh serializado como uma repeticao de modelos em formato texto.
+message Modelos {
+  repeated Modelo modelo = 1;
+}

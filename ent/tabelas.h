@@ -44,6 +44,7 @@ class Tabelas : public ntf::Receptor {
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
   const RacaProto& Raca(const std::string& id) const;
   const DominioProto& Dominio(const std::string& id) const;
+  const Modelo& ModeloEntidade(const std::string& modelo) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
@@ -52,6 +53,8 @@ class Tabelas : public ntf::Receptor {
   TodasTabelas tabelas_;
   // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
   Acoes tabela_acoes_;
+  // Os modelos de entidades.
+  Modelos tabela_modelos_entidades_;
 
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
@@ -73,6 +76,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const RacaProto*> racas_;
   std::unordered_map<std::string, const AcaoProto*> acoes_;
   std::unordered_map<std::string, const DominioProto*> dominios_;
+  std::unordered_map<std::string, const Modelo*> modelos_entidades_;
 
   ntf::CentralNotificacoes* central_;
 };
