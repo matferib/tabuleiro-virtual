@@ -223,7 +223,7 @@ public:
     QLabel *label_60;
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_85;
-    QSpinBox *spin_rm;
+    QPushButton *botao_resistencia_magia;
     QCheckBox *checkbox_imune_critico;
     QGroupBox *groupBox;
     QGridLayout *gridLayout_19;
@@ -1583,10 +1583,10 @@ public:
 
         horizontalLayout_11->addWidget(label_85);
 
-        spin_rm = new QSpinBox(tab_estatisticas);
-        spin_rm->setObjectName(QStringLiteral("spin_rm"));
+        botao_resistencia_magia = new QPushButton(tab_estatisticas);
+        botao_resistencia_magia->setObjectName(QStringLiteral("botao_resistencia_magia"));
 
-        horizontalLayout_11->addWidget(spin_rm);
+        horizontalLayout_11->addWidget(botao_resistencia_magia);
 
 
         gridLayout_17->addLayout(horizontalLayout_11, 4, 0, 1, 1);
@@ -2936,8 +2936,7 @@ public:
         QWidget::setTabOrder(botao_bonus_carisma, botao_bonus_salvacao_fortitude);
         QWidget::setTabOrder(botao_bonus_salvacao_fortitude, botao_bonus_salvacao_reflexo);
         QWidget::setTabOrder(botao_bonus_salvacao_reflexo, botao_bonus_salvacao_vontade);
-        QWidget::setTabOrder(botao_bonus_salvacao_vontade, spin_rm);
-        QWidget::setTabOrder(spin_rm, checkbox_imune_critico);
+        QWidget::setTabOrder(botao_bonus_salvacao_vontade, checkbox_imune_critico);
         QWidget::setTabOrder(checkbox_imune_critico, botao_bonus_iniciativa);
         QWidget::setTabOrder(botao_bonus_iniciativa, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
@@ -3266,9 +3265,7 @@ public:
         label_53->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", nullptr));
         label_60->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Obra Prima", nullptr));
         label_85->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Resist\303\252ncia a Magia", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "spin_rm", nullptr));
-#endif // QT_NO_TOOLTIP
+        botao_resistencia_magia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", nullptr));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Movimento", nullptr));
         label_25->setText(QApplication::translate("ifg::qt::DialogoEntidade", "terrestre", nullptr));

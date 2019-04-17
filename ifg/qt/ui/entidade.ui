@@ -1974,9 +1974,9 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spin_rm">
-           <property name="toolTip">
-            <string>spin_rm</string>
+          <widget class="QPushButton" name="botao_resistencia_magia">
+           <property name="text">
+            <string>Bonus</string>
            </property>
           </widget>
          </item>
@@ -4107,7 +4107,6 @@ QGroupBox::title {
   <tabstop>botao_bonus_salvacao_fortitude</tabstop>
   <tabstop>botao_bonus_salvacao_reflexo</tabstop>
   <tabstop>botao_bonus_salvacao_vontade</tabstop>
-  <tabstop>spin_rm</tabstop>
   <tabstop>checkbox_imune_critico</tabstop>
   <tabstop>botao_bonus_iniciativa</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>

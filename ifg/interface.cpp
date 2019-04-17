@@ -401,8 +401,12 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     }
   }
 
+  tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemLista("Escolha o Feitiço", lista,
       [this, notificacao, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
+    ent::RodaNoRetorno([this]() {
+      this->tabuleiro_->ReativaWatchdogSeMestre();
+    });
     if (!ok) {
       LOG(INFO) << "Nao usando feitico";
       return;
