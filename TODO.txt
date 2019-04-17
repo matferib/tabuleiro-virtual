@@ -1,3 +1,7 @@
+Criar bit de se entidade pode ser afetada por efeito ou nao (por padrao apenas TE_ENTIDADE, mas podem hvaer excecoes dos dois lados): exemplo:
+- Esfera flamejante nao deve ser alvo de efeitos.
+- Uma porta pode ser.
+
 Feitiços de clerigo zoado: o que aparece na UI nao eh o que aparece na lista na hora de soltar.
 Dar XP
 Conversao espontanea.
