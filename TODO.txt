@@ -1,9 +1,14 @@
+Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
+Implementar controle de luz por ataque.
+Implementar combinar_com_efeito.
+Implementar Vulto Base, ataques comuns dependentes de template ativo.
+Testar constrição.
+
 Criar bit de se entidade pode ser afetada por efeito ou nao (por padrao apenas TE_ENTIDADE, mas podem hvaer excecoes dos dois lados): exemplo:
 - Esfera flamejante nao deve ser alvo de efeitos.
 - Uma porta pode ser.
 
 Feitiços de clerigo zoado: o que aparece na UI nao eh o que aparece na lista na hora de soltar.
-Dar XP
 Conversao espontanea.
 
 Anotacoes da sessao Tilverton:
@@ -21,7 +26,6 @@ Anotacoes da sessao Tilverton:
 - Veserab: pg 95 empire of the shade: Feito.
 - Veserab avancado: pg 119: Feito.
 
-Testar constrição.
 Testar monstros com combinar_com (criar um novo campo: combinar_efeito?).
 Implementar teste de concentracao de feitico automatico quando enredado.
 Implementar geracao de feiticos aleatoria.
@@ -46,7 +50,6 @@ Permitir nomear versoes.
 Mostrar salvacoes do mestre apenas para mestre.
 Permitir mais de uma textura por objeto (util para compostos).
 - Filtrar combo de classes para so mostrar nao monstros.
->>>>>>> 5f94d48dc3a19b726fb3db6b73d3c926d8dd3c6f
 - UI para horas.
 - Rever a logica de pontos de vida ta um caos. Provavelmente tem gente com mais PV que o maximo. Nao esta claro o que eh computado.
 
