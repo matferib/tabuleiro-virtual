@@ -1,3 +1,7 @@
+Feitiços de clerigo zoado: o que aparece na UI nao eh o que aparece na lista na hora de soltar.
+Dar XP
+Conversao espontanea.
+
 Anotacoes da sessao Tilverton:
 - Talentos das sombras.
 - Definir encontros.
