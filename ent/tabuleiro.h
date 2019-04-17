@@ -517,10 +517,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
-  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo.
-  * Caso grupo nao seja null, a notificacao ira para ele e nao sera executada.
-  */
-  void PassaUmaRodadaNotificando(ntf::Notificacao* grupo = nullptr);
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum
+   * ficara negativo. Caso grupo nao seja null, a notificacao ira para ele e nao
+   * sera executada. Caso o parametro expira_eventos_zerados seja verdadeiro,
+   * eventos que estejam em zero serão removidos.
+   */
+  void PassaUmaRodadaNotificando(ntf::Notificacao* grupo = nullptr, bool expira_eventos_zerados = false);
   /** Zera o contador de rodadas do tabuleiro. */
   void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */
@@ -1115,7 +1117,10 @@ class Tabuleiro : public ntf::Receptor {
   }
 
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
-  void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo);
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade,
+                                     std::vector<int>* ids_unicos,
+                                     ntf::Notificacao* grupo,
+                                     bool expira_eventos_zerados);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);

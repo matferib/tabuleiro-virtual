@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 70.
+// Proximo id: 72.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -180,9 +180,13 @@ message DadosAtaque {
   optional ResultadoSalvacao resultado_ao_salvar = 62;
   optional bool dano_ignora_salvacao = 63;
   optional bool ignora_reflexos = 69;
+  // Ataque reduz a luz do alvo pela quantidade passada.
+  optional int32 reducao_luz = 70;
+  // Ataque so disponivel se modelo estiver ativado.
+  optional TipoEfeitoModelo requer_modelo_ativo = 71;
 }
 
-// Proximo id: 101.
+// Proximo id: 102.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -536,6 +540,9 @@ message EntidadeProto {
   // Quais entidades estão montadas nessa.
   repeated uint32 entidades_montadas = 97;
   optional bool mais_de_duas_pernas = 98;
+  // Se verdadeiro, a entidade podera ser afetada por acoes independente do
+  // tipo. Se for false, o contrario. Ausencia usa o padrao para entidade.
+  optional bool pode_ser_afetada_por_acao = 101;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.

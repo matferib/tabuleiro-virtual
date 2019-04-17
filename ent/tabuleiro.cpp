@@ -6967,7 +6967,10 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   }
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
-    if (entidade->Tipo() == TE_ENTIDADE && entidade->IdCenario() == cenario_origem) {
+    if (entidade->has_pode_ser_afetado_por_acao() && !entidade->pode_ser_afetado_por_acao()) continue;
+    if (entidade->IdCenario() != cenario_origem) continue;
+    if ((entidade->has_pode_ser_afetado_por_acao() && entidade->pode_ser_afetado_por_acao()) ||
+        entidade->Tipo() == TE_ENTIDADE) {
       Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
       if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, entidade_origem != nullptr && id_entidade_destino.first == entidade_origem->Id())) {
         ids_afetados.push_back(id_entidade_destino.first);
@@ -7121,22 +7124,25 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
-
-void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo) {
-  std::vector<const EntidadeProto::Evento*> eventos;
+void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
+                                              std::vector<int>* ids_unicos,
+                                              ntf::Notificacao* grupo,
+                                              bool expira_eventos_zerados) {
+  std::vector<const EntidadeProto::Evento*> eventos_decrementados;
   for (const auto& evento : entidade.Proto().evento()) {
-    if (evento.rodadas() > 0 && !evento.continuo()) {
-      eventos.push_back(&evento);
+    if (evento.continuo()) continue;
+    if (evento.rodadas() > 0 || (expira_eventos_zerados && evento.rodadas() == 0)) {
+      eventos_decrementados.push_back(&evento);
     }
   }
-  if (eventos.empty()) {
+  if (eventos_decrementados.empty()) {
     return;
   }
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
   std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   float atraso_s = 0.0f;
-  for (const auto& evento : eventos) {
+  for (const auto& evento : eventos_decrementados) {
     *proto_antes->add_evento() = *evento;
     auto* evento_depois = proto_depois->add_evento();
     *evento_depois = *evento;
@@ -7202,7 +7208,7 @@ void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Noti
   proto_depois->set_reiniciar_ataque(true);
 }
 
-void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
+void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo, bool expira_eventos_zerados) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
@@ -7212,7 +7218,8 @@ void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   for (auto& id_entidade : entidades_) {
     auto& entidade = *id_entidade.second.get();
     std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
-    AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes);
+    AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes,
+                                  expira_eventos_zerados);
     AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
     AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
@@ -7898,7 +7905,7 @@ void Tabuleiro::RemoveEfeitoInvisibilidadeEntidadesNotificando() {
   for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
     const auto* entidade = BuscaEntidade(id);
     if (entidade == nullptr || !PossuiEvento(EFEITO_INVISIBILIDADE, entidade->Proto())) continue;
-    PreencheNotificacaoRemocaoEvento(entidade->Proto(), EFEITO_INVISIBILIDADE, grupo_notificacoes.add_notificacao()); 
+    PreencheNotificacaoRemocaoEvento(entidade->Proto(), EFEITO_INVISIBILIDADE, grupo_notificacoes.add_notificacao());
   }
   if (grupo_notificacoes.notificacao().empty()) return;
 

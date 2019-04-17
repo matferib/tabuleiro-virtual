@@ -204,6 +204,7 @@ message AcaoProto {
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
+    optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
     // Para efeitos de cura ou dano.
     optional string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
@@ -214,7 +215,7 @@ message AcaoProto {
     repeated string complementos_str = 4;
     optional string descricao = 5;
     // Se presente, ao inves de fazer merge com repeated, ira combinar com o
-    // efeito ja existente no indice passado.
+    // efeito ja existente no indice passado. Prefira combinar_com_efeito.
     optional int32 combinar_com = 6;
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;

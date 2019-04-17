@@ -9861,7 +9861,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_personal.png'
       efeitos_adicionais {
