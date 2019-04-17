@@ -487,12 +487,14 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   const auto& ca = dd.ca();
   gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
-  std::vector<QWidget*> objs = { gerador.spin_ca_armadura_melhoria, gerador.spin_ca_escudo_melhoria, gerador.checkbox_armadura_obra_prima, gerador.checkbox_escudo_obra_prima };
+  std::vector<QWidget*> objs = { gerador.spin_ca_armadura_melhoria, gerador.spin_ca_escudo_melhoria, gerador.checkbox_armadura_obra_prima, gerador.checkbox_escudo_obra_prima, gerador.botao_resistencia_magia };
   for (auto* obj : objs) obj->blockSignals(true);
   gerador.spin_ca_armadura_melhoria->setValue(dd.bonus_magico_armadura());
   gerador.spin_ca_escudo_melhoria->setValue(dd.bonus_magico_escudo());
   gerador.checkbox_armadura_obra_prima->setCheckState(dd.armadura_obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_escudo_obra_prima->setCheckState(dd.escudo_obra_prima() ? Qt::Checked : Qt::Unchecked);
+  gerador.botao_resistencia_magia->setText(
+      NumeroSinalizado(ent::BonusTotal(proto.dados_defesa().resistencia_magia_variavel())));
   for (auto* obj : objs) obj->blockSignals(false);
   gerador.botao_bonus_ca->setText(QString::number(ent::CATotal(proto, /*permite_escudo=*/true)));
   gerador.label_ca_toque->setText(QString::number(ent::CAToque(proto)));
