@@ -1744,6 +1744,36 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
   EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
 }
 
+TEST(TesteFeiticos, TesteConstricao) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("druida");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+  RecomputaDependencias(g_tabelas, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Druida");
+  da->set_id_arma("constricao");
+  std::unique_ptr<Entidade> referencia(NovaEntidade(proto, g_tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+
+  RecomputaDependencias(g_tabelas, &proto);
+
+  AcaoProto acao = da->acao();
+  ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
+  ASSERT_EQ(acao.id_modelo_entidade(), "Constrição");
+
+  const auto& modelo_constricao = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
+  EntidadeProto proto_constricao = modelo_constricao.entidade();
+  ASSERT_TRUE(modelo_constricao.has_parametros());
+  PreencheModeloComParametros(modelo_constricao.parametros(), *referencia, &proto_constricao);
+
+  ASSERT_FALSE(proto_constricao.dados_ataque().empty());
+  EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
+
+  RecomputaDependencias(g_tabelas, &proto_constricao);
+  ASSERT_FALSE(proto_constricao.dados_ataque().empty());
+  EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
+}
 
 TEST(TesteImunidades, TesteImunidadeElemento) {
   {
