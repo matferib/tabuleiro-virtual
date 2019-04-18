@@ -117,11 +117,6 @@ void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool o
 void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
-  if (pocoes_entidade.size() == 1) {
-    VoltaEscolherPocao(notificacao, true, 0);
-    return;
-  }
-
   std::vector<std::string> nomes_pocoes;
   for (const auto& pocao : pocoes_entidade) {
     nomes_pocoes.push_back(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());

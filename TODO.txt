@@ -2,7 +2,6 @@ Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 Implementar controle de luz por ataque.
 Implementar combinar_com_efeito.
 Implementar Vulto Base, ataques comuns dependentes de template ativo.
-Testar constrição.
 
 Criar bit de se entidade pode ser afetada por efeito ou nao (por padrao apenas TE_ENTIDADE, mas podem hvaer excecoes dos dois lados): exemplo:
 - Esfera flamejante nao deve ser alvo de efeitos.
