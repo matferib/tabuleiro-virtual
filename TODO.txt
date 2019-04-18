@@ -1,5 +1,5 @@
 Escrever teste das combinacoes, usar vulto clerigo 5.
-Implementar a divisao de dano de PROTEGER_OUTRO
+Testar a divisao de dano de PROTEGER_OUTRO.
 Implementar controle de luz por ataque.
 Implementar operacoes em talentos.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).

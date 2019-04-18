@@ -1049,7 +1049,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
       PreencheNotificacaoEventoEfeitoAdicional(
-          nivel_expulsao, *entidade_destino, efeito_adicional,
+          entidade->Id(), nivel_expulsao, *entidade_destino, efeito_adicional,
           &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
@@ -1291,7 +1291,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       for (const auto& efeito_adicional : (salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais())) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
+            entidade_origem->Id(), NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
             &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
@@ -1636,7 +1636,7 @@ float Tabuleiro::TrataAcaoIndividual(
       for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
         std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
         PreencheNotificacaoEventoEfeitoAdicional(
-            NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
+            entidade_origem->Id(), NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_destino, efeito_adicional,
             &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
         central_->AdicionaNotificacao(n_efeito.release());
         atraso_s += 0.5f;
@@ -1650,7 +1650,7 @@ float Tabuleiro::TrataAcaoIndividual(
         for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
           std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
           PreencheNotificacaoEventoEfeitoAdicional(
-              NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_origem, efeito_adicional,
+              entidade_origem->Id(), NivelConjuradorParaAcao(*acao_proto, *entidade_origem), *entidade_origem, efeito_adicional,
               &ids_unicos_entidade_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
           central_->AdicionaNotificacao(n_efeito.release());
           atraso_s += 0.5f;

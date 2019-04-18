@@ -650,16 +650,8 @@ void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   }
 }
 
-// Zera todos os valores de origem para o bonus, para criar o fim de efeito de modelos.
-void ZeraValorBonus(Bonus* bonus) {
-  for (auto& bi : *bonus->mutable_bonus_individual()) {
-    for (auto& po : *bi.mutable_por_origem()) {
-      po.set_valor(0);
-    }
-  }
-}
-
-// Caso a consequencia use complemento, preenchera os valores existentes com ela.
+// Caso a consequencia use complemento, preenchera os valores existentes com
+// ela.
 ConsequenciaEvento PreencheConsequencia(
     const std::string& origem,
     const google::protobuf::RepeatedField<int>& complementos,

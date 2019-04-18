@@ -1768,11 +1768,11 @@ void PreencheNotificacaoEvento(
 }
 
 void PreencheNotificacaoEventoEfeitoAdicional(
-    int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(nivel_conjurador, efeito_adicional, ids_unicos, entidade_destino, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, nivel_conjurador, efeito_adicional, ids_unicos, entidade_destino, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -3059,13 +3059,17 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
   return kEfeitoContinuo;
 }
 
-void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade* alvo, EntidadeProto::Evento* evento) {
+void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade* alvo, EntidadeProto::Evento* evento) {
   *evento->mutable_complementos_str() = efeito_adicional.complementos_str();
   if (efeito_adicional.has_dado_complementos_str()) {
     evento->add_complementos(RolaValor(efeito_adicional.dado_complementos_str()));
     return;
   }
   switch (efeito_adicional.modificador_complementos()) {
+    case MC_ID_ENTIDADE: {
+      evento->add_complementos(id_origem);
+      break;
+    }
     case MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO: {
       int adicionais = std::min(5, nivel_conjurador / 2);
       evento->add_complementos(-RolaValor(StringPrintf("1d6+%d", adicionais)));
@@ -3098,7 +3102,7 @@ void PreencheComplementos(int nivel_conjurador, const EfeitoAdicional& efeito_ad
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
   const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
@@ -3106,7 +3110,7 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
                          !efeito_adicional.has_modificador_rodadas() &&
                          !efeito_adicional.has_dado_modificador_rodadas());
   auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
-  PreencheComplementos(nivel_conjurador, efeito_adicional, &alvo, e);
+  PreencheComplementos(id_origem, nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   return e;
 }
@@ -3533,7 +3537,7 @@ bool NotificacaoConsequenciaFeitico(
     std::string string_efeitos;
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
        PreencheNotificacaoEventoEfeitoAdicional(
-           nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+           entidade.Id(), nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
        string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
     }
     if (!string_efeitos.empty()) {

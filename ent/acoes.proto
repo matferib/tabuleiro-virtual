@@ -85,6 +85,7 @@ enum ModificadorComplementos {
   MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
   MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
   MC_1_POR_NIVEL = 7;  // poder divino.
+  MC_ID_ENTIDADE = 8;  // Proteger outro.
 }
 
 // Proximo id: 72.

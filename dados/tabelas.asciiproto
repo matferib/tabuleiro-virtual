@@ -6682,6 +6682,7 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_PROTEGER_OUTRO
         modificador_rodadas: MR_HORAS_NIVEL
+        modificador_complementos: MC_ID_ENTIDADE
       }
     }
   }

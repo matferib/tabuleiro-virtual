@@ -105,7 +105,37 @@ tabela_classes {
   }
 }
 tabela_armas {
-  # Projeteis de area.
+  armas {
+    id: 'mosquete'
+    nome: 'mosquete'
+    categoria: CAT_DISTANCIA
+    preco: '500 PO'
+    dano { medio: '1d12' }
+    multiplicador_critico: 3
+    alcance_quadrados: 30
+    tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_EXOTICA
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_PADRAO
+    }
+    acao {
+      cor { r: 1 g: 0.5 b: 0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_pistol.png'
+      ignora_luz: true  # desenhado claro
+      consequencia_origem: TC_ILUMINA_ALVO
+      velocidade {
+        inicial_m_s: 100
+      }
+      luz_origem {
+        cor { r: 1 g: 0.5 b: 0 }
+        duracao_ms: 250
+        raio_m: 1.5
+      }
+    }
+  }
+
   armas {
     id: 'pistola'
     nome: 'pistola'
@@ -114,7 +144,7 @@ tabela_armas {
     dano { medio: '1d10' }
     multiplicador_critico: 3
     alcance_quadrados: 10
-    tipo_dano: TD_OUTRO
+    tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
     carregamento {
       requer_carregamento: true

@@ -296,7 +296,7 @@ struct ResultadoAtaqueVsDefesa {
   int vezes = 0;  // para sucesso critico.
   std::string texto;
 
-  bool Sucesso() const { return resultado == RA_SUCESSO; } 
+  bool Sucesso() const { return resultado == RA_SUCESSO; }
 };
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
@@ -377,7 +377,7 @@ void PreencheNotificacaoRemocaoEvento(
 
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicional(
-    int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoPrimario(
     unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
@@ -638,7 +638,8 @@ inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadePr
 EntidadeProto::Evento* AdicionaEvento(
     const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, int nivel_conjurador,
+    const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
 // Dado um item magico, adiciona o efeito dele ao proto.
