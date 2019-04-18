@@ -907,6 +907,7 @@ modelo {
 }
 modelo {
   id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1'
+  id_entidade_base: 'Vulto Base'
   entidade {
     raca: 'humano'
     dados_vida: '4d8+1d4+20'
@@ -942,35 +943,6 @@ modelo {
         }
       }
     }
-    dados_ataque {
-      limite_vezes: 3
-      grupo: '3/dia reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
-          rodadas: 60
-          dado_complementos_str: '1d4+2'
-          combinar_com: 0
-        }
-      }
-    }
-    dados_ataque {
-      grupo: 'a vontade invisibilidade' rotulo: 'invisibilidade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_INVISIBILIDADE
-          rodadas: 60
-          combinar_com: 0
-        }
-      }
-    }
-
     info_talentos {
       gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
       gerais { id: 'magia_trama_sombras' }
@@ -992,6 +964,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'clerigo'
+      #operacao: OC_SOBRESCREVE
       dominios: 'morte'
       dominios: 'enganacao'
       feiticos_por_nivel {
@@ -1035,7 +1008,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_bem' }
         conhecidos { id: 'protecao_contra_elementos' }
         conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }

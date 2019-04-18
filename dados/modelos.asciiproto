@@ -3357,7 +3357,7 @@ modelo {
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'bola_fogo' }
         conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
@@ -3490,7 +3490,7 @@ modelo {
         conhecidos { id: 'bola_fogo' }
         conhecidos { id: 'relampago' }
         conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }

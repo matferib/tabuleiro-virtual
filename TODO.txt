@@ -1,3 +1,5 @@
+Implementar operacoes em talentos.
+Escrever teste das combinacoes, usar vulto clerigo 5.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 Implementar controle de luz por ataque.
 Implementar combinar_com_efeito.

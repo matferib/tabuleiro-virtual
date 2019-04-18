@@ -778,8 +778,70 @@ void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeP
   VLOG(1) << "pv modificado: " << proto->pontos_vida();
 }
 
+void CombinaFeiticosClasse(RepeatedPtrField<EntidadeProto::InfoFeiticosClasse>* feiticos_classes) {
+  std::unordered_map<std::string, EntidadeProto::InfoFeiticosClasse*> mapa;
+  for (auto& fc : *feiticos_classes) {
+    if (fc.operacao() == OC_NOP) {
+      mapa[fc.id_classe()] = &fc;
+    }
+  }
+  std::vector<int> a_remover;
+  int indice = 0;
+  for (const auto& fc : *feiticos_classes) {
+    switch (fc.operacao()) {
+      case OC_SOBRESCREVE:
+      case OC_COMBINA:
+        if (mapa.find(fc.id_classe()) == mapa.end()) {
+          LOG(ERROR) << "Operação invalida: nao ha feitico para classe " << fc.id_classe();
+          continue;
+        } 
+        if (fc.operacao() == OC_SOBRESCREVE) { *mapa[fc.id_classe()] = fc; }
+        else { mapa[fc.id_classe()]->MergeFrom(fc); }
+        a_remover.push_back(indice); 
+        break;
+      default: ;
+    }
+    mapa[fc.id_classe()]->clear_operacao();
+    ++indice;
+  }
+
+  for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+    feiticos_classes->DeleteSubrange(*it, 1);
+  }
+}
+
+void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* feiticos_por_niveis) {
+  std::unordered_map<int, EntidadeProto::FeiticosPorNivel*> mapa;
+  for (auto& fn : *feiticos_por_niveis) {
+    if (!fn.has_operacao()) {
+      mapa[fn.nivel()] = &fn;
+    }
+  }
+  std::vector<int> a_remover;
+  int indice = 0;
+  for (const auto& fn : *feiticos_por_niveis) {
+    switch (fn.operacao()) {
+      case OC_SOBRESCREVE:
+      case OC_COMBINA:
+        if (mapa.find(fn.nivel()) == mapa.end()) {
+          LOG(ERROR) << "Operação invalida: nao ha feitico do nivel " << fn.nivel();
+          continue;
+        } 
+        if (fn.operacao() == OC_SOBRESCREVE) { *mapa[fn.nivel()] = fn; }
+        else { mapa[fn.nivel()]->MergeFrom(fn); }
+        break;
+      default: ;
+    }
+    mapa[fn.nivel()]->clear_operacao();
+    ++indice;
+  }
+  for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+    feiticos_por_niveis->DeleteSubrange(*it, 1);
+  }
+}
 
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
+  CombinaFeiticosClasse(proto->mutable_feiticos_classes());
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
     // Encontra a entrada da classe, ou cria se nao houver.
@@ -794,6 +856,8 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     const std::string& magias_por_dia = classe_tabelada.progressao_feitico().para_nivel(nivel_para_conjuracao).magias_por_dia();
 
     const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
+
+    CombinaFeiticosPorNivel(fc->mutable_feiticos_por_nivel());
 
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     // Na tabela, o nivel zero nao esta presente entao tem que ser compensado aqui.

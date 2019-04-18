@@ -526,12 +526,15 @@ message EntidadeProto {
     // Esses arrays sao sempre indexado por nivel, mesmo que nao haja nivel 0.
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
+    // Para combinacao modelos.
+    optional OperacaoCombinacao operacao = 7;
   }
   message InfoFeiticosClasse {
     optional string id_classe = 1;
     repeated string dominios = 6;
     // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
+    optional OperacaoCombinacao operacao = 7;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;
   // Indica a classe de feitico ativa.

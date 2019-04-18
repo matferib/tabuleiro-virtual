@@ -278,6 +278,12 @@ enum DescritorAtaque {
   DESC_MAGICO = 30;
 }
 
+enum OperacaoCombinacao {
+  OC_NOP = 0;
+  OC_COMBINA = 1;
+  OC_SOBRESCREVE = 2;
+}
+
 // Tambem usado como vetor.
 message Posicao {
   optional float x = 3;
