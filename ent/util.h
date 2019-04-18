@@ -599,6 +599,9 @@ void RenovaFeiticos(EntidadeProto* proto);
 // Retorna o nivel maximo de feitico que a classe pode conjurar com o nivel de conjurador passado.
 int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_conjurador);
 
+// Retorna o nivel do feitico para determinada classe, -1 se nao houver.
+int NivelFeiticoParaClasse(const ArmaProto& feitico, const std::string& id_classe);
+
 // Hack para android!
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
 * descricao [(complemento)] : rodadas.
@@ -843,8 +846,8 @@ bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto)
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
 
-// Dado os parametros e a entidade de referencia, preenche `modelo`.
-void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
+// Dado o feitico que originou, os parametros e a entidade de referencia, preenche `modelo`.
+void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
 
 // Computa o dano do dado de ataque baseado no modelo e nivel passado.
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da);

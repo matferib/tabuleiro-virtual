@@ -310,6 +310,13 @@ class Entidade {
 
   bool ImuneVeneno() const;
 
+  /** Por padrao, apenas entidades podem ser afetadas por acao. */
+  inline bool PodeSerAfetadoPorAcoes() const {
+    return proto_.has_pode_ser_afetada_por_acao()
+               ? proto_.pode_ser_afetada_por_acao()
+               : Tipo() == TE_ENTIDADE;
+  }
+
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
 
@@ -323,7 +330,7 @@ class Entidade {
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
   /** Retorna a string de dano para a acao corrente para o alvo: '1d8+3'. */
   std::string StringDanoParaAcao(const EntidadeProto& alvo) const;
-  /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */ 
+  /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */
   std::string StringCAParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */
   std::string DetalhesAcao() const;

@@ -572,6 +572,7 @@ modelo {
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }
+# Contem os ataques de vulto.
 modelo {
   id: 'Vulto Base'
   entidade {
@@ -580,7 +581,7 @@ modelo {
       rotulo: 'reflexos 3/dia' grupo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
-      acao {
+      acao_fixa {
         classe_conjuracao: ''
       }
     }
@@ -596,6 +597,7 @@ modelo {
     dados_ataque {
       rotulo: 'reduzir luz a vontade' grupo: 'reduzir luz' tipo_ataque: 'Feitiço de Toque a Distância' alcance_q: 20
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      requer_modelo_ativo: EFEITO_MODELO_VULTO
       reducao_luz: 50
       acao_fixa {
         classe_conjuracao: ''
@@ -617,6 +619,7 @@ modelo {
 modelo {
   id: 'Vulto Bardo 5'
   id_entidade_base: 'Humano Bardo 5'
+  id_entidade_base: 'Vulto Base'
   entidade {
     rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     cor { r: 0.2 g: 0.2 b: 0.2 }
@@ -633,6 +636,7 @@ modelo {
 modelo {
   id: 'Vulto Feiticeiro 5'
   id_entidade_base: 'Humano Feiticeiro 5'
+  id_entidade_base: 'Vulto Base'
   entidade {
     rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     cor { r: 0.2 g: 0.2 b: 0.2 }

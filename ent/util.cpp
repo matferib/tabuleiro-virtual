@@ -4124,8 +4124,17 @@ bool PermiteEscudo(const EntidadeProto& proto) {
   return true;
 }
 
-void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
-  const int nivel = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
+int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitico) {
+  for (const auto& ic : feitico.info_classes()) {
+    if (ic.id() == id_classe) return ic.nivel();
+  }
+  return -1;
+}
+
+void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
+  const auto& classe_feitico_ativa = referencia.Proto().classe_feitico_ativa();
+  const int nivel = referencia.NivelConjurador(classe_feitico_ativa);
+  const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
   VLOG(1) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
@@ -4215,7 +4224,9 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       case TMS_MODIFICADOR_CONJURACAO:
         for (auto& da : *modelo->mutable_dados_ataque()) {
           da.set_dificuldade_salvacao(
-              da.dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+              nivel_feitico >= 0
+              ? 10 + nivel_feitico + referencia.ModificadorAtributoConjuracao()
+              : da.dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
         }
         break;
       case TMS_NENHUM:
@@ -4227,14 +4238,6 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
     *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
   }
   VLOG(1) << "Modelo parametrizado: " << modelo->DebugString();
-}
-
-// Retorna o nivel do feitico tabelado para uma determinada classe. Caso nao tenha, retorna -1.
-int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitico_tabelado) {
-  for (const auto& icf : feitico_tabelado.info_classes()) {
-    if (icf.id() == id_classe) return icf.nivel();
-  }
-  return -1;
 }
 
 std::vector<std::string> DominiosClasse(const std::string& id_classe, const EntidadeProto& proto) {

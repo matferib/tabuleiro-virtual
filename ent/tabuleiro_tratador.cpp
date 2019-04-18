@@ -1358,8 +1358,8 @@ float Tabuleiro::TrataAcaoCriacao(
   }
 
   // Consome ataque.
+  const auto* da = entidade->DadoCorrente();
   {
-    const auto* da = entidade->DadoCorrente();
     if (da != nullptr && da->has_limite_vezes()) {
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
       PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
@@ -1374,7 +1374,9 @@ float Tabuleiro::TrataAcaoCriacao(
   auto* modelo = notificacao.mutable_entidade();
   *modelo = modelo_fixo->entidade();
   if (modelo_fixo->has_parametros()) {
-    PreencheModeloComParametros(modelo_fixo->parametros(), *referencia, modelo);
+    PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
+                                              : tabelas_.Feitico(da->id_arma()),
+                                modelo_fixo->parametros(), *referencia, modelo);
   }
   *modelo->mutable_pos() = pos_criacao;
 

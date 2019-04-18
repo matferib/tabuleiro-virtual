@@ -1014,7 +1014,10 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           referencia = BuscaEntidade(notificacao.id_referencia());
         }
         if (referencia != nullptr) {
-          PreencheModeloComParametros(modelo_selecionado_com_parametros_.second->parametros(), *referencia, &modelo);
+          PreencheModeloComParametros(
+              ArmaProto::default_instance(),
+              modelo_selecionado_com_parametros_.second->parametros(),
+              *referencia, &modelo);
         }
       }
       if (!notificacao.has_entidade()) {
@@ -6967,14 +6970,10 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   }
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
-    if (entidade->has_pode_ser_afetado_por_acao() && !entidade->pode_ser_afetado_por_acao()) continue;
-    if (entidade->IdCenario() != cenario_origem) continue;
-    if ((entidade->has_pode_ser_afetado_por_acao() && entidade->pode_ser_afetado_por_acao()) ||
-        entidade->Tipo() == TE_ENTIDADE) {
-      Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
-      if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, entidade_origem != nullptr && id_entidade_destino.first == entidade_origem->Id())) {
-        ids_afetados.push_back(id_entidade_destino.first);
-      }
+    if (entidade->IdCenario() != cenario_origem || !entidade->PodeSerAfetadoPorAcoes()) continue;
+    Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
+    if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, entidade_origem != nullptr && id_entidade_destino.first == entidade_origem->Id())) {
+      ids_afetados.push_back(id_entidade_destino.first);
     }
   }
   return ids_afetados;

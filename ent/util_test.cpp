@@ -1734,7 +1734,7 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
   const auto& modelo_esfera = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
   EntidadeProto proto_esfera = modelo_esfera.entidade();
   ASSERT_TRUE(modelo_esfera.has_parametros());
-  PreencheModeloComParametros(modelo_esfera.parametros(), *referencia, &proto_esfera);
+  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_esfera.parametros(), *referencia, &proto_esfera);
 
   ASSERT_FALSE(proto_esfera.dados_ataque().empty());
   EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
@@ -1742,6 +1742,16 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
   RecomputaDependencias(g_tabelas, &proto_esfera);
   ASSERT_FALSE(proto_esfera.dados_ataque().empty());
   EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
+
+  // Sem feitico.
+  {
+    EntidadeProto proto_esfera = modelo_esfera.entidade();
+    ASSERT_TRUE(modelo_esfera.has_parametros());
+    PreencheModeloComParametros(ArmaProto::default_instance(), modelo_esfera.parametros(), *referencia, &proto_esfera);
+    RecomputaDependencias(g_tabelas, &proto_esfera);
+    ASSERT_FALSE(proto_esfera.dados_ataque().empty());
+    EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
+  }
 }
 
 TEST(TesteFeiticos, TesteConstricao) {
@@ -1765,7 +1775,7 @@ TEST(TesteFeiticos, TesteConstricao) {
   const auto& modelo_constricao = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
   EntidadeProto proto_constricao = modelo_constricao.entidade();
   ASSERT_TRUE(modelo_constricao.has_parametros());
-  PreencheModeloComParametros(modelo_constricao.parametros(), *referencia, &proto_constricao);
+  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_constricao.parametros(), *referencia, &proto_constricao);
 
   ASSERT_FALSE(proto_constricao.dados_ataque().empty());
   EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
@@ -2217,7 +2227,7 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
-TEST(TesteModelo, TesteModelo) {
+TEST(TesteModelo, TesteModeloVulto) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
   {

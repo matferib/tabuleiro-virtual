@@ -1074,6 +1074,7 @@ modelo {
     cor { r: 0 g: 0 b: 0 a: 1 }
     dados_ataque {
       rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
+      dificuldade_salvacao: 11  # template vai adicionar os modificadores de atributo.
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_ESFERA
@@ -1083,6 +1084,7 @@ modelo {
         permite_salvacao: true
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
+        dificuldade_salvacao_por_nivel: false
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
           rodadas: 1
