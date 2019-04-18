@@ -3099,6 +3099,8 @@ modelo {
     }
     dados_ataque {
       tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
+      mantem_com_limite_zerado: true
       ignora_reflexos: true
       incrementa_proximo_ataque: false
       alcance_q: 6

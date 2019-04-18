@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
+#include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
@@ -138,7 +139,7 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
   // Modelos de entidades.
   tabela_modelos_entidades_.Clear();
-  std::vector<const char*> arquivos_modelos= {"modelos.asciiproto", "modelos_nao_srd.asciiproto"};
+  std::vector<const char*> arquivos_modelos= {ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD};
   for (const char* arquivo : arquivos_modelos) {
     try {
       Modelos modelos_arquivo;
@@ -312,8 +313,22 @@ void Tabelas::RecarregaMapas() {
     acoes_[acao.id()] = &acao;
   }
 
+  // Modelos: tem que reconstruir os modelos compostos.
   for (const auto& modelo : tabela_modelos_entidades_.modelo()) {
     modelos_entidades_[modelo.id()] = &modelo;
+  }
+  for (auto& m : *tabela_modelos_entidades_.mutable_modelo()) {
+    EntidadeProto entidade;
+    for (const auto& id_entidade_base : m.id_entidade_base()) {
+      auto it = modelos_entidades_.find(id_entidade_base);
+      if (it == modelos_entidades_.end()) {
+        LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
+        continue;
+      }
+      entidade.MergeFrom(it->second->entidade());
+    }
+    entidade.MergeFrom(m.entidade());
+    m.mutable_entidade()->Swap(&entidade);
   }
 }
 

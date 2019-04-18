@@ -1178,16 +1178,6 @@ float Tabuleiro::TrataAcaoProjetilArea(
   return atraso_s;
 }
 
-// Retorna o nivel de conjurador da entidade para uma determinada acao.
-int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
-  if (!acao.classe_conjuracao().empty()) {
-    VLOG(1) << "classe conjuracao: " << acao.classe_conjuracao();
-    return NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
-  }
-  VLOG(1) << "sem classe conjuracao";
-  return Nivel(entidade.Proto());
-}
-
 float Tabuleiro::TrataAcaoEfeitoArea(
     float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
@@ -1782,6 +1772,11 @@ float Tabuleiro::TrataPreAcaoComum(
       acao_proto->set_bem_sucedida(false);
       return atraso_s;
     }
+  }
+  if (da != nullptr && da->has_limite_vezes() && da->limite_vezes() == 0) {
+    AdicionaAcaoTextoLogado(entidade_origem->Id(), "Ataque esgotado", atraso_s);
+    acao_proto->set_bem_sucedida(false);
+    return atraso_s;
   }
 
   if (id_entidade_destino != Entidade::IdInvalido && entidade_origem != nullptr) {

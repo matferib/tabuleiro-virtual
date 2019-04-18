@@ -2261,6 +2261,62 @@ TEST(TesteModelo, TesteModeloVulto) {
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
 }
 
+TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
+  const auto& modelo_ha6 = g_tabelas.ModeloEntidade("Humana Aristocrata 6");
+  EntidadeProto proto = modelo_ha6.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+
+  // Aristocrata base.
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 9);
+  // Aristocrata mulher base.
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 8);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 12);
+  EXPECT_TRUE(PossuiTalento("negociador", proto));
+  // Humana Aristocrata 6.
+  EXPECT_TRUE(PossuiTalento("persuasivo", proto));
+}
+
+TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
+  const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Bardo 5");
+  EntidadeProto proto = modelo_vb5.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+  std::unique_ptr<Entidade> entidade(NovaEntidade(proto, g_tabelas, nullptr, nullptr, nullptr, nullptr, nullptr));
+
+  ASSERT_EQ(proto.dados_ataque().size(), 3 + 3 + 1);
+  // Humano Bardo 5.
+  EXPECT_EQ(proto.dados_ataque(2).rotulo(), "inspirar_coragem aliados (5/dia)");
+  EXPECT_EQ(proto.dados_ataque(2).limite_vezes(), 5);
+
+  // Vulto Base.
+  EXPECT_EQ(proto.dados_ataque(3).rotulo(), "reflexos 3/dia");
+  EXPECT_TRUE(proto.dados_ataque(3).acao().classe_conjuracao().empty());
+  EXPECT_EQ(proto.dados_ataque(3).limite_vezes(), 3);
+
+  // Vulto Bardo 5.
+  ASSERT_FALSE(proto.modelos().empty());
+  EXPECT_EQ(proto.modelos(0).id_efeito(), EFEITO_MODELO_VULTO);
+
+  // Aplica reflexos pra ver se vai fazer certinho.
+  const auto& acao = proto.dados_ataque(3).acao();
+  ASSERT_FALSE(acao.efeitos_adicionais().empty());
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
+  ntf::Notificacao n;
+  // d4 de reflexos.
+  g_dados_teste.push(1);
+  PreencheNotificacaoEventoEfeitoAdicional(
+      NivelConjuradorParaAcao(acao, *entidade), *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+  const int proximo = proto.evento().size();
+  entidade->AtualizaParcial(n.entidade());
+  proto = entidade->Proto();
+  ASSERT_GE(proto.evento().size(), proximo);
+  const auto& evento = proto.evento(proximo);
+  EXPECT_EQ(evento.id_efeito(), EFEITO_REFLEXOS);
+  ASSERT_FALSE(evento.complementos().empty());
+  // 1 do dado, +1 de nivel 5.
+  EXPECT_EQ(evento.complementos(0), 2);
+  EXPECT_EQ(evento.rodadas(), 50);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

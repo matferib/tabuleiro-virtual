@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 72.
+// Proximo id: 74.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -147,6 +147,9 @@ message DadosAtaque {
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
   optional int32 limite_vezes = 43;
+  // Alguns ataques são limitados, mas não devem ser zerados. Na prática, funciona como munição
+  // para ataques por dia. Exemplo, inspirar coragem.
+  optional bool mantem_com_limite_zerado = 73;
   // Se false, ao realizar o ataque nao passa para o proximo. Isso ocorre com algumas entidades conjuradas com varios ataques na rodada
   // que sao muito dificeis de modelar como um so.
   optional bool incrementa_proximo_ataque = 68 [default=true];
@@ -184,6 +187,8 @@ message DadosAtaque {
   optional int32 reducao_luz = 70;
   // Ataque so disponivel se modelo estiver ativado.
   optional TipoEfeitoModelo requer_modelo_ativo = 71;
+  // O identificador do ataque dentro do modelo, para aplicá-lo e desligá-lo.
+  optional int32 id_ataque_modelo = 72;
 }
 
 // Proximo id: 102.

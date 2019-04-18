@@ -1,6 +1,7 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+
 enum TipoMagia {
   TM_NENHUMA = 0;
   TM_ARCANA = 1;
@@ -635,6 +636,8 @@ message ConsequenciaEvento {
   //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
 
   optional Bonus bonus_iniciativa = 11;
+
+  //repeated DadosAtaque dados_ataque = 12;
 }
 
 message EfeitoProto {

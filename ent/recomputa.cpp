@@ -1806,7 +1806,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   std::vector<int> indices_a_remover;
   for (int i = proto->dados_ataque().size() - 1; i >= 0; --i) {
     const auto& da = proto->dados_ataque(i);
-    if (da.has_limite_vezes() && da.limite_vezes() <= 0) {
+    if (da.has_limite_vezes() && da.limite_vezes() <= 0 && !da.mantem_com_limite_zerado()) {
       indices_a_remover.push_back(i);
     }
   }

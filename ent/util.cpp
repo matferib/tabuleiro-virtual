@@ -2370,6 +2370,15 @@ int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
   return InfoClasseProto(id_classe, proto).nivel_conjurador();
 }
 
+int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
+  if (!acao.classe_conjuracao().empty()) {
+    VLOG(1) << "classe conjuracao: " << acao.classe_conjuracao();
+    return NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
+  }
+  VLOG(1) << "sem classe conjuracao";
+  return Nivel(entidade.Proto());
+}
+
 // Retorna o nivel aumentado de conjurador da classe, se houver.
 std::string NivelAumentadoConjurador(const Tabelas& tabelas, const std::string& id_classe, const EntidadeProto& proto) {
   // Primeiro: ve se a classe estabelece qual nivel sera aumentado.
