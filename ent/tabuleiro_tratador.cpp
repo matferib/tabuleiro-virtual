@@ -1310,6 +1310,28 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       ConcatenaString("derruba sem teste", por_entidade->mutable_texto());
     }
 
+    // Compartilhamento de dano.
+    std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, entidade_destino->Proto());
+    if (!evento_divisao.empty() && !evento_divisao[0]->complementos().empty() && delta_pv_pos_salvacao < 0) {
+      const auto* entidade_solidaria = BuscaEntidade(evento_divisao[0]->complementos(0));
+      if (entidade_solidaria != nullptr) {
+        // Dano deve ser dividido.
+        const int delta_pontos_vida = delta_pv_pos_salvacao;
+        int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
+        delta_pv_pos_salvacao = delta_pontos_vida / 2;
+        ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
+
+        auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
+        por_entidade_compartilhada->set_id(entidade_solidaria->Id());
+        por_entidade_compartilhada->set_delta(sobra);
+        ConcatenaString("dano origem", por_entidade_compartilhada->mutable_texto());
+        // Apenas para desfazer.
+        auto* nd = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra,
+                                               TD_LETAL, nd, nd);
+      }
+    }
+
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pv_pos_salvacao);
@@ -1672,8 +1694,30 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     bool nao_letal = da != nullptr && da->nao_letal();
+
+    // Compartilhamento de dano.
+    std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, entidade_destino->Proto());
+    if (!evento_divisao.empty() && !evento_divisao[0]->complementos().empty() && delta_pontos_vida < 0) {
+      const auto* entidade_solidaria = BuscaEntidade(evento_divisao[0]->complementos(0));
+      if (entidade_solidaria != nullptr) {
+        // Dano deve ser dividido.
+        int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
+        delta_pontos_vida = delta_pontos_vida / 2;
+        ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
+
+        auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
+        por_entidade_compartilhada->set_id(entidade_solidaria->Id());
+        por_entidade_compartilhada->set_delta(sobra);
+        ConcatenaString("dano origem", por_entidade_compartilhada->mutable_texto());
+        // Apenas para desfazer.
+        auto* nd = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoAtualizaoPontosVida(
+            *entidade_solidaria, sobra, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+      }
+    }
+
+    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     acao_proto->set_nao_letal(nao_letal);
 
     AdicionaLogEvento(google::protobuf::StringPrintf(
