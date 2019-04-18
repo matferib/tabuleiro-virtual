@@ -54,6 +54,8 @@ enum CategoriaArma {
   CAT_ARMA_DUPLA = 8;
   // A arma é um projétil de área (água benta, ácido, fogo alquimico).
   CAT_PROJETIL_AREA = 9;
+  // O proto representa uma arma (e não um feitiço, por exemplo).
+  CAT_ARMA = 10;
 }
 
 enum TipoDano {

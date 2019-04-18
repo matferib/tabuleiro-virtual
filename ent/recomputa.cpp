@@ -128,7 +128,9 @@ void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
 bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
   if (!consequencia.has_restricao_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
-  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0) return true;
+  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0)
+    return true;
+  if (ra.apenas_armas() && da.eh_arma()) return true;
   return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
 }
 
@@ -233,7 +235,8 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
-    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(),
+                                  da.mutable_bonus_ataque());
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
 
@@ -794,10 +797,10 @@ void CombinaFeiticosClasse(RepeatedPtrField<EntidadeProto::InfoFeiticosClasse>* 
         if (mapa.find(fc.id_classe()) == mapa.end()) {
           LOG(ERROR) << "Operação invalida: nao ha feitico para classe " << fc.id_classe();
           continue;
-        } 
+        }
         if (fc.operacao() == OC_SOBRESCREVE) { *mapa[fc.id_classe()] = fc; }
         else { mapa[fc.id_classe()]->MergeFrom(fc); }
-        a_remover.push_back(indice); 
+        a_remover.push_back(indice);
         break;
       default: ;
     }
@@ -826,7 +829,7 @@ void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* 
         if (mapa.find(fn.nivel()) == mapa.end()) {
           LOG(ERROR) << "Operação invalida: nao ha feitico do nivel " << fn.nivel();
           continue;
-        } 
+        }
         if (fn.operacao() == OC_SOBRESCREVE) { *mapa[fn.nivel()] = fn; }
         else { mapa[fn.nivel()]->MergeFrom(fn); }
         break;
@@ -1569,6 +1572,9 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       da->mutable_acao()->set_id("Ataque Corpo a Corpo");
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
     }
+  }
+  if (PossuiCategoria(CAT_ARMA, arma)) {
+    da->set_eh_arma(true);
   }
   if (arma.has_ataque_toque()) {
     da->set_ataque_toque(arma.ataque_toque());

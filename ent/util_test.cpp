@@ -1217,6 +1217,49 @@ TEST(TesteDependencias, TesteInvestida) {
   EXPECT_EQ(8, BonusTotal(proto.dados_defesa().ca()));
 }
 
+TEST(TesteDependencias, TesteInspirarCoragem) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("barbaro");
+    ic->set_nivel(3);
+  }
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("feiticeiro");
+    ic->set_nivel(1);
+  }
+
+  // Ataques.
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Feiticeiro");
+    da->set_id_arma("maos_flamejantes");
+  }
+
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8");
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 3);
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "1d4");
+
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_INSPIRAR_CORAGEM);
+    evento->add_complementos(1);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 4)
+      << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8+1");
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 3);
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "1d4");
+}
+
 TEST(TesteDependencias, TesteDependencias) {
   EntidadeProto proto;
   proto.set_tamanho(TM_GRANDE);

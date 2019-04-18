@@ -621,7 +621,9 @@ message InfoPericia {
 }
 
 message RestricaoArma {
+  // Uma das restricoes que valem. A ultima é por id.
   optional string prefixo_arma = 1;
+  optional bool apenas_armas = 3;
   repeated string id_arma = 2;
 }
 

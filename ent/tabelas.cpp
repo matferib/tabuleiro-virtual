@@ -219,6 +219,7 @@ void Tabelas::RecarregaMapas() {
           [] (int c) { return c == CAT_ARMA_DUPLA; })) {
       arma.add_categoria(CAT_DUAS_MAOS);
     }
+    arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
   }

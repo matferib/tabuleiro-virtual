@@ -1032,11 +1032,12 @@ tabela_efeitos {
   }
   efeitos {
     id: EFEITO_INSPIRAR_CORAGEM
-    nome: 'inpirar coragem'
+    nome: 'inspirar coragem'
     formato_complementos: 'Bônus de moral em ataque e dano.'
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
       jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      restricao_arma { apenas_armas: true }  # nao afeta feiticos, por exemplo.
       # TODO bonus em salvacao contra encantamento e medo.
     }
   }
