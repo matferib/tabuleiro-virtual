@@ -243,8 +243,8 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
       VLOG(1) << "Compiler happy: " << strings_acoes[0];
       // Esse menu tem tratamento especial.
       std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
-      for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
-        auto par = std::make_pair(acao_it.first, acao_it.second.get());
+      for (const auto& acao : tabelas_.TodasAcoes().acao()) {
+        auto par = std::make_pair(acao.id(), &acao);
         acoes_ordenadas.push_back(par);
       }
       std::sort(acoes_ordenadas.begin(), acoes_ordenadas.end(), [] (
