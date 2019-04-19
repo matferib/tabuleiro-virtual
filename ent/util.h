@@ -395,6 +395,9 @@ std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeProto(
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidadeComId(
     ntf::Tipo tipo, uint32_t id_entidade, ntf::Notificacao* n);
 
+// Preenche notificacao de diminuicao do raio de luz da entidade e a consequencia da acao.
+void PreencheNotificacaoReducaoLuzComConsequencia(int nivel, const Entidade& alvo, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
 // Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
 
@@ -465,6 +468,9 @@ bool ArmaDistancia(const ArmaProto& arma);
 
 // Retorna true se os eventos forem identicos (campo a campo).
 bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs);
+
+// Retorna true se a entidade tiver o modelo e estiver ativo.
+bool PossuiModeloAtivo(TipoEfeitoModelo efeito_modelo, const EntidadeProto& proto);
 
 // Retorna o evento pelo id unico. Retorna nullptr se nao houver.
 EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);

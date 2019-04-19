@@ -4406,7 +4406,7 @@ int CompartilhaDanoSeAplicavel(
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
   std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, alvo);
   if (delta_pontos_vida >= 0 || evento_divisao.empty() || evento_divisao[0]->complementos().empty()) return delta_pontos_vida;
- 
+
   const auto* entidade_solidaria = tabuleiro.BuscaEntidade(evento_divisao[0]->complementos(0));
   if (entidade_solidaria == nullptr) {
     ConcatenaString("dano não dividido, sem entidade", por_entidade->mutable_texto());
@@ -4427,6 +4427,28 @@ int CompartilhaDanoSeAplicavel(
   PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
 
   return delta_pontos_vida;
+}
+
+void PreencheNotificacaoReducaoLuzComConsequencia(int nivel, const Entidade& entidade, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  const float fator = 1 - std::min(1.0f, ((nivel * 10) / 100.0f));
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *e_antes->mutable_luz() = entidade.Proto().luz();
+  // Essa brincadeira do valor padrao da luz quebra tudo.
+  e_antes->mutable_luz()->set_raio_m(entidade.RaioLuzMetros());
+  *e_depois->mutable_luz() = entidade.Proto().luz();
+  e_depois->mutable_luz()->set_raio_m(entidade.RaioLuzMetros() * fator);
+  if (n_desfazer) {
+    *n_desfazer = *n;
+  }
+  acao_proto->set_consequencia(TC_REDUZ_LUZ_ALVO);
+  acao_proto->set_reducao_luz(fator);
+}
+
+bool PossuiModeloAtivo(TipoEfeitoModelo efeito_modelo, const EntidadeProto& proto) {
+  return c_any_of(proto.modelos(), [efeito_modelo](const ModeloDnD& modelo) {
+    return modelo.id_efeito() == efeito_modelo && modelo.ativo();
+  });
 }
 
 }  // namespace ent

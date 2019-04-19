@@ -598,9 +598,12 @@ modelo {
       rotulo: 'reduzir luz a vontade' grupo: 'reduzir luz' tipo_ataque: 'Feitiço de Toque a Distância' alcance_q: 20
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
-      reducao_luz: 50
       acao_fixa {
         classe_conjuracao: ''
+        reduz_luz: true
+        permite_ataque_vs_defesa: false
+        permite_salvacao: false
+        ignora_resistencia_magia: false
       }
     }
   }

@@ -29,6 +29,7 @@ enum TipoConsequencia {
   TC_AGARRA_ALVO       = 3;
   TC_ILUMINA_ALVO      = 4;
   TC_DERRUBA_ALVO      = 5;
+  TC_REDUZ_LUZ_ALVO    = 6;
 }
 
 enum GeometriaAcao {
@@ -88,7 +89,7 @@ enum ModificadorComplementos {
   MC_ID_ENTIDADE = 8;  // Proteger outro.
 }
 
-// Proximo id: 72.
+// Proximo id: 73.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -250,6 +251,9 @@ message AcaoProto {
   }
   optional DetalhesAdicionais detalhes_adicionais = 70;
   optional bool ignora_reflexos = 71;
+  // Reducao da luz do alvo [0-1].
+  optional float reducao_luz = 72; 
+  optional bool reduz_luz = 73;
 }
 
 // O arquivo de acoes é serializado desta forma.

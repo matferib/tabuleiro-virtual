@@ -1253,7 +1253,23 @@ void Acao::AtualizaDirecaoQuedaAlvoRelativoTabuleiro(Entidade* entidade) {
   entidade->AtualizaDirecaoDeQueda(v.x, v.y, v.z);
 }
 
+// Retorna false se finalizada.
 bool Acao::AtualizaAlvo(int intervalo_ms) {
+  if (acao_proto_.consequencia() == TC_REDUZ_LUZ_ALVO) {
+    if (!acao_proto_.bem_sucedida()) {
+      return false;
+    }
+    for (const auto& por_entidade : acao_proto_.por_entidade()) {
+      const auto id = por_entidade.id();
+      auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
+      if (entidade_destino == nullptr) continue;
+      EntidadeProto parcial;
+      parcial.mutable_luz()->set_raio_m(
+          entidade_destino->RaioLuzMetros() * acao_proto_.reducao_luz());
+      entidade_destino->AtualizaParcial(parcial);
+    }
+    return false;
+  }
   if (acao_proto_.consequencia() == TC_DESLOCA_ALVO) {
     auto* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
     if (entidade_destino == nullptr) {

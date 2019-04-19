@@ -183,8 +183,6 @@ message DadosAtaque {
   optional ResultadoSalvacao resultado_ao_salvar = 62;
   optional bool dano_ignora_salvacao = 63;
   optional bool ignora_reflexos = 69;
-  // Ataque reduz a luz do alvo pela quantidade passada.
-  optional int32 reducao_luz = 70;
   // Ataque so disponivel se modelo estiver ativado.
   optional TipoEfeitoModelo requer_modelo_ativo = 71;
   // O identificador do ataque dentro do modelo, para aplicá-lo e desligá-lo.

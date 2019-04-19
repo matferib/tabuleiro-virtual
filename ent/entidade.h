@@ -39,6 +39,12 @@ Entidade* NovaEntidade(
     const EntidadeProto& proto,
     const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+inline Entidade* NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
+  return NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
+}
+inline Entidade* NovaEntidadeFalsa(const Tabelas& tabelas) {
+  return NovaEntidadeParaTestes(EntidadeProto::default_instance(), tabelas);
+}
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -56,6 +62,8 @@ class Entidade {
 
   /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
   bool TemLuz() const;
+  /** Retorna o raio da luz (assume que esta ligada). */
+  float RaioLuzMetros() const { return proto_.luz().has_raio_m() ? proto_.luz().raio_m() : 6.0f; }
   /** Liga a iluminacao por acao da entidade, tipo quando da um tiro. */
   void AtivaLuzAcao(const IluminacaoPontual& luz);
 
