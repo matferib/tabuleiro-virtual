@@ -628,7 +628,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
+      auto it = modelos_entidades_.find(id_modelo_selecionado_com_parametros_);
       if (it == modelos_entidades_.begin()) {
         SelecionaModeloEntidade(*--modelos_entidades_.end());
       } else {
@@ -640,7 +640,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
+      auto it = modelos_entidades_.find(id_modelo_selecionado_com_parametros_);
       if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
         SelecionaModeloEntidade(*modelos_entidades_.begin());
       } else {
@@ -1061,8 +1061,7 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
       return rotulo.empty() ? "-" : rotulo;
     }
     case CONTROLE_MODELO_ENTIDADE: {
-      std::string rotulo = modelo_selecionado_com_parametros_.first;
-      return rotulo.empty() ? "-" : rotulo;
+      return id_modelo_selecionado_com_parametros_.empty() ? "-" : id_modelo_selecionado_com_parametros_;
     }
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:

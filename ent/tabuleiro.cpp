@@ -179,50 +179,7 @@ Tabuleiro::Tabuleiro(
   // Modelos.
   Modelo* modelo_padrao_com_parametros = new Modelo;
   modelo_padrao_com_parametros->mutable_entidade()->mutable_cor()->set_g(1.0f);
-  mapa_modelos_com_parametros_.insert(std::make_pair("Padrão", std::unique_ptr<Modelo>(modelo_padrao_com_parametros)));
-  modelo_selecionado_com_parametros_.first = "Padrão";
-  modelo_selecionado_com_parametros_.second = modelo_padrao_com_parametros;
-  Modelos modelos;
-  const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
-  for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
-    try {
-      Modelos modelos_do_arquivo;
-      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos_do_arquivo);
-      modelos.MergeFrom(modelos_do_arquivo);
-    } catch (const arq::ParseProtoException& ppe) {
-      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(StringPrintf("%s: %s", nome_arquivo_modelo.c_str(), ppe.what())));
-    } catch (const std::logic_error& erro) {
-      LOG(ERROR) << erro.what();
-      // Problema sao arquivos que podem estar ausentes. TODO fazer uma excecao separada para tratar.
-    }
-  }
-
-  // Mapa de modelos por id.
-  std::unordered_map<std::string, const Modelo*> modelos_por_id;
-  for (const auto& m : modelos.modelo()) {
-    modelos_por_id[m.id()] = &m;
-  }
-
-  for (const auto& m : modelos.modelo()) {
-    std::unique_ptr<EntidadeProto> entidade(new EntidadeProto());
-    if (m.id_entidade_base().empty()) {
-      *entidade = m.entidade();
-      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
-    } else {
-      for (const auto& id_entidade_base : m.id_entidade_base()) {
-        auto it = modelos_por_id.find(id_entidade_base);
-        if (it == modelos_por_id.end()) {
-          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
-          continue;
-        }
-        entidade->MergeFrom(it->second->entidade());
-      }
-      entidade->MergeFrom(m.entidade());
-      std::unique_ptr<Modelo> mp(new Modelo(m));
-      *mp->mutable_entidade() = *entidade;
-      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::move(mp)));
-    }
-  }
+  id_modelo_selecionado_com_parametros_ = "Padrão";
 
   // Acoes.
   Acoes acoes;
@@ -996,15 +953,17 @@ int Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      EntidadeProto modelo(notificacao.has_entidade()
-          ? notificacao.entidade() : modelo_selecionado_com_parametros_.second->entidade());
+      const auto& modelo_com_parametros = tabelas_.ModeloEntidade(id_modelo_selecionado_com_parametros_);
+      EntidadeProto entidade_modelo(notificacao.has_entidade()
+          ? notificacao.entidade()
+          : modelo_com_parametros.entidade());
 #if APENAS_MESTRE_CRIA_FORMAS
-      if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
+      if (entidade_modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
 #endif
-      if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
+      if (!notificacao.has_entidade() && modelo_com_parametros.has_parametros()) {
         // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
         VLOG(1) << "buscando referencia para criacao de entidade";
         const auto* referencia = EntidadeCameraPresaOuSelecionada();
@@ -1015,8 +974,8 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         if (referencia != nullptr) {
           PreencheModeloComParametros(
               ArmaProto::default_instance(),
-              modelo_selecionado_com_parametros_.second->parametros(),
-              *referencia, &modelo);
+              modelo_com_parametros.parametros(),
+              *referencia, &entidade_modelo);
         }
       }
       if (!notificacao.has_entidade()) {
@@ -1026,16 +985,16 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         // Notificacao sem entidade: posicao do quadrado selecionado.
         float x, y, z;
         CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-        modelo.mutable_pos()->set_x(x);
-        modelo.mutable_pos()->set_y(y);
-        modelo.mutable_pos()->set_z(z);
-        modelo.mutable_pos()->set_id_cenario(IdCenario());
+        entidade_modelo.mutable_pos()->set_x(x);
+        entidade_modelo.mutable_pos()->set_y(y);
+        entidade_modelo.mutable_pos()->set_z(z);
+        entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
       } else if (!Desfazendo()) {
         // Se nao estiver desfazendo, poe a entidade no cenario corrente.
         if (notificacao.entidade().has_pos()) {
-          *modelo.mutable_pos() = notificacao.entidade().pos();
+          *entidade_modelo.mutable_pos() = notificacao.entidade().pos();
         }
-        modelo.mutable_pos()->set_id_cenario(IdCenario());
+        entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
       }
       unsigned int id_entidade = GeraIdEntidade(id_cliente_);
       if (processando_grupo_) {
@@ -1045,20 +1004,20 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       // se a entidade eh visivel e selecionavel para os jogadores.
       if (!Desfazendo()) {
         bool modo_mestre = EmModoMestreIncluindoSecundario();
-        modelo.set_visivel(!modo_mestre);
-        modelo.set_selecionavel_para_jogador(!modo_mestre);
-        modelo.set_id(id_entidade);
+        entidade_modelo.set_visivel(!modo_mestre);
+        entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
+        entidade_modelo.set_id(id_entidade);
         if (camera_presa_) {
           ids_camera_presa_.push_back(id_entidade);
         }
       } else {
-        if (BuscaEntidade(modelo.id()) != nullptr) {
+        if (BuscaEntidade(entidade_modelo.id()) != nullptr) {
           // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
           // Isso tem potencial de erro caso o mestre remova entidade de jogadores.
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
+      auto* entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
@@ -1082,7 +1041,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       if (!Desfazendo()) {
         // Para desfazer.
         ntf::Notificacao n_desfazer(notificacao);
-        n_desfazer.mutable_entidade()->CopyFrom(modelo);
+        n_desfazer.mutable_entidade()->CopyFrom(entidade_modelo);
         AdicionaNotificacaoListaEventos(n_desfazer);
       }
       // Envia a entidade para os outros.
@@ -2760,8 +2719,7 @@ void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return;
   }
-  modelo_selecionado_com_parametros_.first = id_modelo;
-  modelo_selecionado_com_parametros_.second = &modelo;
+  id_modelo_selecionado_com_parametros_ = id_modelo;
 }
 
 void Tabuleiro::SelecionaSinalizacao() {

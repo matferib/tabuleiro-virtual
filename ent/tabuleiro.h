@@ -370,7 +370,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Acesso ao mapa de modelos. O inteiro eh um TipoAcao. */
   typedef std::unordered_map<int, std::unique_ptr<AcaoProto>> MapaTipoAcao;
   typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
-  const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
   const MapaTipoAcao& MapaTipoAcoes() const { return mapa_acoes_por_tipo_; }
 
   /** Seleciona uma das formas de desenho como padrao. */
@@ -1230,7 +1229,7 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  std::pair<std::string, const Modelo*> modelo_selecionado_com_parametros_;
+  std::string id_modelo_selecionado_com_parametros_;
   std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */
