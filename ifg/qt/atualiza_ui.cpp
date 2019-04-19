@@ -679,6 +679,9 @@ void PreencheComboParaLancar(
   for (int nivel_conhecido = nivel_para_lancar; nivel_conhecido >= 0; --nivel_conhecido) {
     QStringList lista;
     combo->addItem(QString(combo->tr("Nível %1")).arg(nivel_conhecido));
+    QFont fonte = combo->itemData(combo->count() - 1, Qt::FontRole).value<QFont>();
+    fonte.setWeight(QFont::Bold);
+    combo->setItemData(combo->count() - 1, QVariant::fromValue(fonte), Qt::FontRole);
     mapa.push_back(std::make_pair(nivel_conhecido, -1));
     const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
     int indice_conhecido = 0;
@@ -688,7 +691,7 @@ void PreencheComboParaLancar(
       if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
           fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
         // Dados do feitico conhecido selecionado.
-        indice_corrente = mapa.size();
+        indice_corrente = mapa.size() - 1;
         item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(nivel_conhecido));
         item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(indice_conhecido));
       }

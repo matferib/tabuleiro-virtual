@@ -99,6 +99,7 @@ public:
     QGroupBox *groupBox_7;
     QHBoxLayout *horizontalLayout_25;
     QHBoxLayout *horizontalLayout_11;
+    QCheckBox *checkbox_afetado_por_efeitos;
     QCheckBox *checkbox_colisao;
     QCheckBox *checkbox_fixa;
     QCheckBox *checkbox_selecionavel;
@@ -514,6 +515,11 @@ public:
         horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
         horizontalLayout_11 = new QHBoxLayout();
         horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
+        checkbox_afetado_por_efeitos = new QCheckBox(groupBox_7);
+        checkbox_afetado_por_efeitos->setObjectName(QStringLiteral("checkbox_afetado_por_efeitos"));
+
+        horizontalLayout_11->addWidget(checkbox_afetado_por_efeitos);
+
         checkbox_colisao = new QCheckBox(groupBox_7);
         checkbox_colisao->setObjectName(QStringLiteral("checkbox_colisao"));
 
@@ -820,6 +826,10 @@ public:
         label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", nullptr));
         label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", nullptr));
         groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Atributos", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_afetado_por_efeitos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Marque se objeto pode ser afetado por efeitos.", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_afetado_por_efeitos->setText(QApplication::translate("ifg::qt::DialogoForma", "Afetado por Efeitos", nullptr));
 #ifndef QT_NO_TOOLTIP
         checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", nullptr));
 #endif // QT_NO_TOOLTIP
