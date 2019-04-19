@@ -222,7 +222,6 @@ Tabuleiro::Tabuleiro(
       *mp->mutable_entidade() = *entidade;
       mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::move(mp)));
     }
-    mapa_modelos_.insert(std::make_pair(m.id(), std::move(entidade)));
   }
 
   // Acoes.
@@ -2756,22 +2755,13 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
-  auto it = mapa_modelos_com_parametros_.find(id_modelo);
-  if (it == mapa_modelos_com_parametros_.end()) {
+  const auto& modelo = tabelas_.ModeloEntidade(id_modelo);
+  if (modelo.id() != id_modelo) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return;
   }
   modelo_selecionado_com_parametros_.first = id_modelo;
-  modelo_selecionado_com_parametros_.second = it->second.get();
-}
-
-const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const {
-  auto it = mapa_modelos_com_parametros_.find(id_modelo);
-  if (it == mapa_modelos_com_parametros_.end()) {
-    LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
-    return nullptr;
-  }
-  return &it->second->entidade();
+  modelo_selecionado_com_parametros_.second = &modelo;
 }
 
 void Tabuleiro::SelecionaSinalizacao() {

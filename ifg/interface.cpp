@@ -330,7 +330,9 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
   if (!c.id().empty()) {
     const auto& feitico = tabelas.Feitico(c.id());
-    if (!feitico.nome().empty()) return feitico.nome();
+    if (!feitico.nome().empty()) {
+      return StringPrintf("%s, alcance: %d (q)", feitico.nome().c_str(), feitico.alcance_quadrados());
+    }
   }
   if (!c.nome().empty()) return c.nome();
   return c.id();

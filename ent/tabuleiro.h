@@ -350,9 +350,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
 
-  /** Busca um dos modelos pelo id. */
-  const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
-
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
 
@@ -1234,7 +1231,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** O modelo selecionado para inserção de entidades. */
   std::pair<std::string, const Modelo*> modelo_selecionado_com_parametros_;
-  std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
   std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */

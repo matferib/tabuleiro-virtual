@@ -42,6 +42,7 @@ class Tabelas : public ntf::Receptor {
   const InfoClasse& Classe(const std::string& id) const;
   const PericiaProto& Pericia(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
+  const Modelos& TodosModelosEntidades() const { return tabela_modelos_entidades_; }
   const RacaProto& Raca(const std::string& id) const;
   const DominioProto& Dominio(const std::string& id) const;
   const Modelo& ModeloEntidade(const std::string& modelo) const;

@@ -22,6 +22,7 @@ Necessary for lupdate.
 #include <boost/asio/ip/host_name.hpp>
 
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ifg/interface.h"
 #include "ifg/qt/constantes.h"
@@ -132,8 +133,8 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
 
 }  // namespace
 
-MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
-    : QMenuBar(pai), tabuleiro_(tabuleiro), central_(central) {
+MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
+    : QMenuBar(pai), tabelas_(tabelas), tabuleiro_(tabuleiro), central_(central) {
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
@@ -341,12 +342,12 @@ void MenuPrincipal::Modo(modomenu_e modo){
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toUtf8().constData();
-      const ent::EntidadeProto* e_proto = tabuleiro_->BuscaModelo(id);
-      if (e_proto == nullptr) {
+      const auto& modelo = tabelas_.ModeloEntidade(id);
+      if (!modelo.has_entidade()) {
         LOG(ERROR) << "Falha ao buscar modelo: " << id;
         continue;
       }
-      acao->setEnabled(e_proto->tipo() != ent::TE_COMPOSTA);
+      acao->setEnabled(modelo.entidade().tipo() != ent::TE_COMPOSTA);
     }
     break;
   }

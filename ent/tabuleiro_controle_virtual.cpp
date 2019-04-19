@@ -162,8 +162,8 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando lista de texturas do controle virtual: " << e.what();
   }
 
-  for (const auto& modelo : mapa_modelos_com_parametros_) {
-    modelos_entidades_.insert(modelo.first);
+  for (const auto& modelo : tabelas_.TodosModelosEntidades().modelo()) {
+    modelos_entidades_.insert(modelo.id());
   }
 }
 

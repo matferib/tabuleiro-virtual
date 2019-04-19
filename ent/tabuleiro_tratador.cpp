@@ -1322,8 +1322,8 @@ float Tabuleiro::TrataAcaoCriacao(
     float atraso_s, const Posicao& pos_criacao, Entidade* entidade, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   VLOG(1) << "pos criacao: " << pos_criacao.DebugString();
-  auto it = mapa_modelos_com_parametros_.find(acao_proto->id_modelo_entidade());
-  if (it == mapa_modelos_com_parametros_.end()) {
+  const auto& modelo_com_parametros = tabelas_.ModeloEntidade(acao_proto->id_modelo_entidade());
+  if (modelo_com_parametros.id() != acao_proto->id_modelo_entidade()) {
     LOG(ERROR) << "Modelo de entidade invalido: " << acao_proto->id_modelo_entidade();
     return atraso_s;
   }
@@ -1353,18 +1353,17 @@ float Tabuleiro::TrataAcaoCriacao(
     }
   }
 
-  const auto& modelo_fixo = it->second;
   const auto* referencia = entidade;
   ntf::Notificacao notificacao;
   notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  auto* modelo = notificacao.mutable_entidade();
-  *modelo = modelo_fixo->entidade();
-  if (modelo_fixo->has_parametros()) {
+  auto* modelo_entidade = notificacao.mutable_entidade();
+  *modelo_entidade = modelo_com_parametros.entidade();
+  if (modelo_com_parametros.has_parametros()) {
     PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
                                               : tabelas_.Feitico(da->id_arma()),
-                                modelo_fixo->parametros(), *referencia, modelo);
+                                modelo_com_parametros.parametros(), *referencia, modelo_entidade);
   }
-  *modelo->mutable_pos() = pos_criacao;
+  *modelo_entidade->mutable_pos() = pos_criacao;
 
   TrataNotificacao(notificacao);
   return atraso_s;
