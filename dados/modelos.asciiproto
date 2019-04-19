@@ -93,7 +93,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'iniciativa_aprimorada' }
-      gerais { id: 'acuidade_arma' }
+      outros { id: 'acuidade_arma' }
     }
   }
 }
@@ -631,10 +631,9 @@ modelo {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
+          combinar_com_efeito: EFEITO_REFLEXOS
           rodadas: 12
           dado_complementos_str: '1d4+4'
-          combinar_com: 0
         }
       }
     }
@@ -645,9 +644,8 @@ modelo {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         efeitos_adicionais {
-          efeito: EFEITO_HEROISMO
+          combinar_com_efeito: EFEITO_HEROISMO
           rodadas: 120
-          combinar_com: 0
         }
       }
     }
@@ -1078,6 +1076,7 @@ modelo {
   entidade {
     modelo_3d { id: 'builtin:esfera' escala { x: 8 y: 8 z: 0.1 } }
     cor { r: 0 g: 1 b: 0 a: 1 }
+    pode_ser_afetada_por_acao: false
     dados_ataque {
       rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
       dificuldade_salvacao: 11  # template vai adicionar os modificadores de atributo.
@@ -1113,6 +1112,7 @@ modelo {
   entidade {
     modelo_3d { id: 'builtin:esfera' escala { x: 2 y: 2  z: 0.1 } }
     cor { r: 0 g: 0 b: 0 a: 1 }
+    pode_ser_afetada_por_acao: false
     dados_ataque {
       rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque' alcance_q: 2 derruba_sem_teste: true
       dificuldade_salvacao: 11
@@ -1268,6 +1268,8 @@ modelo {
     aura_m: 1.5  # 1 quadrado de raio
     cor { r: 1 g: 1 b: 1 a: 1 }
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
+    pode_ser_afetada_por_acao: false
+    gerar_agarrar: false 
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
       dificuldade_salvacao: 12  # template vai adicionar os modificadores de atributo.
@@ -1296,6 +1298,7 @@ modelo {
     modelo_3d { id: 'black_tentacles' }
     cor { r: 0.1 g: 0.1 b: 0.1 a: 1 }
     tamanho: TM_GRANDE
+    pode_ser_afetada_por_acao: false
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
     }
@@ -2222,7 +2225,6 @@ modelo {
     dados_ataque { grupo: 'dist' id_arma: 'adaga' municao: 1 tipo_ataque: 'Ataque a Distância' }
     info_talentos {
       gerais { id: 'vitalidade' }
-      gerais { id: 'foco_em_pericia' }
     }
     info_pericias { id: 'cavalgar' pontos: 4 }
     info_pericias { id: 'adestrar_animais' pontos: 1 }
@@ -2245,6 +2247,9 @@ modelo {
   id: 'Humano Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_male' }
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -2335,7 +2340,6 @@ modelo {
   entidade {
     info_talentos {
       gerais { id: 'vitalidade' }
-      gerais { id: 'iniciativa_aprimorada' }
     }
     atributos {
       # Usa o array padrao.
@@ -2350,8 +2354,18 @@ modelo {
 }
 
 modelo {
+  id: 'Humano Combatente Base'
+  entidade {
+    info_talentos {
+      outros { id: 'iniciativa_aprimorada' }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Combatente 1'
   id_entidade_base: 'Combatente Base'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 1'
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -2365,6 +2379,7 @@ modelo {
 modelo {
   id: 'Humano Combatente 2'
   id_entidade_base: 'Combatente Base'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 2'
     dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
@@ -2379,6 +2394,7 @@ modelo {
 modelo {
   id: 'Humano Combatente 4'
   id_entidade_base: 'Combatente Base'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 4'
     info_classes { id: 'combatente' nivel: 4 }
@@ -2401,14 +2417,19 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Aristocrata Base'
+  entidade {
+    info_talentos {
+      outros { id: 'negociador' }
+    }
+  }
+}
 
 modelo {
   id: 'Aristocrata Mulher Base'
   entidade {
     modelo_3d { id: 'human_aristocrat_female' }
-    info_talentos {
-      gerais { id: 'negociador' }
-    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
@@ -2421,9 +2442,6 @@ modelo {
   entidade {
     modelo_3d { id: 'human_aristocrat_male' }
     cor { r: 0.9 g: 0.8 b: 0.8 }
-    info_talentos {
-      gerais { id: 'negociador' }
-    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -2434,6 +2452,7 @@ modelo {
 modelo {
   id: 'Humano Aristocrata 5'
   id_entidade_base: 'Aristocrata Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   id_entidade_base: 'Aristocrata Homem Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 5 }
@@ -2470,6 +2489,7 @@ modelo {
 modelo {
   id: 'Humana Aristocrata 5'
   id_entidade_base: 'Aristocrata Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   id_entidade_base: 'Aristocrata Mulher Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 5 }
@@ -2505,6 +2525,7 @@ modelo {
 modelo {
   id: 'Humano Aristocrata 6'
   id_entidade_base: 'Aristocrata Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   id_entidade_base: 'Aristocrata Homem Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 6 }
@@ -2533,6 +2554,7 @@ modelo {
 modelo {
   id: 'Humana Aristocrata 6'
   id_entidade_base: 'Aristocrata Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   id_entidade_base: 'Aristocrata Mulher Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 6 }
@@ -2559,7 +2581,26 @@ modelo {
 }
 
 modelo {
+  id: 'Humano Clérigo Base'
+  entidade {
+    info_talentos {
+      outros{ id: 'foco_em_arma' complemento: 'maca_estrela' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Clérigo'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '10' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 1 }
@@ -2577,19 +2618,11 @@ modelo {
       pocoes { id: 'escudo_fe_2' }
       tesouro: '150 PO'
     }
-    atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-    }
   }
 }
 modelo {
   id: 'Humano Clérigo 4'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '3d8+16' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 4 }
@@ -2658,19 +2691,14 @@ modelo {
       }
     }
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
   }
 }
 
 modelo {
   id: 'Humano Clérigo 5'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '4d8+18' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 5 }
@@ -2748,13 +2776,7 @@ modelo {
     }
 
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
   }
 }
@@ -2928,10 +2950,10 @@ modelo {
     info_talentos {
       gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
-      gerais { id: 'trespassar' }
-      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
-      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
-      outros { id: 'trespassar_aprimorado' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -3296,10 +3318,10 @@ modelo {
       municao: 10
     }
     info_talentos {
-      gerais { id: 'preparar_pocao' }
       gerais { id: 'magia_combate' }
       gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'vitalidade' }
+      outros { id: 'vitalidade' }
+      outros { id: 'preparar_pocao' }
     }
     info_pericias { id: 'concentracao' pontos: 8 }
     info_pericias { id: 'conhecimento_arcano' pontos: 8 }
@@ -3585,8 +3607,79 @@ modelo {
 
 modelo {
   id: 'Humano Monge'
-  entidade { dados_vida: '1d8' info_textura { id: 'monk.png'} cor { r: 0.3 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '1d8'
+    cor { r: 0.3 g: 0.1 b: 0.1 }
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
+  }
 }
+modelo {
+  id: 'Humano Monge 5'
+  entidade {
+    # Elite.
+    dados_vida: '4d8+13'
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'monge' nivel: 5 }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+    }
+    dados_ataque {
+      grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância' id_arma: 'funda' obra_prima: true municao: 20
+    }
+
+    dados_defesa { }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'mobilidade' }
+      outros { id: 'foco_em_arma' complemento: 'kama' }
+      outros { id: 'ataque_atordoante' }
+      outros { id: 'desviar_objetos' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 6 }
+    info_pericias { id: 'escalar' pontos: 6 }
+    info_pericias { id: 'esconderse' pontos: 6 }
+    info_pericias { id: 'saltar' pontos: 6 }
+    info_pericias { id: 'acrobacias' pontos: 6 }
+    tesouro {
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro: 'kama +1, funda op'
+    }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Paladino'
   entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
@@ -3967,7 +4060,7 @@ modelo {
         dificuldade_salvacao_base: 14
         efeitos_adicionais {
           rodadas: 7200  # 12 horas
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_ENFEITICADO
         }
       }
     }
@@ -3978,10 +4071,9 @@ modelo {
       acao_fixa {
         dificuldade_salvacao_base: 13
         efeitos_adicionais {
-          efeito: EFEITO_SUGESTAO
+          combinar_com_efeito: EFEITO_SUGESTAO
           rodadas: 7200  # * 12 horas.
           descricao: 'sugestão'
-          combinar_com: 0
         }
       }
     }

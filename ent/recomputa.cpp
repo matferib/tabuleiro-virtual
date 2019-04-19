@@ -1186,7 +1186,15 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 }
 
 void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto) {
-  // TODO
+  // Limitar talentos gerais por nivel de personagem.
+  const int nivel = Nivel(*proto);
+  const int numero = (nivel / 3) + 1;
+  if (proto->info_talentos().gerais().size() > numero) {
+    LOG(WARNING) << "Um dia irei capar talentos de entidade " << RotuloEntidade(*proto);
+  }
+  //while (proto->info_talentos().gerais().size() > numero) {
+  //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();
+  //}
 }
 
 void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
@@ -1224,6 +1232,13 @@ void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retorn
         LimpaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
       }
     }
+  }
+  const int nivel_monge = Nivel("monge", *proto_retornado);
+  if (nivel_monge > 0 && dd->id_armadura().empty() && dd->id_escudo().empty()) {
+    int bonus_monge = nivel_monge / 5;
+    AtribuiOuRemoveBonus(bonus_monge, TB_SEM_NOME, "monge", dd->mutable_ca());
+    const int modificador_sabedoria = std::max(0, ModificadorAtributo(proto_retornado->atributos().sabedoria()));
+    AtribuiOuRemoveBonus(modificador_sabedoria, TB_SEM_NOME, "monge_sabedoria", dd->mutable_ca());
   }
 }
 
@@ -1877,7 +1892,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   }
 
   // Se nao tiver agarrar, cria um.
-  if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
+  if (proto->gerar_agarrar() && std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
         [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_ataque("Agarrar");
@@ -1931,7 +1946,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
 
-  // CA.
+  // Classe de Armadura.
   RecomputaDependenciasCA(tabelas, proto);
   // Salvacoes.
   RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);

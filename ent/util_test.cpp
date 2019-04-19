@@ -888,6 +888,16 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TesteTabeladoTalentos) {
+  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    EntidadeProto proto = modelo.entidade();
+    const int antes = proto.info_talentos().gerais().size();
+    RecomputaDependencias(g_tabelas, &proto);
+    const int depois = proto.info_talentos().gerais().size();
+    EXPECT_EQ(antes, depois) << "falhou para: " << modelo.id();
+  }
+}
+
 TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
   EntidadeProto proto;
   {
@@ -1391,7 +1401,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_vontade()));
 
   // Adiciona vontade de ferro.
-  proto.mutable_info_talentos()->add_gerais()->set_id("vontade_ferro");
+  proto.mutable_info_talentos()->add_outros()->set_id("vontade_ferro");
   RecomputaDependencias(g_tabelas, &proto);
   // 3 + 3 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
@@ -2434,6 +2444,30 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   }
 }
 
+TEST(TesteComposicaoEntidade, TesteMonge5) {
+  const auto& modelo_m5 = g_tabelas.ModeloEntidade("Humano Monge 5");
+  EntidadeProto proto = modelo_m5.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+
+  // 10 + 3 sab + 1 des + 1 de monge.
+  EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 15) << proto.dados_defesa().DebugString();
+  ASSERT_GE(proto.dados_ataque().size(), 7);
+  // Kama +1: +3 ataque, +2 força, +1 arma, +1 foco em arma, -1 rajada. Dano: +2 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 6) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+3");
+  // Desarmado: +3 ataque, +2 força, -1 rajada. Dano: +2 de força.
+  EXPECT_EQ(proto.dados_ataque(2).bonus_ataque_final(), 4) << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "1d8+2") << proto.dados_ataque(2).DebugString();
+  // Kama normal: +3 ataque, +2 força, +1 foco em arma. Dano: +2 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(4).bonus_ataque_final(), 7);
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "1d6+3");
+  // Desarmado normal: +3 ataque, +2 força. Dano +2 de força.
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 5);
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "1d8+2");
+  // Funda OP: +3 ataque, +1 destreza, +1 OP. Dano: +2 de força.
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 5);
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "1d4+2");
+}
 
 }  // namespace ent.
 

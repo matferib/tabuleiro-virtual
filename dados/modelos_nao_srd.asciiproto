@@ -652,7 +652,7 @@ modelo {
         efeitos_adicionais {
           rodadas_base: 2
           modificador_rodadas: MR_NENHUM
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_OUTRO
         }
       }
     }
@@ -663,7 +663,7 @@ modelo {
       acao_fixa {
         efeitos_adicionais {
           rodadas: 300
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_ENREDADO
         }
       }
     }

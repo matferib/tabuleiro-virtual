@@ -749,6 +749,11 @@ message TalentoProto {
 
   // De onde veio o talento.  
   optional string livro = 12;
+
+  // Indica de onde veio o talento (ranger, monge, guerreiro, humano etc).
+  optional string origem = 13;
+
+  optional bool usado_na_rodada = 14;
 }
 
 message HabilidadeEspecialProto {

@@ -1023,7 +1023,8 @@ void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
   proto_.set_dano_nao_letal(dano_nao_letal);
 }
 
-void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
+void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
+  EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
   int pontos_vida_antes = PontosVida();
@@ -1140,6 +1141,13 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     //*p.mutable_agarrado_a() = proto_.agarrado_a();
     //LOG(INFO) << "antes: " << p.ShortDebugString() << ", novo agarrar: " << proto_parcial.ShortDebugString();
   }
+
+  // Talentos: procura por chave.
+  for (const auto& talento : proto_parcial.info_talentos().outros()) {
+    auto* talento_proto = TalentoOuCria(talento.id(), &proto_);
+    talento_proto->MergeFrom(talento);
+  }
+  proto_parcial.clear_info_talentos();
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);

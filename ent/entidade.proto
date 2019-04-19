@@ -191,7 +191,7 @@ message DadosAtaque {
   optional bool eh_arma = 74;
 }
 
-// Proximo id: 102.
+// Proximo id: 103.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -485,7 +485,7 @@ message EntidadeProto {
   message InfoTalentos {
     // Gerais respeita os niveis.
     repeated TalentoProto gerais = 1;
-    // Qualquer coisa que nao se enquadre nas regras.
+    // Qualquer coisa que nao se enquadre nas regras. Por exemplo, talentos de ranger, monge, guerreiro, humano etc.
     repeated TalentoProto outros = 2;
   }
   optional InfoTalentos info_talentos = 79;
@@ -551,6 +551,8 @@ message EntidadeProto {
   // Se verdadeiro, a entidade podera ser afetada por acoes independente do
   // tipo. Se for false, o contrario. Ausencia usa o padrao para entidade.
   optional bool pode_ser_afetada_por_acao = 101;
+  // Se false, nao sera gerado ataque de agarrar para entidade.
+  optional bool gerar_agarrar = 102 [default=true];
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.

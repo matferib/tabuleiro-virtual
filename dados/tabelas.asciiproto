@@ -317,6 +317,10 @@ tabela_armas {
     alcance_quadrados: 10
     peso { medio: '0Kg' }
     tipo_dano: TD_CONCUSSAO
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_MOVIMENTO
+    }
   }
   # Fim armas leves.
 

@@ -2650,6 +2650,16 @@ bool PossuiTalento(const std::string& chave_talento, const std::string& compleme
   return Talento(chave_talento, complemento, entidade) != nullptr;
 }
 
+TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* proto) {
+  for (auto& t : *proto->mutable_info_talentos()->mutable_gerais()) {
+    if (chave_talento == t.id()) return &t;
+  }
+  for (auto& t : *proto->mutable_info_talentos()->mutable_outros()) {
+    if (chave_talento == t.id()) return &t;
+  }
+  return proto->mutable_info_talentos()->add_outros();
+}
+
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade) {
   for (const auto& t : entidade.info_talentos().gerais()) {
     if (chave_talento == t.id()) return &t;
@@ -4401,6 +4411,24 @@ void ConcatenaString(const std::string& s, std::string* alvo) {
   else *alvo = StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
 }
 
+int DesviaObjetoSeAplicavel(
+    const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
+    AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer) {
+  //LOG(INFO) << "aqui " << delta_pontos_vida << ", " << da.eh_arma() << ", " << da.id_arma();
+  if (delta_pontos_vida >= 0 || !da.eh_arma() || da.id_arma().empty()) return delta_pontos_vida;
+  const auto& arma = tabelas.Arma(da.id_arma());
+  //LOG(INFO) << "ali " << arma.DebugString();
+  if (!PossuiCategoria(CAT_DISTANCIA, arma)) return delta_pontos_vida;
+
+  const auto* talento = Talento("desviar_objetos", alvo.Proto());
+  if (talento == nullptr || talento->usado_na_rodada()) return delta_pontos_vida;
+  ConcatenaString("projétil desviado", por_entidade->mutable_texto());
+  ntf::Notificacao n;
+  PreencheNotificacaoObjetoDesviado(true, alvo, &n, grupo_desfazer->add_notificacao());
+  tabuleiro->TrataNotificacao(n);
+  return 0;
+}
+
 int CompartilhaDanoSeAplicavel(
     int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
@@ -4443,6 +4471,29 @@ void PreencheNotificacaoReducaoLuzComConsequencia(int nivel, const Entidade& ent
   }
   acao_proto->set_consequencia(TC_REDUZ_LUZ_ALVO);
   acao_proto->set_reducao_luz(fator);
+}
+
+void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* talento_proto = Talento("desviar_objetos", entidade.Proto());
+  if (talento_proto == nullptr) {
+    LOG(ERROR) << "PreencheNotificacaoObjetoDesviado para entidade sem 'desviar_objetos'";
+    return;
+  }
+  {
+    auto* talento = e_antes->mutable_info_talentos()->add_outros();
+    talento->set_id("desviar_objetos");
+    talento->set_usado_na_rodada(talento_proto->usado_na_rodada());
+  }
+  {
+    auto* talento = e_depois->mutable_info_talentos()->add_outros();
+    talento->set_id("desviar_objetos");
+    talento->set_usado_na_rodada(valor);
+  }
+  if (nd != nullptr) {
+    *nd = *n;
+  }
 }
 
 bool PossuiModeloAtivo(TipoEfeitoModelo efeito_modelo, const EntidadeProto& proto) {

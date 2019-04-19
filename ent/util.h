@@ -401,6 +401,9 @@ void PreencheNotificacaoReducaoLuzComConsequencia(int nivel, const Entidade& alv
 // Preenche proto alvo com todos o itens magicos em uso por proto. Parametro manter uso ditara o estado deles em proto alvo.
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo);
 
+// Notificacao que a entidade desviou ou resetou o valor de desviar objetos.
+void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd);
+
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
 std::string NomeTipoBonus(TipoBonus tipo);
@@ -547,6 +550,7 @@ bool PossuiTalento(const std::string& chave_talento, const std::string& chave_co
 // Retorna o talento do personagem, ou nullptr se nao tiver.
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& proto);
 const TalentoProto* Talento(const std::string& chave_talento, const std::string& complemento, const EntidadeProto& proto);
+TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* proto);
 
 // Retorna true se possui a habilidade especial.
 bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& proto);
@@ -882,6 +886,11 @@ void ConcatenaString(const std::string& s, std::string* alvo);
 int CompartilhaDanoSeAplicavel(
     int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao, ntf::Notificacao* grupo_desfazer);
+
+// Se alvo possuir desviar objetos e puder usar, anula o ataque.
+int DesviaObjetoSeAplicavel(
+    const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
+    AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
 
 }  // namespace ent
 

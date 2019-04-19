@@ -1684,6 +1684,9 @@ float Tabuleiro::TrataAcaoIndividual(
 
     bool nao_letal = da != nullptr && da->nao_letal();
 
+    delta_pontos_vida = DesviaObjetoSeAplicavel(
+        tabelas_, delta_pontos_vida, *entidade_destino, da == nullptr ? DadosAtaque::default_instance() : *da, this, por_entidade, grupo_desfazer);
+
     // Compartilhamento de dano.
     delta_pontos_vida = CompartilhaDanoSeAplicavel(
         delta_pontos_vida, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
