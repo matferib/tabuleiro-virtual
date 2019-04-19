@@ -1,6 +1,12 @@
 # Este arquivo é uma representação texto do proto ent::Modelos definido no entidade.proto.
 # Para aparecer no jogo, deve ser adicionado em menu_modelos.asciiproto tb.
 modelo {
+  id: 'Padrão'
+  entidade {
+  }
+}
+
+modelo {
   id: 'Abocanhador Matraqueante'
   entidade {
     dados_vida: '4d8+24' modelo_3d { id: 'gibbering_mouther' }
@@ -1070,8 +1076,8 @@ modelo {
 modelo {
   id: 'Constrição'
   entidade {
-    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 6.0  z: 0.1 } }
-    cor { r: 0 g: 0 b: 0 a: 1 }
+    modelo_3d { id: 'builtin:esfera' escala { x: 8 y: 8 z: 0.1 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
     dados_ataque {
       rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
       dificuldade_salvacao: 11  # template vai adicionar os modificadores de atributo.
