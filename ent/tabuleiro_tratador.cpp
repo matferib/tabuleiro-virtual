@@ -53,13 +53,6 @@ std::string StringTipoCarregamento(TipoCarregamento tc) {
   }
 }
 
-// Concatena 's' ao string alvo. Se o texto era vazio, passa a ser 's'. Caso contrario, adiciona '\n' seguido de 's'.
-void ConcatenaString(const std::string& s, std::string* alvo) {
-  if (alvo == nullptr) return;
-  if (alvo->empty()) *alvo = s;
-  else *alvo = StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
-}
-
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -1310,27 +1303,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       ConcatenaString("derruba sem teste", por_entidade->mutable_texto());
     }
 
-    // Compartilhamento de dano.
-    std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, entidade_destino->Proto());
-    if (!evento_divisao.empty() && !evento_divisao[0]->complementos().empty() && delta_pv_pos_salvacao < 0) {
-      const auto* entidade_solidaria = BuscaEntidade(evento_divisao[0]->complementos(0));
-      if (entidade_solidaria != nullptr) {
-        // Dano deve ser dividido.
-        const int delta_pontos_vida = delta_pv_pos_salvacao;
-        int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
-        delta_pv_pos_salvacao = delta_pontos_vida / 2;
-        ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
-
-        auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
-        por_entidade_compartilhada->set_id(entidade_solidaria->Id());
-        por_entidade_compartilhada->set_delta(sobra);
-        ConcatenaString("dano origem", por_entidade_compartilhada->mutable_texto());
-        // Apenas para desfazer.
-        auto* nd = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra,
-                                               TD_LETAL, nd, nd);
-      }
-    }
+    delta_pv_pos_salvacao = CompartilhaDanoSeAplicavel(
+        delta_pv_pos_salvacao, entidade_destino->Proto(), *this, TD_LETAL, por_entidade, acao_proto, grupo_desfazer);
 
     acao_proto->set_bem_sucedida(delta_pv_pos_salvacao != 0);
     por_entidade->set_id(id);
@@ -1697,25 +1671,9 @@ float Tabuleiro::TrataAcaoIndividual(
     bool nao_letal = da != nullptr && da->nao_letal();
 
     // Compartilhamento de dano.
-    std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, entidade_destino->Proto());
-    if (!evento_divisao.empty() && !evento_divisao[0]->complementos().empty() && delta_pontos_vida < 0) {
-      const auto* entidade_solidaria = BuscaEntidade(evento_divisao[0]->complementos(0));
-      if (entidade_solidaria != nullptr) {
-        // Dano deve ser dividido.
-        int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
-        delta_pontos_vida = delta_pontos_vida / 2;
-        ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
-
-        auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
-        por_entidade_compartilhada->set_id(entidade_solidaria->Id());
-        por_entidade_compartilhada->set_delta(sobra);
-        ConcatenaString("dano origem", por_entidade_compartilhada->mutable_texto());
-        // Apenas para desfazer.
-        auto* nd = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAtualizaoPontosVida(
-            *entidade_solidaria, sobra, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
-      }
-    }
+    delta_pontos_vida = CompartilhaDanoSeAplicavel(
+        delta_pontos_vida, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
+        por_entidade, acao_proto, grupo_desfazer);
 
     VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
     acao_proto->set_nao_letal(nao_letal);

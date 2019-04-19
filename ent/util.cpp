@@ -4395,4 +4395,38 @@ bool Indefeso(const EntidadeProto& proto) {
   return false;
 }
 
+void ConcatenaString(const std::string& s, std::string* alvo) {
+  if (alvo == nullptr) return;
+  if (alvo->empty()) *alvo = s;
+  else *alvo = StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
+}
+
+int CompartilhaDanoSeAplicavel(
+    int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
+    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
+  std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, alvo);
+  if (delta_pontos_vida >= 0 || evento_divisao.empty() || evento_divisao[0]->complementos().empty()) return delta_pontos_vida;
+ 
+  const auto* entidade_solidaria = tabuleiro.BuscaEntidade(evento_divisao[0]->complementos(0));
+  if (entidade_solidaria == nullptr) {
+    ConcatenaString("dano não dividido, sem entidade", por_entidade->mutable_texto());
+    return delta_pontos_vida;
+  }
+
+  // Dano deve ser dividido.
+  int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
+  delta_pontos_vida = delta_pontos_vida / 2;
+  ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
+
+  auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
+  por_entidade_compartilhada->set_id(entidade_solidaria->Id());
+  por_entidade_compartilhada->set_delta(sobra);
+  ConcatenaString("dano solidário", por_entidade_compartilhada->mutable_texto());
+
+  auto* nd = grupo_desfazer->add_notificacao();
+  PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
+
+  return delta_pontos_vida;
+}
+
 }  // namespace ent

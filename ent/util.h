@@ -869,6 +869,14 @@ bool PreencheInfoTextura(
 // Retorna true se proto estiver indefeso.
 bool Indefeso(const EntidadeProto& proto);
 
+// Concatena 's' ao string alvo. Se o texto era vazio, passa a ser 's'. Caso contrario, adiciona '\n' seguido de 's'.
+void ConcatenaString(const std::string& s, std::string* alvo);
+
+// Se alvo tiver efeito de compartilhamento de dano com alguem, aplica.
+int CompartilhaDanoSeAplicavel(
+    int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
+    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao, ntf::Notificacao* grupo_desfazer);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

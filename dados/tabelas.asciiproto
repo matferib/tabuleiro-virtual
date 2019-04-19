@@ -6658,7 +6658,7 @@ tabela_feiticos {
 
   armas {
     id: 'proteger_outro'  # shield other
-    nome: 'proteger_outro'
+    nome: 'proteger outro'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -9544,8 +9544,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'missil_magico'
-    nome: 'míssil mágico'
+    id: 'missil_magico'  # magic missile
+    nome: 'mísseis mágico'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
@@ -9554,7 +9554,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_PROJETIL
+      id: 'Ataque a Distância'
       geometria: ACAO_GEO_ESFERA
       escala { x: 0.2 y: 0.2 z: 0.2 }
       cor { r: 0.0 g: 0.0 b: 1.0 }
@@ -9566,6 +9566,8 @@ tabela_feiticos {
       ignora_luz: true
       ignora_municao: true
       ignora_reducao_dano_barbaro: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
       consequencia: TC_DESLOCA_ALVO
       elemento: DESC_FORCA
     }
