@@ -9572,6 +9572,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       permite_ataque_vs_defesa: false
       permite_salvacao: false
+      ignora_resistencia_magia: false
       consequencia: TC_DESLOCA_ALVO
       elemento: DESC_FORCA
     }
