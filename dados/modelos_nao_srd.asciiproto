@@ -609,6 +609,18 @@ modelo {
   }
 }
 modelo {
+  id: 'Vulto Monge 5'
+  id_entidade_base: 'Humano Monge 5'
+  id_entidade_base: 'Vulto Base'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_monk.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+  }
+}
+
+modelo {
   id: 'Vulto Guerreiro 5'
   id_entidade_base: 'Humano Guerreiro 5'
   id_entidade_base: 'Vulto Base'
