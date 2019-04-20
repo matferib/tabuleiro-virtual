@@ -1190,7 +1190,8 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   const int nivel = Nivel(*proto);
   const int numero = (nivel / 3) + 1;
   if (proto->info_talentos().gerais().size() > numero) {
-    LOG(WARNING) << "Um dia irei capar talentos de entidade " << RotuloEntidade(*proto);
+    LOG(WARNING) << "Um dia irei capar talentos da entidade "
+      << RotuloEntidade(*proto) << ", gerais: " << proto->info_talentos().gerais().size() << ", permitido: " << numero;
   }
   //while (proto->info_talentos().gerais().size() > numero) {
   //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();

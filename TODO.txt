@@ -1,18 +1,13 @@
-Arrumar feiticos clerigo (ta uma zona o que aparece e o que realmente ta rolando).
-Adicionar na UI se objeto pode ser atingido por efeito.
-Escrever teste das combinacoes, usar vulto clerigo 5.
+Implementar desviar objetos: quando zerar (verificar se esta flat footed, ao zerar, ao passar muitas rodadas e ao chegar na iniciativa do personagem).
 Implementar operacoes de combinacao em talentos.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 Implementar combinar_com_efeito.
-
-Criar bit de se entidade pode ser afetada por efeito ou nao (por padrao apenas TE_ENTIDADE, mas podem hvaer excecoes dos dois lados): exemplo:
-- Esfera flamejante nao deve ser alvo de efeitos.
-- Uma porta pode ser.
 
 Feitiços de clerigo zoado: o que aparece na UI nao eh o que aparece na lista na hora de soltar.
 Conversao espontanea.
 
 Anotacoes da sessao Tilverton:
+- Monge 5.
 - Talentos das sombras.
 - Definir encontros.
 - Resistencia magia variavel. ??
