@@ -1449,8 +1449,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(
-    const DadosAtaque* da, const AcaoProto& ap, const Entidade& ea, const Entidade& ed) {
-  int delta_pontos_vida = DeltaAcao(ap);
+    int delta_pontos_vida_entrada, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+  int delta_pontos_vida = delta_pontos_vida_entrada;
   std::string descricao_resultado;
   bool salvou = false;
 
@@ -1476,9 +1476,11 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     int total = d20 + bonus;
     std::string str_evasao;
     if (total >= da->dificuldade_salvacao()) {
+      // Aqui salvou.
       salvou = true;
       if (da->resultado_ao_salvar() == RS_MEIO) {
-        if (da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO) {
+        auto tipo_evasao = TipoEvasaoPersonagem(ed.Proto());
+        if (da->tipo_salvacao() == TS_REFLEXO && (tipo_evasao == TE_EVASAO || tipo_evasao == TE_EVASAO_APRIMORADA)) {
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
@@ -1492,8 +1494,9 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
       descricao_resultado = StringPrintf(
           "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
+      // Nao salvou.
       if (da->resultado_ao_salvar() == RS_MEIO && da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
-        delta_pontos_vida = delta_pontos_vida == 1 ? 1 : delta_pontos_vida / 2;
+        delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
       descricao_resultado = StringPrintf(
@@ -1503,8 +1506,10 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     salvou = true;
     descricao_resultado = StringPrintf("salvacao: acao sem dificuldade, dano: %d", -delta_pontos_vida);
   }
+
+  // A gente ainda precisa de fazer tudo acima por causa dos efeitos. Mas o dano pode ser aplicado normalmente.
   if (da != nullptr && da->dano_ignora_salvacao()) {
-    delta_pontos_vida = DeltaAcao(ap);
+    delta_pontos_vida = delta_pontos_vida_entrada;
     descricao_resultado = StringPrintf("dano ignora salvacao: %d; %s", delta_pontos_vida, descricao_resultado.c_str());
   }
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
