@@ -2757,6 +2757,9 @@ QGroupBox::title {
          </item>
          <item>
           <widget class="QComboBox" name="combo_evasao_estatica">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
