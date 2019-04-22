@@ -397,10 +397,11 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       }
     }
   }
+  bool conversao_espontanea = fc.conversao_espontanea();
 
   tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemLista("Escolha o Feitiço", lista,
-      [this, notificacao, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
+      [this, notificacao, conversao_espontanea, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
     ent::RodaNoRetorno([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
@@ -420,7 +421,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       return;
     }
     if (ent::NotificacaoConsequenciaFeitico(
-        tabelas_, id_classe, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+        tabelas_, id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
     }
 
