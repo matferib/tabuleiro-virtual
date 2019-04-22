@@ -1906,7 +1906,7 @@ int CASurpreso(const EntidadeProto& proto, bool permite_escudo, const Bonus& out
   CombinaBonus(proto.dados_defesa().ca(), &ca);
   std::vector<TipoBonus> exclusao = ExclusaoEscudo(permite_escudo);
   exclusao.push_back(TB_ESQUIVA);
-  const int modificador_destreza = ModificadorAtributo(proto.atributos().destreza());
+  const int modificador_destreza = DestrezaNaCA(proto) ? 0 : ModificadorAtributo(proto.atributos().destreza());
   return BonusTotalExcluindo(ca, exclusao) - std::max(modificador_destreza, 0);
 }
 
@@ -4121,10 +4121,14 @@ bool PodeAgir(const EntidadeProto& proto) {
 }
 
 bool DestrezaNaCA(const EntidadeProto& proto) {
-  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
+  const bool possui_esquiva_sobrenatural = PossuiHabilidadeEspecial("esquiva_sobrenatural", proto);
+  if (!possui_esquiva_sobrenatural && proto.surpreso()) {
     return false;
   }
-  if (PossuiEvento(EFEITO_CEGO, proto) && !PossuiTalento("lutar_as_cegas", proto)) {
+  if (PossuiEvento(EFEITO_ATORDOADO, proto)) {
+    return false;
+  }
+  if (!possui_esquiva_sobrenatural && PossuiEvento(EFEITO_CEGO, proto) && !PossuiTalento("lutar_as_cegas", proto)) {
     return false;
   }
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
@@ -4424,6 +4428,7 @@ int DesviaObjetoSeAplicavel(
   const auto& arma = tabelas.Arma(da.id_arma());
   //LOG(INFO) << "ali " << arma.DebugString();
   if (!PossuiCategoria(CAT_DISTANCIA, arma)) return delta_pontos_vida;
+  if (!DestrezaNaCA(alvo.Proto())) return delta_pontos_vida;
 
   const auto* talento = Talento("desviar_objetos", alvo.Proto());
   if (talento == nullptr || talento->usado_na_rodada()) return delta_pontos_vida;

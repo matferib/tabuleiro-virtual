@@ -4182,6 +4182,9 @@ tabela_classes {
     pericias: 'usar_instrumento_magico'
     pericias: 'usar_cordas'
     habilidades_por_nivel { id: 'evasao' nivel: 2 }
+    habilidades_por_nivel { id: 'esquiva_sobrenatural' nivel: 4 }
+    habilidades_por_nivel { id: 'sentir_armadilhas' nivel: 6 }
+    habilidades_por_nivel { id: 'esquiva_sobrenatural_aprimorada' nivel: 8 }
     salvacoes_fortes: TS_REFLEXO
   }
   info_classes {

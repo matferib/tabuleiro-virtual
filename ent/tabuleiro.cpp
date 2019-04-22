@@ -2558,8 +2558,9 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
 }
 
 void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo) {
+  ntf::Notificacao* n = grupo->add_notificacao();
   EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
   auto* dga = e_antes->mutable_dados_ataque_global();
@@ -2587,6 +2588,11 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   COPIA_SE_NAO_ZERO(furtivo);
   COPIA_SE_NAO_ZERO(chance_falha);
 #undef COPIA_SE_NAO_ZERO
+
+  const auto* t = Talento("desviar_objetos", entidade.Proto());
+  if (t != nullptr && t->usado_na_rodada()) {
+    PreencheNotificacaoObjetoDesviado(false, entidade, n, n);
+  }
 }
 
 void Tabuleiro::ProximaIniciativa() {

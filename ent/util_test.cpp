@@ -652,6 +652,33 @@ TEST(TesteCA, TesteDestrezaCA) {
   EXPECT_FALSE(DestrezaNaCAContraAtaque(&da, proto));
 }
 
+TEST(TesteCA, TesteDestrezaCALadinoEsquivaSobrenatural) {
+  const auto& modelo_ladino = g_tabelas.ModeloEntidade("Humano Ladino 5");
+  EntidadeProto proto = modelo_ladino.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(DestrezaNaCA(proto));
+  EXPECT_EQ(CATotal(proto, /*escudo=*/true, Bonus()), 17);
+  EXPECT_EQ(CASurpreso(proto, /*escudo=*/true, Bonus()), 17);
+
+  proto.set_surpreso(true);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(DestrezaNaCA(proto));
+
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_CEGO);
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_TRUE(DestrezaNaCA(proto));
+  }
+
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_PARALISIA);
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_FALSE(DestrezaNaCA(proto));
+  }
+}
+
 TEST(TesteResistenciaMagia, TesteResistenciaMagia) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
@@ -1333,13 +1360,13 @@ TEST(TesteDependencias, TesteDependencias) {
   // 3 base, 3 forca, -1 tamanho, 1 obra prima.
   EXPECT_EQ(6, proto.dados_ataque(0).bonus_ataque_final());
   EXPECT_EQ(16, proto.dados_ataque(0).ca_normal());
-  EXPECT_EQ(14, proto.dados_ataque(0).ca_surpreso());
+  EXPECT_EQ(16, proto.dados_ataque(0).ca_surpreso());  // esquiva sobrenatural
   EXPECT_EQ(9, proto.dados_ataque(0).ca_toque());
   // Segundo ataque.
   // Espada longa grande com uma mao.
   EXPECT_EQ("2d6+3", proto.dados_ataque(1).dano());
   EXPECT_EQ(21, proto.dados_ataque(1).ca_normal());
-  EXPECT_EQ(19, proto.dados_ataque(1).ca_surpreso());
+  EXPECT_EQ(21, proto.dados_ataque(1).ca_surpreso());  // esquiva sobrenatural.
   EXPECT_EQ(9, proto.dados_ataque(1).ca_toque());
 
   EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);

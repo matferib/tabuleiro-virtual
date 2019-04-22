@@ -606,6 +606,7 @@ modelo {
         ignora_resistencia_magia: false
       }
     }
+    tendencia { simples: TD_LEAL_MAU }
   }
 }
 modelo {
@@ -617,6 +618,19 @@ modelo {
     info_textura { id: 'shade_monk.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+  }
+}
+
+modelo {
+  id: 'Vulto Ladino 5'
+  id_entidade_base: 'Humano Ladino 5'
+  id_entidade_base: 'Vulto Base'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_rogue.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 
@@ -640,6 +654,7 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_bard.png' translacao_x: 0.25 largura: 0.5 }
+    tendencia { simples: TD_NEUTRO_MAU }
     tesouro {
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'ajuda' }
@@ -1101,6 +1116,11 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    evento {
+      id_efeito: EFEITO_CEGO
+      rodadas: 1
+      continuo: true
     }
     dados_ataque_global {
       # Cego.

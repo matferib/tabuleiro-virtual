@@ -3042,19 +3042,81 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
     dados_ataque_global { dano_furtivo: '2d6' }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
   id: 'Humano Ladino 5'
   entidade {
     info_classes { id: 'ladino' nivel: 5 }
-    dados_vida: '5d6+5' cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '4d6+14' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'adaga op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma: 'arco_curto' obra_prima: true empunhadura: EA_ARMA_APENAS municao: 20 }
     dados_ataque_global { dano_furtivo: '3d6' }
+    dados_defesa {
+      id_armadura: 'couro' armadura_obra_prima: true
+      id_escudo: 'broquel' escudo_obra_prima: true
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'usar_escudo' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'neutralizar_venenos' }
+      pocoes { id: 'neutralizar_venenos' }
+      tesouro: '10 PO\nferramenta de ladino OP'
+    }
+
+    # Humano tem mais pontos.
+    info_pericias { id: 'arte_da_fuga' pontos: 7 }
+    info_pericias { id: 'equilibrio' pontos: 5 }
+    info_pericias { id: '' pontos: 7 }
+    info_pericias { id: 'esconderse' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'furtividade' pontos: 8 }
+    info_pericias { id: 'abrir_fechaduras' pontos: 8 }
+    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'procurar' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 8 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
@@ -3068,6 +3130,18 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d4+1' ca_normal: 18 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d6+1' ca_normal: 17 }
     dados_ataque_global { dano_furtivo: '4d6' }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
