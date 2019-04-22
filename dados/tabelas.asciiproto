@@ -8040,6 +8040,26 @@ tabela_feiticos {
     }
   }
   armas {
+    id: 'infligir_ferimentos_minimos'  # inflict minor wounds
+    nome: 'infligir ferimentos mínimos'
+    dano { invariavel: '1' }
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      dificuldade_salvacao_por_nivel: true
+      permite_ataque_vs_defesa: true
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.3 }
+      icone: 'icon_touch.png'
+    }
+  }
+
+  armas {
     id: 'infligir_ferimentos_leves'  # inflict light wounds
     nome: 'infligir ferimentos leves'
     modelo_dano: DANO_1D8_MAIS_1_POR_NIVEL_MAX_5

@@ -214,7 +214,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_USAR_FEITICO_7:
     case CONTROLE_USAR_FEITICO_8:
     case CONTROLE_USAR_FEITICO_9:
-      TrataBotaoUsarFeitico(id - CONTROLE_USAR_FEITICO_0);
+      TrataBotaoUsarFeitico(alterna_selecao, id - CONTROLE_USAR_FEITICO_0);
       break;
     case CONTROLE_CLASSE_FEITICO_ATIVA:
       TrataMudarClasseFeiticoAtiva();

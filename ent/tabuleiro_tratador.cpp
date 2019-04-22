@@ -1343,7 +1343,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     atraso_s = AplicaEfeitosAdicionais(
         atraso_s, salvou, *entidade_origem, *entidade_destino,
         por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
-    
+
     if (da.derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
       acao_proto->set_consequencia(TC_DERRUBA_ALVO);
       por_entidade->set_forca_consequencia(true);
@@ -3032,7 +3032,7 @@ void Tabuleiro::DescansaPersonagemNotificando() {
   TrataNotificacao(*n_grupo);
 }
 
-void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
+void Tabuleiro::TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel) {
   auto* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao ha entidade para usar feitico";
@@ -3040,7 +3040,7 @@ void Tabuleiro::TrataBotaoUsarFeitico(int nivel) {
   }
   // Encontra a classe para lancar magia.
   const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
-  central_->AdicionaNotificacao(NotificacaoEscolherFeitico(id_classe, nivel, e->Proto()).release());
+  central_->AdicionaNotificacao(NotificacaoEscolherFeitico(conversao_espontanea, id_classe, nivel, e->Proto()).release());
 }
 
 void Tabuleiro::TrataMudarClasseFeiticoAtiva() {

@@ -755,13 +755,13 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 // Para os demais, cria um ataque com o efeito do feitico.
 // Retorna true se criou um ataque.
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
+    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
 // Cria uma notificacao de dialogo de escolher feitico. A notificacao tera a entidade com apenas a classe
 // de feitico com todos ate o nivel desejado.
-std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(const std::string& id_classe, int nivel, const EntidadeProto& proto);
+std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(bool conversao_espontanea, const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
 // Retorna true se a entidade for imune a todos os descritores do elemento.
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);

@@ -534,6 +534,8 @@ message EntidadeProto {
     repeated string dominios = 6;
     // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
     repeated FeiticosPorNivel feiticos_por_nivel = 5;
+    // Indica operacao de conversao espontanea.
+    optional bool conversao_espontanea = 8;
     optional OperacaoCombinacao operacao = 7;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;

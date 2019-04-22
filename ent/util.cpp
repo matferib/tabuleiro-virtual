@@ -3530,7 +3530,7 @@ void PreencheNotificacaoAcaoFeiticoPessoal(
 }
 
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
+    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
   const int nivel_conjurador = NivelConjurador(id_classe, proto);
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
@@ -3539,7 +3539,14 @@ bool NotificacaoConsequenciaFeitico(
       ClassePrecisaMemorizar(tabelas, id_classe)
         ? FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto)
         : FeiticoConhecido(id_classe, nivel, indice, proto);
-  const auto& feitico_tabelado = tabelas.Feitico(ic.id());
+
+  std::string id_conversao_espontanea;
+  if (conversao_espontanea) {
+    id_conversao_espontanea = tabelas.FeiticoConversaoEspontanea(
+        id_classe, nivel,
+        Mal(entidade.Proto()) ? Tabelas::COI_INFLIGIR : Tabelas::COI_CURA);
+  }
+  const auto& feitico_tabelado = tabelas.Feitico(id_conversao_espontanea.empty() ? ic.id() : id_conversao_espontanea);
   if (!feitico_tabelado.has_id()) {
     // Nao ha entrada.
     LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado: InfoConhecido: " << ic.ShortDebugString()
@@ -3618,7 +3625,7 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 }
 
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
-    const std::string& id_classe, int nivel, const EntidadeProto& proto) {
+    bool conversao_espontanea, const std::string& id_classe, int nivel, const EntidadeProto& proto) {
   const auto& fc = FeiticosClasse(id_classe, proto);
   std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao);
   if (fc.id_classe().empty()) {
@@ -3630,7 +3637,10 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
   n->mutable_entidade()->set_id(proto.id());
   *n->mutable_entidade()->mutable_info_classes() = proto.info_classes();
   *n->mutable_entidade()->mutable_dados_ataque() = proto.dados_ataque();  // pro ataque criado.
-  *n->mutable_entidade()->add_feiticos_classes() = fc;
+  auto* nfc = n->mutable_entidade()->add_feiticos_classes();
+  *nfc = fc;
+  nfc->set_conversao_espontanea(conversao_espontanea);
+
   if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
     n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
         nivel + 1, (fc.feiticos_por_nivel().size() - nivel - 1));

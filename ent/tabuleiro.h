@@ -595,7 +595,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesligaEsquivaNotificando();
 
   /** Botao de usar feitico clicado. */
-  void TrataBotaoUsarFeitico(int nivel);
+  void TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel);
   /** Botao de alterar a classe de feitico ativa clicado. */
   void TrataMudarClasseFeiticoAtiva();
 

@@ -26,6 +26,11 @@ class Tabelas : public ntf::Receptor {
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
   const ArmaProto& Arma(const std::string& id) const;
   const ArmaProto& Feitico(const std::string& id) const;
+  enum cura_ou_infligir_e {
+    COI_CURA = 0,
+    COI_INFLIGIR = 1,
+  };
+  const std::string FeiticoConversaoEspontanea(const std::string& id_classe, int nivel, cura_ou_infligir_e cura_ou_infligir) const;
   const ArmaProto& ArmaOuFeitico(const std::string& id) const;
   const EfeitoProto& Efeito(TipoEfeito tipo) const;
   const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;

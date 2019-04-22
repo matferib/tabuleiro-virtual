@@ -348,6 +348,27 @@ const ArmaProto& Tabelas::Arma(const std::string& id) const {
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
 }
 
+const std::string Tabelas::FeiticoConversaoEspontanea(
+    const std::string& id_classe, int nivel,
+    cura_ou_infligir_e cura_ou_infligir) const {
+  if (id_classe == "clerigo") {
+    switch (nivel) {
+      case 0: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_minimos" : "infligir_ferimentos_minimos";
+      case 1: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_leves" : "infligir_ferimentos_leves";
+      case 2: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_moderados" : "infligir_gerimentos_moderados";
+      case 3: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_graves" : "infligir_ferimentos_graves";
+      case 4: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_criticos" : "infligir_ferimentos_criticos";
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      default: ;
+    }
+  }
+  return "";
+}
+
 const ArmaProto& Tabelas::Feitico(const std::string& id) const {
   auto it = feiticos_.find(id);
   return it == feiticos_.end() ? ArmaProto::default_instance() : *it->second;
