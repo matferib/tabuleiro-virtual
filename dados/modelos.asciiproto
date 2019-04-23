@@ -3145,6 +3145,101 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Bardo 4'
+  entidade {
+    dados_vida: '3d6+9' raca: 'humano'
+    info_textura { id: 'human_bard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'bardo' nivel: 4 }
+    atributos {
+      # Usa o array elite 10, 13, 12, 14, 8, 15+1
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 }  } }
+    }
+    dados_ataque {
+      id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    dados_ataque {
+      tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
+      mantem_com_limite_zerado: true
+      ignora_reflexos: true
+      incrementa_proximo_ataque: false
+      alcance_q: 6
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        ignora_resistencia_magia: true
+        permite_salvacao: false
+        efeitos_adicionais {
+          efeito: EFEITO_INSPIRAR_CORAGEM
+          rodadas: 5
+          complementos: 1
+        }
+      }
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
+    }
+
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'mobilidade' }
+    }
+    info_pericias { id: 'arte_da_fuga' pontos: 6 }
+    info_pericias { id: 'acrobacias' pontos: 3 }
+    info_pericias { id: 'blefar' pontos: 5 }
+    info_pericias { id: 'sentir_motivacao' pontos: 6 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 5 }
+    info_pericias { id: 'atuacao' pontos: 6 }
+    info_pericias { id: 'obter_informacao' pontos: 5 }
+    info_pericias { id: 'intimidacao' pontos: 6 }
+    info_pericias { id: 'decifrar_escrita' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 3 }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'protecao_contra_mal' }
+      tesouro: '10 PO'
+    }
+    feiticos_classes {
+      id_classe: 'bardo'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'abrir_fechar' }
+        conhecidos { id: 'invocar_instrumento' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'confusao_menor' }
+        conhecidos { id: 'curar_ferimentos_leves' }
+        conhecidos { id: 'area_escorregadia' }
+        conhecidos { id: 'remover_medo' }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'esplendor_aguia' }
+        conhecidos { id: 'explosao_sonora' }
+      }
+    }
+  }
+}
+
+
+modelo {
   id: 'Humano Bardo 5'
   entidade {
     dados_vida: '4d6+10' raca: 'humano'
@@ -3165,6 +3260,9 @@ modelo {
     dados_ataque {
       id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 10
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
     }
     dados_ataque {
       tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
