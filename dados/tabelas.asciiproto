@@ -8048,7 +8048,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       dificuldade_salvacao_por_nivel: true
       permite_ataque_vs_defesa: true
       permite_salvacao: true
@@ -8073,7 +8073,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       dificuldade_salvacao_por_nivel: true
       permite_ataque_vs_defesa: true
       permite_salvacao: true
@@ -8129,7 +8129,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       dificuldade_salvacao_por_nivel: true
@@ -8186,7 +8186,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
@@ -8241,7 +8241,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
@@ -9633,6 +9633,7 @@ tabela_feiticos {
       permite_salvacao: false
       permite_ataque_vs_defesa: false
       ataque_distancia: false
+      ignora_resistencia_magia: true
       efeitos_adicionais {
         efeito: EFEITO_ORIENTACAO
         rodadas: 10

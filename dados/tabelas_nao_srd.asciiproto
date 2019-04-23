@@ -249,6 +249,7 @@ tabela_efeitos_modelos {
       #}
       jogada_ataque { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
       jogada_dano { bonus_individual { tipo: TB_COMPETENCIA por_origem { valor: 2  origem: 'vulto' } } }
+      restricao_arma { apenas_armas: true }
       dados_defesa {
         ca { bonus_individual { tipo: TB_DEFLEXAO por_origem { valor: 4 origem: 'vulto' } } }
         salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
