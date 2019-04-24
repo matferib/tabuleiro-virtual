@@ -3334,6 +3334,102 @@ modelo {
   }
 }
 
+modelo {
+  id: 'Gnomo Mago Ilusionista 4'
+  entidade {
+    dados_vida: '3d4+15' raca: 'gnomo'
+    info_textura { id: 'wizard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'mago' nivel: 4 }
+    dados_ataque {
+      id_arma: 'sabre' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      # Vai pra 8 com racial.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      # Vai pra 15 com racial.
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    info_talentos {
+      gerais { id: 'magia_combate' }
+      gerais { id: 'vitalidade' }
+      outros { id: 'escrever_pergaminho' }
+    }
+    info_pericias { id: 'concentracao' pontos: 7 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 7 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 7 }
+    info_pericias { id: 'conhecimento_historia' pontos: 7 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'procurar' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'identificar_magia' pontos: 7 }
+    tesouro {
+      pocoes { id: 'nublar' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'velocidade' }
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      tesouro: '10 PO\npergaminho de confusão, imobilizar pessoa, deslocamento\nbesta obra prima'
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      especializacao: 'ilusao'
+      escolas_proibidas: 'conjuracao'
+      escolas_proibidas: 'evocacao'
+      feiticos_por_nivel {
+        # 4+1
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'mensagem' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        # 4+1
+        nivel: 1
+        conhecidos { id: 'leque_cromatico' }
+        conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'imagem_silenciosa' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+      }
+      feiticos_por_nivel {
+        # 3+1
+        nivel: 2
+        conhecidos { id: 'reflexos' }
+        conhecidos { id: 'invisibilidade' }
+        conhecidos { id: 'aterrorizar' }
+        conhecidos { id: 'padrao_hipnotico' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+    }
+  }
+}
+
+
+
 
 modelo {
   id: 'Humano Mago'

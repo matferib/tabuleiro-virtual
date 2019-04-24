@@ -3402,9 +3402,13 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
   return n;
 }
 
-int ComputaLimiteVezes(
-    ArmaProto::ModeloLimiteVezes modelo_limite_vezes, int nivel_conjurador) {
+int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes,
+                       int nivel_conjurador) {
   switch (modelo_limite_vezes) {
+    case ArmaProto::LIMITE_UM_CADA_3_NIVEIS: {
+      return nivel_conjurador / 3;
+    }
+    break;
     case ArmaProto::LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5: {
       return std::min(5, (nivel_conjurador + 1) / 2);
     }
@@ -3413,7 +3417,6 @@ int ComputaLimiteVezes(
       return nivel_conjurador;
     }
     break;
-
     default:
       return 1;
   }
@@ -4120,7 +4123,8 @@ std::string BonusParaString(const Bonus& bonus) {
 }
 
 bool PodeAgir(const EntidadeProto& proto) {
-  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO}, proto)) {
+  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO, EFEITO_FASCINADO},
+                         proto)) {
     return false;
   }
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {

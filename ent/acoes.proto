@@ -89,7 +89,7 @@ enum ModificadorComplementos {
   MC_ID_ENTIDADE = 8;  // Proteger outro.
 }
 
-// Proximo id: 73.
+// Proximo id: 76.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -188,6 +188,9 @@ message AcaoProto {
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;
+  // Total de dados de vida afetados pela acao.
+  optional int32 total_dv = 74;
+  optional bool mais_fracos_primeiro = 75;
   // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
   optional int32 pv_mais_alto = 69;
   // Para acoes de projetil que ignoram municao, tipo missil magico.

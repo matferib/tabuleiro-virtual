@@ -861,14 +861,18 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     if (nao_possui_nivel_zero) {
       fc->mutable_feiticos_por_nivel(0)->Clear();
     }
+    const bool classe_possui_dominio = classe_tabelada.possui_dominio();
+    const bool classe_possui_especializacao = !fc->especializacao().empty();
+    const bool feitico_extra = (classe_possui_dominio nivel_magia > 0 && nivel_magia <= 9) ||
+        (classe_possui_especializacao && nivel_magia >= 0 && nivel_magia <= 9);
     for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
       int nivel_magia = nao_possui_nivel_zero ? indice + 1 : indice;
       int magias_do_nivel =
-        (magias_por_dia[indice] - '0') +
-        FeiticosBonusPorAtributoPorNivel(
-            nivel_magia,
-            BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
-        (classe_tabelada.possui_dominio() && nivel_magia > 0 && nivel_magia <= 9 ? 1 : 0);
+          (magias_por_dia[indice] - '0') +
+          FeiticosBonusPorAtributoPorNivel(
+              nivel_magia,
+              BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
+          (feitico_extra ? 1 : 0);
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
     }
   }

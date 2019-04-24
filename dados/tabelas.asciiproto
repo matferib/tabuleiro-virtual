@@ -1035,6 +1035,14 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_FASCINADO
+    nome: 'fascinado'
+    # -4 em ouvir e observar. Hostis se aproximando permitem novas salvacoes.
+    # # Ameacas quebram o efeito.
+    # Aliados podem quebrar o efeito com ação padrão.
+  }
+
+  efeitos {
     id: EFEITO_INSPIRAR_CORAGEM
     nome: 'inspirar coragem'
     formato_complementos: 'Bônus de moral em ataque e dano.'
@@ -5063,6 +5071,86 @@ tabela_pericias {
 }
 
 tabela_feiticos {
+  armas {
+    id: 'imagem_silenciosa'  # silent image
+    nome: 'imagem silenciosa'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    escola: 'ilusao'
+  }
+
+  armas {
+    id: 'aterrorizar'  # scare
+    nome: 'aterrorizar'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      dv_mais_alto: 6
+      efeitos_adicionais {
+        efeito: EFEITO_AMEDRONTADO
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_ABALADO
+        rodadas: 1
+      }
+    }
+    modelo_limite_vezes: LIMITE_UM_CADA_3_NIVEIS
+    escola: 'necromancia'
+  }
+  armas {
+    # TODO
+    id: 'padrao_hipnotico'  # hipnotic pattern
+    nome: 'padrão hipnótico'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 2
+      mais_fracos_primeiro: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      total_dv: 5
+      efeitos_adicionais {
+        efeito: EFEITO_FASCINADO
+        rodadas: 3  # concentracao + 2
+      }
+    }
+    escola: 'ilusao'
+    modelo_total_dv: TDV_2D4_MAIS_NIVEL
+  }
+
   armas {
     id: 'constricao'  # entangle
     nome: 'constrição'
