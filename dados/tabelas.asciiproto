@@ -5137,11 +5137,11 @@ tabela_feiticos {
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       raio_quadrados: 2
-      mais_fracos_primeiro: true
       permite_ataque_vs_defesa: false
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
-      total_dv: 5
+      total_dv: 5  # sera recomputado.
+      mais_fracos_primeiro: true
       efeitos_adicionais {
         efeito: EFEITO_FASCINADO
         rodadas: 3  # concentracao + 2

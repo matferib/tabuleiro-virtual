@@ -6924,13 +6924,10 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   }
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
-    if (entidade->IdCenario() != cenario_origem || !entidade->PodeSerAfetadoPorAcoes()) continue;
-    Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
-    if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, entidade_origem != nullptr && id_entidade_destino.first == entidade_origem->Id())) {
-      ids_afetados.push_back(id_entidade_destino.first);
-    }
+    if (entidade->IdCenario() != cenario_origem) continue;
+    entidades_cenario.push_back(entidade);
   }
-  return ids_afetados;
+  return ent::EntidadesAfetadasPorAcao(acao, entidade_origem, entidades_cenario);
 }
 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() const {

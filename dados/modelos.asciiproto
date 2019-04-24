@@ -3335,7 +3335,7 @@ modelo {
 }
 
 modelo {
-  id: 'Gnomo Mago Ilusionista 4'
+  id: 'Gnomo Ilusionista 4'
   entidade {
     dados_vida: '3d4+15' raca: 'gnomo'
     info_textura { id: 'wizard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }

@@ -15,6 +15,7 @@ class Texturas;
 namespace ent {
 
 class Entidade;
+class EntidadeProto;
 class Tabuleiro;
 
 class Acao {
@@ -119,6 +120,10 @@ void CombinaEfeitos(AcaoProto* acao);
 
 // Retorna true se a acao for um efeito de area.
 bool EfeitoArea(const AcaoProto& acao_proto);
+
+// Dadas as entidades passadas, seleciona as que estao no mesmo cenario que entidade_origem e pega aquelas sao afetadas pela acao. 
+const std::vector<unsigned int> EntidadesAfetadasPorAcao(
+    const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario);
 
 }  // namespace ent
 

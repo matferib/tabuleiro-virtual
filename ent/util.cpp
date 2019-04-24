@@ -3422,6 +3422,19 @@ int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes,
   }
 }
 
+int ComputaTotalDadosVida(ArmaProto::ModeloTotalDadosVida modelo_total_dv,
+                          int nivel_conjurador) {
+  switch (modelo_total_dv) {
+    case ArmaProto::TDV_2D4_MAIS_NIVEL: {
+      return RolaValor("2d4") + nivel_conjurador;
+    }
+    break;
+    default:
+      return 1000;
+  }
+}
+
+
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da) {
   switch (modelo_dano) {
     case ArmaProto::DANO_3D6_MAIS_1_POR_NIVEL: {
@@ -3586,10 +3599,14 @@ bool NotificacaoConsequenciaFeitico(
       auto* da = e_depois->add_dados_ataque();
       da->set_tipo_ataque(acao_str);
       da->set_grupo(grupo_str);
-      int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), NivelConjurador(id_classe, proto));
+      const int nivel_conjurador = NivelConjurador(id_classe, proto);
+      int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
       da->set_rotulo(StringPrintf("%d", limite_vezes));
       da->set_id_arma(feitico_tabelado.id());
       da->set_limite_vezes(limite_vezes);
+      if (feitico_tabelado.has_modelo_total_dv()) {
+        da->mutable_acao()->set_total_dv(ComputaTotalDadosVida(feitico_tabelado.modelo_total_dv(), nivel_conjurador));
+      }
       if (feitico_tabelado.has_modelo_dano()) {
         ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto), da);
       }

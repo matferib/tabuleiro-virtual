@@ -863,10 +863,12 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     }
     const bool classe_possui_dominio = classe_tabelada.possui_dominio();
     const bool classe_possui_especializacao = !fc->especializacao().empty();
-    const bool feitico_extra = (classe_possui_dominio nivel_magia > 0 && nivel_magia <= 9) ||
-        (classe_possui_especializacao && nivel_magia >= 0 && nivel_magia <= 9);
     for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
       int nivel_magia = nao_possui_nivel_zero ? indice + 1 : indice;
+      const bool feitico_extra =
+          (classe_possui_dominio && nivel_magia > 0 && nivel_magia <= 9) ||
+          (classe_possui_especializacao && nivel_magia >= 0 && nivel_magia <= 9);
+
       int magias_do_nivel =
           (magias_por_dia[indice] - '0') +
           FeiticosBonusPorAtributoPorNivel(

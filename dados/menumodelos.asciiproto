@@ -121,6 +121,10 @@ modelo { id: 'Manto Negro' }
 modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
+  id: 'Gnomos'
+  modelo { id: 'Gnomo Ilusionista 4' }
+}
+sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Adepto 3' }
   modelo { id: 'Humano Bárbaro' }

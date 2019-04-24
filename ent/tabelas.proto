@@ -176,6 +176,11 @@ message ArmaProto {
   // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados pela salvacao.
   optional bool dano_ignora_salvacao = 28;
   optional string escola = 29;
+  enum ModeloTotalDadosVida {
+    TDV_NENHUM = 0;
+    TDV_2D4_MAIS_NIVEL = 1;
+  };
+  optional ModeloTotalDadosVida modelo_total_dv = 30;
 }
 
 message TabelaArmaduraOuEscudo {

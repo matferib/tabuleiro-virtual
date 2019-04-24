@@ -1753,4 +1753,25 @@ bool EfeitoArea(const AcaoProto& acao_proto) {
   return acao_proto.efeito_area() || acao_proto.tipo() == ACAO_DISPERSAO;
 }
 
+const std::vector<unsigned int> EntidadesAfetadasPorAcao(
+    const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario) {
+  Posicao pos_origem;
+  if (entidade_origem != nullptr) {
+    pos_origem = entidade_origem->PosicaoAcao();
+  }
+  int total_dv = 0;
+  std::vector<unsigned int> ids_afetados;
+  for (const auto* entidade : entidades_cenario) {
+    if (!entidade->PodeSerAfetadoPorAcoes()) continue;
+    const int dv = entidade->NivelPersonagem();
+    if (acao.has_total_dv() && total_dv > (acao.total_dv() + dv)) continue;
+    Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
+    if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) continue;
+    ids_afetados.push_back(entidade->Id());
+    total_dv += dv;
+    if (acao.has_total_dv() && total_dv == acao.total_dv()) break;
+  }
+  return ids_afetados;
+}
+
 }  // namespace ent

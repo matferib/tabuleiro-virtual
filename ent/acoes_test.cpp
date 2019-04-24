@@ -1,12 +1,19 @@
 #include <memory>
+#include <queue>
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
+#include "ent/tabelas.h"
 #include "gtest/gtest.h"
 #include "log/log.h"
 
 namespace ent {
+
+extern std::queue<int> g_dados_teste;
+namespace {
+Tabelas g_tabelas(nullptr);
+}  // namespace
 
 // Teste basico gera dados.
 TEST(TesteAcoes, TesteAreaAfetadaCone) {
@@ -175,6 +182,30 @@ TEST(TesteAcoes, TesteAjustePontoRaio) {
   ponto.set_y(5.0f);
   ponto_ajustado = Acao::AjustaPonto(ponto, 1.0f, origem, acao_proto);
   EXPECT_FLOAT_EQ(4.25, ponto_ajustado.y());
+}
+
+TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
+  AcaoProto acao;
+  acao.set_total_dv(2);
+  acao.set_mais_fracos_primeiro(true);
+  std::vector<const Entidade*> entidades;
+  int id = 1;
+  for (int nivel : { 1, 2, 1, 1}) {
+    EntidadeProto proto;
+    proto.set_id(id++);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(nivel);
+    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
+  //EXPECT_THAT(ids_afetados, testing::ElementsAre({1, 3}));
+
+  for (const auto* entidade : entidades) {
+    delete entidade;
+  }
+
 }
 
 }  // namespace ent.
