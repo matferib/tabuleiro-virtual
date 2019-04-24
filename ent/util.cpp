@@ -3432,6 +3432,11 @@ int ComputaTotalDadosVida(ArmaProto::ModeloTotalDadosVida modelo_total_dv,
       return RolaValor("2d4") + nivel_conjurador;
     }
     break;
+    case ArmaProto::TDV_1D4_POR_NIVEL_MAX_20D4: {
+      return RolaValor(StringPrintf("%dd4", std::min(20, nivel_conjurador)));
+    }
+    break;
+
     default:
       return 1000;
   }

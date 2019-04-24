@@ -3713,7 +3713,9 @@ modelo {
         conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
+        conhecidos { id: 'ataque_certeiro' }
         conhecidos { id: 'arma_magica' }
+
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
@@ -3838,10 +3840,11 @@ modelo {
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
         conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'ataque_certeiro' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
       }

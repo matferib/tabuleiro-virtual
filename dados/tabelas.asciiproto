@@ -5304,7 +5304,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 1
     }
-    escola: 'abjuration'
+    escola: 'abjuracao'
   }
 
   armas {
@@ -5602,6 +5602,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -5615,6 +5616,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 0
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5636,6 +5638,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5668,6 +5671,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'criar_agua'  # create water
@@ -5684,6 +5688,7 @@ tabela_feiticos {
       id: 'paladino'
       nivel: 1
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -5693,6 +5698,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 8
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'telecinesia'  # telekinesis.
@@ -5701,6 +5707,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 5
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'metamorfose_torrida'  # baleful polymorph.
@@ -5726,6 +5733,7 @@ tabela_feiticos {
         modificador_rodadas: MR_CONTINUO
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5735,6 +5743,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 7
     }
+    escola: 'universal'
   }
 
   armas {
@@ -5744,6 +5753,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 9
     }
+    escola: 'universal'
   }
   armas {
     id: 'circulo_teletransporte'  # teleportation circle.
@@ -5752,6 +5762,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 9
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -5766,6 +5777,7 @@ tabela_feiticos {
       nivel: 9
       dominio: true
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5775,6 +5787,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 4
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -5797,6 +5810,7 @@ tabela_feiticos {
       nivel: 4
       dominio: true
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5830,6 +5844,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -5852,6 +5867,7 @@ tabela_feiticos {
         modificador_complementos: MC_1_POR_NIVEL
       }
     }
+    escola: 'evocacao'
   }
 
 
@@ -5867,6 +5883,7 @@ tabela_feiticos {
       nivel: 4
       dominio: true
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -5888,6 +5905,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE  # ilusao, depois tem um de fortitude contra o efeito de morte por medo.
       # TODO efeito de morte por medo.
     }
+    escola: 'ilusao'
   }
 
   armas {
@@ -5901,6 +5919,7 @@ tabela_feiticos {
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Muralha de Gelo'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -5923,6 +5942,7 @@ tabela_feiticos {
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Muralha de Fogo'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -5936,6 +5956,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 4
     }
+    escola: 'ilusao'
   }
 
   armas {
@@ -5969,6 +5990,7 @@ tabela_feiticos {
         dado_modificador_rodadas: '2d6'
       }
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'proteger_fortalezas'  # guards and wards
@@ -5977,6 +5999,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 6
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'elucubracao'  # mage's lucubration
@@ -5989,9 +6012,10 @@ tabela_feiticos {
     acao {
       id: 'Feitiço Pessoal'
     }
+    escola: 'transmutacao'
   }
   armas {
-    id: 'circulo_morte'  # círculo da morte
+    id: 'circulo_morte'  # circle of death
     nome: 'círculo da morte'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -6006,12 +6030,17 @@ tabela_feiticos {
       tipo_salvacao: TS_FORTITUDE
       resultado_ao_salvar: RS_ANULOU
       raio_quadrados: 8
+      total_dv: 22
+      mais_fracos_primeiro: true
+      dv_mais_alto: 8
       cor { r: 0 g: 0 b: 0 a: 0.8 }
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }
       # TODO: limite de dados de vida do feitico: 1d4 por nivel conjurador, max 20d4.
     }
+    modelo_total_dv: TDV_1D4_POR_NIVEL_MAX_20D4
+    escola: 'necromancia'
   }
   armas {
     id: 'globo_invulnerabilidade'  # globe of invulnerability
@@ -6025,6 +6054,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Globo de Invulnerabilidade'
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -6038,6 +6068,7 @@ tabela_feiticos {
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Globo de Invulnerabilidade'
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'missao_menor'  # geas, lesser
@@ -6059,6 +6090,7 @@ tabela_feiticos {
         modificador_rodadas: MR_DIAS_POR_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -6091,6 +6123,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -6108,6 +6141,7 @@ tabela_feiticos {
       id: 'ranger'
       nivel: 3
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -6129,6 +6163,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 4
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -6155,6 +6190,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
   armas {
     id: 'forma_gasosa'  # gaseous form
@@ -6182,6 +6218,7 @@ tabela_feiticos {
         modificador_rodadas: MR_2_HORAS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -6195,6 +6232,7 @@ tabela_feiticos {
       id: 'paladino'
       nivel: 2
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -6224,6 +6262,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -6249,6 +6288,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'malogro'  # blight
@@ -6270,6 +6310,7 @@ tabela_feiticos {
       afeta_apenas: TIPO_PLANTA
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'transformacao'  # tenser transformation
@@ -6288,6 +6329,7 @@ tabela_feiticos {
       }
     }
     # TODO
+    escola: 'transmutacao'
   }
 
   armas {
@@ -6326,6 +6368,7 @@ tabela_feiticos {
       nivel: 5
       dominio: true
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -6340,6 +6383,7 @@ tabela_feiticos {
       nivel: 7
       dominio: true
     }
+    escola: 'conjuracao'
   }
   armas {
     id: 'lamina_afiada'  # keen edge
@@ -6359,6 +6403,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -6380,6 +6425,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'deslocamento'  # displacement
@@ -6402,6 +6448,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'ilusao'
   }
   armas {
     id: 'luz_cegante'  # searing light.
@@ -6429,6 +6476,7 @@ tabela_feiticos {
     # TODO constructos levam apenas 1d6 a cada 2 niveis
     # mortos vivos levam 1d6 por nivel (max 10d6).
     # mortos vivos vulneraveis a luz levam 1d8 por nivel (max 10d8)
+    escola: 'evocacao'
   }
 
   armas {
@@ -6449,6 +6497,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: false
     }
+    escola: 'encantamento'
     # TODO aliados ganham +1 sorte em ataque, dano com armas, salvacoes e pericias.
     # Inimigos ganham -1 de penalidade no mesmo.
   }
@@ -6477,6 +6526,7 @@ tabela_feiticos {
       }
     }
     # TODO mortos vivos ganham 1d4+5 pontos de vida temporario por 1 hora.
+    escola: 'necromancia'
   }
 
   armas {
@@ -6499,6 +6549,7 @@ tabela_feiticos {
     }
     # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
     # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
+    escola: 'necromancia'
   }
 
   armas {
@@ -6517,6 +6568,7 @@ tabela_feiticos {
         modificador_rodadas: MR_HORAS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -6534,6 +6586,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Zona da Verdade'
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'tendencia_arma'  # align weapon
@@ -6549,6 +6602,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'escuridao'  # darkness
@@ -6570,6 +6624,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Escuridão'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -6600,6 +6655,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Luz do Dia'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -6631,6 +6687,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'comando_maior'  # command, greater
@@ -6656,6 +6713,7 @@ tabela_feiticos {
         # TODO uma salvacao por rodada.
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -6683,6 +6741,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -6696,6 +6755,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 5
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -6711,6 +6771,7 @@ tabela_feiticos {
     }
     # TODO eliminar fadiga, exausto para fadiga, cura pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
     # Restaura nivel negativo, niveis perdidos por drenagem.
+    escola: 'conjuracao'
   }
 
   armas {
@@ -6729,6 +6790,7 @@ tabela_feiticos {
       nivel: 1
     }
     # TODO eliminar fadiga, exausto para fadiga, cura 1d4 pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
+    escola: 'conjuracao'
   }
 
   armas {
@@ -6766,6 +6828,7 @@ tabela_feiticos {
         rodadas: 600  # 1 hora enquanto ficar falando + 1d3 apos
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -6797,6 +6860,7 @@ tabela_feiticos {
         modificador_complementos: MC_ID_ENTIDADE
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -6823,6 +6887,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
   armas {
     id: 'auxilio_divino'  # divine favor
@@ -6848,6 +6913,7 @@ tabela_feiticos {
         modificador_complementos: MC_1_CADA_3_MAX_3
       }
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -6880,6 +6946,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'protecao_contra_bem'
@@ -6907,6 +6974,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'protecao_contra_ordem'
@@ -6934,6 +7002,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -6966,6 +7035,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -6989,6 +7059,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Alarme'
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'aumentar_pessoa'  # enlarge person
@@ -7015,6 +7086,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -7028,6 +7100,7 @@ tabela_feiticos {
       id: 'bardo'
       nivel: 0
     }
+    escola: 'universal'
   }
   armas {
     id: 'raio_acido'  # acid splash
@@ -7048,9 +7121,10 @@ tabela_feiticos {
       info_textura { id: 'ice.png' }
       cor { r: 0.2 g: 1.0 b: .2 a: 0.7 }
     }
+    escola: 'conjuracao'
   }
   armas {
-    id: 'tentaculos_negros'
+    id: 'tentaculos_negros'  # black tentacles
     nome: 'tentáculos negros'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -7062,6 +7136,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Tentáculos Negros'
     }
+    escola: 'conjuracao'
   }
   armas {
     id: 'desespero_esmagador' # crushing despair
@@ -7076,18 +7151,37 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      permite_ataque_vs_defesa: false
-      permite_salvacao: true
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_CONE
+      distancia_quadrados: 6
       tipo_salvacao: TS_VONTADE
-      ignora_resistencia_magia: false
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
+        efeito: EFEITO_DESESPERO_ESMAGADOR
         modificador_rodadas: MR_MINUTOS_NIVEL
-        descricao: 'desespero esmagador'
       }
-
     }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'boa_esperanca' # good hope
+    nome: 'boa esperanca'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      efeitos_adicionais {
+        efeito: EFEITO_BOA_ESPERANCA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+        descricao: 'boa esperanca'
+      }
+    }
+    escola: 'encantamento'
   }
 
   armas {
@@ -7111,6 +7205,7 @@ tabela_feiticos {
     #  tipo: ACAO_CRIACAO_ENTIDADE
     #  id_modelo_entidade: 'Orc'
     #}
+    escola: 'conjuracao'
   }
   armas {
     # TODO
@@ -7132,6 +7227,7 @@ tabela_feiticos {
     #  tipo: ACAO_CRIACAO_ENTIDADE
     #  id_modelo_entidade: 'Orc'
     #}
+    escola: 'conjuracao'
   }
   armas {
     # TODO
@@ -7153,6 +7249,7 @@ tabela_feiticos {
     #  tipo: ACAO_CRIACAO_ENTIDADE
       #id_modelo_entidade: 'Orc'
     #}
+    escola: 'conjuracao'
   }
   armas {
     # TODO
@@ -7174,6 +7271,7 @@ tabela_feiticos {
     #  tipo: ACAO_CRIACAO_ENTIDADE
       #id_modelo_entidade: 'Orc'
     #}
+    escola: 'conjuracao'
   }
   armas {
     # TODO
@@ -7191,6 +7289,7 @@ tabela_feiticos {
     #  tipo: ACAO_CRIACAO_ENTIDADE
       #id_modelo_entidade: 'Orc'
     #}
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7310,7 +7409,6 @@ tabela_feiticos {
     escola: 'necromancia'
   }
 
-
   armas {
     id: 'resistencia_elementos' #  resist energy
     nome: 'resistência a elementos'
@@ -7352,6 +7450,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -7382,6 +7481,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7421,6 +7521,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7440,6 +7541,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       permite_salvacao: false
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -7465,6 +7567,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'ilusao'
   }
 
   armas {
@@ -7507,6 +7610,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7544,6 +7648,7 @@ tabela_feiticos {
         rodadas: 1
       }
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -7578,6 +7683,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'arma_magica_maior' # magic weapon, greater
@@ -7606,6 +7712,7 @@ tabela_feiticos {
         modificador_rodadas: MR_HORAS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
 
@@ -7654,6 +7761,7 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -7699,6 +7807,7 @@ tabela_feiticos {
       info_textura { id: 'ice.png' }
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -7739,6 +7848,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -7754,6 +7864,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    escola: 'ilusao'
   }
 
   armas {
@@ -7820,7 +7931,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'velocidade'
+    id: 'velocidade'  # haste
     nome: 'velocidade'
     modelo_limite_vezes: LIMITE_UM_POR_NIVEL
     alcance_quadrados: 5
@@ -7843,10 +7954,11 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
-    id: 'ataque_certeiro'
+    id: 'ataque_certeiro'  # true strike
     nome: 'ataque certeiro'
     info_classes {
       id: 'mago'
@@ -7861,9 +7973,10 @@ tabela_feiticos {
         rodadas: 1
       }
     }
+    escola: 'divination'
   }
   armas {
-    id: 'romper_morto_vivo'
+    id: 'romper_morto_vivo'  # disrupt undead
     nome: 'romper morto-vivo'
     alcance_quadrados: 20
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7881,9 +7994,10 @@ tabela_feiticos {
       permite_salvacao: false
       distancia_quadrados: 5
     }
+    escola: 'necromancia'
   }
   armas {
-    id: 'mensagem'
+    id: 'mensagem'  # message
     nome: 'mensagem'
     info_classes {
       id: 'bardo'
@@ -7896,9 +8010,10 @@ tabela_feiticos {
     acao {
       tipo: ACAO_FEITICO_PESSOAL
     }
+    escola: 'transmutacao'
   }
   armas {
-    id: 'suportar_elementos'
+    id: 'suportar_elementos' # endure elements
     nome: 'suportar elementos'
     info_classes {
       id: 'clerigo'
@@ -7934,9 +8049,10 @@ tabela_feiticos {
         rodadas: 14400 # 24 h
       }
     }
+    escola: 'abjuracao'
   }
   armas {
-    id: 'maos_magicas'
+    id: 'maos_magicas' # mage hand
     nome: 'mãos mágicas'
     info_classes {
       id: 'bardo'
@@ -7946,6 +8062,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'virtude' # virtue
@@ -7974,6 +8091,7 @@ tabela_feiticos {
         rodadas: 10
       }
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -8009,6 +8127,7 @@ tabela_feiticos {
         rodadas: 10
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'escudo_arcano'
@@ -8025,9 +8144,10 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
-    id: 'luz'
+    id: 'luz'  # light
     nome: 'luz'
     info_classes {
       id: 'bardo'
@@ -8055,9 +8175,10 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'evocacao'
   }
   armas {
-    id: 'resistencia'
+    id: 'resistencia'  # resistance
     nome: 'resistência'
     info_classes {
       id: 'clerigo'
@@ -8089,6 +8210,7 @@ tabela_feiticos {
         complementos: 1
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'curar_ferimentos_minimos'  # cure minor wounds
@@ -8113,6 +8235,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: false
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -8151,6 +8274,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: false
     }
+    escola: 'conjuracao'
   }
   armas {
     id: 'infligir_ferimentos_minimos'  # inflict minor wounds
@@ -8170,6 +8294,7 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.3 }
       icone: 'icon_touch.png'
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -8195,6 +8320,7 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'curar_ferimentos_moderados'  # cure moderate wounds
@@ -8232,6 +8358,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: false
     }
+    escola: 'conjuracao'
   }
   armas {
     id: 'infligir_ferimentos_moderados'  # inflict moderate wounds
@@ -8251,6 +8378,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_MEIO
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'curar_ferimentos_graves'  # cure serious wounds
@@ -8288,6 +8416,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: false
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -8338,6 +8467,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       permite_salvacao: false
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -8363,6 +8493,7 @@ tabela_feiticos {
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
+    escola: 'necromancia'
   }
 
 
@@ -8402,6 +8533,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'sabedoria_coruja'  # owl's wisdom
@@ -8438,6 +8570,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'agilidade_gato'  # cat's grace
@@ -8470,6 +8603,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'esplendor_aguia'  # eagle's splendor
@@ -8502,6 +8636,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'vigor_urso'  # bear's endurance
@@ -8534,6 +8669,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'astucia_raposa'  # fox's cunning
@@ -8555,6 +8691,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'ajuda'
@@ -8583,6 +8720,7 @@ tabela_feiticos {
         modificador_complementos: MC_1_POR_NIVEL_MAX_10
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -8603,6 +8741,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Arma Espiritual (20/x2)'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -8623,6 +8762,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Arma Espiritual (20/x3)'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -8643,6 +8783,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -8665,10 +8806,11 @@ tabela_feiticos {
         modificador_complementos: MC_2_MAIS_1_CADA_6_MAX_5
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
-    id: 'santuario'
+    id: 'santuario'  # sanctuary
     nome: 'santuário'
     info_classes {
       id: 'clerigo'
@@ -8690,6 +8832,7 @@ tabela_feiticos {
         # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'circulo_magico_contra_mal' # magic circle against evil
@@ -8727,6 +8870,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'circulo_magico_contra_bem' # magic circle against good
@@ -8760,6 +8904,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'circulo_magico_contra_caos' # magic circle against chaos
@@ -8793,7 +8938,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
-
+    escola: 'abjuracao'
   }
   armas {
     id: 'circulo_magico_contra_ordem' # magic circle against law
@@ -8827,9 +8972,8 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
-
+    escola: 'abjuracao'
   }
-
 
   armas {
     id: 'protecao_contra_elementos'
@@ -8873,6 +9017,7 @@ tabela_feiticos {
         # Aqui ainda tem mais um modificador que é a quantidade de dano absorvido.
       }
     }
+    escola: 'abjuracao'
   }
 
 
@@ -8926,7 +9071,7 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'escudo_fogo'
+    id: 'escudo_fogo'  # fire shield
     nome: 'escudo de fogo'
     info_classes {
       id: 'mago'
@@ -8952,9 +9097,10 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'evocacao'
   }
   armas {
-    id: 'ancora_dimensional'
+    id: 'ancora_dimensional'  # dimensional anchor
     nome: 'âncora dimensional'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -8979,9 +9125,10 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
   armas {
-    id: 'andar_ar'
+    id: 'andar_ar'  # air walk
     nome: 'andar no ar'
     info_classes {
       id: 'ar'
@@ -9007,9 +9154,10 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
-    id: 'maos_flamejantes'
+    id: 'maos_flamejantes'  # burning hands
     nome: 'mãos flamejantes'
     alcance_quadrados: 3
     modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
@@ -9057,6 +9205,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'praga_insetos' # insect plague
@@ -9077,6 +9226,7 @@ tabela_feiticos {
       id_modelo_entidade: 'Enxame (gafanhotos)'
       # duracao: 1 min/nivel.
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -9119,6 +9269,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'bencao'
@@ -9148,9 +9299,10 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
   armas {
-    id: 'maldicao_menor'
+    id: 'maldicao_menor' # bane
     nome: 'maldição menor'
     alcance_quadrados: 1
     info_classes {
@@ -9174,10 +9326,11 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: ''
   }
 
   armas {
-    id: 'criar_agua'
+    id: 'criar_agua' # create water
     nome: 'criar água'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -9197,10 +9350,11 @@ tabela_feiticos {
       id: 'paladin'
       nivel: 0
     }
+    escola: 'conjuracao'
   }
 
   armas {
-    id: 'bola_fogo'
+    id: 'bola_fogo' # fireball
     nome: 'bola de fogo'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -9228,6 +9382,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'expulsao' # dismissal
@@ -9253,6 +9408,7 @@ tabela_feiticos {
         descricao: 'expulso'
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'banimento' # banishment
@@ -9285,6 +9441,7 @@ tabela_feiticos {
         descricao: 'expulso'
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'ondas_exaustao' # waves of exhaustion
@@ -9308,6 +9465,7 @@ tabela_feiticos {
         modificador_rodadas: MR_CONTINUO
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -9349,6 +9507,7 @@ tabela_feiticos {
       }
       # TODO: contra morto vivo: 1d6/nivel max 25d6.
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'area_escorregadia'  # grease
@@ -9367,6 +9526,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Área Escorregadia'
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -9391,6 +9551,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'confusao'  # confusion
@@ -9426,6 +9587,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'cone_glacial'
@@ -9457,6 +9619,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FRIO
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'detectar_mal' # detect evil
@@ -9473,6 +9636,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
   armas {
     id: 'detectar_magia' # detect magic
@@ -9536,6 +9700,7 @@ tabela_feiticos {
       nivel: 3
       dominio: true
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'dissipar_magia_maior'
@@ -9558,6 +9723,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 6
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -9594,6 +9760,7 @@ tabela_feiticos {
         modificador_rodadas: MR_DIAS_POR_NIVEL
       }
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'heroismo'
@@ -9615,6 +9782,7 @@ tabela_feiticos {
         rodadas: 100  # por nivel
       }
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'martelo_caos'
@@ -9649,12 +9817,12 @@ tabela_feiticos {
         rodadas: 3  # 1d6 rodadas
       }
     }
+    escola: 'evocacao'
   }
 
   armas {
-    id: 'nuvem_profana'
+    id: 'nuvem_profana'  # unholy blight
     nome: 'nuvem profana'
-    # Unholy blight
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     # dano 1d8 a cada 2 niveis, maximo 5d8 criaturas boas.
@@ -9685,6 +9853,7 @@ tabela_feiticos {
         rodadas: 3  # 1d4 rodadas
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -9717,6 +9886,7 @@ tabela_feiticos {
       elemento: DESC_FORCA
     }
     modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+    escola: 'evocacao'
   }
   armas {
     id: 'intuir_direcao'  # know direction
@@ -9756,6 +9926,7 @@ tabela_feiticos {
         rodadas: 10
       }
     }
+    escola: 'adivinhacao'
   }
   armas {
     id: 'detectar_veneno'
@@ -9793,7 +9964,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'pedra_encantada'
+    id: 'pedra_encantada'  # magic stone
     nome: 'pedra encantada'
     info_classes {
       id: 'clerigo'
@@ -9821,9 +9992,10 @@ tabela_feiticos {
         rodadas: 300
       }
     }
+    escola: 'transmutacao'
   }
   armas {
-    id: 'raio_ardente'
+    id: 'raio_ardente'  # scorching ray
     nome: 'raio ardente'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -9845,6 +10017,7 @@ tabela_feiticos {
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'relampago'
@@ -9872,6 +10045,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_ELETRICIDADE
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'inverter_gravidade'  # reverse gravity
@@ -9890,6 +10064,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Gravidade Invertida'
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -9919,6 +10094,7 @@ tabela_feiticos {
         modificador_rodadas: MR_PALAVRA_PODER_CEGAR
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -9948,6 +10124,7 @@ tabela_feiticos {
         modificador_rodadas: MR_PALAVRA_PODER_ATORDOAR
       }
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'palavra_poder_matar'
@@ -9975,10 +10152,11 @@ tabela_feiticos {
         efeito: EFEITO_MORTE
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
-    id: 'piscar'
+    id: 'piscar'  # blink
     nome: 'piscar'
     info_classes {
       id: 'mago'
@@ -9999,6 +10177,7 @@ tabela_feiticos {
         rodadas: 1  # por nivel
       }
     }
+    escola: 'transmutacao'
   }
   armas {
     id: 'reflexos'  # mirror image
@@ -10048,6 +10227,7 @@ tabela_feiticos {
         # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'dissipar_bem'  # dispel good
@@ -10069,6 +10249,7 @@ tabela_feiticos {
         # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'dissipar_caos'  # dispel chaos
@@ -10090,6 +10271,7 @@ tabela_feiticos {
         # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'dissipar_ordem'  # dispel law
@@ -10111,6 +10293,7 @@ tabela_feiticos {
         # TODO outros efeitos que terminam a magia, como banir e dissipar magia.
       }
     }
+    escola: 'abjuracao'
   }
   armas {
     id: 'visao_verdade'  # true seeing
@@ -10143,6 +10326,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -10195,6 +10379,7 @@ tabela_feiticos {
         efeito: EFEITO_MORTE
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -10208,6 +10393,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 7
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -10227,6 +10413,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Esfera Flamejante'
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -10266,6 +10453,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -10303,6 +10491,7 @@ tabela_feiticos {
         descricao: 'sugestão'
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -10327,6 +10516,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Tempestade Glacial'
     }
+    escola: 'evocacao'
   }
 }
 
