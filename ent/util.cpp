@@ -4139,16 +4139,16 @@ std::string BonusParaString(const Bonus& bonus) {
   return resumo;
 }
 
-bool PodeAgir(const EntidadeProto& proto) {
+std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto) {
   if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO, EFEITO_FASCINADO},
                          proto)) {
-    return false;
+    return std::make_pair(false, "pasmo, atordoado ou fascinado");
   }
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
-    return false;
+    return std::make_pair(false, "paralisado");
   }
 
-  return true;
+  return std::make_pair(true, "");
 }
 
 bool DestrezaNaCA(const EntidadeProto& proto) {

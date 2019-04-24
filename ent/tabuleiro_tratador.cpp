@@ -1767,8 +1767,11 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 float Tabuleiro::TrataPreAcaoComum(
     float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
     ntf::Notificacao* grupo_desfazer) {
-  if (!PodeAgir(entidade_origem.Proto())) {
-    AdicionaAcaoTextoLogado(entidade_origem.Id(), "Entidade nao pode agir", atraso_s);
+  bool pode_agir;
+  std::string razao;
+  std::tie(pode_agir, razao) = PodeAgir(entidade_origem.Proto());
+  if (!pode_agir) {
+    AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Entidade nao pode agir: %s", razao.c_str()), atraso_s);
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }

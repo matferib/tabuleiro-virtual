@@ -10227,7 +10227,8 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       resultado_ao_salvar: RS_ANULOU
       dv_mais_alto: 4
-      # TODO total de DV = 4.
+      total_dv: 4
+      mais_fracos_primeiro: true
       efeitos_adicionais {
         efeito: EFEITO_SONO
         modificador_rodadas: MR_MINUTOS_NIVEL

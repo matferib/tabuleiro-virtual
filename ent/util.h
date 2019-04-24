@@ -850,7 +850,7 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
 
 // Retorna true se a entidade pode agir. Alguns efeitos nao permite (pasmar, atordoado, etc).
-bool PodeAgir(const EntidadeProto& proto);
+std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
