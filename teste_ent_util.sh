@@ -7,4 +7,5 @@ gdb -tui ./teste_ent_util
 #lldb ./tabvirt
 else
 ./teste_ent_util $@
+./teste_ent_acoes $@
 fi

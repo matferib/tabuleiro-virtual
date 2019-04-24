@@ -228,28 +228,28 @@ env.Default(env.Program(
 compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
 print 'compilar_testes : %r' % compilar_testes
 if compilar_testes:
-  env['CPPPATH'] += ['./gtest/']
-  env['LIBPATH'] += ['./gtest/lib/']
-  env['LIBS'] += ['pthread']
-  env['RPATH'] += ['./gtest/lib/']
+  env['CPPPATH'] += ['./googletest/googletest/googletest/include', './googletest/googletest/googlemock/include']
+  env['LIBPATH'] += ['./googletest/googletest/lib/']
+  env['LIBS'] += ['pthread', 'gtest']
+  env['RPATH'] += ['./googletest/googletest/lib/']
   env.Program(
       target = 'teste_ent_ent',
-      source = ['ent/ent_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['ent/ent_test.cpp' ] + objetos)
   env.Program(
       target = 'teste_ent_acoes',
-      source = ['ent/acoes_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['ent/acoes_test.cpp' ] + objetos)
   env.Program(
       target = 'teste_ent_util',
-      source = ['ent/util_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['ent/util_test.cpp' ] + objetos)
   env.Program(
       target = 'teste_modelos',
-      source = ['ifg/modelos_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['ifg/modelos_test.cpp' ] + objetos)
   env.Program(
       target = 'teste_arquivo',
-      source = ['arq/arquivo_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['arq/arquivo_test.cpp' ] + objetos)
   env.Program(
       target = 'teste_net_util',
-      source = ['net/util_test.cpp', 'gtest-all.cc' ] + objetos)
+      source = ['net/util_test.cpp' ] + objetos)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark
