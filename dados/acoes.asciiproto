@@ -202,6 +202,27 @@ acao {
   ignora_reducao_dano_barbaro: true
 }
 acao {
+  id: 'Feitiço Dispersão Esfera'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_ESFERA
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  dificuldade_salvacao_por_nivel: true
+  ignora_resistencia_magia: false
+  ignora_reducao_dano_barbaro: true
+}
+acao {
+  id: 'Feitiço Dispersão Cone'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_CONE
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  dificuldade_salvacao_por_nivel: true
+  ignora_resistencia_magia: false
+  ignora_reducao_dano_barbaro: true
+}
+
+acao {
   id: 'Sopro'
   tipo: ACAO_DISPERSAO
   geometria: ACAO_GEO_CONE
