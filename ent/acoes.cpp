@@ -1755,16 +1755,25 @@ bool EfeitoArea(const AcaoProto& acao_proto) {
 
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario) {
+  std::vector<const Entidade*> entidades_ordenadas;
+  if (acao.mais_fracos_primeiro()) {
+    entidades_ordenadas = entidades_cenario;
+    std::sort(entidades_ordenadas.begin(), entidades_ordenadas.end(), [](const Entidade* lhs, const Entidade* rhs) {
+        if (lhs->NivelPersonagem() < rhs->NivelPersonagem()) return true;
+        if (rhs->NivelPersonagem() < lhs->NivelPersonagem()) return false;
+        return lhs->Id() < rhs->Id();
+    }); 
+  }
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
     pos_origem = entidade_origem->PosicaoAcao();
   }
   int total_dv = 0;
   std::vector<unsigned int> ids_afetados;
-  for (const auto* entidade : entidades_cenario) {
+  for (const auto* entidade : acao.mais_fracos_primeiro() ? entidades_ordenadas : entidades_cenario) {
     if (!entidade->PodeSerAfetadoPorAcoes()) continue;
     const int dv = entidade->NivelPersonagem();
-    if (acao.has_total_dv() && total_dv > (acao.total_dv() + dv)) continue;
+    if (acao.has_total_dv() && (total_dv + dv) > acao.total_dv()) continue;
     Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
     if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) continue;
     ids_afetados.push_back(entidade->Id());

@@ -5133,11 +5133,10 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço de Toque a Distância'
+      id: 'Feitiço a Distância'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       raio_quadrados: 2
-      permite_ataque_vs_defesa: false
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
       total_dv: 5  # sera recomputado.

@@ -5,6 +5,7 @@
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "log/log.h"
 
@@ -186,7 +187,36 @@ TEST(TesteAcoes, TesteAjustePontoRaio) {
 
 TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
   AcaoProto acao;
-  acao.set_total_dv(2);
+  acao.set_tipo(ACAO_DISPERSAO);
+  acao.set_geometria(ACAO_GEO_ESFERA);
+  acao.set_raio_quadrados(1);
+  acao.set_total_dv(3);
+  acao.set_mais_fracos_primeiro(false);
+  std::vector<const Entidade*> entidades;
+  int id = 1;
+  for (int nivel : { 1, 2, 1, 1}) {
+    EntidadeProto proto;
+    proto.set_id(id++);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(nivel);
+    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
+  EXPECT_THAT(ids_afetados, testing::ElementsAre(1, 2));
+
+  for (const auto* entidade : entidades) {
+    delete entidade;
+  }
+}
+
+TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
+  AcaoProto acao;
+  acao.set_tipo(ACAO_DISPERSAO);
+  acao.set_geometria(ACAO_GEO_ESFERA);
+  acao.set_raio_quadrados(1);
+  acao.set_total_dv(3);
   acao.set_mais_fracos_primeiro(true);
   std::vector<const Entidade*> entidades;
   int id = 1;
@@ -200,12 +230,11 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
   }
 
   const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
-  //EXPECT_THAT(ids_afetados, testing::ElementsAre({1, 3}));
+  EXPECT_THAT(ids_afetados, testing::ElementsAre(1, 3, 4));
 
   for (const auto* entidade : entidades) {
     delete entidade;
   }
-
 }
 
 }  // namespace ent.
