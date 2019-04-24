@@ -1035,6 +1035,35 @@ tabela_efeitos {
     nome: 'outros'
   }
   efeitos {
+    id: EFEITO_DESESPERO_ESMAGADOR
+    nome: 'desespero esmagador'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'desespero esmagador' } } }
+      jogada_dano { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'desespero esmagador' } } }
+      restricao_arma { apenas_armas_para_dano: true }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'desespero esmagador' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'desespero esmagador' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'desespero esmagador' } } }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_BOA_ESPERANCA
+    nome: 'boa esperança'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'desespero esmagador' } } }
+      jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'desespero esmagador' } } }
+      restricao_arma { apenas_armas_para_dano: true }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'desespero esmagador' } } }
+        salvacao_vontade { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'desespero esmagador' } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'desespero esmagador' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_FASCINADO
     nome: 'fascinado'
     # -4 em ouvir e observar. Hostis se aproximando permitem novas salvacoes.

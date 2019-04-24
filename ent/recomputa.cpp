@@ -125,13 +125,22 @@ void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
   }
 }
 
+// As duas funcoes assumem que a consequencia tem modificador de ataque e dano.
+// Normalmente nao ha restricao, mas se houver, respeita.
 bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
   if (!consequencia.has_restricao_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
   if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0)
     return true;
   if (ra.apenas_armas() && da.eh_arma()) return true;
+  if (ra.apenas_armas_para_danos()) return true;  // a restricao se aplica apenas ao dano.
   return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
+}
+
+bool ConsequenciaAfetaDano(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
+  if (!consequencia.has_restricao_dano_arma()) return true;
+  const auto& ra = consequencia.restricao_arma();
+  return (!ra.apenas_armas() || da.eh_arma());
 }
 
 // Retorna o dado de ataque que contem a arma, ou nullptr;
@@ -237,6 +246,7 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(),
                                   da.mutable_bonus_ataque());
+    if (!ConsequenciaAfetaDano(consequencia, da)) continue;
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
 
