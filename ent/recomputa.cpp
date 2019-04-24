@@ -133,12 +133,12 @@ bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const 
   if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0)
     return true;
   if (ra.apenas_armas() && da.eh_arma()) return true;
-  if (ra.apenas_armas_para_danos()) return true;  // a restricao se aplica apenas ao dano.
+  if (ra.apenas_armas_para_dano())
+    return true;  // a restricao se aplica apenas ao dano.
   return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
 }
 
 bool ConsequenciaAfetaDano(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
-  if (!consequencia.has_restricao_dano_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
   return (!ra.apenas_armas() || da.eh_arma());
 }

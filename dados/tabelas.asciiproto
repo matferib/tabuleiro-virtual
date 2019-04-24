@@ -6055,7 +6055,6 @@ tabela_feiticos {
     acao {
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
-      dv_mais_alto: 8
       tipo_salvacao: TS_FORTITUDE
       resultado_ao_salvar: RS_ANULOU
       raio_quadrados: 8
