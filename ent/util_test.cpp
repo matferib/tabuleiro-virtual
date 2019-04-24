@@ -547,7 +547,7 @@ TEST(TesteArmas, TesteDanoIgnoraSalvacao) {
   EXPECT_TRUE(da->dano_ignora_salvacao()) << "DA completo: " << da->DebugString();
 }
 
-TEST(TesteArmas, TesteDispersao) {
+TEST(TesteArmas, TesteMaosFlamejantes) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
@@ -560,6 +560,28 @@ TEST(TesteArmas, TesteDispersao) {
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(da->dano(), "3d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 13) << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
+  EXPECT_TRUE(da->has_acao());
+  const AcaoProto& acao = da->acao();
+  EXPECT_EQ(acao.tipo(), ACAO_DISPERSAO) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteMaosFlamejantesEspecialista) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  auto* fc = proto.add_feiticos_classes();
+  fc->set_id_classe("mago");
+  fc->set_especializacao("evocacao");
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Mago");
+  da->set_id_arma("maos_flamejantes");
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(da->dano(), "3d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->dificuldade_salvacao(), 14) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();

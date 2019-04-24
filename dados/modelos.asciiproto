@@ -3348,6 +3348,10 @@ modelo {
       municao: 10
     }
     dados_ataque {
+      tipo_ataque: 'Feitiço de Mago' id_arma: 'silencio' empunhadura: EA_ARMA_APENAS
+      limite_vezes: 1 nivel_conjurador_pergaminho: 3 modificador_atributo_pergaminho: 1
+    }
+    dados_ataque {
       tipo_ataque: 'Feitiço de Mago' id_arma: 'imobilizar_pessoa' empunhadura: EA_ARMA_APENAS
       limite_vezes: 1 nivel_conjurador_pergaminho: 5 modificador_atributo_pergaminho: 1
     }
@@ -3397,12 +3401,12 @@ modelo {
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_veneno' }
-        conhecidos { id: 'mensagem' }
+        conhecidos { id: 'toque_fadiga' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
@@ -3413,10 +3417,11 @@ modelo {
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
+        conhecidos { id: 'causar_medo' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         # 1+1
@@ -3444,6 +3449,10 @@ modelo {
     dados_ataque {
       id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 10
+    }
+    dados_ataque {
+      tipo_ataque: 'Feitiço de Mago' id_arma: 'silencio' empunhadura: EA_ARMA_APENAS
+      limite_vezes: 1 nivel_conjurador_pergaminho: 3 modificador_atributo_pergaminho: 1
     }
     dados_ataque {
       tipo_ataque: 'Feitiço de Mago' id_arma: 'imobilizar_pessoa' empunhadura: EA_ARMA_APENAS
@@ -3512,11 +3521,12 @@ modelo {
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
+        conhecidos { id: 'causar_medo' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         # 3+1

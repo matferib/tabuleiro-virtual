@@ -1534,21 +1534,23 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
     // enquanto TipoAtaqueParaClasse busca a classe para feitico (mago).
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
+    const auto& fc = FeiticosClasse(ic.id(), proto);
+    int mod_especializacao = !fc.especializacao().empty() && feitico.escola() == fc.especializacao() ? 1 : 0;
     int base = 10;
     if (da->acao().has_dificuldade_salvacao_base()) {
-      base = da->acao().dificuldade_salvacao_base();
+      base = da->acao().dificuldade_salvacao_base() + mod_especializacao;
     } else {
       base += da->has_nivel_conjurador_pergaminho()
         ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico)
-        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico);
+        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao;
     }
     const int mod_atributo = da->has_modificador_atributo_pergaminho()
       ? da->modificador_atributo_pergaminho()
       : da->acao().has_atributo_dificuldade_salvacao()
         ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
         : ModificadorAtributoConjuracao(ic.id(), proto);
+
     const int cd_final = base + mod_atributo;
-    //da->mutable_acao()->set_dificuldade_salvacao(cd_final);
     da->set_dificuldade_salvacao(cd_final);
   }
 

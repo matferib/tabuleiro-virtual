@@ -5119,7 +5119,6 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    # TODO
     id: 'padrao_hipnotico'  # hipnotic pattern
     nome: 'padrão hipnótico'
     alcance_quadrados: 20
@@ -5172,6 +5171,7 @@ tabela_feiticos {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Constrição'
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5185,6 +5185,7 @@ tabela_feiticos {
       id: 'ranger'
       nivel: 1
     }
+    escola: 'adivinhacao'
   }
   armas {
     id: 'detectar_armadilhas'  # detect snares and traps
@@ -5197,6 +5198,7 @@ tabela_feiticos {
       id: 'ranger'
       nivel: 1
     }
+    escola: 'adivinhacao'
   }
 
 
@@ -5225,6 +5227,7 @@ tabela_feiticos {
         modificador_rodadas: MR_HORAS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -5252,6 +5255,7 @@ tabela_feiticos {
         modificador_rodadas: MR_HORAS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -5286,6 +5290,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -5299,6 +5304,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 1
     }
+    escola: 'abjuration'
   }
 
   armas {
@@ -5312,6 +5318,7 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    escola: 'transmutacao'
   }
 
   armas {
@@ -5321,6 +5328,7 @@ tabela_feiticos {
       id: 'bardo'
       nivel: 0
     }
+    escola: 'conjuracao'
   }
   armas {
     id: 'cancao_ninar'  # lullaby
@@ -5346,8 +5354,8 @@ tabela_feiticos {
         descricao: 'Canção de ninar, -5 observar e ouvir, -2 em vontade vs sono.'
         modificador_rodadas: MR_RODADAS_NIVEL
       }
-
     }
+    escola: 'encantamento'
   }
   armas {
     id: 'imobilizar_pessoa'  # hold person
@@ -5378,6 +5386,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -5411,6 +5420,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -5420,6 +5430,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 3
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -5433,6 +5444,7 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 3
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -5465,6 +5477,7 @@ tabela_feiticos {
         descricao: 'Doença: ver tabela da magia praga'
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -5488,6 +5501,7 @@ tabela_feiticos {
         descricao: 'maldição: -6 a uma habilidade ou -4 em ataques, salvações, testes e perícias, ou 50% de não fazer nada.'
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -5504,6 +5518,7 @@ tabela_feiticos {
       nivel: 2
     }
     # TODO criacao de uma esfera de 4 quadrados.
+    escola: 'ilusao'
   }
 
   armas {
@@ -5516,6 +5531,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço Pessoal'
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -5535,6 +5551,7 @@ tabela_feiticos {
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
+    escola: 'abjuracao'
   }
 
   armas {
@@ -5559,8 +5576,8 @@ tabela_feiticos {
         rodadas: 1
       }
     }
+    escola: 'encantamento'
   }
-
 
   armas {
     id: 'compreender_idiomas'  # comprehend languages
@@ -6294,6 +6311,7 @@ tabela_feiticos {
         modificador_complementos: MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO
       }
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -7196,6 +7214,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'criar_mortos_vivos_menor' #  animate dead
@@ -7213,6 +7232,7 @@ tabela_feiticos {
       nivel: 3
       dominio: true
     }
+    escola: 'necromancia'
   }
 
   armas {
@@ -7243,6 +7263,7 @@ tabela_feiticos {
         rodadas: 100
       }
     }
+    escola: 'necromancia'
   }
   armas {
     id: 'causar_medo' #  cause fear
@@ -7286,6 +7307,7 @@ tabela_feiticos {
         rodadas: 1
       }
     }
+    escola: 'necromancia'
   }
 
 
@@ -7588,7 +7610,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'armadura_arcana'
+    id: 'armadura_arcana'  # mage armor
     nome: 'armadura arcana'
     info_classes {
       id: 'mago'
@@ -7608,6 +7630,7 @@ tabela_feiticos {
       }
       # TODO efeito de forca.
     }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7653,6 +7676,7 @@ tabela_feiticos {
         # totalmente variavel a duracao de acordo com nivel do alvo.
       }
     }
+    escola: 'ilusao'
   }
 
   armas {
@@ -7762,10 +7786,11 @@ tabela_feiticos {
         rodadas: 10
       }
     }
+    escola: 'evocacao'
   }
 
   armas {
-    id: 'pasmar'
+    id: 'pasmar'  # daze
     nome: 'pasmar'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7791,6 +7816,7 @@ tabela_feiticos {
         rodadas: 1
       }
     }
+    escola: 'encantamento'
   }
 
   armas {
@@ -8875,6 +8901,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    escola: 'ilusao'
   }
   armas {
     id: 'invisibilidade_maior'
@@ -8896,6 +8923,7 @@ tabela_feiticos {
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
+    escola: 'ilusao'
   }
   armas {
     id: 'escudo_fogo'
@@ -9011,6 +9039,7 @@ tabela_feiticos {
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
     }
+    escola: 'evocacao'
   }
   armas {
     id: 'metamorfose'
@@ -9474,6 +9503,7 @@ tabela_feiticos {
       icone: 'icon_touch.png'
       duracao_s: 0.350
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -9759,6 +9789,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ataque_distancia: false
     }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -9970,7 +10001,7 @@ tabela_feiticos {
     }
   }
   armas {
-    id: 'reflexos'
+    id: 'reflexos'  # mirror image
     nome: 'reflexos'
     info_classes {
       id: 'mago'
@@ -9990,6 +10021,7 @@ tabela_feiticos {
         modificador_complementos: MC_1D4_MAIS_1_CADA_TRES_MAX_8
       }
     }
+    escola: 'ilusao'
   }
 
   armas {
