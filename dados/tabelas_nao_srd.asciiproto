@@ -171,7 +171,7 @@ tabela_talentos {
   talentos {
     id: 'disciplina'
     nome: 'Disciplina'
-    descricao: '+2 em testes de vontade e concetração.'
+    descricao: '+2 em testes de vontade e concentração.'
     regional: true
     livro: 'PGtF'
     bonus_salvacao {

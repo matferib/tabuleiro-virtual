@@ -1532,6 +1532,9 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
   if (PossuiTalento("magia_penetrante_maior", ea.Proto())) {
     mod += 2;
   }
+  if (PossuiTalento("magia_perniciosa", ea.Proto()) && !PossuiTalento("magia_trama_sombras", ed.Proto())) {
+    mod += 4;
+  }
   const int total = d20 + mod;
   if (total < rm) {
     return std::make_tuple(false, google::protobuf::StringPrintf("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
