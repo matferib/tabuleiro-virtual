@@ -1,9 +1,7 @@
+Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especialiazacao de feiticos.
-Mais escolas de magia.
 
 Implementar operacoes de combinacao em talentos.
-Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
-Implementar combinar_com_efeito.
 
 Testar monstros com combinar_com (criar um novo campo: combinar_efeito?).
 Implementar teste de concentracao de feitico automatico quando enredado.
