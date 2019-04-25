@@ -567,7 +567,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float ey1 = ey0 + dy;
         float z_depois = entidade_selecionada->Z();
         // Apenas entidades respeitam o solo, formas podem entrar.
-        if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
+        if (entidade_selecionada->RespeitaSolo()) {
           float z_olho = entidade_selecionada->ZOlho();
           float altura_olho = entidade_selecionada->AlturaOlho();
           bool manter_chao = entidade_selecionada->Apoiada(); //Apoiado(ex0, ey0, z_olho, altura_olho);

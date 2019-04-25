@@ -191,7 +191,7 @@ message DadosAtaque {
   optional bool eh_arma = 74;
 }
 
-// Proximo id: 104.
+// Proximo id: 105.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -559,6 +559,9 @@ message EntidadeProto {
   optional bool gerar_agarrar = 102 [default=true];
   // Se verdadeiro, indica que entidade esta em corpo a corpo.
   optional bool em_corpo_a_corpo = 103;
+  // Se presente diz se entidade respeitara solo ao se movimentar (caso
+  // contrario, vai pelo tipo).
+  optional bool forcar_respeita_solo = 104;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.

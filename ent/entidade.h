@@ -366,6 +366,9 @@ class Entidade {
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
 
+  /** Retorna true se a entidade segue o solo ao se mover. */
+  bool RespeitaSolo() const;
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.

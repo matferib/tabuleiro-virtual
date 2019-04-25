@@ -2202,4 +2202,9 @@ void Entidade::RecomputaDependencias() {
   ent::RecomputaDependencias(tabelas_, &proto_, this);
 }
 
+bool Entidade::RespeitaSolo() const {
+  if (proto_.has_forcar_respeita_solo()) return proto_.has_forcar_respeita_solo();
+  return Tipo() == TE_ENTIDADE;
+}
+
 }  // namespace ent
