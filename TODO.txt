@@ -1,3 +1,4 @@
+Penalidade automatica quando unidade estiver em corpo a corpo.
 UI de especialiazacao de feiticos.
 Mais escolas de magia.
 
