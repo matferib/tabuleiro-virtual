@@ -210,6 +210,8 @@ enum TipoVisibilidade {
   VIS_FEITICO_8 = 19;
   VIS_FEITICO_9 = 20;
   VIS_CLASSE_FEITICO_ATIVA = 21;
+  // Usado para botoes que apenas carregam texturas.
+  VIS_INVISIVEL = 22;
 }
 
 message Visibilidade {

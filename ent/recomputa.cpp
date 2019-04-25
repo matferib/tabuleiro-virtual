@@ -1567,9 +1567,6 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
   }
-  if (da->tipo_ataque().find("Pergaminho") == 0) {
-    da->mutable_acao()->set_icone("icon_scroll.png");
-  }
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.

@@ -814,6 +814,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
 }
 
 // Retorna o id da textura para uma determinada acao.
+// Aka IconeBotao.
 unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entidade) const {
   if (!db.textura().empty()) {
     return db.has_id_textura() ? db.id_textura() : GL_INVALID_VALUE;
@@ -952,6 +953,8 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
     for (const auto& ref : db.visibilidade().referencia()) {
       // So retorna os false, por causa do encadeamento que eh AND.
       switch (ref.tipo()) {
+        case VIS_INVISIVEL:
+          return false;
         case VIS_CAMERA_PRESA: {
           if (!camera_presa_) return false;
           break;

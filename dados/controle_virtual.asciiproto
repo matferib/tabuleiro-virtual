@@ -1772,5 +1772,18 @@ pagina {
     id: CONTROLE_MODO_ROTACAO
     forma: FORMA_RETANGULO
     dica: "Modo de rotação."
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_bardic_music.png"
+    id: CONTROLE_NOP
+    forma: FORMA_RETANGULO
+    dica: "Modo de rotação."
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
   }
 }
