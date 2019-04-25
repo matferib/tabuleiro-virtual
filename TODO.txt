@@ -1,6 +1,6 @@
-Permitir que formas acompanhem o terreno ao serem movidas tb, como personagens.
+Adicionar respeita solo na UI de forma.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
-UI de especialiazacao de feiticos.
+UI de especializacao de feiticos.
 
 Implementar operacoes de combinacao em talentos.
 
