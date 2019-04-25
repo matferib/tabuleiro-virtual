@@ -1421,6 +1421,44 @@ float Tabuleiro::TrataAcaoCriacao(
   return atraso_s;
 }
 
+namespace {
+// Passa para proximo ataque, atualiza em corpo a corpo etc.
+void AtualizaAtaquesAposAtaqueIndividual(
+    const DadosAtaque* da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
+  if (da == nullptr || entidade_origem == nullptr) return;
+
+  ntf::Notificacao* filha;
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(filha, e_antes, e_depois) =
+      NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
+  e_antes->set_em_corpo_a_corpo(entidade_origem->Proto().em_corpo_a_corpo());
+  if (da->acao().tipo() == ACAO_CORPO_A_CORPO) {
+    e_depois->set_em_corpo_a_corpo(true);
+    // Alvo vai pro CAC tb.
+    if (entidade_destino != nullptr) {
+      ntf::Notificacao* filha;
+      EntidadeProto *e_antes, *e_depois;
+      std::tie(filha, e_antes, e_depois) =
+          NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer);
+      e_antes->set_em_corpo_a_corpo(entidade_destino->Proto().em_corpo_a_corpo());
+      e_depois->set_em_corpo_a_corpo(true);
+      entidade_destino->AtualizaParcial(*e_depois);
+    }
+  } else {
+    e_depois->set_em_corpo_a_corpo(false);
+  }
+  entidade_origem->AtualizaParcial(*e_depois);
+
+  if ((!da->has_limite_vezes() || da->limite_vezes() == 1) && da->incrementa_proximo_ataque()) {
+    // O refazer vai falhar, mas fodas.
+    e_antes->set_reiniciar_ataque(true);
+    e_depois->set_reiniciar_ataque(false);
+    entidade_origem->ProximoAtaque();
+  }
+}
+
+}  // namespace
+
 float Tabuleiro::TrataAcaoIndividual(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
     Entidade* entidade_origem, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
@@ -1494,17 +1532,8 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Acao realizada, ao terminar funcao, roda isso.
-    RodaNoRetorno roda_no_retorno([entidade_origem, da, grupo_desfazer]() {
-      if (da != nullptr && (!da->has_limite_vezes() || da->limite_vezes() == 1) && da->incrementa_proximo_ataque()) {
-        ntf::Notificacao* filha;
-        EntidadeProto *e_antes, *e_depois;
-        std::tie(filha, e_antes, e_depois) =
-            NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
-        // O refazer vai falhar, mas fodas.
-        e_antes->set_reiniciar_ataque(true);
-        e_depois->set_reiniciar_ataque(false);
-        entidade_origem->ProximoAtaque();
-      }
+    RodaNoRetorno roda_no_retorno([da, entidade_origem, entidade_destino, grupo_desfazer]() {
+      AtualizaAtaquesAposAtaqueIndividual(da, entidade_origem, entidade_destino, grupo_desfazer);
     });
 
     if (da != nullptr && (da->has_municao() || da->has_limite_vezes() || da->requer_carregamento())) {

@@ -1,4 +1,3 @@
-Penalidade automatica quando unidade estiver em corpo a corpo.
 Permitir que formas acompanhem o terreno ao serem movidas tb, como personagens.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especialiazacao de feiticos.
