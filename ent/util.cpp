@@ -968,6 +968,9 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
   }
+  if (ed.em_corpo_a_corpo() && tipo_ataque == TipoAtaque::DISTANCIA && !PossuiTalento("tiro_preciso", ea)) {
+    modificador -= 4;
+  }
   if (Indefeso(ed) && tipo_ataque == TipoAtaque::CORPO_A_CORPO) {
     modificador += 4;
   }
@@ -3432,6 +3435,11 @@ int ComputaTotalDadosVida(ArmaProto::ModeloTotalDadosVida modelo_total_dv,
       return RolaValor("2d4") + nivel_conjurador;
     }
     break;
+    case ArmaProto::TDV_1D4_POR_NIVEL_MAX_20D4: {
+      return RolaValor(StringPrintf("%dd4", std::min(20, nivel_conjurador)));
+    }
+    break;
+
     default:
       return 1000;
   }

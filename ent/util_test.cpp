@@ -1676,6 +1676,24 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
   {
     EntidadeProto ea;
     EntidadeProto ed;
+    ed.set_em_corpo_a_corpo(true);
+
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), -4);
+  }
+  {
+    EntidadeProto ea;
+    auto* tp = ea.mutable_info_talentos()->add_outros();
+    tp->set_id("tiro_preciso");
+    EntidadeProto ed;
+    ed.set_em_corpo_a_corpo(true);
+
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ea;
+    EntidadeProto ed;
 
     EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
     ea.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");

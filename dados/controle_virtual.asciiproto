@@ -1081,6 +1081,19 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
+    coluna: 13
+    rotulo: "CC"
+    cor_rotulo {}
+    textura: "icon_melee.png"
+    id: CONTROLE_ALTERNAR_EM_CORPO_A_CORPO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Alternar 'em corpo a corpo'."
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 2
     coluna: 10
     rotulo: "00"
     cor_rotulo {}

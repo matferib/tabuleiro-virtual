@@ -3167,14 +3167,14 @@ modelo {
       municao: 10
     }
     dados_ataque {
-      tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
       limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
       mantem_com_limite_zerado: true
       ignora_reflexos: true
       incrementa_proximo_ataque: false
       alcance_q: 6
       acao_fixa {
-        permite_ataque_vs_defesa: false
+        icone: 'icon_bardic_music.png'
         ignora_resistencia_magia: true
         permite_salvacao: false
         efeitos_adicionais {
@@ -3191,7 +3191,7 @@ modelo {
     info_talentos {
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }
-      gerais { id: 'mobilidade' }
+      outros { id: 'mobilidade' }
     }
     info_pericias { id: 'arte_da_fuga' pontos: 6 }
     info_pericias { id: 'acrobacias' pontos: 3 }
@@ -3265,14 +3265,14 @@ modelo {
       id_armadura: 'couro_batido' armadura_obra_prima: true
     }
     dados_ataque {
-      tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
       limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
       mantem_com_limite_zerado: true
       ignora_reflexos: true
       incrementa_proximo_ataque: false
       alcance_q: 6
       acao_fixa {
-        permite_ataque_vs_defesa: false
+        icone: 'icon_bardic_music.png'
         ignora_resistencia_magia: true
         permite_salvacao: false
         efeitos_adicionais {
@@ -3282,11 +3282,10 @@ modelo {
         }
       }
     }
-
     info_talentos {
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }
-      gerais { id: 'mobilidade' }
+      outros { id: 'mobilidade' }
     }
     info_pericias { id: 'arte_da_fuga' pontos: 6 }
     info_pericias { id: 'acrobacias' pontos: 3 }
@@ -3713,7 +3712,9 @@ modelo {
         conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
+        conhecidos { id: 'ataque_certeiro' }
         conhecidos { id: 'arma_magica' }
+
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
@@ -3838,10 +3839,11 @@ modelo {
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
         conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'ataque_certeiro' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
       }

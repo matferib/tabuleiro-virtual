@@ -405,9 +405,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       }
       break;
-
     case CONTROLE_FURTIVO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FURTIVO);
+      break;
+    case CONTROLE_ALTERNAR_EM_CORPO_A_CORPO:
+      AlternaEmCorpoACorpoNotificando();
       break;
     case CONTROLE_SURPRESO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SURPRESO);
@@ -1342,6 +1344,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_FURTIVO,            [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_global().furtivo();
+    } },
+    { CONTROLE_ALTERNAR_EM_CORPO_A_CORPO, [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().em_corpo_a_corpo();
     } },
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();

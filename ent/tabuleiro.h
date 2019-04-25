@@ -167,6 +167,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
+  /** Alterna estado em corpo a corpo para as entidades selecionadas. */
+  void AlternaEmCorpoACorpoNotificando();
+
   /** Remove os efeitos de invisibilidade das entidades selecionadas. */
   void RemoveEfeitoInvisibilidadeEntidadesNotificando();
 

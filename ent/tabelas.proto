@@ -179,6 +179,7 @@ message ArmaProto {
   enum ModeloTotalDadosVida {
     TDV_NENHUM = 0;
     TDV_2D4_MAIS_NIVEL = 1;
+    TDV_1D4_POR_NIVEL_MAX_20D4 = 2;
   };
   optional ModeloTotalDadosVida modelo_total_dv = 30;
 }

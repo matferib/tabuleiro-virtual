@@ -1375,13 +1375,33 @@ void Tabuleiro::AlternaModelosDesligaveisNotificando() {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::AlternaEmCorpoACorpoNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+    auto* n = grupo_notificacoes.add_notificacao();
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(e_antes, e_depois) =
+        PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_selecionada, n);
+    e_antes->set_em_corpo_a_corpo(entidade_selecionada->Proto().em_corpo_a_corpo());
+    e_depois->set_em_corpo_a_corpo(!entidade_selecionada->Proto().em_corpo_a_corpo());
+  }
+  if (grupo_notificacoes.notificacao().empty()) return;
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   bool atualizar_mapa_luzes = false;
   for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
-    auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+
+    auto* n = grupo_notificacoes.add_notificacao();
     const auto& proto_original = entidade_selecionada->Proto();
     // Para desfazer.
     auto* proto_antes = n->mutable_entidade_antes();
@@ -2561,6 +2581,10 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   ntf::Notificacao* n = grupo->add_notificacao();
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  if (entidade.Proto().em_corpo_a_corpo()) {
+    e_antes->set_em_corpo_a_corpo(true);
+    e_depois->set_em_corpo_a_corpo(false);
+  }
   e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
   auto* dga = e_antes->mutable_dados_ataque_global();
@@ -2615,17 +2639,18 @@ void Tabuleiro::ProximaIniciativa() {
     return;
   }
 
-  ntf::Notificacao grupo;
-  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  ntf::Notificacao grupo_desfazer;
 
   {
+    ntf::Notificacao grupo;
+    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
     // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
     const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa_antes != nullptr) {
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
     }
-  }
-  {
+
     // Atualiza a lista de iniciativa.
     auto* n = grupo.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
@@ -2636,16 +2661,25 @@ void Tabuleiro::ProximaIniciativa() {
       n->mutable_tabuleiro()->set_indice_iniciativa(0);
       PassaUmaRodadaNotificando(&grupo);
     }
+    TrataNotificacao(grupo);
+    grupo_desfazer.Swap(&grupo);
   }
+
+
   {
+    ntf::Notificacao grupo;
+    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     // Por ultimo, zera os controles da entidade corrente.
     const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa != nullptr) {
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, &grupo);
       ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
     }
+    TrataNotificacao(grupo);
+    std::copy(grupo.notificacao().begin(), grupo.notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer.mutable_notificacao()));
   }
-  AdicionaNotificacaoListaEventos(grupo);
-  TrataNotificacao(grupo);
+
+  AdicionaNotificacaoListaEventos(grupo_desfazer);
 }
 
 void Tabuleiro::SerializaIniciativas(TabuleiroProto* tabuleiro) const {

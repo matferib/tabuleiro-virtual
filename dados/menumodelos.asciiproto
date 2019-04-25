@@ -131,6 +131,7 @@ sub_menu {
   modelo { id: 'Humano Bárbaro' }
   sub_menu {
     id: 'Bardos'
+    modelo { id: 'Humano Bardo 4' }
     modelo { id: 'Humano Bardo 5' }
   }
   sub_menu {
