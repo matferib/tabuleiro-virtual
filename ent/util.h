@@ -783,7 +783,7 @@ struct ResultadoImunidadeOuResistencia {
   const ResistenciaElementos* resistencia = nullptr;  // qual resistencia barrou.
 };
 // Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento);
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento);
 
 // Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(

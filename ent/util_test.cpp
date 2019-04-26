@@ -2300,14 +2300,30 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 TEST(TesteImunidades, TesteImunidadesNada) {
   EntidadeProto proto;
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO).causa, ALT_NENHUMA);
+  EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO).causa, ALT_NENHUMA);
+}
+
+TEST(TesteImunidades, TesteEscudoVsMisseisMagicos) {
+  EntidadeProto proto;
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_ESCUDO_ARCANO);
+    evento->set_id_unico(0);
+    evento->set_rodadas(1);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  DadosAtaque da;
+  da.set_id_arma("missil_magico");
+  auto resistencia = ImunidadeOuResistenciaParaElemento(-10, da, proto, DESC_NENHUM);
+  EXPECT_EQ(resistencia.causa, ALT_IMUNIDADE);
+  EXPECT_EQ(resistencia.resistido, 10);
 }
 
 TEST(TesteImunidades, TesteImunidade) {
   EntidadeProto proto;
   proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO);
   EXPECT_EQ(resultado.causa, ALT_IMUNIDADE);
   EXPECT_EQ(resultado.resistido, 10);
 }
@@ -2318,7 +2334,7 @@ TEST(TesteImunidades, TesteResistencia) {
   resistencia->set_valor(10);
   resistencia->set_descritor(DESC_ACIDO);
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_ACIDO);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
   EXPECT_EQ(resultado.resistido, 10);
 }
@@ -2333,7 +2349,7 @@ TEST(TesteImunidades, TesteMultiplasResistencia) {
   resistencia2->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-15, proto, DESC_ACIDO);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-15, DadosAtaque::default_instance(), proto, DESC_ACIDO);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
   EXPECT_EQ(resultado.resistido, 12);
 }
@@ -2345,7 +2361,7 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   resistencia->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, proto, DESC_FOGO);
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_FOGO);
   EXPECT_EQ(resultado.causa, ALT_NENHUMA);
 }
 

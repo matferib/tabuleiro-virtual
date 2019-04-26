@@ -3755,9 +3755,18 @@ const char* TextoDescritor(int descritor) {
   return "desconhecido";
 }
 
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento) {
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento) {
   ResultadoImunidadeOuResistencia resultado;
-  if (delta_pv >= 0 || elemento == DESC_NENHUM) {
+  if (delta_pv >= 0) {
+    return resultado;
+  }
+  if (da.id_arma() == "missil_magico" && PossuiEvento(EFEITO_ESCUDO_ARCANO, proto)) {
+    resultado.resistido = std::abs(delta_pv);
+    resultado.texto = "imunidade por escudo arcano";
+    resultado.causa = ALT_IMUNIDADE;
+    return resultado;
+  }
+  if (elemento == DESC_NENHUM) {
     return resultado;
   }
   if (EntidadeImuneElemento(proto, elemento)) {

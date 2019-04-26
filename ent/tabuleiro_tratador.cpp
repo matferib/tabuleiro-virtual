@@ -1120,8 +1120,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
   // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
   const bool ha_valor = HaValorListaPontosVida();
 
-  const auto* da = entidade == nullptr ? nullptr : entidade->DadoCorrente();
-  const bool incrementa_ataque = da != nullptr && da->incrementa_proximo_ataque();
+  const auto& da = DadoCorrenteOuPadrao(entidade);
+  const bool incrementa_ataque = da.incrementa_proximo_ataque();
   atraso_s += TrataAcaoIndividual(
       id_entidade_destino, atraso_s, pos_entidade_destino, entidade, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
@@ -1201,7 +1201,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
       delta_pv = 0;
     } else {
       ResultadoImunidadeOuResistencia resultado_elemento =
-          ImunidadeOuResistenciaParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
+          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
       if (resultado_elemento.causa != ALT_NENHUMA) {
         delta_pv += resultado_elemento.resistido;
         ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
@@ -1326,7 +1326,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     }
     // Imunidade ao tipo de ataque.
     ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->elemento());
+        ImunidadeOuResistenciaParaElemento(delta_pv_pos_salvacao, da, entidade_destino->Proto(), acao_proto->elemento());
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
@@ -1712,7 +1712,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Resistencias e imunidades.
     ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, entidade_destino->Proto(), acao_proto->elemento());
+        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, da, entidade_destino->Proto(), acao_proto->elemento());
     if (resultado_elemento.causa != ALT_NENHUMA) {
       delta_pontos_vida += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
