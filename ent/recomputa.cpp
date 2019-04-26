@@ -1546,9 +1546,10 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
     const auto& fc = FeiticosClasse(ic.id(), proto);
     int mod_especializacao = !fc.especializacao().empty() && feitico.escola() == fc.especializacao() ? 1 : 0;
+    int mod_trama_sombras = PossuiTalento("magia_trama_sombras", proto) && EscolaBoaTramaDasSombras(feitico) ? 1 : 0;
     int base = 10;
     if (da->acao().has_dificuldade_salvacao_base()) {
-      base = da->acao().dificuldade_salvacao_base() + mod_especializacao;
+      base = da->acao().dificuldade_salvacao_base() + mod_especializacao + mod_trama_sombras;
     } else {
       base += da->has_nivel_conjurador_pergaminho()
         ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico)
@@ -1559,6 +1560,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
       : da->acao().has_atributo_dificuldade_salvacao()
         ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
         : ModificadorAtributoConjuracao(ic.id(), proto);
+
 
     const int cd_final = base + mod_atributo;
     da->set_dificuldade_salvacao(cd_final);

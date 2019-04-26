@@ -1519,23 +1519,32 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
 }
 
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    const Tabelas& tabelas, const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
   const int rm = ed.Proto().dados_defesa().resistencia_magia();
   if (rm == 0) {
     return std::make_tuple(true, "");;
   }
   const int d20 = RolaDado(20);
-  const int nivel_conjurador = da != nullptr && da->has_nivel_conjurador_pergaminho()
-    ? da->nivel_conjurador_pergaminho()
+  const int nivel_conjurador = da.has_nivel_conjurador_pergaminho()
+    ? da.nivel_conjurador_pergaminho()
     : ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
   int mod = nivel_conjurador;
   if (PossuiTalento("magia_penetrante", ea.Proto())) {
     mod += 2;
   }
+  const auto& feitico = tabelas.Feitico(da.id_arma());
+  if (PossuiTalento("magia_trama_sombras", ea.Proto())) {
+    if (EscolaBoaTramaDasSombras(feitico)) {
+      mod += 1;
+    } else if (EscolaRuimTramaDasSombras(feitico)) {
+      // Na verdade tem que mudar eh o nivel de conjurador.
+      mod -= 1;
+    }
+  }
   if (PossuiTalento("magia_penetrante_maior", ea.Proto())) {
     mod += 2;
   }
-  if (PossuiTalento("magia_perniciosa", ea.Proto()) && !PossuiTalento("magia_trama_sombras", ed.Proto())) {
+  if (PossuiTalento("magia_perniciosa", ea.Proto()) && EscolaBoaTramaDasSombras(feitico) && !PossuiTalento("magia_trama_sombras", ed.Proto())) {
     mod += 4;
   }
   const int total = d20 + mod;
@@ -4552,6 +4561,16 @@ bool PossuiModeloAtivo(TipoEfeitoModelo efeito_modelo, const EntidadeProto& prot
   return c_any_of(proto.modelos(), [efeito_modelo](const ModeloDnD& modelo) {
     return modelo.id_efeito() == efeito_modelo && modelo.ativo();
   });
+}
+
+bool EscolaBoaTramaDasSombras(const ArmaProto& feitico) {
+  std::vector<std::string> escolas = {"encantamento", "ilusao", "necromancia"};
+  return c_any(escolas, feitico.escola());
+}
+
+bool EscolaRuimTramaDasSombras(const ArmaProto& feitico) {
+  std::vector<std::string> escolas = {"evocacao", "transmutacao"};
+  return c_any(escolas, feitico.escola());
 }
 
 }  // namespace ent

@@ -1306,7 +1306,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool ataque_passou_rm;
-      std::tie(ataque_passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(&da, *entidade_origem, *entidade_destino);
+      std::tie(ataque_passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(tabelas_, da, *entidade_origem, *entidade_destino);
       por_entidade->set_texto(resultado_rm);
       AdicionaLogEvento(entidade_origem->Id(), resultado_rm);
       if (!ataque_passou_rm) {
@@ -1424,15 +1424,15 @@ float Tabuleiro::TrataAcaoCriacao(
 namespace {
 // Passa para proximo ataque, atualiza em corpo a corpo etc.
 void AtualizaAtaquesAposAtaqueIndividual(
-    const DadosAtaque* da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
-  if (da == nullptr || entidade_origem == nullptr) return;
+    const DadosAtaque& da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
+  if (entidade_origem == nullptr) return;
 
   ntf::Notificacao* filha;
   EntidadeProto *e_antes, *e_depois;
   std::tie(filha, e_antes, e_depois) =
       NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
   e_antes->set_em_corpo_a_corpo(entidade_origem->Proto().em_corpo_a_corpo());
-  if (da->acao().tipo() == ACAO_CORPO_A_CORPO) {
+  if (da.acao().tipo() == ACAO_CORPO_A_CORPO) {
     e_depois->set_em_corpo_a_corpo(true);
     // Alvo vai pro CAC tb.
     if (entidade_destino != nullptr) {
@@ -1449,7 +1449,7 @@ void AtualizaAtaquesAposAtaqueIndividual(
   }
   entidade_origem->AtualizaParcial(*e_depois);
 
-  if ((!da->has_limite_vezes() || da->limite_vezes() == 1) && da->incrementa_proximo_ataque()) {
+  if ((!da.has_limite_vezes() || da.limite_vezes() == 1) && da.incrementa_proximo_ataque()) {
     // O refazer vai falhar, mas fodas.
     e_antes->set_reiniciar_ataque(true);
     e_depois->set_reiniciar_ataque(false);
@@ -1485,11 +1485,11 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
     // Verifica carregamento.
-    const auto* da = entidade_origem->DadoCorrente();
-    if (da != nullptr && da->requer_carregamento() && da->descarregada()) {
-      const auto& arma = tabelas_.Arma(da->id_arma());
+    const auto& da = DadoCorrenteOuPadrao(entidade_origem);
+    if (da.requer_carregamento() && da.descarregada()) {
+      const auto& arma = tabelas_.Arma(da.id_arma());
       std::unique_ptr<ntf::Notificacao> n_carregamento(new ntf::Notificacao);
-      PreencheNotificacaoRecarregamento(*entidade_origem, *da, n_carregamento.get(), grupo_desfazer->add_notificacao());
+      PreencheNotificacaoRecarregamento(*entidade_origem, da, n_carregamento.get(), grupo_desfazer->add_notificacao());
       AdicionaAcaoTextoLogado(
           entidade_origem->Id(),
           StringPrintf("recarregando (%s)", StringTipoCarregamento(arma.carregamento().tipo_carregamento()).c_str()));
@@ -1532,18 +1532,18 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Acao realizada, ao terminar funcao, roda isso.
-    RodaNoRetorno roda_no_retorno([da, entidade_origem, entidade_destino, grupo_desfazer]() {
+    RodaNoRetorno roda_no_retorno([&da, entidade_origem, entidade_destino, grupo_desfazer]() {
       AtualizaAtaquesAposAtaqueIndividual(da, entidade_origem, entidade_destino, grupo_desfazer);
     });
 
-    if (da != nullptr && (da->has_municao() || da->has_limite_vezes() || da->requer_carregamento())) {
+    if (da.has_municao() || da.has_limite_vezes() || da.requer_carregamento()) {
       // Consome vezes e/ou municao e carregamento.
-      if (da->requer_carregamento()) {
+      if (da.requer_carregamento()) {
         atraso_s += 0.5f;
         AdicionaAcaoTextoLogado(entidade_origem->Id(), "descarregada", atraso_s);
       }
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
-      PreencheNotificacaoConsumoAtaque(*entidade_origem, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
+      PreencheNotificacaoConsumoAtaque(*entidade_origem, da, n_consumo.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_consumo.release());
     }
 
@@ -1566,7 +1566,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Aplica dano e critico, furtivo.
     int delta_pontos_vida = 0;
-    const bool acao_cura = da != nullptr && da->cura();
+    const bool acao_cura = da.cura();
     if (resultado.Sucesso()) {
       int max_predileto = 0;
       for (const auto& ip : entidade_origem->Proto().dados_ataque_global().inimigos_prediletos()) {
@@ -1601,13 +1601,13 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     std::string veneno_str;
-    if (resultado.Sucesso() && da != nullptr && da->has_veneno()) {
+    if (resultado.Sucesso() && da.has_veneno()) {
       if (entidade_destino->ImuneVeneno()) {
         veneno_str = "Imune a veneno";
       } else {
         // A mesma notificacao pode gerar mais de um efeito, com ids unicos separados.
         std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
-        const auto& veneno = da->veneno();
+        const auto& veneno = da.veneno();
         // TODO permitir salvacao pre definida?
         int d20 = RolaDado(20);
         int bonus = entidade_destino->SalvacaoVeneno();
@@ -1640,8 +1640,7 @@ float Tabuleiro::TrataAcaoIndividual(
         entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool sucesso;
-      std::tie(sucesso, resultado_rm) =
-          AtaqueVsResistenciaMagia(da, *entidade_origem, *entidade_destino);
+      std::tie(sucesso, resultado_rm) = AtaqueVsResistenciaMagia(tabelas_, da, *entidade_origem, *entidade_destino);
       if (!sucesso) {
         atraso_s += 0.5f;
         delta_pontos_vida = 0;
@@ -1656,8 +1655,8 @@ float Tabuleiro::TrataAcaoIndividual(
     bool salvou = false;
     if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
         (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
-         (da != nullptr && (da->derrubar_automatico() || da->derruba_sem_teste())))) {
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, da, *entidade_origem, *entidade_destino);
+         ((da.derrubar_automatico() || da.derruba_sem_teste())))) {
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, &da, *entidade_origem, *entidade_destino);
       // Corrige o valor.
       por_entidade->set_delta(delta_pontos_vida);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
@@ -1667,8 +1666,8 @@ float Tabuleiro::TrataAcaoIndividual(
     // Reducao de dano.
     std::string texto_reducao;
     if (delta_pontos_vida < 0 &&
-        !IgnoraReducaoDano(da, *acao_proto) && entidade_destino != nullptr) {
-      google::protobuf::RepeatedField<int> descritores = da->descritores();
+        !IgnoraReducaoDano(&da, *acao_proto) && entidade_destino != nullptr) {
+      google::protobuf::RepeatedField<int> descritores = da.descritores();
       std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       if (!texto_reducao.empty()) {
         atraso_s += 0.5f;
@@ -1688,9 +1687,9 @@ float Tabuleiro::TrataAcaoIndividual(
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
 
-    if (resultado.Sucesso() && (da->derrubar_automatico() || da->derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
+    if (resultado.Sucesso() && (da.derrubar_automatico() || da.derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
       ResultadoAtaqueVsDefesa resultado_derrubar;
-      if (da->derruba_sem_teste()) {
+      if (da.derruba_sem_teste()) {
         if (!salvou) {
           resultado_derrubar.resultado = RA_SUCESSO;
           resultado_derrubar.texto = "derruba sem teste";
@@ -1723,10 +1722,10 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    bool nao_letal = da != nullptr && da->nao_letal();
+    bool nao_letal = da.nao_letal();
 
     delta_pontos_vida = DesviaObjetoSeAplicavel(
-        tabelas_, delta_pontos_vida, *entidade_destino, da == nullptr ? DadosAtaque::default_instance() : *da, this, por_entidade, grupo_desfazer);
+        tabelas_, delta_pontos_vida, *entidade_destino, da, this, por_entidade, grupo_desfazer);
 
     // Compartilhamento de dano.
     delta_pontos_vida = CompartilhaDanoSeAplicavel(

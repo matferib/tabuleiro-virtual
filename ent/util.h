@@ -328,7 +328,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(int delta_pv, const DadosAtaque* da, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
-    const DadosAtaque* da, const Entidade& ea, const Entidade& ed);
+    const Tabelas& tabelas, const DadosAtaque& da, const Entidade& ea, const Entidade& ed);
 
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
@@ -891,6 +891,9 @@ int CompartilhaDanoSeAplicavel(
 int DesviaObjetoSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
     AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
+
+bool EscolaBoaTramaDasSombras(const ArmaProto& feitico);
+bool EscolaRuimTramaDasSombras(const ArmaProto& feitico);
 
 }  // namespace ent
 

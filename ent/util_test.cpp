@@ -721,23 +721,23 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia) {
   g_dados_teste.push(7);
   bool sucesso;
   std::string texto;
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(6);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_FALSE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
   std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, g_tabelas));
   g_dados_teste.push(5);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eamp, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eamp, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
   std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, g_tabelas));
   g_dados_teste.push(3);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eampm, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eampm, *ed);
   EXPECT_TRUE(sucesso) << texto;
 }
 
@@ -747,12 +747,12 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia2) {
   ic->set_id("mago");
   ic->set_nivel(3);
   {
-    // Sera ignorada.
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_RESISTENCIA_MAGIA);
     evento->set_rodadas(100);
     evento->add_complementos(10);
   }
+  // Sera ignorada.
   proto.mutable_dados_defesa()->set_resistencia_magia_racial(3);
 
   std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
@@ -761,24 +761,58 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia2) {
   g_dados_teste.push(7);
   bool sucesso;
   std::string texto;
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(6);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_FALSE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
   std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, g_tabelas));
   g_dados_teste.push(5);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eamp, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eamp, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
   std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, g_tabelas));
   g_dados_teste.push(3);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(/*da=*/nullptr, *eampm, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eampm, *ed);
   EXPECT_TRUE(sucesso) << texto;
+}
+
+TEST(TesteResistenciaMagia, TesteResistenciaMagiaTramaSombras) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  proto.mutable_dados_defesa()->set_resistencia_magia_racial(10);
+
+  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+
+  g_dados_teste.push(7);
+  bool sucesso;
+  std::string texto;
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  g_dados_teste.push(6);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  EXPECT_FALSE(sucesso) << texto;
+
+  proto.mutable_info_talentos()->add_gerais()->set_id("magia_trama_sombras");
+  std::unique_ptr<Entidade> eats(NovaEntidadeParaTestes(proto, g_tabelas));
+  g_dados_teste.push(6);
+  DadosAtaque da;
+  da.set_id_arma("imobilizar_pessoa");  // encantamento
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, da, *eats, *ed);
+  EXPECT_TRUE(sucesso) << texto;
+
+  g_dados_teste.push(7);
+  da.set_id_arma("missil_magico");  // evocacao
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, da, *eats, *ed);
+  EXPECT_FALSE(sucesso) << texto;
 }
 
 TEST(TestePergaminho, PodeLancar) {
