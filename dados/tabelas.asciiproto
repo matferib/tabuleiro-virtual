@@ -2561,32 +2561,26 @@ tabela_pergaminhos {
   pergaminhos_arcanos {
     id: 'identificacao'
     custo_po: 125
-    tipo_pergaminho: TM_ARCANA
   }
   pergaminhos_arcanos {
     id: 'confusao_menor'
     custo_po: 50
-    tipo_pergaminho: TM_ARCANA
   }
   pergaminhos_arcanos {
     id: 'curar_ferimentos_leves'
     custo_po: 50
-    tipo_pergaminho: TM_ARCANA
   }
   pergaminhos_arcanos {
     id: 'remover_medo'
     custo_po: 50
-    tipo_pergaminho: TM_ARCANA
   }
   pergaminhos_arcanos {
     id: 'dissimular_tendencia'
     custo_po: 50
-    tipo_pergaminho: TM_ARCANA
   }
   pergaminhos_arcanos {
     id: 'explosao_sonora'
     custo_po: 200
-    tipo_pergaminho: TM_ARCANA
   }
 }
 

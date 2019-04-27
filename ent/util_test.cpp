@@ -2588,11 +2588,11 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
 
 TEST(TesteTabela, TestePergaminho) {
   {
-    const auto& pergaminho = g_tabelas.Pergaminho(TM_ARCANA, "identificacao");
+    const auto& pergaminho = g_tabelas.PergaminhoArcano("identificacao");
     EXPECT_EQ(pergaminho.custo_po(), 125);
   }
   {
-    const auto& pergaminho = g_tabelas.Pergaminho(TM_ARCANA, "missil_magico");
+    const auto& pergaminho = g_tabelas.PergaminhoArcano("missil_magico");
     EXPECT_EQ(pergaminho.custo_po(), 25);
   }
 }

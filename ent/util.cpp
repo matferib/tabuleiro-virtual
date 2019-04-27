@@ -3911,7 +3911,8 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_AMULETO: return tabelas.Amuleto(id);
     case TipoItem::TIPO_BOTAS: return tabelas.Botas(id);
     case TipoItem::TIPO_CHAPEU: return tabelas.Chapeu(id);
-    case TipoItem::TIPO_PERGAMINHO:  // passthrough.
+    case TipoItem::TIPO_PERGAMINHO_ARCANO: return tabelas.PergaminhoArcano(id);
+    case TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.PergaminhoDivino(id);
     default: ;
   }
   return ItemMagicoProto::default_instance();

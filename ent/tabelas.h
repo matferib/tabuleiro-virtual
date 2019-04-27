@@ -36,7 +36,8 @@ class Tabelas : public ntf::Receptor {
   const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
-  const ItemMagicoProto& Pergaminho(TipoMagia tipo_pergaminho, const std::string& id) const;
+  const ItemMagicoProto& PergaminhoArcano(const std::string& id) const;
+  const ItemMagicoProto& PergaminhoDivino(const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
   const ItemMagicoProto& Manto(const std::string& id) const;
   const ItemMagicoProto& Luvas(const std::string& id) const;
