@@ -639,6 +639,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   }
 
   gerador.checkbox_afetado_por_efeitos->setCheckState(entidade.pode_ser_afetada_por_acao() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_respeita_solo->setCheckState(entidade.forcar_respeita_solo() ? Qt::Checked : Qt::Unchecked);
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -833,6 +834,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_cor();
     }
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    if (gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked) {
+      proto_retornado->set_forcar_respeita_solo(true);
+    } else {
+      proto_retornado->clear_forcar_respeita_solo();
+    }
     proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_dois_lados(gerador.checkbox_dois_lados->checkState() == Qt::Checked);
