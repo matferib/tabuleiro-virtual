@@ -834,7 +834,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_cor();
     }
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
-    if (gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked) {
+    if (gerador.checkbox_respeita_solo->checkState() == Qt::Checked) {
       proto_retornado->set_forcar_respeita_solo(true);
     } else {
       proto_retornado->clear_forcar_respeita_solo();
