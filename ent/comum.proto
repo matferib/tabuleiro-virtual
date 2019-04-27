@@ -777,6 +777,7 @@ enum TipoItem {
   TIPO_AMULETO = 5;
   TIPO_BOTAS = 6;
   TIPO_CHAPEU = 7;
+  TIPO_PERGAMINHO = 8;
 }
 
 enum TipoComplementoItemMagico {
@@ -827,6 +828,10 @@ message ItemMagicoProto {
   optional int32 cargas = 16;
   // Tipo de complemento requerido pelo item magico. Usado pela UI.
   optional TipoComplementoItemMagico tipo_complemento = 18;
+  // Tipo do pergaminho: arcano ou divino.
+  optional TipoMagia tipo_pergaminho = 20;
+  optional int32 nivel_conjurador = 21;
+  optional int32 modificador_atributo = 22;
 }
 
 message AnelProto {

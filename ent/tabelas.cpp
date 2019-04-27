@@ -170,6 +170,25 @@ void AdicionaOrigemImplicita(ItemMagicoProto* item) {
   }
 }
 
+// Retorna o custo padrao de um pergaminho de um feitico do nivel passado.
+int CustoPadraoPergaminhoNivel(int nivel) {
+  switch (nivel) {
+    case 0: return 12;
+    case 1: return 25;
+    case 2: return 150;
+    case 3: return 375;
+    case 4: return 700;
+    case 5: return 1125;
+    case 6: return 1650;
+    case 7: return 2275;
+    case 8: return 3000;
+    case 9: return 3825;
+    default: ;
+  }
+  LOG(WARNING) << "retornando custo 0 para nivel: " << nivel;
+  return 0;
+}
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -178,6 +197,8 @@ void Tabelas::RecarregaMapas() {
   efeitos_.clear();
   efeitos_modelos_.clear();
   pocoes_.clear();
+  pergaminhos_arcanos_.clear();
+  pergaminhos_divinos_.clear();
   aneis_.clear();
   mantos_.clear();
   luvas_.clear();
@@ -223,6 +244,8 @@ void Tabelas::RecarregaMapas() {
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
   }
+  const std::vector<std::string> classes_arcanas = {"mago", "bardo"};
+  const std::vector<std::string> classes_divinas = {"druida", "clerigo", "paladino", "ranger"};
   for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
@@ -236,6 +259,23 @@ void Tabelas::RecarregaMapas() {
       }
     }
     feiticos_[feitico.id()] = &feitico;
+    for (const auto& ic : feitico.info_classes()) {
+      ItemMagicoProto* pergaminho = nullptr;
+      if (c_any(classes_arcanas, ic.id())) {
+        pergaminho = &pergaminhos_arcanos_[feitico.id()];
+        pergaminho->set_tipo_pergaminho(TM_ARCANA);
+      } else if (c_any(classes_divinas, ic.id())) {
+        pergaminho = &pergaminhos_divinos_[feitico.id()];
+        pergaminho->set_tipo_pergaminho(TM_DIVINA);
+      } else {
+        continue;
+      }
+      pergaminho->set_id(feitico.id());
+      int custo_po = CustoPadraoPergaminhoNivel(ic.nivel());
+      if (!pergaminho->has_custo_po() || pergaminho->custo_po() > custo_po) {
+        pergaminho->set_custo_po(custo_po);
+      }
+    }
   }
 
   auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
@@ -255,6 +295,28 @@ void Tabelas::RecarregaMapas() {
     AdicionaOrigemImplicita(&pocao);
     pocoes_[pocao.id()] = &pocao;
   }
+
+  // Preenche a tabela de pergaminhos arcanos, mergeando o tabelado e depois regerando.
+  for (auto& pergaminho : *tabelas_.mutable_tabela_pergaminhos()->mutable_pergaminhos_arcanos()) {
+    pergaminho.set_tipo(TIPO_PERGAMINHO);
+    pergaminho.set_tipo_pergaminho(TM_ARCANA);
+    pergaminhos_arcanos_[pergaminho.id()].MergeFrom(pergaminho);
+  }
+  tabelas_.mutable_tabela_pergaminhos()->clear_pergaminhos_arcanos();
+  for (const auto& it : pergaminhos_arcanos_) {
+    *tabelas_.mutable_tabela_pergaminhos()->add_pergaminhos_arcanos() = it.second;
+  }
+  // Preenche a tabela de pergaminhos divinos, mergeando o tabelado e depois regerando.
+  for (auto& pergaminho : *tabelas_.mutable_tabela_pergaminhos()->mutable_pergaminhos_divinos()) {
+    pergaminho.set_tipo(TIPO_PERGAMINHO);
+    pergaminho.set_tipo_pergaminho(TM_DIVINA);
+    pergaminhos_divinos_[pergaminho.id()].MergeFrom(pergaminho);
+  }
+  tabelas_.mutable_tabela_pergaminhos()->clear_pergaminhos_divinos();
+  for (const auto& it : pergaminhos_divinos_) {
+    *tabelas_.mutable_tabela_pergaminhos()->add_pergaminhos_divinos() = it.second;
+  }
+
   for (auto& anel : *tabelas_.mutable_tabela_aneis()->mutable_aneis()) {
     anel.set_tipo(TIPO_ANEL);
     aneis_[anel.id()] = &anel;
@@ -402,6 +464,11 @@ const Modelo& Tabelas::ModeloEntidade(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
   return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Pergaminho(TipoMagia tipo_pergaminho, const std::string& id) const {
+  auto it = tipo_pergaminho == TM_ARCANA ? pergaminhos_arcanos_.find(id) : pergaminhos_divinos_.find(id);
+  return it == (tipo_pergaminho == TM_ARCANA ? pergaminhos_arcanos_.end() : pergaminhos_divinos_.end()) ? ItemMagicoProto::default_instance() : it->second;
 }
 
 const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {

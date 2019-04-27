@@ -209,6 +209,11 @@ message TabelaPocoes {
   repeated ItemMagicoProto pocoes = 1;
 }
 
+message TabelaPergaminhos {
+  repeated ItemMagicoProto pergaminhos_arcanos = 1;
+  repeated ItemMagicoProto pergaminhos_divinos = 2;
+}
+
 message TabelaTalentos {
   repeated TalentoProto talentos = 1;
 }
@@ -273,6 +278,7 @@ message TodasTabelas {
   optional TabelaEfeitosModelos tabela_efeitos_modelos = 8;
   optional TabelaRacas tabela_racas = 9;
   optional TabelaPocoes tabela_pocoes = 50;
+  optional TabelaPergaminhos tabela_pergaminhos = 61;
   optional TabelaClasses tabela_classes =  51;
   optional TabelaAneis tabela_aneis = 52;
   optional TabelaMantos tabela_mantos = 53;

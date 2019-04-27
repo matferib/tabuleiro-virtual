@@ -2586,6 +2586,17 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
   EXPECT_EQ(proto.dados_ataque(6).dano(), "1d4+2");
 }
 
+TEST(TesteTabela, TestePergaminho) {
+  {
+    const auto& pergaminho = g_tabelas.Pergaminho(TM_ARCANA, "identificacao");
+    EXPECT_EQ(pergaminho.custo_po(), 125);
+  }
+  {
+    const auto& pergaminho = g_tabelas.Pergaminho(TM_ARCANA, "missil_magico");
+    EXPECT_EQ(pergaminho.custo_po(), 25);
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

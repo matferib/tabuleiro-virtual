@@ -2556,6 +2556,40 @@ tabela_mantos {
   }
 }
 
+tabela_pergaminhos {
+  # Populado automaticamente da tabela de feiticos. Exceto quando precos nao batem.
+  pergaminhos_arcanos {
+    id: 'identificacao'
+    custo_po: 125
+    tipo_pergaminho: TM_ARCANA
+  }
+  pergaminhos_arcanos {
+    id: 'confusao_menor'
+    custo_po: 50
+    tipo_pergaminho: TM_ARCANA
+  }
+  pergaminhos_arcanos {
+    id: 'curar_ferimentos_leves'
+    custo_po: 50
+    tipo_pergaminho: TM_ARCANA
+  }
+  pergaminhos_arcanos {
+    id: 'remover_medo'
+    custo_po: 50
+    tipo_pergaminho: TM_ARCANA
+  }
+  pergaminhos_arcanos {
+    id: 'dissimular_tendencia'
+    custo_po: 50
+    tipo_pergaminho: TM_ARCANA
+  }
+  pergaminhos_arcanos {
+    id: 'explosao_sonora'
+    custo_po: 200
+    tipo_pergaminho: TM_ARCANA
+  }
+}
+
 tabela_pocoes {
   pocoes {
     id: 'abencoar_arma'
@@ -5114,6 +5148,35 @@ tabela_feiticos {
       nivel: 1
     }
     escola: 'ilusao'
+  }
+  armas {
+    id: 'dissimular_tendencia'  # undetectable alignment
+    nome: 'dissimular tendencia'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    escola: 'abjuracao'
+    acao {
+      id: 'Feitiço a Distância'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'dissimular tendencia'
+        rodadas: 14400  # 24 horas
+      }
+    }
   }
 
   armas {

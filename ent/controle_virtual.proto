@@ -3,7 +3,7 @@ package ent;
 import "ent/comum.proto";
 import "ent/entidade.proto";
 
-// Proximo id: 145, mas conferir pq ha gaps.
+// Proximo id: 146, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -132,6 +132,7 @@ enum IdBotao {
   CONTROLE_FALHA_NEGATIVO = 119;
 
   CONTROLE_BEBER_POCAO = 117;
+  CONTROLE_USAR_PERGAMINHO = 145;
 
   CONTROLE_MODO_ESQUIVA = 118;
   CONTROLE_FURIA = 120;
@@ -190,6 +191,8 @@ enum TipoVisibilidade {
   VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
   // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo pocao.
   VIS_POCAO = 6;
+  // Similar a pocao.
+  VIS_PERGAMINHO = 23;
   // Visivel se a entidade tiver esquiva.
   VIS_ESQUIVA = 7;
   // Visivel apenas se a entidade possui furia.

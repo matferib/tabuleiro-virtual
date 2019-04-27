@@ -495,6 +495,16 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       central_->AdicionaNotificacao(n.release());
       break;
     }
+    case CONTROLE_USAR_PERGAMINHO: {
+      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      if (e == nullptr || (e->Proto().tesouro().pergaminhos_arcanos().empty() && e->Proto().tesouro().pergaminhos_divinos().empty())) return;
+      auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO));
+      n->mutable_entidade()->set_id(e->Id());
+      *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_arcanos() = e->Proto().tesouro().pergaminhos_arcanos();
+      *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_divinos() = e->Proto().tesouro().pergaminhos_divinos();
+      central_->AdicionaNotificacao(n.release());
+      break;
+    }
     case CONTROLE_FALHA_20:
     case CONTROLE_FALHA_50:
     case CONTROLE_FALHA_NEGATIVO:
@@ -978,6 +988,13 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
+        case VIS_PERGAMINHO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || (e->Proto().tesouro().pergaminhos_arcanos().empty() && e->Proto().tesouro().pergaminhos_divinos().empty())) {
+            return false;
+          }
+          break;
+        }
         case VIS_ATAQUE_FURTIVO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr || e->Proto().dados_ataque_global().dano_furtivo().empty()) {
@@ -1091,16 +1108,6 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
 }
 
 std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
-  switch (db.id()) {
-    case CONTROLE_BEBER_POCAO: {
-      if (entidade == nullptr || entidade->Proto().tesouro().pocoes().empty()) break;
-      const auto& pocoes = entidade->Proto().tesouro().pocoes();
-      if (pocoes.size() > 1) return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), "escolher");
-      return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), pocoes.Get(0).id().c_str());
-    }
-    default:
-      ;
-  }
   return db.dica();
 }
 

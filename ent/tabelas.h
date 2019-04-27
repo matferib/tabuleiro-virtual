@@ -36,6 +36,7 @@ class Tabelas : public ntf::Receptor {
   const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
+  const ItemMagicoProto& Pergaminho(TipoMagia tipo_pergaminho, const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
   const ItemMagicoProto& Manto(const std::string& id) const;
   const ItemMagicoProto& Luvas(const std::string& id) const;
@@ -69,6 +70,9 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<int, const EfeitoProto*> efeitos_;
   std::unordered_map<int, const EfeitoModeloProto*> efeitos_modelos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;
+  // Pergaminhos sao gerados, entao nao tem uma tabela pra apontar (a tabela eh so pra merge).
+  std::unordered_map<std::string, ItemMagicoProto> pergaminhos_arcanos_;
+  std::unordered_map<std::string, ItemMagicoProto> pergaminhos_divinos_;
   std::unordered_map<std::string, const ItemMagicoProto*> aneis_;
   std::unordered_map<std::string, const ItemMagicoProto*> mantos_;
   std::unordered_map<std::string, const ItemMagicoProto*> luvas_;

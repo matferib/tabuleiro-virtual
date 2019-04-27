@@ -2,10 +2,10 @@
 #modo_debug: true
 fixo {
   # Coisas da primeira pessoa ou selecionada.
-  # Linha 4.
+  # Linha 5.
   dados_botoes {
     tamanho: 1
-    linha: 4
+    linha: 5
     coluna: 3
     rotulo: "Pc"
     cor_rotulo {}
@@ -15,6 +15,19 @@ fixo {
     dica: "Bebe a poção."
     visibilidade { referencia { tipo: VIS_POCAO } }
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 4
+    rotulo: "Pg"
+    cor_rotulo {}
+    textura: "icon_scroll.png"
+    id: CONTROLE_USAR_PERGAMINHO
+    forma: FORMA_RETANGULO
+    dica: "Usa um pergaminho."
+    visibilidade { referencia { tipo: VIS_PERGAMINHO } }
+  }
+  # Linha 4.
   # Feiticos.
   dados_botoes {
     largura: 3
