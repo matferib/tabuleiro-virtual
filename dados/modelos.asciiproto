@@ -2877,10 +2877,10 @@ modelo {
       municao: 10
     }
     info_talentos {
-      gerais { id: 'prontidao' }
       gerais { id: 'iniciativa_aprimorada' }
       gerais { id: 'vitalidade' }
-      gerais { id: 'magia_combate' }
+      outros { id: 'prontidao' origem: 'familiar' }
+      outros { id: 'magia_combate' origem: 'humano' }
     }
     info_pericias { id: 'blefar' pontos: 8 }
     info_pericias { id: 'concentracao' pontos: 8 }
@@ -2892,11 +2892,39 @@ modelo {
     info_pericias { id: 'identificar_magia' pontos: 8 }
     info_pericias { id: 'observar' pontos: 8 }
     tesouro {
-      pocoes { id: 'nublar' }
+      # Novamente, a tabela parece estar errada no DMG. Deveria ser 3000 PO pra dar 4300.
+      # 0 nivel: 12.5 PO cada
+      pergaminhos_arcanos { id: 'detectar_magia' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 25 PO cada
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      # 2 nivel: 150 PO cada
+      pergaminhos_arcanos { id: 'nublar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'agilidade_gato' }
+      # 3o nivel, com chance de falha: 375 PO cada.
+      pergaminhos_arcanos { id: 'imobilizar_pessoa' }
+
+      pocoes { id: 'ajuda' }
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'velocidade' }
+
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de invisibilidade x2, flecha acida x2, teia x2'
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      tesouro: '10 PO'
     }
 
     feiticos_classes {
@@ -2925,7 +2953,6 @@ modelo {
     }
   }
 }
-
 
 modelo {
   id: 'Humano Guerreiro'
@@ -3584,6 +3611,7 @@ modelo {
       gerais { id: 'magia_combate' }
       outros { id: 'escrever_pergaminho' origem: 'mago' }
       outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'prontidao' origem: 'familiar' }
     }
     info_pericias { id: 'concentracao' pontos: 7 }
     info_pericias { id: 'conhecimento_arcano' pontos: 7 }
@@ -3696,8 +3724,9 @@ modelo {
     info_talentos {
       gerais { id: 'magia_combate' }
       gerais { id: 'escrever_pergaminho' }
-      outros { id: 'vitalidade' }
-      outros { id: 'preparar_pocao' }
+      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'preparar_pocao' origem: 'mago' }
+      outros { id: 'prontidao' origem: 'familiar' }
     }
     info_pericias { id: 'concentracao' pontos: 8 }
     info_pericias { id: 'conhecimento_arcano' pontos: 8 }

@@ -1061,11 +1061,24 @@ modelo {
 
 
 modelo {
+  id: 'Humano Arcano de Guerra 4'
+  id_entidade_base: 'Humano Mago 4'
+  entidade {
+    rotulo: 'arcano de guerra 4'
+    modelo_3d { id: 'war_wizard' }
+    info_textura { id: '' }
+    cor { r: 1 g: 1 b: 1}
+  }
+}
+
+modelo {
   id: 'Humano Arcano de Guerra 5'
   id_entidade_base: 'Humano Mago 5'
   entidade {
     rotulo: 'arcano de guerra 5'
-    info_textura { id: '0:war_wizard.png' }
+    modelo_3d { id: 'war_wizard' }
+    info_textura { id: '' }
+    cor { r: 1 g: 1 b: 1}
   }
 }
 
