@@ -63,6 +63,10 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataEscolherPocao(notificacao);
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO: {
+      TrataEscolherPergaminho(notificacao);
+      return true;
+    }
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA: {
       TrataEscolherPericia(notificacao);
       return true;
@@ -111,6 +115,49 @@ void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool o
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
+//--------------------
+// Escolher Pergaminho
+//--------------------
+void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const bool arcano = notificacao.entidade().tesouro().pergaminhos_divinos().empty();
+  const auto& pergaminhos_entidade = arcano
+      ? notificacao.entidade().tesouro().pergaminhos_arcanos()
+      : notificacao.entidade().tesouro().pergaminhos_divinos();
+
+  std::vector<std::string> nomes_pergaminhos;
+  for (const auto& pergaminho : pergaminhos_entidade) {
+    nomes_pergaminhos.push_back(pergaminho.nome().empty() ?
+        (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
+        : pergaminho.nome());
+  }
+  EscolheItemLista(
+      "Escolha o pergaminho", nomes_pergaminhos,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherPergaminho,
+          this, notificacao,
+          _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificacao, bool ok, int indice_pergaminho) {
+  ent::RodaNoRetorno([this] () {
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
+
+  const bool arcano = notificacao.entidade().tesouro().pergaminhos_divinos().empty();
+  const auto& pergaminhos_entidade = arcano
+      ? notificacao.entidade().tesouro().pergaminhos_arcanos()
+      : notificacao.entidade().tesouro().pergaminhos_divinos();
+  if (!ok || indice_pergaminho >= pergaminhos_entidade.size()) {
+    return;
+  }
+  const auto& pergaminho = arcano
+      ? tabelas_.PergaminhoArcano(pergaminhos_entidade.Get(indice_pergaminho).id())
+      : tabelas_.PergaminhoDivino(pergaminhos_entidade.Get(indice_pergaminho).id());
+
+  tabuleiro_->UsaPergaminhoNotificando(notificacao.entidade().id(), arcano ? ent::TM_ARCANA : ent::TM_DIVINA, indice_pergaminho);
+}
+
 //----------------
 // Escolher Pocao.
 //----------------
@@ -129,7 +176,7 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok, int indice_pocao) {
+void InterfaceGrafica::VoltaEscolherPocao(const ntf::Notificacao notificacao, bool ok, int indice_pocao) {
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
   if (!ok || indice_pocao >= pocoes_entidade.size()) {
     VoltaEscolherEfeito(notificacao, 0, false, 0);
@@ -152,7 +199,7 @@ void InterfaceGrafica::VoltaEscolherPocao(ntf::Notificacao notificacao, bool ok,
         _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherEfeito(ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito) {
+void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito) {
   if (ok) {
     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
   }

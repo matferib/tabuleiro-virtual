@@ -7,6 +7,7 @@ import "ent/tabuleiro.proto";
 package ntf;
 option java_package = "com.matferib.Tabuleiro.ntf";
 
+// Proximo: 73.
 enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
@@ -68,6 +69,7 @@ enum Tipo {
   TN_PROXIMA_INICIATIVA = 59;          // cliente requisitando passar a vez.
   TN_ENTRAR_MODO_SELECAO_TRANSICAO = 58;
   TN_ABRIR_DIALOGO_ESCOLHER_POCAO = 61;
+  TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO = 72;
   TN_ALTERAR_FEITICO_NOTIFICANDO = 62;
   TN_ABRIR_DIALOGO_ESCOLHER_FEITICO = 63;
   TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO = 67;

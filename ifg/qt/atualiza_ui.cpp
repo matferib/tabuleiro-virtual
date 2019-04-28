@@ -557,7 +557,8 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   std::vector<QWidget*> objs = {
       gerador.lista_tesouro,  gerador.lista_pocoes, gerador.lista_aneis,
       gerador.lista_mantos,   gerador.lista_luvas,  gerador.lista_bracadeiras,
-      gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus
+      gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus,
+      gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -580,6 +581,8 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_AMULETO, gerador.lista_amuletos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BOTAS, gerador.lista_botas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_CHAPEU, gerador.lista_chapeus, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_ARCANO, gerador.lista_pergaminhos_arcanos, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
