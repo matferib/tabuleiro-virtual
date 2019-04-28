@@ -956,13 +956,15 @@ const DadosAtaque& DadoCorrenteOuPadrao(const Entidade* entidade) {
 }
 
 float AplicaEfeitosAdicionais(
-    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino,
-    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino, ntf::Notificacao* grupo_desfazer,
-    ntf::CentralNotificacoes* central) {
+    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
+    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
+    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
+  const int nivel_conjurador =
+      da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
     PreencheNotificacaoEventoEfeitoAdicional(
-        entidade_origem.Id(), NivelConjuradorParaAcao(*acao_proto, entidade_origem), entidade_destino, efeito_adicional,
+        entidade_origem.Id(), nivel_conjurador, entidade_destino, efeito_adicional,
         ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_efeito.release());
     atraso_s += 0.5f;
@@ -976,7 +978,7 @@ float AplicaEfeitosAdicionais(
     for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
       PreencheNotificacaoEventoEfeitoAdicional(
-          entidade_origem.Id(), NivelConjuradorParaAcao(*acao_proto, entidade_origem), entidade_origem, efeito_adicional,
+          entidade_origem.Id(), nivel_conjurador, entidade_origem, efeito_adicional,
           ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
       central->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
@@ -986,7 +988,7 @@ float AplicaEfeitosAdicionais(
   if (acao_proto->reduz_luz() && entidade_destino.TemLuz()) {
     // Apenas desfazer, pois o efeito fara a luz diminuir.
     auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoReducaoLuzComConsequencia(NivelConjuradorParaAcao(*acao_proto, entidade_origem), entidade_destino, acao_proto, nd, nd);
+    PreencheNotificacaoReducaoLuzComConsequencia(nivel_conjurador, entidade_destino, acao_proto, nd, nd);
   }
   return atraso_s;
 }
@@ -1341,7 +1343,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     atraso_s = AplicaEfeitosAdicionais(
-        atraso_s, salvou, *entidade_origem, *entidade_destino,
+        atraso_s, salvou, *entidade_origem, *entidade_destino, da,
         por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
 
     if (da.derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
@@ -1683,7 +1685,7 @@ float Tabuleiro::TrataAcaoIndividual(
     // Efeitos adicionais.
     if (resultado.Sucesso()) {
       atraso_s = AplicaEfeitosAdicionais(
-          atraso_s, salvou, *entidade_origem, *entidade_destino,
+          atraso_s, salvou, *entidade_origem, *entidade_destino, da,
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
 
@@ -1818,18 +1820,6 @@ float Tabuleiro::TrataPreAcaoComum(
     std::tie(pode_lancar, texto) = PodeLancarPergaminho(tabelas_, entidade_origem.Proto(), da);
     if (!pode_lancar) {
       AdicionaAcaoTextoLogado(entidade_origem.Id(), texto, atraso_s);
-      acao_proto->set_bem_sucedida(false);
-      return atraso_s;
-    }
-    auto resultado_pergaminho = TesteLancarPergaminho(tabelas_, entidade_origem.Proto(), da);
-    if (resultado_pergaminho.ok) {
-      if (!resultado_pergaminho.texto.empty()) {
-        AdicionaLogEvento(entidade_origem.Id(), resultado_pergaminho.texto);
-      }
-    } else {
-      // TODO neste caso deve consumir o pergaminho, pois a acao nao sera feita.
-      // TODO adicionar um campo na acao para este fim? (algo como consome_acao mesmo que nao seja bem sucedida?)
-      AdicionaAcaoTextoLogado(entidade_origem.Id(), resultado_pergaminho.texto);
       acao_proto->set_bem_sucedida(false);
       return atraso_s;
     }

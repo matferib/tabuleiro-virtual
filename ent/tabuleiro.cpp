@@ -7625,36 +7625,65 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
 void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tipo_pergaminho, int indice_pergaminho) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pergaminho < 0 || (tipo_pergaminho != TM_ARCANA && tipo_pergaminho != TM_DIVINA)) return;
+
   const bool arcano = tipo_pergaminho == TM_ARCANA;
   const auto& pergaminhos = arcano ? entidade->Proto().tesouro().pergaminhos_arcanos() : entidade->Proto().tesouro().pergaminhos_divinos();
   if (indice_pergaminho >= pergaminhos.size()) return;
   ent::EntidadeProto *e_antes, *e_depois;
   std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
   std::tie(e_antes, e_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, notificacao.get());
-  //const auto& id_pergaminho = pergaminhos.Get(indice_pergaminho).id();
-  //const auto& pergaminho = arcano ? tabelas_.PergaminhoArcano(id_pergaminho) : tabelas_.PergaminhoDivino(id_pergaminho);
+  const auto& id_pergaminho = pergaminhos.Get(indice_pergaminho).id();
+  const auto& pergaminho = arcano ? tabelas_.PergaminhoArcano(id_pergaminho) : tabelas_.PergaminhoDivino(id_pergaminho);
+  DadosAtaque da_teste;
+  std::string tipo_ataque = arcano ? "Pergaminho Arcano" : "Pergaminho Divino";
+  da_teste.set_tipo_ataque(tipo_ataque);
+  da_teste.set_id_arma(id_pergaminho);
+  da_teste.set_nivel_conjurador_pergaminho(pergaminho.nivel_conjurador());
+  da_teste.set_modificador_atributo_pergaminho(pergaminho.modificador_atributo());
+  da_teste.set_tipo_pergaminho(arcano ? TM_ARCANA : TM_DIVINA);
+
+  auto resultado_pergaminho = TesteLancarPergaminho(tabelas_, entidade->Proto(), da_teste);
+  if (!resultado_pergaminho.ok) {
+    AdicionaAcaoTextoLogado(entidade->Id(), resultado_pergaminho.texto);
+    return;
+  }
+
   {
     if (arcano) {
+      *e_antes->mutable_tesouro()->mutable_pergaminhos_arcanos() = entidade->Proto().tesouro().pergaminhos_arcanos();
       *e_depois->mutable_tesouro()->mutable_pergaminhos_arcanos() = entidade->Proto().tesouro().pergaminhos_arcanos();
       e_depois->mutable_tesouro()->mutable_pergaminhos_arcanos()->DeleteSubrange(indice_pergaminho, 1);
       if (e_depois->tesouro().pergaminhos_arcanos().empty()) {
         e_depois->mutable_tesouro()->add_pergaminhos_arcanos();
       }
     } else {
+      *e_antes->mutable_tesouro()->mutable_pergaminhos_divinos() = entidade->Proto().tesouro().pergaminhos_divinos();
       *e_depois->mutable_tesouro()->mutable_pergaminhos_divinos() = entidade->Proto().tesouro().pergaminhos_divinos();
       e_depois->mutable_tesouro()->mutable_pergaminhos_divinos()->DeleteSubrange(indice_pergaminho, 1);
       if (e_depois->tesouro().pergaminhos_divinos().empty()) {
         e_depois->mutable_tesouro()->add_pergaminhos_divinos();
       }
     }
+
+    const auto& feitico_tabelado = tabelas_.Feitico(id_pergaminho);
+    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
+
+    std::string grupo = StringPrintf("%s|%s", tipo_ataque.c_str(), feitico_tabelado.nome().c_str());
+    auto* da = e_depois->add_dados_ataque();
+    *da = da_teste;
+    int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), pergaminho.nivel_conjurador());
+    da->set_grupo(grupo);
+    da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
+    da->set_limite_vezes(limite_vezes);
+
+    e_depois->set_ultima_acao(tipo_ataque);
+    e_depois->set_ultimo_grupo_acao(grupo);
+    e_antes->set_ultima_acao(entidade->Proto().ultima_acao());
+    e_antes->set_ultimo_grupo_acao(entidade->Proto().ultimo_grupo_acao());
   }
-  {
-    if (arcano) {
-      *e_antes->mutable_tesouro()->mutable_pergaminhos_arcanos() = entidade->Proto().tesouro().pergaminhos_arcanos();
-    } else {
-      *e_antes->mutable_tesouro()->mutable_pergaminhos_divinos() = entidade->Proto().tesouro().pergaminhos_divinos();
-    }
-  }
+
+  EntraModoClique(ent::Tabuleiro::MODO_ACAO);
 
   // Vai notificar remoto (atualizacao parcial).
   TrataNotificacao(*notificacao);

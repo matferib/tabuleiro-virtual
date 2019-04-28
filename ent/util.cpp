@@ -3621,7 +3621,7 @@ bool NotificacaoConsequenciaFeitico(
       da->set_grupo(grupo_str);
       const int nivel_conjurador = NivelConjurador(id_classe, proto);
       int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
-      da->set_rotulo(StringPrintf("%d", limite_vezes));
+      da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
       da->set_id_arma(feitico_tabelado.id());
       da->set_limite_vezes(limite_vezes);
       if (feitico_tabelado.has_modelo_total_dv()) {
@@ -4383,6 +4383,12 @@ int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_m
 
 ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
   int nc = NivelConjuradorParaLancarPergaminho(tabelas, da.tipo_pergaminho(), da.id_arma(), proto);
+  if (nc == -1) {
+    // TODO pericia usar itens magicos.
+    return
+        ResultadoPergaminho(/*ok=*/false, /*fiasco=*/false,
+        StringPrintf("não pode ler pergaminho do tipo %s", da.tipo_pergaminho() == TM_ARCANA ? "arcano" : "divino"));
+  }
   if (nc >= da.nivel_conjurador_pergaminho()) {
     return ResultadoPergaminho(/*ok=*/true);
   }

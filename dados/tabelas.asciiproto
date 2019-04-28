@@ -7553,6 +7553,7 @@ tabela_feiticos {
       geometria: ACAO_GEO_CUBO
       escala { x: 1.0 y: 0.05 z: 0.05 }
       cor { r: 0.0 g: 1.0 b: 0.0 }
+      ataque_toque: true
       icone: 'icon_bow.png'
       consequencia: TC_DESLOCA_ALVO
       permite_ataque_vs_defesa: true
@@ -7563,7 +7564,7 @@ tabela_feiticos {
         efeito: EFEITO_OUTRO
         descricao: '2d4 de acido por rodada'
         rodadas_base: 1
-        modificador_rodadas: MR_RODADAS_NIVEL
+        modificador_rodadas: MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6
       }
     }
     escola: 'conjuracao'

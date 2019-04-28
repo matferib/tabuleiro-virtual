@@ -1,4 +1,5 @@
-Adicionar respeita solo na UI de forma.
+Refazer os magos com pergaminhos.
+
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
 
