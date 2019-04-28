@@ -3608,7 +3608,7 @@ modelo {
       pergaminhos_arcanos { id: 'raio_acido' }
       pergaminhos_arcanos { id: 'raio_acido' }
       # 1 nivel: 25 PO
-      pergaminhos_arcanos { id: 'identificar' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
       pergaminhos_arcanos { id: 'ataque_certeiro' }
       pergaminhos_arcanos { id: 'ataque_certeiro' }
       pergaminhos_arcanos { id: 'escudo_arcano' }

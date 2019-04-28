@@ -7622,6 +7622,62 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
   }
 }
 
+void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tipo_pergaminho, int indice_pergaminho) {
+  Entidade* entidade = BuscaEntidade(id_entidade);
+  if (entidade == nullptr || indice_pergaminho < 0 || (tipo_pergaminho != TM_ARCANA && tipo_pergaminho != TM_DIVINA)) return;
+  const bool arcano = tipo_pergaminho == TM_ARCANA;
+  const auto& pergaminhos = arcano ? entidade->Proto().tesouro().pergaminhos_arcanos() : entidade->Proto().tesouro().pergaminhos_divinos();
+  if (indice_pergaminho >= pergaminhos.size()) return;
+  ent::EntidadeProto *e_antes, *e_depois;
+  std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
+  std::tie(e_antes, e_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, notificacao.get());
+  //const auto& id_pergaminho = pergaminhos.Get(indice_pergaminho).id();
+  //const auto& pergaminho = arcano ? tabelas_.PergaminhoArcano(id_pergaminho) : tabelas_.PergaminhoDivino(id_pergaminho);
+  {
+    if (arcano) {
+      *e_depois->mutable_tesouro()->mutable_pergaminhos_arcanos() = entidade->Proto().tesouro().pergaminhos_arcanos();
+      e_depois->mutable_tesouro()->mutable_pergaminhos_arcanos()->DeleteSubrange(indice_pergaminho, 1);
+      if (e_depois->tesouro().pergaminhos_arcanos().empty()) {
+        e_depois->mutable_tesouro()->add_pergaminhos_arcanos();
+      }
+    } else {
+      *e_depois->mutable_tesouro()->mutable_pergaminhos_divinos() = entidade->Proto().tesouro().pergaminhos_divinos();
+      e_depois->mutable_tesouro()->mutable_pergaminhos_divinos()->DeleteSubrange(indice_pergaminho, 1);
+      if (e_depois->tesouro().pergaminhos_divinos().empty()) {
+        e_depois->mutable_tesouro()->add_pergaminhos_divinos();
+      }
+    }
+  }
+  {
+    if (arcano) {
+      *e_antes->mutable_tesouro()->mutable_pergaminhos_arcanos() = entidade->Proto().tesouro().pergaminhos_arcanos();
+    } else {
+      *e_antes->mutable_tesouro()->mutable_pergaminhos_divinos() = entidade->Proto().tesouro().pergaminhos_divinos();
+    }
+  }
+
+  // Vai notificar remoto (atualizacao parcial).
+  TrataNotificacao(*notificacao);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*notificacao);
+
+  // TODO adicionar efeito de pergaminho.
+  if (0) {
+    auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);
+    *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+    Cor c;
+    c.set_r(0.5f);
+    c.set_g(0.6f);
+    c.set_b(1.0f);
+    c.set_a(0.5f);
+    n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    TrataNotificacao(*n_efeito);
+    central_->AdicionaNotificacaoRemota(n_efeito.release());
+  }
+}
+
+
 void Tabuleiro::AlternaFuria() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;

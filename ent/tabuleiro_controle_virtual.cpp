@@ -495,13 +495,19 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       central_->AdicionaNotificacao(n.release());
       break;
     }
-    case CONTROLE_USAR_PERGAMINHO: {
+    case CONTROLE_USAR_PERGAMINHO_ARCANO:
+    case CONTROLE_USAR_PERGAMINHO_DIVINO: {
       const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      if (e == nullptr || (e->Proto().tesouro().pergaminhos_arcanos().empty() && e->Proto().tesouro().pergaminhos_divinos().empty())) return;
+      if (e == nullptr) return;
+      if (id == CONTROLE_USAR_PERGAMINHO_ARCANO && e->Proto().tesouro().pergaminhos_arcanos().empty()) return;
+      if (id == CONTROLE_USAR_PERGAMINHO_DIVINO && e->Proto().tesouro().pergaminhos_divinos().empty()) return;
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO));
       n->mutable_entidade()->set_id(e->Id());
-      *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_arcanos() = e->Proto().tesouro().pergaminhos_arcanos();
-      *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_divinos() = e->Proto().tesouro().pergaminhos_divinos();
+      if (id == CONTROLE_USAR_PERGAMINHO_ARCANO) {
+        *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_arcanos() = e->Proto().tesouro().pergaminhos_arcanos();
+      } else {
+        *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_divinos() = e->Proto().tesouro().pergaminhos_divinos();
+      }
       central_->AdicionaNotificacao(n.release());
       break;
     }
@@ -988,9 +994,16 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           }
           break;
         }
-        case VIS_PERGAMINHO: {
+        case VIS_PERGAMINHO_ARCANO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-          if (e == nullptr || (e->Proto().tesouro().pergaminhos_arcanos().empty() && e->Proto().tesouro().pergaminhos_divinos().empty())) {
+          if (e == nullptr || e->Proto().tesouro().pergaminhos_arcanos().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_PERGAMINHO_DIVINO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().tesouro().pergaminhos_divinos().empty()) {
             return false;
           }
           break;

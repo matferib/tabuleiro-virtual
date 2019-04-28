@@ -608,23 +608,6 @@ TEST(TesteArmas, TesteRaio) {
   EXPECT_EQ(acao.tipo(), ACAO_RAIO) << "acao: " << acao.DebugString();
 }
 
-TEST(TesteArmas, TestePergaminho) {
-  EntidadeProto proto;
-  auto* ic = proto.add_info_classes();
-  ic->set_id("mago");
-  ic->set_nivel(3);
-  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
-
-  auto* da = proto.add_dados_ataque();
-  da->set_tipo_ataque("Pergaminho Arcano");
-  da->set_id_arma("maos_flamejantes");
-  da->set_nivel_conjurador_pergaminho(1);
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
-  EXPECT_EQ(da->dano(), "1d4") << "DA completo: " << da->DebugString();
-  EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
-}
-
 TEST(TesteArmas, TesteVeneno) {
   Modelos modelos;
   EntidadeProto proto = g_tabelas.ModeloEntidade("Centopéia Enorme").entidade();
@@ -813,6 +796,45 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagiaTramaSombras) {
   da.set_id_arma("missil_magico");  // evocacao
   std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, da, *eats, *ed);
   EXPECT_FALSE(sucesso) << texto;
+}
+
+TEST(TestePergaminho, MaosFlamejantes) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Pergaminho Arcano");
+  da->set_id_arma("maos_flamejantes");
+  da->set_nivel_conjurador_pergaminho(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
+  EXPECT_EQ(da->dano(), "1d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
+}
+
+
+TEST(TestePergaminho, ValoresTabelados) {
+  {
+    const auto& pergaminho = g_tabelas.PergaminhoArcano("identificacao");
+    EXPECT_EQ(pergaminho.custo_po(), 125);
+    EXPECT_EQ(pergaminho.nivel_conjurador(), 1);
+    EXPECT_EQ(pergaminho.modificador_atributo(), 0);
+  }
+  {
+    const auto& pergaminho = g_tabelas.PergaminhoArcano("missil_magico");
+    EXPECT_EQ(pergaminho.custo_po(), 25);
+    EXPECT_EQ(pergaminho.nivel_conjurador(), 1);
+    EXPECT_EQ(pergaminho.modificador_atributo(), 0);
+  }
+  {
+    const auto& pergaminho = g_tabelas.PergaminhoArcano("nublar");
+    EXPECT_EQ(pergaminho.custo_po(), 150);
+    EXPECT_EQ(pergaminho.nivel_conjurador(), 3);
+    EXPECT_EQ(pergaminho.modificador_atributo(), 1);
+  }
 }
 
 TEST(TestePergaminho, PodeLancar) {
@@ -2584,17 +2606,6 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
   // Funda OP: +3 ataque, +1 destreza, +1 OP. Dano: +2 de força.
   EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 5);
   EXPECT_EQ(proto.dados_ataque(6).dano(), "1d4+2");
-}
-
-TEST(TesteTabela, TestePergaminho) {
-  {
-    const auto& pergaminho = g_tabelas.PergaminhoArcano("identificacao");
-    EXPECT_EQ(pergaminho.custo_po(), 125);
-  }
-  {
-    const auto& pergaminho = g_tabelas.PergaminhoArcano("missil_magico");
-    EXPECT_EQ(pergaminho.custo_po(), 25);
-  }
 }
 
 }  // namespace ent.

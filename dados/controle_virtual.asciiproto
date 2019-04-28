@@ -22,11 +22,24 @@ fixo {
     rotulo: "Pg"
     cor_rotulo {}
     textura: "icon_scroll.png"
-    id: CONTROLE_USAR_PERGAMINHO
+    id: CONTROLE_USAR_PERGAMINHO_ARCANO
     forma: FORMA_RETANGULO
-    dica: "Usa um pergaminho."
-    visibilidade { referencia { tipo: VIS_PERGAMINHO } }
+    dica: "Usa um pergaminho arcano."
+    visibilidade { referencia { tipo: VIS_PERGAMINHO_ARCANO } }
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 5
+    rotulo: "Pg"
+    cor_rotulo {}
+    textura: "icon_scroll.png"
+    id: CONTROLE_USAR_PERGAMINHO_DIVINO
+    forma: FORMA_RETANGULO
+    dica: "Usa um pergaminho divino."
+    visibilidade { referencia { tipo: VIS_PERGAMINHO_DIVINO } }
+  }
+
   # Linha 4.
   # Feiticos.
   dados_botoes {

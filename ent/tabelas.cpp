@@ -189,6 +189,32 @@ int CustoPadraoPergaminhoNivel(int nivel) {
   return 0;
 }
 
+int NivelConjuradorMinimoParaFeiticoNivel(const std::string& id_classe, int nivel) {
+  if (nivel < 0) return 1;
+  if (id_classe == "bardo") {
+    switch (nivel) {
+      case 0: return 1;
+      case 1: return 2;
+      case 2: return 4;
+      case 3: return 7;
+      case 4: return 10;
+      case 5: return 13;
+      default: return 16;
+    }
+  }
+  if (id_classe == "ranger" || id_classe == "paladino") {
+    // Nivel de conjurador de ranger eh metade do nivel. Como so comeca no 4o, o minimo eh 2.
+    switch (nivel) {
+      case 0:
+      case 1: return 2;
+      case 2: return 4;
+      case 3: return 5;
+      default: return 7;
+    }
+  }
+  return std::max(1, (nivel * 2) - 1);
+}
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -269,9 +295,15 @@ void Tabelas::RecarregaMapas() {
         continue;
       }
       pergaminho->set_id(feitico.id());
-      int custo_po = CustoPadraoPergaminhoNivel(ic.nivel());
+      pergaminho->set_nome(feitico.nome());
+      const int custo_po = CustoPadraoPergaminhoNivel(ic.nivel());
       if (!pergaminho->has_custo_po() || pergaminho->custo_po() > custo_po) {
         pergaminho->set_custo_po(custo_po);
+      }
+      const int nivel_conjurador = NivelConjuradorMinimoParaFeiticoNivel(ic.id(), ic.nivel());
+      if (!pergaminho->has_nivel_conjurador() || pergaminho->nivel_conjurador() > nivel_conjurador) {
+        pergaminho->set_nivel_conjurador(nivel_conjurador);
+        pergaminho->set_modificador_atributo(ic.nivel() / 2);
       }
     }
   }

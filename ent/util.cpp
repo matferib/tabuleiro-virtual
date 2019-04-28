@@ -3953,6 +3953,8 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     case TipoItem::TIPO_AMULETO: return proto.tesouro().amuletos();
     case TipoItem::TIPO_BOTAS: return proto.tesouro().botas();
     case TipoItem::TIPO_CHAPEU: return proto.tesouro().chapeus();
+    case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto.tesouro().pergaminhos_arcanos();
+    case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto.tesouro().pergaminhos_divinos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -3969,6 +3971,8 @@ RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     case TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
     case TipoItem::TIPO_BOTAS: return proto->mutable_tesouro()->mutable_botas();
     case TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
+    case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto->mutable_tesouro()->mutable_pergaminhos_arcanos();
+    case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto->mutable_tesouro()->mutable_pergaminhos_divinos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
