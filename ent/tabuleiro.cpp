@@ -7642,6 +7642,11 @@ void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tip
   da_teste.set_modificador_atributo_pergaminho(pergaminho.modificador_atributo());
   da_teste.set_tipo_pergaminho(arcano ? TM_ARCANA : TM_DIVINA);
 
+  auto par_pode_lancar_razao = PodeLancarPergaminho(tabelas_, entidade->Proto(), da_teste);
+  if (!par_pode_lancar_razao.first) {
+    AdicionaAcaoTextoLogado(entidade->Id(), par_pode_lancar_razao.second);
+    return;
+  }
   auto resultado_pergaminho = TesteLancarPergaminho(tabelas_, entidade->Proto(), da_teste);
   if (!resultado_pergaminho.ok) {
     AdicionaAcaoTextoLogado(entidade->Id(), resultado_pergaminho.texto);

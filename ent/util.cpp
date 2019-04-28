@@ -4413,6 +4413,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
 
 std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
   // Tipo correto.
+  const auto& feitico = tabelas.Feitico(da.id_arma());
   TipoMagia tipo_magia = da.tipo_pergaminho();
   bool tipo_correto = false;
   for (const auto& classe_proto : proto.info_classes()) {
@@ -4427,7 +4428,14 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
   // Esta na lista de feiticos.
   const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, da.id_arma(), proto);
   if (!ic.has_nivel_conjurador()) {
-    return std::make_pair(false, StringPrintf("feitiço %s não está na lista do personagem", da.id_arma().c_str()));
+    return std::make_pair(false, StringPrintf("feitiço %s não está na lista do personagem", feitico.nome().c_str()));
+  }
+  // Se tem especializacao, é de escola permitida.
+  const auto& fc = FeiticosClasse(ic.id(), proto);
+  if (!fc.especializacao().empty()) {
+    if (c_any(fc.escolas_proibidas(), feitico.escola())) {
+      return std::make_pair(false, StringPrintf("feitiço %s é de escola não permitida (%s).", da.id_arma().c_str(), feitico.escola()));
+    }
   }
   // Atributo minimo de conjuracao.
   if (da.has_modificador_atributo_pergaminho() &&

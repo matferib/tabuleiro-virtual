@@ -910,6 +910,40 @@ TEST(TestePergaminho, PodeLancarDominio) {
   EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(1)).first);
 }
 
+TEST(TestePergaminho, PodeLancarEscolaProibida) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(18, TA_INTELIGENCIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(10);
+    {
+      auto* fc = ent::FeiticosClasse("mago", &proto);
+      fc->set_especializacao("evocacao");
+      fc->add_escolas_proibidas("encantamento");
+      fc->add_escolas_proibidas("transmutacao");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_id_arma("missil_magico");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_id_arma("aumentar_pessoa");
+    }
+    {
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_id_arma("enfeiticar_pessoa");
+    }
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(1)).first);
+  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(2)).first);
+}
 
 TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
   EntidadeProto proto;
