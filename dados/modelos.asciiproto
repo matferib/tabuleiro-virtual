@@ -3594,30 +3594,37 @@ modelo {
     info_pericias { id: 'observar' pontos: 1 }
     info_pericias { id: 'identificar_magia' pontos: 7 }
     tesouro {
+      # A tabela do DMG ta errada, ta faltando 1000 PO. Coloquei no manto.
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      # Cada pergaminho sai pela metade do preco, exceto os que tem componente materiais.
-      # 0 nivel: 12 PO
-      pergaminhos_arcanos { id: 'detectar_veneno' }
+      # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
+      # 0 nivel: 9 PO cada
       pergaminhos_arcanos { id: 'detectar_magia' }
-      pergaminhos_arcanos { id: 'ler_magias' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_acido' }
       pergaminhos_arcanos { id: 'raio_acido' }
-      pergaminhos_arcanos { id: 'raio_acido' }
-      # 1 nivel: 25 PO
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 17 PO cada
       pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
       pergaminhos_arcanos { id: 'ataque_certeiro' }
       pergaminhos_arcanos { id: 'ataque_certeiro' }
       pergaminhos_arcanos { id: 'escudo_arcano' }
-      # 2 nivel: 75 PO
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'armadura_arcana' }
+      # 2 nivel: 105 PO cada
       pergaminhos_arcanos { id: 'nublar' }
-      pergaminhos_arcanos { id: 'arrombar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
       pergaminhos_arcanos { id: 'vigor_urso' }
-      # Moedas.
-      tesouro: '10 PO\nbesta obra prima'
+      # Grimorio vale 2300 preco cheio (vende pela metade).
+      # Porem, para o mago, ele sai pelo preco do livro apenas 15.
+      # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
+      # Total aqui: 11 magias + todas de 0 nivel.
+      tesouro: '10 PO\nbesta obra prima\ngrimório com 23 páginas escritas (valor cheio 2300 PO)'
     }
 
     feiticos_classes {
@@ -3644,6 +3651,7 @@ modelo {
         conhecidos { id: 'escudo_arcano' }
         conhecidos { id: 'nublar' }
         conhecidos { id: 'ataque_certeiro' }
+        conhecidos { id: 'sono' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
@@ -3655,7 +3663,6 @@ modelo {
         conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'arrombar' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
@@ -3701,12 +3708,45 @@ modelo {
     info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'identificar_magia' pontos: 8 }
     tesouro {
-      pocoes { id: 'nublar' }
+      # A tabela do DMG ta errada, ta faltando 1000 PO. Coloquei no manto.
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'velocidade' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+
+      mantos { id: 'manto_resistencia_1' em_uso: true }
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de confusão, bola de fogo x2, teia'
+
+      # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
+      # 0 nivel: 9 PO cada
+      pergaminhos_arcanos { id: 'detectar_magia' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 17 PO cada
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'armadura_arcana' }
+      # 2 nivel: 105 PO cada
+      pergaminhos_arcanos { id: 'nublar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'vigor_urso' }
+      # 3 nivel: 245 cada.
+      pergaminhos_arcanos { id: 'bola_fogo' }
+      pergaminhos_arcanos { id: 'imobilizar_pessoa' }
+      # Grimorio vale 2900 preco cheio (vende pela metade).
+      # Porem, para o mago, ele sai pelo preco do livro apenas 15 PO.
+      # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
+      # Total aqui: 13 magias + todas de 0 nivel.
+      tesouro: '10 PO\nbesta obra prima\ngrimório com 29 páginas escritas (valor cheio 2900 PO)'
     }
 
     feiticos_classes {
@@ -3714,52 +3754,51 @@ modelo {
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'pasmar' }
+        conhecidos { id: 'brilho' }
+        conhecidos { id: 'raio_gelo' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_veneno' }
-        conhecidos { id: 'brilho' }
-        conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_gelo' }
-        conhecidos { id: 'ler_magias' }
+
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
-        conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
-        conhecidos { id: 'ataque_certeiro' }
-        conhecidos { id: 'arma_magica' }
         conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'nublar' }
+        conhecidos { id: 'ataque_certeiro' }
+        conhecidos { id: 'sono' }
 
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'nublar' }
+        conhecidos { id: 'flecha_acida' }
         conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
-        conhecidos { id: 'arrombar' }
-        conhecidos { id: 'flecha_acida' }
-        conhecidos { id: 'resistencia_elementos' }
+        conhecidos { id: 'nublar' }
+
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 3
-        conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'bola_fogo' }
-        conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'imobilizar_pessoa' }
+
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
     }
   }
