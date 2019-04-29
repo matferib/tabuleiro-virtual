@@ -1199,8 +1199,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
     int delta_pv = -1;
 
-    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+    std::string texto_afeta;
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
       delta_pv = 0;
+      if (!texto_afeta.empty()) {
+        ConcatenaString(texto_afeta, por_entidade->mutable_texto());
+        AdicionaLogEvento(id, texto_afeta);
+      }
     } else {
       ResultadoImunidadeOuResistencia resultado_elemento =
           ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
@@ -1298,10 +1303,13 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pontos_vida);
 
-    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+    std::string texto_afeta;
+    if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
       VLOG(1) << "Ignorando entidade que nao pode ser afetada por este tipo de ataque.";
       por_entidade->set_delta(0);
-      por_entidade->set_texto("não afetado pelo ataque");
+      if (!texto_afeta.empty()) {
+        por_entidade->set_texto(texto_afeta);
+      }
       continue;
     }
 
@@ -1559,9 +1567,10 @@ float Tabuleiro::TrataAcaoIndividual(
       return atraso_s;
     }
 
-    if (resultado.Sucesso() && !AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
+    std::string texto_afeta;
+    if (resultado.Sucesso() && !AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
       // Seta afeta pontos de vida para indicar que houve acerto, apesar da imunidade.
-      por_entidade->set_texto("ataque não afeta");
+      por_entidade->set_texto(texto_afeta.empty() ? "ataque não afeta" : texto_afeta);
       *n->mutable_acao() = *acao_proto;
       return atraso_s;
     }
@@ -1797,6 +1806,9 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 float Tabuleiro::TrataPreAcaoComum(
     float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
     ntf::Notificacao* grupo_desfazer) {
+  if (acao_proto->has_dado_pv_mais_alto()) {
+    acao_proto->set_pv_mais_alto(RolaValor(acao_proto->dado_pv_mais_alto()));
+  }
   bool pode_agir;
   std::string razao;
   std::tie(pode_agir, razao) = PodeAgir(entidade_origem.Proto());

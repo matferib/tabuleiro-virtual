@@ -807,7 +807,7 @@ inline bool IgnoraReducaoDano(const DadosAtaque* da, const AcaoProto& acao) {
 // extraplanares.
 //
 // Caso a acao seja generica (nao tem afeta_apenas), retornara true.
-bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade);
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto = nullptr);
 
 // Retorna o numero de reflexos da entidade (feitico reflexos).
 int NumeroReflexos(const EntidadeProto& proto);

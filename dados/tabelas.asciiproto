@@ -7561,8 +7561,7 @@ tabela_feiticos {
       permite_salvacao: false
       elemento: DESC_ACIDO
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: '2d4 de acido por rodada'
+        efeito: EFEITO_FLECHA_ACIDA
         rodadas_base: 1
         modificador_rodadas: MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6
       }

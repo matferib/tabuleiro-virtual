@@ -295,9 +295,11 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
           EntidadeProto proto_salvo;
           proto_salvo.set_morta(proto->morta());
           proto_salvo.set_caida(proto->caida());
+          proto_salvo.set_pontos_vida(proto->pontos_vida());
           evento->set_estado_anterior(proto_salvo.SerializeAsString());
           proto->set_morta(true);
           proto->set_caida(true);
+          proto->set_pontos_vida(-100);
         }
       }
       break;
@@ -498,6 +500,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
       proto->set_morta(proto_salvo.morta());
+      proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
     case EFEITO_METAMORFOSE_TORRIDA: {

@@ -7176,7 +7176,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         if (dano == 0) continue;
       }
       PreencheNotificacaoAtualizaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
-      AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("flecha ácida", dano), atraso_s);
+      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
     }
   }

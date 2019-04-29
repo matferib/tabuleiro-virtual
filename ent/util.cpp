@@ -3860,7 +3860,7 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
   return std::make_tuple(delta_pv, texto_final);
 }
 
-bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
+bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
   if (acao_proto.nao_afeta_origem() && entidade.Id() == acao_proto.id_entidade_origem()) {
     return false;
   }
@@ -3875,9 +3875,15 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade) {
     return false;
   }
   if (acao_proto.has_dv_mais_alto() && Nivel(entidade.Proto()) > acao_proto.dv_mais_alto()) {
+    if (texto != nullptr) {
+      *texto = StringPrintf("criatura tem mais dv que %d", acao_proto.dv_mais_alto());
+    }
     return false;
   }
   if (acao_proto.has_pv_mais_alto() && entidade.PontosVida() > acao_proto.pv_mais_alto()) {
+    if (texto != nullptr) {
+      *texto = StringPrintf("criatura tem mais pv que %d", acao_proto.pv_mais_alto());
+    }
     return false;
   }
 

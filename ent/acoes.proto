@@ -89,7 +89,7 @@ enum ModificadorComplementos {
   MC_ID_ENTIDADE = 8;  // Proteger outro.
 }
 
-// Proximo id: 76.
+// Proximo id: 77.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -193,6 +193,7 @@ message AcaoProto {
   optional bool mais_fracos_primeiro = 75;
   // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
   optional int32 pv_mais_alto = 69;
+  optional string dado_pv_mais_alto = 76;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas

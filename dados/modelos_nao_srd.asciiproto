@@ -964,7 +964,7 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-        pv_mais_alto: 20 # 5d6
+        dado_pv_mais_alto: '5d6'
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
