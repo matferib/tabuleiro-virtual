@@ -1061,10 +1061,10 @@ modelo {
 
 
 modelo {
-  id: 'Humano Arcano de Guerra 4'
+  id: 'Humano Dragão Púrpura: Arcano de Guerra 4'
   id_entidade_base: 'Humano Mago 4'
   entidade {
-    rotulo: 'arcano de guerra 4'
+    rotulo: 'Dragão Púrpura arcano de guerra 4'
     modelo_3d { id: 'war_wizard' }
     info_textura { id: '' }
     cor { r: 1 g: 1 b: 1}
@@ -1072,10 +1072,10 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Arcano de Guerra 5'
+  id: 'Humano Dragão Púrpura: Arcano de Guerra 5'
   id_entidade_base: 'Humano Mago 5'
   entidade {
-    rotulo: 'arcano de guerra 5'
+    rotulo: 'Dragão Púrpura arcano de guerra 5'
     modelo_3d { id: 'war_wizard' }
     info_textura { id: '' }
     cor { r: 1 g: 1 b: 1}
@@ -1083,10 +1083,10 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Combatente Soldado Dragão Púrpura 2'
+  id: 'Humano Dragão Púrpura: Combatente Soldado 2'
   id_entidade_base: 'Combatente Base'
   entidade {
-    rotulo: 'humano combatente 2'
+    rotulo: 'Dragão Púrpura Soldado 2'
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_warrior' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
@@ -1096,10 +1096,21 @@ modelo {
   }
 }
 modelo {
-  id: 'Humano Combatente Arqueiro Dragão Púrpura 2'
+  id: 'Humano Dragão Púrpura: Tenente 5'
+  id_entidade_base: 'Humano Guerreiro 5'
+  entidade {
+    rotulo: 'Dragão Púrpura Tenente 5'
+    cor { r: 1 g: 1 b: 1 }
+    info_textura { id: '' }
+    modelo_3d { id: 'purple_dragon_soldier' }
+  }
+}
+
+modelo {
+  id: 'Humano Dragão Púrpura: Combatente Arqueiro 2'
   id_entidade_base: 'Combatente Base'
   entidade {
-    rotulo: 'humano arqueiro 2'
+    rotulo: 'Dragão Púrpura Arqueiro 2'
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_archer' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
