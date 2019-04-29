@@ -151,10 +151,6 @@ void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificaca
   if (!ok || indice_pergaminho >= pergaminhos_entidade.size()) {
     return;
   }
-  const auto& pergaminho = arcano
-      ? tabelas_.PergaminhoArcano(pergaminhos_entidade.Get(indice_pergaminho).id())
-      : tabelas_.PergaminhoDivino(pergaminhos_entidade.Get(indice_pergaminho).id());
-
   tabuleiro_->UsaPergaminhoNotificando(notificacao.entidade().id(), arcano ? ent::TM_ARCANA : ent::TM_DIVINA, indice_pergaminho);
 }
 
