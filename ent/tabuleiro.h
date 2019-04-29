@@ -522,8 +522,9 @@ class Tabuleiro : public ntf::Receptor {
    * ficara negativo. Caso grupo nao seja null, a notificacao ira para ele e nao
    * sera executada. Caso o parametro expira_eventos_zerados seja verdadeiro,
    * eventos que estejam em zero serão removidos.
+   * Parametro ui indica se a passagem veio pelo clique direto na UI ou nao (indireto ao passar iniciativa).
    */
-  void PassaUmaRodadaNotificando(ntf::Notificacao* grupo = nullptr, bool expira_eventos_zerados = false);
+  void PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo = nullptr, bool expira_eventos_zerados = false);
   /** Zera o contador de rodadas do tabuleiro. */
   void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */

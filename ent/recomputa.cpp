@@ -1932,18 +1932,21 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
+  auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
+  auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, *proto)) {
     // Zera destreza e força.
-    auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
     const int forca = BonusTotal(*bonus_forca);
     if (forca > 0) {
       AtribuiBonus(-forca, TB_SEM_NOME, "paralisia", bonus_forca);
     }
-    auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
     const int destreza = BonusTotal(*bonus_destreza);
     if (destreza > 0) {
       AtribuiBonus(-destreza, TB_SEM_NOME, "paralisia", bonus_destreza);
     }
+  } else {
+    LimpaBonus(TB_SEM_NOME, "paralisia", bonus_forca);
+    LimpaBonus(TB_SEM_NOME, "paralisia", bonus_destreza);
   }
 
   RecomputaDependenciasNiveisNegativos(tabelas, proto);

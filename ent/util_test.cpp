@@ -99,6 +99,11 @@ TEST(TesteItemMagico, TesteItemMagicoParalisia) {
 
   EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_FORCA, proto)));
   EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
+
+  evento->set_rodadas(-1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_FORCA, proto)));
+  EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
 
 TEST(TesteArmas, TestePedrada) {

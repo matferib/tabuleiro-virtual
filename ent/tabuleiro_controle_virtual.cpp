@@ -545,14 +545,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
         if (!duplo) {
-          PassaUmaRodadaNotificando();
+          PassaUmaRodadaNotificando(/*ui=*/true);
         } else {
           ntf::Notificacao grupo_notificacoes;
           grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
           // O clique duplo tera passado uma rodada já.
           for (int i = 0; i < 9; ++i) {
             auto* n = grupo_notificacoes.add_notificacao();
-            PassaUmaRodadaNotificando(n);
+            PassaUmaRodadaNotificando(/*ui=*/true, n);
             TrataNotificacao(*n);
           }
           // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.

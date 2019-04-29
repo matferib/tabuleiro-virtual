@@ -2426,7 +2426,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     //TrataNotificacao(*n);
   }
   if (passa_rodada) {
-    PassaUmaRodadaNotificando(&grupo_notificacoes);
+    PassaUmaRodadaNotificando(/*ui=*/false, &grupo_notificacoes);
   }
   TrataNotificacao(grupo_notificacoes);
   AtualizaIniciativas(&grupo_notificacoes);
@@ -2659,7 +2659,7 @@ void Tabuleiro::ProximaIniciativa() {
     n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
     if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
       n->mutable_tabuleiro()->set_indice_iniciativa(0);
-      PassaUmaRodadaNotificando(&grupo);
+      PassaUmaRodadaNotificando(/*ui=*/false, &grupo);
     }
     TrataNotificacao(grupo);
     grupo_desfazer.Swap(&grupo);
@@ -2674,6 +2674,12 @@ void Tabuleiro::ProximaIniciativa() {
     if (entidade_iniciativa != nullptr) {
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, &grupo);
       ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
+      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
+      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, &grupo,
+                                    /*expira_eventos_zerados=*/false);
+      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, &grupo);
+      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, &grupo);
+      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, &grupo);
     }
     TrataNotificacao(grupo);
     std::copy(grupo.notificacao().begin(), grupo.notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer.mutable_notificacao()));
@@ -7155,6 +7161,23 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
         atraso_s += 0.5f;
       }
+    } else if (evento->id_efeito() == EFEITO_FLECHA_ACIDA) {
+      int dano = -RolaValor("2d4");
+      auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
+      if (resultado.causa == ALT_IMUNIDADE) {
+        AdicionaAcaoTextoLogado(entidade.Id(), "flecha ácida: imune", atraso_s);
+        atraso_s += 0.5f;
+        continue;
+      }
+      if (resultado.causa == ALT_RESISTENCIA) {
+        dano += resultado.resistido;
+        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("flecha ácida: resistido %d", resultado.resistido), atraso_s);
+        atraso_s += 0.5f;
+        if (dano == 0) continue;
+      }
+      PreencheNotificacaoAtualizaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
+      AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("flecha ácida", dano), atraso_s);
+      atraso_s += 0.5f;
     }
   }
 }
@@ -7177,6 +7200,7 @@ void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::N
 
 void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
   if (entidade.PontosVida() >= entidade.MaximoPontosVida() && entidade.DanoNaoLetal() == 0) return;
+  if (entidade.PontosVida() < 0 && std::abs(entidade.PontosVida()) < std::max(10, BonusTotal(BonusAtributo(TA_CONSTITUICAO, entidade.Proto()))))
   if (CuraAcelerada(entidade.Proto()) == 0) {
     return;
   }
@@ -7192,23 +7216,28 @@ void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Noti
   proto_depois->set_reiniciar_ataque(true);
 }
 
-void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo, bool expira_eventos_zerados) {
+void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool expira_eventos_zerados) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
   ntf::Notificacao alias_grupo;
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
+  // Apenas pela UI atualiza essas coisas. Caso contrario, deixa para proxima iniciativa.
   for (auto& id_entidade : entidades_) {
     auto& entidade = *id_entidade.second.get();
-    std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
-    AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes,
-                                  expira_eventos_zerados);
-    AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
-    AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
-    AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
-    ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
+    if (ui || !entidade.TemIniciativa()) {
+      std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
+      AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes,
+                                    expira_eventos_zerados);
+      AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
+      AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
+      AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
+      ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
+    }
   }
+
   auto* nr = grupo_notificacoes.add_notificacao();
   nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
   nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
