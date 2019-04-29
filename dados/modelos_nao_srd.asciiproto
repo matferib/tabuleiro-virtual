@@ -969,7 +969,6 @@ modelo {
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_MORTE
-          rodadas: 1
         }
       }
     }

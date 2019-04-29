@@ -256,7 +256,7 @@ message AcaoProto {
   optional DetalhesAdicionais detalhes_adicionais = 70;
   optional bool ignora_reflexos = 71;
   // Reducao da luz do alvo [0-1].
-  optional float reducao_luz = 72; 
+  optional float reducao_luz = 72;
   optional bool reduz_luz = 73;
 }
 
