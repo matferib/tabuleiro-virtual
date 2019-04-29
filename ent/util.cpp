@@ -4609,4 +4609,50 @@ bool EscolaRuimTramaDasSombras(const ArmaProto& feitico) {
   return c_any(escolas, feitico.escola());
 }
 
+void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dano_nao_letal, const EntidadeProto& proto, ntf::Notificacao* n) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+
+  e_antes->set_morta(proto.morta());
+  e_antes->set_caida(proto.caida());
+  e_antes->set_inconsciente(proto.inconsciente());
+  e_antes->set_caida(proto.caida());
+  e_antes->set_incapacitada(proto.incapacitada());
+  e_antes->set_aura_m(proto.aura_m());
+  e_antes->set_pontos_vida(proto.pontos_vida());
+  e_antes->set_dano_nao_letal(proto.dano_nao_letal());
+
+  e_depois->set_pontos_vida(std::min(proto.max_pontos_vida(), pontos_vida));
+  e_depois->set_dano_nao_letal(dano_nao_letal);
+
+  const int pv_depois = e_depois->pontos_vida() - e_depois->dano_nao_letal();
+  const int constituicao = BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto));
+  const int limiar_morte = std::min(-10, -constituicao);
+  if (pv_depois <= limiar_morte) {
+    e_depois->set_morta(true);
+    e_depois->set_caida(true);
+    e_depois->set_voadora(false);
+    e_depois->set_inconsciente(true);
+    e_depois->set_incapacitada(true);
+    e_depois->set_aura_m(0.0f);
+    return;
+  }
+  e_depois->set_morta(false);
+  if (pv_depois > 0) {
+    e_depois->set_inconsciente(false);
+    e_depois->set_incapacitada(false);
+    return;
+  }
+  e_depois->set_incapacitada(true);
+  if (pv_depois == 0) {
+    return;
+  }
+  // Negativo nao morto.
+  const bool duro_de_matar = PossuiTalento("duro_de_matar", proto);
+  e_depois->set_inconsciente(!duro_de_matar);
+  e_depois->set_voadora(proto.voadora() && duro_de_matar);
+  e_depois->set_caida(proto.caida() || !duro_de_matar);
+}
+
 }  // namespace ent

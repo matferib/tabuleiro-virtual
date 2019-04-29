@@ -898,6 +898,9 @@ bool EscolaRuimTramaDasSombras(const ArmaProto& feitico);
 // Computa o limite de vezes de um ataque gerado por feitico ou pergaminho.
 int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes, int nivel_conjurador);
 
+// Mexe nos bits da entidade depois de uma alteracao de pontos de vida.
+void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dano_nao_letal, const EntidadeProto& proto, ntf::Notificacao* n);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
