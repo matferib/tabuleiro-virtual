@@ -2650,7 +2650,6 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
 TEST(TesteConsequenciaPontosVida, Normal) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
-  AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
   RecomputaDependencias(g_tabelas, &proto);
 
   ntf::Notificacao n;
@@ -2663,7 +2662,6 @@ TEST(TesteConsequenciaPontosVida, Normal) {
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
   EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 1);
 
   entidade->AtualizaParcial(n.entidade_antes());
   proto = entidade->Proto();
@@ -2671,34 +2669,58 @@ TEST(TesteConsequenciaPontosVida, Normal) {
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
   EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 10);
 }
 
-TEST(TesteConsequenciaPontosVida, Incapacitado) {
+TEST(TesteConsequenciaPontosVida, Nocauteado) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
-  AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
   RecomputaDependencias(g_tabelas, &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      /*pontos_vida*/ 4, /*dano_nao_letal*/ 6, proto, &n);
+      /*pontos_vida*/ 4, /*dano_nao_letal*/ 4, proto, &n);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
   EXPECT_FALSE(proto.inconsciente());
-  EXPECT_TRUE(proto.incapacitada());
-  EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 0);
+  EXPECT_TRUE(proto.nocauteada());
+  EXPECT_FALSE(proto.incapacitada());
+  EXPECT_FALSE(proto.caida()) << proto.DebugString();
 
   entidade->AtualizaParcial(n.entidade_antes());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
   EXPECT_FALSE(proto.inconsciente());
+  EXPECT_FALSE(proto.nocauteada());
   EXPECT_FALSE(proto.incapacitada());
   EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 10);
+}
+
+TEST(TesteConsequenciaPontosVida, Incapacitado) {
+  EntidadeProto proto;
+  proto.set_max_pontos_vida(10);
+  RecomputaDependencias(g_tabelas, &proto);
+
+  ntf::Notificacao n;
+  PreencheNotificacaoConsequenciaAlteracaoPontosVida(
+      /*pontos_vida*/ 0, /*dano_nao_letal*/ 0, proto, &n);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  entidade->AtualizaParcial(n.entidade());
+  proto = entidade->Proto();
+  EXPECT_FALSE(proto.morta());
+  EXPECT_FALSE(proto.inconsciente());
+  EXPECT_FALSE(proto.nocauteada());
+  EXPECT_TRUE(proto.incapacitada());
+  EXPECT_FALSE(proto.caida()) << proto.DebugString();
+
+  entidade->AtualizaParcial(n.entidade_antes());
+  proto = entidade->Proto();
+  EXPECT_FALSE(proto.morta());
+  EXPECT_FALSE(proto.inconsciente());
+  EXPECT_FALSE(proto.nocauteada());
+  EXPECT_FALSE(proto.incapacitada());
+  EXPECT_FALSE(proto.caida());
 }
 
 TEST(TesteConsequenciaPontosVida, Inconsciente) {
@@ -2717,7 +2739,6 @@ TEST(TesteConsequenciaPontosVida, Inconsciente) {
   EXPECT_TRUE(proto.inconsciente());
   EXPECT_TRUE(proto.incapacitada());
   EXPECT_TRUE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), -1);
 
   entidade->AtualizaParcial(n.entidade_antes());
   proto = entidade->Proto();
@@ -2725,7 +2746,6 @@ TEST(TesteConsequenciaPontosVida, Inconsciente) {
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
   EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 10);
 }
 
 TEST(TesteConsequenciaPontosVida, InconscienteParaIncapacitado) {
@@ -2735,7 +2755,6 @@ TEST(TesteConsequenciaPontosVida, InconscienteParaIncapacitado) {
   proto.set_inconsciente(true);
   proto.set_caida(true);
   proto.set_incapacitada(true);
-  AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
   RecomputaDependencias(g_tabelas, &proto);
 
   ntf::Notificacao n;
@@ -2746,9 +2765,9 @@ TEST(TesteConsequenciaPontosVida, InconscienteParaIncapacitado) {
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
   EXPECT_FALSE(proto.inconsciente());
+  EXPECT_FALSE(proto.nocauteada());
   EXPECT_TRUE(proto.incapacitada());
   EXPECT_TRUE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 0);
 }
 
 TEST(TesteConsequenciaPontosVida, InconscienteParaNormal) {
@@ -2758,24 +2777,25 @@ TEST(TesteConsequenciaPontosVida, InconscienteParaNormal) {
   proto.set_inconsciente(true);
   proto.set_caida(true);
   proto.set_incapacitada(true);
-  AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
   RecomputaDependencias(g_tabelas, &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      /*pontos_vida=*/ 1, /*dano_nao_letal=*/ 0, proto, &n);
+      /*pontos_vida=*/2, /*dano_nao_letal=*/1, proto, &n);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
+  EXPECT_FALSE(proto.nocauteada());
   EXPECT_TRUE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 0);
 }
 
 TEST(TesteConsequenciaPontosVida, InconscienteDuroDeMatar) {
   EntidadeProto proto;
+  proto.set_inconsciente(true);
+  proto.set_caida(true);
   proto.set_max_pontos_vida(10);
   {
     auto* talento = proto.mutable_info_talentos()->add_gerais();
@@ -2786,23 +2806,22 @@ TEST(TesteConsequenciaPontosVida, InconscienteDuroDeMatar) {
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      /*pontos_vida*/ 5, /*dano_nao_letal*/ 6, proto, &n);
+      /*pontos_vida*/5, /*dano_nao_letal*/6, proto, &n);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_TRUE(proto.incapacitada());
-  EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), -1);
+  EXPECT_TRUE(proto.caida());
 
   entidade->AtualizaParcial(n.entidade_antes());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
-  EXPECT_FALSE(proto.inconsciente());
+  EXPECT_TRUE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
-  EXPECT_FALSE(proto.caida());
-  EXPECT_EQ(entidade->PontosVida(), 10);
+  EXPECT_FALSE(proto.nocauteada());
+  EXPECT_TRUE(proto.caida());
 }
 
 TEST(TesteConsequenciaPontosVida, Morta) {
@@ -2814,7 +2833,7 @@ TEST(TesteConsequenciaPontosVida, Morta) {
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      /*pontos_vida*/ -6, /*dano_nao_letal*/ 6, proto, &n);
+      /*pontos_vida*/ -12, /*dano_nao_letal*/ 0, proto, &n);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
@@ -2823,7 +2842,6 @@ TEST(TesteConsequenciaPontosVida, Morta) {
   EXPECT_TRUE(proto.incapacitada());
   EXPECT_TRUE(proto.caida());
   EXPECT_FALSE(proto.voadora());
-  EXPECT_EQ(entidade->PontosVida(), -1);
 }
 
 }  // namespace ent.

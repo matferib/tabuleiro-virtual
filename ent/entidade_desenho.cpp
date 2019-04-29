@@ -22,6 +22,10 @@ namespace {
 const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 
+bool MortaInconscienteIncapaz(const EntidadeProto& proto) {
+  return proto.morta() || proto.inconsciente() || proto.incapacitada() || proto.nocauteada();
+}
+
 }  // namespace
 
 // Eh usada em outros arquivos tambem.
@@ -34,7 +38,7 @@ void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   if (pd->entidade_selecionada()) {
     RealcaCor(cor);
   }
-  if (proto.morta()) {
+  if (MortaInconscienteIncapaz(proto)) {
     EscureceCor(cor);
   }
   MudaCorAlfa(cor);
@@ -199,7 +203,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     c.set_g(1.0f);
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
-    MudaCor(proto.morta() ? EscureceCor(c) : c);
+    MudaCor(MortaInconscienteIncapaz(proto) ? EscureceCor(c) : c);
     gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
     gl::Desabilita(GL_TEXTURE_2D);
 

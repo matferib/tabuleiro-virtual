@@ -91,11 +91,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
-  return ent::TemTipoDnD(tipo, proto_); 
+  return ent::TemTipoDnD(tipo, proto_);
 }
 
 bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
-  return ent::TemSubTipoDnD(sub_tipo, proto_); 
+  return ent::TemSubTipoDnD(sub_tipo, proto_);
 }
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
@@ -999,6 +999,8 @@ int Entidade::IdCenario() const {
 
 void Entidade::MataEntidade() {
   proto_.set_morta(true);
+  proto_.set_inconsciente(true);
+  proto_.set_incapacitada(true);
   proto_.set_caida(true);
   proto_.set_voadora(false);
   proto_.set_aura_m(0.0f);
@@ -1009,18 +1011,9 @@ void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
     // Entidades sem pontos de vida nao sao afetadas.
     return;
   }
-  bool vivo_antes = proto_.pontos_vida() >= proto_.dano_nao_letal();
-  bool vivo_depois = pontos_vida > dano_nao_letal;
-  if (vivo_antes && !vivo_depois) {
-    proto_.set_morta(true);
-    proto_.set_caida(true);
-    proto_.set_voadora(false);
-    proto_.set_aura_m(0.0f);
-  } else if (vivo_depois && !vivo_antes) {
-    proto_.set_morta(false);
-  }
-  proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
-  proto_.set_dano_nao_letal(dano_nao_letal);
+  ntf::Notificacao n;
+  PreencheNotificacaoConsequenciaAlteracaoPontosVida(pontos_vida, dano_nao_letal, proto_, &n);
+  AtualizaParcial(n.entidade());
 }
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
@@ -1258,12 +1251,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   }
   if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b() && !proto_.cor().has_a()) {
     proto_.clear_cor();
-  }
-  if (proto_parcial.has_pontos_vida()) {
-    // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
-    proto_.set_pontos_vida(pontos_vida_antes);
-    proto_.set_dano_nao_letal(dano_nao_letal_antes);
-    AtualizaPontosVida(proto_parcial.pontos_vida(), proto_parcial.dano_nao_letal());
   }
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);

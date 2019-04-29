@@ -1604,23 +1604,23 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  auto* entidade_depois = n->mutable_entidade();
-  entidade_depois->set_id(entidade.Id());
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
 
   if (delta_pontos_vida > 0) {
-    if (delta_pontos_vida >= entidade_depois->dano_nao_letal()) {
-      entidade_depois->set_dano_nao_letal(0);
+    if (delta_pontos_vida >= e_depois->dano_nao_letal()) {
+      e_depois->set_dano_nao_letal(0);
     } else {
-      entidade_depois->set_dano_nao_letal(entidade_depois->dano_nao_letal() - delta_pontos_vida);
+      e_depois->set_dano_nao_letal(e_depois->dano_nao_letal() - delta_pontos_vida);
     }
   } else if (delta_pontos_vida < 0 && td == TD_NAO_LETAL) {
-    entidade_depois->set_dano_nao_letal(entidade.DanoNaoLetal() - delta_pontos_vida);
-    entidade_depois->set_pontos_vida(entidade.PontosVida());
+    e_depois->set_dano_nao_letal(entidade.DanoNaoLetal() - delta_pontos_vida);
+    e_depois->set_pontos_vida(entidade.PontosVida());
   } else if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
     // Tira dos temporarios.
-    *entidade_depois->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
-    auto* bpv = entidade_depois->mutable_pontos_vida_temporarios_por_fonte();
+    *e_depois->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
+    auto* bpv = e_depois->mutable_pontos_vida_temporarios_por_fonte();
     auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
     if (bi != nullptr) {
       for (int i_origem = 0; delta_pontos_vida < 0 && i_origem < bi->por_origem_size(); ++i_origem)  {
@@ -1637,22 +1637,18 @@ void PreencheNotificacaoAtualizaoPontosVida(
       }
     }
   }
-  entidade_depois->set_pontos_vida(entidade.PontosVida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida));
+  int pv = entidade.PontosVida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida);
+  e_depois->set_pontos_vida(pv);
+  PreencheNotificacaoConsequenciaAlteracaoPontosVida(
+      pv, e_depois->dano_nao_letal(), entidade.Proto(), n);
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
-    auto* entidade_antes = n_desfazer->mutable_entidade_antes();
-    entidade_antes->set_id(entidade.Id());
-    *entidade_antes->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
-    entidade_antes->set_pontos_vida(entidade.PontosVida());
-    entidade_antes->set_dano_nao_letal(entidade.DanoNaoLetal());
-    entidade_antes->set_morta(entidade.Proto().morta());
-    entidade_antes->set_caida(entidade.Proto().caida());
-    entidade_antes->set_voadora(entidade.Proto().voadora());
-    entidade_antes->set_aura(entidade.Proto().aura());
-    *entidade_antes->mutable_pos() = entidade.Pos();
-    entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
+    *n_desfazer->mutable_entidade() = *e_depois;
+    *n_desfazer->mutable_entidade_antes() = *e_antes;
+    e_antes->set_pontos_vida(entidade.PontosVida());
+    *e_antes->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
+    e_antes->set_dano_nao_letal(entidade.DanoNaoLetal());
   }
 }
 
@@ -4619,14 +4615,14 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
   e_antes->set_inconsciente(proto.inconsciente());
   e_antes->set_caida(proto.caida());
   e_antes->set_incapacitada(proto.incapacitada());
+  e_antes->set_nocauteada(proto.nocauteada());
   e_antes->set_aura_m(proto.aura_m());
   e_antes->set_pontos_vida(proto.pontos_vida());
   e_antes->set_dano_nao_letal(proto.dano_nao_letal());
+  *e_antes->mutable_pos() = proto.pos();
+  *e_antes->mutable_direcao_queda() = proto.direcao_queda();
 
-  e_depois->set_pontos_vida(std::min(proto.max_pontos_vida(), pontos_vida));
-  e_depois->set_dano_nao_letal(dano_nao_letal);
-
-  const int pv_depois = e_depois->pontos_vida() - e_depois->dano_nao_letal();
+  const int pv_depois = pontos_vida - dano_nao_letal;
   const int constituicao = BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto));
   const int limiar_morte = std::min(-10, -constituicao);
   if (pv_depois <= limiar_morte) {
@@ -4635,6 +4631,7 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
     e_depois->set_voadora(false);
     e_depois->set_inconsciente(true);
     e_depois->set_incapacitada(true);
+    e_depois->set_nocauteada(true);
     e_depois->set_aura_m(0.0f);
     return;
   }
@@ -4642,14 +4639,23 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
   if (pv_depois > 0) {
     e_depois->set_inconsciente(false);
     e_depois->set_incapacitada(false);
+    e_depois->set_nocauteada(false);
     return;
   }
-  e_depois->set_incapacitada(true);
+  // pv <= 0.
+  if (dano_nao_letal > 0) {
+    e_depois->set_nocauteada(true);
+  } else {
+    e_depois->set_incapacitada(true);
+  }
   if (pv_depois == 0) {
+    e_depois->set_inconsciente(false);
     return;
   }
-  // Negativo nao morto.
+  // pv < 0, nao morto.
   const bool duro_de_matar = PossuiTalento("duro_de_matar", proto);
+  e_depois->set_nocauteada(true);
+  e_depois->set_incapacitada(true);
   e_depois->set_inconsciente(!duro_de_matar);
   e_depois->set_voadora(proto.voadora() && duro_de_matar);
   e_depois->set_caida(proto.caida() || !duro_de_matar);

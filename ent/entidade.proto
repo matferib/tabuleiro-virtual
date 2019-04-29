@@ -191,7 +191,7 @@ message DadosAtaque {
   optional bool eh_arma = 74;
 }
 
-// Proximo id: 105.
+// Proximo id: 108.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -280,6 +280,12 @@ message EntidadeProto {
   optional bool caida = 14 [default=false];
   // Entidade esta morta.
   optional bool morta = 15 [default=false];
+  // Entidade esta a beira da morte.
+  optional bool inconsciente = 105;
+  // Entidade esta incapacitada.
+  optional bool incapacitada = 106;
+  // Parecido com incapacitada, mas com dano nao letal.
+  optional bool nocauteada = 107;
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
   // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
