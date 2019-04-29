@@ -3365,7 +3365,7 @@ modelo {
   entidade {
     dados_vida: '2d4+13' raca: 'gnomo'
     modelo_3d { id: 'gnome_wizard' }
-    info_classes { id: 'mago' nivel: 4 }
+    info_classes { id: 'mago' nivel: 3 }
     dados_ataque {
       id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
     }
