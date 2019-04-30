@@ -4,10 +4,10 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 3.7.0
+AppVerName=Tabuleiro Virtual 3.8.0
 AppPublisher=Matferib
 OutputDir=output
-OutputBaseFilename=TabuleiroVirtual-3.7.0
+OutputBaseFilename=TabuleiroVirtual-3.8.0
 Compression=lzma
 SolidCompression=yes
 DefaultDirName={pf32}\TabuleiroVirtual
