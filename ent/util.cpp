@@ -2822,7 +2822,7 @@ Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const En
 }
 
 int Nivel(const EntidadeProto& proto) {
-  int total = 0;
+  int total = -proto.niveis_negativos();
   for (const auto& ic : proto.info_classes()) {
     total += ic.nivel();
   }
