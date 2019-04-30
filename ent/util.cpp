@@ -1449,6 +1449,15 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
   return resultado;
 }
 
+const char* NomeSalvacao(TipoSalvacao ts) {
+  switch (ts) {
+    case TS_FORTITUDE: return "fortitude";
+    case TS_REFLEXO: return "reflexo";
+    case TS_VONTADE: return "vontade";
+    default: return "desconhecido";
+  }
+}
+
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(
@@ -1495,7 +1504,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
         delta_pontos_vida = 0;
       }
       descricao_resultado = StringPrintf(
-          "salvacao sucesso: %d%+d >= %d, dano: %d%s", d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao %s sucesso: %d%+d >= %d, dano: %d%s", NomeSalvacao(da->tipo_salvacao()), d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
       // Nao salvou.
       if (da->resultado_ao_salvar() == RS_MEIO && da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
@@ -1503,7 +1512,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
         str_evasao = " (evasão aprimorada)";
       }
       descricao_resultado = StringPrintf(
-          "salvacao falhou: %d%+d < %d, dano: %d%s", d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao %s falhou: %d%+d < %d, dano: %d%s", NomeSalvacao(da->tipo_salvacao()), d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     salvou = true;
@@ -1783,8 +1792,8 @@ void PreencheNotificacaoEvento(
   }
 }
 
-void PreencheNotificacaoEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
@@ -1792,6 +1801,8 @@ void PreencheNotificacaoEventoEfeitoAdicional(
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
+  evento->set_tipo_salvacao(da.tipo_salvacao());
+  evento->set_dificuldade_salvacao(da.dificuldade_salvacao());
   if (n_desfazer != nullptr) {
     *n_desfazer = *n;
   }

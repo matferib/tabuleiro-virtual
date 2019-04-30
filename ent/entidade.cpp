@@ -1020,8 +1020,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
-  int pontos_vida_antes = PontosVida();
-  int dano_nao_letal_antes = DanoNaoLetal();
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();

@@ -7178,6 +7178,36 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
       PreencheNotificacaoAtualizaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
       AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
+    } else if (evento->id_efeito() == EFEITO_PARALISIA) {
+      if (!evento->has_dificuldade_salvacao() || !evento->has_tipo_salvacao()) {
+        AdicionaAcaoTextoLogado(
+            entidade.Id(), "Não foi possivel rolar paralisia automaticamente, rolar manualmente", atraso_s);
+        LOG(ERROR) << "evento: " << evento->DebugString();
+        atraso_s += 0.5f;
+        continue;
+      }
+      // TODO: pegar a origem do efeito. Nao eh tao dificil.
+      int nao_usado;
+      bool salvou;
+      std::string texto;
+      DadosAtaque da;
+      da.set_tipo_salvacao(evento->tipo_salvacao());
+      da.set_dificuldade_salvacao(evento->dificuldade_salvacao());
+      auto dummy = NovaEntidadeFalsa(tabelas_);
+      std::tie(nao_usado, salvou, texto) =
+          AtaqueVsSalvacao(0, &da, *dummy, entidade);
+      if (salvou) {
+        AdicionaAcaoTextoLogado(
+            entidade.Id(), StringPrintf("paralisia quebrada: %s", texto.c_str()),
+            atraso_s);
+        *proto_antes->add_evento() = *evento;
+        auto* evento_depois = proto_depois->add_evento();
+        *evento_depois = *evento;
+        evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+      } else {
+        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("paralisia permanece: %s", texto.c_str()), atraso_s);
+      }
+      atraso_s += 0.5f;
     }
   }
 }

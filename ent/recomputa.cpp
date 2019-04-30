@@ -1540,6 +1540,9 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (acao.has_ataque_arremesso()) {
     da->set_ataque_arremesso(true);
   }
+  if (acao.has_tipo_salvacao()) {
+    da->set_tipo_salvacao(acao.tipo_salvacao());
+  }
 
   if (da->acao().has_dificuldade_salvacao_base() || da->acao().dificuldade_salvacao_por_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
