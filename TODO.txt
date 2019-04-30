@@ -1,3 +1,4 @@
+Fazer maximo de criaturas afetadas.
 Testar a nova consequencia com pontos de vida temporarios.
 Cura acelerada nao cura se morta.
 Refazer ilusionista.
