@@ -3186,7 +3186,6 @@ modelo {
     }
     dados_ataque {
       tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
-      limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
       mantem_com_limite_zerado: true
       ignora_reflexos: true
       incrementa_proximo_ataque: false
@@ -3224,8 +3223,8 @@ modelo {
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       pocoes { id: 'escudo_fe_2' }
-      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'protecao_contra_mal' }
+      pergaminhos_arcanos { id: 'curar_ferimentos_moderados' }
       tesouro: '10 PO'
     }
     feiticos_classes {

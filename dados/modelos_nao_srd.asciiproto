@@ -583,6 +583,10 @@ modelo {
       requer_modelo_ativo: EFEITO_MODELO_VULTO
       acao_fixa {
         classe_conjuracao: ''
+        efeitos_adicionais {
+          combinar_com_efeito: EFEITO_REFLEXOS
+          requer_modelo_ativo: EFEITO_MODELO_VULTO
+        }
       }
     }
     dados_ataque {
@@ -592,12 +596,17 @@ modelo {
       acao_fixa {
         id: 'Feitiço Pessoal'
         classe_conjuracao: ''
+        efeitos_adicionais {
+          combinar_com_efeito: EFEITO_INVISIBILIDADE
+          requer_modelo_ativo: EFEITO_MODELO_VULTO
+        }
       }
     }
     dados_ataque {
       rotulo: 'reduzir luz a vontade' grupo: 'reduzir luz' tipo_ataque: 'Feitiço de Toque a Distância' alcance_q: 20
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
+      incrementa_proximo_ataque: false
       acao_fixa {
         classe_conjuracao: ''
         reduz_luz: true

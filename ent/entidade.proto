@@ -344,6 +344,8 @@ message EntidadeProto {
     optional bool requer_pai = 10;
     // Para eventos que precisam salvar estado anterior. Especifico por tipo de efeito.
     optional bytes estado_anterior = 11;
+    // O evento requer um modelo ativo para permanecer.
+    optional TipoEfeitoModelo requer_modelo_ativo = 12;
   }
   repeated Evento evento = 31;
 

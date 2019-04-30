@@ -3153,6 +3153,9 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
                          !efeito_adicional.has_modificador_rodadas() &&
                          !efeito_adicional.has_dado_modificador_rodadas());
   auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
+  if (efeito_adicional.has_requer_modelo_ativo()) {
+    e->set_requer_modelo_ativo(efeito_adicional.requer_modelo_ativo());
+  }
   PreencheComplementos(id_origem, nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   return e;
