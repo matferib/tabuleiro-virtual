@@ -3476,18 +3476,6 @@ modelo {
       id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 10
     }
-    dados_ataque {
-      tipo_ataque: 'Feitiço de Mago' id_arma: 'silencio' empunhadura: EA_ARMA_APENAS
-      limite_vezes: 1 nivel_conjurador_pergaminho: 3 modificador_atributo_pergaminho: 1
-    }
-    dados_ataque {
-      tipo_ataque: 'Feitiço de Mago' id_arma: 'imobilizar_pessoa' empunhadura: EA_ARMA_APENAS
-      limite_vezes: 1 nivel_conjurador_pergaminho: 5 modificador_atributo_pergaminho: 1
-    }
-    dados_ataque {
-      tipo_ataque: 'Feitiço de Mago' id_arma: 'deslocamento' empunhadura: EA_ARMA_APENAS
-      limite_vezes: 1 nivel_conjurador_pergaminho: 5 modificador_atributo_pergaminho: 1
-    }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
       # Vai pra 8 com racial.
@@ -3513,11 +3501,40 @@ modelo {
     info_pericias { id: 'observar' pontos: 1 }
     info_pericias { id: 'identificar_magia' pontos: 7 }
     tesouro {
-      pocoes { id: 'nublar' }
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'pele_arvore_3' }
+      pocoes { id: 'ajuda' }
+      pocoes { id: 'astucia_raposa' }
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\nver pergaminhos\nbesta obra prima'
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      # 0 nivel: 9 PO cada;
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      # 1 nivel: 17 para o que sabe, 25 pro resto.
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
+      pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      # 2 nivel: 105 para o que sabe, 150 pro resto.
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'padrao_hipnotico' }
+      pergaminhos_arcanos { id: 'invisibilidade' }
+      pergaminhos_arcanos { id: 'reflexos' }
+      pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
+
+      tesouro: '10 PO\nbesta obra prima'
     }
 
     feiticos_classes {
@@ -3569,9 +3586,6 @@ modelo {
     }
   }
 }
-
-
-
 
 modelo {
   id: 'Humano Mago'
