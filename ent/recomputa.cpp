@@ -889,6 +889,19 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
               BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
           (feitico_extra ? 1 : 0);
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+      for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
+        // Escolhe aleatorio.
+        if (!pl.has_nivel_conhecido()) {
+          pl.set_nivel_conhecido(nivel_magia);
+        }
+        if (!pl.has_indice_conhecido()) {
+          int dado = fc->feiticos_por_nivel(nivel_magia).conhecidos().size();
+          int indice = RolaDado(dado) - 1;
+          VLOG(2) << "rolando d" << dado << ": resultado -1 = " << indice;
+          pl.set_nivel_conhecido(nivel_magia);
+          pl.set_indice_conhecido(indice);
+        }
+      }
     }
   }
 }

@@ -3791,6 +3791,7 @@ modelo {
       tesouro: '10 PO\nbesta obra prima\ngrimório com 29 páginas escritas (valor cheio 2900 PO)'
     }
 
+    # Deixar um slot sempre aberto para aleatorizar.
     feiticos_classes {
       id_classe: 'mago'
       feiticos_por_nivel {
@@ -3806,7 +3807,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        #para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 1
@@ -3821,7 +3822,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        #para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 2
@@ -3832,7 +3833,7 @@ modelo {
 
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        #para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
       }
       feiticos_por_nivel {
         nivel: 3
@@ -3840,7 +3841,7 @@ modelo {
         conhecidos { id: 'imobilizar_pessoa' }
 
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        #para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
       }
     }
   }
