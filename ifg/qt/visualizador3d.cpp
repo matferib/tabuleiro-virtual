@@ -638,6 +638,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     gerador.combo_tipo_forma->setEnabled(false);
   }
 
+  gerador.checkbox_afetado_por_efeitos->setCheckState(entidade.pode_ser_afetada_por_acao() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_respeita_solo->setCheckState(entidade.forcar_respeita_solo() ? Qt::Checked : Qt::Unchecked);
+
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
@@ -831,6 +834,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_cor();
     }
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    if (gerador.checkbox_respeita_solo->checkState() == Qt::Checked) {
+      proto_retornado->set_forcar_respeita_solo(true);
+    } else {
+      proto_retornado->clear_forcar_respeita_solo();
+    }
+    proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_dois_lados(gerador.checkbox_dois_lados->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
@@ -1430,42 +1439,44 @@ void ConfiguraListaItensMagicos(
   auto* delegado = new ItemMagicoDelegate(tabelas, tipo, lista, proto_retornado);
   lista->setItemDelegate(delegado);
   delegado->deleteLater();
-  // Sinal de alteracao.
-  lambda_connect(lista, SIGNAL(currentRowChanged(int)), [tipo, lista, botao_usar, &tabelas, proto_retornado] () {
-    int row = lista->currentRow();
-    if (row < 0 || row >= lista->count() || row >= ItensProto(tipo, *proto_retornado).size()) {
-      botao_usar->setText("Vestir");
-    } else {
-      botao_usar->setText(ItensProto(tipo, *proto_retornado).Get(row).em_uso() ? "Tirar" : "Vestir");
-    }
-  });
-  // Botao de usar.
-  lambda_connect(botao_usar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
-    const int indice = lista->currentRow();
-    auto* itens_personagem = ent::ItensProtoMutavel(tipo, proto_retornado);
-    if (indice < 0 || indice >= itens_personagem->size()) {
-      return;
-    }
-    auto* item = itens_personagem->Mutable(indice);
-    bool em_uso_antes = item->em_uso();
-    if (!em_uso_antes) {
-      int num_em_uso = std::count_if(
-        itens_personagem->begin(), itens_personagem->end(), [] (const ent::ItemMagicoProto& item) {
-           return item.em_uso();
-        });
-      if (num_em_uso >= MaximoEmUso(tipo)) {
-        QMessageBox::information(
-            lista, QObject::tr("Informação"),
-            QObject::tr(google::protobuf::StringPrintf("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
+  if (botao_usar != nullptr) {
+    // Muda botao de usar.
+    lambda_connect(lista, SIGNAL(currentRowChanged(int)), [tipo, lista, botao_usar, &tabelas, proto_retornado] () {
+      int row = lista->currentRow();
+      if (row < 0 || row >= lista->count() || row >= ItensProto(tipo, *proto_retornado).size()) {
+        botao_usar->setText("Vestir");
+      } else {
+        botao_usar->setText(ItensProto(tipo, *proto_retornado).Get(row).em_uso() ? "Tirar" : "Vestir");
+      }
+    });
+    // Botao de usar.
+    lambda_connect(botao_usar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
+      const int indice = lista->currentRow();
+      auto* itens_personagem = ent::ItensProtoMutavel(tipo, proto_retornado);
+      if (indice < 0 || indice >= itens_personagem->size()) {
         return;
       }
-      item->set_em_uso(true);
-    } else {
-      item->set_em_uso(false);
-    }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
-    AtualizaUI(tabelas, gerador, *proto_retornado);
-  });
+      auto* item = itens_personagem->Mutable(indice);
+      bool em_uso_antes = item->em_uso();
+      if (!em_uso_antes) {
+        int num_em_uso = std::count_if(
+          itens_personagem->begin(), itens_personagem->end(), [] (const ent::ItemMagicoProto& item) {
+             return item.em_uso();
+          });
+        if (num_em_uso >= MaximoEmUso(tipo)) {
+          QMessageBox::information(
+              lista, QObject::tr("Informação"),
+              QObject::tr(google::protobuf::StringPrintf("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
+          return;
+        }
+        item->set_em_uso(true);
+      } else {
+        item->set_em_uso(false);
+      }
+      ent::RecomputaDependencias(tabelas, proto_retornado);
+      AtualizaUI(tabelas, gerador, *proto_retornado);
+    });
+  }
   lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
     auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
     itens->Add();
@@ -1520,6 +1531,15 @@ void PreencheConfiguraTesouro(
     });
   }
 
+  // Pergaminhos.
+  ConfiguraListaItensMagicos(
+      tabelas, gerador, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
+      gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr, gerador.botao_adicionar_pergaminho_arcano, gerador.botao_remover_pergaminho_arcano,
+      proto_retornado);
+  ConfiguraListaItensMagicos(
+      tabelas, gerador, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
+      gerador.lista_pergaminhos_divinos, /*usar=*/nullptr, gerador.botao_adicionar_pergaminho_divino, gerador.botao_remover_pergaminho_divino,
+      proto_retornado);
   // Aneis.
   ConfiguraListaItensMagicos(
       tabelas, gerador, ent::TipoItem::TIPO_ANEL,
@@ -1619,15 +1639,10 @@ void PreencheConfiguraDadosDefesa(
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
-  gerador.spin_rm->setValue(
-      ent::BonusIndividualPorOrigem(ent::TB_BASE, "manual", proto_retornado->dados_defesa().resistencia_magia_variavel()));
-  lambda_connect(gerador.spin_rm, SIGNAL(valueChanged(int)), [&gerador, proto_retornado]() {
-    auto* bonus = proto_retornado->mutable_dados_defesa()->mutable_resistencia_magia_variavel();
-    if (gerador.spin_rm->value() > 0) {
-      ent::AtribuiBonus(gerador.spin_rm->value(), ent::TB_BASE, "manual", bonus);
-    } else {
-      ent::RemoveBonus(ent::TB_BASE, "manual", bonus);
-    }
+
+  lambda_connect(gerador.botao_resistencia_magia, SIGNAL(clicked()), [this_, &gerador, proto_retornado] () {
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+    AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
   });
 
   auto* mdd = proto_retornado->mutable_dados_defesa();

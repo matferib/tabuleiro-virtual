@@ -1,5 +1,11 @@
-# Este arquivo é uma representação texto do proto ent::Modelos definido no controle_virtual.proto.
+# Este arquivo é uma representação texto do proto ent::Modelos definido no entidade.proto.
 # Para aparecer no jogo, deve ser adicionado em menu_modelos.asciiproto tb.
+modelo {
+  id: 'Padrão'
+  entidade {
+  }
+}
+
 modelo {
   id: 'Abocanhador Matraqueante'
   entidade {
@@ -87,7 +93,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'iniciativa_aprimorada' }
-      gerais { id: 'acuidade_arma' }
+      outros { id: 'acuidade_arma' }
     }
   }
 }
@@ -625,10 +631,9 @@ modelo {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
+          combinar_com_efeito: EFEITO_REFLEXOS
           rodadas: 12
           dado_complementos_str: '1d4+4'
-          combinar_com: 0
         }
       }
     }
@@ -639,9 +644,8 @@ modelo {
         tipo: ACAO_FEITICO_TOQUE
         ignora_resistencia_magia: true
         efeitos_adicionais {
-          efeito: EFEITO_HEROISMO
+          combinar_com_efeito: EFEITO_HEROISMO
           rodadas: 120
-          combinar_com: 0
         }
       }
     }
@@ -1070,10 +1074,12 @@ modelo {
 modelo {
   id: 'Constrição'
   entidade {
-    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 6.0  z: 0.1 } }
-    cor { r: 0 g: 0 b: 0 a: 1 }
+    modelo_3d { id: 'builtin:esfera' escala { x: 8 y: 8 z: 0.1 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+    pode_ser_afetada_por_acao: false
     dados_ataque {
       rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
+      dificuldade_salvacao: 11  # template vai adicionar os modificadores de atributo.
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_ESFERA
@@ -1083,6 +1089,7 @@ modelo {
         permite_salvacao: true
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
+        dificuldade_salvacao_por_nivel: false
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
           rodadas: 1
@@ -1105,6 +1112,7 @@ modelo {
   entidade {
     modelo_3d { id: 'builtin:esfera' escala { x: 2 y: 2  z: 0.1 } }
     cor { r: 0 g: 0 b: 0 a: 1 }
+    pode_ser_afetada_por_acao: false
     dados_ataque {
       rotulo: 'Graxa' tipo_ataque: 'Feitiço de Toque' alcance_q: 2 derruba_sem_teste: true
       dificuldade_salvacao: 11
@@ -1260,13 +1268,18 @@ modelo {
     aura_m: 1.5  # 1 quadrado de raio
     cor { r: 1 g: 1 b: 1 a: 1 }
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
+    pode_ser_afetada_por_acao: false
+    gerar_agarrar: false
     dados_ataque {
       rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano_basico: '2d6'
+      dificuldade_salvacao: 12  # template vai adicionar os modificadores de atributo.
+      incrementa_proximo_ataque: false
       acao_fixa {
         cor { r: 1.0 g: 1.0  b: 0.0 }
         permite_ataque_vs_defesa: false
         tipo_salvacao: TS_REFLEXO permite_salvacao: true resultado_ao_salvar: RS_ANULOU consequencia: TC_INFLAMA_ALVO
         elemento: DESC_FOGO
+        dificuldade_salvacao_por_nivel: false  # ja vai vir pronto do template.
       }
     }
     ignora_luz: true
@@ -1286,6 +1299,7 @@ modelo {
     modelo_3d { id: 'black_tentacles' }
     cor { r: 0.1 g: 0.1 b: 0.1 a: 1 }
     tamanho: TM_GRANDE
+    pode_ser_afetada_por_acao: false
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
     }
@@ -2212,7 +2226,6 @@ modelo {
     dados_ataque { grupo: 'dist' id_arma: 'adaga' municao: 1 tipo_ataque: 'Ataque a Distância' }
     info_talentos {
       gerais { id: 'vitalidade' }
-      gerais { id: 'foco_em_pericia' }
     }
     info_pericias { id: 'cavalgar' pontos: 4 }
     info_pericias { id: 'adestrar_animais' pontos: 1 }
@@ -2233,8 +2246,12 @@ modelo {
 
 modelo {
   id: 'Humano Plebeu Base'
+  id_entidade_base: 'Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_male' }
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -2244,6 +2261,7 @@ modelo {
 
 modelo {
   id: 'Humana Plebeia Base'
+  id_entidade_base: 'Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_female' }
     atributos {
@@ -2255,7 +2273,6 @@ modelo {
 
 modelo {
   id: 'Humano Plebeu 1'
-  id_entidade_base: 'Plebeu Base'
   id_entidade_base: 'Humano Plebeu Base'
   entidade {
     rotulo: 'humano plebeu 1'
@@ -2271,7 +2288,6 @@ modelo {
 
 modelo {
   id: 'Humana Plebeia 1'
-  id_entidade_base: 'Plebeu Base'
   id_entidade_base: 'Humana Plebeia Base'
   entidade {
     rotulo: 'humana plebeia 1'
@@ -2287,7 +2303,6 @@ modelo {
 
 modelo {
   id: 'Humano Plebeu 2'
-  id_entidade_base: 'Plebeu Base'
   id_entidade_base: 'Humano Plebeu Base'
   entidade {
     rotulo: 'humano plebeu 2'
@@ -2305,7 +2320,6 @@ modelo {
 
 modelo {
   id: 'Humana Plebeia 2'
-  id_entidade_base: 'Plebeu Base'
   id_entidade_base: 'Humana Plebeia Base'
   entidade {
     rotulo: 'humana plebeia 2'
@@ -2325,7 +2339,6 @@ modelo {
   entidade {
     info_talentos {
       gerais { id: 'vitalidade' }
-      gerais { id: 'iniciativa_aprimorada' }
     }
     atributos {
       # Usa o array padrao.
@@ -2340,8 +2353,18 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Combatente 1'
+  id: 'Humano Combatente Base'
   id_entidade_base: 'Combatente Base'
+  entidade {
+    info_talentos {
+      outros { id: 'iniciativa_aprimorada' }
+    }
+  }
+}
+
+modelo {
+  id: 'Humano Combatente 1'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 1'
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -2354,7 +2377,7 @@ modelo {
 }
 modelo {
   id: 'Humano Combatente 2'
-  id_entidade_base: 'Combatente Base'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 2'
     dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
@@ -2368,7 +2391,7 @@ modelo {
 
 modelo {
   id: 'Humano Combatente 4'
-  id_entidade_base: 'Combatente Base'
+  id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 4'
     info_classes { id: 'combatente' nivel: 4 }
@@ -2391,14 +2414,21 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Aristocrata Base'
+  id_entidade_base: 'Aristocrata Base'
+  entidade {
+    info_talentos {
+      outros { id: 'negociador' }
+    }
+  }
+}
 
 modelo {
   id: 'Aristocrata Mulher Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   entidade {
     modelo_3d { id: 'human_aristocrat_female' }
-    info_talentos {
-      gerais { id: 'negociador' }
-    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
@@ -2408,12 +2438,10 @@ modelo {
 
 modelo {
   id: 'Aristocrata Homem Base'
+  id_entidade_base: 'Humano Aristocrata Base'
   entidade {
     modelo_3d { id: 'human_aristocrat_male' }
     cor { r: 0.9 g: 0.8 b: 0.8 }
-    info_talentos {
-      gerais { id: 'negociador' }
-    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -2423,7 +2451,6 @@ modelo {
 
 modelo {
   id: 'Humano Aristocrata 5'
-  id_entidade_base: 'Aristocrata Base'
   id_entidade_base: 'Aristocrata Homem Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 5 }
@@ -2459,7 +2486,6 @@ modelo {
 
 modelo {
   id: 'Humana Aristocrata 5'
-  id_entidade_base: 'Aristocrata Base'
   id_entidade_base: 'Aristocrata Mulher Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 5 }
@@ -2494,7 +2520,6 @@ modelo {
 
 modelo {
   id: 'Humano Aristocrata 6'
-  id_entidade_base: 'Aristocrata Base'
   id_entidade_base: 'Aristocrata Homem Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 6 }
@@ -2522,7 +2547,6 @@ modelo {
 
 modelo {
   id: 'Humana Aristocrata 6'
-  id_entidade_base: 'Aristocrata Base'
   id_entidade_base: 'Aristocrata Mulher Base'
   entidade {
     info_classes { id: 'aristocrata' nivel: 6 }
@@ -2549,7 +2573,26 @@ modelo {
 }
 
 modelo {
+  id: 'Humano Clérigo Base'
+  entidade {
+    info_talentos {
+      outros{ id: 'foco_em_arma' complemento: 'maca_estrela' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Clérigo'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '10' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 1 }
@@ -2567,19 +2610,11 @@ modelo {
       pocoes { id: 'escudo_fe_2' }
       tesouro: '150 PO'
     }
-    atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-    }
   }
 }
 modelo {
   id: 'Humano Clérigo 4'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '3d8+16' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 4 }
@@ -2648,19 +2683,14 @@ modelo {
       }
     }
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
   }
 }
 
 modelo {
   id: 'Humano Clérigo 5'
+  id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida: '4d8+18' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 5 }
@@ -2738,13 +2768,7 @@ modelo {
     }
 
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
   }
 }
@@ -2844,10 +2868,10 @@ modelo {
       municao: 10
     }
     info_talentos {
-      gerais { id: 'prontidao' }
       gerais { id: 'iniciativa_aprimorada' }
       gerais { id: 'vitalidade' }
-      gerais { id: 'magia_combate' }
+      outros { id: 'prontidao' origem: 'familiar' }
+      outros { id: 'magia_combate' origem: 'humano' }
     }
     info_pericias { id: 'blefar' pontos: 8 }
     info_pericias { id: 'concentracao' pontos: 8 }
@@ -2859,11 +2883,39 @@ modelo {
     info_pericias { id: 'identificar_magia' pontos: 8 }
     info_pericias { id: 'observar' pontos: 8 }
     tesouro {
-      pocoes { id: 'nublar' }
+      # Novamente, a tabela parece estar errada no DMG. Deveria ser 3000 PO pra dar 4300.
+      # 0 nivel: 12.5 PO cada
+      pergaminhos_arcanos { id: 'detectar_magia' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 25 PO cada
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      # 2 nivel: 150 PO cada
+      pergaminhos_arcanos { id: 'nublar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'agilidade_gato' }
+      # 3o nivel, com chance de falha: 375 PO cada.
+      pergaminhos_arcanos { id: 'imobilizar_pessoa' }
+
+      pocoes { id: 'ajuda' }
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'velocidade' }
+
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de invisibilidade x2, flecha acida x2, teia x2'
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      tesouro: '10 PO'
     }
 
     feiticos_classes {
@@ -2893,7 +2945,6 @@ modelo {
   }
 }
 
-
 modelo {
   id: 'Humano Guerreiro'
   entidade {
@@ -2918,44 +2969,10 @@ modelo {
     info_talentos {
       gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
-      gerais { id: 'trespassar' }
-      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
-      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
-      outros { id: 'trespassar_aprimorado' }
-    }
-    atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-    }
-  }
-}
-modelo {
-  id: 'Humano Guerreiro 5'
-  entidade {
-    # Elite.
-    dados_vida: '4d10+10+10'
-    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
-    info_classes { id: 'guerreiro' nivel: 5 }
-    tesouro {
-      pocoes { id: 'escudo_fe_2' }
-      pocoes { id: 'curar_ferimentos_moderados' }
-      tesouro: 'espada bastarda +1, arco longo composto (3) OP\narmadura batalha'
-    }
-    dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
-    dados_defesa { id_armadura: 'armadura_batalha' }
-    info_talentos {
-      gerais { id: 'reflexos_em_combate' }
-      gerais { id: 'ataque_poderoso' }
-      gerais { id: 'trespassar' }
-      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
-      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
-      outros { id: 'trespassar_aprimorado' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -3043,19 +3060,81 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
     dados_ataque_global { dano_furtivo: '2d6' }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
   id: 'Humano Ladino 5'
   entidade {
     info_classes { id: 'ladino' nivel: 5 }
-    dados_vida: '5d6+5' cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '4d6+14' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'adaga op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma: 'arco_curto' obra_prima: true empunhadura: EA_ARMA_APENAS municao: 20 }
     dados_ataque_global { dano_furtivo: '3d6' }
+    dados_defesa {
+      id_armadura: 'couro' armadura_obra_prima: true
+      id_escudo: 'broquel' escudo_obra_prima: true
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'usar_escudo' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'neutralizar_venenos' }
+      pocoes { id: 'neutralizar_venenos' }
+      tesouro: '10 PO\nferramenta de ladino OP'
+    }
+
+    # Humano tem mais pontos.
+    info_pericias { id: 'arte_da_fuga' pontos: 7 }
+    info_pericias { id: 'equilibrio' pontos: 5 }
+    info_pericias { id: '' pontos: 7 }
+    info_pericias { id: 'esconderse' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'furtividade' pontos: 8 }
+    info_pericias { id: 'abrir_fechaduras' pontos: 8 }
+    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'procurar' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 8 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
@@ -3069,8 +3148,114 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d4+1' ca_normal: 18 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d6+1' ca_normal: 17 }
     dados_ataque_global { dano_furtivo: '4d6' }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
+modelo {
+  id: 'Humano Bardo 4'
+  entidade {
+    dados_vida: '3d6+9' raca: 'humano'
+    info_textura { id: 'human_bard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'bardo' nivel: 4 }
+    atributos {
+      # Usa o array elite 10, 13, 12, 14, 8, 15+1
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 }  } }
+    }
+    dados_ataque {
+      id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    dados_ataque {
+      tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      mantem_com_limite_zerado: true
+      ignora_reflexos: true
+      incrementa_proximo_ataque: false
+      alcance_q: 6
+      acao_fixa {
+        icone: 'icon_bardic_music.png'
+        ignora_resistencia_magia: true
+        permite_salvacao: false
+        efeitos_adicionais {
+          efeito: EFEITO_INSPIRAR_CORAGEM
+          rodadas: 5
+          complementos: 1
+        }
+      }
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
+    }
+
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      outros { id: 'mobilidade' }
+    }
+    info_pericias { id: 'arte_da_fuga' pontos: 6 }
+    info_pericias { id: 'acrobacias' pontos: 3 }
+    info_pericias { id: 'blefar' pontos: 5 }
+    info_pericias { id: 'sentir_motivacao' pontos: 6 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 5 }
+    info_pericias { id: 'atuacao' pontos: 6 }
+    info_pericias { id: 'obter_informacao' pontos: 5 }
+    info_pericias { id: 'intimidacao' pontos: 6 }
+    info_pericias { id: 'decifrar_escrita' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 3 }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'protecao_contra_mal' }
+      pergaminhos_arcanos { id: 'curar_ferimentos_moderados' }
+      tesouro: '10 PO'
+    }
+    feiticos_classes {
+      id_classe: 'bardo'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'abrir_fechar' }
+        conhecidos { id: 'invocar_instrumento' }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'confusao_menor' }
+        conhecidos { id: 'curar_ferimentos_leves' }
+        conhecidos { id: 'area_escorregadia' }
+        conhecidos { id: 'remover_medo' }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'esplendor_aguia' }
+        conhecidos { id: 'explosao_sonora' }
+      }
+    }
+  }
+}
+
+
 modelo {
   id: 'Humano Bardo 5'
   entidade {
@@ -3093,13 +3278,18 @@ modelo {
       id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
       municao: 10
     }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
+    }
     dados_ataque {
-      tipo_ataque: 'Feitiço de Toque a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar_coragem aliados (5/dia)'
+      limite_vezes: 5 # isso eh problematico aqui, ja que emulamos o uso com varios toques, que consumirao um uso cada.
+      mantem_com_limite_zerado: true
       ignora_reflexos: true
       incrementa_proximo_ataque: false
       alcance_q: 6
       acao_fixa {
-        permite_ataque_vs_defesa: false
+        icone: 'icon_bardic_music.png'
         ignora_resistencia_magia: true
         permite_salvacao: false
         efeitos_adicionais {
@@ -3109,11 +3299,10 @@ modelo {
         }
       }
     }
-
     info_talentos {
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }
-      gerais { id: 'mobilidade' }
+      outros { id: 'mobilidade' }
     }
     info_pericias { id: 'arte_da_fuga' pontos: 6 }
     info_pericias { id: 'acrobacias' pontos: 3 }
@@ -3161,6 +3350,241 @@ modelo {
   }
 }
 
+modelo {
+  id: 'Gnomo Ilusionista 3'
+  entidade {
+    dados_vida: '2d4+13' raca: 'gnomo'
+    modelo_3d { id: 'gnome_wizard' }
+    info_classes { id: 'mago' nivel: 3 }
+    dados_ataque {
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      # Vai pra 8 com racial.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      # Vai pra 15 com racial.
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    info_talentos {
+      gerais { id: 'magia_combate' }
+      gerais { id: 'vitalidade' }
+      outros { id: 'escrever_pergaminho' origem: 'mago' }
+      outros { id: 'prontidao' origem: 'familiar' }
+    }
+    info_pericias { id: 'concentracao' pontos: 6 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 6 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 3 }
+    info_pericias { id: 'conhecimento_historia' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'procurar' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'identificar_magia' pontos: 6 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      # 0 nivel: 9 PO cada;
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      # 1 nivel: 17 para o que sabe, 25 pro resto.
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      # 2 nivel: 105 para o que sabe, 150 pro resto.
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'padrao_hipnotico' }
+      pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
+
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      tesouro: '10 PO\nbesta obra prima'
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      especializacao: 'ilusao'
+      escolas_proibidas: 'conjuracao'
+      escolas_proibidas: 'evocacao'
+      feiticos_por_nivel {
+        # Grimorio tem todas de 0 (exceto proibidas), 7 de primeiro, 2 de segundo.
+        # 4+1
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'toque_fadiga' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        # 3+1
+        nivel: 1
+        conhecidos { id: 'leque_cromatico' }
+        conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'imagem_silenciosa' }
+        conhecidos { id: 'causar_medo' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        # 1+1
+        nivel: 2
+        conhecidos { id: 'aterrorizar' }
+        conhecidos { id: 'padrao_hipnotico' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+      }
+    }
+  }
+}
+
+modelo {
+  id: 'Gnomo Ilusionista 4'
+  entidade {
+    dados_vida: '3d4+15' raca: 'gnomo'
+    modelo_3d { id: 'gnome_wizard' }
+    info_classes { id: 'mago' nivel: 4 }
+    dados_ataque {
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'besta_de_mao' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      # Vai pra 8 com racial.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      # Vai pra 15 com racial.
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    info_talentos {
+      gerais { id: 'magia_combate' }
+      gerais { id: 'vitalidade' }
+      outros { id: 'escrever_pergaminho' }
+    }
+    info_pericias { id: 'concentracao' pontos: 7 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 7 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 7 }
+    info_pericias { id: 'conhecimento_historia' pontos: 7 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'procurar' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'identificar_magia' pontos: 7 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'ajuda' }
+      pocoes { id: 'astucia_raposa' }
+      bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      # 0 nivel: 9 PO cada;
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'toque_fadiga' }
+      # 1 nivel: 17 para o que sabe, 25 pro resto.
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'raio_enfraquecimento' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
+      pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      # 2 nivel: 105 para o que sabe, 150 pro resto.
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'aterrorizar' }
+      pergaminhos_arcanos { id: 'padrao_hipnotico' }
+      pergaminhos_arcanos { id: 'invisibilidade' }
+      pergaminhos_arcanos { id: 'reflexos' }
+      pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
+
+      tesouro: '10 PO\nbesta obra prima'
+    }
+
+    feiticos_classes {
+      id_classe: 'mago'
+      especializacao: 'ilusao'
+      escolas_proibidas: 'conjuracao'
+      escolas_proibidas: 'evocacao'
+      feiticos_por_nivel {
+        # 4+1
+        nivel: 0
+        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'mensagem' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        # 4+1
+        nivel: 1
+        conhecidos { id: 'leque_cromatico' }
+        conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'armadura_arcana' }
+        conhecidos { id: 'imagem_silenciosa' }
+        conhecidos { id: 'causar_medo' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        # 3+1
+        nivel: 2
+        conhecidos { id: 'reflexos' }
+        conhecidos { id: 'invisibilidade' }
+        conhecidos { id: 'aterrorizar' }
+        conhecidos { id: 'padrao_hipnotico' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+    }
+  }
+}
 
 modelo {
   id: 'Humano Mago'
@@ -3196,10 +3620,11 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     info_talentos {
-      gerais { id: 'preparar_pocao' }
+      gerais { id: 'magia_silenciosa' }
       gerais { id: 'magia_combate' }
-      gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'vitalidade' }
+      outros { id: 'escrever_pergaminho' origem: 'mago' }
+      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'prontidao' origem: 'familiar' }
     }
     info_pericias { id: 'concentracao' pontos: 7 }
     info_pericias { id: 'conhecimento_arcano' pontos: 7 }
@@ -3210,11 +3635,37 @@ modelo {
     info_pericias { id: 'observar' pontos: 1 }
     info_pericias { id: 'identificar_magia' pontos: 7 }
     tesouro {
-      pocoes { id: 'nublar' }
+      # A tabela do DMG ta errada, ta faltando 1000 PO. Coloquei no manto.
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'velocidade' }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de confusão, bola de fogo, teia\nbesta obra prima'
+      # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
+      # 0 nivel: 9 PO cada
+      pergaminhos_arcanos { id: 'detectar_magia' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 17 PO cada
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'armadura_arcana' }
+      # 2 nivel: 105 PO cada
+      pergaminhos_arcanos { id: 'nublar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'vigor_urso' }
+      # Grimorio vale 2300 preco cheio (vende pela metade).
+      # Porem, para o mago, ele sai pelo preco do livro apenas 15.
+      # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
+      # Total aqui: 11 magias + todas de 0 nivel.
+      tesouro: '10 PO\nbesta obra prima\ngrimório com 23 páginas escritas (valor cheio 2300 PO)'
     }
 
     feiticos_classes {
@@ -3222,40 +3673,40 @@ modelo {
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'pasmar' }
+        conhecidos { id: 'brilho' }
+        conhecidos { id: 'raio_gelo' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_veneno' }
-        conhecidos { id: 'brilho' }
-        conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_gelo' }
-        conhecidos { id: 'ler_magias' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
-        conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
-        conhecidos { id: 'arma_magica' }
+        conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'nublar' }
+        conhecidos { id: 'ataque_certeiro' }
+        conhecidos { id: 'sono' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'nublar' }
+        conhecidos { id: 'flecha_acida' }
         conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
-        conhecidos { id: 'arrombar' }
-        conhecidos { id: 'flecha_acida' }
-        conhecidos { id: 'resistencia_elementos' }
+        conhecidos { id: 'nublar' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
     }
   }
@@ -3284,10 +3735,11 @@ modelo {
       municao: 10
     }
     info_talentos {
-      gerais { id: 'preparar_pocao' }
       gerais { id: 'magia_combate' }
       gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'vitalidade' }
+      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'preparar_pocao' origem: 'mago' }
+      outros { id: 'prontidao' origem: 'familiar' }
     }
     info_pericias { id: 'concentracao' pontos: 8 }
     info_pericias { id: 'conhecimento_arcano' pontos: 8 }
@@ -3298,12 +3750,45 @@ modelo {
     info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'identificar_magia' pontos: 8 }
     tesouro {
-      pocoes { id: 'nublar' }
+      # A tabela do DMG ta errada, ta faltando 1000 PO. Coloquei no manto.
+      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'velocidade' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+
+      mantos { id: 'manto_resistencia_1' em_uso: true }
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\npergaminho de confusão, bola de fogo x2, teia'
+
+      # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
+      # 0 nivel: 9 PO cada
+      pergaminhos_arcanos { id: 'detectar_magia' }
+      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'raio_acido' }
+      pergaminhos_arcanos { id: 'brilho' }
+      pergaminhos_arcanos { id: 'pasmar' }
+      # 1 nivel: 17 PO cada
+      pergaminhos_arcanos { id: 'identificacao' }  # + 100 PO.
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'ataque_certeiro' }
+      pergaminhos_arcanos { id: 'escudo_arcano' }
+      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'armadura_arcana' }
+      # 2 nivel: 105 PO cada
+      pergaminhos_arcanos { id: 'nublar' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'vigor_urso' }
+      # 3 nivel: 245 cada.
+      pergaminhos_arcanos { id: 'bola_fogo' }
+      pergaminhos_arcanos { id: 'imobilizar_pessoa' }
+      # Grimorio vale 2900 preco cheio (vende pela metade).
+      # Porem, para o mago, ele sai pelo preco do livro apenas 15 PO.
+      # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
+      # Total aqui: 13 magias + todas de 0 nivel.
+      tesouro: '10 PO\nbesta obra prima\ngrimório com 29 páginas escritas (valor cheio 2900 PO)'
     }
 
     feiticos_classes {
@@ -3311,49 +3796,51 @@ modelo {
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'pasmar' }
+        conhecidos { id: 'brilho' }
+        conhecidos { id: 'raio_gelo' }
+        conhecidos { id: 'som_fantasma' }
+        conhecidos { id: 'ler_magias' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_veneno' }
-        conhecidos { id: 'brilho' }
-        conhecidos { id: 'som_fantasma' }
-        conhecidos { id: 'raio_gelo' }
-        conhecidos { id: 'ler_magias' }
+
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
-        conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
-        conhecidos { id: 'arma_magica' }
+        conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'nublar' }
+        conhecidos { id: 'ataque_certeiro' }
+        conhecidos { id: 'sono' }
+
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'nublar' }
+        conhecidos { id: 'flecha_acida' }
         conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
-        conhecidos { id: 'arrombar' }
-        conhecidos { id: 'flecha_acida' }
-        conhecidos { id: 'resistencia_elementos' }
+        conhecidos { id: 'nublar' }
+
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 3
-        conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'bola_fogo' }
-        conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'imobilizar_pessoa' }
+
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
     }
   }
@@ -3453,10 +3940,11 @@ modelo {
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'arma_magica' }
         conhecidos { id: 'raio_enfraquecimento' }
+        conhecidos { id: 'ataque_certeiro' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
       }
@@ -3484,7 +3972,7 @@ modelo {
         conhecidos { id: 'bola_fogo' }
         conhecidos { id: 'relampago' }
         conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
@@ -3573,8 +4061,79 @@ modelo {
 
 modelo {
   id: 'Humano Monge'
-  entidade { dados_vida: '1d8' info_textura { id: 'monk.png'} cor { r: 0.3 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '1d8'
+    cor { r: 0.3 g: 0.1 b: 0.1 }
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
+  }
 }
+modelo {
+  id: 'Humano Monge 5'
+  entidade {
+    # Elite.
+    dados_vida: '4d8+13'
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'monge' nivel: 5 }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+    }
+    dados_ataque {
+      grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância' id_arma: 'funda' obra_prima: true municao: 20
+    }
+
+    dados_defesa { }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'mobilidade' }
+      outros { id: 'foco_em_arma' complemento: 'kama' }
+      outros { id: 'ataque_atordoante' }
+      outros { id: 'desviar_objetos' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 6 }
+    info_pericias { id: 'escalar' pontos: 6 }
+    info_pericias { id: 'esconderse' pontos: 6 }
+    info_pericias { id: 'saltar' pontos: 6 }
+    info_pericias { id: 'acrobacias' pontos: 6 }
+    tesouro {
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro: 'kama +1, funda op'
+    }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Paladino'
   entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
@@ -3955,7 +4514,7 @@ modelo {
         dificuldade_salvacao_base: 14
         efeitos_adicionais {
           rodadas: 7200  # 12 horas
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_ENFEITICADO
         }
       }
     }
@@ -3966,10 +4525,9 @@ modelo {
       acao_fixa {
         dificuldade_salvacao_base: 13
         efeitos_adicionais {
-          efeito: EFEITO_SUGESTAO
+          combinar_com_efeito: EFEITO_SUGESTAO
           rodadas: 7200  # * 12 horas.
           descricao: 'sugestão'
-          combinar_com: 0
         }
       }
     }

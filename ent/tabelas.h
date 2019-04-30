@@ -26,11 +26,18 @@ class Tabelas : public ntf::Receptor {
   const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
   const ArmaProto& Arma(const std::string& id) const;
   const ArmaProto& Feitico(const std::string& id) const;
+  enum cura_ou_infligir_e {
+    COI_CURA = 0,
+    COI_INFLIGIR = 1,
+  };
+  const std::string FeiticoConversaoEspontanea(const std::string& id_classe, int nivel, cura_ou_infligir_e cura_ou_infligir) const;
   const ArmaProto& ArmaOuFeitico(const std::string& id) const;
   const EfeitoProto& Efeito(TipoEfeito tipo) const;
   const EfeitoModeloProto& EfeitoModelo(TipoEfeitoModelo tipo) const;
   const AcaoProto& Acao(const std::string& id) const;
   const ItemMagicoProto& Pocao(const std::string& id) const;
+  const ItemMagicoProto& PergaminhoArcano(const std::string& id) const;
+  const ItemMagicoProto& PergaminhoDivino(const std::string& id) const;
   const ItemMagicoProto& Anel(const std::string& id) const;
   const ItemMagicoProto& Manto(const std::string& id) const;
   const ItemMagicoProto& Luvas(const std::string& id) const;
@@ -42,8 +49,10 @@ class Tabelas : public ntf::Receptor {
   const InfoClasse& Classe(const std::string& id) const;
   const PericiaProto& Pericia(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
+  const Modelos& TodosModelosEntidades() const { return tabela_modelos_entidades_; }
   const RacaProto& Raca(const std::string& id) const;
   const DominioProto& Dominio(const std::string& id) const;
+  const Modelo& ModeloEntidade(const std::string& modelo) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
@@ -52,6 +61,8 @@ class Tabelas : public ntf::Receptor {
   TodasTabelas tabelas_;
   // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
   Acoes tabela_acoes_;
+  // Os modelos de entidades.
+  Modelos tabela_modelos_entidades_;
 
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
@@ -60,6 +71,9 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<int, const EfeitoProto*> efeitos_;
   std::unordered_map<int, const EfeitoModeloProto*> efeitos_modelos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;
+  // Pergaminhos sao gerados, entao nao tem uma tabela pra apontar (a tabela eh so pra merge).
+  std::unordered_map<std::string, ItemMagicoProto> pergaminhos_arcanos_;
+  std::unordered_map<std::string, ItemMagicoProto> pergaminhos_divinos_;
   std::unordered_map<std::string, const ItemMagicoProto*> aneis_;
   std::unordered_map<std::string, const ItemMagicoProto*> mantos_;
   std::unordered_map<std::string, const ItemMagicoProto*> luvas_;
@@ -73,6 +87,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const RacaProto*> racas_;
   std::unordered_map<std::string, const AcaoProto*> acoes_;
   std::unordered_map<std::string, const DominioProto*> dominios_;
+  std::unordered_map<std::string, const Modelo*> modelos_entidades_;
 
   ntf::CentralNotificacoes* central_;
 };

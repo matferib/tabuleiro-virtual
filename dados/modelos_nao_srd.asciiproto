@@ -572,121 +572,115 @@ modelo {
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }
+# Contem os ataques de vulto.
+modelo {
+  id: 'Vulto Base'
+  entidade {
+    dados_ataque {
+      limite_vezes: 3
+      rotulo: 'reflexos 3/dia' grupo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      requer_modelo_ativo: EFEITO_MODELO_VULTO
+      acao_fixa {
+        classe_conjuracao: ''
+        efeitos_adicionais {
+          combinar_com_efeito: EFEITO_REFLEXOS
+          requer_modelo_ativo: EFEITO_MODELO_VULTO
+        }
+      }
+    }
+    dados_ataque {
+      rotulo: 'invisibilidade a vontade' grupo: 'invisibilidade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      requer_modelo_ativo: EFEITO_MODELO_VULTO
+      acao_fixa {
+        id: 'Feitiço Pessoal'
+        classe_conjuracao: ''
+        efeitos_adicionais {
+          combinar_com_efeito: EFEITO_INVISIBILIDADE
+          requer_modelo_ativo: EFEITO_MODELO_VULTO
+        }
+      }
+    }
+    dados_ataque {
+      rotulo: 'reduzir luz a vontade' grupo: 'reduzir luz' tipo_ataque: 'Feitiço de Toque a Distância' alcance_q: 20
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      requer_modelo_ativo: EFEITO_MODELO_VULTO
+      incrementa_proximo_ataque: false
+      acao_fixa {
+        classe_conjuracao: ''
+        reduz_luz: true
+        permite_ataque_vs_defesa: false
+        permite_salvacao: false
+        ignora_resistencia_magia: false
+      }
+    }
+    tendencia { simples: TD_LEAL_MAU }
+  }
+}
+modelo {
+  id: 'Vulto Monge 5'
+  id_entidade_base: 'Humano Monge 5'
+  id_entidade_base: 'Vulto Base'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_monk.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+  }
+}
+
+modelo {
+  id: 'Vulto Ladino 5'
+  id_entidade_base: 'Humano Ladino 5'
+  id_entidade_base: 'Vulto Base'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_rogue.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    tendencia { simples: TD_NEUTRO_MAU }
+  }
+}
+
 modelo {
   id: 'Vulto Guerreiro 5'
   id_entidade_base: 'Humano Guerreiro 5'
+  id_entidade_base: 'Vulto Base'
   entidade {
     rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     info_textura { id: 'shade_fighter.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
-    dados_ataque {
-      limite_vezes: 3
-      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
-          rodadas: 50
-          dado_complementos_str: '1d4+1'
-          combinar_com: 0
-        }
-      }
-    }
-    dados_ataque {
-      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_INVISIBILIDADE
-          rodadas: 50
-          combinar_com: 0
-        }
-      }
-    }
   }
 }
 modelo {
   id: 'Vulto Bardo 5'
   id_entidade_base: 'Humano Bardo 5'
+  id_entidade_base: 'Vulto Base'
   entidade {
     rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_bard.png' translacao_x: 0.25 largura: 0.5 }
-    dados_ataque {
-      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
-      limite_vezes: 3
-      acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
-          rodadas: 50
-          dado_complementos_str: '1d4+1'
-          combinar_com: 0
-        }
-      }
-    }
-    dados_ataque {
-      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_INVISIBILIDADE
-          rodadas: 50
-          combinar_com: 0
-        }
-      }
-    }
+    tendencia { simples: TD_NEUTRO_MAU }
     tesouro {
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'ajuda' }
       tesouro: '10 PO'
     }
-
   }
 }
 
 modelo {
   id: 'Vulto Feiticeiro 5'
   id_entidade_base: 'Humano Feiticeiro 5'
+  id_entidade_base: 'Vulto Base'
   entidade {
     rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_sorcerer.png' translacao_x: 0.25 largura: 0.5 }
-    dados_ataque {
-      rotulo: 'reflexos' grupo: '3/dia' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
-      limite_vezes: 3
-      acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
-          rodadas: 50
-          dado_complementos_str: '1d4+1'
-          combinar_com: 0
-        }
-      }
-    }
-    dados_ataque {
-      rotulo: 'invisibilidade' grupo: 'a vontade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_INVISIBILIDADE
-          rodadas: 50
-          combinar_com: 0
-        }
-      }
-    }
     dados_ataque {
       grupo: 'pergaminho' rotulo: 'flecha ácida' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'flecha_acida'
       limite_vezes: 4
@@ -694,7 +688,7 @@ modelo {
         efeitos_adicionais {
           rodadas_base: 2
           modificador_rodadas: MR_NENHUM
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_OUTRO
         }
       }
     }
@@ -705,7 +699,7 @@ modelo {
       acao_fixa {
         efeitos_adicionais {
           rodadas: 300
-          combinar_com: 0
+          combinar_com_efeito: EFEITO_ENREDADO
         }
       }
     }
@@ -952,6 +946,7 @@ modelo {
 }
 modelo {
   id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1'
+  id_entidade_base: 'Vulto Base'
   entidade {
     raca: 'humano'
     dados_vida: '4d8+1d4+20'
@@ -978,44 +973,14 @@ modelo {
       acao_fixa {
         tipo: ACAO_FEITICO_TOQUE
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-        pv_mais_alto: 20 # 5d6
+        dado_pv_mais_alto: '5d6'
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_MORTE
-          rodadas: 1
         }
       }
     }
-    dados_ataque {
-      limite_vezes: 3
-      grupo: '3/dia reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_REFLEXOS
-          rodadas: 60
-          dado_complementos_str: '1d4+2'
-          combinar_com: 0
-        }
-      }
-    }
-    dados_ataque {
-      grupo: 'a vontade invisibilidade' rotulo: 'invisibilidade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_PESSOAL
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_INVISIBILIDADE
-          rodadas: 60
-          combinar_com: 0
-        }
-      }
-    }
-
     info_talentos {
       gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
       gerais { id: 'magia_trama_sombras' }
@@ -1037,6 +1002,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'clerigo'
+      #operacao: OC_SOBRESCREVE
       dominios: 'morte'
       dominios: 'enganacao'
       feiticos_por_nivel {
@@ -1080,7 +1046,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_tendencia' }
+        conhecidos { id: 'circulo_magico_contra_bem' }
         conhecidos { id: 'protecao_contra_elementos' }
         conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
@@ -1103,19 +1069,32 @@ modelo {
 
 
 modelo {
-  id: 'Humano Arcano de Guerra 5'
-  id_entidade_base: 'Humano Mago 5'
+  id: 'Humano Dragão Púrpura: Arcano de Guerra 4'
+  id_entidade_base: 'Humano Mago 4'
   entidade {
-    rotulo: 'arcano de guerra 5'
-    info_textura { id: '0:war_wizard.png' }
+    rotulo: 'Dragão Púrpura arcano de guerra 4'
+    modelo_3d { id: 'war_wizard' }
+    info_textura { id: '' }
+    cor { r: 1 g: 1 b: 1}
   }
 }
 
 modelo {
-  id: 'Humano Combatente Soldado Dragão Púrpura 2'
+  id: 'Humano Dragão Púrpura: Arcano de Guerra 5'
+  id_entidade_base: 'Humano Mago 5'
+  entidade {
+    rotulo: 'Dragão Púrpura arcano de guerra 5'
+    modelo_3d { id: 'war_wizard' }
+    info_textura { id: '' }
+    cor { r: 1 g: 1 b: 1}
+  }
+}
+
+modelo {
+  id: 'Humano Dragão Púrpura: Combatente Soldado 2'
   id_entidade_base: 'Combatente Base'
   entidade {
-    rotulo: 'humano combatente 2'
+    rotulo: 'Dragão Púrpura Soldado 2'
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_warrior' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
@@ -1125,10 +1104,21 @@ modelo {
   }
 }
 modelo {
-  id: 'Humano Combatente Arqueiro Dragão Púrpura 2'
+  id: 'Humano Dragão Púrpura: Tenente 5'
+  id_entidade_base: 'Humano Guerreiro 5'
+  entidade {
+    rotulo: 'Dragão Púrpura Tenente 5'
+    cor { r: 1 g: 1 b: 1 }
+    info_textura { id: '' }
+    modelo_3d { id: 'purple_dragon_soldier' }
+  }
+}
+
+modelo {
+  id: 'Humano Dragão Púrpura: Combatente Arqueiro 2'
   id_entidade_base: 'Combatente Base'
   entidade {
-    rotulo: 'humano arqueiro 2'
+    rotulo: 'Dragão Púrpura Arqueiro 2'
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_archer' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
@@ -1158,6 +1148,11 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    evento {
+      id_efeito: EFEITO_CEGO
+      rodadas: 1
+      continuo: true
     }
     dados_ataque_global {
       # Cego.

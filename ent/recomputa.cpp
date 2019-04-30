@@ -125,11 +125,22 @@ void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
   }
 }
 
+// As duas funcoes assumem que a consequencia tem modificador de ataque e dano.
+// Normalmente nao ha restricao, mas se houver, respeita.
 bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
   if (!consequencia.has_restricao_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
-  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0) return true;
+  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0)
+    return true;
+  if (ra.apenas_armas() && da.eh_arma()) return true;
+  if (ra.apenas_armas_para_dano())
+    return true;  // a restricao se aplica apenas ao dano.
   return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
+}
+
+bool ConsequenciaAfetaDano(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
+  const auto& ra = consequencia.restricao_arma();
+  return (!ra.apenas_armas() || da.eh_arma());
 }
 
 // Retorna o dado de ataque que contem a arma, ou nullptr;
@@ -233,7 +244,9 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
-    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
+    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(),
+                                  da.mutable_bonus_ataque());
+    if (!ConsequenciaAfetaDano(consequencia, da)) continue;
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
 
@@ -282,9 +295,11 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
           EntidadeProto proto_salvo;
           proto_salvo.set_morta(proto->morta());
           proto_salvo.set_caida(proto->caida());
+          proto_salvo.set_pontos_vida(proto->pontos_vida());
           evento->set_estado_anterior(proto_salvo.SerializeAsString());
           proto->set_morta(true);
           proto->set_caida(true);
+          proto->set_pontos_vida(-100);
         }
       }
       break;
@@ -485,6 +500,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
       proto->set_morta(proto_salvo.morta());
+      proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
     case EFEITO_METAMORFOSE_TORRIDA: {
@@ -641,22 +657,14 @@ void PreencheOrigemValor(
 void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(StringPrintf("%s, origem: %s", po.origem().c_str(), origem.c_str()));
+      po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
       po.set_valor(0);
     }
   }
 }
 
-// Zera todos os valores de origem para o bonus, para criar o fim de efeito de modelos.
-void ZeraValorBonus(Bonus* bonus) {
-  for (auto& bi : *bonus->mutable_bonus_individual()) {
-    for (auto& po : *bi.mutable_por_origem()) {
-      po.set_valor(0);
-    }
-  }
-}
-
-// Caso a consequencia use complemento, preenchera os valores existentes com ela.
+// Caso a consequencia use complemento, preenchera os valores existentes com
+// ela.
 ConsequenciaEvento PreencheConsequencia(
     const std::string& origem,
     const google::protobuf::RepeatedField<int>& complementos,
@@ -707,27 +715,6 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   }
   return c;
 }
-
-ConsequenciaEvento PreencheConsequenciaFimParaModelos(const ConsequenciaEvento& consequencia_original) {
-  ConsequenciaEvento c(consequencia_original);
-  if (c.atributos().has_forca())        ZeraValorBonus(c.mutable_atributos()->mutable_forca());
-  if (c.atributos().has_destreza())     ZeraValorBonus(c.mutable_atributos()->mutable_destreza());
-  if (c.atributos().has_constituicao()) ZeraValorBonus(c.mutable_atributos()->mutable_constituicao());
-  if (c.atributos().has_inteligencia()) ZeraValorBonus(c.mutable_atributos()->mutable_inteligencia());
-  if (c.atributos().has_sabedoria())    ZeraValorBonus(c.mutable_atributos()->mutable_sabedoria());
-  if (c.atributos().has_carisma())      ZeraValorBonus(c.mutable_atributos()->mutable_carisma());
-  if (c.dados_defesa().has_ca())        ZeraValorBonus(c.mutable_dados_defesa()->mutable_ca());
-  if (c.dados_defesa().has_salvacao_fortitude()) ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_fortitude());
-  if (c.dados_defesa().has_salvacao_vontade())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_vontade());
-  if (c.dados_defesa().has_salvacao_reflexo())   ZeraValorBonus(c.mutable_dados_defesa()->mutable_salvacao_reflexo());
-  if (c.dados_defesa().has_cura_acelerada())     ZeraValorBonus(c.mutable_dados_defesa()->mutable_cura_acelerada());
-  if (c.has_jogada_ataque())            ZeraValorBonus(c.mutable_jogada_ataque());
-  if (c.has_jogada_dano())              ZeraValorBonus(c.mutable_jogada_dano());
-  if (c.has_tamanho())                  ZeraValorBonus(c.mutable_tamanho());
-  if (c.has_bonus_iniciativa())         ZeraValorBonus(c.mutable_bonus_iniciativa());
-  return c;
-}
-
 
 // Adiciona eventos nao presentes.
 // Retorna o bonus base de uma salvacao, dado o nivel. Forte indica que a salvacao eh forte.
@@ -799,8 +786,70 @@ void RecomputaAlteracaoConstituicao(int total_antes, int total_depois, EntidadeP
   VLOG(1) << "pv modificado: " << proto->pontos_vida();
 }
 
+void CombinaFeiticosClasse(RepeatedPtrField<EntidadeProto::InfoFeiticosClasse>* feiticos_classes) {
+  std::unordered_map<std::string, EntidadeProto::InfoFeiticosClasse*> mapa;
+  for (auto& fc : *feiticos_classes) {
+    if (fc.operacao() == OC_NOP) {
+      mapa[fc.id_classe()] = &fc;
+    }
+  }
+  std::vector<int> a_remover;
+  int indice = 0;
+  for (const auto& fc : *feiticos_classes) {
+    switch (fc.operacao()) {
+      case OC_SOBRESCREVE:
+      case OC_COMBINA:
+        if (mapa.find(fc.id_classe()) == mapa.end()) {
+          LOG(ERROR) << "Operação invalida: nao ha feitico para classe " << fc.id_classe();
+          continue;
+        }
+        if (fc.operacao() == OC_SOBRESCREVE) { *mapa[fc.id_classe()] = fc; }
+        else { mapa[fc.id_classe()]->MergeFrom(fc); }
+        a_remover.push_back(indice);
+        break;
+      default: ;
+    }
+    mapa[fc.id_classe()]->clear_operacao();
+    ++indice;
+  }
+
+  for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+    feiticos_classes->DeleteSubrange(*it, 1);
+  }
+}
+
+void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* feiticos_por_niveis) {
+  std::unordered_map<int, EntidadeProto::FeiticosPorNivel*> mapa;
+  for (auto& fn : *feiticos_por_niveis) {
+    if (!fn.has_operacao()) {
+      mapa[fn.nivel()] = &fn;
+    }
+  }
+  std::vector<int> a_remover;
+  int indice = 0;
+  for (const auto& fn : *feiticos_por_niveis) {
+    switch (fn.operacao()) {
+      case OC_SOBRESCREVE:
+      case OC_COMBINA:
+        if (mapa.find(fn.nivel()) == mapa.end()) {
+          LOG(ERROR) << "Operação invalida: nao ha feitico do nivel " << fn.nivel();
+          continue;
+        }
+        if (fn.operacao() == OC_SOBRESCREVE) { *mapa[fn.nivel()] = fn; }
+        else { mapa[fn.nivel()]->MergeFrom(fn); }
+        break;
+      default: ;
+    }
+    mapa[fn.nivel()]->clear_operacao();
+    ++indice;
+  }
+  for (auto it = a_remover.rbegin(); it != a_remover.rend(); ++it) {
+    feiticos_por_niveis->DeleteSubrange(*it, 1);
+  }
+}
 
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
+  CombinaFeiticosClasse(proto->mutable_feiticos_classes());
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
     // Encontra a entrada da classe, ou cria se nao houver.
@@ -816,6 +865,8 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
 
     const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
 
+    CombinaFeiticosPorNivel(fc->mutable_feiticos_por_nivel());
+
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     // Na tabela, o nivel zero nao esta presente entao tem que ser compensado aqui.
     Redimensiona(nao_possui_nivel_zero ? magias_por_dia.size() + 1 : magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
@@ -823,14 +874,20 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     if (nao_possui_nivel_zero) {
       fc->mutable_feiticos_por_nivel(0)->Clear();
     }
+    const bool classe_possui_dominio = classe_tabelada.possui_dominio();
+    const bool classe_possui_especializacao = !fc->especializacao().empty();
     for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
       int nivel_magia = nao_possui_nivel_zero ? indice + 1 : indice;
+      const bool feitico_extra =
+          (classe_possui_dominio && nivel_magia > 0 && nivel_magia <= 9) ||
+          (classe_possui_especializacao && nivel_magia >= 0 && nivel_magia <= 9);
+
       int magias_do_nivel =
-        (magias_por_dia[indice] - '0') +
-        FeiticosBonusPorAtributoPorNivel(
-            nivel_magia,
-            BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
-        (classe_tabelada.possui_dominio() && nivel_magia > 0 && nivel_magia <= 9 ? 1 : 0);
+          (magias_por_dia[indice] - '0') +
+          FeiticosBonusPorAtributoPorNivel(
+              nivel_magia,
+              BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
+          (feitico_extra ? 1 : 0);
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
     }
   }
@@ -1148,7 +1205,16 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 }
 
 void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto) {
-  // TODO
+  // Limitar talentos gerais por nivel de personagem.
+  const int nivel = Nivel(*proto);
+  const int numero = (nivel / 3) + 1;
+  if (proto->info_talentos().gerais().size() > numero) {
+    LOG(WARNING) << "Um dia irei capar talentos da entidade "
+      << RotuloEntidade(*proto) << ", gerais: " << proto->info_talentos().gerais().size() << ", permitido: " << numero;
+  }
+  //while (proto->info_talentos().gerais().size() > numero) {
+  //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();
+  //}
 }
 
 void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
@@ -1186,6 +1252,13 @@ void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retorn
         LimpaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
       }
     }
+  }
+  const int nivel_monge = Nivel("monge", *proto_retornado);
+  if (nivel_monge > 0 && dd->id_armadura().empty() && dd->id_escudo().empty()) {
+    int bonus_monge = nivel_monge / 5;
+    AtribuiOuRemoveBonus(bonus_monge, TB_SEM_NOME, "monge", dd->mutable_ca());
+    const int modificador_sabedoria = std::max(0, ModificadorAtributo(proto_retornado->atributos().sabedoria()));
+    AtribuiOuRemoveBonus(modificador_sabedoria, TB_SEM_NOME, "monge_sabedoria", dd->mutable_ca());
   }
 }
 
@@ -1330,8 +1403,19 @@ std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) 
   return ids;
 }
 
+bool PossuiModelo(const Tabelas& tabelas, TipoEfeitoModelo id_efeito_modelo, const EntidadeProto& proto) {
+  for (const auto& modelo : proto.modelos()) {
+    if (modelo.id_efeito() != id_efeito_modelo) continue;
+    return !ModeloDesligavel(tabelas, modelo) || modelo.ativo();
+  }
+  return false;
+}
+
 // Retorna true se o item que criou o evento nao existe mais.
-bool EventoOrfao(const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens) {
+bool EventoOrfao(const Tabelas& tabelas, const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens, const EntidadeProto& proto) {
+  if (evento.has_requer_modelo_ativo() && !PossuiModelo(tabelas, evento.requer_modelo_ativo(), proto)) {
+    return true;
+  }
   return evento.requer_pai() && c_none(ids_itens, evento.id_unico());
 }
 
@@ -1342,7 +1426,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (const auto& evento : proto->evento()) {
-    if (evento.rodadas() < 0 || EventoOrfao(evento, ids_itens)) {
+    if (evento.rodadas() < 0 || EventoOrfao(tabelas, evento, ids_itens, *proto)) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {
@@ -1359,7 +1443,6 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
     if (!ModeloDesligavel(tabelas, modelo) || modelo.ativo()) continue;
     const auto& efeito_modelo = tabelas.EfeitoModelo(modelo.id_efeito());
     VLOG(1) << "removendo efeito de modelo: " << TipoEfeitoModelo_Name(efeito_modelo.id());
-    //AplicaEfeitoComum(PreencheConsequenciaFimParaModelos(efeito.consequencia()), proto);
     AplicaEfeitoComum(PreencheConsequenciaFim(efeito_modelo.nome(), efeito_modelo.consequencia()), proto);
   }
 
@@ -1475,29 +1558,30 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
     // enquanto TipoAtaqueParaClasse busca a classe para feitico (mago).
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
+    const auto& fc = FeiticosClasse(ic.id(), proto);
+    int mod_especializacao = !fc.especializacao().empty() && feitico.escola() == fc.especializacao() ? 1 : 0;
+    int mod_trama_sombras = PossuiTalento("magia_trama_sombras", proto) && EscolaBoaTramaDasSombras(feitico) ? 1 : 0;
     int base = 10;
     if (da->acao().has_dificuldade_salvacao_base()) {
-      base = da->acao().dificuldade_salvacao_base();
+      base = da->acao().dificuldade_salvacao_base() + mod_especializacao + mod_trama_sombras;
     } else {
       base += da->has_nivel_conjurador_pergaminho()
         ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico)
-        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico);
+        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao;
     }
     const int mod_atributo = da->has_modificador_atributo_pergaminho()
       ? da->modificador_atributo_pergaminho()
       : da->acao().has_atributo_dificuldade_salvacao()
         ? ModificadorAtributo(da->acao().atributo_dificuldade_salvacao(), proto)
         : ModificadorAtributoConjuracao(ic.id(), proto);
+
+
     const int cd_final = base + mod_atributo;
-    //da->mutable_acao()->set_dificuldade_salvacao(cd_final);
     da->set_dificuldade_salvacao(cd_final);
   }
 
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
-  }
-  if (da->tipo_ataque().find("Pergaminho") == 0) {
-    da->mutable_acao()->set_icone("icon_scroll.png");
   }
 }
 
@@ -1527,6 +1611,9 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       da->mutable_acao()->set_id("Ataque Corpo a Corpo");
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
     }
+  }
+  if (PossuiCategoria(CAT_ARMA, arma)) {
+    da->set_eh_arma(true);
   }
   if (arma.has_ataque_toque()) {
     da->set_ataque_toque(arma.ataque_toque());
@@ -1828,7 +1915,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   std::vector<int> indices_a_remover;
   for (int i = proto->dados_ataque().size() - 1; i >= 0; --i) {
     const auto& da = proto->dados_ataque(i);
-    if (da.has_limite_vezes() && da.limite_vezes() <= 0) {
+    if (da.has_limite_vezes() && da.limite_vezes() <= 0 && !da.mantem_com_limite_zerado()) {
       indices_a_remover.push_back(i);
     }
   }
@@ -1837,7 +1924,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   }
 
   // Se nao tiver agarrar, cria um.
-  if (std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
+  if (proto->gerar_agarrar() && std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
         [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_ataque("Agarrar");
@@ -1859,18 +1946,21 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
+  auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
+  auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, *proto)) {
     // Zera destreza e força.
-    auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
     const int forca = BonusTotal(*bonus_forca);
     if (forca > 0) {
       AtribuiBonus(-forca, TB_SEM_NOME, "paralisia", bonus_forca);
     }
-    auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
     const int destreza = BonusTotal(*bonus_destreza);
     if (destreza > 0) {
       AtribuiBonus(-destreza, TB_SEM_NOME, "paralisia", bonus_destreza);
     }
+  } else {
+    LimpaBonus(TB_SEM_NOME, "paralisia", bonus_forca);
+    LimpaBonus(TB_SEM_NOME, "paralisia", bonus_destreza);
   }
 
   RecomputaDependenciasNiveisNegativos(tabelas, proto);
@@ -1891,7 +1981,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
 
-  // CA.
+  // Classe de Armadura.
   RecomputaDependenciasCA(tabelas, proto);
   // Salvacoes.
   RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);

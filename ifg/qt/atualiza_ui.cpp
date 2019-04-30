@@ -487,12 +487,14 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   const auto& ca = dd.ca();
   gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
-  std::vector<QWidget*> objs = { gerador.spin_ca_armadura_melhoria, gerador.spin_ca_escudo_melhoria, gerador.checkbox_armadura_obra_prima, gerador.checkbox_escudo_obra_prima };
+  std::vector<QWidget*> objs = { gerador.spin_ca_armadura_melhoria, gerador.spin_ca_escudo_melhoria, gerador.checkbox_armadura_obra_prima, gerador.checkbox_escudo_obra_prima, gerador.botao_resistencia_magia };
   for (auto* obj : objs) obj->blockSignals(true);
   gerador.spin_ca_armadura_melhoria->setValue(dd.bonus_magico_armadura());
   gerador.spin_ca_escudo_melhoria->setValue(dd.bonus_magico_escudo());
   gerador.checkbox_armadura_obra_prima->setCheckState(dd.armadura_obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_escudo_obra_prima->setCheckState(dd.escudo_obra_prima() ? Qt::Checked : Qt::Unchecked);
+  gerador.botao_resistencia_magia->setText(
+      NumeroSinalizado(ent::BonusTotal(proto.dados_defesa().resistencia_magia_variavel())));
   for (auto* obj : objs) obj->blockSignals(false);
   gerador.botao_bonus_ca->setText(QString::number(ent::CATotal(proto, /*permite_escudo=*/true)));
   gerador.label_ca_toque->setText(QString::number(ent::CAToque(proto)));
@@ -555,7 +557,8 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   std::vector<QWidget*> objs = {
       gerador.lista_tesouro,  gerador.lista_pocoes, gerador.lista_aneis,
       gerador.lista_mantos,   gerador.lista_luvas,  gerador.lista_bracadeiras,
-      gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus
+      gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus,
+      gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -578,6 +581,8 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_AMULETO, gerador.lista_amuletos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_BOTAS, gerador.lista_botas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_CHAPEU, gerador.lista_chapeus, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_ARCANO, gerador.lista_pergaminhos_arcanos, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
@@ -677,6 +682,9 @@ void PreencheComboParaLancar(
   for (int nivel_conhecido = nivel_para_lancar; nivel_conhecido >= 0; --nivel_conhecido) {
     QStringList lista;
     combo->addItem(QString(combo->tr("Nível %1")).arg(nivel_conhecido));
+    QFont fonte = combo->itemData(combo->count() - 1, Qt::FontRole).value<QFont>();
+    fonte.setWeight(QFont::Bold);
+    combo->setItemData(combo->count() - 1, QVariant::fromValue(fonte), Qt::FontRole);
     mapa.push_back(std::make_pair(nivel_conhecido, -1));
     const auto& fn = ent::FeiticosNivel(id_classe, nivel_conhecido, proto);
     int indice_conhecido = 0;
@@ -686,7 +694,7 @@ void PreencheComboParaLancar(
       if (fn_para_lancar.has_nivel_conhecido() && fn_para_lancar.nivel_conhecido() == nivel_conhecido &&
           fn_para_lancar.has_indice_conhecido() && fn_para_lancar.indice_conhecido() == indice_conhecido) {
         // Dados do feitico conhecido selecionado.
-        indice_corrente = mapa.size();
+        indice_corrente = mapa.size() - 1;
         item_feitico->setData(TCOL_NIVEL_CONHECIDO, Qt::UserRole, QVariant(nivel_conhecido));
         item_feitico->setData(TCOL_INDICE_CONHECIDO, Qt::UserRole, QVariant(indice_conhecido));
       }

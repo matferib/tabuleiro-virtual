@@ -110,6 +110,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Faz a entidade beber a pocao, recebendo seus efeitos. Indice da pocao indica qual pocao a entidade esta bebendo (na ordem do tesouro). */
   void BebePocaoNotificando(unsigned int id_entidade, int indice_pocao, unsigned int indice_efeito = 0);
+  /** Faz a entidade usar o pergaminho, consumindo-o como se fosse uma magia. */
+  void UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tipo_pergaminho, int indice_pergaminho);
 
   /** Seleciona todas as entidades do cenario corrente.
   * @param fixas se as entidades fixas devem ser selecionadas.
@@ -166,6 +168,9 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaBitsEntidadeNotificando(int bits);
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
+
+  /** Alterna estado em corpo a corpo para as entidades selecionadas. */
+  void AlternaEmCorpoACorpoNotificando();
 
   /** Remove os efeitos de invisibilidade das entidades selecionadas. */
   void RemoveEfeitoInvisibilidadeEntidadesNotificando();
@@ -350,9 +355,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
 
-  /** Busca um dos modelos pelo id. */
-  const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
-
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
 
@@ -373,7 +375,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Acesso ao mapa de modelos. O inteiro eh um TipoAcao. */
   typedef std::unordered_map<int, std::unique_ptr<AcaoProto>> MapaTipoAcao;
   typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
-  const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
   const MapaTipoAcao& MapaTipoAcoes() const { return mapa_acoes_por_tipo_; }
 
   /** Seleciona uma das formas de desenho como padrao. */
@@ -517,10 +518,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
-  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo.
-  * Caso grupo nao seja null, a notificacao ira para ele e nao sera executada.
-  */
-  void PassaUmaRodadaNotificando(ntf::Notificacao* grupo = nullptr);
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum
+   * ficara negativo. Caso grupo nao seja null, a notificacao ira para ele e nao
+   * sera executada. Caso o parametro expira_eventos_zerados seja verdadeiro,
+   * eventos que estejam em zero serão removidos.
+   * Parametro ui indica se a passagem veio pelo clique direto na UI ou nao (indireto ao passar iniciativa).
+   */
+  void PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo = nullptr, bool expira_eventos_zerados = false);
   /** Zera o contador de rodadas do tabuleiro. */
   void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */
@@ -597,7 +601,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesligaEsquivaNotificando();
 
   /** Botao de usar feitico clicado. */
-  void TrataBotaoUsarFeitico(int nivel);
+  void TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel);
   /** Botao de alterar a classe de feitico ativa clicado. */
   void TrataMudarClasseFeiticoAtiva();
 
@@ -724,7 +728,7 @@ class Tabuleiro : public ntf::Receptor {
       unsigned int id_entidade_destino, float atraso_s);
   /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
   float TrataPreAcaoComum(
-      float atraso_s, const Posicao& pos_tabuleiro, const Entidade* entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
+      float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
       ntf::Notificacao* grupo_desfazer);
   float TrataAcaoEfeitoArea(
       float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
@@ -1115,7 +1119,10 @@ class Tabuleiro : public ntf::Receptor {
   }
 
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
-  void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo);
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade,
+                                     std::vector<int>* ids_unicos,
+                                     ntf::Notificacao* grupo,
+                                     bool expira_eventos_zerados);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
@@ -1228,8 +1235,7 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  std::pair<std::string, const Modelo*> modelo_selecionado_com_parametros_;
-  std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
+  std::string id_modelo_selecionado_com_parametros_;
   std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */

@@ -3,7 +3,7 @@ package ent;
 import "ent/comum.proto";
 import "ent/entidade.proto";
 
-// Proximo id: 144, mas conferir pq ha gaps.
+// Proximo id: 147, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -132,6 +132,8 @@ enum IdBotao {
   CONTROLE_FALHA_NEGATIVO = 119;
 
   CONTROLE_BEBER_POCAO = 117;
+  CONTROLE_USAR_PERGAMINHO_ARCANO = 145;
+  CONTROLE_USAR_PERGAMINHO_DIVINO = 146;
 
   CONTROLE_MODO_ESQUIVA = 118;
   CONTROLE_FURIA = 120;
@@ -154,6 +156,7 @@ enum IdBotao {
   CONTROLE_INVESTIDA = 137;
   CONTROLE_MODO_MONTAR = 140;
   CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE = 143;
+  CONTROLE_ALTERNAR_EM_CORPO_A_CORPO = 144;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -189,6 +192,9 @@ enum TipoVisibilidade {
   VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA = 4;
   // Implica VIS_PRIMEIRA_PESSOA_OU_SELECIONADA possuindo pocao.
   VIS_POCAO = 6;
+  // Similar a pocao.
+  VIS_PERGAMINHO_ARCANO = 23;
+  VIS_PERGAMINHO_DIVINO = 24;
   // Visivel se a entidade tiver esquiva.
   VIS_ESQUIVA = 7;
   // Visivel apenas se a entidade possui furia.
@@ -209,6 +215,8 @@ enum TipoVisibilidade {
   VIS_FEITICO_8 = 19;
   VIS_FEITICO_9 = 20;
   VIS_CLASSE_FEITICO_ATIVA = 21;
+  // Usado para botoes que apenas carregam texturas.
+  VIS_INVISIVEL = 22;
 }
 
 message Visibilidade {
@@ -280,56 +288,4 @@ message ControleVirtualProto {
   repeated Pagina pagina = 2;
   optional int32 pagina_corrente = 3;
   optional bool modo_debug = 4;
-}
-
-enum TipoDuracao {
-  TD_RODADAS_NIVEL = 0;
-  TD_MINUTOS_NIVEL = 1;
-  TD_HORAS_NIVEL   = 2;
-  TD_2_HORAS_NIVEL = 3;
-  TD_10_MINUTOS_NIVEL = 4;
-  TD_OUTRA_DURACAO = 20;
-}
-
-enum TipoModificadorAtaque {
-  // Usa BBA + modificador do atributo de conjurador.
-  TMA_BBA_MAIS_ATRIBUTO_CONJURACAO = 0;
-  TMA_BBA_NIVEL_CONJURADOR         = 1;
-  TMA_OUTROS                       = 100;
-}
-
-enum TipoModificadorSalvacao {
-  // Padrao para feiticos.
-  TMS_MODIFICADOR_CONJURACAO = 0;
-  // Nao modifica pelo atributo.
-  TMS_NENHUM = 1;
-}
-
-// Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
-message Modelo {
-  optional string id = 1;
-  // Para entidades templatizadas.
-  message Parametros {
-    optional TipoDuracao tipo_duracao = 1;
-    // Dano.
-    optional string dano_fixo = 2;
-    optional float multiplicador_nivel_dano = 3;
-    optional int32 maximo_modificador_dano = 4;
-    // Ataque.
-    optional TipoModificadorAtaque tipo_modificador_ataque = 5;
-    // Modificador da salvacao.
-    optional TipoModificadorSalvacao tipo_modificador_salvacao = 6;
-    // Outros.
-    repeated string rotulo_especial = 10;
-  }
-  optional Parametros parametros = 3;
-  optional EntidadeProto entidade = 2;
-  // Se presente, lera a entidade com o id_passado e apenas fara o merge com
-  // entidade.
-  repeated string id_entidade_base = 4;
-}
-
-// O arquivo eh serializado como uma repeticao de modelos em formato texto.
-message Modelos {
-  repeated Modelo modelo = 1;
 }

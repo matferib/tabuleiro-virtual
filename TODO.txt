@@ -1,24 +1,13 @@
-Anotacoes da sessao Tilverton:
-- Talentos das sombras.
-- Definir encontros.
-- Resistencia magia variavel. ??
+Transformar muita coisa em mapa (talento, pericias).
+Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
+UI de especializacao de feiticos.
 
-- Mago Arcano de guerra 5. Feito.
-- Clerigo de Shar 5/1 vulto. Feito.
-- Fazer vangerdahast (mago 18): Feito.
-- Fazer Galaeron Nihmedu: guerreiro 7 feiticeiro 4 adepto das sombras 3, mas nao usa magias): Feito.
-- Fazer Aris (gigante anciao): Feito.
-- Melir (clerigo 4): Feito.
-- Quairon ( mago 4): Feito.
-- Veserab: pg 95 empire of the shade: Feito.
-- Veserab avancado: pg 119: Feito.
+Implementar operacoes de combinacao em talentos.
 
-Testar constrição.
 Testar monstros com combinar_com (criar um novo campo: combinar_efeito?).
 Implementar teste de concentracao de feitico automatico quando enredado.
 Implementar geracao de feiticos aleatoria.
 Implementar cargas de escaravelho de protecao.
-Implementar geracao de feiticos aleatoria.
 Implementar duracao de entidades conjuradas vinda da magia (por exemplo, enxame de gafanhotos pode vir de praga de insetos).
 
 Resolver o vigor menor (como proceder com a parada do maximo que cura?)
@@ -38,7 +27,6 @@ Permitir nomear versoes.
 Mostrar salvacoes do mestre apenas para mestre.
 Permitir mais de uma textura por objeto (util para compostos).
 - Filtrar combo de classes para so mostrar nao monstros.
->>>>>>> 5f94d48dc3a19b726fb3db6b73d3c926d8dd3c6f
 - UI para horas.
 - Rever a logica de pontos de vida ta um caos. Provavelmente tem gente com mais PV que o maximo. Nao esta claro o que eh computado.
 

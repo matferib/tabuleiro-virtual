@@ -162,8 +162,8 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando lista de texturas do controle virtual: " << e.what();
   }
 
-  for (const auto& modelo : mapa_modelos_com_parametros_) {
-    modelos_entidades_.insert(modelo.first);
+  for (const auto& modelo : tabelas_.TodosModelosEntidades().modelo()) {
+    modelos_entidades_.insert(modelo.id());
   }
 }
 
@@ -214,7 +214,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_USAR_FEITICO_7:
     case CONTROLE_USAR_FEITICO_8:
     case CONTROLE_USAR_FEITICO_9:
-      TrataBotaoUsarFeitico(id - CONTROLE_USAR_FEITICO_0);
+      TrataBotaoUsarFeitico(alterna_selecao, id - CONTROLE_USAR_FEITICO_0);
       break;
     case CONTROLE_CLASSE_FEITICO_ATIVA:
       TrataMudarClasseFeiticoAtiva();
@@ -405,9 +405,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       }
       break;
-
     case CONTROLE_FURTIVO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FURTIVO);
+      break;
+    case CONTROLE_ALTERNAR_EM_CORPO_A_CORPO:
+      AlternaEmCorpoACorpoNotificando();
       break;
     case CONTROLE_SURPRESO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SURPRESO);
@@ -493,6 +495,22 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       central_->AdicionaNotificacao(n.release());
       break;
     }
+    case CONTROLE_USAR_PERGAMINHO_ARCANO:
+    case CONTROLE_USAR_PERGAMINHO_DIVINO: {
+      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      if (e == nullptr) return;
+      if (id == CONTROLE_USAR_PERGAMINHO_ARCANO && e->Proto().tesouro().pergaminhos_arcanos().empty()) return;
+      if (id == CONTROLE_USAR_PERGAMINHO_DIVINO && e->Proto().tesouro().pergaminhos_divinos().empty()) return;
+      auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO));
+      n->mutable_entidade()->set_id(e->Id());
+      if (id == CONTROLE_USAR_PERGAMINHO_ARCANO) {
+        *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_arcanos() = e->Proto().tesouro().pergaminhos_arcanos();
+      } else {
+        *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_divinos() = e->Proto().tesouro().pergaminhos_divinos();
+      }
+      central_->AdicionaNotificacao(n.release());
+      break;
+    }
     case CONTROLE_FALHA_20:
     case CONTROLE_FALHA_50:
     case CONTROLE_FALHA_NEGATIVO:
@@ -527,14 +545,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
         if (!duplo) {
-          PassaUmaRodadaNotificando();
+          PassaUmaRodadaNotificando(/*ui=*/true);
         } else {
           ntf::Notificacao grupo_notificacoes;
           grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
           // O clique duplo tera passado uma rodada já.
           for (int i = 0; i < 9; ++i) {
             auto* n = grupo_notificacoes.add_notificacao();
-            PassaUmaRodadaNotificando(n);
+            PassaUmaRodadaNotificando(/*ui=*/true, n);
             TrataNotificacao(*n);
           }
           // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.
@@ -628,7 +646,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
+      auto it = modelos_entidades_.find(id_modelo_selecionado_com_parametros_);
       if (it == modelos_entidades_.begin()) {
         SelecionaModeloEntidade(*--modelos_entidades_.end());
       } else {
@@ -640,7 +658,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
+      auto it = modelos_entidades_.find(id_modelo_selecionado_com_parametros_);
       if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
         SelecionaModeloEntidade(*modelos_entidades_.begin());
       } else {
@@ -812,6 +830,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
 }
 
 // Retorna o id da textura para uma determinada acao.
+// Aka IconeBotao.
 unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entidade) const {
   if (!db.textura().empty()) {
     return db.has_id_textura() ? db.id_textura() : GL_INVALID_VALUE;
@@ -950,6 +969,8 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
     for (const auto& ref : db.visibilidade().referencia()) {
       // So retorna os false, por causa do encadeamento que eh AND.
       switch (ref.tipo()) {
+        case VIS_INVISIVEL:
+          return false;
         case VIS_CAMERA_PRESA: {
           if (!camera_presa_) return false;
           break;
@@ -969,6 +990,20 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
         case VIS_POCAO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr || e->Proto().tesouro().pocoes().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_PERGAMINHO_ARCANO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().tesouro().pergaminhos_arcanos().empty()) {
+            return false;
+          }
+          break;
+        }
+        case VIS_PERGAMINHO_DIVINO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || e->Proto().tesouro().pergaminhos_divinos().empty()) {
             return false;
           }
           break;
@@ -1061,8 +1096,7 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
       return rotulo.empty() ? "-" : rotulo;
     }
     case CONTROLE_MODELO_ENTIDADE: {
-      std::string rotulo = modelo_selecionado_com_parametros_.first;
-      return rotulo.empty() ? "-" : rotulo;
+      return id_modelo_selecionado_com_parametros_.empty() ? "-" : id_modelo_selecionado_com_parametros_;
     }
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
@@ -1087,16 +1121,6 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
 }
 
 std::string DicaBotao(const DadosBotao& db, const Entidade* entidade) {
-  switch (db.id()) {
-    case CONTROLE_BEBER_POCAO: {
-      if (entidade == nullptr || entidade->Proto().tesouro().pocoes().empty()) break;
-      const auto& pocoes = entidade->Proto().tesouro().pocoes();
-      if (pocoes.size() > 1) return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), "escolher");
-      return google::protobuf::StringPrintf("%s: %s", db.dica().c_str(), pocoes.Get(0).id().c_str());
-    }
-    default:
-      ;
-  }
   return db.dica();
 }
 
@@ -1343,6 +1367,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_FURTIVO,            [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_global().furtivo();
+    } },
+    { CONTROLE_ALTERNAR_EM_CORPO_A_CORPO, [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().em_corpo_a_corpo();
     } },
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();

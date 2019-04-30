@@ -1,6 +1,7 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+
 enum TipoMagia {
   TM_NENHUMA = 0;
   TM_ARCANA = 1;
@@ -33,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 113.
+// Proximo id: 117.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -162,6 +163,10 @@ enum TipoEfeito {
   EFEITO_METAMORFOSE_TORRIDA = 110;
   EFEITO_PARALISIA = 111;
   EFEITO_INSPIRAR_CORAGEM = 112;
+  EFEITO_FASCINADO = 113;
+  EFEITO_BOA_ESPERANCA= 114;
+  EFEITO_DESESPERO_ESMAGADOR = 115;
+  EFEITO_FLECHA_ACIDA = 116;
 }
 
 enum TipoEfeitoModelo {
@@ -275,6 +280,12 @@ enum DescritorAtaque {
   DESC_CORTANTE = 28;
   DESC_ESTOURANTE = 29;
   DESC_MAGICO = 30;
+}
+
+enum OperacaoCombinacao {
+  OC_NOP = 0;
+  OC_COMBINA = 1;
+  OC_SOBRESCREVE = 2;
 }
 
 // Tambem usado como vetor.
@@ -614,8 +625,11 @@ message InfoPericia {
 }
 
 message RestricaoArma {
+  // Uma das restricoes que valem. A ultima é por id.
   optional string prefixo_arma = 1;
+  optional bool apenas_armas = 3;
   repeated string id_arma = 2;
+  optional bool apenas_armas_para_dano = 4;
 }
 
 message ConsequenciaEvento {
@@ -635,6 +649,8 @@ message ConsequenciaEvento {
   //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
 
   optional Bonus bonus_iniciativa = 11;
+
+  //repeated DadosAtaque dados_ataque = 12;
 }
 
 message EfeitoProto {
@@ -738,6 +754,11 @@ message TalentoProto {
 
   // De onde veio o talento.  
   optional string livro = 12;
+
+  // Indica de onde veio o talento (ranger, monge, guerreiro, humano etc).
+  optional string origem = 13;
+
+  optional bool usado_na_rodada = 14;
 }
 
 message HabilidadeEspecialProto {
@@ -757,6 +778,8 @@ enum TipoItem {
   TIPO_AMULETO = 5;
   TIPO_BOTAS = 6;
   TIPO_CHAPEU = 7;
+  TIPO_PERGAMINHO_ARCANO = 8;
+  TIPO_PERGAMINHO_DIVINO = 9;
 }
 
 enum TipoComplementoItemMagico {
@@ -807,6 +830,9 @@ message ItemMagicoProto {
   optional int32 cargas = 16;
   // Tipo de complemento requerido pelo item magico. Usado pela UI.
   optional TipoComplementoItemMagico tipo_complemento = 18;
+  // Para itens com nivel e modificador.
+  optional int32 nivel_conjurador = 21;
+  optional int32 modificador_atributo = 22;
 }
 
 message AnelProto {
@@ -996,4 +1022,27 @@ message DominioProto {
   optional string id = 1;
   optional string nome = 2;
   optional string descricao = 3;
+}
+
+enum TipoDuracao {
+  TD_RODADAS_NIVEL = 0;
+  TD_MINUTOS_NIVEL = 1;
+  TD_HORAS_NIVEL   = 2;
+  TD_2_HORAS_NIVEL = 3;
+  TD_10_MINUTOS_NIVEL = 4;
+  TD_OUTRA_DURACAO = 20;
+}
+
+enum TipoModificadorAtaque {
+  // Usa BBA + modificador do atributo de conjurador.
+  TMA_BBA_MAIS_ATRIBUTO_CONJURACAO = 0;
+  TMA_BBA_NIVEL_CONJURADOR         = 1;
+  TMA_OUTROS                       = 100;
+}
+
+enum TipoModificadorSalvacao {
+  // Padrao para feiticos.
+  TMS_MODIFICADOR_CONJURACAO = 0;
+  // Nao modifica pelo atributo.
+  TMS_NENHUM = 1;
 }

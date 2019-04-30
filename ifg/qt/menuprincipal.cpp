@@ -22,6 +22,7 @@ Necessary for lupdate.
 #include <boost/asio/ip/host_name.hpp>
 
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ifg/interface.h"
 #include "ifg/qt/constantes.h"
@@ -132,8 +133,8 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
 
 }  // namespace
 
-MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
-    : QMenuBar(pai), tabuleiro_(tabuleiro), central_(central) {
+MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
+    : QMenuBar(pai), tabelas_(tabelas), tabuleiro_(tabuleiro), central_(central) {
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
@@ -242,8 +243,8 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       VLOG(1) << "Compiler happy: " << strings_acoes[0];
       // Esse menu tem tratamento especial.
       std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
-      for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
-        auto par = std::make_pair(acao_it.first, acao_it.second.get());
+      for (const auto& acao : tabelas_.TodasAcoes().acao()) {
+        auto par = std::make_pair(acao.id(), &acao);
         acoes_ordenadas.push_back(par);
       }
       std::sort(acoes_ordenadas.begin(), acoes_ordenadas.end(), [] (
@@ -341,12 +342,12 @@ void MenuPrincipal::Modo(modomenu_e modo){
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toUtf8().constData();
-      const ent::EntidadeProto* e_proto = tabuleiro_->BuscaModelo(id);
-      if (e_proto == nullptr) {
+      const auto& modelo = tabelas_.ModeloEntidade(id);
+      if (!modelo.has_entidade()) {
         LOG(ERROR) << "Falha ao buscar modelo: " << id;
         continue;
       }
-      acao->setEnabled(e_proto->tipo() != ent::TE_COMPOSTA);
+      acao->setEnabled(modelo.entidade().tipo() != ent::TE_COMPOSTA);
     }
     break;
   }
@@ -548,7 +549,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 3.6.0\n"
+        tr("Tabuleiro virtual versão 3.8.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

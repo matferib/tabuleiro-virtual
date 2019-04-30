@@ -16,6 +16,7 @@
 #include "ntf/notificacao.h"
 
 namespace ent {
+class Tabelas;
 class Tabuleiro;
 }  // namespace ent
 
@@ -26,7 +27,7 @@ namespace qt {
 class MenuPrincipal : public QMenuBar, ntf::Receptor {
   Q_OBJECT
  public:
-  MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai);
+  MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai);
   ~MenuPrincipal();
 
   /** Interface ntf::Receptor. */
@@ -104,6 +105,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   /** Habilita/desabilita items de menu. */
   void EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items);
 
+  const ent::Tabelas& tabelas_;
   // Tabuleiro de jogo, para modelos.
   ent::Tabuleiro* tabuleiro_;
   // menus e acoes dos items

@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
+#include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
@@ -98,6 +99,7 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
 
   std::vector<const char*> arquivos_tabelas = {"tabelas_nao_srd.asciiproto", "tabelas_homebrew.asciiproto", "tabelas.asciiproto"};
+  tabelas_.Clear();
   // Tabelas.
   for (const char* arquivo : arquivos_tabelas) {
     try {
@@ -135,6 +137,28 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
             StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
+  // Modelos de entidades.
+  tabela_modelos_entidades_.Clear();
+  std::vector<const char*> arquivos_modelos= {ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD};
+  for (const char* arquivo : arquivos_modelos) {
+    try {
+      Modelos modelos_arquivo;
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, arquivo, &modelos_arquivo);
+      tabela_modelos_entidades_.MergeFrom(modelos_arquivo);
+    } catch (const arq::ParseProtoException& e) {
+      LOG(WARNING) << "Erro lendo modelo: " << arquivo << ": " << e.what();
+      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+          StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Erro lendo modelo: " << arquivo << ": " << e.what();
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(
+            ntf::NovaNotificacaoErro(
+              StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+      }
+    }
+  }
+
   RecarregaMapas();
 }
 
@@ -146,6 +170,51 @@ void AdicionaOrigemImplicita(ItemMagicoProto* item) {
   }
 }
 
+// Retorna o custo padrao de um pergaminho de um feitico do nivel passado.
+int CustoPadraoPergaminhoNivel(int nivel) {
+  switch (nivel) {
+    case 0: return 12;
+    case 1: return 25;
+    case 2: return 150;
+    case 3: return 375;
+    case 4: return 700;
+    case 5: return 1125;
+    case 6: return 1650;
+    case 7: return 2275;
+    case 8: return 3000;
+    case 9: return 3825;
+    default: ;
+  }
+  LOG(WARNING) << "retornando custo 0 para nivel: " << nivel;
+  return 0;
+}
+
+int NivelConjuradorMinimoParaFeiticoNivel(const std::string& id_classe, int nivel) {
+  if (nivel < 0) return 1;
+  if (id_classe == "bardo") {
+    switch (nivel) {
+      case 0: return 1;
+      case 1: return 2;
+      case 2: return 4;
+      case 3: return 7;
+      case 4: return 10;
+      case 5: return 13;
+      default: return 16;
+    }
+  }
+  if (id_classe == "ranger" || id_classe == "paladino") {
+    // Nivel de conjurador de ranger eh metade do nivel. Como so comeca no 4o, o minimo eh 2.
+    switch (nivel) {
+      case 0:
+      case 1: return 2;
+      case 2: return 4;
+      case 3: return 5;
+      default: return 7;
+    }
+  }
+  return std::max(1, (nivel * 2) - 1);
+}
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -154,6 +223,8 @@ void Tabelas::RecarregaMapas() {
   efeitos_.clear();
   efeitos_modelos_.clear();
   pocoes_.clear();
+  pergaminhos_arcanos_.clear();
+  pergaminhos_divinos_.clear();
   aneis_.clear();
   mantos_.clear();
   luvas_.clear();
@@ -167,6 +238,7 @@ void Tabelas::RecarregaMapas() {
   acoes_.clear();
   racas_.clear();
   dominios_.clear();
+  modelos_entidades_.clear();
 
   for (const auto& dominio : tabelas_.tabela_dominios().dominios()) {
     dominios_[dominio.id()] = &dominio;
@@ -194,9 +266,12 @@ void Tabelas::RecarregaMapas() {
           [] (int c) { return c == CAT_ARMA_DUPLA; })) {
       arma.add_categoria(CAT_DUAS_MAOS);
     }
+    arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
   }
+  const std::vector<std::string> classes_arcanas = {"mago", "bardo"};
+  const std::vector<std::string> classes_divinas = {"druida", "clerigo", "paladino", "ranger"};
   for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
@@ -210,6 +285,27 @@ void Tabelas::RecarregaMapas() {
       }
     }
     feiticos_[feitico.id()] = &feitico;
+    for (const auto& ic : feitico.info_classes()) {
+      ItemMagicoProto* pergaminho = nullptr;
+      if (c_any(classes_arcanas, ic.id())) {
+        pergaminho = &pergaminhos_arcanos_[feitico.id()];
+      } else if (c_any(classes_divinas, ic.id())) {
+        pergaminho = &pergaminhos_divinos_[feitico.id()];
+      } else {
+        continue;
+      }
+      pergaminho->set_id(feitico.id());
+      pergaminho->set_nome(feitico.nome());
+      const int custo_po = CustoPadraoPergaminhoNivel(ic.nivel());
+      if (!pergaminho->has_custo_po() || pergaminho->custo_po() > custo_po) {
+        pergaminho->set_custo_po(custo_po);
+      }
+      const int nivel_conjurador = NivelConjuradorMinimoParaFeiticoNivel(ic.id(), ic.nivel());
+      if (!pergaminho->has_nivel_conjurador() || pergaminho->nivel_conjurador() > nivel_conjurador) {
+        pergaminho->set_nivel_conjurador(nivel_conjurador);
+        pergaminho->set_modificador_atributo(ic.nivel() / 2);
+      }
+    }
   }
 
   auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
@@ -229,6 +325,26 @@ void Tabelas::RecarregaMapas() {
     AdicionaOrigemImplicita(&pocao);
     pocoes_[pocao.id()] = &pocao;
   }
+
+  // Preenche a tabela de pergaminhos arcanos, mergeando o tabelado e depois regerando.
+  for (auto& pergaminho : *tabelas_.mutable_tabela_pergaminhos()->mutable_pergaminhos_arcanos()) {
+    pergaminho.set_tipo(TIPO_PERGAMINHO_ARCANO);
+    pergaminhos_arcanos_[pergaminho.id()].MergeFrom(pergaminho);
+  }
+  tabelas_.mutable_tabela_pergaminhos()->clear_pergaminhos_arcanos();
+  for (const auto& it : pergaminhos_arcanos_) {
+    *tabelas_.mutable_tabela_pergaminhos()->add_pergaminhos_arcanos() = it.second;
+  }
+  // Preenche a tabela de pergaminhos divinos, mergeando o tabelado e depois regerando.
+  for (auto& pergaminho : *tabelas_.mutable_tabela_pergaminhos()->mutable_pergaminhos_divinos()) {
+    pergaminho.set_tipo(TIPO_PERGAMINHO_DIVINO);
+    pergaminhos_divinos_[pergaminho.id()].MergeFrom(pergaminho);
+  }
+  tabelas_.mutable_tabela_pergaminhos()->clear_pergaminhos_divinos();
+  for (const auto& it : pergaminhos_divinos_) {
+    *tabelas_.mutable_tabela_pergaminhos()->add_pergaminhos_divinos() = it.second;
+  }
+
   for (auto& anel : *tabelas_.mutable_tabela_aneis()->mutable_aneis()) {
     anel.set_tipo(TIPO_ANEL);
     aneis_[anel.id()] = &anel;
@@ -287,6 +403,46 @@ void Tabelas::RecarregaMapas() {
   for (const auto& acao : tabela_acoes_.acao()) {
     acoes_[acao.id()] = &acao;
   }
+
+  // Modelos: tem que reconstruir os modelos compostos.
+  for (const auto& modelo : tabela_modelos_entidades_.modelo()) {
+    modelos_entidades_[modelo.id()] = &modelo;
+  }
+
+
+  // Aqui vai ser bem tosco. Enquanto houver entidade com id base, continua a saga.
+  bool fim = true;
+  do {
+    fim =  true;
+    for (auto& m : *tabela_modelos_entidades_.mutable_modelo()) {
+      if (m.id_entidade_base().empty()) continue;
+      // Todas as dependencias devem estar sanadas.
+      bool processar = true;
+      for (const auto& id_entidade_base : m.id_entidade_base()) {
+        auto it = modelos_entidades_.find(id_entidade_base);
+        if (it != modelos_entidades_.end() && !it->second->id_entidade_base().empty()) {
+          fim = false;
+          processar = false;
+          LOG(INFO) << "Postergando " << m.id() << " por causa de " << id_entidade_base;
+          break;
+        }
+      }
+      if (!processar) continue;
+
+      EntidadeProto entidade;
+      for (const auto& id_entidade_base : m.id_entidade_base()) {
+        auto it = modelos_entidades_.find(id_entidade_base);
+        if (it == modelos_entidades_.end()) {
+          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
+          continue;
+        }
+        entidade.MergeFrom(it->second->entidade());
+      }
+      entidade.MergeFrom(m.entidade());
+      m.mutable_entidade()->Swap(&entidade);
+      m.clear_id_entidade_base();
+    }
+  } while (!fim);
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -302,6 +458,27 @@ const ArmaduraOuEscudoProto& Tabelas::Escudo(const std::string& id) const {
 const ArmaProto& Tabelas::Arma(const std::string& id) const {
   auto it = armas_.find(id);
   return it == armas_.end() ? ArmaProto::default_instance() : *it->second;
+}
+
+const std::string Tabelas::FeiticoConversaoEspontanea(
+    const std::string& id_classe, int nivel,
+    cura_ou_infligir_e cura_ou_infligir) const {
+  if (id_classe == "clerigo") {
+    switch (nivel) {
+      case 0: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_minimos" : "infligir_ferimentos_minimos";
+      case 1: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_leves" : "infligir_ferimentos_leves";
+      case 2: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_moderados" : "infligir_gerimentos_moderados";
+      case 3: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_graves" : "infligir_ferimentos_graves";
+      case 4: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_criticos" : "infligir_ferimentos_criticos";
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      default: ;
+    }
+  }
+  return "";
 }
 
 const ArmaProto& Tabelas::Feitico(const std::string& id) const {
@@ -329,9 +506,24 @@ const AcaoProto& Tabelas::Acao(const std::string& id) const {
   return it == acoes_.end() ? AcaoProto::default_instance() : *it->second;
 }
 
+const Modelo& Tabelas::ModeloEntidade(const std::string& id) const {
+  auto it = modelos_entidades_.find(id);
+  return it == modelos_entidades_.end() ? Modelo::default_instance() : *it->second;
+}
+
 const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
   return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::PergaminhoArcano(const std::string& id) const {
+  auto it = pergaminhos_arcanos_.find(id);
+  return it == pergaminhos_arcanos_.end() ? ItemMagicoProto::default_instance() : it->second;
+}
+
+const ItemMagicoProto& Tabelas::PergaminhoDivino(const std::string& id) const {
+  auto it = pergaminhos_divinos_.find(id);
+  return it == pergaminhos_divinos_.end() ? ItemMagicoProto::default_instance() : it->second;
 }
 
 const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {

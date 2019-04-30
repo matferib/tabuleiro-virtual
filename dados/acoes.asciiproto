@@ -126,6 +126,21 @@ acao {
   dificuldade_salvacao_por_nivel: true
 }
 acao {
+  id: 'Feitiço a Distância'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+  permite_ataque_vs_defesa: false
+  icone: 'icon_ranged_touch.png'
+  ataque_distancia: true
+  ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
+  permite_salvacao: true
+}
+
+acao {
   id: 'Pergaminho Arcano'
   icone: 'icon_scroll.png'
   tipo_pergaminho: TM_ARCANA
@@ -186,6 +201,27 @@ acao {
   ataque_distancia: true
   ignora_reducao_dano_barbaro: true
 }
+acao {
+  id: 'Feitiço Dispersão Esfera'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_ESFERA
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  dificuldade_salvacao_por_nivel: true
+  ignora_resistencia_magia: false
+  ignora_reducao_dano_barbaro: true
+}
+acao {
+  id: 'Feitiço Dispersão Cone'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_CONE
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  dificuldade_salvacao_por_nivel: true
+  ignora_resistencia_magia: false
+  ignora_reducao_dano_barbaro: true
+}
+
 acao {
   id: 'Sopro'
   tipo: ACAO_DISPERSAO

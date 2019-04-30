@@ -542,73 +542,86 @@
      <property name="title">
       <string>Atributos</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_25">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <widget class="QCheckBox" name="checkbox_colisao">
-          <property name="toolTip">
-           <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
-          </property>
-          <property name="text">
-           <string>Colisão</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkbox_fixa">
-          <property name="toolTip">
-           <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
-          </property>
-          <property name="text">
-           <string>Fixa</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkbox_selecionavel">
-          <property name="text">
-           <string>Selecionável</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkbox_dois_lados">
-          <property name="toolTip">
-           <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
-          </property>
-          <property name="text">
-           <string>Dois Lados</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkbox_visibilidade">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Visível</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkbox_faz_sombra">
-          <property name="toolTip">
-           <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
-          </property>
-          <property name="text">
-           <string>Faz Sombra</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkbox_respeita_solo">
+        <property name="text">
+         <string>Respeita Solo</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkbox_selecionavel">
+        <property name="text">
+         <string>Selecionável</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkbox_afetado_por_efeitos">
+        <property name="toolTip">
+         <string>Marque se objeto pode ser afetado por efeitos.</string>
+        </property>
+        <property name="text">
+         <string>Afetado por Efeitos</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="checkbox_colisao">
+        <property name="toolTip">
+         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+        </property>
+        <property name="text">
+         <string>Colisão</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="checkbox_fixa">
+        <property name="toolTip">
+         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+        </property>
+        <property name="text">
+         <string>Fixa</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="checkbox_dois_lados">
+        <property name="toolTip">
+         <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
+        </property>
+        <property name="text">
+         <string>Dois Lados</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="checkbox_faz_sombra">
+        <property name="toolTip">
+         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+        </property>
+        <property name="text">
+         <string>Faz Sombra</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="checkbox_visibilidade">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Visível</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -1034,10 +1047,6 @@
   <tabstop>spin_trans_x</tabstop>
   <tabstop>spin_trans_y</tabstop>
   <tabstop>spin_trans_z</tabstop>
-  <tabstop>checkbox_fixa</tabstop>
-  <tabstop>checkbox_selecionavel</tabstop>
-  <tabstop>checkbox_visibilidade</tabstop>
-  <tabstop>checkbox_faz_sombra</tabstop>
   <tabstop>checkbox_colisao</tabstop>
   <tabstop>checkbox_cor</tabstop>
   <tabstop>botao_cor</tabstop>

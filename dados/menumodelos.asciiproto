@@ -121,11 +121,17 @@ modelo { id: 'Manto Negro' }
 modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
+  id: 'Gnomos'
+  modelo { id: 'Gnomo Ilusionista 3' }
+  modelo { id: 'Gnomo Ilusionista 4' }
+}
+sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Adepto 3' }
   modelo { id: 'Humano Bárbaro' }
   sub_menu {
     id: 'Bardos'
+    modelo { id: 'Humano Bardo 4' }
     modelo { id: 'Humano Bardo 5' }
   }
   sub_menu {
@@ -187,7 +193,11 @@ sub_menu {
     modelo { id: 'Humano Mago 5' }
     modelo { id: 'Humano Mago 18' }
   }
-  modelo { id: 'Humano Monge' }
+  sub_menu {
+    id: 'Monges'
+    modelo { id: 'Humano Monge' }
+    modelo { id: 'Humano Monge 5' }
+  }
   modelo { id: 'Humano Paladino' }
 }
 sub_menu {

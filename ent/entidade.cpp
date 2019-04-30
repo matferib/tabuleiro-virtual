@@ -91,11 +91,11 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
-  return ent::TemTipoDnD(tipo, proto_); 
+  return ent::TemTipoDnD(tipo, proto_);
 }
 
 bool Entidade::TemSubTipoDnD(SubTipoDnD sub_tipo) const {
-  return ent::TemSubTipoDnD(sub_tipo, proto_); 
+  return ent::TemSubTipoDnD(sub_tipo, proto_);
 }
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
@@ -999,35 +999,17 @@ int Entidade::IdCenario() const {
 
 void Entidade::MataEntidade() {
   proto_.set_morta(true);
+  proto_.set_inconsciente(true);
+  proto_.set_incapacitada(true);
   proto_.set_caida(true);
   proto_.set_voadora(false);
   proto_.set_aura_m(0.0f);
 }
 
-void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
-  if (proto_.max_pontos_vida() == 0) {
-    // Entidades sem pontos de vida nao sao afetadas.
-    return;
-  }
-  bool vivo_antes = proto_.pontos_vida() >= proto_.dano_nao_letal();
-  bool vivo_depois = pontos_vida > dano_nao_letal;
-  if (vivo_antes && !vivo_depois) {
-    proto_.set_morta(true);
-    proto_.set_caida(true);
-    proto_.set_voadora(false);
-    proto_.set_aura_m(0.0f);
-  } else if (vivo_depois && !vivo_antes) {
-    proto_.set_morta(false);
-  }
-  proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
-  proto_.set_dano_nao_letal(dano_nao_letal);
-}
-
-void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
+void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
+  EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
-  int pontos_vida_antes = PontosVida();
-  int dano_nao_letal_antes = DanoNaoLetal();
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();
@@ -1090,6 +1072,13 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.tesouro().pocoes_size() > 0) {
     proto_.mutable_tesouro()->clear_pocoes();
   }
+  if (proto_parcial.tesouro().pergaminhos_arcanos_size() > 0) {
+    proto_.mutable_tesouro()->clear_pergaminhos_arcanos();
+  }
+  if (proto_parcial.tesouro().pergaminhos_divinos_size() > 0) {
+    proto_.mutable_tesouro()->clear_pergaminhos_divinos();
+  }
+
   // Limpa itens que vierem no parcial, pois serao mergeados.
   for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
     RemoveItem(*item, &proto_);
@@ -1140,6 +1129,13 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     //*p.mutable_agarrado_a() = proto_.agarrado_a();
     //LOG(INFO) << "antes: " << p.ShortDebugString() << ", novo agarrar: " << proto_parcial.ShortDebugString();
   }
+
+  // Talentos: procura por chave.
+  for (const auto& talento : proto_parcial.info_talentos().outros()) {
+    auto* talento_proto = TalentoOuCria(talento.id(), &proto_);
+    talento_proto->MergeFrom(talento);
+  }
+  proto_parcial.clear_info_talentos();
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
@@ -1243,12 +1239,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b() && !proto_.cor().has_a()) {
     proto_.clear_cor();
-  }
-  if (proto_parcial.has_pontos_vida()) {
-    // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
-    proto_.set_pontos_vida(pontos_vida_antes);
-    proto_.set_dano_nao_letal(dano_nao_letal_antes);
-    AtualizaPontosVida(proto_parcial.pontos_vida(), proto_parcial.dano_nao_letal());
   }
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
@@ -2192,6 +2182,11 @@ void Entidade::ReiniciaAtaque() {
 
 void Entidade::RecomputaDependencias() {
   ent::RecomputaDependencias(tabelas_, &proto_, this);
+}
+
+bool Entidade::RespeitaSolo() const {
+  if (proto_.has_forcar_respeita_solo()) return proto_.has_forcar_respeita_solo();
+  return Tipo() == TE_ENTIDADE;
 }
 
 }  // namespace ent

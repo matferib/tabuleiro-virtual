@@ -175,6 +175,8 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
     case ent::TipoItem::TIPO_AMULETO: return tabelas.todas().tabela_amuletos().amuletos();
     case ent::TipoItem::TIPO_BOTAS: return tabelas.todas().tabela_botas().botas();
     case ent::TipoItem::TIPO_CHAPEU: return tabelas.todas().tabela_chapeus().chapeus();
+    case ent::TipoItem::TIPO_PERGAMINHO_ARCANO: return tabelas.todas().tabela_pergaminhos().pergaminhos_arcanos();
+    case ent::TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.todas().tabela_pergaminhos().pergaminhos_divinos();
     default: ;
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
@@ -184,10 +186,12 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
-  return google::protobuf::StringPrintf(
-      "%s%s",
-      item_tabela.nome().c_str(),
-      item_pc.em_uso() ? " (em uso)" : " (não usado)");
+  return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO
+      ? item_tabela.nome()
+      : google::protobuf::StringPrintf(
+          "%s%s",
+          item_tabela.nome().c_str(),
+          item_pc.em_uso() ? " (em uso)" : " (não usado)");
 }
 
 inline std::string DescricaoParaLista(

@@ -1,7 +1,15 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 modelo { id: 'Área Escorregadia' }
+modelo { id: 'Constrição' }
+modelo { id: 'Escuridão' }
 modelo { id: 'Esfera Flamejante' }
+modelo { id: 'Globo de Invulnerabilidade' }
+modelo { id: 'Gravidade Invertida' }
+modelo { id: 'Luz do Dia' }
+modelo { id: 'Muralha de Fogo' }
+modelo { id: 'Muralha de Gelo' }
 modelo { id: 'Tentáculos Negros' }
+modelo { id: 'Zona da Verdade' }
 sub_menu {
   id: 'Arma Espiritual'
   modelo { id: 'Arma Espiritual (19-20/x2)' texto: 'Espada Longa' }

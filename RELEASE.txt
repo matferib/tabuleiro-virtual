@@ -6,6 +6,5 @@ Versoes:
 - mac(mudar para qt5): ver NOTAS_MAC.
 - ios: Mudar a versao do projeto no Xcode.
 
-Gerar textura para terceiros: bahs gera_texturas_modelos_tabuleiros.sh.
-Lembrar de gerar o APK do Nexus 7 tb (NEXUS7=1 na linha de compilacao jni).
+Gerar textura para terceiros: bash gera_texturas_modelos_tabuleiros.sh.
 Lembrar de atualizar as texturas do android.

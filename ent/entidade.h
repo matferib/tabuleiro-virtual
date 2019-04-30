@@ -39,6 +39,12 @@ Entidade* NovaEntidade(
     const EntidadeProto& proto,
     const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
+inline Entidade* NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
+  return NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
+}
+inline Entidade* NovaEntidadeFalsa(const Tabelas& tabelas) {
+  return NovaEntidadeParaTestes(EntidadeProto::default_instance(), tabelas);
+}
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -56,6 +62,8 @@ class Entidade {
 
   /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
   bool TemLuz() const;
+  /** Retorna o raio da luz (assume que esta ligada). */
+  float RaioLuzMetros() const { return proto_.luz().has_raio_m() ? proto_.luz().raio_m() : 6.0f; }
   /** Liga a iluminacao por acao da entidade, tipo quando da um tiro. */
   void AtivaLuzAcao(const IluminacaoPontual& luz);
 
@@ -125,7 +133,7 @@ class Entidade {
 
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
-  int PontosVida() const { return proto_.pontos_vida() + proto_.pontos_vida_temporarios(); }
+  int PontosVida() const { return ent::PontosVida(proto_); }
   int MaximoPontosVida() const { return proto_.max_pontos_vida() - proto_.niveis_negativos() * 5 + proto_.pontos_vida_temporarios(); }
   int PontosVidaTemporarios() const { return proto_.pontos_vida_temporarios(); }
   int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
@@ -310,6 +318,13 @@ class Entidade {
 
   bool ImuneVeneno() const;
 
+  /** Por padrao, apenas entidades podem ser afetadas por acao. */
+  inline bool PodeSerAfetadoPorAcoes() const {
+    return proto_.has_pode_ser_afetada_por_acao()
+               ? proto_.pode_ser_afetada_por_acao()
+               : Tipo() == TE_ENTIDADE;
+  }
+
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
 
@@ -323,7 +338,7 @@ class Entidade {
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
   /** Retorna a string de dano para a acao corrente para o alvo: '1d8+3'. */
   std::string StringDanoParaAcao(const EntidadeProto& alvo) const;
-  /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */ 
+  /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */
   std::string StringCAParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */
   std::string DetalhesAcao() const;
@@ -350,6 +365,9 @@ class Entidade {
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
+
+  /** Retorna true se a entidade segue o solo ao se mover. */
+  bool RespeitaSolo() const;
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;

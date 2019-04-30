@@ -29,6 +29,7 @@ enum TipoConsequencia {
   TC_AGARRA_ALVO       = 3;
   TC_ILUMINA_ALVO      = 4;
   TC_DERRUBA_ALVO      = 5;
+  TC_REDUZ_LUZ_ALVO    = 6;
 }
 
 enum GeometriaAcao {
@@ -85,9 +86,10 @@ enum ModificadorComplementos {
   MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO = 5;  // raio do enfraquecimento.
   MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
   MC_1_POR_NIVEL = 7;  // poder divino.
+  MC_ID_ENTIDADE = 8;  // Proteger outro.
 }
 
-// Proximo id: 72.
+// Proximo id: 77.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -186,8 +188,12 @@ message AcaoProto {
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;
+  // Total de dados de vida afetados pela acao.
+  optional int32 total_dv = 74;
+  optional bool mais_fracos_primeiro = 75;
   // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
   optional int32 pv_mais_alto = 69;
+  optional string dado_pv_mais_alto = 76;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
@@ -204,6 +210,7 @@ message AcaoProto {
   optional IluminacaoPontual luz_origem = 54;
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
+    optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
     // Para efeitos de cura ou dano.
     optional string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
@@ -214,7 +221,7 @@ message AcaoProto {
     repeated string complementos_str = 4;
     optional string descricao = 5;
     // Se presente, ao inves de fazer merge com repeated, ira combinar com o
-    // efeito ja existente no indice passado.
+    // efeito ja existente no indice passado. Prefira combinar_com_efeito.
     optional int32 combinar_com = 6;
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;
@@ -229,6 +236,8 @@ message AcaoProto {
     optional string origem = 12;
 
     optional int32 pontos_vida_temporarios = 15;
+    // Caso o modelo seja desativado, o efeito também desaparecerá.
+    optional TipoEfeitoModelo requer_modelo_ativo = 17;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.
@@ -248,6 +257,9 @@ message AcaoProto {
   }
   optional DetalhesAdicionais detalhes_adicionais = 70;
   optional bool ignora_reflexos = 71;
+  // Reducao da luz do alvo [0-1].
+  optional float reducao_luz = 72;
+  optional bool reduz_luz = 73;
 }
 
 // O arquivo de acoes é serializado desta forma.
