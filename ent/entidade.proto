@@ -346,6 +346,9 @@ message EntidadeProto {
     optional bytes estado_anterior = 11;
     // O evento requer um modelo ativo para permanecer.
     optional TipoEfeitoModelo requer_modelo_ativo = 12;
+    // Para efeitos que demandam salvacao toda rodada.
+    optional int32 dificuldade_salvacao = 13;
+    optional TipoSalvacao tipo_salvacao = 14;
   }
   repeated Evento evento = 31;
 

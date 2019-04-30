@@ -375,9 +375,17 @@ void PreencheNotificacaoRemocaoEvento(
     const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n);
 
 // Retorna o id unico gerado (-1 em caso de erro).
-void PreencheNotificacaoEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+inline void PreencheNotificacaoEventoEfeitoAdicional(
+    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  return PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+      id_origem, DadosAtaque::default_instance(), nivel_conjurador,
+      entidade_destino, efeito_adicional, ids_unicos, n, n_desfazer);
+}
+
 void PreencheNotificacaoEventoParaVenenoPrimario(
     unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);

@@ -1086,6 +1086,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_PARALISIA
     nome: 'paralisia'
+    # descricao: toda rodada pode salvar para desfazer.
   }
   efeitos {
     id: EFEITO_METAMORFOSE_TORRIDA
@@ -5461,12 +5462,154 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      id: 'Feitiço de Toque a Distância'
-      permite_ataque_vs_defesa: false
+      id: 'Feitiço a Distância'
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
+      afeta_apenas:  TIPO_HUMANOIDE
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'imobilizar_mortos_vivos'  # halt undead
+    nome: 'imobilizar mortos-vivos'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      maximo_criaturas_afetadas: 3
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas: TIPO_MORTO_VIVO
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'necromancia'
+  }
+
+  armas {
+    id: 'imobilizar_animal'  # hold animal
+    nome: 'imobilizar animal'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'animal'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas:  TIPO_ANIMAL
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'imobilizar_monstro'  # hold monster
+    nome: 'imobilizar monstro'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 6
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'imobilizar_monstro_massa'  # mass hold monster
+    nome: 'imobilizar monstro em massa'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_PARALISIA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'imobilizar_pessoa_massa'  # mass hold person
+    nome: 'imobilizar pessoa em massa'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      raio_quadrados: 6
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      ignora_resistencia_magia: false
+      resultado_ao_salvar: RS_ANULOU
+      afeta_apenas:  TIPO_HUMANOIDE
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL

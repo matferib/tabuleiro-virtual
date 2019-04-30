@@ -963,8 +963,8 @@ float AplicaEfeitosAdicionais(
       da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-    PreencheNotificacaoEventoEfeitoAdicional(
-        entidade_origem.Id(), nivel_conjurador, entidade_destino, efeito_adicional,
+    PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+        entidade_origem.Id(), da, nivel_conjurador, entidade_destino, efeito_adicional,
         ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_efeito.release());
     atraso_s += 0.5f;
@@ -977,8 +977,8 @@ float AplicaEfeitosAdicionais(
     por_entidade->set_delta(0);
     for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-      PreencheNotificacaoEventoEfeitoAdicional(
-          entidade_origem.Id(), nivel_conjurador, entidade_origem, efeito_adicional,
+      PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+          entidade_origem.Id(), da, nivel_conjurador, entidade_origem, efeito_adicional,
           ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
       central->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
