@@ -1,7 +1,6 @@
 package ent;
 
 import "ent/comum.proto";
-import "ent/entidade.proto";
 
 // Proximo id: 147, mas conferir pq ha gaps.
 enum IdBotao {
