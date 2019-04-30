@@ -238,6 +238,8 @@ message AcaoProto {
     optional string origem = 12;
 
     optional int32 pontos_vida_temporarios = 15;
+    // Caso o modelo seja desativado, o efeito também desaparecerá.
+    optional TipoEfeitoModelo requer_modelo_ativo = 17;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.

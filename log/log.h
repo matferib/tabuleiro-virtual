@@ -54,7 +54,7 @@ class StringLogger {
 #else
 
 // TODO dar um jeito de anular essas macros se nao tiver log.
-#include <cstrrchr>
+#include <cstring>
 #include <iostream>
 // Arquivos querendo VLOG devem definir esse VLOG_NIVEL no android.
 #ifndef VLOG_NIVEL

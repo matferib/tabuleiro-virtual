@@ -6,7 +6,6 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
@@ -907,7 +906,11 @@ bool EscolaRuimTramaDasSombras(const ArmaProto& feitico);
 int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes, int nivel_conjurador);
 
 // Mexe nos bits da entidade depois de uma alteracao de pontos de vida.
+// Parametros 'pontos_vida' deve incluir temporarios.
 void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dano_nao_letal, const EntidadeProto& proto, ntf::Notificacao* n);
+
+// Retorna o total de pontos de vida da entidade (incluindo temporarios).
+int PontosVida(const EntidadeProto& proto);
 
 }  // namespace ent
 

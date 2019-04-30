@@ -1,7 +1,5 @@
 Fazer maximo de criaturas afetadas.
-Testar a nova consequencia com pontos de vida temporarios.
-Cura acelerada nao cura se morta.
-Refazer ilusionista.
+Transformar muita coisa em mapa (talento, pericias).
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
 

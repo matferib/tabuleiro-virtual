@@ -1403,8 +1403,19 @@ std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) 
   return ids;
 }
 
+bool PossuiModelo(const Tabelas& tabelas, TipoEfeitoModelo id_efeito_modelo, const EntidadeProto& proto) {
+  for (const auto& modelo : proto.modelos()) {
+    if (modelo.id_efeito() != id_efeito_modelo) continue;
+    return !ModeloDesligavel(tabelas, modelo) || modelo.ativo();
+  }
+  return false;
+}
+
 // Retorna true se o item que criou o evento nao existe mais.
-bool EventoOrfao(const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens) {
+bool EventoOrfao(const Tabelas& tabelas, const EntidadeProto::Evento& evento, const std::unordered_set<unsigned int>& ids_itens, const EntidadeProto& proto) {
+  if (evento.has_requer_modelo_ativo() && !PossuiModelo(tabelas, evento.requer_modelo_ativo(), proto)) {
+    return true;
+  }
   return evento.requer_pai() && c_none(ids_itens, evento.id_unico());
 }
 
@@ -1415,7 +1426,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (const auto& evento : proto->evento()) {
-    if (evento.rodadas() < 0 || EventoOrfao(evento, ids_itens)) {
+    if (evento.rodadas() < 0 || EventoOrfao(tabelas, evento, ids_itens, *proto)) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
       if (efeito.has_consequencia_fim()) {

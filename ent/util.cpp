@@ -1613,51 +1613,68 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  const auto& proto = entidade.Proto();
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
       ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
 
+  // Aqui vamos tratar nao letais e temporarios. Depois tratamos os pontos de vida mesmo.
+  int temporarios = proto.pontos_vida_temporarios();
+  int dano_nao_letal = proto.dano_nao_letal();
   if (delta_pontos_vida > 0) {
     if (delta_pontos_vida >= e_depois->dano_nao_letal()) {
       e_depois->set_dano_nao_letal(0);
+      dano_nao_letal = 0;
     } else {
-      e_depois->set_dano_nao_letal(e_depois->dano_nao_letal() - delta_pontos_vida);
+      dano_nao_letal = proto.dano_nao_letal() - delta_pontos_vida; 
+      e_depois->set_dano_nao_letal(dano_nao_letal);
     }
-  } else if (delta_pontos_vida < 0 && td == TD_NAO_LETAL) {
-    e_depois->set_dano_nao_letal(entidade.DanoNaoLetal() - delta_pontos_vida);
-    e_depois->set_pontos_vida(entidade.PontosVida());
-  } else if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
-    // Tira dos temporarios.
-    *e_depois->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
-    auto* bpv = e_depois->mutable_pontos_vida_temporarios_por_fonte();
-    auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
-    if (bi != nullptr) {
-      for (int i_origem = 0; delta_pontos_vida < 0 && i_origem < bi->por_origem_size(); ++i_origem)  {
-        auto* po = bi->mutable_por_origem(i_origem);
-        if (po->valor() < 0) {
-          LOG(WARNING) << "Valor de pv temporario invalido: " << po->valor();
-        } else if (po->valor() >= abs(delta_pontos_vida)) {
-          delta_pontos_vida = 0;
-          po->set_valor(po->valor() - abs(delta_pontos_vida));
-        } else {
-          delta_pontos_vida += po->valor();
-          po->set_valor(0);
+  } else if (delta_pontos_vida < 0) {
+    if (td == TD_NAO_LETAL) {
+      dano_nao_letal -= delta_pontos_vida;
+      e_depois->set_dano_nao_letal(dano_nao_letal);
+    } else if (proto.pontos_vida_temporarios() > 0) {
+      temporarios = 0;
+      // Tira dos temporarios.
+      *e_depois->mutable_pontos_vida_temporarios_por_fonte() = proto.pontos_vida_temporarios_por_fonte();
+      auto* bpv = e_depois->mutable_pontos_vida_temporarios_por_fonte();
+      auto* bi = BonusIndividualSePresente(TB_SEM_NOME, bpv);
+      if (bi != nullptr) {
+        // Tem que loopar tudo pra computar o novo valor de temporarios.
+        for (int i_origem = 0; i_origem < bi->por_origem_size(); ++i_origem)  {
+          auto* po = bi->mutable_por_origem(i_origem);
+          if (po->valor() < 0) {
+            LOG(WARNING) << "Valor de pv temporario invalido: " << po->valor();
+          } else if (po->valor() >= abs(delta_pontos_vida)) {
+            // Anulou o dano todo, mas continua pra computar temporarios.
+            delta_pontos_vida = 0;
+            int novo_valor = po->valor() - abs(delta_pontos_vida);
+            po->set_valor(novo_valor);
+            temporarios += novo_valor;
+          } else {
+            // Sobrou dano.
+            delta_pontos_vida += po->valor();
+            po->set_valor(0);
+          }
         }
       }
     }
   }
-  int pv = entidade.PontosVida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida);
-  e_depois->set_pontos_vida(pv);
+  // Agora os pontos de vida. Se o dano foi nao letal, nada a fazer (foi feito acima).
+  // Caso contrario, aplica aqui.
+  int pv = proto.pontos_vida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida);
+  e_depois->set_pontos_vida(std::min(pv, proto.max_pontos_vida()));
+  e_depois->set_dano_nao_letal(dano_nao_letal);
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      pv, e_depois->dano_nao_letal(), entidade.Proto(), n);
+      pv + temporarios, dano_nao_letal, entidade.Proto(), n);
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
     *n_desfazer->mutable_entidade() = *e_depois;
     *n_desfazer->mutable_entidade_antes() = *e_antes;
-    e_antes->set_pontos_vida(entidade.PontosVida());
-    *e_antes->mutable_pontos_vida_temporarios_por_fonte() = entidade.Proto().pontos_vida_temporarios_por_fonte();
-    e_antes->set_dano_nao_letal(entidade.DanoNaoLetal());
+    e_antes->set_pontos_vida(proto.pontos_vida());
+    e_antes->set_dano_nao_letal(proto.dano_nao_letal());
+    *e_antes->mutable_pontos_vida_temporarios_por_fonte() = proto.pontos_vida_temporarios_por_fonte();
   }
 }
 
@@ -3147,6 +3164,9 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
                          !efeito_adicional.has_modificador_rodadas() &&
                          !efeito_adicional.has_dado_modificador_rodadas());
   auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
+  if (efeito_adicional.has_requer_modelo_ativo()) {
+    e->set_requer_modelo_ativo(efeito_adicional.requer_modelo_ativo());
+  }
   PreencheComplementos(id_origem, nivel_conjurador, efeito_adicional, &alvo, e);
   if (efeito_adicional.has_descricao()) e->set_descricao(efeito_adicional.descricao());
   return e;
@@ -4633,10 +4653,29 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
   *e_antes->mutable_pos() = proto.pos();
   *e_antes->mutable_direcao_queda() = proto.direcao_queda();
 
-  const int pv_depois = pontos_vida - dano_nao_letal;
+  if (pontos_vida > dano_nao_letal) {
+    e_depois->set_morta(false);
+    e_depois->set_inconsciente(false);
+    e_depois->set_incapacitada(false);
+    e_depois->set_nocauteada(false);
+    return;
+  }
+  if (pontos_vida == dano_nao_letal) {
+    e_depois->set_morta(false);
+    e_depois->set_inconsciente(false);
+    if (dano_nao_letal > 0) {
+      e_depois->set_nocauteada(true);
+    } else {
+      e_depois->set_incapacitada(true);
+    }
+    return;
+  }
+  // pv < dano_nao_letal.
   const int constituicao = BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto));
   const int limiar_morte = std::min(-10, -constituicao);
-  if (pv_depois <= limiar_morte) {
+
+  // Morto incondicional.
+  if (pontos_vida <= limiar_morte) {
     e_depois->set_morta(true);
     e_depois->set_caida(true);
     e_depois->set_voadora(false);
@@ -4646,30 +4685,30 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
     e_depois->set_aura_m(0.0f);
     return;
   }
-  e_depois->set_morta(false);
-  if (pv_depois > 0) {
-    e_depois->set_inconsciente(false);
-    e_depois->set_incapacitada(false);
-    e_depois->set_nocauteada(false);
-    return;
-  }
-  // pv <= 0.
-  if (dano_nao_letal > 0) {
-    e_depois->set_nocauteada(true);
-  } else {
+  // Se contar o nao letal, passa do limiar, quase morto.
+  if (pontos_vida - dano_nao_letal <= limiar_morte) {
+    // A regra nao eh clara aqui, entao extrapolei. Se contando com o dano nao letal passar do limiar, fica inconsciente.
+    e_depois->set_morta(false);
+    e_depois->set_caida(true);
+    e_depois->set_voadora(false);
+    e_depois->set_inconsciente(true);
     e_depois->set_incapacitada(true);
-  }
-  if (pv_depois == 0) {
-    e_depois->set_inconsciente(false);
+    e_depois->set_nocauteada(true);
+    e_depois->set_aura_m(0.0f);
     return;
   }
-  // pv < 0, nao morto.
+
+  // Aqui é inconsciente, mas depende de talento.
   const bool duro_de_matar = PossuiTalento("duro_de_matar", proto);
   e_depois->set_nocauteada(true);
   e_depois->set_incapacitada(true);
   e_depois->set_inconsciente(!duro_de_matar);
   e_depois->set_voadora(proto.voadora() && duro_de_matar);
   e_depois->set_caida(proto.caida() || !duro_de_matar);
+}
+
+int PontosVida(const EntidadeProto& proto) {
+  return proto.pontos_vida() + proto.pontos_vida_temporarios();
 }
 
 }  // namespace ent

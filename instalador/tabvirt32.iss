@@ -4,10 +4,10 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 3.7.0
+AppVerName=Tabuleiro Virtual 3.8.0
 AppPublisher=Matferib
 OutputDir=output
-OutputBaseFilename=TabuleiroVirtual-3.7.0-32bits
+OutputBaseFilename=TabuleiroVirtual-3.8.0-32bits
 Compression=lzma
 SolidCompression=yes
 DefaultDirName={pf32}\TabuleiroVirtual
@@ -27,7 +27,7 @@ Name: {localappdata}\TabuleiroVirtual
 [Files]
 Source: ..\tabvirt32.exe; Destdir: {app}; DestName: tabvirt.exe; Flags: ignoreversion; 
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
-Source: ..\win32\lib\x86\*.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\win32\lib\32bits\*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
 Source: ..\shaders\*.c; Destdir: {app}\shaders; Flags: ignoreversion;

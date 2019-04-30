@@ -2844,6 +2844,23 @@ TEST(TesteConsequenciaPontosVida, Morta) {
   EXPECT_FALSE(proto.voadora());
 }
 
+TEST(TesteConsequenciaPontosVida, PontosVidaTemporarios) {
+  EntidadeProto proto;
+  proto.set_max_pontos_vida(10);
+  AtribuiBonus(1, TB_SEM_NOME, "temp", proto.mutable_pontos_vida_temporarios_por_fonte());
+  RecomputaDependencias(g_tabelas, &proto);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+
+  ntf::Notificacao n;
+  PreencheNotificacaoAtualizaoPontosVida(*entidade, /*delta_pontos_vida=*/-10, TD_LETAL, &n, nullptr);
+  entidade->AtualizaParcial(n.entidade());
+  proto = entidade->Proto();
+  EXPECT_FALSE(proto.morta());
+  EXPECT_FALSE(proto.inconsciente());
+  EXPECT_FALSE(proto.incapacitada());
+  EXPECT_FALSE(proto.caida());
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

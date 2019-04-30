@@ -1006,16 +1006,6 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
-void Entidade::AtualizaPontosVida(int pontos_vida, int dano_nao_letal) {
-  if (proto_.max_pontos_vida() == 0) {
-    // Entidades sem pontos de vida nao sao afetadas.
-    return;
-  }
-  ntf::Notificacao n;
-  PreencheNotificacaoConsequenciaAlteracaoPontosVida(pontos_vida, dano_nao_letal, proto_, &n);
-  AtualizaParcial(n.entidade());
-}
-
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();

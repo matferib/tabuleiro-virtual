@@ -408,19 +408,41 @@ void Tabelas::RecarregaMapas() {
   for (const auto& modelo : tabela_modelos_entidades_.modelo()) {
     modelos_entidades_[modelo.id()] = &modelo;
   }
-  for (auto& m : *tabela_modelos_entidades_.mutable_modelo()) {
-    EntidadeProto entidade;
-    for (const auto& id_entidade_base : m.id_entidade_base()) {
-      auto it = modelos_entidades_.find(id_entidade_base);
-      if (it == modelos_entidades_.end()) {
-        LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
-        continue;
+
+
+  // Aqui vai ser bem tosco. Enquanto houver entidade com id base, continua a saga.
+  bool fim = true;
+  do {
+    fim =  true;
+    for (auto& m : *tabela_modelos_entidades_.mutable_modelo()) {
+      if (m.id_entidade_base().empty()) continue;
+      // Todas as dependencias devem estar sanadas.
+      bool processar = true;
+      for (const auto& id_entidade_base : m.id_entidade_base()) {
+        auto it = modelos_entidades_.find(id_entidade_base);
+        if (it != modelos_entidades_.end() && !it->second->id_entidade_base().empty()) {
+          fim = false;
+          processar = false;
+          LOG(INFO) << "Postergando " << m.id() << " por causa de " << id_entidade_base;
+          break;
+        }
       }
-      entidade.MergeFrom(it->second->entidade());
+      if (!processar) continue;
+
+      EntidadeProto entidade;
+      for (const auto& id_entidade_base : m.id_entidade_base()) {
+        auto it = modelos_entidades_.find(id_entidade_base);
+        if (it == modelos_entidades_.end()) {
+          LOG(ERROR) << "falha lendo id base de " << m.id() << ", base: " << id_entidade_base;
+          continue;
+        }
+        entidade.MergeFrom(it->second->entidade());
+      }
+      entidade.MergeFrom(m.entidade());
+      m.mutable_entidade()->Swap(&entidade);
+      m.clear_id_entidade_base();
     }
-    entidade.MergeFrom(m.entidade());
-    m.mutable_entidade()->Swap(&entidade);
-  }
+  } while (!fim);
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {

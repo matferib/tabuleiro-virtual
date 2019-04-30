@@ -1724,16 +1724,18 @@ void CombinaEfeitos(AcaoProto* acao) {
   std::unordered_map<int, AcaoProto::EfeitoAdicional*> efeito_por_id;
   for (int i = 0; i < acao->efeitos_adicionais_size(); ++i) {
     auto* ea = acao->mutable_efeitos_adicionais(i);
-    if (ea->has_combinar_com()) {
+    if (ea->has_combinar_com() || ea->has_combinar_com_efeito()) {
       // Vou ignorar o valor e simplesmente pegar pelo id do efeito se houver.
-      auto it = efeito_por_id.find(ea->efeito());
+      auto it = efeito_por_id.find(ea->has_combinar_com_efeito() ? ea->combinar_com_efeito() : ea->efeito());
       if (it != efeito_por_id.end()) {
         it->second->MergeFrom(*ea);
         it->second->clear_combinar_com();
+        it->second->clear_combinar_com_efeito();
         VLOG(1) << "combinado por id: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
       } else if (ea->combinar_com() >= 0 && ea->combinar_com() < acao->efeitos_adicionais_size() && i != ea->combinar_com()) {
         acao->mutable_efeitos_adicionais(ea->combinar_com())->MergeFrom(*ea);
         acao->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com();
+        acao->mutable_efeitos_adicionais(ea->combinar_com())->clear_combinar_com_efeito();
         LOG(WARNING) << "combinado por posicao: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
       } else {
         LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
