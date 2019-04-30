@@ -1,5 +1,3 @@
-Testar a nova consequencia com pontos de vida temporarios.
-Cura acelerada nao cura se morta.
 Refazer ilusionista.
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
