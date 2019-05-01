@@ -7200,10 +7200,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         AdicionaAcaoTextoLogado(
             entidade.Id(), StringPrintf("paralisia quebrada: %s", texto.c_str()),
             atraso_s);
-        *proto_antes->add_evento() = *evento;
-        auto* evento_depois = proto_depois->add_evento();
-        *evento_depois = *evento;
-        evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+        evento_depois->set_rodadas(-1);
       } else {
         AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("paralisia permanece: %s", texto.c_str()), atraso_s);
       }
