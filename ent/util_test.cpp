@@ -2561,6 +2561,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   EXPECT_EQ(proto.dados_ataque(3).rotulo(), "reflexos 3/dia");
   EXPECT_TRUE(proto.dados_ataque(3).acao().classe_conjuracao().empty());
   EXPECT_EQ(proto.dados_ataque(3).limite_vezes(), 3);
+  EXPECT_EQ(proto.raca(), "humano");
 
   // Vulto Bardo 5.
   ASSERT_FALSE(proto.modelos().empty());
@@ -2604,6 +2605,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
 TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Clérigo de Shar/Adepto das Sombras 5/1");
   EntidadeProto proto = modelo_vb5.entidade();
+  EXPECT_EQ(proto.raca(), "humano");
   RecomputaDependencias(g_tabelas, &proto);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
 
