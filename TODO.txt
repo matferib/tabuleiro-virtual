@@ -1,4 +1,4 @@
-Fazer maximo de criaturas afetadas.
+Colocar ignora luz na UI de formas.
 Transformar muita coisa em mapa (talento, pericias).
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
