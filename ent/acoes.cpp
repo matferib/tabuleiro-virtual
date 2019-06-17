@@ -1764,7 +1764,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
         if (lhs->NivelPersonagem() < rhs->NivelPersonagem()) return true;
         if (rhs->NivelPersonagem() < lhs->NivelPersonagem()) return false;
         return lhs->Id() < rhs->Id();
-    }); 
+    });
   }
   Posicao pos_origem;
   if (entidade_origem != nullptr) {

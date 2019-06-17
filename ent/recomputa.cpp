@@ -1676,6 +1676,27 @@ void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaq
   da->mutable_veneno()->set_cd(10 + mod_con + nivel / 2);
 }
 
+void RecomputaDependenciasBesta(const DadosAtaque& da, Bonus* bonus_ataque) {
+  const char kBestaUmaMao[] = "besta_uma_mao";
+  if (da.empunhadura() == EA_ARMA_APENAS) {
+    LimpaBonus(TB_SEM_NOME, kBestaUmaMao, bonus_ataque);
+    return;
+  }
+  // A penalidade de duas armas sera recomputada em outro lugar.
+  int penalidade = 0;
+  if (da.empunhadura() == EA_ARMA_ESCUDO || da.empunhadura() == EA_MAO_BOA || da.empunhadura() == EA_MAO_RUIM) {
+    const auto& id_arma = da.id_arma();
+    if (id_arma.find("besta_de_mao") == 0) {
+      ;
+    } else if (id_arma.find("besta_leve") == 0) {
+      penalidade = 2;
+    } else if (id_arma.find("besta_pesada") == 0) {
+      penalidade = 4;
+    }
+  }
+  AtribuiOuRemoveBonus(-penalidade, TB_SEM_NOME, kBestaUmaMao, bonus_ataque);
+}
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   *da->mutable_acao() = AcaoProto::default_instance();
 
@@ -1702,6 +1723,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
       AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+    }
+    if (da->id_arma().find("besta") == 0) {
+      RecomputaDependenciasBesta(*da, bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
 
