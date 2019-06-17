@@ -10395,7 +10395,6 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      # TODO limitar os HD.
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -10658,7 +10657,6 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      # TODO limitar os HD.
       tipo: ACAO_DISPERSAO
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 2  # quadrados.

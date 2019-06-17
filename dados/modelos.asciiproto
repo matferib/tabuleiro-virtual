@@ -2949,7 +2949,35 @@ modelo {
 modelo {
   id: 'Humano Guerreiro'
   entidade {
-      dados_vida: '1d10' info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    # Elite.
+    dados_vida: '15'
+    raca: 'humano'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 1 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      tesouro: 'espada longa OP, cota de talas, besta'
+      moedas {
+        po: 5
+      }
+    }
+    dados_ataque { rotulo: 'esp longa' id_arma: 'espada_longa' empunhadura: EA_ARMA_ESCUDO obra_prima: true }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
+    dados_defesa { id_armadura: 'cota_talas' id_escudo: 'pesado_aco' }
+    info_talentos {
+      gerais { id: 'reflexos_em_combate' }
+      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_longa' origem: 'guerreiro' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
   }
 }
 modelo {
