@@ -1157,8 +1157,8 @@ Entidade::TipoCA CATipoAtaque(const DadosAtaque& da) {
 }
 
 // Retorna true se o ataque for bem sucedido, false com string caso contrario.
-std::tuple<std::string, bool> AtaqueVsChanceFalha(const Entidade& ea, const Entidade& ed) {
-  if (ea.IgnoraChanceFalha()) {
+std::tuple<std::string, bool> AtaqueVsChanceFalha(const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
+  if (ea.IgnoraChanceFalha() || da.id_arma() == "missil_magico") {
     VLOG(1) << "ataque ignorando chance de falha";
     return std::make_pair("", true);
   }
@@ -1387,7 +1387,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   // Chance de falha.
   if (ea.Id() != ed.Id()) {
     bool passou_falha;
-    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(ea, ed);
+    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(*da, ea, ed);
     if (!passou_falha) {
       resultado.resultado = RA_FALHA_CHANCE_FALHA;
       return resultado;

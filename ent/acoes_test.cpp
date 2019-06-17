@@ -237,6 +237,27 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
   }
 }
 
+TEST(TesteAcoes, TesteMaximoAfetados) {
+  AcaoProto acao;
+  acao.set_tipo(ACAO_DISPERSAO);
+  acao.set_geometria(ACAO_GEO_ESFERA);
+  acao.set_raio_quadrados(1);
+  acao.set_maximo_criaturas_afetadas(2);
+  std::vector<const Entidade*> entidades;
+  for (int id = 0; id < 3; ++id) {
+    EntidadeProto proto;
+    proto.set_id(id);
+    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
+  EXPECT_THAT(ids_afetados, testing::ElementsAre(0, 1));
+
+  for (const auto* entidade : entidades) {
+    delete entidade;
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

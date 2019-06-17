@@ -1,6 +1,6 @@
 Visao no escuro quebrou.
-Misseis magicos nao devem sofrer efeito de nublar.
 Fazer maximo de criaturas afetadas por acao.
+Colocar ignora luz na UI de formas.
 Transformar muita coisa em mapa (talento, pericias).
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
