@@ -2848,7 +2848,8 @@ modelo {
 modelo {
   id: 'Humano Feiticeiro 5'
   entidade {
-    dados_vida: '4d4+12' raca: 'humano'
+    dados_vida: '4d4+12'
+    raca: 'humano'
     info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'feiticeiro' nivel: 5 }
     atributos {
@@ -2956,6 +2957,7 @@ modelo {
   entidade {
     # Elite.
     dados_vida: '4d10+10+10'
+    raca: 'humano'
     info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'guerreiro' nivel: 5 }
     tesouro {
@@ -2990,6 +2992,7 @@ modelo {
   entidade {
     # Elite.
     dados_vida: '7d10+10+10'
+    raca: 'humano'
     info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'guerreiro' nivel: 7 }
     tesouro {
@@ -3080,6 +3083,7 @@ modelo {
     info_classes { id: 'ladino' nivel: 5 }
     dados_vida: '4d6+14' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
+    raca: 'humano'
     rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
     dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
@@ -4072,6 +4076,7 @@ modelo {
   entidade {
     # Elite.
     dados_vida: '4d8+13'
+    raca: 'humano'
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'monge' nivel: 5 }
     dados_ataque {
