@@ -40,8 +40,8 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-de
 ==============
 
 Criar o toolchain de cross-compile:
-export TOOLCHAIN=/var/tmp/my-toolchain-r16b
-${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=gnustl --install-dir=${TOOLCHAIN}
+export TOOLCHAIN=/var/tmp/my-toolchain
+${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=libc++ --install-dir=${TOOLCHAIN}
 
 -- Protobuffer:
 
