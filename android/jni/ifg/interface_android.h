@@ -41,6 +41,12 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) override;
 
+  // TODO realmente implementar.
+  void EscolheItemsLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, std::vector<int>)> funcao_volta) override;
+
  private:
   jmethodID Metodo(const char* nome_metodo, const char* assinatura_metodo);
 

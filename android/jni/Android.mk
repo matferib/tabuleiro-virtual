@@ -28,13 +28,14 @@ endif
 include $(CLEAR_VARS)
 LOCAL_MODULE := protobuf
 LOCAL_CPP_FEATURES += rtti
-LOCAL_SRC_FILES := $(wildcard protobuf-2.6.1/src/google/protobuf/*.cc) \
-	                 $(wildcard protobuf-2.6.1/src/google/protobuf/stubs/*.cc) \
-	                 $(wildcard protobuf-2.6.1/src/google/protobuf/io/*.cc)
-LOCAL_SRC_FILES := $(filter-out %unittest.cc %test_util_lite.cc %test_util.cc,$(LOCAL_SRC_FILES))
+LOCAL_CPPFLAGS += -DHAVE_PTHREAD
+LOCAL_SRC_FILES := $(wildcard protobuf-3.0.0/src/google/protobuf/*.cc) \
+	                 $(wildcard protobuf-3.0.0/src/google/protobuf/stubs/*.cc) \
+	                 $(wildcard protobuf-3.0.0/src/google/protobuf/io/*.cc)
+LOCAL_SRC_FILES := $(filter-out %test.cc %unittest.cc %test_util_lite.cc %test_util.cc,$(LOCAL_SRC_FILES))
 $(info $$LOCAL_SRC_FILES is [${LOCAL_SRC_FILES}])
-LOCAL_C_INCLUDES := protobuf-2.6.1/src protobuf-2.6.1
-LOCAL_EXPORT_C_INCLUDES := protobuf-2.6.1/src
+LOCAL_C_INCLUDES := protobuf-3.0.0/src protobuf-3.0.0
+LOCAL_EXPORT_C_INCLUDES := protobuf-3.0.0/src
 include $(BUILD_STATIC_LIBRARY)
 
 # Boost.
@@ -44,6 +45,8 @@ LOCAL_CPP_FEATURES += exceptions
 LOCAL_SRC_FILES := $(wildcard boost_1_55_0/libs/filesystem/src/*.cpp) \
 	                 $(wildcard boost_1_55_0/libs/system/src/*.cpp) \
 									 $(wildcard boost_1_55_0/libs/timer/src/*.cpp) \
+									 $(wildcard boost_1_55_0/libs/date_time/src/gregorian/*.cpp) \
+									 $(wildcard boost_1_55_0/libs/date_time/src/posix_time/*.cpp) \
 									 $(wildcard boost_1_55_0/libs/chrono/src/*.cpp)
 LOCAL_C_INCLUDES := boost_1_55_0
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
@@ -69,7 +72,7 @@ LOCAL_SRC_FILES := gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
 									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/controle_virtual.pb.cpp \
 									 ent/entidade.cpp ent/entidade_desenho.cpp ent/entidade_composta.cpp ent/entidade_forma.cpp ent/tabuleiro.cpp \
-									 ent/tabuleiro_controle_virtual.cpp ent/tabuleiro_picking.cpp ent/acoes.cpp ent/util.cpp \
+									 ent/tabuleiro_controle_virtual.cpp ent/tabuleiro_picking.cpp ent/acoes.cpp ent/util.cpp ent/recomputa.cpp \
 									 ent/tabuleiro_interface.cpp ent/tabuleiro_tratador.cpp ent/comum.pb.cpp ent/tabelas.cpp ent/tabelas.pb.cpp \
                    ifg/tecladomouse.cpp ifg/interface.cpp ifg/interface_android.cpp ifg/modelos.pb.cc \
                    tex/texturas.cpp tex/lodepng.cpp \
