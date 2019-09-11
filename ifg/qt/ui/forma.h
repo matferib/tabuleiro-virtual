@@ -106,6 +106,7 @@ public:
     QCheckBox *checkbox_dois_lados;
     QCheckBox *checkbox_faz_sombra;
     QCheckBox *checkbox_visibilidade;
+    QCheckBox *checkbox_ignora_luz;
     QGroupBox *groupBox_9;
     QHBoxLayout *horizontalLayout_27;
     QHBoxLayout *horizontalLayout_3;
@@ -559,6 +560,11 @@ public:
 
         gridLayout_3->addWidget(checkbox_visibilidade, 2, 2, 1, 1);
 
+        checkbox_ignora_luz = new QCheckBox(groupBox_7);
+        checkbox_ignora_luz->setObjectName(QStringLiteral("checkbox_ignora_luz"));
+
+        gridLayout_3->addWidget(checkbox_ignora_luz, 0, 2, 1, 1);
+
 
         gridLayout_2->addWidget(groupBox_7, 4, 1, 1, 2);
 
@@ -822,18 +828,24 @@ public:
         label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", nullptr));
         label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", nullptr));
         groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Atributos", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_respeita_solo->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade n\303\243o afundar\303\241 no solo.", nullptr));
+#endif // QT_NO_TOOLTIP
         checkbox_respeita_solo->setText(QApplication::translate("ifg::qt::DialogoForma", "Respeita Solo", nullptr));
-        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade poder\303\241 ser selecionada por jogadores.", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel para jogadores", nullptr));
 #ifndef QT_NO_TOOLTIP
         checkbox_afetado_por_efeitos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Marque se objeto pode ser afetado por efeitos.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_afetado_por_efeitos->setText(QApplication::translate("ifg::qt::DialogoForma", "Afetado por Efeitos", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", nullptr));
+        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, n\303\243o ser\303\241 poss\303\255vel colidor com a entidade.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", nullptr));
+        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 fixa (implicando que n\303\243o ser\303\241 selecionada com um clique nem sele\303\247\303\243o de \303\241rea)", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -841,10 +853,14 @@ public:
 #endif // QT_NO_TOOLTIP
         checkbox_dois_lados->setText(QApplication::translate("ifg::qt::DialogoForma", "Dois Lados", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", nullptr));
+        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade n\303\243o far\303\241 sombra.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", nullptr));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_ignora_luz->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 desenhada com ilumina\303\247\303\243o total.", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_ignora_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Ignora Luz", nullptr));
         groupBox_9->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Ilumina\303\247\303\243o", nullptr));
         checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Luz", nullptr));
         label_18->setText(QApplication::translate("ifg::qt::DialogoForma", "Raio", nullptr));

@@ -1,6 +1,4 @@
-Visao no escuro quebrou.
-Fazer maximo de criaturas afetadas por acao.
-Colocar ignora luz na UI de formas.
+Colocar modificador de besta com escudo (e fazer testes).
 Transformar muita coisa em mapa (talento, pericias).
 Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
@@ -25,7 +23,6 @@ Capar pericias e talentos.
 Pergaminhos.
 Permitir a uma classe modificar o nivel de magia de outra por UI (ao inves de ser fixo)
 Fazer o modificador de rodadas funcionar nos efeitos adicionais.
-Colocar modificador de besta com escudo.
 Permitir nomear versoes.
 Mostrar salvacoes do mestre apenas para mestre.
 Permitir mais de uma textura por objeto (util para compostos).
