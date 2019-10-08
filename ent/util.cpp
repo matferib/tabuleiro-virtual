@@ -2711,6 +2711,9 @@ const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProt
   for (const auto& t : entidade.info_talentos().outros()) {
     if (chave_talento == t.id()) return &t;
   }
+  for (const auto& t : entidade.info_talentos().automaticos()) {
+    if (chave_talento == t.id()) return &t;
+  }
   return nullptr;
 }
 
@@ -4252,6 +4255,15 @@ bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto)
 bool PermiteEscudo(const EntidadeProto& proto) {
   if (PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
+  }
+  return true;
+}
+
+bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto) {
+  if (escudo == "broquel" || escudo.find("leve_") == 0 || escudo.find("pesado_") == 0) {
+    return PossuiTalento("usar_escudo", proto);
+  } else if (escudo == "corpo") {
+    return PossuiTalento("usar_escudo_corpo", proto);
   }
   return true;
 }

@@ -1228,6 +1228,13 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   //while (proto->info_talentos().gerais().size() > numero) {
   //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();
   //}
+  proto->mutable_info_talentos()->clear_automaticos();
+  for (const auto& ic : proto->info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
+      proto->mutable_info_talentos()->add_automaticos()->set_id(id_talento);
+    }
+  }
 }
 
 void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
@@ -1704,15 +1711,18 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
-  const bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+  const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.
   //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
-  const int penalidade_ataque_escudo = permite_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
+  const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
+  if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
+    AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+  }
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -1940,8 +1950,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
-  da->set_ca_normal(CATotal(proto, permite_escudo));
-  da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
+  da->set_ca_normal(CATotal(proto, usando_escudo));
+  da->set_ca_surpreso(CASurpreso(proto, usando_escudo));
   da->set_ca_toque(CAToque(proto));
 
   // Veneno.

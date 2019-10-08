@@ -2862,6 +2862,98 @@ TEST(TesteConsequenciaPontosVida, PontosVidaTemporarios) {
   EXPECT_FALSE(proto.caida());
 }
 
+TEST(TesteEscudo, TesteEscudoSemPenalidade) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoComPenalidade) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("azagaia");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(-1, proto.dados_ataque(0).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoTalentoGuerreiro) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_TRUE(TalentoComEscudo("corpo", proto));
+}
+
+TEST(TesteEscudo, TesteEscudoBesta) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_de_mao");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_leve");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_pesada");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
+  EXPECT_EQ(-1, proto.dados_ataque(1).bonus_ataque_final());
+  EXPECT_EQ(-3, proto.dados_ataque(2).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoTalentoRanger) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("ranger");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_FALSE(TalentoComEscudo("corpo", proto));
+}
+
+TEST(TesteEscudo, TesteEscudoMago) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_FALSE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_FALSE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_FALSE(TalentoComEscudo("corpo", proto));
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

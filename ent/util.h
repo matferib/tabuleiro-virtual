@@ -865,6 +865,8 @@ bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto)
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
+// Retorna true se o personagem puder usar o escudo passado (por chave).
+bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto);
 
 // Dado o feitico que originou, os parametros e a entidade de referencia, preenche `modelo`.
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);

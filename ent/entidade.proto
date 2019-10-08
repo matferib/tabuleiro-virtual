@@ -499,6 +499,8 @@ message EntidadeProto {
     repeated TalentoProto gerais = 1;
     // Qualquer coisa que nao se enquadre nas regras. Por exemplo, talentos de ranger, monge, guerreiro, humano etc.
     repeated TalentoProto outros = 2;
+    // Talentos automaticos, sempre recomputados.
+    repeated TalentoProto automaticos = 3;
   }
   optional InfoTalentos info_talentos = 79;
   repeated InfoPericia info_pericias = 85;

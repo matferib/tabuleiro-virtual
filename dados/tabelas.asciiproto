@@ -3900,6 +3900,8 @@ tabela_talentos {
 tabela_classes {
   info_classes {
     id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_escudo_corpo'
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3931,6 +3933,7 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
@@ -4035,6 +4038,7 @@ tabela_classes {
   }
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+    talentos_automaticos: 'usar_escudo'
 
     pericias_por_nivel: 4
     pericias: 'escalar'
@@ -4056,6 +4060,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 6
@@ -4114,6 +4119,7 @@ tabela_classes {
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
@@ -4163,6 +4169,7 @@ tabela_classes {
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
@@ -4255,6 +4262,7 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_ARCANA
     pericias_por_nivel: 6
     progressao_feitico {
