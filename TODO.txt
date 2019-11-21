@@ -1,4 +1,3 @@
-Bug: ao criar objeto com nevoa, esta colocando lugar errado (provavelmente a matriz com fog esta diferente para otimizar o limite da visao e desprojeta esta falhando).
 Transformar muita coisa em mapa (talento, pericias).
 UI de especializacao de feiticos.
 
