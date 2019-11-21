@@ -1,5 +1,5 @@
+Bug: ao criar objeto com nevoa, esta colocando lugar errado (provavelmente a matriz com fog esta diferente para otimizar o limite da visao e desprojeta esta falhando).
 Transformar muita coisa em mapa (talento, pericias).
-Colocar na descricao dos feiticos na UI mais detalhes (alcance, dano etc).
 UI de especializacao de feiticos.
 
 Implementar operacoes de combinacao em talentos.

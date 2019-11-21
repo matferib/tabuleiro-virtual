@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "arq/arquivo.h"
+#include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "goog/stringprintf.h"
@@ -370,11 +371,71 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
+namespace {
+
+std::string StringDuracao(ent::ModificadorRodadas mr) {
+  switch (mr) {
+    case ent::MR_NENHUM: return "nenhum";
+    case ent::MR_RODADAS_NIVEL: return "rodadas/nível";
+    case ent::MR_MINUTOS_NIVEL: return "minutos/nível";
+    case ent::MR_10_MINUTOS_NIVEL: return "10 minutos/nível";
+    case ent::MR_HORAS_NIVEL: return "horas/nível";
+    case ent::MR_2_HORAS_NIVEL: return "2 horas/nível";
+    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/ 3 níveis (max 6)";
+    case ent::MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15: return "10 rodadas +1/nível (max 15)";
+    case ent::MR_HORAS_NIVEL_MAX_15: return "horas/nivel (max 15)";
+    case ent::MR_2_MINUTOS_NIVEL: return "2 minutos/nivel";
+    case ent::MR_DIAS_POR_NIVEL: return "dias/nivel";
+    case ent::MR_PALAVRA_PODER_ATORDOAR: return "variável por PV: max 4d4 rodadas";
+    case ent::MR_PALAVRA_PODER_CEGAR: return "variável por PV: max permanente";
+    case ent::MR_CONTINUO: return "continuo";
+  }
+  // Nao deveria chegar aqui.
+  return "desconhecida";
+}
+
+std::string StringArea(const ent::AcaoProto& acao) {
+  std::string str_geo;
+  switch (acao.geometria()) {
+    case ent::ACAO_GEO_CONE:
+      str_geo = StringPrintf("cone %d (q)", acao.distancia_quadrados());
+      break;
+    case ent::ACAO_GEO_CILINDRO:
+      str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
+      break;
+    case ent::ACAO_GEO_ESFERA:
+      str_geo = StringPrintf("esfera raio %.1f (q)", acao.raio_quadrados());
+      break;
+    case ent::ACAO_GEO_CUBO:
+      // Isso é mais para modelar objetos geometricos, como flecha acida.
+      break;
+  }
+  return str_geo;
+}
+
+}  // namespace
 std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
   if (!c.id().empty()) {
     const auto& feitico = tabelas.Feitico(c.id());
     if (!feitico.nome().empty()) {
-      return StringPrintf("%s, alcance: %d (q)", feitico.nome().c_str(), feitico.alcance_quadrados());
+      std::string str_area;
+      std::string str_duracao;
+      if (feitico.has_acao()) {
+        const auto& acao = feitico.acao();
+        str_area = acao.efeito_area() ? StringPrintf(", %s", StringArea(acao).c_str()) : "";
+        if (acao.efeitos_adicionais().size() == 1) {
+          const auto& ed = acao.efeitos_adicionais(0);
+          str_duracao = ed.has_modificador_rodadas()
+              ? StringPrintf(", %s", StringDuracao(ed.modificador_rodadas()).c_str())
+              : "";
+        }
+      }
+      return StringPrintf("%s, alcance: %d (q)%s%s",
+          feitico.nome().c_str(),
+          feitico.alcance_quadrados(),
+          str_area.c_str(),
+          str_duracao.c_str()
+      );
     }
   }
   if (!c.nome().empty()) return c.nome();
