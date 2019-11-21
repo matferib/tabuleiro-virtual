@@ -7945,7 +7945,8 @@ void Tabuleiro::RemoveVersoes(const std::vector<int>& versoes) {
 bool Tabuleiro::UsaNevoa() const {
   const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   return parametros_desenho_.desenha_nevoa() && cenario_nevoa.has_nevoa() &&
-      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores());
+      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores()) &&
+      !parametros_desenho_.has_picking_x();
 }
 
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
