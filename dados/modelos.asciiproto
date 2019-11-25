@@ -4182,6 +4182,73 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Paladino 12'
+  entidade {
+    # Elite.
+    dados_vida: '11d10+10+24'
+    raca: 'humano'
+    info_textura { id: 'paladin.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'paladino' nivel: 12 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'levitacao' }
+      pocoes { id: 'escudo_fe_3' }
+      mantos { id: 'manto_carisma_2' em_uso: true }
+      amuletos { id: 'amuleto_saude_2' em_uso: true }
+      aneis { id: 'protecao_1' em_uso: true }
+      tesouro: ''
+      moedas { po: 100 }
+    }
+    dados_ataque {
+      rotulo: 'esp longa +2' id_arma: 'espada_longa' bonus_magico: 2
+      empunhadura: EA_ARMA_ESCUDO obra_prima: true
+    }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_2' obra_prima: true municao: 20 }
+    dados_defesa {
+      id_armadura: 'armadura_batalha' bonus_magico_armadura: 2
+      id_escudo: 'pesado_aco' bonus_magico_escudo: 1
+    }
+    info_talentos {
+      gerais { id: 'vitalidade' origem: 'humano' }
+      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_longa' }
+      gerais { id: 'expulsao_adicional' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'combate_montado' }
+      gerais { id: 'investida_montada' }
+    }
+    info_pericias { id: 'cavalgar' pontos: 15 }
+    info_pericias { id: 'concentracao' pontos: 15 }
+    info_pericias { id: 'cura' pontos: 15 }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      carisma {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 2 } }
+      }
+    }
+  }
+}
+modelo {
+  id: 'Hieracoesfinge'
+  entidade {
+    dados_vida: '9d10+18' info_textura { id: 'hieracosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +2\nat: +13/+8/+8\ndano: 1d10+5/1d6+2/1d6+2\nca: 21'
+    modificador_iniciativa: 2
+  }
+}
+
+modelo {
   id: 'Homem-Rato'
   entidade {
     dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }

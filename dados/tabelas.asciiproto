@@ -4213,6 +4213,24 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'cavalgar'
     pericias: 'sentir_motivacao'
+    habilidades_por_nivel { id: 'aura_bem' nivel: 1 }
+    habilidades_por_nivel { id: 'detectar_mal' nivel: 1 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 1 }
+    habilidades_por_nivel { id: 'graca_divina' nivel: 2 }
+    habilidades_por_nivel { id: 'cura_pelas_maos' nivel: 2 }
+    habilidades_por_nivel { id: 'aura_coragem' nivel: 3 }
+    habilidades_por_nivel { id: 'saude_divina' nivel: 3 }
+    habilidades_por_nivel { id: 'expulsar_mortos_vivos' nivel: 4 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 5 }
+    habilidades_por_nivel { id: 'montaria_especial' nivel: 5 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 6 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 9 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 10 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 12 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 15 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 15 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 18 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 20 }
 
     salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
   }
