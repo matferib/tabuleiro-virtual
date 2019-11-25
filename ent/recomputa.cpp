@@ -1283,7 +1283,7 @@ void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retorn
 }
 
 void RecomputaDependenciasSalvacoes(
-    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, const Tabelas& tabelas, EntidadeProto* proto_retornado) {
+    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, int modificador_carisma, const Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
 
   // Testes de resistencia.
@@ -1300,6 +1300,17 @@ void RecomputaDependenciasSalvacoes(
         LimpaBonus(bonus_salvacao.bonus(), BonusSalvacao(bonus_salvacao.tipo(), proto_retornado));
       }
     }
+  }
+
+  bool graca_divina = PossuiHabilidadeEspecial("graca_divina", *proto_retornado);
+  if (graca_divina && modificador_carisma > 0) {
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_fortitude());
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_reflexo());
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_vontade());
+  } else {
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_fortitude());
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_reflexo());
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_vontade());
   }
 
   const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
@@ -2022,11 +2033,12 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasPontosVida(proto);
   RecomputaDependenciasResistenciaMagia(proto);
 
+  // TODO: porque ta pegando o atributo e nao o bonus total? Mesmo assim parece que funciona.
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
   //const int modificador_inteligencia = ModificadorAtributo(BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(proto->atributos().sabedoria());
-  //const int modificador_carisma      = ModificadorAtributo(BonusTotal(proto->atributos().carisma()));
+  const int modificador_carisma      = ModificadorAtributo(proto->atributos().carisma());
 
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
@@ -2034,7 +2046,9 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   // Classe de Armadura.
   RecomputaDependenciasCA(tabelas, proto);
   // Salvacoes.
-  RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);
+  RecomputaDependenciasSalvacoes(
+      modificador_constituicao, modificador_destreza, modificador_sabedoria, modificador_carisma,
+      tabelas, proto);
   // Evasao.
   RecomputaDependenciasEvasao(tabelas, proto);
 
