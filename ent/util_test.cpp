@@ -2954,6 +2954,64 @@ TEST(TesteEscudo, TesteEscudoMago) {
   EXPECT_FALSE(TalentoComEscudo("corpo", proto));
 }
 
+TEST(TesteDependencias, TesteGracaDivina) {
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(12, TA_CARISMA, &proto);
+
+    RecomputaDependencias(g_tabelas, &proto);
+    // Carisma nao afeta ainda.
+    EXPECT_EQ(2, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(12, TA_CARISMA, &proto);
+
+    // Carisma adiciona 1.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(8, TA_CARISMA, &proto);
+
+    // Carisma negativo nao subtrai.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(10, TA_CARISMA, &proto);
+    auto* manto = proto.mutable_tesouro()->add_mantos();
+    manto->set_id("manto_carisma_2");
+    manto->set_em_uso(true);
+
+    // Carisma com item.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
