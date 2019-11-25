@@ -1,5 +1,5 @@
-Transformar muita coisa em mapa (talento, pericias).
 UI de especializacao de feiticos.
+Transformar muita coisa em mapa (talento, pericias).
 
 Implementar operacoes de combinacao em talentos.
 
