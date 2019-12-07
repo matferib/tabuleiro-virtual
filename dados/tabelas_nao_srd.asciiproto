@@ -1,5 +1,33 @@
 tabela_classes {
   info_classes {
+    id: 'cavaleiro_dragao_purpura' nome: 'Cavaleiro do Dragão Púrpura' progressao_bba: PBBA_UM
+    # d10
+    # Requer: +4 at, diplomacia ou intimidacao 1, ouvir , cavalgar 2, observar 2.
+    # Conhecimento cormyr 8.
+    # lideranca, combate montado.
+    # Ser membro dos cavaleiros.
+    tipo_classe: TC_PRESTIGIO
+    aumenta_nivel_conjurador: false
+    pericias: 'escalar'
+    pericias: 'diplomacia'
+    pericias: 'intimidacao'
+    pericias: 'saltar'
+    pericias: 'conhecimento_local'
+    pericias: 'cavalgar'
+    pericias: 'natacao'
+    pericias_por_nivel: 2
+
+    salvacoes_fortes: TS_FORTITUDE
+    habilidades_por_nivel { id: 'escudo_heroico' nivel: 1 }
+    habilidades_por_nivel { id: 'brado_guerra' nivel: 1 }
+    habilidades_por_nivel { id: 'inspirar_coragem' nivel: 2 }
+    habilidades_por_nivel { id: 'medo' nivel: 3 }
+    habilidades_por_nivel { id: 'inspirar_coragem' nivel: 4 }
+    habilidades_por_nivel { id: 'juramento_ira' nivel: 4 }
+    habilidades_por_nivel { id: 'resistencia_final' nivel: 5 }
+  }
+
+  info_classes {
     id: 'adepto_sombras' nome: 'Adepto das Sombras' progressao_bba: PBBA_MEIO
     # d4
     tipo_classe: TC_PRESTIGIO
