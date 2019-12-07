@@ -766,41 +766,41 @@ modelo {
 
     rotulo: ''
     feiticos_classes {
-      id_classe: 'mago'
+      id_classe: 'feiticeiro'
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'arcane_mark' } # TODO
-        conhecidos { id: 'pasmar' } # TODO
+        conhecidos { id: 'pasmar' }
         conhecidos { id: 'maos_magicas' }
-        conhecidos { id: 'mending' }  # TODO
-        conhecidos { id: 'message' }  # TODO
-        conhecidos { id: 'open/close' }  # TODO
+        conhecidos { id: 'consertar' }
+        conhecidos { id: 'mensagem' }
+        conhecidos { id: 'abrir_fechar' }
         conhecidos { id: 'ler_magia' }
-        conhecidos { id: 'resistance' } # TODO
+        conhecidos { id: 'resistencia' }
         conhecidos { id: 'toque_fadiga' }
       }
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'suportar_elementos' }
-        conhecidos { id: 'feather_fall' }  #TODO
+        conhecidos { id: 'queda_suave' }
         conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'protecao_contra_bem' } #TODO
-        conhecidos { id: 'shield' } #TODO
+        conhecidos { id: 'protecao_contra_bem' }
+        conhecidos { id: 'escudo_arcano' }
         para_lancar { usado: true }
         para_lancar { usado: true }
       }
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'invisibilidade' }
-        conhecidos { id: 'resist energy' }  # TODO
+        conhecidos { id: 'resistencia_elementos' }
         conhecidos { id: 'summon swarm' }  # TODO
         conhecidos { id: 'whispering wind' }  # TODO
       }
       feiticos_por_nivel {
         nivel: 3
-        conhecidos { id: 'gaseous_form' } # TODO
+        conhecidos { id: 'forma_gasosa' }
         conhecidos { id: 'ray_of_exhaustion' }  # TODO
-        conhecidos { id: 'tongues' }  # TODO
+        conhecidos { id: 'idiomas' }
       }
       feiticos_por_nivel {
         nivel: 4
