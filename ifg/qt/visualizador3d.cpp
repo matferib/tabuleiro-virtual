@@ -994,6 +994,17 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.clear_nivel_conjurador_pergaminho();
     da.clear_modificador_atributo_pergaminho();
   }
+  if (gerador.checkbox_ignora_rm->checkState() == Qt::Checked) {
+    da.mutable_acao_fixa()->set_ignora_resistencia_magia(true);
+  } else {
+    da.mutable_acao_fixa()->clear_ignora_resistencia_magia();
+  }
+  if (gerador.checkbox_permite_salvacao->checkState() == Qt::Checked) {
+    da.mutable_acao_fixa()->set_permite_salvacao(true);
+  } else {
+    da.mutable_acao_fixa()->clear_permite_salvacao();
+  }
+
   if (indice_valido) {
     proto_retornado->mutable_dados_ataque(indice)->Swap(&da);
   } else {
@@ -1872,6 +1883,8 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.spin_limite_vezes, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_ordem_ataque, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_ignora_rm, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_permite_salvacao, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
