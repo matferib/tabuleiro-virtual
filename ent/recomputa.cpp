@@ -1032,7 +1032,7 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     // Encontra a entrada da classe, ou cria se nao houver.
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
-    const int nivel = std::min(ic.nivel(), 20);
+    const int nivel = std::min(NivelConjurador(ic.id(), *proto), 20);
     const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
