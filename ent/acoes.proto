@@ -87,6 +87,7 @@ enum ModificadorComplementos {
   MC_12_MAIS_1_POR_NIVEL = 6;  // resistencia a magia.
   MC_1_POR_NIVEL = 7;  // poder divino.
   MC_ID_ENTIDADE = 8;  // Proteger outro.
+  MC_10_POR_NIVEL = 9;  // pele rochosa.
 }
 
 // Proximo id: 78.
