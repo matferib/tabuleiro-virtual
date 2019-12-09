@@ -1212,6 +1212,24 @@ modelo {
 }
 
 modelo {
+  id: 'Névoa Mortal'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 12 y: 12  z: 12 }
+    cor { r: 0 g: 0 b: 0 a: 0.5 }
+    evento {
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+  }
+}
+
+modelo {
   id: 'Globo de Invulnerabilidade'
   entidade {
     tipo: TE_FORMA
@@ -3374,7 +3392,7 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'invocar_enxames' }
         conhecidos { id: 'esplendor_aguia' }
         conhecidos { id: 'explosao_sonora' }
       }
