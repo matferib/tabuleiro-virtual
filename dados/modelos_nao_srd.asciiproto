@@ -769,7 +769,7 @@ modelo {
       id_classe: 'feiticeiro'
       feiticos_por_nivel {
         nivel: 0
-        conhecidos { id: 'arcane_mark' } # TODO
+        conhecidos { id: 'marca_arcana' }
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'maos_magicas' }
         conhecidos { id: 'consertar' }
@@ -793,23 +793,23 @@ modelo {
         nivel: 2
         conhecidos { id: 'invisibilidade' }
         conhecidos { id: 'resistencia_elementos' }
-        conhecidos { id: 'summon swarm' }  # TODO
-        conhecidos { id: 'whispering wind' }  # TODO
+        conhecidos { id: 'invocar_enxames' }
+        conhecidos { id: 'vento_sussurrante' }
       }
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'forma_gasosa' }
-        conhecidos { id: 'ray_of_exhaustion' }  # TODO
+        conhecidos { id: 'raio_exaustao' }
         conhecidos { id: 'idiomas' }
       }
       feiticos_por_nivel {
         nivel: 4
-        conhecidos { id: 'stoneskin' } # TODO
-        conhecidos { id: 'summon_monster_iv' }  # TODO
+        conhecidos { id: 'pele_rochosa' }
+        conhecidos { id: 'invocar_criaturas_iv' }
       }
       feiticos_por_nivel {
         nivel: 5
-        conhecidos { id: 'cloudkill' } # TODO
+        conhecidos { id: 'nevoa_mortal' }
       }
     }
 
