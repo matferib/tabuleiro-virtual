@@ -312,6 +312,23 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         // Forca: pelo comum.
       }
       break;
+    case EFEITO_PELE_ROCHOSA:
+      if (!evento->processado()) {
+        auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
+        pd->add_descritores(DESC_ADAMANTE);
+        pd->set_id_unico(evento->id_unico());
+      }
+      for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
+        if (proto->dados_defesa().reducao_dano(i).id_unico() != evento->id_unico()) continue;
+        auto* rd = proto->mutable_dados_defesa()->mutable_reducao_dano(i);
+        if (evento->complementos().empty() || evento->complementos(0) < 0) {
+          rd->set_valor(0);
+        } else {
+          rd->set_valor(std::min(evento->complementos(0), 10));
+        }
+        break;
+      }
+      break;
     case EFEITO_FORMA_GASOSA:
       if (!evento->processado()) {
         auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
@@ -527,6 +544,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
         if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
           proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
           break;
+        }
+      }
+      break;
+    case EFEITO_PELE_ROCHOSA:
+      for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
+        if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
+          proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
         }
       }
       break;
@@ -1457,9 +1481,12 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (const auto& evento : proto->evento()) {
-    if (evento.rodadas() < 0 || EventoOrfao(tabelas, evento, ids_itens, *proto)) {
+    const bool encerrado = evento.rodadas() < 0;
+    const bool orfao = EventoOrfao(tabelas, evento, ids_itens, *proto);
+    if (encerrado || orfao) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
+      // Usa id_efeito do evento porque efeito pode nao ser tabelado.
+      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << "), " << (encerrado ? "encerrado" : "orfão");
       if (efeito.has_consequencia_fim()) {
         AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto, entidade);
       } else {
@@ -1488,10 +1515,11 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
     efeitos_computados.insert(evento.id_efeito());
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
     if (computado && efeito.nao_cumulativo()) {
-      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
+      // Usar o id do efeito porque ele pode nao ser tabelado.
+      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << ") ";
       continue;
     }
-    VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
+    VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << ") ";
     if (AplicaEfeito(&evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto, entidade)) {
       evento.set_processado(true);
     }
