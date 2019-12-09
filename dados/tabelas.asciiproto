@@ -5156,6 +5156,127 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'marca_arcana'  # arcane_mark
+    nome: 'marca arcana'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    escola: 'universal'
+  }
+  armas {
+    id: 'invocar_enxames'  # summon swarm
+    nome: 'invocar enxames'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    escola: 'conjuracao'
+    # duracao concentracao + 2 rodadas
+  }
+  armas {
+    id: 'nevoa_mortal'  # cloudkill
+    nome: 'névoa mortal'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Névoa Mortal'
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'pele_rochosa'  # stoneskin
+    nome: 'pele rochosa'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'forca'
+      dominio: true
+      nivel: 6
+    }
+    info_classes {
+      id: 'terra'
+      dominio: true
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_PELE_ROCHOSA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_10_POR_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
+
+  armas {
+    id: 'vento_sussurrante'  # whispering wind
+    nome: 'vento sussurrante'
+    # range: 1 milha por nivel
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'raio_exaustao'  # ray of exhaustion
+    nome: 'raio da exaustão'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_EXAUSTO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
+        # OBSERVACAO: se ja estiver, fica exausto.
+        efeito: EFEITO_FADIGA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'necromancia'
+  }
+  armas {
     id: 'imagem_silenciosa'  # silent image
     nome: 'imagem silenciosa'
     alcance_quadrados: 80
