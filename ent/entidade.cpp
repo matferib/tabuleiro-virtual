@@ -1034,19 +1034,20 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   }
 
   // Eventos.
-  // Os valores sao colocados para -1 para o RecomputaDependencias conseguir limpar os que estao sendo removidos.
-  // Os novos serao simplesmente mergeados e atualizados serao mergeados. Mas tem um catch: os eventos de rodadas == -1
-  // Serao chamados duas vezes, porque havera o modificado e o que for anexado.
   std::vector<int> eventos_a_remover;
   int indice = 0;
   int tamanho_eventos_pre = proto_.evento_size();
   for (const auto& evento : proto_parcial.evento()) {
     auto* evento_atualizado = AchaEvento(evento.id_unico(), &proto_);
     if (evento_atualizado != nullptr) {
-      evento_atualizado->set_rodadas(-1);
-      if (evento.rodadas() == -1) {
-        // Ja sera processado por causa do -1 acima. Nao precisa fazer de novo.
-        eventos_a_remover.push_back(tamanho_eventos_pre + indice);
+      // Ja esta presente, remove o duplicado do merge from.
+      eventos_a_remover.push_back(tamanho_eventos_pre + indice);
+      evento_atualizado->set_rodadas(evento.rodadas());
+      if (!evento.complementos().empty()) {
+        *evento_atualizado->mutable_complementos() = evento.complementos();
+      }
+      if (!evento.complementos_str().empty()) {
+        *evento_atualizado->mutable_complementos_str() = evento.complementos_str();
       }
       VLOG(1) << "evento_atualizado: " << evento_atualizado->DebugString();
     } else {
