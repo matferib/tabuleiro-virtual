@@ -3136,6 +3136,10 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
       evento->add_complementos(nivel_conjurador);
       break;
     }
+    case MC_10_POR_NIVEL: {
+      evento->add_complementos(nivel_conjurador * 10);
+      break;
+    }
     case MC_1_POR_NIVEL_MAX_10: {
       evento->add_complementos(std::min(10, nivel_conjurador));
       break;
@@ -3820,7 +3824,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   return resultado;
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorUmaReducao(
+std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorUmaReducao(
     int delta_pv, const ReducaoDano& rd, const google::protobuf::RepeatedField<int>& descritores) {
   VLOG(1) << "rd: " << rd.DebugString();
   for (int d : descritores) {
@@ -3830,36 +3834,37 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorUmaReducao(
     for (const auto& descritor_defesa : rd.descritores()) {
       if (c_none(descritores, descritor_defesa)) {
         delta_pv += rd.valor();
-        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
+        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
       } else {
         VLOG(1) << "descritor defesa: " << TextoDescritor(descritor_defesa) << " bateu";
       }
     }
-    return std::make_tuple(delta_pv, "redução de dano: não aplicada");
+    return std::make_tuple(delta_pv, "redução de dano: não aplicada", -1);
   } else {
     for (const auto& descritor : rd.descritores()) {
       if (c_any(descritores, descritor)) {
-        return std::make_tuple(delta_pv, "redução de dano: não aplicada");
+        return std::make_tuple(delta_pv, "redução de dano: não aplicada", -1);
       }
     }
     delta_pv += rd.valor();
-    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
+    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
   }
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
+std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
   const auto& dd = proto.dados_defesa();
   if (dd.reducao_dano().empty()) {
-    return std::make_tuple(delta_pv, "");
+    return std::make_tuple(delta_pv, "", -1);
   }
-  std::tuple<int, std::string> melhor_reducao = std::make_tuple(delta_pv, "");
+  std::tuple<int, std::string, int> melhor_reducao = std::make_tuple(delta_pv, "", -1);
   for (const auto& rd : dd.reducao_dano()) {
     int delta_alterado;
     std::string texto;
-    std::tie(delta_alterado, texto) = AlteraDeltaPontosVidaPorUmaReducao(delta_pv, rd, descritores);
+    int id_unico;
+    std::tie(delta_alterado, texto, id_unico) = AlteraDeltaPontosVidaPorUmaReducao(delta_pv, rd, descritores);
     if (delta_alterado > delta_pv) {
-      melhor_reducao = std::tie(delta_alterado, texto);
+      melhor_reducao = std::tie(delta_alterado, texto, id_unico);
     }
   }
   return melhor_reducao;
@@ -3871,23 +3876,29 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv
       google::protobuf::StringPrintf("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
   int delta_barbaro;
   std::string texto_barbaro;
   std::tie(delta_barbaro, texto_barbaro) = AlteraDeltaPontosVidaPorReducaoBarbaro(delta_pv, proto);
   int delta_outros;
   std::string texto_outros;
-  std::tie(delta_outros, texto_outros) = AlteraDeltaPontosVidaPorReducao(delta_pv, proto, descritores);
+  int id_unico;
+  std::tie(delta_outros, texto_outros, id_unico) = AlteraDeltaPontosVidaPorReducao(delta_pv, proto, descritores);
   std::string texto_final;
   if (delta_barbaro != delta_pv && delta_barbaro >= delta_outros) {
     delta_pv = delta_barbaro;
     texto_final = texto_barbaro;
+    id_unico = -1;
   } else if (delta_outros != delta_pv && delta_outros > delta_barbaro) {
     delta_pv = delta_outros;
     texto_final = texto_outros;
   }
-  return std::make_tuple(delta_pv, texto_final);
+  ResultadoReducaoDano resultado;
+  resultado.delta_pv = delta_pv;
+  resultado.texto = texto_final;
+  resultado.id_unico = id_unico;
+  return resultado; 
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
