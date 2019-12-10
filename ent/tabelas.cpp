@@ -220,6 +220,7 @@ void Tabelas::RecarregaMapas() {
   escudos_.clear();
   armas_.clear();
   feiticos_.clear();
+  feiticos_por_classe_por_nivel_.clear();
   efeitos_.clear();
   efeitos_modelos_.clear();
   pocoes_.clear();
@@ -285,6 +286,10 @@ void Tabelas::RecarregaMapas() {
       }
     }
     feiticos_[feitico.id()] = &feitico;
+    for (const auto& ic : feitico.info_classes()) {
+      auto& mapa_classe = feiticos_por_classe_por_nivel_[ic.id()];
+      mapa_classe[ic.nivel()].push_back(&feitico);
+    }
     for (const auto& ic : feitico.info_classes()) {
       ItemMagicoProto* pergaminho = nullptr;
       if (c_any(classes_arcanas, ic.id())) {
@@ -622,6 +627,7 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
 }
 
 const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_classe, int nivel) const {
+  // TODO usar o mapa de feiticos_por_classe_por_nivel.
   std::vector<const ArmaProto*> feiticos;
   for (const auto& feitico : tabelas_.tabela_feiticos().armas()) {
     for (const auto ic : feitico.info_classes()) {
@@ -632,6 +638,18 @@ const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_clas
     }
   }
   return feiticos;
+}
+
+const std::string& Tabelas::FeiticoAleatorio(const std::string& id_classe, int nivel) const {
+  auto it_classe = feiticos_por_classe_por_nivel_.find(id_classe);
+  if (it_classe == feiticos_por_classe_por_nivel_.end()) return ArmaProto::default_instance().id();
+  auto it_nivel = it_classe->second.find(nivel);
+  if (it_nivel == it_classe->second.end()) return ArmaProto::default_instance().id();
+  const auto& feiticos = it_nivel->second;
+  if (feiticos.empty()) return ArmaProto::default_instance().id();
+  int indice = RolaDado(feiticos.size()) - 1;
+  VLOG(1) << "retornando aleatoriamente " << feiticos[indice]->id() << " para classe " << id_classe << ", nivel " << nivel;
+  return feiticos[indice]->id();
 }
 
 }  // namespace
