@@ -9397,6 +9397,26 @@ tabela_feiticos {
 
 
   armas {
+    id: 'ver_invisivel'
+    nome: 'ver o invisível'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_VER_INVISIVEL
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+  armas {
     id: 'invisibilidade'
     nome: 'invisibilidade'
     info_classes {
@@ -11164,6 +11184,21 @@ tabela_dominios {
   }
 
 }
+
+#tabela_efeitos_modelos {
+#  efeitos {
+#    id: EFEITO_MODELO_CELESTIAL
+#    nome: 'modelo celestial'
+#    desligavel: false 
+#    consequencia {
+#      # visao no escuro. 18m
+#      dados_defesa {
+#        resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } } }
+#      }
+#    }
+#  }
+#}  # tabela efeito de modelos.
+
 
 #tabela_venenos {
 #  venenos {

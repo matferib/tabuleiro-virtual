@@ -812,7 +812,6 @@ modelo {
         conhecidos { id: 'nevoa_mortal' }
       }
     }
-
   }
 }
 modelo {
