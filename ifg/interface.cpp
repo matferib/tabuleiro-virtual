@@ -398,7 +398,7 @@ std::string StringArea(const ent::AcaoProto& acao) {
   std::string str_geo;
   switch (acao.geometria()) {
     case ent::ACAO_GEO_CONE:
-      str_geo = StringPrintf("cone %d (q)", acao.distancia_quadrados());
+      str_geo = StringPrintf("cone %f (q)", acao.distancia_quadrados());
       break;
     case ent::ACAO_GEO_CILINDRO:
       str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
