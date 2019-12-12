@@ -950,6 +950,102 @@ int Tabuleiro::Desenha() {
   return tempos_entre_cenas_.front();
 }
 
+void Tabuleiro::AdicionaUmaEntidadeNotificando(
+    const ntf::Notificacao& notificacao, const ent::Entidade* referencia, const Modelo& modelo_com_parametros,
+    float xoffset, float yoffset, float zoffset) {
+  EntidadeProto entidade_modelo(notificacao.has_entidade()
+      ? notificacao.entidade()
+      : modelo_com_parametros.entidade());
+#if APENAS_MESTRE_CRIA_FORMAS
+  if (entidade_modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
+    LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
+    return;
+  }
+#endif
+  if (!notificacao.has_entidade() && modelo_com_parametros.has_parametros()) {
+    // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
+    if (referencia != nullptr) {
+      PreencheModeloComParametros(
+          ArmaProto::default_instance(),
+          modelo_com_parametros.parametros(),
+          *referencia, &entidade_modelo);
+    }
+  }
+  if (!notificacao.has_entidade()) {
+    if (estado_ != ETAB_QUAD_SELECIONADO) {
+      return;
+    }
+    // Notificacao sem entidade: posicao do quadrado selecionado.
+    float x, y, z;
+    CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+    entidade_modelo.mutable_pos()->set_x(x);
+    entidade_modelo.mutable_pos()->set_y(y);
+    entidade_modelo.mutable_pos()->set_z(z);
+    entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
+  } else if (!Desfazendo()) {
+    // Se nao estiver desfazendo, poe a entidade no cenario corrente.
+    if (notificacao.entidade().has_pos()) {
+      *entidade_modelo.mutable_pos() = notificacao.entidade().pos();
+      entidade_modelo.mutable_pos()->set_x(entidade_modelo.pos().x() + xoffset);
+      entidade_modelo.mutable_pos()->set_y(entidade_modelo.pos().y() + yoffset);
+      entidade_modelo.mutable_pos()->set_z(entidade_modelo.pos().z() + zoffset);
+    }
+    entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
+  }
+  unsigned int id_entidade = GeraIdEntidade(id_cliente_);
+  if (processando_grupo_) {
+    ids_adicionados_.push_back(id_entidade);
+  }
+  // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
+  // se a entidade eh visivel e selecionavel para os jogadores.
+  if (!Desfazendo()) {
+    bool modo_mestre = EmModoMestreIncluindoSecundario();
+    entidade_modelo.set_visivel(!modo_mestre);
+    entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
+    entidade_modelo.set_id(id_entidade);
+    if (camera_presa_) {
+      ids_camera_presa_.push_back(id_entidade);
+    }
+  } else {
+    if (BuscaEntidade(entidade_modelo.id()) != nullptr) {
+      // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
+      // Isso tem potencial de erro caso o mestre remova entidade de jogadores.
+      throw std::logic_error("Id da entidade já está sendo usado.");
+    }
+  }
+  auto* entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
+  entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+  // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
+  if (!Desfazendo()) {
+    // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
+    DeselecionaEntidades();
+#if 0
+    // Esse comportamento nao deseleciona outras formas.
+    for (const auto id : ids_entidades_selecionadas_) {
+      auto* e_selecionada = BuscaEntidade(id);
+      if (e_selecionada == nullptr) {
+        continue;
+      }
+      if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
+        DeselecionaEntidades();
+        break;
+      }
+    }
+#endif
+    AdicionaEntidadesSelecionadas({ entidade->Id() });
+  }
+  if (!Desfazendo()) {
+        // Para desfazer.
+        ntf::Notificacao n_desfazer(notificacao);
+        n_desfazer.mutable_entidade()->CopyFrom(entidade_modelo);
+        AdicionaNotificacaoListaEventos(n_desfazer);
+  }
+  // Envia a entidade para os outros.
+  auto n = ntf::NovaNotificacao(notificacao.tipo());
+  *n->mutable_entidade() = entidade->Proto();
+  central_->AdicionaNotificacaoRemota(n.release());
+}
+
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
@@ -957,97 +1053,13 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       EntidadeProto entidade_modelo(notificacao.has_entidade()
           ? notificacao.entidade()
           : modelo_com_parametros.entidade());
-#if APENAS_MESTRE_CRIA_FORMAS
-      if (entidade_modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
-        LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
-        return;
+      VLOG(1) << "buscando referencia para criacao de entidade";
+      const auto* referencia = EntidadeCameraPresaOuSelecionada();
+      if (referencia == nullptr && notificacao.has_id_referencia()) {
+        VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
+        referencia = BuscaEntidade(notificacao.id_referencia());
       }
-#endif
-      if (!notificacao.has_entidade() && modelo_com_parametros.has_parametros()) {
-        // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
-        VLOG(1) << "buscando referencia para criacao de entidade";
-        const auto* referencia = EntidadeCameraPresaOuSelecionada();
-        if (referencia == nullptr && notificacao.has_id_referencia()) {
-          VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
-          referencia = BuscaEntidade(notificacao.id_referencia());
-        }
-        if (referencia != nullptr) {
-          PreencheModeloComParametros(
-              ArmaProto::default_instance(),
-              modelo_com_parametros.parametros(),
-              *referencia, &entidade_modelo);
-        }
-      }
-      if (!notificacao.has_entidade()) {
-        if (estado_ != ETAB_QUAD_SELECIONADO) {
-          return;
-        }
-        // Notificacao sem entidade: posicao do quadrado selecionado.
-        float x, y, z;
-        CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-        entidade_modelo.mutable_pos()->set_x(x);
-        entidade_modelo.mutable_pos()->set_y(y);
-        entidade_modelo.mutable_pos()->set_z(z);
-        entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
-      } else if (!Desfazendo()) {
-        // Se nao estiver desfazendo, poe a entidade no cenario corrente.
-        if (notificacao.entidade().has_pos()) {
-          *entidade_modelo.mutable_pos() = notificacao.entidade().pos();
-        }
-        entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
-      }
-      unsigned int id_entidade = GeraIdEntidade(id_cliente_);
-      if (processando_grupo_) {
-        ids_adicionados_.push_back(id_entidade);
-      }
-      // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
-      // se a entidade eh visivel e selecionavel para os jogadores.
-      if (!Desfazendo()) {
-        bool modo_mestre = EmModoMestreIncluindoSecundario();
-        entidade_modelo.set_visivel(!modo_mestre);
-        entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
-        entidade_modelo.set_id(id_entidade);
-        if (camera_presa_) {
-          ids_camera_presa_.push_back(id_entidade);
-        }
-      } else {
-        if (BuscaEntidade(entidade_modelo.id()) != nullptr) {
-          // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
-          // Isso tem potencial de erro caso o mestre remova entidade de jogadores.
-          throw std::logic_error("Id da entidade já está sendo usado.");
-        }
-      }
-      auto* entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
-      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
-      // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
-      if (!Desfazendo()) {
-        // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
-        DeselecionaEntidades();
-#if 0
-        // Esse comportamento nao deseleciona outras formas.
-        for (const auto id : ids_entidades_selecionadas_) {
-          auto* e_selecionada = BuscaEntidade(id);
-          if (e_selecionada == nullptr) {
-            continue;
-          }
-          if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
-            DeselecionaEntidades();
-            break;
-          }
-        }
-#endif
-        AdicionaEntidadesSelecionadas({ entidade->Id() });
-      }
-      if (!Desfazendo()) {
-        // Para desfazer.
-        ntf::Notificacao n_desfazer(notificacao);
-        n_desfazer.mutable_entidade()->CopyFrom(entidade_modelo);
-        AdicionaNotificacaoListaEventos(n_desfazer);
-      }
-      // Envia a entidade para os outros.
-      auto n = ntf::NovaNotificacao(notificacao.tipo());
-      n->mutable_entidade()->CopyFrom(entidade->Proto());
-      central_->AdicionaNotificacaoRemota(n.release());
+      AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, 0, 0, 0);
     } else {
       // Mensagem veio de fora.
       auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);

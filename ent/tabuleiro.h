@@ -612,6 +612,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
   void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
   void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
+  /** Adiciona uma entidade ao tabuleiro, de acordo com a notificacao e os modelos, notificando. */
+  void AdicionaUmaEntidadeNotificando(
+      const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
+      float xoffset, float yoffset, float zoffset);
 
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
