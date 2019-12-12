@@ -4223,14 +4223,11 @@ std::string BonusParaString(const Bonus& bonus) {
 }
 
 std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto) {
-  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO, EFEITO_FASCINADO},
-                         proto)) {
-    return std::make_pair(false, "pasmo, atordoado ou fascinado");
-  }
-  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
-    return std::make_pair(false, "paralisado");
-  }
-
+  if (PossuiEvento(EFEITO_PASMAR, proto)) return std::make_pair(false, "pasmo");
+  if (PossuiEvento(EFEITO_ATORDOADO, proto)) return std::make_pair(false, "atordoado");
+  if (PossuiEvento(EFEITO_FASCINADO, proto)) return std::make_pair(false, "fascinado");
+  if (PossuiEvento(EFEITO_NAUSEADO, proto)) return std::make_pair(false, "nauseado");
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) return std::make_pair(false, "paralisado");
   return std::make_pair(true, "");
 }
 
