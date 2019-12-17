@@ -4467,7 +4467,7 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
   const auto& fc = FeiticosClasse(ic.id(), proto);
   if (!fc.especializacao().empty()) {
     if (c_any(fc.escolas_proibidas(), feitico.escola())) {
-      return std::make_pair(false, StringPrintf("feitiço %s é de escola não permitida (%s).", da.id_arma().c_str(), feitico.escola()));
+      return std::make_pair(false, StringPrintf("feitiço %s é de escola não permitida (%s).", da.id_arma().c_str(), feitico.escola().c_str()));
     }
   }
   // Atributo minimo de conjuracao.
