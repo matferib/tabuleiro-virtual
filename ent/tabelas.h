@@ -20,6 +20,8 @@ class Tabelas : public ntf::Receptor {
 
   // Retorna os feiticos de uma determinada classe, por nivel.
   const std::vector<const ArmaProto*> Feiticos(const std::string& id_classe, int nivel) const;
+  // Retorna id de um feitico aleatoriamente.
+  const std::string& FeiticoAleatorio(const std::string& id_classe, int nivel) const;
 
   // As funcoes retornam a instancia padrao caso nao encontrem a chave.
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
@@ -68,6 +70,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
   std::unordered_map<std::string, const ArmaProto*> armas_;
   std::unordered_map<std::string, const ArmaProto*> feiticos_;
+  std::unordered_map<std::string, std::unordered_map<int, std::vector<const ArmaProto*>>> feiticos_por_classe_por_nivel_;
   std::unordered_map<int, const EfeitoProto*> efeitos_;
   std::unordered_map<int, const EfeitoModeloProto*> efeitos_modelos_;
   std::unordered_map<std::string, const ItemMagicoProto*> pocoes_;

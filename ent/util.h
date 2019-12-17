@@ -800,8 +800,13 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(
     int delta_pv, const EntidadeProto& proto);
 
-// Altera o delta_pv de acordo com a melhor reducao de dano.
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+// Altera o delta_pv de acordo com a melhor reducao de dano. Retorna a string de reducao e o id_unico, se houver.
+struct ResultadoReducaoDano {
+  int delta_pv = 0;
+  std::string texto;
+  int id_unico = -1;
+};
+ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores);
 
 // Return true se a acao ignora reducao de dano.
@@ -865,6 +870,8 @@ bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto)
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
+// Retorna true se o personagem puder usar o escudo passado (por chave).
+bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto);
 
 // Dado o feitico que originou, os parametros e a entidade de referencia, preenche `modelo`.
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);

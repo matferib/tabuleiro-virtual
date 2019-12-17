@@ -327,6 +327,7 @@ message EntidadeProto {
   // Evento de entidade. A cada rodada, o contador de rodadas diminuira ate zero.
   // Ao termino do contador, o tabuleiro sinalizara a entidade.
   message Evento {
+    // Atencao: a atualizacao parcial de eventos so atualiza rodadas e complementos.
     optional int32 rodadas = 1;            // se -1, sinaliza remocao.
     optional bytes descricao = 2;          // aparentemente eu salvei coisa em formato binario aqui, nao funciona como string.
     optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
@@ -499,6 +500,8 @@ message EntidadeProto {
     repeated TalentoProto gerais = 1;
     // Qualquer coisa que nao se enquadre nas regras. Por exemplo, talentos de ranger, monge, guerreiro, humano etc.
     repeated TalentoProto outros = 2;
+    // Talentos automaticos, sempre recomputados.
+    repeated TalentoProto automaticos = 3;
   }
   optional InfoTalentos info_talentos = 79;
   repeated InfoPericia info_pericias = 85;
@@ -517,7 +520,7 @@ message EntidadeProto {
   // Informacao sobre um feitico conhecido.
   message InfoConhecido {
     // Identificador do feitico, usado pelo slot.
-    optional string id = 1;
+    optional string id = 1;  // use auto para gerar aleatoriamente.
     optional string nome = 2;
     // Indica feitico de domino.
     optional bool dominio = 3;

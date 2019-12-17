@@ -1764,12 +1764,13 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
         if (lhs->NivelPersonagem() < rhs->NivelPersonagem()) return true;
         if (rhs->NivelPersonagem() < lhs->NivelPersonagem()) return false;
         return lhs->Id() < rhs->Id();
-    }); 
+    });
   }
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
     pos_origem = entidade_origem->PosicaoAcao();
   }
+  int total_afetados = 0;
   int total_dv = 0;
   std::vector<unsigned int> ids_afetados;
   for (const auto* entidade : acao.mais_fracos_primeiro() ? entidades_ordenadas : entidades_cenario) {
@@ -1781,6 +1782,8 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     ids_afetados.push_back(entidade->Id());
     total_dv += dv;
     if (acao.has_total_dv() && total_dv == acao.total_dv()) break;
+    ++total_afetados;
+    if (acao.has_maximo_criaturas_afetadas() && total_afetados >= acao.maximo_criaturas_afetadas()) break;
   }
   return ids_afetados;
 }

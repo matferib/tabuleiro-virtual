@@ -57,7 +57,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //if (!parametros_desenho_.projecao().has_largura_m()) {
     gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
   //}
-  ConfiguraProjecao();
   //float glm[16];
   //gl::Le(GL_PROJECTION_MATRIX, glm);
   //Matrix4 prm(glm);
@@ -94,6 +93,10 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+
+  // Com todos os parametros setados, configura a projecao (por exemplo, plano de corte pode
+  // variar com ou sem nevoa.
+  ConfiguraProjecao();
 
   gl::Desabilita(GL_BLEND);
   DesenhaCena();

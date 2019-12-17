@@ -38,9 +38,11 @@ sub_menu {
   }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
+  modelo { id: 'Leão Celestial' }
   modelo { id: 'Leão Atroz' }
   modelo { id: 'Lobo' }
   modelo { id: 'Lobo Atroz' }
+  modelo { id: 'Lobo Atroz Abissal' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Sapo' }
@@ -198,7 +200,11 @@ sub_menu {
     modelo { id: 'Humano Monge' }
     modelo { id: 'Humano Monge 5' }
   }
-  modelo { id: 'Humano Paladino' }
+  sub_menu {
+    id: 'Paladinos'
+    modelo { id: 'Humano Paladino' }
+    modelo { id: 'Humano Paladino 12' }
+  }
 }
 sub_menu {
   id: 'Goblins'

@@ -1679,7 +1679,29 @@ float Tabuleiro::TrataAcaoIndividual(
     if (delta_pontos_vida < 0 &&
         !IgnoraReducaoDano(&da, *acao_proto) && entidade_destino != nullptr) {
       google::protobuf::RepeatedField<int> descritores = da.descritores();
-      std::tie(delta_pontos_vida, texto_reducao) = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
+      ResultadoReducaoDano rrd = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
+      const int dano_absorvido = -(delta_pontos_vida - rrd.delta_pv);
+      delta_pontos_vida = rrd.delta_pv;
+      texto_reducao = rrd.texto;
+      // Aqui poderia se verificar se a reducao de dano tem id_unico (vem de algum efeito) para poder diminui-la.
+      // Exemplo: pele rochosa tem limite de reducao que consegue absorver.
+      if (rrd.id_unico >= 0) {
+        // Cria uma atualizacao do efeito.
+        const auto* evento = AchaEvento(rrd.id_unico, entidade_destino->Proto());
+        if (evento != nullptr && evento->id_efeito() == EFEITO_PELE_ROCHOSA && !evento->complementos().empty()) {
+          LOG(INFO) << "dano absorvido" << dano_absorvido;
+          std::unique_ptr<ntf::Notificacao> nefeito(new ntf::Notificacao);
+          EntidadeProto *proto_antes, *proto_depois;
+          std::tie(proto_antes, proto_depois) =
+              ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
+          *proto_antes->add_evento() = *evento;
+          auto* evento_depois = proto_depois->add_evento();
+          *evento_depois = *evento;
+          evento_depois->mutable_complementos()->Set(0, std::max(0, evento_depois->complementos(0) - dano_absorvido));
+          *grupo_desfazer->add_notificacao() = *nefeito;
+          central_->AdicionaNotificacao(nefeito.release());
+        }
+      }
       if (!texto_reducao.empty()) {
         atraso_s += 0.5f;
         ConcatenaString(texto_reducao, por_entidade->mutable_texto());

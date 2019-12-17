@@ -7200,10 +7200,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         AdicionaAcaoTextoLogado(
             entidade.Id(), StringPrintf("paralisia quebrada: %s", texto.c_str()),
             atraso_s);
-        *proto_antes->add_evento() = *evento;
-        auto* evento_depois = proto_depois->add_evento();
-        *evento_depois = *evento;
-        evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+        evento_depois->set_rodadas(-1);
       } else {
         AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("paralisia permanece: %s", texto.c_str()), atraso_s);
       }
@@ -7948,7 +7945,8 @@ void Tabuleiro::RemoveVersoes(const std::vector<int>& versoes) {
 bool Tabuleiro::UsaNevoa() const {
   const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   return parametros_desenho_.desenha_nevoa() && cenario_nevoa.has_nevoa() &&
-      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores());
+      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores()) &&
+      !parametros_desenho_.has_picking_x();
 }
 
 float Tabuleiro::DistanciaPlanoCorteDistante() const {

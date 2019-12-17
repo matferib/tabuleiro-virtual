@@ -1157,8 +1157,8 @@ Entidade::TipoCA CATipoAtaque(const DadosAtaque& da) {
 }
 
 // Retorna true se o ataque for bem sucedido, false com string caso contrario.
-std::tuple<std::string, bool> AtaqueVsChanceFalha(const Entidade& ea, const Entidade& ed) {
-  if (ea.IgnoraChanceFalha()) {
+std::tuple<std::string, bool> AtaqueVsChanceFalha(const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
+  if (ea.IgnoraChanceFalha() || da.id_arma() == "missil_magico") {
     VLOG(1) << "ataque ignorando chance de falha";
     return std::make_pair("", true);
   }
@@ -1387,7 +1387,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   // Chance de falha.
   if (ea.Id() != ed.Id()) {
     bool passou_falha;
-    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(ea, ed);
+    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(*da, ea, ed);
     if (!passou_falha) {
       resultado.resultado = RA_FALHA_CHANCE_FALHA;
       return resultado;
@@ -2711,6 +2711,9 @@ const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProt
   for (const auto& t : entidade.info_talentos().outros()) {
     if (chave_talento == t.id()) return &t;
   }
+  for (const auto& t : entidade.info_talentos().automaticos()) {
+    if (chave_talento == t.id()) return &t;
+  }
   return nullptr;
 }
 
@@ -3131,6 +3134,10 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
     }
     case MC_1_POR_NIVEL: {
       evento->add_complementos(nivel_conjurador);
+      break;
+    }
+    case MC_10_POR_NIVEL: {
+      evento->add_complementos(nivel_conjurador * 10);
       break;
     }
     case MC_1_POR_NIVEL_MAX_10: {
@@ -3718,14 +3725,14 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
 const EntidadeProto::InfoConhecido& FeiticoConhecido(
     const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
   const auto& fn = FeiticosNivel(id_classe, nivel, proto);
-  if (indice >= fn.conhecidos().size()) return EntidadeProto::InfoConhecido::default_instance();
+  if (indice < 0 || indice >= fn.conhecidos().size()) return EntidadeProto::InfoConhecido::default_instance();
   return fn.conhecidos(indice);
 }
 
 const EntidadeProto::InfoLancar& FeiticoParaLancar(
     const std::string& id_classe, int nivel, int indice, const EntidadeProto& proto) {
   const auto& fn = FeiticosNivel(id_classe, nivel, proto);
-  if (indice >= fn.para_lancar().size()) return EntidadeProto::InfoLancar::default_instance();
+  if (indice < 0 || indice >= fn.para_lancar().size()) return EntidadeProto::InfoLancar::default_instance();
   return fn.para_lancar(indice);
 }
 
@@ -3817,7 +3824,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   return resultado;
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorUmaReducao(
+std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorUmaReducao(
     int delta_pv, const ReducaoDano& rd, const google::protobuf::RepeatedField<int>& descritores) {
   VLOG(1) << "rd: " << rd.DebugString();
   for (int d : descritores) {
@@ -3827,36 +3834,37 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorUmaReducao(
     for (const auto& descritor_defesa : rd.descritores()) {
       if (c_none(descritores, descritor_defesa)) {
         delta_pv += rd.valor();
-        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
+        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
       } else {
         VLOG(1) << "descritor defesa: " << TextoDescritor(descritor_defesa) << " bateu";
       }
     }
-    return std::make_tuple(delta_pv, "redução de dano: não aplicada");
+    return std::make_tuple(delta_pv, "redução de dano: não aplicada", -1);
   } else {
     for (const auto& descritor : rd.descritores()) {
       if (c_any(descritores, descritor)) {
-        return std::make_tuple(delta_pv, "redução de dano: não aplicada");
+        return std::make_tuple(delta_pv, "redução de dano: não aplicada", -1);
       }
     }
     delta_pv += rd.valor();
-    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()));
+    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
   }
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducao(
+std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
   const auto& dd = proto.dados_defesa();
   if (dd.reducao_dano().empty()) {
-    return std::make_tuple(delta_pv, "");
+    return std::make_tuple(delta_pv, "", -1);
   }
-  std::tuple<int, std::string> melhor_reducao = std::make_tuple(delta_pv, "");
+  std::tuple<int, std::string, int> melhor_reducao = std::make_tuple(delta_pv, "", -1);
   for (const auto& rd : dd.reducao_dano()) {
     int delta_alterado;
     std::string texto;
-    std::tie(delta_alterado, texto) = AlteraDeltaPontosVidaPorUmaReducao(delta_pv, rd, descritores);
+    int id_unico;
+    std::tie(delta_alterado, texto, id_unico) = AlteraDeltaPontosVidaPorUmaReducao(delta_pv, rd, descritores);
     if (delta_alterado > delta_pv) {
-      melhor_reducao = std::tie(delta_alterado, texto);
+      melhor_reducao = std::tie(delta_alterado, texto, id_unico);
     }
   }
   return melhor_reducao;
@@ -3868,23 +3876,29 @@ std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv
       google::protobuf::StringPrintf("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
 }
 
-std::tuple<int, std::string> AlteraDeltaPontosVidaPorMelhorReducao(
+ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
     int delta_pv, const EntidadeProto& proto, const google::protobuf::RepeatedField<int>& descritores) {
   int delta_barbaro;
   std::string texto_barbaro;
   std::tie(delta_barbaro, texto_barbaro) = AlteraDeltaPontosVidaPorReducaoBarbaro(delta_pv, proto);
   int delta_outros;
   std::string texto_outros;
-  std::tie(delta_outros, texto_outros) = AlteraDeltaPontosVidaPorReducao(delta_pv, proto, descritores);
+  int id_unico;
+  std::tie(delta_outros, texto_outros, id_unico) = AlteraDeltaPontosVidaPorReducao(delta_pv, proto, descritores);
   std::string texto_final;
   if (delta_barbaro != delta_pv && delta_barbaro >= delta_outros) {
     delta_pv = delta_barbaro;
     texto_final = texto_barbaro;
+    id_unico = -1;
   } else if (delta_outros != delta_pv && delta_outros > delta_barbaro) {
     delta_pv = delta_outros;
     texto_final = texto_outros;
   }
-  return std::make_tuple(delta_pv, texto_final);
+  ResultadoReducaoDano resultado;
+  resultado.delta_pv = delta_pv;
+  resultado.texto = texto_final;
+  resultado.id_unico = id_unico;
+  return resultado; 
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
@@ -4252,6 +4266,15 @@ bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto)
 bool PermiteEscudo(const EntidadeProto& proto) {
   if (PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
+  }
+  return true;
+}
+
+bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto) {
+  if (escudo == "broquel" || escudo.find("leve_") == 0 || escudo.find("pesado_") == 0) {
+    return PossuiTalento("usar_escudo", proto);
+  } else if (escudo == "corpo") {
+    return PossuiTalento("usar_escudo_corpo", proto);
   }
   return true;
 }

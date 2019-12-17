@@ -328,47 +328,49 @@ public:
     QPushButton *botao_remover_inimigo_predileto;
     QWidget *tab_6;
     QGridLayout *gridLayout_13;
-    QLabel *label_23;
-    QCheckBox *checkbox_op;
-    QComboBox *combo_material_arma;
-    QLabel *label_92;
-    QSpinBox *spin_bonus_magico;
-    QLabel *label_21;
-    QLineEdit *linha_rotulo_ataque;
-    QLabel *label_73;
-    QComboBox *combo_empunhadura;
-    QSpinBox *spin_ordem_ataque;
-    QSpinBox *spin_incrementos;
-    QLabel *label_93;
-    QLabel *label_83;
-    QComboBox *combo_tipo_ataque;
-    QLabel *label_24;
-    QSpinBox *spin_alcance_quad;
-    QLabel *label_36;
-    QLineEdit *linha_dano;
-    QComboBox *combo_arma;
-    QLineEdit *linha_grupo_ataque;
+    QLabel *label_9;
+    QLabel *label_72;
+    QSpinBox *spin_modificador_atributo_pergaminho;
+    QSpinBox *spin_nivel_conjurador_pergaminho;
     QLabel *label_30;
-    QLabel *label_91;
-    QLabel *label_29;
+    QLabel *label_21;
+    QSpinBox *spin_municao;
+    QSpinBox *spin_bonus_magico;
+    QSpinBox *spin_incrementos;
+    QPushButton *botao_clonar_ataque;
+    QSpinBox *spin_limite_vezes;
+    QSpinBox *spin_alcance_quad;
+    QLabel *label_73;
+    QPushButton *botao_bonus_dano;
     QVBoxLayout *verticalLayout_16;
     QPushButton *botao_ataque_cima;
     QPushButton *botao_ataque_baixo;
-    QListWidget *lista_ataques;
-    QPushButton *botao_remover_ataque;
-    QPushButton *botao_clonar_ataque;
-    QLabel *label_55;
-    QPushButton *botao_bonus_ataque;
+    QSpinBox *spin_ordem_ataque;
+    QLabel *label_93;
+    QComboBox *combo_empunhadura;
+    QCheckBox *checkbox_op;
+    QLabel *label_23;
+    QLineEdit *linha_rotulo_ataque;
+    QLabel *label_24;
+    QLabel *label_92;
     QLabel *label_82;
-    QSpinBox *spin_municao;
-    QLabel *label_72;
-    QPushButton *botao_bonus_dano;
-    QLabel *label_104;
-    QSpinBox *spin_nivel_conjurador_pergaminho;
+    QLabel *label_83;
+    QLabel *label_29;
+    QLabel *label_91;
     QLabel *label_mod_atributo;
-    QSpinBox *spin_modificador_atributo_pergaminho;
-    QLabel *label_9;
-    QSpinBox *spin_limite_vezes;
+    QCheckBox *checkbox_ignora_rm;
+    QLabel *label_104;
+    QPushButton *botao_remover_ataque;
+    QLabel *label_55;
+    QComboBox *combo_material_arma;
+    QComboBox *combo_tipo_ataque;
+    QComboBox *combo_arma;
+    QPushButton *botao_bonus_ataque;
+    QLineEdit *linha_dano;
+    QLabel *label_36;
+    QLineEdit *linha_grupo_ataque;
+    QCheckBox *checkbox_permite_salvacao;
+    QListWidget *lista_ataques;
     QWidget *tab;
     QGridLayout *gridLayout_7;
     QHBoxLayout *horizontalLayout_27;
@@ -2185,41 +2187,52 @@ public:
         tab_6->setObjectName(QStringLiteral("tab_6"));
         gridLayout_13 = new QGridLayout(tab_6);
         gridLayout_13->setObjectName(QStringLiteral("gridLayout_13"));
-        label_23 = new QLabel(tab_6);
-        label_23->setObjectName(QStringLiteral("label_23"));
-        sizePolicy7.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
-        label_23->setSizePolicy(sizePolicy7);
-        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_9 = new QLabel(tab_6);
+        label_9->setObjectName(QStringLiteral("label_9"));
 
-        gridLayout_13->addWidget(label_23, 1, 5, 1, 1);
+        gridLayout_13->addWidget(label_9, 3, 5, 1, 1);
 
-        checkbox_op = new QCheckBox(tab_6);
-        checkbox_op->setObjectName(QStringLiteral("checkbox_op"));
-        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
-        checkbox_op->setSizePolicy(sizePolicy1);
+        label_72 = new QLabel(tab_6);
+        label_72->setObjectName(QStringLiteral("label_72"));
+        sizePolicy7.setHeightForWidth(label_72->sizePolicy().hasHeightForWidth());
+        label_72->setSizePolicy(sizePolicy7);
+        label_72->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_13->addWidget(checkbox_op, 1, 4, 1, 1);
+        gridLayout_13->addWidget(label_72, 2, 12, 1, 1);
 
-        combo_material_arma = new QComboBox(tab_6);
-        combo_material_arma->addItem(QString());
-        combo_material_arma->addItem(QString());
-        combo_material_arma->addItem(QString());
-        combo_material_arma->addItem(QString());
-        combo_material_arma->addItem(QString());
-        combo_material_arma->addItem(QString());
-        combo_material_arma->setObjectName(QStringLiteral("combo_material_arma"));
-        sizePolicy1.setHeightForWidth(combo_material_arma->sizePolicy().hasHeightForWidth());
-        combo_material_arma->setSizePolicy(sizePolicy1);
+        spin_modificador_atributo_pergaminho = new QSpinBox(tab_6);
+        spin_modificador_atributo_pergaminho->setObjectName(QStringLiteral("spin_modificador_atributo_pergaminho"));
 
-        gridLayout_13->addWidget(combo_material_arma, 1, 8, 1, 1);
+        gridLayout_13->addWidget(spin_modificador_atributo_pergaminho, 3, 3, 1, 1);
 
-        label_92 = new QLabel(tab_6);
-        label_92->setObjectName(QStringLiteral("label_92"));
-        sizePolicy7.setHeightForWidth(label_92->sizePolicy().hasHeightForWidth());
-        label_92->setSizePolicy(sizePolicy7);
-        label_92->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        spin_nivel_conjurador_pergaminho = new QSpinBox(tab_6);
+        spin_nivel_conjurador_pergaminho->setObjectName(QStringLiteral("spin_nivel_conjurador_pergaminho"));
 
-        gridLayout_13->addWidget(label_92, 1, 7, 1, 1);
+        gridLayout_13->addWidget(spin_nivel_conjurador_pergaminho, 3, 1, 1, 1);
+
+        label_30 = new QLabel(tab_6);
+        label_30->setObjectName(QStringLiteral("label_30"));
+        sizePolicy7.setHeightForWidth(label_30->sizePolicy().hasHeightForWidth());
+        label_30->setSizePolicy(sizePolicy7);
+        label_30->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_30, 2, 7, 1, 1);
+
+        label_21 = new QLabel(tab_6);
+        label_21->setObjectName(QStringLiteral("label_21"));
+        sizePolicy7.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
+        label_21->setSizePolicy(sizePolicy7);
+        label_21->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_21, 1, 0, 1, 1);
+
+        spin_municao = new QSpinBox(tab_6);
+        spin_municao->setObjectName(QStringLiteral("spin_municao"));
+        sizePolicy1.setHeightForWidth(spin_municao->sizePolicy().hasHeightForWidth());
+        spin_municao->setSizePolicy(sizePolicy1);
+        spin_municao->setMaximum(10000);
+
+        gridLayout_13->addWidget(spin_municao, 2, 3, 1, 1);
 
         spin_bonus_magico = new QSpinBox(tab_6);
         spin_bonus_magico->setObjectName(QStringLiteral("spin_bonus_magico"));
@@ -2230,20 +2243,34 @@ public:
 
         gridLayout_13->addWidget(spin_bonus_magico, 1, 6, 1, 1);
 
-        label_21 = new QLabel(tab_6);
-        label_21->setObjectName(QStringLiteral("label_21"));
-        sizePolicy7.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
-        label_21->setSizePolicy(sizePolicy7);
-        label_21->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        spin_incrementos = new QSpinBox(tab_6);
+        spin_incrementos->setObjectName(QStringLiteral("spin_incrementos"));
+        sizePolicy1.setHeightForWidth(spin_incrementos->sizePolicy().hasHeightForWidth());
+        spin_incrementos->setSizePolicy(sizePolicy1);
+        spin_incrementos->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
-        gridLayout_13->addWidget(label_21, 1, 0, 1, 1);
+        gridLayout_13->addWidget(spin_incrementos, 2, 8, 1, 4);
 
-        linha_rotulo_ataque = new QLineEdit(tab_6);
-        linha_rotulo_ataque->setObjectName(QStringLiteral("linha_rotulo_ataque"));
-        sizePolicy1.setHeightForWidth(linha_rotulo_ataque->sizePolicy().hasHeightForWidth());
-        linha_rotulo_ataque->setSizePolicy(sizePolicy1);
+        botao_clonar_ataque = new QPushButton(tab_6);
+        botao_clonar_ataque->setObjectName(QStringLiteral("botao_clonar_ataque"));
+        botao_clonar_ataque->setEnabled(true);
+        sizePolicy1.setHeightForWidth(botao_clonar_ataque->sizePolicy().hasHeightForWidth());
+        botao_clonar_ataque->setSizePolicy(sizePolicy1);
 
-        gridLayout_13->addWidget(linha_rotulo_ataque, 0, 3, 1, 1);
+        gridLayout_13->addWidget(botao_clonar_ataque, 5, 8, 1, 4);
+
+        spin_limite_vezes = new QSpinBox(tab_6);
+        spin_limite_vezes->setObjectName(QStringLiteral("spin_limite_vezes"));
+
+        gridLayout_13->addWidget(spin_limite_vezes, 3, 6, 1, 1);
+
+        spin_alcance_quad = new QSpinBox(tab_6);
+        spin_alcance_quad->setObjectName(QStringLiteral("spin_alcance_quad"));
+        sizePolicy1.setHeightForWidth(spin_alcance_quad->sizePolicy().hasHeightForWidth());
+        spin_alcance_quad->setSizePolicy(sizePolicy1);
+        spin_alcance_quad->setMinimum(-1);
+
+        gridLayout_13->addWidget(spin_alcance_quad, 2, 6, 1, 1);
 
         label_73 = new QLabel(tab_6);
         label_73->setObjectName(QStringLiteral("label_73"));
@@ -2253,131 +2280,10 @@ public:
 
         gridLayout_13->addWidget(label_73, 0, 7, 1, 1);
 
-        combo_empunhadura = new QComboBox(tab_6);
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->addItem(QString());
-        combo_empunhadura->setObjectName(QStringLiteral("combo_empunhadura"));
-        sizePolicy2.setHeightForWidth(combo_empunhadura->sizePolicy().hasHeightForWidth());
-        combo_empunhadura->setSizePolicy(sizePolicy2);
+        botao_bonus_dano = new QPushButton(tab_6);
+        botao_bonus_dano->setObjectName(QStringLiteral("botao_bonus_dano"));
 
-        gridLayout_13->addWidget(combo_empunhadura, 0, 8, 1, 1);
-
-        spin_ordem_ataque = new QSpinBox(tab_6);
-        spin_ordem_ataque->setObjectName(QStringLiteral("spin_ordem_ataque"));
-        sizePolicy1.setHeightForWidth(spin_ordem_ataque->sizePolicy().hasHeightForWidth());
-        spin_ordem_ataque->setSizePolicy(sizePolicy1);
-        spin_ordem_ataque->setMinimum(1);
-        spin_ordem_ataque->setMaximum(9);
-
-        gridLayout_13->addWidget(spin_ordem_ataque, 0, 6, 1, 1);
-
-        spin_incrementos = new QSpinBox(tab_6);
-        spin_incrementos->setObjectName(QStringLiteral("spin_incrementos"));
-        sizePolicy1.setHeightForWidth(spin_incrementos->sizePolicy().hasHeightForWidth());
-        spin_incrementos->setSizePolicy(sizePolicy1);
-        spin_incrementos->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(spin_incrementos, 3, 8, 1, 1);
-
-        label_93 = new QLabel(tab_6);
-        label_93->setObjectName(QStringLiteral("label_93"));
-        sizePolicy7.setHeightForWidth(label_93->sizePolicy().hasHeightForWidth());
-        label_93->setSizePolicy(sizePolicy7);
-        label_93->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_93, 1, 2, 1, 1);
-
-        label_83 = new QLabel(tab_6);
-        label_83->setObjectName(QStringLiteral("label_83"));
-        sizePolicy7.setHeightForWidth(label_83->sizePolicy().hasHeightForWidth());
-        label_83->setSizePolicy(sizePolicy7);
-        label_83->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_83, 0, 5, 1, 1);
-
-        combo_tipo_ataque = new QComboBox(tab_6);
-        combo_tipo_ataque->setObjectName(QStringLiteral("combo_tipo_ataque"));
-        sizePolicy2.setHeightForWidth(combo_tipo_ataque->sizePolicy().hasHeightForWidth());
-        combo_tipo_ataque->setSizePolicy(sizePolicy2);
-
-        gridLayout_13->addWidget(combo_tipo_ataque, 1, 1, 1, 1);
-
-        label_24 = new QLabel(tab_6);
-        label_24->setObjectName(QStringLiteral("label_24"));
-        sizePolicy7.setHeightForWidth(label_24->sizePolicy().hasHeightForWidth());
-        label_24->setSizePolicy(sizePolicy7);
-        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_24, 3, 0, 1, 1);
-
-        spin_alcance_quad = new QSpinBox(tab_6);
-        spin_alcance_quad->setObjectName(QStringLiteral("spin_alcance_quad"));
-        sizePolicy1.setHeightForWidth(spin_alcance_quad->sizePolicy().hasHeightForWidth());
-        spin_alcance_quad->setSizePolicy(sizePolicy1);
-        spin_alcance_quad->setMinimum(-1);
-
-        gridLayout_13->addWidget(spin_alcance_quad, 3, 6, 1, 1);
-
-        label_36 = new QLabel(tab_6);
-        label_36->setObjectName(QStringLiteral("label_36"));
-        sizePolicy7.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
-        label_36->setSizePolicy(sizePolicy7);
-        QFont font2;
-        font2.setKerning(false);
-        label_36->setFont(font2);
-        label_36->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_36, 0, 2, 1, 1);
-
-        linha_dano = new QLineEdit(tab_6);
-        linha_dano->setObjectName(QStringLiteral("linha_dano"));
-        sizePolicy1.setHeightForWidth(linha_dano->sizePolicy().hasHeightForWidth());
-        linha_dano->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(linha_dano, 3, 1, 1, 1);
-
-        combo_arma = new QComboBox(tab_6);
-        combo_arma->setObjectName(QStringLiteral("combo_arma"));
-        sizePolicy2.setHeightForWidth(combo_arma->sizePolicy().hasHeightForWidth());
-        combo_arma->setSizePolicy(sizePolicy2);
-
-        gridLayout_13->addWidget(combo_arma, 1, 3, 1, 1);
-
-        linha_grupo_ataque = new QLineEdit(tab_6);
-        linha_grupo_ataque->setObjectName(QStringLiteral("linha_grupo_ataque"));
-        sizePolicy1.setHeightForWidth(linha_grupo_ataque->sizePolicy().hasHeightForWidth());
-        linha_grupo_ataque->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(linha_grupo_ataque, 0, 1, 1, 1);
-
-        label_30 = new QLabel(tab_6);
-        label_30->setObjectName(QStringLiteral("label_30"));
-        sizePolicy7.setHeightForWidth(label_30->sizePolicy().hasHeightForWidth());
-        label_30->setSizePolicy(sizePolicy7);
-        label_30->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_30, 3, 7, 1, 1);
-
-        label_91 = new QLabel(tab_6);
-        label_91->setObjectName(QStringLiteral("label_91"));
-        sizePolicy7.setHeightForWidth(label_91->sizePolicy().hasHeightForWidth());
-        label_91->setSizePolicy(sizePolicy7);
-        label_91->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_91, 0, 0, 1, 1);
-
-        label_29 = new QLabel(tab_6);
-        label_29->setObjectName(QStringLiteral("label_29"));
-        sizePolicy1.setHeightForWidth(label_29->sizePolicy().hasHeightForWidth());
-        label_29->setSizePolicy(sizePolicy1);
-        label_29->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_29, 3, 5, 1, 1);
+        gridLayout_13->addWidget(botao_bonus_dano, 2, 13, 1, 1);
 
         verticalLayout_16 = new QVBoxLayout();
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
@@ -2396,7 +2302,211 @@ public:
         verticalLayout_16->addWidget(botao_ataque_baixo);
 
 
-        gridLayout_13->addLayout(verticalLayout_16, 5, 10, 1, 1);
+        gridLayout_13->addLayout(verticalLayout_16, 4, 13, 1, 1);
+
+        spin_ordem_ataque = new QSpinBox(tab_6);
+        spin_ordem_ataque->setObjectName(QStringLiteral("spin_ordem_ataque"));
+        sizePolicy1.setHeightForWidth(spin_ordem_ataque->sizePolicy().hasHeightForWidth());
+        spin_ordem_ataque->setSizePolicy(sizePolicy1);
+        spin_ordem_ataque->setMinimum(1);
+        spin_ordem_ataque->setMaximum(9);
+
+        gridLayout_13->addWidget(spin_ordem_ataque, 0, 6, 1, 1);
+
+        label_93 = new QLabel(tab_6);
+        label_93->setObjectName(QStringLiteral("label_93"));
+        sizePolicy7.setHeightForWidth(label_93->sizePolicy().hasHeightForWidth());
+        label_93->setSizePolicy(sizePolicy7);
+        label_93->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_93, 1, 2, 1, 1);
+
+        combo_empunhadura = new QComboBox(tab_6);
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
+        combo_empunhadura->setObjectName(QStringLiteral("combo_empunhadura"));
+        sizePolicy2.setHeightForWidth(combo_empunhadura->sizePolicy().hasHeightForWidth());
+        combo_empunhadura->setSizePolicy(sizePolicy2);
+
+        gridLayout_13->addWidget(combo_empunhadura, 0, 8, 1, 4);
+
+        checkbox_op = new QCheckBox(tab_6);
+        checkbox_op->setObjectName(QStringLiteral("checkbox_op"));
+        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
+        checkbox_op->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(checkbox_op, 1, 4, 1, 1);
+
+        label_23 = new QLabel(tab_6);
+        label_23->setObjectName(QStringLiteral("label_23"));
+        sizePolicy7.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
+        label_23->setSizePolicy(sizePolicy7);
+        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_23, 1, 5, 1, 1);
+
+        linha_rotulo_ataque = new QLineEdit(tab_6);
+        linha_rotulo_ataque->setObjectName(QStringLiteral("linha_rotulo_ataque"));
+        sizePolicy1.setHeightForWidth(linha_rotulo_ataque->sizePolicy().hasHeightForWidth());
+        linha_rotulo_ataque->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(linha_rotulo_ataque, 0, 3, 1, 1);
+
+        label_24 = new QLabel(tab_6);
+        label_24->setObjectName(QStringLiteral("label_24"));
+        sizePolicy7.setHeightForWidth(label_24->sizePolicy().hasHeightForWidth());
+        label_24->setSizePolicy(sizePolicy7);
+        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_24, 2, 0, 1, 1);
+
+        label_92 = new QLabel(tab_6);
+        label_92->setObjectName(QStringLiteral("label_92"));
+        sizePolicy7.setHeightForWidth(label_92->sizePolicy().hasHeightForWidth());
+        label_92->setSizePolicy(sizePolicy7);
+        label_92->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_92, 1, 7, 1, 1);
+
+        label_82 = new QLabel(tab_6);
+        label_82->setObjectName(QStringLiteral("label_82"));
+        sizePolicy7.setHeightForWidth(label_82->sizePolicy().hasHeightForWidth());
+        label_82->setSizePolicy(sizePolicy7);
+        label_82->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_82, 2, 2, 1, 1);
+
+        label_83 = new QLabel(tab_6);
+        label_83->setObjectName(QStringLiteral("label_83"));
+        sizePolicy7.setHeightForWidth(label_83->sizePolicy().hasHeightForWidth());
+        label_83->setSizePolicy(sizePolicy7);
+        label_83->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_83, 0, 5, 1, 1);
+
+        label_29 = new QLabel(tab_6);
+        label_29->setObjectName(QStringLiteral("label_29"));
+        sizePolicy1.setHeightForWidth(label_29->sizePolicy().hasHeightForWidth());
+        label_29->setSizePolicy(sizePolicy1);
+        label_29->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_29, 2, 5, 1, 1);
+
+        label_91 = new QLabel(tab_6);
+        label_91->setObjectName(QStringLiteral("label_91"));
+        sizePolicy7.setHeightForWidth(label_91->sizePolicy().hasHeightForWidth());
+        label_91->setSizePolicy(sizePolicy7);
+        label_91->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_91, 0, 0, 1, 1);
+
+        label_mod_atributo = new QLabel(tab_6);
+        label_mod_atributo->setObjectName(QStringLiteral("label_mod_atributo"));
+        label_mod_atributo->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_mod_atributo, 3, 2, 1, 1);
+
+        checkbox_ignora_rm = new QCheckBox(tab_6);
+        checkbox_ignora_rm->setObjectName(QStringLiteral("checkbox_ignora_rm"));
+        sizePolicy1.setHeightForWidth(checkbox_ignora_rm->sizePolicy().hasHeightForWidth());
+        checkbox_ignora_rm->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(checkbox_ignora_rm, 3, 7, 1, 2);
+
+        label_104 = new QLabel(tab_6);
+        label_104->setObjectName(QStringLiteral("label_104"));
+        sizePolicy7.setHeightForWidth(label_104->sizePolicy().hasHeightForWidth());
+        label_104->setSizePolicy(sizePolicy7);
+        label_104->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_104, 3, 0, 1, 1);
+
+        botao_remover_ataque = new QPushButton(tab_6);
+        botao_remover_ataque->setObjectName(QStringLiteral("botao_remover_ataque"));
+        botao_remover_ataque->setEnabled(false);
+        sizePolicy1.setHeightForWidth(botao_remover_ataque->sizePolicy().hasHeightForWidth());
+        botao_remover_ataque->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(botao_remover_ataque, 5, 12, 1, 1);
+
+        label_55 = new QLabel(tab_6);
+        label_55->setObjectName(QStringLiteral("label_55"));
+        sizePolicy1.setHeightForWidth(label_55->sizePolicy().hasHeightForWidth());
+        label_55->setSizePolicy(sizePolicy1);
+        label_55->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_55, 1, 12, 1, 1);
+
+        combo_material_arma = new QComboBox(tab_6);
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->addItem(QString());
+        combo_material_arma->setObjectName(QStringLiteral("combo_material_arma"));
+        sizePolicy1.setHeightForWidth(combo_material_arma->sizePolicy().hasHeightForWidth());
+        combo_material_arma->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(combo_material_arma, 1, 8, 1, 4);
+
+        combo_tipo_ataque = new QComboBox(tab_6);
+        combo_tipo_ataque->setObjectName(QStringLiteral("combo_tipo_ataque"));
+        sizePolicy2.setHeightForWidth(combo_tipo_ataque->sizePolicy().hasHeightForWidth());
+        combo_tipo_ataque->setSizePolicy(sizePolicy2);
+
+        gridLayout_13->addWidget(combo_tipo_ataque, 1, 1, 1, 1);
+
+        combo_arma = new QComboBox(tab_6);
+        combo_arma->setObjectName(QStringLiteral("combo_arma"));
+        sizePolicy2.setHeightForWidth(combo_arma->sizePolicy().hasHeightForWidth());
+        combo_arma->setSizePolicy(sizePolicy2);
+
+        gridLayout_13->addWidget(combo_arma, 1, 3, 1, 1);
+
+        botao_bonus_ataque = new QPushButton(tab_6);
+        botao_bonus_ataque->setObjectName(QStringLiteral("botao_bonus_ataque"));
+        sizePolicy1.setHeightForWidth(botao_bonus_ataque->sizePolicy().hasHeightForWidth());
+        botao_bonus_ataque->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(botao_bonus_ataque, 1, 13, 1, 1);
+
+        linha_dano = new QLineEdit(tab_6);
+        linha_dano->setObjectName(QStringLiteral("linha_dano"));
+        sizePolicy1.setHeightForWidth(linha_dano->sizePolicy().hasHeightForWidth());
+        linha_dano->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(linha_dano, 2, 1, 1, 1);
+
+        label_36 = new QLabel(tab_6);
+        label_36->setObjectName(QStringLiteral("label_36"));
+        sizePolicy7.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
+        label_36->setSizePolicy(sizePolicy7);
+        QFont font2;
+        font2.setKerning(false);
+        label_36->setFont(font2);
+        label_36->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_36, 0, 2, 1, 1);
+
+        linha_grupo_ataque = new QLineEdit(tab_6);
+        linha_grupo_ataque->setObjectName(QStringLiteral("linha_grupo_ataque"));
+        sizePolicy1.setHeightForWidth(linha_grupo_ataque->sizePolicy().hasHeightForWidth());
+        linha_grupo_ataque->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(linha_grupo_ataque, 0, 1, 1, 1);
+
+        checkbox_permite_salvacao = new QCheckBox(tab_6);
+        checkbox_permite_salvacao->setObjectName(QStringLiteral("checkbox_permite_salvacao"));
+        sizePolicy1.setHeightForWidth(checkbox_permite_salvacao->sizePolicy().hasHeightForWidth());
+        checkbox_permite_salvacao->setSizePolicy(sizePolicy1);
+
+        gridLayout_13->addWidget(checkbox_permite_salvacao, 3, 9, 1, 1);
 
         lista_ataques = new QListWidget(tab_6);
         lista_ataques->setObjectName(QStringLiteral("lista_ataques"));
@@ -2408,101 +2518,7 @@ public:
         lista_ataques->setSelectionMode(QAbstractItemView::ExtendedSelection);
         lista_ataques->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-        gridLayout_13->addWidget(lista_ataques, 5, 0, 1, 10);
-
-        botao_remover_ataque = new QPushButton(tab_6);
-        botao_remover_ataque->setObjectName(QStringLiteral("botao_remover_ataque"));
-        botao_remover_ataque->setEnabled(false);
-        sizePolicy1.setHeightForWidth(botao_remover_ataque->sizePolicy().hasHeightForWidth());
-        botao_remover_ataque->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(botao_remover_ataque, 6, 9, 1, 1);
-
-        botao_clonar_ataque = new QPushButton(tab_6);
-        botao_clonar_ataque->setObjectName(QStringLiteral("botao_clonar_ataque"));
-        botao_clonar_ataque->setEnabled(true);
-        sizePolicy1.setHeightForWidth(botao_clonar_ataque->sizePolicy().hasHeightForWidth());
-        botao_clonar_ataque->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(botao_clonar_ataque, 6, 8, 1, 1);
-
-        label_55 = new QLabel(tab_6);
-        label_55->setObjectName(QStringLiteral("label_55"));
-        sizePolicy1.setHeightForWidth(label_55->sizePolicy().hasHeightForWidth());
-        label_55->setSizePolicy(sizePolicy1);
-        label_55->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_55, 1, 9, 1, 1);
-
-        botao_bonus_ataque = new QPushButton(tab_6);
-        botao_bonus_ataque->setObjectName(QStringLiteral("botao_bonus_ataque"));
-        sizePolicy1.setHeightForWidth(botao_bonus_ataque->sizePolicy().hasHeightForWidth());
-        botao_bonus_ataque->setSizePolicy(sizePolicy1);
-
-        gridLayout_13->addWidget(botao_bonus_ataque, 1, 10, 1, 1);
-
-        label_82 = new QLabel(tab_6);
-        label_82->setObjectName(QStringLiteral("label_82"));
-        sizePolicy7.setHeightForWidth(label_82->sizePolicy().hasHeightForWidth());
-        label_82->setSizePolicy(sizePolicy7);
-        label_82->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_82, 3, 2, 1, 1);
-
-        spin_municao = new QSpinBox(tab_6);
-        spin_municao->setObjectName(QStringLiteral("spin_municao"));
-        sizePolicy1.setHeightForWidth(spin_municao->sizePolicy().hasHeightForWidth());
-        spin_municao->setSizePolicy(sizePolicy1);
-        spin_municao->setMaximum(10000);
-
-        gridLayout_13->addWidget(spin_municao, 3, 3, 1, 1);
-
-        label_72 = new QLabel(tab_6);
-        label_72->setObjectName(QStringLiteral("label_72"));
-        sizePolicy7.setHeightForWidth(label_72->sizePolicy().hasHeightForWidth());
-        label_72->setSizePolicy(sizePolicy7);
-        label_72->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_72, 3, 9, 1, 1);
-
-        botao_bonus_dano = new QPushButton(tab_6);
-        botao_bonus_dano->setObjectName(QStringLiteral("botao_bonus_dano"));
-
-        gridLayout_13->addWidget(botao_bonus_dano, 3, 10, 1, 1);
-
-        label_104 = new QLabel(tab_6);
-        label_104->setObjectName(QStringLiteral("label_104"));
-        sizePolicy7.setHeightForWidth(label_104->sizePolicy().hasHeightForWidth());
-        label_104->setSizePolicy(sizePolicy7);
-        label_104->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_104, 4, 0, 1, 1);
-
-        spin_nivel_conjurador_pergaminho = new QSpinBox(tab_6);
-        spin_nivel_conjurador_pergaminho->setObjectName(QStringLiteral("spin_nivel_conjurador_pergaminho"));
-
-        gridLayout_13->addWidget(spin_nivel_conjurador_pergaminho, 4, 1, 1, 1);
-
-        label_mod_atributo = new QLabel(tab_6);
-        label_mod_atributo->setObjectName(QStringLiteral("label_mod_atributo"));
-        label_mod_atributo->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_13->addWidget(label_mod_atributo, 4, 2, 1, 1);
-
-        spin_modificador_atributo_pergaminho = new QSpinBox(tab_6);
-        spin_modificador_atributo_pergaminho->setObjectName(QStringLiteral("spin_modificador_atributo_pergaminho"));
-
-        gridLayout_13->addWidget(spin_modificador_atributo_pergaminho, 4, 3, 1, 1);
-
-        label_9 = new QLabel(tab_6);
-        label_9->setObjectName(QStringLiteral("label_9"));
-
-        gridLayout_13->addWidget(label_9, 4, 5, 1, 1);
-
-        spin_limite_vezes = new QSpinBox(tab_6);
-        spin_limite_vezes->setObjectName(QStringLiteral("spin_limite_vezes"));
-
-        gridLayout_13->addWidget(spin_limite_vezes, 4, 6, 1, 1);
+        gridLayout_13->addWidget(lista_ataques, 4, 0, 1, 13);
 
         tabs->addTab(tab_6, QString());
         tab = new QWidget();
@@ -3431,14 +3447,76 @@ public:
         botao_adicionar_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", nullptr));
         botao_remover_inimigo_predileto->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
         tabs->setTabText(tabs->indexOf(tab_5), QApplication::translate("ifg::qt::DialogoEntidade", "Habilidades Especiais", nullptr));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Limite de Vezes", nullptr));
+        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_modificador_atributo_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o modificador de atributo", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_conjurador_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o n\303\255vel de conjurador", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max incrementos", nullptr));
+        label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_municao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de muni\303\247\303\243o da arma.", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_limite_vezes->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se > 0, o ataque poder\303\241 ser usado este n\303\272mero de vezes e depois ser\303\241 consumido.", nullptr));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", nullptr));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", nullptr));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
+        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", nullptr));
+        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", nullptr));
+#ifndef QT_NO_TOOLTIP
+        spin_ordem_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem do ataque (1 para primeiro, 2 para segundo etc)", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_93->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Arma", nullptr));
+        combo_empunhadura->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", nullptr));
+        combo_empunhadura->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", nullptr));
+        combo_empunhadura->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", nullptr));
+        combo_empunhadura->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", nullptr));
+        combo_empunhadura->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", nullptr));
+        combo_empunhadura->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", nullptr));
+        combo_empunhadura->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", nullptr));
 #ifndef QT_NO_TOOLTIP
         label_23->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
 #endif // QT_NO_TOOLTIP
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
+        linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", nullptr));
+        label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", nullptr));
+        label_92->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", nullptr));
+        label_82->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Muni\303\247\303\243o", nullptr));
+        label_83->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem Ataque", nullptr));
+        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance (quads)", nullptr));
+        label_91->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Grupo", nullptr));
+        label_mod_atributo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de Atributo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_ignora_rm->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_ignora_rm->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ignora RM", nullptr));
+        label_104->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
+        botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", nullptr));
+        label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Ataque", nullptr));
         combo_material_arma->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhum", nullptr));
         combo_material_arma->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Adamante", nullptr));
         combo_material_arma->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Ferro Frio", nullptr));
@@ -3449,78 +3527,24 @@ public:
 #ifndef QT_NO_TOOLTIP
         combo_material_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo do material da arma", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_92->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Material", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", nullptr));
-#ifndef QT_NO_TOOLTIP
-        linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", nullptr));
-        combo_empunhadura->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", nullptr));
-        combo_empunhadura->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", nullptr));
-        combo_empunhadura->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa ou Arma Dupla, principal", nullptr));
-        combo_empunhadura->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim ou Arma Dupla, secund\303\241rio", nullptr));
-        combo_empunhadura->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", nullptr));
-        combo_empunhadura->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", nullptr));
-        combo_empunhadura->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", nullptr));
-
-#ifndef QT_NO_TOOLTIP
-        spin_ordem_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem do ataque (1 para primeiro, 2 para segundo etc)", nullptr));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_93->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Arma", nullptr));
-        label_83->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordem Ataque", nullptr));
-        label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", nullptr));
-#ifndef QT_NO_TOOLTIP
-        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", nullptr));
-#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         combo_arma->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Escolha uma arma, ou nenhuma para preencher manualmente.", nullptr));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        linha_grupo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max incrementos", nullptr));
-        label_91->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Grupo", nullptr));
-        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance (quads)", nullptr));
-        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", nullptr));
-        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", nullptr));
-        botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", nullptr));
-        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", nullptr));
-        label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Ataque", nullptr));
-#ifndef QT_NO_TOOLTIP
         botao_bonus_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de ataque.", nullptr));
 #endif // QT_NO_TOOLTIP
         botao_bonus_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
-        label_82->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Muni\303\247\303\243o", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_municao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Quantidade de muni\303\247\303\243o da arma.", nullptr));
+        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", nullptr));
+        label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", nullptr));
 #ifndef QT_NO_TOOLTIP
-        botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", nullptr));
+        linha_grupo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", nullptr));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
-        label_104->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", nullptr));
 #ifndef QT_NO_TOOLTIP
-        spin_nivel_conjurador_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o n\303\255vel de conjurador", nullptr));
+        checkbox_permite_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));
 #endif // QT_NO_TOOLTIP
-        label_mod_atributo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de Atributo", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_modificador_atributo_pergaminho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para pergaminhos, o modificador de atributo", nullptr));
-#endif // QT_NO_TOOLTIP
-        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Limite de Vezes", nullptr));
-#ifndef QT_NO_TOOLTIP
-        spin_limite_vezes->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se > 0, o ataque poder\303\241 ser usado este n\303\272mero de vezes e depois ser\303\241 consumido.", nullptr));
-#endif // QT_NO_TOOLTIP
+        checkbox_permite_salvacao->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Permite Salva\303\247\303\243o", nullptr));
         tabs->setTabText(tabs->indexOf(tab_6), QApplication::translate("ifg::qt::DialogoEntidade", "Ataques", nullptr));
         label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pergaminhos\n"
 "Arcanos", nullptr));

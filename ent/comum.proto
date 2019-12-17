@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 117.
+// Proximo id: 119.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -167,6 +167,8 @@ enum TipoEfeito {
   EFEITO_BOA_ESPERANCA= 114;
   EFEITO_DESESPERO_ESMAGADOR = 115;
   EFEITO_FLECHA_ACIDA = 116;
+  EFEITO_PELE_ROCHOSA = 117;
+  EFEITO_VER_INVISIVEL = 118;
 }
 
 enum TipoEfeitoModelo {
@@ -608,6 +610,8 @@ message InfoClasse {
   optional string aumenta_nivel_conjurador_de = 24;
   // Indica o tipo da classe tabelada.
   optional TipoClasse tipo_classe = 26;
+  // Talentos que a classe ganha automaticamente.
+  repeated string talentos_automaticos = 29;
 }
 
 // Informacao sobre a pericia do personagem.

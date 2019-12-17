@@ -139,6 +139,25 @@ acao {
   dificuldade_salvacao_por_nivel: true
   permite_salvacao: true
 }
+acao {
+  id: 'Inspirar Coragem (1)'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.1 g: 0.1  b: 1.0 }
+  icone: 'icon_bardic_music.png'
+  ataque_toque: true
+  ignora_reducao_dano_barbaro: true
+  permite_salvacao: false
+  ignora_resistencia_magia: true
+  permite_ataque_vs_defesa: false
+  efeitos_adicionais {
+    efeito: EFEITO_INSPIRAR_CORAGEM
+    rodadas: 5
+    complementos: 1
+  }
+}
 
 acao {
   id: 'Pergaminho Arcano'

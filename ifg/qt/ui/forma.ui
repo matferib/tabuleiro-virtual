@@ -545,6 +545,9 @@
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <widget class="QCheckBox" name="checkbox_respeita_solo">
+        <property name="toolTip">
+         <string>Se verdadeiro, a entidade não afundará no solo.</string>
+        </property>
         <property name="text">
          <string>Respeita Solo</string>
         </property>
@@ -552,8 +555,11 @@
       </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="checkbox_selecionavel">
+        <property name="toolTip">
+         <string>Se verdadeiro, a entidade poderá ser selecionada por jogadores.</string>
+        </property>
         <property name="text">
-         <string>Selecionável</string>
+         <string>Selecionável para jogadores</string>
         </property>
        </widget>
       </item>
@@ -570,7 +576,7 @@
       <item row="2" column="1">
        <widget class="QCheckBox" name="checkbox_colisao">
         <property name="toolTip">
-         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+         <string>Se verdadeiro, não será possível colidor com a entidade.</string>
         </property>
         <property name="text">
          <string>Colisão</string>
@@ -580,7 +586,7 @@
       <item row="1" column="1">
        <widget class="QCheckBox" name="checkbox_fixa">
         <property name="toolTip">
-         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+         <string>Se verdadeiro, a entidade será fixa (implicando que não será selecionada com um clique nem seleção de área)</string>
         </property>
         <property name="text">
          <string>Fixa</string>
@@ -600,7 +606,7 @@
       <item row="1" column="2">
        <widget class="QCheckBox" name="checkbox_faz_sombra">
         <property name="toolTip">
-         <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+         <string>Se verdadeiro, a entidade não fará sombra.</string>
         </property>
         <property name="text">
          <string>Faz Sombra</string>
@@ -620,6 +626,16 @@
         </property>
         <property name="text">
          <string>Visível</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="checkbox_ignora_luz">
+        <property name="toolTip">
+         <string>Se verdadeiro, a entidade será desenhada com iluminação total.</string>
+        </property>
+        <property name="text">
+         <string>Ignora Luz</string>
         </property>
        </widget>
       </item>

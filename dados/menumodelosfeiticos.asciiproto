@@ -8,6 +8,7 @@ modelo { id: 'Gravidade Invertida' }
 modelo { id: 'Luz do Dia' }
 modelo { id: 'Muralha de Fogo' }
 modelo { id: 'Muralha de Gelo' }
+modelo { id: 'Névoa Mortal' }
 modelo { id: 'Tentáculos Negros' }
 modelo { id: 'Zona da Verdade' }
 sub_menu {

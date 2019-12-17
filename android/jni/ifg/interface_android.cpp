@@ -165,4 +165,23 @@ void InterfaceGraficaAndroid::EscolheItemLista(
   env_->CallVoidMethod(thisz_, metodo, joa, funcao_volta_ptr);
 }
 
+void InterfaceGraficaAndroid::EscolheItemsLista(
+    const std::string& titulo,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, std::vector<int>)> funcao_volta) {
+  // TODO fazer essa funcao direito para permitir multipla selecao no android.
+  if (env_ == nullptr) {
+    auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
+    central_->AdicionaNotificacao(n.release());
+    return;
+  }
+  auto adaptador_volta = [funcao_volta](bool ok, int indice) {
+    std::vector<int> v;
+    if (indice != -1) v.push_back(indice);
+    funcao_volta(ok, v);
+  };
+  EscolheItemLista(titulo, lista, adaptador_volta);
+}
+
 }  // namespace ifg

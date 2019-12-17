@@ -3900,6 +3900,8 @@ tabela_talentos {
 tabela_classes {
   info_classes {
     id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_escudo_corpo'
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -3931,6 +3933,7 @@ tabela_classes {
   }
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
@@ -4035,6 +4038,7 @@ tabela_classes {
   }
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+    talentos_automaticos: 'usar_escudo'
 
     pericias_por_nivel: 4
     pericias: 'escalar'
@@ -4056,6 +4060,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 6
@@ -4114,6 +4119,7 @@ tabela_classes {
   }
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
@@ -4163,6 +4169,7 @@ tabela_classes {
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
@@ -4206,6 +4213,24 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'cavalgar'
     pericias: 'sentir_motivacao'
+    habilidades_por_nivel { id: 'aura_bem' nivel: 1 }
+    habilidades_por_nivel { id: 'detectar_mal' nivel: 1 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 1 }
+    habilidades_por_nivel { id: 'graca_divina' nivel: 2 }
+    habilidades_por_nivel { id: 'cura_pelas_maos' nivel: 2 }
+    habilidades_por_nivel { id: 'aura_coragem' nivel: 3 }
+    habilidades_por_nivel { id: 'saude_divina' nivel: 3 }
+    habilidades_por_nivel { id: 'expulsar_mortos_vivos' nivel: 4 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 5 }
+    habilidades_por_nivel { id: 'montaria_especial' nivel: 5 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 6 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 9 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 10 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 12 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 15 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 15 }
+    habilidades_por_nivel { id: 'remover_doenca' nivel: 18 }
+    habilidades_por_nivel { id: 'destruir_mal' nivel: 20 }
 
     salvacoes_fortes: TS_FORTITUDE atributo_conjuracao: TA_CARISMA
   }
@@ -4255,6 +4280,7 @@ tabela_classes {
   }
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    talentos_automaticos: 'usar_escudo'
     tipo_magia: TM_ARCANA
     pericias_por_nivel: 6
     progressao_feitico {
@@ -5129,6 +5155,127 @@ tabela_pericias {
 }
 
 tabela_feiticos {
+  armas {
+    id: 'marca_arcana'  # arcane_mark
+    nome: 'marca arcana'
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    escola: 'universal'
+  }
+  armas {
+    id: 'invocar_enxames'  # summon swarm
+    nome: 'invocar enxames'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    escola: 'conjuracao'
+    # duracao concentracao + 2 rodadas
+  }
+  armas {
+    id: 'nevoa_mortal'  # cloudkill
+    nome: 'névoa mortal'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Névoa Mortal'
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'pele_rochosa'  # stoneskin
+    nome: 'pele rochosa'
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'forca'
+      dominio: true
+      nivel: 6
+    }
+    info_classes {
+      id: 'terra'
+      dominio: true
+      nivel: 6
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_PELE_ROCHOSA
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_10_POR_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
+
+  armas {
+    id: 'vento_sussurrante'  # whispering wind
+    nome: 'vento sussurrante'
+    # range: 1 milha por nivel
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'raio_exaustao'  # ray of exhaustion
+    nome: 'raio da exaustão'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Raio'
+      tipo: ACAO_RAIO
+      ignora_resistencia_magia: false
+      permite_salvacao: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_EXAUSTO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+      efeitos_adicionais_se_salvou {
+        # OBSERVACAO: se ja estiver, fica exausto.
+        efeito: EFEITO_FADIGA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'necromancia'
+  }
   armas {
     id: 'imagem_silenciosa'  # silent image
     nome: 'imagem silenciosa'
@@ -9250,6 +9397,26 @@ tabela_feiticos {
 
 
   armas {
+    id: 'ver_invisivel'
+    nome: 'ver o invisível'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      efeitos_adicionais {
+        efeito: EFEITO_VER_INVISIVEL
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+  armas {
     id: 'invisibilidade'
     nome: 'invisibilidade'
     info_classes {
@@ -10395,7 +10562,6 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      # TODO limitar os HD.
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -10658,7 +10824,6 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      # TODO limitar os HD.
       tipo: ACAO_DISPERSAO
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 2  # quadrados.
@@ -11019,6 +11184,21 @@ tabela_dominios {
   }
 
 }
+
+#tabela_efeitos_modelos {
+#  efeitos {
+#    id: EFEITO_MODELO_CELESTIAL
+#    nome: 'modelo celestial'
+#    desligavel: false 
+#    consequencia {
+#      # visao no escuro. 18m
+#      dados_defesa {
+#        resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } } }
+#      }
+#    }
+#  }
+#}  # tabela efeito de modelos.
+
 
 #tabela_venenos {
 #  venenos {

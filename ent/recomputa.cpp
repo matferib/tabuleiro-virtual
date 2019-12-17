@@ -312,6 +312,23 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         // Forca: pelo comum.
       }
       break;
+    case EFEITO_PELE_ROCHOSA:
+      if (!evento->processado()) {
+        auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
+        pd->add_descritores(DESC_ADAMANTE);
+        pd->set_id_unico(evento->id_unico());
+      }
+      for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
+        if (proto->dados_defesa().reducao_dano(i).id_unico() != evento->id_unico()) continue;
+        auto* rd = proto->mutable_dados_defesa()->mutable_reducao_dano(i);
+        if (evento->complementos().empty() || evento->complementos(0) < 0) {
+          rd->set_valor(0);
+        } else {
+          rd->set_valor(std::min(evento->complementos(0), 10));
+        }
+        break;
+      }
+      break;
     case EFEITO_FORMA_GASOSA:
       if (!evento->processado()) {
         auto* pd = proto->mutable_dados_defesa()->add_reducao_dano();
@@ -527,6 +544,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
         if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
           proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
           break;
+        }
+      }
+      break;
+    case EFEITO_PELE_ROCHOSA:
+      for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
+        if (proto->dados_defesa().reducao_dano(i).id_unico() == evento.id_unico()) {
+          proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
         }
       }
       break;
@@ -1032,7 +1056,7 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     // Encontra a entrada da classe, ou cria se nao houver.
     auto* fc = FeiticosClasse(ic.id(), proto);
     // Le a progressao.
-    const int nivel = std::min(ic.nivel(), 20);
+    const int nivel = std::min(NivelConjurador(ic.id(), *proto), 20);
     const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
     // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
@@ -1054,6 +1078,10 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
       const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
       Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
       for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+        if (fc.id() == "auto") {
+          fc.set_id(tabelas.FeiticoAleatorio(classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia));
+          fc.clear_nome();
+        }
         if (!fc.has_nome()) {
           fc.set_nome(tabelas.Feitico(fc.id()).nome());
         }
@@ -1228,6 +1256,13 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   //while (proto->info_talentos().gerais().size() > numero) {
   //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();
   //}
+  proto->mutable_info_talentos()->clear_automaticos();
+  for (const auto& ic : proto->info_classes()) {
+    const auto& classe_tabelada = tabelas.Classe(ic.id());
+    for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
+      proto->mutable_info_talentos()->add_automaticos()->set_id(id_talento);
+    }
+  }
 }
 
 void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
@@ -1276,7 +1311,7 @@ void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retorn
 }
 
 void RecomputaDependenciasSalvacoes(
-    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, const Tabelas& tabelas, EntidadeProto* proto_retornado) {
+    int modificador_constituicao, int modificador_destreza, int modificador_sabedoria, int modificador_carisma, const Tabelas& tabelas, EntidadeProto* proto_retornado) {
   auto* dd = proto_retornado->mutable_dados_defesa();
 
   // Testes de resistencia.
@@ -1293,6 +1328,17 @@ void RecomputaDependenciasSalvacoes(
         LimpaBonus(bonus_salvacao.bonus(), BonusSalvacao(bonus_salvacao.tipo(), proto_retornado));
       }
     }
+  }
+
+  bool graca_divina = PossuiHabilidadeEspecial("graca_divina", *proto_retornado);
+  if (graca_divina && modificador_carisma > 0) {
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_fortitude());
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_reflexo());
+    AtribuiBonus(modificador_carisma, TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_vontade());
+  } else {
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_fortitude());
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_reflexo());
+    LimpaBonus(TB_SEM_NOME, "graca_divina", dd->mutable_salvacao_vontade());
   }
 
   const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
@@ -1439,9 +1485,12 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (const auto& evento : proto->evento()) {
-    if (evento.rodadas() < 0 || EventoOrfao(tabelas, evento, ids_itens, *proto)) {
+    const bool encerrado = evento.rodadas() < 0;
+    const bool orfao = EventoOrfao(tabelas, evento, ids_itens, *proto);
+    if (encerrado || orfao) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
-      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(efeito.id());
+      // Usa id_efeito do evento porque efeito pode nao ser tabelado.
+      VLOG(1) << "removendo efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << "), " << (encerrado ? "encerrado" : "orfão");
       if (efeito.has_consequencia_fim()) {
         AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto, entidade);
       } else {
@@ -1470,10 +1519,11 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
     efeitos_computados.insert(evento.id_efeito());
     const auto& efeito = tabelas.Efeito(evento.id_efeito());
     if (computado && efeito.nao_cumulativo()) {
-      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(efeito.id());
+      // Usar o id do efeito porque ele pode nao ser tabelado.
+      VLOG(1) << "ignorando efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << ") ";
       continue;
     }
-    VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(efeito.id());
+    VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << ") ";
     if (AplicaEfeito(&evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto, entidade)) {
       evento.set_processado(true);
     }
@@ -1676,6 +1726,27 @@ void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaq
   da->mutable_veneno()->set_cd(10 + mod_con + nivel / 2);
 }
 
+void RecomputaDependenciasBesta(const DadosAtaque& da, Bonus* bonus_ataque) {
+  const char kBestaUmaMao[] = "besta_uma_mao";
+  if (da.empunhadura() == EA_ARMA_APENAS) {
+    LimpaBonus(TB_SEM_NOME, kBestaUmaMao, bonus_ataque);
+    return;
+  }
+  // A penalidade de duas armas sera recomputada em outro lugar.
+  int penalidade = 0;
+  if (da.empunhadura() == EA_ARMA_ESCUDO || da.empunhadura() == EA_MAO_BOA || da.empunhadura() == EA_MAO_RUIM) {
+    const auto& id_arma = da.id_arma();
+    if (id_arma.find("besta_de_mao") == 0) {
+      ;
+    } else if (id_arma.find("besta_leve") == 0) {
+      penalidade = 2;
+    } else if (id_arma.find("besta_pesada") == 0) {
+      penalidade = 4;
+    }
+  }
+  AtribuiOuRemoveBonus(-penalidade, TB_SEM_NOME, kBestaUmaMao, bonus_ataque);
+}
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   *da->mutable_acao() = AcaoProto::default_instance();
 
@@ -1683,15 +1754,18 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
-  const bool permite_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+  const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.
   //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
-  const int penalidade_ataque_escudo = permite_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
+  const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
+  if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
+    AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+  }
   if (arma.has_id()) {
     if (da->rotulo().empty()) da->set_rotulo(arma.nome());
     da->set_acuidade(false);
@@ -1702,6 +1776,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
       AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+    }
+    if (da->id_arma().find("besta") == 0) {
+      RecomputaDependenciasBesta(*da, bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
 
@@ -1916,8 +1993,8 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
-  da->set_ca_normal(CATotal(proto, permite_escudo));
-  da->set_ca_surpreso(CASurpreso(proto, permite_escudo));
+  da->set_ca_normal(CATotal(proto, usando_escudo));
+  da->set_ca_surpreso(CASurpreso(proto, usando_escudo));
   da->set_ca_toque(CAToque(proto));
 
   // Veneno.
@@ -1988,11 +2065,12 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasPontosVida(proto);
   RecomputaDependenciasResistenciaMagia(proto);
 
+  // TODO: porque ta pegando o atributo e nao o bonus total? Mesmo assim parece que funciona.
   int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
   const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
   //const int modificador_inteligencia = ModificadorAtributo(BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(proto->atributos().sabedoria());
-  //const int modificador_carisma      = ModificadorAtributo(BonusTotal(proto->atributos().carisma()));
+  const int modificador_carisma      = ModificadorAtributo(proto->atributos().carisma());
 
   // Iniciativa.
   RecomputaDependenciasIniciativa(modificador_destreza, proto);
@@ -2000,7 +2078,9 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   // Classe de Armadura.
   RecomputaDependenciasCA(tabelas, proto);
   // Salvacoes.
-  RecomputaDependenciasSalvacoes(modificador_constituicao, modificador_destreza, modificador_sabedoria, tabelas, proto);
+  RecomputaDependenciasSalvacoes(
+      modificador_constituicao, modificador_destreza, modificador_sabedoria, modificador_carisma,
+      tabelas, proto);
   // Evasao.
   RecomputaDependenciasEvasao(tabelas, proto);
 

@@ -49,5 +49,5 @@ echo "QT: ${QT}"
 pushd .
 cd jni && ${ANDROID_NDK}/ndk-build -j 4 V=1 ${DISP} ${PROF} ${QT} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
-test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
+test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 popd

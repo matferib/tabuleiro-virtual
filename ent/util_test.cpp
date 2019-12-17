@@ -2357,7 +2357,6 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   EXPECT_EQ(delta, -4) << msg;
 }
 
-
 TEST(TesteImunidades, TesteImunidadesNada) {
   EntidadeProto proto;
   RecomputaDependencias(g_tabelas, &proto);
@@ -2561,6 +2560,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   EXPECT_EQ(proto.dados_ataque(3).rotulo(), "reflexos 3/dia");
   EXPECT_TRUE(proto.dados_ataque(3).acao().classe_conjuracao().empty());
   EXPECT_EQ(proto.dados_ataque(3).limite_vezes(), 3);
+  EXPECT_EQ(proto.raca(), "humano");
 
   // Vulto Bardo 5.
   ASSERT_FALSE(proto.modelos().empty());
@@ -2604,6 +2604,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
 TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Clérigo de Shar/Adepto das Sombras 5/1");
   EntidadeProto proto = modelo_vb5.entidade();
+  EXPECT_EQ(proto.raca(), "humano");
   RecomputaDependencias(g_tabelas, &proto);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
 
@@ -2859,6 +2860,156 @@ TEST(TesteConsequenciaPontosVida, PontosVidaTemporarios) {
   EXPECT_FALSE(proto.inconsciente());
   EXPECT_FALSE(proto.incapacitada());
   EXPECT_FALSE(proto.caida());
+}
+
+TEST(TesteEscudo, TesteEscudoSemPenalidade) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoComPenalidade) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("azagaia");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(-1, proto.dados_ataque(0).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoTalentoGuerreiro) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_TRUE(TalentoComEscudo("corpo", proto));
+}
+
+TEST(TesteEscudo, TesteEscudoBesta) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("guerreiro");
+  ic->set_nivel(1);
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_de_mao");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_leve");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("besta_pesada");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
+  EXPECT_EQ(-1, proto.dados_ataque(1).bonus_ataque_final());
+  EXPECT_EQ(-3, proto.dados_ataque(2).bonus_ataque_final());
+}
+
+TEST(TesteEscudo, TesteEscudoTalentoRanger) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("ranger");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_FALSE(TalentoComEscudo("corpo", proto));
+}
+
+TEST(TesteEscudo, TesteEscudoMago) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_FALSE(TalentoComEscudo("leve_madeira", proto));
+  EXPECT_FALSE(TalentoComEscudo("pesado_aco", proto));
+  EXPECT_FALSE(TalentoComEscudo("corpo", proto));
+}
+
+TEST(TesteDependencias, TesteGracaDivina) {
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(12, TA_CARISMA, &proto);
+
+    RecomputaDependencias(g_tabelas, &proto);
+    // Carisma nao afeta ainda.
+    EXPECT_EQ(2, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(12, TA_CARISMA, &proto);
+
+    // Carisma adiciona 1.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(8, TA_CARISMA, &proto);
+
+    // Carisma negativo nao subtrai.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("paladino");
+    ic->set_nivel(2);
+    AtribuiBaseAtributo(10, TA_CARISMA, &proto);
+    auto* manto = proto.mutable_tesouro()->add_mantos();
+    manto->set_id("manto_carisma_2");
+    manto->set_em_uso(true);
+
+    // Carisma com item.
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
+    EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
 }
 
 }  // namespace ent.
