@@ -352,8 +352,19 @@ class Tabuleiro : public ntf::Receptor {
   /** inicializa os parametros do openGL. Chamado no IOS e ANDROID tambem para recuperar o contexto grafico. */
   void IniciaGL(bool reinicio = false);
 
+  struct IdModeloComPeso {
+    IdModeloComPeso(const std::string& id, int peso = 1) : id(id), peso(peso) {}
+    std::string id;
+    int peso = 1;
+  };
+  struct ModelosComPesos {
+    std::vector<IdModeloComPeso> ids_com_peso;
+    std::string id;
+    std::string quantidade;
+    void Reset();
+  };
   /** Seleciona o modelo de entidade através do identificador. */
-  void SelecionaModeloEntidade(const std::string& id_modelo);
+  void SelecionaModelosEntidades(const ModelosComPesos& modelos_com_pesos) { modelos_selecionados_ = modelos_com_pesos; }
 
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
@@ -615,7 +626,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Adiciona uma entidade ao tabuleiro, de acordo com a notificacao e os modelos, notificando. */
   void AdicionaUmaEntidadeNotificando(
       const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
-      float xoffset, float yoffset, float zoffset);
+      float x, float y, float z,
+      ntf::Notificacao* n_desfazer);
 
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
@@ -1239,7 +1251,7 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  std::string id_modelo_selecionado_com_parametros_;
+  ModelosComPesos modelos_selecionados_;
   std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */

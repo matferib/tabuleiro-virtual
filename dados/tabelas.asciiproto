@@ -1713,6 +1713,7 @@ tabela_efeitos {
     nome: 'Orientação'
     # Nao da pra modelar: enquanto em efeito ate ser usado, entidade pode escolher:
     # +1 competencia: ataque, salvacao ou teste de pericia.
+    # Porem, apesar da duracao de 10 minutos, vale para um ataque apenas.
   }
 
   efeitos {

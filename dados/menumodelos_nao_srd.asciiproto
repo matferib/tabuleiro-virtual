@@ -69,6 +69,18 @@ sub_menu {
 }
 sub_menu {
   id: 'Vultos e Obscuros'
+  modelo {
+    texto: 'Vultos (1d4+1)'
+    quantidade: '1d4+1'
+    aleatorio: true
+    modelos { id: 'Vulto Guerreiro 5' peso: 4 }
+    modelos { id: 'Vulto Ladino 5' peso: 4 }
+    modelos { id: 'Vulto Monge 5' peso: 4 }
+    modelos { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' peso: 2 }
+    modelos { id: 'Vulto Bardo 5' peso: 2 }
+    modelos { id: 'Vulto Feiticeiro 5' peso: 2 }
+    modelos { id: 'Veserab' peso: 2 }
+  }
   modelo { id: 'Vulto Bardo 5' }
   modelo { id: 'Vulto Guerreiro 5' }
   modelo { id: 'Vulto Feiticeiro 5' }
