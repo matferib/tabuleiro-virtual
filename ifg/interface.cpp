@@ -334,7 +334,9 @@ void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notif
 
 void InterfaceGrafica::VoltaEscolherModeloEntidade(
     const std::string& nome) {
-  tabuleiro_->SelecionaModeloEntidade(nome);
+  ent::Tabuleiro::ModelosComPesos modelos;
+  modelos.ids_com_peso.emplace_back(nome);
+  tabuleiro_->SelecionaModelosEntidades(modelos);
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 

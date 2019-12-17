@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include "ifg/modelos.pb.h"
 #include "ntf/notificacao.h"
 
 namespace ent {
@@ -114,6 +115,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   // Usar para armazenar as acoes de modelos, que sao desattivas em alguns casos.
   std::vector<QAction*> acoes_modelos_;
   std::map<int, QActionGroup*> grupos_exclusivos_;
+  // Armazena os modelos por id. O modelo é copiado por nao ser pesistente.
+  std::unordered_map<std::string, Modelo> mapa_modelos_;
 
   ntf::CentralNotificacoes* central_;
 };
