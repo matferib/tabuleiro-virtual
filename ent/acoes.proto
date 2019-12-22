@@ -90,7 +90,7 @@ enum ModificadorComplementos {
   MC_10_POR_NIVEL = 9;  // pele rochosa.
 }
 
-// Proximo id: 78.
+// Proximo id: 80.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -108,6 +108,8 @@ message AcaoProto {
   optional Cor cor = 4;
   // Identificador do causador da acao.
   optional uint32 id_entidade_origem = 10;
+  // Identificador do destino da acao, se houver.
+  optional uint32 id_entidade_destino = 79;
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_tabuleiro = 13;
   // Posicao do clique na entidade, se houver.
@@ -263,6 +265,22 @@ message AcaoProto {
   // Reducao da luz do alvo [0-1].
   optional float reducao_luz = 72;
   optional bool reduz_luz = 73;
+
+  // Alguns feiticos tem varios efeitos, que devem ser escolhidos na hora do lancamento.
+  // Exemplo: cegueira/surdez.
+  // Outros podem ser dinamicos (quem sera afetado).
+  enum ConsequenciaParametro {
+    CP_ATRIBUI_EFEITO = 1;  // o efeito sera preenchido com valor do parametro.
+  }
+  message ParametroLancamento {
+    optional string texto = 1;  // para display.
+    optional TipoEfeito efeito = 2;  // o efeito que o parametro causa.
+  }
+  message ParametrosLancamento {
+    optional ConsequenciaParametro consequencia = 1;
+    repeated ParametroLancamento parametros = 2;
+  }
+  optional ParametrosLancamento parametros_lancamento = 78;
 }
 
 // O arquivo de acoes é serializado desta forma.

@@ -597,6 +597,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Remove as versoes passadas. Nao salva, nem nada. */
   void RemoveVersoes(const std::vector<int>& versao);
 
+  /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
+  float TrataAcaoUmaEntidade(
+      Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
+      unsigned int id_entidade_destino, float atraso_s, const AcaoProto* acao_preenchida = nullptr);
+
  private:
   struct DadosIniciativa {
     unsigned int id;
@@ -738,10 +743,6 @@ class Tabuleiro : public ntf::Receptor {
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
   void TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro);
 
-  /** Trata a acao de uma entidade especifica apos o picking. Retorna o atraso atualizado. */
-  float TrataAcaoUmaEntidade(
-      Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
-      unsigned int id_entidade_destino, float atraso_s);
   /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
   float TrataPreAcaoComum(
       float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,

@@ -42,6 +42,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO:
+      TrataEscolherDecisaoLancamento(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO:
       TrataEscolherFeitico(notificacao);
       return true;
@@ -444,6 +447,43 @@ std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::T
   return c.id();
 }
 
+void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& notificacao) {
+  std::vector<std::string> lista_parametros;
+  for (const auto& parametro : notificacao.acao().parametros_lancamento().parametros()) {
+    lista_parametros.push_back(parametro.texto());
+  }
+  if (lista_parametros.empty()) {
+    return;
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemLista("Parâmetros de Lancamento", lista_parametros, [this, notificacao, lista_parametros](bool ok_decisao, int indice_decisao) {
+    ent::RodaNoRetorno([this]() {
+      this->tabuleiro_->ReativaWatchdogSeMestre();
+    });
+    ent::AcaoProto acao = notificacao.acao();
+    auto pl = acao.parametros_lancamento();
+    if (!ok_decisao || (indice_decisao < 0) || (indice_decisao >= (int)lista_parametros.size()) || (indice_decisao >= pl.parametros().size())) {
+      return;
+    }
+    acao.clear_parametros_lancamento();
+    switch (pl.consequencia()) {
+      case ent::AcaoProto::CP_ATRIBUI_EFEITO:
+        for (auto& ed : *acao.mutable_efeitos_adicionais()) {
+          if (ed.has_efeito()) continue;
+          ed.set_efeito(pl.parametros(indice_decisao).efeito());
+        }
+        break;
+      default:
+        return;
+    }
+    tabuleiro_->TrataAcaoUmaEntidade(
+        acao.has_id_entidade_origem() ? tabuleiro_->BuscaEntidade(acao.id_entidade_origem()) : nullptr,
+        acao.pos_entidade(), acao.pos_tabuleiro(),
+        acao.has_id_entidade_destino() ? acao.id_entidade_destino() : ent::Entidade::IdInvalido,
+        /*atraso_s=*/0.0f, &acao);
+  });
+}
+
 void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().feiticos_classes().empty() ||
       notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
@@ -456,8 +496,9 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   std::vector<std::string> lista;
   // Cada item, contendo o nivel do feitico e o indice do feitico e o indice gasto.
   struct NivelIndiceIndiceGasto {
-    NivelIndiceIndiceGasto(int nivel, int indice, int indice_gasto)
-      : nivel(nivel), indice(indice), indice_gasto(indice_gasto) {}
+    NivelIndiceIndiceGasto(const std::string& id, int nivel, int indice, int indice_gasto)
+      : id(id), nivel(nivel), indice(indice), indice_gasto(indice_gasto) {}
+    std::string id;
     int nivel = 0;
     int indice = 0;
     int indice_gasto = 0;
@@ -473,7 +514,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
       lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str()));
-      items.emplace_back(nivel_gasto, indice, indice);
+      items.emplace_back(c.id(), nivel_gasto, indice, indice);
     }
     if (lista.empty()) {
       central_->AdicionaNotificacao(
@@ -499,15 +540,14 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
         const auto& c = fn.conhecidos(indice);
         lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, NomeFeitico(c, tabelas_).c_str()));
         // Gasta do nivel certo.
-        items.emplace_back(nivel, indice, indice_gasto);
+        items.emplace_back(c.id(), nivel, indice, indice_gasto);
       }
     }
   }
   bool conversao_espontanea = fc.conversao_espontanea();
 
-  tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista("Escolha o Feitiço", lista,
-      [this, notificacao, conversao_espontanea, id_classe, nivel_gasto, items](bool ok, int indice_lista) {
+  // Esse lambda rodada no final da UI.
+  auto funcao_final = [this, notificacao, conversao_espontanea, id_classe, nivel_gasto, items] (int ok, int indice_lista) {
     ent::RodaNoRetorno([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
@@ -538,7 +578,10 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
     tabuleiro_->TrataNotificacao(grupo_notificacao);
     VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
-  });
+  };
+
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemLista("Escolha o Feitiço", lista, funcao_final);
 }
 
 void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
