@@ -1143,6 +1143,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
   // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
   void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);

@@ -7287,6 +7287,19 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 
+void Tabuleiro::AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  *proto_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  for (auto& da : *proto_depois->mutable_dados_ataque()) {
+    if (da.disponivel_em() > 0) {
+      da.set_disponivel_em(da.disponivel_em() - 1);
+    }
+  }
+}
+
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
@@ -7312,6 +7325,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool
       AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
       AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
       AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
+      AtualizaAtaquesAoPassarRodada(entidade, &grupo_notificacoes);
       ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
     }
   }
