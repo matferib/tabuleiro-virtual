@@ -1631,24 +1631,23 @@ void PreencheConfiguraMovimento(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   // Atualiza os campos.
   auto* mov = proto_retornado->mutable_movimento();
-  std::vector<std::tuple<QSpinBox*, std::function<void(int)>, ent::Bonus*>> tuplas = {
-    std::make_tuple(gerador.spin_mov_terrestre, [mov](int v) { mov->set_terrestre_basico_q(v); }, mov->mutable_terrestre_q()),
-    std::make_tuple(gerador.spin_mov_aereo,     [mov](int v) { mov->set_aereo_basico_q(v); }, mov->mutable_aereo_q()),
-    std::make_tuple(gerador.spin_mov_nadando,   [mov](int v) { mov->set_aquatico_basico_q(v); }, mov->mutable_aquatico_q()),
-    std::make_tuple(gerador.spin_mov_escavando, [mov](int v) { mov->set_escavando_basico_q(v); }, mov->mutable_escavando_q()),
+  std::vector<std::tuple<QSpinBox*, std::function<void(int)>>> tuplas = {
+    std::make_tuple(gerador.spin_mov_terrestre, [mov](int v) { mov->set_terrestre_basico_q(v); }),
+    std::make_tuple(gerador.spin_mov_aereo,     [mov](int v) { mov->set_aereo_basico_q(v); }),
+    std::make_tuple(gerador.spin_mov_nadando,   [mov](int v) { mov->set_aquatico_basico_q(v); }),
+    std::make_tuple(gerador.spin_mov_escavando, [mov](int v) { mov->set_escavando_basico_q(v); }),
   };
   for (auto& t : tuplas) {
-    QSpinBox* spin; ent::Bonus* bonus;
+    QSpinBox* spin;
     std::function<void(int)> setter;
-    std::tie(spin, setter, bonus) = t;
+    std::tie(spin, setter) = t;
     lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, setter, proto_retornado] () {
-      //ent::AtribuiBonus(spin->value(), ent::TB_BASE, "base", bonus);
       setter(spin->value());
       ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });
   }
-  AtualizaUIAtributos(this_->tabelas(), gerador, proto);
+  AtualizaUIMovimento(this_->tabelas(), gerador, proto);
 }
 
 void PreencheConfiguraDadosDefesa(
