@@ -1259,7 +1259,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   }
 
   const auto& da = DadoCorrenteOuPadrao(entidade_origem);
-  if (da.has_limite_vezes()) {
+  if (da.has_limite_vezes() || !da.taxa_refrescamento().empty()) {
     std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
     PreencheNotificacaoConsumoAtaque(*entidade_origem, da, n_consumo.get(), grupo_desfazer->add_notificacao());
     central_->AdicionaNotificacao(n_consumo.release());
@@ -1408,7 +1408,7 @@ float Tabuleiro::TrataAcaoCriacao(
   // Consome ataque.
   const auto* da = entidade->DadoCorrente();
   {
-    if (da != nullptr && da->has_limite_vezes()) {
+    if (da != nullptr && (da->has_limite_vezes() || !da->taxa_refrescamento().empty())) {
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
       PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_consumo.release());
@@ -1546,7 +1546,7 @@ float Tabuleiro::TrataAcaoIndividual(
       AtualizaAtaquesAposAtaqueIndividual(da, entidade_origem, entidade_destino, grupo_desfazer);
     });
 
-    if (da.has_municao() || da.has_limite_vezes() || da.requer_carregamento()) {
+    if (da.has_municao() || da.has_limite_vezes() || da.requer_carregamento() || !da.taxa_refrescamento().empty()) {
       // Consome vezes e/ou municao e carregamento.
       if (da.requer_carregamento()) {
         atraso_s += 0.5f;
@@ -1845,8 +1845,14 @@ float Tabuleiro::TrataPreAcaoComum(
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
-  // Pergaminhos...
   const auto& da = DadoCorrenteOuPadrao(entidade_origem);
+  // Acao com cool down.
+  if (da.disponivel_em() > 0) {
+      AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação disponível em %d rodadas", da.disponivel_em()), atraso_s);
+      acao_proto->set_bem_sucedida(false);
+      return atraso_s;
+  }
+  // Pergaminhos...
   if (da.has_nivel_conjurador_pergaminho()) {
     // Testa a classe.
     bool pode_lancar;
