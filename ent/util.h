@@ -275,6 +275,7 @@ enum class TipoAtaque {
 };
 TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
+// Alguns modificadores que seriam de CA tb vem para ca.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
 int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
@@ -866,7 +867,8 @@ std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
-bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(
+    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque = EntidadeProto::default_instance());
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);

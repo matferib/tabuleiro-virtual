@@ -980,7 +980,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
-  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) || PossuiEvento(EFEITO_CEGO, ea)) {
+  // Invisibilidade da +2 ataque desde que alvo nao esteja cego. Neste caso sera tratado
+  // na parte de modificadores de CA no final da funcao.
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) &&
+      !PossuiEvento(EFEITO_CEGO, ed)) {
     if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
       modificador += 2;
     }
@@ -990,10 +993,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     if (PossuiTalento("agarrar_aprimorado", ed)) modificador -= 4;
   }
   // Nao aplica contra a entidade default.
-  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && tipo_ataque != TipoAtaque::DISTANCIA) {
+  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO &&
+      tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador += 1;
   }
-
   if (ea.dados_ataque_global().ataque_menos_1()) {
     modificador -= 1;
   }
@@ -1022,7 +1025,15 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     modificador += 16;
   }
 
-  // Defesa.
+  // Modificadores que se aplicariam na CA.
+  if (PossuiEvento(EFEITO_CEGO, ed)) {
+    if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
+      modificador += 2;
+    }
+  }
+  if (PossuiEvento(EFEITO_ATORDOADO, ed)) {
+    modificador += 2;
+  }
   if (ed.caida()) {
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
@@ -1772,6 +1783,17 @@ void PreencheNotificacaoConsumoAtaque(
     }
     if (da_depois->has_municao()) {
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
+    }
+    if (!da_depois->taxa_refrescamento().empty()) {
+      int valor = 0;
+      try {
+        valor = RolaValor(da_depois->taxa_refrescamento());
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+        valor = 0;
+      }
+      LOG(INFO) << "refrescando valor para " << valor;
+      da_depois->set_disponivel_em(valor);
     }
   }
   if (n_desfazer != nullptr) {
@@ -4248,12 +4270,14 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
   return true;
 }
 
-bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto) {
+bool DestrezaNaCAContraAtaque(
+    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque) {
   if (da == nullptr) return DestrezaNaCA(proto);
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
   }
-  if (PossuiEvento(EFEITO_CEGO, proto) &&
+  if ((PossuiEvento(EFEITO_CEGO, proto) ||
+       PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque)) &&
       (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }
