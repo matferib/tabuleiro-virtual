@@ -1160,15 +1160,12 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
     }
-    evento {
-      id_efeito: EFEITO_CEGO
-      rodadas: 1
-      continuo: true
-    }
-    dados_ataque_global {
-      # Cego.
-      chance_falha: 50
-    }
+    # Criaturas assim não são consideradas cegas, exceto se sofrerem efeito de surdez.
+    #evento {
+    #  id_efeito: EFEITO_CEGO
+    #  rodadas: 1
+    #  continuo: true
+    #}
     info_talentos {
       gerais { id: 'investida_aerea' }
       gerais { id: 'ataques_multiplos' }
@@ -1178,7 +1175,6 @@ modelo {
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
     }
-
     dados_ataque {
       grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
@@ -1192,10 +1188,15 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
 
+    dados_ataque_global {
+      chance_falha_permanente: 50
+    }
+
     # Sopro
     dados_ataque {
       grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
+      taxa_refrescamento: '1d4'
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_CONE
@@ -1259,10 +1260,16 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
     }
+    # Ver comentario no Veserab normal.
+    #evento {
+    #  id_efeito: EFEITO_CEGO
+    #  rodadas: 1
+    #  continuo: true
+    #}
     dados_ataque_global {
-      # Cego.
-      chance_falha: 50
+      chance_falha_permanente: 50
     }
+
     info_talentos {
       gerais { id: 'lutar_as_cegas' }
       gerais { id: 'investida_aerea' }
@@ -1292,6 +1299,7 @@ modelo {
     dados_ataque {
       grupo: 'sopro nocivo' rotulo: 'a cada 1d4 rodadas, dura 10' tipo_ataque: 'Sopro'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 4
+      taxa_refrescamento: '1d4'
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_CONE

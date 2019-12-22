@@ -402,8 +402,7 @@ message EntidadeProto {
     // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
-    // Hack enquanto cegueira nao for implementado permanentemente.
-    // TODO: ver se precisa mesmo. Por enquanto nao implementado.
+    // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
     optional int32 chance_falha_permanente = 31;
     repeated InimigoPredileto inimigos_prediletos = 26;
     // indica modo furtivo, proximo dano dara dano furtivo.
