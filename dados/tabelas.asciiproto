@@ -5173,12 +5173,22 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço a Distância'
-      permite_salvacao: true 
+      permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
       ignora_resistencia_magia: false
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_EFEITO
+        parametros {
+          texto: 'cegueira'
+          efeito: EFEITO_CEGO
+        }
+        parametros {
+          texto: 'surdez'
+          efeito: EFEITO_ENSURDECIDO
+        }
+      }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'cegueira/surdez'
+        # Será preenchido no lançamento de acordo com parametros de lancamento.
         # permanente.
       }
     }
