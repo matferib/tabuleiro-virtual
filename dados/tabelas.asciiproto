@@ -5157,6 +5157,34 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'cegueira_surdez'  # blindness/deafness
+    nome: 'cegueira/surdez'
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      permite_salvacao: true 
+      tipo_salvacao: TS_FORTITUDE
+      ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'cegueira/surdez'
+        # permanente.
+      }
+    }
+    escola: 'necromancia'
+  }
+  armas {
     id: 'marca_arcana'  # arcane_mark
     nome: 'marca arcana'
     info_classes {
