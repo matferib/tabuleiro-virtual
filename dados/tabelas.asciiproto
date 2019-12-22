@@ -5159,6 +5159,8 @@ tabela_feiticos {
   armas {
     id: 'cegueira_surdez'  # blindness/deafness
     nome: 'cegueira/surdez'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'mago'
       nivel: 2
