@@ -111,7 +111,7 @@ modelo {
     atributos {
       inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
     }
-    tendencia { simples: TD_NEUTRO_MAU }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 
@@ -211,8 +211,83 @@ modelo {
       gerais { id: 'iniciativa_aprimorada' }
       outros { id: 'acuidade_arma' }
     }
+    info_pericias { id: 'equilibrio' pontos: 4 }
+    info_pericias { id: 'escalar' pontos: 4 }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'natacao' pontos: 4 }
   }
 }
+modelo {
+  id: 'Cobra, Víbora Pequena'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1d8' tamanho: TM_PEQUENO cor { r: 0.0 g: 0.0 b: 0.0 }
+    info_textura { id: 'snake_viper.png' altura: 0.5 translacao_y: 0.5 }
+    info_classes { id: 'animal' nivel: 1
+      pericias_monstro: 'equilibrio'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2'
+      veneno {
+        tipo: TV_FERIMENTO cd: 10
+        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    info_pericias { id: 'equilibrio' pontos: 4 }
+    info_pericias { id: 'escalar' pontos: 4 }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'natacao' pontos: 4 }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      outros { id: 'acuidade_arma' }
+    }
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Pequena Abissal'
+  id_entidade_base: 'Cobra, Víbora Pequena'
+  entidade {
+    tendencia { simples: TD_CAOTICO_MAU }
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
+    info_classes {
+      id: 'besta_magica'
+      combinar_com: 0
+    }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_ataque {
+      grupo: 'destruir o bem' rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2+1'
+      veneno {
+        tipo: TV_FERIMENTO cd: 10
+        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+      taxa_refrescamento: '14400'
+    }
+  }
+}
+
 modelo {
   id: 'Sapo'
   entidade {

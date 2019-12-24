@@ -7631,6 +7631,10 @@ tabela_feiticos {
           texto: 'Falcão Abissal'
           id_modelo_entidade: 'Falcão Abissal'
         }
+        parametros {
+          texto: 'Víbora Pequena Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal'
+        }
       }
     }
     escola: 'conjuracao'
