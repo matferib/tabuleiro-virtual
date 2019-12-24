@@ -270,11 +270,13 @@ message AcaoProto {
   // Exemplo: cegueira/surdez.
   // Outros podem ser dinamicos (quem sera afetado).
   enum ConsequenciaParametro {
-    CP_ATRIBUI_EFEITO = 1;  // o efeito sera preenchido com valor do parametro.
+    CP_ATRIBUI_EFEITO = 1;           // o efeito sera preenchido com valor do parametro.
+    CP_ATRIBUI_MODELO_ENTIDADE = 2;  // o id modelo da entidade sera preenchido com valor do parametro.
   }
   message ParametroLancamento {
     optional string texto = 1;  // para display.
     optional TipoEfeito efeito = 2;  // o efeito que o parametro causa.
+    optional string id_modelo_entidade = 3;  // qual modelo de entidade foi escolhido.
   }
   message ParametrosLancamento {
     optional ConsequenciaParametro consequencia = 1;

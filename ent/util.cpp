@@ -3235,19 +3235,39 @@ const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto
   return nullptr;
 }
 
-ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto) {
+ResistenciaElementos* AchaOuCriaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto) {
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
-    if (re.id_unico() == id_unico) {
+    if (re.descritor() == descritor && re.id_unico() == id_unico) {
       return &re;
     }
   }
   return nullptr;
 }
 
-void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto) {
+void LimpaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto) {
   int i = 0;
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
-    if (re.id_unico() == id_unico) {
+    if (re.descritor() == descritor && re.id_unico() == id_unico) {
+      proto->mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(i, 1);
+      return;
+    }
+    ++i;
+  }
+}
+
+ResistenciaElementos* AchaOuCriaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.descritor() == descritor && re.id_efeito_modelo() == id_efeito_modelo) {
+      return &re;
+    }
+  }
+  return proto->mutable_dados_defesa()->add_resistencia_elementos();
+}
+
+void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  int i = 0;
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.descritor() == descritor && re.id_efeito_modelo() == id_efeito_modelo) {
       proto->mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(i, 1);
       return;
     }

@@ -2072,15 +2072,13 @@ TEST(TesteImunidades, TesteReducaoDanoFormaGasosa) {
   std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
   EXPECT_EQ(e->CA(*ea, Entidade::CA_NORMAL), 10);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
-  EXPECT_EQ(delta, 0) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(resultado.delta_pv, 0) << resultado.texto;
 
   da->set_bonus_magico(1);
   RecomputaDependencias(g_tabelas, &proto_ataque);
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
-  EXPECT_EQ(delta, -10) << msg;
+  resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoSimples) {
@@ -2089,10 +2087,8 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -10);
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -10);
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2101,10 +2097,8 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -4) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2114,10 +2108,8 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -10) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
 }
 
@@ -2132,10 +2124,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -4) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2147,10 +2137,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -4) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2163,10 +2151,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -10) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
 }
 
@@ -2180,10 +2166,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -4) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2195,10 +2179,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -10) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
   {
     google::protobuf::RepeatedField<int> descritores;
@@ -2210,10 +2192,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
     RecomputaDependencias(g_tabelas, &proto);
-    int delta;
-    std::string msg;
-    std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
-    EXPECT_EQ(delta, -10) << msg;
+    ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
+    EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
 }
 
@@ -2231,10 +2211,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
   da->set_material_arma(DESC_FERRO_FRIO);
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -10) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
@@ -2251,10 +2229,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
   da->set_material_arma(DESC_FERRO_FRIO);
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -4) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
@@ -2273,10 +2249,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
   da->set_id_arma("adaga");  // implica DESC_PERFURANTE e DESC_CORTANTE
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -10) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
@@ -2298,10 +2272,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
   da->set_rotulo("rotulo_teste");
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -10) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
@@ -2324,10 +2296,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
   da->set_rotulo("rotulo_teste");
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -10) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
@@ -2351,10 +2321,8 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   da->set_rotulo("rotulo_teste");
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
-  int delta;
-  std::string msg;
-  std::tie(delta, msg) = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
-  EXPECT_EQ(delta, -4) << msg;
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
+  EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
 }
 
 TEST(TesteImunidades, TesteImunidadesNada) {
@@ -2423,6 +2391,52 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   RecomputaDependencias(g_tabelas, &proto);
   auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_FOGO);
   EXPECT_EQ(resultado.causa, ALT_NENHUMA);
+}
+
+TEST(TesteImunidades, TesteCelestial) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("druida");
+    ic->set_nivel(1);
+    auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
+    resistencia->set_valor(10);
+    resistencia->set_descritor(DESC_ACIDO);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
+  EXPECT_EQ(proto.dados_defesa().resistencia_elementos().size(), 1);
+
+  auto* celestial = proto.add_modelos();
+  celestial->set_id_efeito(EFEITO_MODELO_CELESTIAL);
+  celestial->add_complementos(6);  // RM
+  celestial->add_complementos(5);  // frio acido eletricidade
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FRIO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_ACIDO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_ELETRICIDADE);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
+  // De novo pra ver se num ta quebrando nada.
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FRIO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_ACIDO);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_ELETRICIDADE);
 }
 
 TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {
