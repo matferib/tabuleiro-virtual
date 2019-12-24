@@ -28,7 +28,8 @@ sub_menu {
 }
 sub_menu {
   id: 'Animais'
-  modelo { id: 'Águia' }
+  modelo { id: 'Cachorro' }
+  modelo { id: 'Cachorro Celestial' }
   sub_menu {
     id: 'Cobras'
     sub_menu {
@@ -36,6 +37,8 @@ sub_menu {
       modelo { id: 'Cobra, víbora miúda' texto: 'Miúda' }
     }
   }
+  modelo { id: 'Falcão' }
+  modelo { id: 'Falcão Abissal' }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Celestial' }

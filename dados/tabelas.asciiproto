@@ -7604,6 +7604,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_i'
     nome: 'invocar criaturas I'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 1
@@ -7637,6 +7639,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_ii'
     nome: 'invocar criaturas II'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 2
@@ -7659,6 +7663,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iii'
     nome: 'invocar criaturas III'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -7681,6 +7687,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iv'
     nome: 'invocar criaturas IV'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 4
@@ -7703,6 +7711,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_viii'
     nome: 'invocar criaturas VIII'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'clerigo'
       nivel: 8
@@ -7710,6 +7720,46 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 8
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+    escola: 'conjuracao'
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_ix'
+    nome: 'invocar criaturas IX'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 9
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 9
+      dominio: true
     }
     #acao {
     #  tipo: ACAO_CRIACAO_ENTIDADE

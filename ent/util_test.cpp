@@ -2594,6 +2594,18 @@ TEST(TesteModelo, TesteModeloVulto) {
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
 }
 
+TEST(TesteComposicaoEntidade, TesteCachorroCelestial) {
+  const auto& modelo_cc = g_tabelas.ModeloEntidade("Cachorro Celestial");
+  EntidadeProto proto = modelo_cc.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 3);
+  EXPECT_EQ(Nivel(proto), 1);
+  ASSERT_EQ(proto.info_classes().size(), 1);
+  EXPECT_EQ(proto.info_classes(0).id(), "besta_magica");
+  EXPECT_EQ(proto.info_classes(0).nivel(), 1);
+}
+
 TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
   const auto& modelo_ha6 = g_tabelas.ModeloEntidade("Humana Aristocrata 6");
   EntidadeProto proto = modelo_ha6.entidade();
