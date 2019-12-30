@@ -285,7 +285,12 @@ tabela_efeitos_modelos {
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 4 origem: 'vulto' } } }
         cura_acelerada { bonus_individual { tipo: TB_BASE por_origem { valor: 2 origem: 'vulto' } } }
         resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'vulto' } } }
-        # pericias: +4 racial esconderse e furtividade.
+      }
+      dados_pericia {
+        id: 'esconderse' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'vulto' valor: 4 } } }
+      }
+      dados_pericia {
+        id: 'furtividade' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'vulto' valor: 4 } } }
       }
     }
   }

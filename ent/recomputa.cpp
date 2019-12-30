@@ -241,6 +241,14 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().resistencia_magia_variavel(), proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+  for (const auto& re : consequencia.dados_defesa().resistencia_elementos()) {
+    if (!re.has_id_efeito_modelo()) continue;
+    if (re.valor() <= 0) {
+      LimpaResistenciaElementoEfeitoModelo(re.descritor(), re.id_efeito_modelo(), proto);
+    } else {
+      *AchaOuCriaResistenciaElementoEfeitoModelo(re.descritor(), re.id_efeito_modelo(), proto) = re;
+    }
+  }
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
@@ -462,11 +470,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       re.set_valor(valor);
       re.set_descritor(descritor);
       re.set_id_unico(evento->id_unico());
-      auto* re_corrente = AchaResistenciaElemento(evento->id_unico(), proto);
-      if (re_corrente == nullptr) {
-        re_corrente = proto->mutable_dados_defesa()->add_resistencia_elementos();
-      }
-      re_corrente->Swap(&re);
+      AchaOuCriaResistenciaElementoIdUnico(descritor, evento->id_unico(), proto)->Swap(&re);
     }
     break;
     case EFEITO_SONO: {
@@ -652,7 +656,16 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     }
     break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
-      LimpaResistenciaElemento(evento.id_unico(), proto);
+      if (evento.complementos_str().empty()) {
+        LOG(ERROR) << "evento sem complentos" << evento.DebugString();
+        return;
+      }
+      DescritorAtaque descritor = StringParaDescritorElemento(evento.complementos_str(0));
+      if (descritor == DESC_NENHUM) {
+        LOG(ERROR) << "descritor invalido: " << evento.complementos_str(0);
+        return;
+      }
+      LimpaResistenciaElementoIdUnico(descritor, evento.id_unico(), proto);
     }
     break;
     default: ;
@@ -706,6 +719,10 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
   if (c.dados_defesa().has_resistencia_magia_variavel())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_resistencia_magia_variavel());
+  for (auto& re : *c.mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (!re.has_indice_complemento() || (re.indice_complemento() < 0) || (re.indice_complemento() >= complementos.size())) continue;
+    re.set_valor(complementos.Get(re.indice_complemento()));
+  }
   if (c.has_jogada_ataque())            PreencheOrigemValor(origem, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(origem, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(origem, complementos, c.mutable_tamanho());
@@ -734,6 +751,9 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(origem, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(origem, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemZeraValor(origem, c.mutable_tamanho());
+  for (auto& re : *c.mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    re.set_valor(0);
+  }
   for (auto& dp : *c.mutable_dados_pericia()) {
     PreencheOrigemZeraValor(origem, dp.mutable_bonus());
   }

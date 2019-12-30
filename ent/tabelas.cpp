@@ -393,7 +393,12 @@ void Tabelas::RecarregaMapas() {
     efeitos_[efeito.id()] = &efeito;
   }
 
-  for (const auto& efeito : tabelas_.tabela_efeitos_modelos().efeitos()) {
+  for (auto& efeito : *tabelas_.mutable_tabela_efeitos_modelos()->mutable_efeitos()) {
+    if (!efeito.consequencia().dados_defesa().resistencia_elementos().empty()) {
+      for (auto& re : *efeito.mutable_consequencia()->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+        re.set_id_efeito_modelo(efeito.id());
+      }
+    }
     efeitos_modelos_[efeito.id()] = &efeito;
   }
 

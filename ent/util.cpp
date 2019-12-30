@@ -980,7 +980,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
-  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) || PossuiEvento(EFEITO_CEGO, ea)) {
+  // Invisibilidade da +2 ataque desde que alvo nao esteja cego. Neste caso sera tratado
+  // na parte de modificadores de CA no final da funcao.
+  if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) &&
+      !PossuiEvento(EFEITO_CEGO, ed)) {
     if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
       modificador += 2;
     }
@@ -990,10 +993,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     if (PossuiTalento("agarrar_aprimorado", ed)) modificador -= 4;
   }
   // Nao aplica contra a entidade default.
-  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO && tipo_ataque != TipoAtaque::DISTANCIA) {
+  if (ed.has_pos() && ea.pos().z() - ed.pos().z() >= TAMANHO_LADO_QUADRADO &&
+      tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador += 1;
   }
-
   if (ea.dados_ataque_global().ataque_menos_1()) {
     modificador -= 1;
   }
@@ -1022,7 +1025,15 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     modificador += 16;
   }
 
-  // Defesa.
+  // Modificadores que se aplicariam na CA.
+  if (PossuiEvento(EFEITO_CEGO, ed)) {
+    if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
+      modificador += 2;
+    }
+  }
+  if (PossuiEvento(EFEITO_ATORDOADO, ed)) {
+    modificador += 2;
+  }
   if (ed.caida()) {
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
@@ -1772,6 +1783,17 @@ void PreencheNotificacaoConsumoAtaque(
     }
     if (da_depois->has_municao()) {
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
+    }
+    if (!da_depois->taxa_refrescamento().empty()) {
+      int valor = 0;
+      try {
+        valor = RolaValor(da_depois->taxa_refrescamento());
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+        valor = 0;
+      }
+      LOG(INFO) << "refrescando valor para " << valor;
+      da_depois->set_disponivel_em(valor);
     }
   }
   if (n_desfazer != nullptr) {
@@ -3213,19 +3235,39 @@ const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto
   return nullptr;
 }
 
-ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto) {
+ResistenciaElementos* AchaOuCriaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto) {
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
-    if (re.id_unico() == id_unico) {
+    if (re.descritor() == descritor && re.id_unico() == id_unico) {
       return &re;
     }
   }
   return nullptr;
 }
 
-void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto) {
+void LimpaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto) {
   int i = 0;
   for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
-    if (re.id_unico() == id_unico) {
+    if (re.descritor() == descritor && re.id_unico() == id_unico) {
+      proto->mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(i, 1);
+      return;
+    }
+    ++i;
+  }
+}
+
+ResistenciaElementos* AchaOuCriaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.descritor() == descritor && re.id_efeito_modelo() == id_efeito_modelo) {
+      return &re;
+    }
+  }
+  return proto->mutable_dados_defesa()->add_resistencia_elementos();
+}
+
+void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  int i = 0;
+  for (auto& re : *proto->mutable_dados_defesa()->mutable_resistencia_elementos()) {
+    if (re.descritor() == descritor && re.id_efeito_modelo() == id_efeito_modelo) {
       proto->mutable_dados_defesa()->mutable_resistencia_elementos()->DeleteSubrange(i, 1);
       return;
     }
@@ -4223,14 +4265,11 @@ std::string BonusParaString(const Bonus& bonus) {
 }
 
 std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto) {
-  if (PossuiUmDosEventos({EFEITO_PASMAR, EFEITO_ATORDOADO, EFEITO_FASCINADO},
-                         proto)) {
-    return std::make_pair(false, "pasmo, atordoado ou fascinado");
-  }
-  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) {
-    return std::make_pair(false, "paralisado");
-  }
-
+  if (PossuiEvento(EFEITO_PASMAR, proto)) return std::make_pair(false, "pasmo");
+  if (PossuiEvento(EFEITO_ATORDOADO, proto)) return std::make_pair(false, "atordoado");
+  if (PossuiEvento(EFEITO_FASCINADO, proto)) return std::make_pair(false, "fascinado");
+  if (PossuiEvento(EFEITO_NAUSEA, proto)) return std::make_pair(false, "nauseado");
+  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) return std::make_pair(false, "paralisado");
   return std::make_pair(true, "");
 }
 
@@ -4251,12 +4290,14 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
   return true;
 }
 
-bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto) {
+bool DestrezaNaCAContraAtaque(
+    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque) {
   if (da == nullptr) return DestrezaNaCA(proto);
   if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
     return false;
   }
-  if (PossuiEvento(EFEITO_CEGO, proto) &&
+  if ((PossuiEvento(EFEITO_CEGO, proto) ||
+       PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque)) &&
       (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }

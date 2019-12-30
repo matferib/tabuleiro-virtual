@@ -33,18 +33,17 @@ void AtualizaUIEventos(
 
 void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& mov = proto.movimento();
-  std::vector<std::tuple<QSpinBox*, int, const ent::Bonus*>> tuplas = {
-    std::make_tuple(gerador.spin_mov_terrestre, mov.terrestre_basico_q(), &proto.movimento().terrestre_q()),
-    std::make_tuple(gerador.spin_mov_aereo,     mov.aereo_basico_q(),     &proto.movimento().aereo_q()),
-    std::make_tuple(gerador.spin_mov_nadando,   mov.aquatico_basico_q(),  &proto.movimento().aquatico_q()),
-    std::make_tuple(gerador.spin_mov_escavando, mov.escavando_basico_q(), &proto.movimento().escavando_q()),
+  std::vector<std::tuple<QSpinBox*, int>> tuplas = {
+    std::make_tuple(gerador.spin_mov_terrestre, mov.terrestre_basico_q()),
+    std::make_tuple(gerador.spin_mov_aereo,     mov.aereo_basico_q()),
+    std::make_tuple(gerador.spin_mov_nadando,   mov.aquatico_basico_q()),
+    std::make_tuple(gerador.spin_mov_escavando, mov.escavando_basico_q()),
   };
 
   for (const auto& t : tuplas) {
     QSpinBox* spin;
     int basico;
-    const ent::Bonus* bonus;
-    std::tie(spin, basico, bonus) = t;
+    std::tie(spin, basico) = t;
     spin->blockSignals(true);
     spin->setValue(basico);
     spin->blockSignals(false);

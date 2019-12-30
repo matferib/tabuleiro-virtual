@@ -1713,6 +1713,7 @@ tabela_efeitos {
     nome: 'Orientação'
     # Nao da pra modelar: enquanto em efeito ate ser usado, entidade pode escolher:
     # +1 competencia: ataque, salvacao ou teste de pericia.
+    # Porem, apesar da duracao de 10 minutos, vale para um ataque apenas.
   }
 
   efeitos {
@@ -5156,6 +5157,46 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'cegueira_surdez'  # blindness/deafness
+    nome: 'cegueira/surdez'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      ignora_resistencia_magia: false
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_EFEITO
+        parametros {
+          texto: 'cegueira'
+          efeito: EFEITO_CEGO
+        }
+        parametros {
+          texto: 'surdez'
+          efeito: EFEITO_ENSURDECIDO
+        }
+      }
+      efeitos_adicionais {
+        # Será preenchido no lançamento de acordo com parametros de lancamento.
+        # permanente.
+      }
+    }
+    escola: 'necromancia'
+  }
+  armas {
     id: 'marca_arcana'  # arcane_mark
     nome: 'marca arcana'
     info_classes {
@@ -7563,6 +7604,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_i'
     nome: 'invocar criaturas I'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 1
@@ -7575,17 +7618,33 @@ tabela_feiticos {
       id: 'mago'
       nivel: 1
     }
-    #acao {
-    #  id: 'Criação de Entidade'
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-    #  id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Cachorro Celestial'
+          id_modelo_entidade: 'Cachorro Celestial'
+        }
+        parametros {
+          texto: 'Falcão Abissal'
+          id_modelo_entidade: 'Falcão Abissal'
+        }
+        parametros {
+          texto: 'Víbora Pequena Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal'
+        }
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
     # TODO
     id: 'invocar_criaturas_ii'
     nome: 'invocar criaturas II'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 2
@@ -7608,6 +7667,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iii'
     nome: 'invocar criaturas III'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -7630,6 +7691,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iv'
     nome: 'invocar criaturas IV'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'bardo'
       nivel: 4
@@ -7652,6 +7715,8 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_viii'
     nome: 'invocar criaturas VIII'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
       id: 'clerigo'
       nivel: 8
@@ -7659,6 +7724,46 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 8
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+    escola: 'conjuracao'
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_ix'
+    nome: 'invocar criaturas IX'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 9
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 9
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 9
+      dominio: true
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 9
+      dominio: true
     }
     #acao {
     #  tipo: ACAO_CRIACAO_ENTIDADE
@@ -11185,19 +11290,73 @@ tabela_dominios {
 
 }
 
-#tabela_efeitos_modelos {
-#  efeitos {
-#    id: EFEITO_MODELO_CELESTIAL
-#    nome: 'modelo celestial'
-#    desligavel: false 
-#    consequencia {
-#      # visao no escuro. 18m
-#      dados_defesa {
-#        resistencia_magia_variavel { bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } } }
+tabela_efeitos_modelos {
+  efeitos {
+    # Observacao: modelo incompleto. O que nao da pra implementar tem que ser feito manualmente.
+    # Primeiro complemento: resistencia magia.
+    # Segundo complemento: resistencia a acido gelo eletricidade
+    # terceiro complemento: reducao de dano.
+    id: EFEITO_MODELO_CELESTIAL
+    nome: 'modelo celestial'
+    desligavel: false
+    consequencia {
+      # visao no escuro. 18m
+      dados_defesa {
+        resistencia_magia_variavel {
+          bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } }
+        }
+        resistencia_elementos {
+          descritor: DESC_FRIO
+          indice_complemento: 1
+        }
+        resistencia_elementos {
+          descritor: DESC_ACIDO
+          indice_complemento: 1
+        }
+        resistencia_elementos {
+          descritor: DESC_ELETRICIDADE
+          indice_complemento: 1
+        }
+      }
+      # reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
+#      dados_ataque {
+#        rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: ''
+#        taxa_refrescamento: '14400' # 1 dia
 #      }
-#    }
-#  }
-#}  # tabela efeito de modelos.
+    }
+  }
+  efeitos {
+    # Observacao: modelo incompleto. O que nao da pra implementar tem que ser feito manualmente.
+    # Primeiro complemento: resistencia magia.
+    # Segundo complemento: resistencia a gelo e fogo.
+    # terceiro complemento: reducao de dano.
+    id: EFEITO_MODELO_ABISSAL
+    nome: 'modelo celestial'
+    desligavel: false
+    consequencia {
+      # visao no escuro. 18m
+      dados_defesa {
+        resistencia_magia_variavel {
+          bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'abissal' } }
+        }
+        resistencia_elementos {
+          descritor: DESC_FRIO
+          indice_complemento: 1
+        }
+        resistencia_elementos {
+          descritor: DESC_FOGO
+          indice_complemento: 1
+        }
+      }
+      # reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
+#      dados_ataque {
+#        rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: ''
+#        taxa_refrescamento: '14400' # 1 dia
+#      }
+    }
+  }
+
+}  # tabela efeito de modelos.
 
 
 #tabela_venenos {

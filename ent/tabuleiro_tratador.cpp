@@ -1259,7 +1259,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   }
 
   const auto& da = DadoCorrenteOuPadrao(entidade_origem);
-  if (da.has_limite_vezes()) {
+  if (da.has_limite_vezes() || !da.taxa_refrescamento().empty()) {
     std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
     PreencheNotificacaoConsumoAtaque(*entidade_origem, da, n_consumo.get(), grupo_desfazer->add_notificacao());
     central_->AdicionaNotificacao(n_consumo.release());
@@ -1408,7 +1408,7 @@ float Tabuleiro::TrataAcaoCriacao(
   // Consome ataque.
   const auto* da = entidade->DadoCorrente();
   {
-    if (da != nullptr && da->has_limite_vezes()) {
+    if (da != nullptr && (da->has_limite_vezes() || !da->taxa_refrescamento().empty())) {
       std::unique_ptr<ntf::Notificacao> n_consumo(new ntf::Notificacao);
       PreencheNotificacaoConsumoAtaque(*entidade, *da, n_consumo.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_consumo.release());
@@ -1546,7 +1546,7 @@ float Tabuleiro::TrataAcaoIndividual(
       AtualizaAtaquesAposAtaqueIndividual(da, entidade_origem, entidade_destino, grupo_desfazer);
     });
 
-    if (da.has_municao() || da.has_limite_vezes() || da.requer_carregamento()) {
+    if (da.has_municao() || da.has_limite_vezes() || da.requer_carregamento() || !da.taxa_refrescamento().empty()) {
       // Consome vezes e/ou municao e carregamento.
       if (da.requer_carregamento()) {
         atraso_s += 0.5f;
@@ -1845,8 +1845,14 @@ float Tabuleiro::TrataPreAcaoComum(
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
-  // Pergaminhos...
   const auto& da = DadoCorrenteOuPadrao(entidade_origem);
+  // Acao com cool down.
+  if (da.disponivel_em() > 0) {
+      AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação disponível em %d rodadas", da.disponivel_em()), atraso_s);
+      acao_proto->set_bem_sucedida(false);
+      return atraso_s;
+  }
+  // Pergaminhos...
   if (da.has_nivel_conjurador_pergaminho()) {
     // Testa a classe.
     bool pode_lancar;
@@ -1882,14 +1888,33 @@ float Tabuleiro::TrataPreAcaoComum(
 
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
-    unsigned int id_entidade_destino, float atraso_s) {
+    unsigned int id_entidade_destino, float atraso_s, const AcaoProto* acao_preenchida) {
+
+  std::unique_ptr<Entidade> e_falsa(NovaEntidadeFalsa(tabelas_));
+  Entidade* entidade_origem_nao_null = entidade_origem == nullptr ? e_falsa.get() : entidade_origem;
+
+  AcaoProto acao_proto = acao_preenchida == nullptr ? entidade_origem_nao_null->Acao() : *acao_preenchida;
+  if (acao_proto.parametros_lancamento().parametros().size() >= 1) {
+    // Escolhe o tipo de acao antes de agir.
+    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao);
+    n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO);
+    *n->mutable_acao() = acao_proto;
+    *n->mutable_acao()->mutable_pos_tabuleiro() = pos_tabuleiro;
+    *n->mutable_acao()->mutable_pos_entidade() = pos_entidade_destino;
+    if (entidade_origem != nullptr) {
+      n->mutable_acao()->set_id_entidade_origem(entidade_origem->Id());
+    }
+    if (id_entidade_destino != Entidade::IdInvalido) {
+      n->mutable_acao()->set_id_entidade_destino(id_entidade_destino);
+    }
+    central_->AdicionaNotificacao(n.release());
+    return atraso_s;
+  }
 
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  AcaoProto acao_proto = entidade_origem->Acao();
-  std::unique_ptr<Entidade> e_falsa(NovaEntidadeFalsa(tabelas_));
   atraso_s = TrataPreAcaoComum(
-      atraso_s, pos_tabuleiro, entidade_origem == nullptr ? *e_falsa : *entidade_origem, id_entidade_destino, &acao_proto, &grupo_desfazer);
+      atraso_s, pos_tabuleiro, *entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
     ntf::Notificacao n;
@@ -1911,7 +1936,8 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   }
   // TODO fazer um TrataPosAcaoComum, para consumir municao, atualizar ataques etc.
 
-  // Mesmo nao havendo acao, tem que desfazer porque ha efeitos que independem disso, como queda.
+  // Mesmo nao havendo acao, tem que adicionar a lista de desfazer porque ha efeitos que independem disso.
+  // Exemplo: o ataque foi falha critica, gerando uma queda.
   if (!grupo_desfazer.notificacao().empty()) {
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }

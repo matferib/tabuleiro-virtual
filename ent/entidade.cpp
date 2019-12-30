@@ -1767,6 +1767,7 @@ int Entidade::BonusAtaqueToqueDistancia() const {
 int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
+
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
       PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
@@ -1775,11 +1776,11 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
-      return DestrezaNaCAContraAtaque(da, proto_)
+      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return DestrezaNaCAContraAtaque(da, proto_)
+      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
@@ -2113,6 +2114,9 @@ int Entidade::ChanceFalhaAtaque() const {
   int chance = 0;
   if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 20;
   if (PossuiEvento(EFEITO_CEGO, proto_)) chance = 50;
+  if (proto_.dados_ataque_global().chance_falha_permanente() > chance) {
+    chance = proto_.dados_ataque_global().chance_falha_permanente();
+  }
   chance = std::max(chance, proto_.dados_ataque_global().chance_falha());
   return chance;
 }

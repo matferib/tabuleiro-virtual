@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 75.
+// Proximo id: 77.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -189,6 +189,10 @@ message DadosAtaque {
   optional int32 id_ataque_modelo = 72;
   // Indica que ataque é proveniente de uma arma.
   optional bool eh_arma = 74;
+  // Para cool down. Se houver taxa de refrescamento, atualiza disponivel_em. Quando disponivel_em for 0,
+  // podde usar de novo o ataque.
+  optional string taxa_refrescamento = 75;
+  optional int32 disponivel_em = 76;
 }
 
 // Proximo id: 108.
@@ -398,6 +402,8 @@ message EntidadeProto {
     // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
     // a chance de falha causada pela defesa.
     optional int32 chance_falha = 25;
+    // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
+    optional int32 chance_falha_permanente = 31;
     repeated InimigoPredileto inimigos_prediletos = 26;
     // indica modo furtivo, proximo dano dara dano furtivo.
     optional bool furtivo = 28;

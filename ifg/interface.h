@@ -88,6 +88,8 @@ class InterfaceGrafica : public ntf::Receptor {
   ntf::CentralNotificacoes* central_ = nullptr;
 
  private:
+  void TrataEscolherDecisaoLancamento(const ntf::Notificacao& notificacao);
+
   void TrataEscolherPericia(const ntf::Notificacao& notificacao);
   void VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, int indice_pericia);
 
@@ -99,6 +101,7 @@ class InterfaceGrafica : public ntf::Receptor {
   void VoltaEscolherPergaminho(const ntf::Notificacao notificacao, bool ok, int indice_pergaminho);
 
   void TrataEscolherFeitico(const ntf::Notificacao& notificacao);
+
   void TrataEscolheCor(const ntf::Notificacao& notificacao);
   void VoltaEscolheCor(bool ok, float r, float g, float b, float a);
 

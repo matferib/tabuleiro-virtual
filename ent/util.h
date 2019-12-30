@@ -275,6 +275,7 @@ enum class TipoAtaque {
 };
 TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
+// Alguns modificadores que seriam de CA tb vem para ca.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
 int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
@@ -498,9 +499,11 @@ bool PossuiEvento(TipoEfeito tipo, const std::string& complemento, const Entidad
 bool PossuiEventoEspecifico(const EntidadeProto& proto, const EntidadeProto::Evento& evento);
 // Retorna true se a entidade possuir resistencia do mesmo tipo que o passado, com mesmo valor.
 bool PossuiResistenciaEspecifica(const EntidadeProto& proto, const ResistenciaElementos& resistencia);
-// Retorna a resistencia a elementos gerada pelo evento de id_unico ou nullptr se nao houver.
-ResistenciaElementos* AchaResistenciaElemento(int id_unico, EntidadeProto* proto);
-void LimpaResistenciaElemento(int id_unico, EntidadeProto* proto);
+// Retorna a resistencia a elementos gerada pelo evento de id_unico ou cria se nao houver.
+ResistenciaElementos* AchaOuCriaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto);
+void LimpaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, EntidadeProto* proto);
+ResistenciaElementos* AchaOuCriaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
+void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
 
 // Retorna os eventos do tipo passado.
 std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
@@ -866,7 +869,8 @@ std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto);
 
 // Retorna true se puder usar destreza na CA. Algumas condicoes impedem isso (surpresa, atordoado).
 bool DestrezaNaCA(const EntidadeProto& proto);
-bool DestrezaNaCAContraAtaque(const DadosAtaque* da, const EntidadeProto& proto);
+bool DestrezaNaCAContraAtaque(
+    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque = EntidadeProto::default_instance());
 
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);

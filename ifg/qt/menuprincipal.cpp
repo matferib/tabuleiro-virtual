@@ -97,7 +97,7 @@ const char* g_menuitem_strs[] = {
 };
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
-void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo) {
+void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo, std::unordered_map<std::string, Modelo>* mapa_modelos) {
   struct DadosMenu {
     DadosMenu(const std::string& id, const QString& str) : id(id), str_menu(str), sub_menu(nullptr) {}
     DadosMenu(const QString& str, const MenuModelos* menu) : str_menu(str), sub_menu(menu) {}
@@ -111,6 +111,7 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
   std::set<DadosMenu> conjunto;
   for (const auto& m : menu_modelos.modelo()) {
     conjunto.insert(DadosMenu(m.id(), ifg::qt::MenuPrincipal::tr((m.texto().empty() ? m.id() : m.texto()).c_str())));
+    (*mapa_modelos)[m.id()] = m;
   }
   for (const auto& s : menu_modelos.sub_menu()) {
     conjunto.insert(DadosMenu(ifg::qt::MenuPrincipal::tr(s.id().c_str()), &s));
@@ -119,14 +120,14 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
   for (const auto& dado : conjunto) {
     const std::string& id = dado.id;
     const QString& texto = dado.str_menu;
-    const MenuModelos* modelo = dado.sub_menu;
-    if (modelo == nullptr) {
+    const MenuModelos* sub_menu = dado.sub_menu;
+    if (sub_menu == nullptr) {
       QAction* acao = menu->addAction(texto);
       acao->setCheckable(true);
       grupo->addAction(acao);
       acao->setData(QVariant::fromValue(QString::fromUtf8(id.c_str())));
     } else {
-      PreencheMenu(*modelo, menu->addMenu(texto), grupo);
+      PreencheMenu(*sub_menu, menu->addMenu(texto), grupo, mapa_modelos);
     }
   }
 }
@@ -180,7 +181,7 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
           }
         }
         VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
-        PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
+        PreencheMenu(menu_modelos_proto, menu_modelos, grupo, &mapa_modelos_);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else if (std::string(menuitem_str) == "Selecionar modelo para &feitiço") {
         // Esse sub menu tem tratamento especial.
@@ -204,7 +205,7 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
           }
         }
         VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
-        PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
+        PreencheMenu(menu_modelos_proto, menu_modelos, grupo, &mapa_modelos_);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else {
         // menuitem nao NULL, adiciona normalmente da lista de menuitems
@@ -353,15 +354,35 @@ void MenuPrincipal::Modo(modomenu_e modo){
   }
 }
 
-void MenuPrincipal::TrataAcaoModelo(QAction* acao){
-  tabuleiro_->SelecionaModeloEntidade(acao->data().toString().toUtf8().constData());
+void MenuPrincipal::TrataAcaoModelo(QAction* acao) {
+  ent::Tabuleiro::ModelosComPesos modelos;
+  std::string id = acao->data().toString().toUtf8().constData();
+  auto it = mapa_modelos_.find(id);
+  if (it == mapa_modelos_.end()) {
+    LOG(ERROR) << "Nao achei modelo: " << id;
+    return;
+  }
+  if (it->second.modelos().empty()) {
+    modelos.ids_com_peso.emplace_back(id);
+  } else {
+    if (it->second.quantidade().empty()) {
+      LOG(ERROR) << "Modelo de grupo sem quantidade: " << id;
+      return;
+    }
+    modelos.quantidade = it->second.quantidade();
+    LOG(INFO) << "quantidade a ser gerada " << modelos.quantidade;
+    for (const auto& m : it->second.modelos()) {
+      modelos.ids_com_peso.emplace_back(m.id(), m.peso());
+    }
+  }
+  tabuleiro_->SelecionaModelosEntidades(modelos);
 }
 
-void MenuPrincipal::TrataAcaoAcoes(QAction* acao){
+void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {
   tabuleiro_->SelecionaAcao(acao->data().toString().toUtf8().constData());
 }
 
-void MenuPrincipal::TrataAcaoItem(QAction* acao){
+void MenuPrincipal::TrataAcaoItem(QAction* acao) {
   //cout << (const char*)acao->text().toAscii() << endl;
   std::unique_ptr<ntf::Notificacao> notificacao;
   // Jogo.
@@ -549,7 +570,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 3.8.0\n"
+        tr("Tabuleiro virtual versão 3.9.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

@@ -36,6 +36,9 @@ int SalvacoesFortesParaIndice(const ent::InfoClasse& ic);
 // Atualiza a UI de atributos.
 void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
+// Atualiza a UI de movimentacao.
+void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+
 // Refresca a lista de ataques toda e atualiza os controles de acordo com a linha selecionada.
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
