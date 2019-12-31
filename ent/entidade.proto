@@ -417,6 +417,7 @@ message EntidadeProto {
 
   message MunicaoPersonagem {
     optional string id = 1;
+    optional string nome = 7;
     optional int32 quantidade = 2;
     repeated DescritorAtaque descritores_basicos = 3;
     // Final: todos descritores.
@@ -430,6 +431,7 @@ message EntidadeProto {
 
   message ArmaArmaduraOuEscudoPersonagem {
     optional string id = 1;
+    optional string nome = 6;  // nome legivel.
     // Isso nao muda.
     repeated DescritorAtaque descritores_basicos = 2;
     // Final: mistura tudo.
@@ -450,6 +452,8 @@ message EntidadeProto {
   }
 
   // Geracao de tesouro automatica?
+  // Atencao: ao adicionar campos aqui, alterar tb em tabuleiro_tratador:
+  // TrataBotaoTransicaoPressionadoPosPicking.
   message DadosTesouro {
     optional string tesouro = 1;
     repeated ItemMagicoProto pocoes = 2;

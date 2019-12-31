@@ -1006,6 +1006,20 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
+template <typename T>
+void LimpaSeParcialNaoVazio(const T& proto_parcial, T* proto_final) {
+  if (!proto_parcial.empty()) {
+    proto_final->Clear();
+  }
+}
+
+template <typename T>
+void LimpaSeTemSoUmVazio(T* proto_final) {
+  if (proto_final->size() == 1 && !proto_final->Get(0).has_id() && !proto_final->Get(0).has_nome()) {
+    proto_final->Clear();
+  }
+}
+
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
@@ -1070,15 +1084,22 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     }
   }
 
-  if (proto_parcial.tesouro().pocoes_size() > 0) {
-    proto_.mutable_tesouro()->clear_pocoes();
-  }
-  if (proto_parcial.tesouro().pergaminhos_arcanos_size() > 0) {
-    proto_.mutable_tesouro()->clear_pergaminhos_arcanos();
-  }
-  if (proto_parcial.tesouro().pergaminhos_divinos_size() > 0) {
-    proto_.mutable_tesouro()->clear_pergaminhos_divinos();
-  }
+  const auto& tesouro_parcial = proto_parcial.tesouro();
+  auto* tesouro_final= proto_.mutable_tesouro();
+  LimpaSeParcialNaoVazio(tesouro_parcial.pocoes(), tesouro_final->mutable_pocoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.aneis(), tesouro_final->mutable_aneis());
+  LimpaSeParcialNaoVazio(tesouro_parcial.mantos(), tesouro_final->mutable_mantos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.luvas(), tesouro_final->mutable_luvas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.bracadeiras(), tesouro_final->mutable_bracadeiras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.amuletos(), tesouro_final->mutable_amuletos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.botas(), tesouro_final->mutable_botas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.chapeus(), tesouro_final->mutable_chapeus());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armas(), tesouro_final->mutable_armas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armaduras(), tesouro_final->mutable_armaduras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.escudos(), tesouro_final->mutable_escudos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.municoes(), tesouro_final->mutable_municoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
 
   // Limpa itens que vierem no parcial, pois serao mergeados.
   for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
@@ -1185,9 +1206,21 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     CombinaBonus(proto_parcial.bonus_tamanho(), proto_.mutable_bonus_tamanho());
   }
 
-  if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {
-    proto_.mutable_tesouro()->clear_pocoes();
-  }
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pocoes());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_aneis());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_luvas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_bracadeiras());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_amuletos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_botas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_chapeus());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_arcanos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_divinos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armaduras());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_escudos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_municoes());
 
   if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();
