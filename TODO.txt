@@ -1,3 +1,8 @@
+Fix transicao de tesouro para todos os tipos:
+  - em uso para mais de um.
+  - mensagem de texto da transicao.
+Duplicar e ordenar tesouros.
+Terminar CP_SELECIONA_ENTIDADES_NO_ALCANCE
 Terminar invocar criaturas I. Duracao de entidades conjuradas.
 Acabar de conferir a adicao em grupo (especialmente ver restaurar selecionaveis).
 Implementar efeito ver o invisivel.
