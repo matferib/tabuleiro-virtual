@@ -427,6 +427,9 @@ message EntidadeProto {
     optional int32 id_unico = 5;
     // Os bonus do item.
     optional Bonus bonus = 6;
+    optional bool em_uso = 8;
+    // Ao usar, item gera este efeito. Util para finalizar o efeito.
+    repeated uint32 ids_efeitos = 9;
   }
 
   message ArmaArmaduraOuEscudoPersonagem {
@@ -441,6 +444,9 @@ message EntidadeProto {
     optional int32 id_unico = 4;
     // Os bonus do item.
     optional Bonus bonus = 5;
+    optional bool em_uso = 7;
+    // Ao usar, item gera este efeito. Util para finalizar o efeito.
+    repeated uint32 ids_efeitos = 8;
   }
 
   message Moedas {

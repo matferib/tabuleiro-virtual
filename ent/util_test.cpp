@@ -3088,6 +3088,51 @@ TEST(TesteDependencias, TesteGracaDivina) {
   }
 }
 
+TEST(TesteTesouro, TesteTransicao) {
+  EntidadeProto doador_proto;
+  {
+    auto* anel = doador_proto.mutable_tesouro()->add_aneis();
+    anel->set_id("protecao_1");
+    anel->set_em_uso(true);
+    auto* moedas = doador_proto.mutable_tesouro()->mutable_moedas();
+    moedas->set_po(3);
+    moedas->set_pp(30);
+  }
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  ASSERT_FALSE(doador->Proto().evento().empty());
+
+  EntidadeProto receptor_proto;
+  {
+    auto* anel = receptor_proto.mutable_tesouro()->add_aneis();
+    anel->set_id("escalada");
+    anel->set_em_uso(true);
+    auto* moedas = receptor_proto.mutable_tesouro()->mutable_moedas();
+    moedas->set_po(4);
+    moedas->set_pp(40);
+  }
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  ASSERT_FALSE(receptor->Proto().evento().empty());
+
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacoesTransicaoTesouro(g_tabelas, *doador, *receptor, &n_grupo, nullptr);
+
+  ASSERT_GE(n_grupo.notificacao_size(), 2);
+  doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
+  EXPECT_TRUE(doador->Proto().evento().empty());
+  EXPECT_TRUE(doador->Proto().tesouro().aneis().empty());
+  EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
+  EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 0);
+
+  receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
+  EXPECT_EQ(receptor->Proto().evento().size(), 1);
+  ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 2);
+  EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
+  EXPECT_FALSE(receptor->Proto().tesouro().aneis(1).em_uso());
+  EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 7);
+  EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 70);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
