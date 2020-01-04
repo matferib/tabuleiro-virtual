@@ -30,6 +30,7 @@ sub_menu {
   id: 'Animais'
   modelo { id: 'Cachorro' }
   modelo { id: 'Cachorro Celestial' }
+  modelo { id: 'Coruja' }
   sub_menu {
     id: 'Cobras'
     sub_menu {
