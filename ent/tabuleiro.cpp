@@ -166,7 +166,7 @@ const TabuleiroProto& BuscaSubCenario(int id_cenario, const TabuleiroProto& prot
 
 void Tabuleiro::ModelosComPesos::Reset() {
   ids_com_peso.clear();
-  id = "Padrão";
+  ids_com_peso.emplace_back("Padrão", 1);
   quantidade.clear();
 }
 
