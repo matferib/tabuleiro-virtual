@@ -556,14 +556,23 @@ void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QL
   lista->setCurrentRow(indice);
 }
 
-void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+template <class Dialogo>
+void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, const ent::EntidadeProto& proto) {
   std::vector<QWidget*> objs = {
       gerador.lista_tesouro,  gerador.lista_pocoes, gerador.lista_aneis,
       gerador.lista_mantos,   gerador.lista_luvas,  gerador.lista_bracadeiras,
       gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus,
-      gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos
+      gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos,
+      gerador.spin_po, gerador.spin_pp, gerador.spin_pc, gerador.spin_pl, gerador.spin_pe,
   };
   for (auto* obj : objs) obj->blockSignals(true);
+
+  // Moedas.
+  gerador.spin_po->setValue(proto.tesouro().moedas().po());
+  gerador.spin_pp->setValue(proto.tesouro().moedas().pp());
+  gerador.spin_pc->setValue(proto.tesouro().moedas().pc());
+  gerador.spin_pl->setValue(proto.tesouro().moedas().pl());
+  gerador.spin_pe->setValue(proto.tesouro().moedas().pe());
 
   // Pocoes.
   {
@@ -588,6 +597,13 @@ void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
+}
+
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoForma& gerador, const ent::EntidadeProto& proto) {
+  AtualizaUITesouroGenerica(tabelas, gerador, proto);
+}
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  AtualizaUITesouroGenerica(tabelas, gerador, proto);
 }
 
 void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {

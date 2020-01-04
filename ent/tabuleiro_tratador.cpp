@@ -2175,7 +2175,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
   }
   if (doador->Tipo() == TE_ENTIDADE || doador->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
     LOG(INFO) << "Transicao de tesouro";
-    if (tipo_objeto == OBJ_ENTIDADE && !doador->Morta()) {
+    if (doador->Tipo() == TE_ENTIDADE && !doador->Morta()) {
       // invalido.
       LOG(INFO) << "Transicao de tesouro so funciona em entidades mortas";
       return;
