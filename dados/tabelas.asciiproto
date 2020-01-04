@@ -2665,28 +2665,28 @@ tabela_pocoes {
   }
   pocoes {
     id: 'protecao_contra_mal'
-    nome: 'Poteção Contra o Mal'
+    nome: 'Proteção Contra o Mal'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_MAL
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_bem'
-    nome: 'Poteção Contra o Bem'
+    nome: 'Proteção Contra o Bem'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_BEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_ordem'
-    nome: 'Poteção Contra o Ordem'
+    nome: 'Proteção Contra o Ordem'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_caos'
-    nome: 'Poteção Contra o Caos'
+    nome: 'Proteção Contra o Caos'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_CAOS
     duracao_rodadas: 10
     custo_po: 50
