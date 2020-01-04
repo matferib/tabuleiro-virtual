@@ -90,7 +90,7 @@ enum ModificadorComplementos {
   MC_10_POR_NIVEL = 9;  // pele rochosa.
 }
 
-// Proximo id: 80.
+// Proximo id: 81.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -251,6 +251,7 @@ message AcaoProto {
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
   // Para entidades de criacao.
   optional string id_modelo_entidade = 63;
+  optional string quantidade_entidades = 80;
   // O veneno da acao.
   optional VenenoProto veneno = 64;
   optional TipoMagia tipo_pergaminho = 65;
@@ -278,6 +279,7 @@ message AcaoProto {
     optional string texto = 1;  // para display.
     optional TipoEfeito efeito = 2;  // o efeito que o parametro causa.
     optional string id_modelo_entidade = 3;  // qual modelo de entidade foi escolhido.
+    optional string quantidade = 5;  // quantidade de criaturas.
     optional int32 id_entidade = 4;  // ids das entidades escolhidas.
   }
   message ParametrosLancamento {

@@ -1416,18 +1416,52 @@ float Tabuleiro::TrataAcaoCriacao(
   }
 
   const auto* referencia = entidade;
-  ntf::Notificacao notificacao;
-  notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  auto* modelo_entidade = notificacao.mutable_entidade();
-  *modelo_entidade = modelo_com_parametros.entidade();
-  if (modelo_com_parametros.has_parametros()) {
-    PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
-                                              : tabelas_.Feitico(da->id_arma()),
-                                modelo_com_parametros.parametros(), *referencia, modelo_entidade);
+  int quantidade = 1;
+  if (!acao_proto->quantidade_entidades().empty()) {
+    try {
+      quantidade = RolaValor(acao_proto->quantidade_entidades());
+    } catch (...) {
+      quantidade = -1;
+    }
+    // colocar uns limites.
+    if (quantidade < 0 || quantidade > 100) {
+      LOG(ERROR) << "Quantidade invalida: " << acao_proto->quantidade_entidades() << " gerou: " << quantidade;
+      quantidade = 1;
+    }
   }
-  *modelo_entidade->mutable_pos() = pos_criacao;
-
-  TrataNotificacao(notificacao);
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (int i = 0; i < quantidade; ++i) {
+    ntf::Notificacao* filha;
+    ent::EntidadeProto* e_antes, *modelo_entidade;
+    std::tie(filha, e_antes, modelo_entidade) = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
+    // A entidade nao tem id ainda.
+    e_antes->clear_id();
+    modelo_entidade->clear_id();
+    *modelo_entidade = modelo_com_parametros.entidade();
+    if (modelo_com_parametros.has_parametros()) {
+      PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
+                                                : tabelas_.Feitico(da->id_arma()),
+                                  modelo_com_parametros.parametros(), *referencia, modelo_entidade);
+    }
+    Vector2 offset;
+    if (i > 0) {
+      offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
+      offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
+    }
+    *modelo_entidade->mutable_pos() = pos_criacao;
+    modelo_entidade->mutable_pos()->set_x(pos_criacao.x() + offset.x);
+    modelo_entidade->mutable_pos()->set_y(pos_criacao.y() + offset.y);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+    for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+      grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+      grupo_desfazer->add_notificacao()->Swap(grupo_notificacoes.mutable_notificacao(i));
+    }
+  } else {
+    LOG(ERROR) << "ids_adicionados diferente do numero de notificacoes: " << ids_adicionados_.size() << " x " << grupo_notificacoes.notificacao_size();
+  }
   return atraso_s;
 }
 
