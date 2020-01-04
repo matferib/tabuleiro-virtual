@@ -2383,6 +2383,11 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   }
 
   gerador.spin_xp->setValue(entidade.experiencia());
+  gerador.spin_po->setValue(entidade.tesouro().moedas().po());
+  gerador.spin_pp->setValue(entidade.tesouro().moedas().pp());
+  gerador.spin_pc->setValue(entidade.tesouro().moedas().pc());
+  gerador.spin_pl->setValue(entidade.tesouro().moedas().pl());
+  gerador.spin_pe->setValue(entidade.tesouro().moedas().pe());
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
@@ -2477,6 +2482,11 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_notas(gerador.texto_notas->toPlainText().toStdString());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toStdString());
     proto_retornado->set_experiencia(gerador.spin_xp->value());
+    proto_retornado->mutable_tesouro()->mutable_moedas()->set_po(gerador.spin_po->value());
+    proto_retornado->mutable_tesouro()->mutable_moedas()->set_pp(gerador.spin_pp->value());
+    proto_retornado->mutable_tesouro()->mutable_moedas()->set_pc(gerador.spin_pc->value());
+    proto_retornado->mutable_tesouro()->mutable_moedas()->set_pl(gerador.spin_pl->value());
+    proto_retornado->mutable_tesouro()->mutable_moedas()->set_pe(gerador.spin_pe->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
