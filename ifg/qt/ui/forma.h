@@ -160,7 +160,9 @@ public:
     QListWidget *lista_pergaminhos_arcanos;
     QVBoxLayout *verticalLayout_23;
     QPushButton *botao_adicionar_pergaminho_arcano;
+    QPushButton *botao_duplicar_pergaminho_arcano;
     QPushButton *botao_remover_pergaminho_arcano;
+    QPushButton *botao_ordenar_pergaminhos_arcanos;
     QGroupBox *groupBox_18;
     QHBoxLayout *horizontalLayout_63;
     QListWidget *lista_luvas;
@@ -211,13 +213,17 @@ public:
     QListWidget *lista_pocoes;
     QVBoxLayout *verticalLayout_6;
     QPushButton *botao_adicionar_pocao;
+    QPushButton *botao_duplicar_pocao;
     QPushButton *botao_remover_pocao;
+    QPushButton *botao_ordenar_pocoes;
     QGroupBox *groupBox_16;
     QHBoxLayout *horizontalLayout_61;
     QListWidget *lista_pergaminhos_divinos;
     QVBoxLayout *verticalLayout_24;
     QPushButton *botao_adicionar_pergaminho_divino;
+    QPushButton *botao_duplicar_pergaminho_divino;
     QPushButton *botao_remover_pergaminho_divino;
+    QPushButton *botao_ordenar_pergaminhos_divinos;
     QGroupBox *groupBox_21;
     QHBoxLayout *horizontalLayout_66;
     QPlainTextEdit *lista_tesouro;
@@ -913,10 +919,20 @@ public:
 
         verticalLayout_23->addWidget(botao_adicionar_pergaminho_arcano);
 
+        botao_duplicar_pergaminho_arcano = new QPushButton(groupBox_15);
+        botao_duplicar_pergaminho_arcano->setObjectName(QStringLiteral("botao_duplicar_pergaminho_arcano"));
+
+        verticalLayout_23->addWidget(botao_duplicar_pergaminho_arcano);
+
         botao_remover_pergaminho_arcano = new QPushButton(groupBox_15);
         botao_remover_pergaminho_arcano->setObjectName(QStringLiteral("botao_remover_pergaminho_arcano"));
 
         verticalLayout_23->addWidget(botao_remover_pergaminho_arcano);
+
+        botao_ordenar_pergaminhos_arcanos = new QPushButton(groupBox_15);
+        botao_ordenar_pergaminhos_arcanos->setObjectName(QStringLiteral("botao_ordenar_pergaminhos_arcanos"));
+
+        verticalLayout_23->addWidget(botao_ordenar_pergaminhos_arcanos);
 
 
         horizontalLayout_60->addLayout(verticalLayout_23);
@@ -1160,12 +1176,22 @@ public:
 
         verticalLayout_6->addWidget(botao_adicionar_pocao);
 
+        botao_duplicar_pocao = new QPushButton(groupBox_14);
+        botao_duplicar_pocao->setObjectName(QStringLiteral("botao_duplicar_pocao"));
+
+        verticalLayout_6->addWidget(botao_duplicar_pocao);
+
         botao_remover_pocao = new QPushButton(groupBox_14);
         botao_remover_pocao->setObjectName(QStringLiteral("botao_remover_pocao"));
         sizePolicy.setHeightForWidth(botao_remover_pocao->sizePolicy().hasHeightForWidth());
         botao_remover_pocao->setSizePolicy(sizePolicy);
 
         verticalLayout_6->addWidget(botao_remover_pocao);
+
+        botao_ordenar_pocoes = new QPushButton(groupBox_14);
+        botao_ordenar_pocoes->setObjectName(QStringLiteral("botao_ordenar_pocoes"));
+
+        verticalLayout_6->addWidget(botao_ordenar_pocoes);
 
 
         horizontalLayout_59->addLayout(verticalLayout_6);
@@ -1189,10 +1215,20 @@ public:
 
         verticalLayout_24->addWidget(botao_adicionar_pergaminho_divino);
 
+        botao_duplicar_pergaminho_divino = new QPushButton(groupBox_16);
+        botao_duplicar_pergaminho_divino->setObjectName(QStringLiteral("botao_duplicar_pergaminho_divino"));
+
+        verticalLayout_24->addWidget(botao_duplicar_pergaminho_divino);
+
         botao_remover_pergaminho_divino = new QPushButton(groupBox_16);
         botao_remover_pergaminho_divino->setObjectName(QStringLiteral("botao_remover_pergaminho_divino"));
 
         verticalLayout_24->addWidget(botao_remover_pergaminho_divino);
+
+        botao_ordenar_pergaminhos_divinos = new QPushButton(groupBox_16);
+        botao_ordenar_pergaminhos_divinos->setObjectName(QStringLiteral("botao_ordenar_pergaminhos_divinos"));
+
+        verticalLayout_24->addWidget(botao_ordenar_pergaminhos_divinos);
 
 
         horizontalLayout_61->addLayout(verticalLayout_24);
@@ -1399,7 +1435,9 @@ public:
         botao_remover_manto->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
         groupBox_15->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Pergaminhos Arcanos", nullptr));
         botao_adicionar_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
+        botao_duplicar_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_ordenar_pergaminhos_arcanos->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
         groupBox_18->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Luvas e Manoplas", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_usar_luvas->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Usar/retirar anel", nullptr));
@@ -1433,10 +1471,14 @@ public:
         botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
         groupBox_14->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Po\303\247\303\265es", nullptr));
         botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
+        botao_duplicar_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_ordenar_pocoes->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
         groupBox_16->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Pergaminhos Divinos", nullptr));
         botao_adicionar_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
+        botao_duplicar_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_ordenar_pergaminhos_divinos->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
         groupBox_21->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Outros", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));

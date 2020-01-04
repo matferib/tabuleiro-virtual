@@ -1170,6 +1170,59 @@ void ConfiguraListaItensMagicos(
 }
 
 template <class Dialogo>
+void DuplicaItem(const ent::Tabelas& tabelas, Dialogo& gerador, ent::TipoItem tipo, QListWidget* lista, ent::EntidadeProto* proto_retornado) {
+  auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
+  int indice_antes = lista->currentRow();
+  std::string id_selecionado;
+  if (indice_antes < 0 || indice_antes >= itens->size()) {
+    return;
+  }
+  id_selecionado = itens->Get(indice_antes).id();
+  auto* item = itens->Add();
+  item->set_id(id_selecionado);
+  AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+}
+
+template <class Dialogo>
+void OrdenaItens(const ent::Tabelas& tabelas, Dialogo& gerador, ent::TipoItem tipo, QListWidget* lista, ent::EntidadeProto* proto_retornado) {
+  auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
+  std::string id_selecionado;
+  int indice_antes = lista->currentRow();
+  if (indice_antes >= 0 && indice_antes < itens->size()) {
+    id_selecionado = itens->Get(indice_antes).id();
+  }
+  std::sort(itens->begin(), itens->end(), [&tabelas, tipo](const ent::ItemMagicoProto& lhs, const ent::ItemMagicoProto& rhs) {
+      return ent::ItemTabela(tabelas, tipo, lhs.id()).nome() < ent::ItemTabela(tabelas, tipo, rhs.id()).nome();
+  } );
+  AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+  for (int i = 0; indice_antes != -1 && i < itens->size(); ++i) {
+    if (itens->Get(i).id() == id_selecionado) {
+      lista->setCurrentRow(i);
+      break;
+    }
+  }
+}
+
+template <class Dialogo>
+void ConfiguraListaPergaminhos(
+    const ent::Tabelas& tabelas, Dialogo& gerador, std::function<void(const ent::Tabelas&, Dialogo&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    ent::TipoItem tipo, QListWidget* lista,
+    QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar,
+    ent::EntidadeProto* proto_retornado) {
+  lambda_connect(botao_duplicar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
+    DuplicaItem(tabelas, gerador, tipo, lista, proto_retornado);
+  });
+  lambda_connect(botao_ordenar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
+    OrdenaItens(tabelas, gerador, tipo, lista, proto_retornado);
+  });
+
+  ConfiguraListaItensMagicos(
+      tabelas, gerador, f_atualiza_ui, tipo, lista,
+      botao_usar, botao_adicionar, botao_remover,
+      proto_retornado);
+}
+
+template <class Dialogo>
 void PreencheConfiguraTesouro(
     Visualizador3d* this_, Dialogo& gerador, std::function<void(const ent::Tabelas&, Dialogo&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
@@ -1194,6 +1247,13 @@ void PreencheConfiguraTesouro(
     gerador.lista_pocoes->setItemDelegate(delegado);
     delegado->deleteLater();
 
+    lambda_connect(gerador.botao_ordenar_pocoes, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      OrdenaItens(tabelas, gerador, ent::TipoItem::TIPO_POCAO, gerador.lista_pocoes, proto_retornado);
+    });
+    lambda_connect(gerador.botao_duplicar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+      DuplicaItem(tabelas, gerador, ent::TipoItem::TIPO_POCAO, gerador.lista_pocoes, proto_retornado);
+    });
+
     lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
       /*auto* pocao = */proto_retornado->mutable_tesouro()->add_pocoes();
       // Para aparecer pocao vazia.
@@ -1212,13 +1272,17 @@ void PreencheConfiguraTesouro(
   }
 
   // Pergaminhos.
-  ConfiguraListaItensMagicos(
+  ConfiguraListaPergaminhos(
       tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
-      gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr, gerador.botao_adicionar_pergaminho_arcano, gerador.botao_remover_pergaminho_arcano,
+      gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr,
+      gerador.botao_adicionar_pergaminho_arcano, gerador.botao_duplicar_pergaminho_arcano,
+      gerador.botao_remover_pergaminho_arcano, gerador.botao_ordenar_pergaminhos_arcanos,
       proto_retornado);
-  ConfiguraListaItensMagicos(
+  ConfiguraListaPergaminhos(
       tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
-      gerador.lista_pergaminhos_divinos, /*usar=*/nullptr, gerador.botao_adicionar_pergaminho_divino, gerador.botao_remover_pergaminho_divino,
+      gerador.lista_pergaminhos_divinos, /*usar=*/nullptr,
+      gerador.botao_adicionar_pergaminho_divino, gerador.botao_duplicar_pergaminho_divino,
+      gerador.botao_remover_pergaminho_divino, gerador.botao_ordenar_pergaminhos_divinos,
       proto_retornado);
   // Aneis.
   ConfiguraListaItensMagicos(
