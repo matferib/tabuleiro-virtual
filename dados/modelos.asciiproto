@@ -3395,6 +3395,42 @@ modelo {
   }
 }
 modelo {
+  id: 'Humana Guerreira 5'
+  entidade {
+    # Elite.
+    dados_vida: '4d10+10+10'
+    raca: 'humano'
+    info_textura { id: 'fighter_female.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro: 'espada bastarda +1, arco longo composto (3) OP\narmadura batalha'
+    }
+    dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_defesa { id_armadura: 'armadura_batalha' }
+    info_talentos {
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'ataque_poderoso' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Guerreiro 5'
   entidade {
     # Elite.
