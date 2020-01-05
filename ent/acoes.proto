@@ -274,6 +274,7 @@ message AcaoProto {
     CP_ATRIBUI_EFEITO = 1;           // o efeito sera preenchido com valor do parametro.
     CP_ATRIBUI_MODELO_ENTIDADE = 2;  // o id modelo da entidade sera preenchido com valor do parametro.
     CP_SELECIONA_ENTIDADES_NO_ALCANCE = 3;   // afeta entidades dentro do alcance.
+    CP_SELECIONA_FEITICO = 4;   // elucubracao.
   }
   message ParametroLancamento {
     optional string texto = 1;  // para display.
@@ -281,6 +282,7 @@ message AcaoProto {
     optional string id_modelo_entidade = 3;  // qual modelo de entidade foi escolhido.
     optional string quantidade = 5;  // quantidade de criaturas.
     optional int32 id_entidade = 4;  // ids das entidades escolhidas.
+    optional int32 nivel_maximo = 6; // nivel maximo de feitico.
   }
   message ParametrosLancamento {
     optional ConsequenciaParametro consequencia = 1;

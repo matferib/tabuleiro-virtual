@@ -1087,7 +1087,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " destruido.";
       // Apenas para desfazer, o dano sera dado pela acao.
       auto* nd = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta, TD_LETAL, nd, nd);
+      PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta, TD_LETAL, nd, nd);
     } else {
       por_entidade->set_texto("afetado por expulsão");
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
@@ -1220,7 +1220,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     // Para desfazer.
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1373,7 +1373,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     por_entidade->set_delta(delta_pv_pos_salvacao);
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
   }
   VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1513,7 +1513,13 @@ float Tabuleiro::TrataAcaoIndividual(
   acao_proto->set_bem_sucedida(true);
   std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
   std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
-  if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+  if (entidade_destino == nullptr) {
+    // Pode ser um projetil de area. Então retorna a acao como veio. 
+    *n->mutable_acao() = *acao_proto;
+    return atraso_s;
+  }
+
+  if (HaValorListaPontosVida()) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
     auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
     float distancia_m = 0.0f;
@@ -1710,8 +1716,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Reducao de dano.
     std::string texto_reducao;
-    if (delta_pontos_vida < 0 &&
-        !IgnoraReducaoDano(&da, *acao_proto) && entidade_destino != nullptr) {
+    if (delta_pontos_vida < 0 && !IgnoraReducaoDano(&da, *acao_proto)) {
       google::protobuf::RepeatedField<int> descritores = da.descritores();
       ResultadoReducaoDano rrd = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       const int dano_absorvido = -(delta_pontos_vida - rrd.delta_pv);
@@ -1814,10 +1819,10 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_proto->set_afeta_pontos_vida(true);
       // Apenas para desfazer.
       auto* nd = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAtualizaoPontosVida(
+      PreencheNotificacaoAtualizacaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
     }
-    if (entidade_origem != nullptr && entidade_destino != nullptr &&
+    if (entidade_origem != nullptr &&
         delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
       atraso_s += 1.0f;
@@ -1825,13 +1830,14 @@ float Tabuleiro::TrataAcaoIndividual(
     }
   }
 
-  if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+  if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida()) {
     // Se agarrou, desfaz aqui.
     auto* no = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
   }
+
   VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
   // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
   *n->mutable_acao() = *acao_proto;

@@ -1622,7 +1622,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 }
 
 // O delta de pontos de vida afeta outros bits tambem.
-void PreencheNotificacaoAtualizaoPontosVida(
+void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   const auto& proto = entidade.Proto();
   EntidadeProto *e_antes, *e_depois;
@@ -3944,6 +3944,9 @@ ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
+  if (!entidade.PodeSerAfetadoPorAcoes()) {
+    return false;
+  }
   if (acao_proto.nao_afeta_origem() && entidade.Id() == acao_proto.id_entidade_origem()) {
     return false;
   }
@@ -4640,7 +4643,7 @@ int CompartilhaDanoSeAplicavel(
   ConcatenaString("dano solidário", por_entidade_compartilhada->mutable_texto());
 
   auto* nd = grupo_desfazer->add_notificacao();
-  PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
+  PreencheNotificacaoAtualizacaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
 
   return delta_pontos_vida;
 }

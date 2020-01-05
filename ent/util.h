@@ -355,7 +355,7 @@ enum tipo_dano_e {
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
-void PreencheNotificacaoAtualizaoPontosVida(
+void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
 

@@ -1069,6 +1069,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       std::vector<std::string> ids;
       for (const auto& id_com_peso : modelos_selecionados_.ids_com_peso) {
+        VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
         for (int i = 0; i < id_com_peso.peso; ++i) {
           ids.push_back(id_com_peso.id);
         }
@@ -1101,8 +1102,12 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
           offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
         }
-        LOG(INFO) << "id sorteado: " << ids[sorteio] << ", xoffset: " << offset.x << ", yoffset: " << offset.y;
+        LOG(INFO) << "numero sorteado: " << sorteio << " de " << ids.size() << "; id sorteado: " << ids[sorteio] << ", xoffset: " << offset.x << ", yoffset: " << offset.y;
         const auto& modelo_com_parametros = tabelas_.ModeloEntidade(ids[sorteio]);
+        if (!modelo_com_parametros.has_id()) {
+          LOG(INFO) << "modelo invalido, ignorando";
+          continue;
+        }
         AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
       }
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
@@ -1667,11 +1672,11 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
       continue;
     }
     // Atualizacao.
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_selecionada,
-                                           delta_pontos_vida,
-                                           TD_LETAL,
-                                           grupo_notificacoes.add_notificacao(),
-                                           grupo_desfazer.add_notificacao());
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_selecionada,
+                                             delta_pontos_vida,
+                                             TD_LETAL,
+                                             grupo_notificacoes.add_notificacao(),
+                                             grupo_desfazer.add_notificacao());
     // Acao.
     auto* na = grupo_notificacoes.add_notificacao();
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -1766,7 +1771,7 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& p
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
     TrataNotificacao(n);
   }
   return atraso_s;
@@ -7226,7 +7231,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         atraso_s += 0.5f;
         if (dano == 0) continue;
       }
-      PreencheNotificacaoAtualizaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
+      PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
       AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_PARALISIA) {

@@ -1276,6 +1276,10 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       VLOG(1) << "Finalizando alvo, destino nao existe.";
       return false;
     }
+    if (!entidade_destino->PodeSerAfetadoPorAcoes()) {
+      VLOG(1) << "Finalizando alvo, destino nao pode ser afetado por acoes.";
+      return false;
+    }
     if (!acao_proto_.bem_sucedida()) {
       VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
       dx_total_ = dy_total_ = dz_total_ = 0;
@@ -1349,7 +1353,12 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
       const auto id = por_entidade.id();
       auto* entidade_destino = tabuleiro_->BuscaEntidade(id);
       if (entidade_destino == nullptr) {
+        LOG(ERROR) << "entidade destino invalida, id: " << id;
         continue;
+      }
+      if (!entidade_destino->PodeSerAfetadoPorAcoes()) {
+        VLOG(1) << "Finalizando alvo, destino nao pode ser afetado por acoes.";
+        return false;
       }
       AtualizaDirecaoQuedaAlvo(entidade_destino);
       EntidadeProto parcial;
@@ -1362,6 +1371,10 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     Entidade* entidade_origem = EntidadeOrigem();
     if (entidade_origem == nullptr || entidade_destino == nullptr) {
       VLOG(1) << "Finalizando alvo, origem ou destino não existe.";
+      return false;
+    }
+    if (!entidade_destino->PodeSerAfetadoPorAcoes()) {
+      VLOG(1) << "Finalizando alvo, destino nao pode ser afetado por acoes.";
       return false;
     }
     if (AgarradoA(entidade_origem->Id(), entidade_destino->Proto())) {
