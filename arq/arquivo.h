@@ -69,7 +69,7 @@ void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, cons
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 
 // Interface de leitura.
-// @throws std::logic_error caso nao consiga ler o arquivo.
+// @throws ParseProtoException caso nao consiga ler o arquivo.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados);
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
