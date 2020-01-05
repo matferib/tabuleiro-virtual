@@ -1455,10 +1455,25 @@ const Posicao Entidade::PosicaoAcaoSemTransformacoes() const {
   } else {
     pos = PosicaoAlturaSemTransformacoes(proto_.achatado() ? 0.1f : FATOR_ALTURA);
     pos.set_x(TAMANHO_LADO_QUADRADO_2 / 2);
+    pos.set_y(TAMANHO_LADO_QUADRADO_2 / 2 * (proto_.canhota() ? 1 : -1));
   }
   pos.set_id_cenario(IdCenario());
   return pos;
 }
+
+const Posicao Entidade::PosicaoAcaoSecundariaSemTransformacoes() const {
+  Posicao pos;
+  if (proto_.has_posicao_acao_secundaria()) {
+    pos = proto_.posicao_acao_secundaria();
+  } else {
+    pos = PosicaoAlturaSemTransformacoes(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+    pos.set_x(TAMANHO_LADO_QUADRADO_2 / 2);
+    pos.set_y(TAMANHO_LADO_QUADRADO_2 / 2 * (proto_.canhota() ? -1 : 1));
+  }
+  pos.set_id_cenario(IdCenario());
+  return pos;
+}
+
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
   return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);
@@ -1920,8 +1935,8 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     central->AdicionaNotificacao(n.release());
   }
   // Vbos de armas.
-  std::vector<std::string> dados_vbo = { 
-    "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe" };
+  std::vector<std::string> dados_vbo = {
+    "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe", "shield" };
   for (const auto& id : dados_vbo) {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
     n->mutable_entidade()->mutable_modelo_3d()->set_id(id);

@@ -217,6 +217,7 @@ class Entidade {
   /** @return a posicao das acoes da entidade, ja modificador pelas matrizes de transformacao. */
   const Posicao PosicaoAcao() const;
   const Posicao PosicaoAcaoSemTransformacoes() const;
+  const Posicao PosicaoAcaoSecundariaSemTransformacoes() const;
   /** @return a posicao de algo a uma altura do personagem, dada por fator * ALTURA ja transformada pelas marizes de transformacao. */
   const Posicao PosicaoAltura(float fator) const;
   const Posicao PosicaoAlturaSemTransformacoes(float fator) const;

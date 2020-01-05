@@ -195,7 +195,7 @@ message DadosAtaque {
   optional int32 disponivel_em = 76;
 }
 
-// Proximo id: 108.
+// Proximo id: 110.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -240,6 +240,8 @@ message EntidadeProto {
   optional Posicao pos = 4;
   // Se a entidade tiver, usa esta posicao ao inves da posicao padrao.
   optional Posicao posicao_acao = 89;
+  // Para a mao ruim.
+  optional Posicao posicao_acao_secundaria = 109;
   // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
   optional Escala escala = 22;
@@ -594,6 +596,7 @@ message EntidadeProto {
   // Se presente diz se entidade respeitara solo ao se movimentar (caso
   // contrario, vai pelo tipo).
   optional bool forcar_respeita_solo = 104;
+  optional bool canhota = 108;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.

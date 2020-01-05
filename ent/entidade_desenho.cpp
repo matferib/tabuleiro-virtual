@@ -229,18 +229,30 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     // Apenas entidades tem decoracoes.
     return;
   }
-  if (const DadosAtaque* da = DadoCorrente(); da != nullptr && da->has_id_arma()) {
+  if (const DadosAtaque* da = DadoCorrente(); da != nullptr) {
     // TODO desenhar escudo de acordo com empunhadura.
-    const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
-    const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
-    VLOG(3) << "tentando desenhar " << da->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
-    if (modelo != nullptr) {
-      VLOG(3) << "desenhando " << da->id_arma();
-      const auto posicao = PosicaoAcaoSemTransformacoes();
-      gl::MatrizEscopo salva_matriz;
-      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
-      gl::Translada(posicao.x(), posicao.y(), posicao.z());
-      modelo->vbos_gravados.Desenha();
+    if (da->has_id_arma()) {
+      const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
+      const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
+      VLOG(3) << "tentando desenhar " << da->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
+      if (modelo != nullptr) {
+        VLOG(3) << "desenhando " << da->id_arma();
+        const auto posicao = PosicaoAcaoSemTransformacoes();
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        modelo->vbos_gravados.Desenha();
+      }
+    }
+    if (da->empunhadura() == EA_ARMA_ESCUDO) {
+      const auto* modelo = vd_.m3d->Modelo("shield");
+      if (modelo != nullptr) {
+        const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        modelo->vbos_gravados.Desenha();
+      }
     }
   }
   // Disco da entidade.
