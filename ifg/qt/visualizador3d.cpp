@@ -140,6 +140,9 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
   ((QStandardItemModel*)combo_textura->model())->appendRow(item);
 }
 
+// Usado para manter textura local nao presente no cliente.
+const int MANTEM_TEXTURA = -2;
+
 // Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
 // o nome sera prefixado por id.
 void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::function<bool(const std::string&)> filtro, QComboBox* combo_textura) {
@@ -170,7 +173,9 @@ void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::f
   } else {
     int index = combo_textura->findText(QString(id_corrente.c_str()));
     if (index == -1) {
-      index = 0;
+      // Neste caso, a textura não existe para o cliente. Criar a entrada agora.
+      combo_textura->addItem(QString(combo_textura->tr("Manter Atual")), QVariant(MANTEM_TEXTURA));
+      index = combo_textura->count() - 1;
     }
     combo_textura->setCurrentIndex(index);
   }
@@ -262,20 +267,21 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
 void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
                                    ent::InfoTextura* info_textura) {
   if (combo_textura->currentIndex() != 0) {
-    if (combo_textura->currentText().toStdString() == info_antes.id()) {
+    QVariant dados(combo_textura->currentData());
+    QString nome(combo_textura->currentText());
+    if (nome.toStdString() == info_antes.id() || dados.toInt() == MANTEM_TEXTURA) {
       // Textura igual a anterior.
       VLOG(2) << "Textura igual a anterior.";
       info_textura->set_id(info_antes.id());
     } else {
       VLOG(2) << "Textura diferente da anterior.";
-      QString nome(combo_textura->currentText());
-      QVariant dados(combo_textura->itemData(combo_textura->currentIndex()));
       if (dados.toInt() == arq::TIPO_TEXTURA_LOCAL) {
         VLOG(2) << "Textura local, recarregando.";
         info_textura->set_id(nome.toStdString());
         ent::PreencheInfoTextura(nome.split(":")[1].toStdString(),
             arq::TIPO_TEXTURA_LOCAL, info_textura);
       } else {
+        info_textura->Clear();
         info_textura->set_id(nome.toStdString());
       }
     }
