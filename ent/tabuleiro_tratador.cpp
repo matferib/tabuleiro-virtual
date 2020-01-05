@@ -1514,14 +1514,14 @@ float Tabuleiro::TrataAcaoIndividual(
   std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
   std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
   if (entidade_destino == nullptr) {
-    // Pode ser um projetil de area. Então retorna a acao como veio. 
+    // Pode ser um projetil de area. Então retorna a acao como veio.
     *n->mutable_acao() = *acao_proto;
     return atraso_s;
   }
 
   if (HaValorListaPontosVida()) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-    auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
+    auto pos_alvo = entidade_destino->Tipo() != TE_ENTIDADE || opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
     float distancia_m = 0.0f;
     // Verifica alcance.
     {
