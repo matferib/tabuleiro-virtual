@@ -2141,6 +2141,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       } else {
         auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
         *n->mutable_tabuleiro()->mutable_versoes() = notificacao.tabuleiro().versoes();
+        if (notificacao.entidade().has_modelo_3d()) {
+          n->mutable_entidade()->mutable_modelo_3d();
+        }
         central_->AdicionaNotificacao(std::move(n));
       }
       break;
