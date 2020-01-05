@@ -176,7 +176,7 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
             arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
             VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
             MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
-          } catch (const std::logic_error& erro) {
+          } catch (const std::exception& erro) {
             LOG(ERROR) << erro.what();
           }
         }
@@ -200,7 +200,7 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
             arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
             VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
             MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
-          } catch (const std::logic_error& erro) {
+          } catch (const std::exception& erro) {
             LOG(ERROR) << erro.what();
           }
         }
