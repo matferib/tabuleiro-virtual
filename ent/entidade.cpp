@@ -1737,7 +1737,7 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-const DadosAtaque* Entidade::DadoCorrente() const {
+const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
@@ -1749,19 +1749,21 @@ const DadosAtaque* Entidade::DadoCorrente() const {
     if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
+      if (ignora_ataques_na_rodada) break;
     }
   }
-  if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+  const int ataques_na_rodada = ignora_ataques_na_rodada ? 0 : vd_.ataques_na_rodada;
+  if (ataques_casados.empty() || ataques_na_rodada >= (int)ataques_casados.size()) {
     VLOG(3) << "Dado corrente nao encontrado, tipo ultima acao: " << ultima_acao
             << ", empty? " << ataques_casados.empty()
-            << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
+            << ", at: " << ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
   VLOG(3)
-      << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque()
-      << ", grupo: " << ataques_casados[vd_.ataques_na_rodada]->grupo();
-  VLOG(4) << "Ataque retornado: " << ataques_casados[vd_.ataques_na_rodada]->DebugString();
-  return ataques_casados[vd_.ataques_na_rodada];
+      << "Retornando " << ataques_na_rodada << "o. ataque para " << ataques_casados[ataques_na_rodada]->tipo_ataque()
+      << ", grupo: " << ataques_casados[ataques_na_rodada]->grupo();
+  VLOG(4) << "Ataque retornado: " << ataques_casados[ataques_na_rodada]->DebugString();
+  return ataques_casados[ataques_na_rodada];
 }
 
 const DadosAtaque* Entidade::DadoAgarrar() const {
@@ -1836,7 +1838,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   const int bonus_esquiva =
       PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
-  const auto* da = DadoCorrente();
+  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {

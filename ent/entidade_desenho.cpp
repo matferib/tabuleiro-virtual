@@ -229,7 +229,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     // Apenas entidades tem decoracoes.
     return;
   }
-  if (const DadosAtaque* da = DadoCorrente(); da != nullptr) {
+  if (const DadosAtaque* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true); da != nullptr) {
     // TODO desenhar escudo de acordo com empunhadura.
     if (da->has_id_arma()) {
       const auto& arma_tabelada = tabelas_.Arma(da->id_arma());

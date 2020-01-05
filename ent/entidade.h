@@ -253,7 +253,7 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Retorna nullptr caso nao haja.
-  const DadosAtaque* DadoCorrente() const;
+  const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
   const DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
