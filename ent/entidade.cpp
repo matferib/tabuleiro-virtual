@@ -1419,7 +1419,7 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
-  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
+  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f); 
   //ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
@@ -1428,6 +1428,10 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //pos.set_y(ponto[1]);
   //pos.set_z(ponto[2]);
   return Vector4ParaPosicao(matriz * ponto);
+}
+
+const Posicao Entidade::PosicaoAlturaSemTransformacoes(float fator) const {
+  return Vector4ParaPosicao(Vector4(0.0f, 0.0f, fator * ALTURA, 1.0f));
 }
 
 const Posicao Entidade::PosicaoAcao() const {
@@ -1440,6 +1444,18 @@ const Posicao Entidade::PosicaoAcao() const {
     return pos;
   }
   auto pos = PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+  pos.set_id_cenario(IdCenario());
+  return pos;
+}
+
+const Posicao Entidade::PosicaoAcaoSemTransformacoes() const {
+  Posicao pos;
+  if (proto_.has_posicao_acao()) {
+    pos = proto_.posicao_acao();
+  } else {
+    pos = PosicaoAlturaSemTransformacoes(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+    pos.set_x(TAMANHO_LADO_QUADRADO_2 / 2);
+  }
   pos.set_id_cenario(IdCenario());
   return pos;
 }
@@ -1903,7 +1919,14 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     n->mutable_entidade()->mutable_modelo_3d()->set_id("builtin:piramide");
     central->AdicionaNotificacao(n.release());
   }
-
+  // Vbos de armas.
+  std::vector<std::string> dados_vbo = { 
+    "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe" };
+  for (const auto& id : dados_vbo) {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id(id);
+    central->AdicionaNotificacao(n.release());
+  }
 
   // Vbo peao.
   {
@@ -2218,8 +2241,25 @@ void Entidade::ReiniciaAtaque() {
   vd_.ataques_na_rodada = 0;
 }
 
+void LimpaSubForma(EntidadeProto* sub_forma) {
+  sub_forma->clear_dados_defesa();
+  sub_forma->clear_dados_ataque();
+  sub_forma->clear_dados_ataque_global();
+  sub_forma->clear_info_pericias();
+  sub_forma->clear_info_talentos();
+  sub_forma->clear_atributos();
+  sub_forma->clear_evento();
+  sub_forma->clear_bba();
+  for (auto& sf : *sub_forma->mutable_sub_forma()) {
+    LimpaSubForma(&sf);
+  }
+}
+
 void Entidade::RecomputaDependencias() {
   ent::RecomputaDependencias(tabelas_, &proto_, this);
+  for (auto& sf : *proto_.mutable_sub_forma()) {
+    LimpaSubForma(&sf);
+  }
 }
 
 bool Entidade::RespeitaSolo() const {

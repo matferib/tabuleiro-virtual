@@ -6,6 +6,7 @@
 #include "ent/constantes.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -227,6 +228,20 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (proto_.tipo() != TE_ENTIDADE) {
     // Apenas entidades tem decoracoes.
     return;
+  }
+  if (const DadosAtaque* da = DadoCorrente(); da != nullptr && da->has_id_arma()) {
+    // TODO desenhar escudo de acordo com empunhadura.
+    const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
+    const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
+    VLOG(3) << "tentando desenhar " << da->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
+    if (modelo != nullptr) {
+      VLOG(3) << "desenhando " << da->id_arma();
+      const auto posicao = PosicaoAcaoSemTransformacoes();
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+      gl::Translada(posicao.x(), posicao.y(), posicao.z());
+      modelo->vbos_gravados.Desenha();
+    }
   }
   // Disco da entidade.
   if (proto_.modelo_3d().id().empty() && proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
