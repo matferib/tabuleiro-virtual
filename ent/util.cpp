@@ -983,7 +983,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   // Invisibilidade da +2 ataque desde que alvo nao esteja cego. Neste caso sera tratado
   // na parte de modificadores de CA no final da funcao.
   if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) &&
-      !PossuiEvento(EFEITO_CEGO, ed)) {
+      !PossuiEvento(EFEITO_VER_INVISIVEL, ed) && !PossuiEvento(EFEITO_CEGO, ed)) {
     if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
       modificador += 2;
     }
@@ -4294,14 +4294,14 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
 }
 
 bool DestrezaNaCAContraAtaque(
-    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque) {
-  if (da == nullptr) return DestrezaNaCA(proto);
-  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
-    return false;
-  }
-  if ((PossuiEvento(EFEITO_CEGO, proto) ||
-       PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque)) &&
-      (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
+    const DadosAtaque* da, const EntidadeProto& proto_defesa, const EntidadeProto& proto_ataque) {
+  if (!DestrezaNaCA(proto_defesa)) return false;
+  if (da == nullptr) return true;
+
+  const bool atacante_invisivel_para_defensor = PossuiEvento(EFEITO_CEGO, proto_defesa) ||
+    (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque) && !PossuiEvento(EFEITO_VER_INVISIVEL, proto_defesa));
+  if (atacante_invisivel_para_defensor &&
+      (!PossuiTalento("lutar_as_cegas", proto_defesa) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }
   return true;
