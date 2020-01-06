@@ -71,9 +71,10 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
       desenhar_objeto = false;
     }
   } else {
-    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
-    // Para jogador desenha se for selecionavel.
-    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
+    bool ve_invisivel = pd->observador_ve_invisivel() && PossuiEvento(EFEITO_INVISIBILIDADE, proto_);
+    // Invisivel, so desenha para o mestre, independente da cor (sera translucido).
+    // Para jogador desenha se for selecionavel, ou se o objeto estiver invisivel e o observador puder enxerga-lo.
+    if (!ve_invisivel && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
       desenhar_objeto = false;
     }
   }
@@ -98,7 +99,9 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   }
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   gl::Habilita(GL_NORMALIZE);
+  gl::Especularidade(proto_.especular());
   DesenhaObjeto(pd);
+  gl::Especularidade(false);
   DesenhaDecoracoes(pd);
   gl::Desabilita(GL_NORMALIZE);
 }
