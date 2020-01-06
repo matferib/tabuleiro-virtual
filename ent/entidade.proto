@@ -195,7 +195,7 @@ message DadosAtaque {
   optional int32 disponivel_em = 76;
 }
 
-// Proximo id: 110.
+// Proximo id: 111.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -597,6 +597,8 @@ message EntidadeProto {
   // contrario, vai pelo tipo).
   optional bool forcar_respeita_solo = 104;
   optional bool canhota = 108;
+  // Se verdadeiro, objeto brilhara como metal.
+  optional bool especular = 110;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
