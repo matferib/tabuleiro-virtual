@@ -9528,7 +9528,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'ver_invisivel'
+    id: 'ver_invisivel'  # see invisibility
     nome: 'ver o invisível'
     info_classes {
       id: 'mago'
