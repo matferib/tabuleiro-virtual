@@ -3184,6 +3184,8 @@ void Tabuleiro::DesenhaCena(bool debug) {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
+      const auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+      parametros_desenho_.set_observador_ve_invisivel(entidade != nullptr && PossuiEvento(EFEITO_VER_INVISIVEL, entidade->Proto()));
       gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
       DesenhaEntidadesTranslucidas();
@@ -6488,6 +6490,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
+
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
@@ -6525,7 +6528,7 @@ void Tabuleiro::DesenhaLuzes() {
   // Iluminação distante direcional.
   {
     gl::MatrizEscopo salva_matriz;
-    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
+    // O vetor inicial esta no leste (origem da luz). O quarto elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
     gl::Roda(cenario_luz.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
@@ -6541,6 +6544,7 @@ void Tabuleiro::DesenhaLuzes() {
       cor_luz[1] = std::min(1.0f, cor_luz[1] * parametros_desenho_.multiplicador_visao_penumbra());
       cor_luz[2] = std::min(1.0f, cor_luz[2] * parametros_desenho_.multiplicador_visao_penumbra());
     }
+    //LOG(INFO) << "luz direcional r:" << cor_luz[0] << ", g: " << cor_luz[1] << ", b: " << cor_luz[2];
     gl::LuzDirecional(pos_luz, cor_luz[0], cor_luz[1], cor_luz[2]);
     gl::Habilita(GL_LIGHT0);
   }
