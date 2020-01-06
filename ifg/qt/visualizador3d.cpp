@@ -2695,6 +2695,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_dois_lados->setCheckState(entidade.dois_lados() ? Qt::Checked : Qt::Unchecked);
 
+  // Especularidade.
+  gerador.checkbox_especular->setCheckState(entidade.especular() ? Qt::Checked : Qt::Unchecked);
+
   // Fixa.
   gerador.checkbox_fixa->setCheckState(entidade.fixa() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -2887,6 +2890,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_cor();
     }
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    if (gerador.checkbox_especular->checkState() == Qt::Checked) {
+      proto_retornado->set_especular(true);
+    } else {
+      proto_retornado->clear_especular();
+    }
     if (gerador.checkbox_respeita_solo->checkState() == Qt::Checked) {
       proto_retornado->set_forcar_respeita_solo(true);
     } else {

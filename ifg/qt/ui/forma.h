@@ -63,15 +63,16 @@ public:
     QDoubleSpinBox *spin_escala_z_quad;
     QGroupBox *groupBox_7;
     QGridLayout *gridLayout_3;
+    QCheckBox *checkbox_fixa;
     QCheckBox *checkbox_respeita_solo;
+    QCheckBox *checkbox_colisao;
+    QCheckBox *checkbox_visibilidade;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_afetado_por_efeitos;
-    QCheckBox *checkbox_colisao;
-    QCheckBox *checkbox_fixa;
+    QCheckBox *checkbox_ignora_luz;
     QCheckBox *checkbox_dois_lados;
     QCheckBox *checkbox_faz_sombra;
-    QCheckBox *checkbox_visibilidade;
-    QCheckBox *checkbox_ignora_luz;
+    QCheckBox *checkbox_especular;
     QGroupBox *groupBox_10;
     QHBoxLayout *horizontalLayout_11;
     QPlainTextEdit *lista_rotulos;
@@ -366,40 +367,20 @@ public:
         groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
         gridLayout_3 = new QGridLayout(groupBox_7);
         gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        checkbox_respeita_solo = new QCheckBox(groupBox_7);
-        checkbox_respeita_solo->setObjectName(QStringLiteral("checkbox_respeita_solo"));
-
-        gridLayout_3->addWidget(checkbox_respeita_solo, 0, 0, 1, 1);
-
-        checkbox_selecionavel = new QCheckBox(groupBox_7);
-        checkbox_selecionavel->setObjectName(QStringLiteral("checkbox_selecionavel"));
-
-        gridLayout_3->addWidget(checkbox_selecionavel, 1, 0, 1, 1);
-
-        checkbox_afetado_por_efeitos = new QCheckBox(groupBox_7);
-        checkbox_afetado_por_efeitos->setObjectName(QStringLiteral("checkbox_afetado_por_efeitos"));
-
-        gridLayout_3->addWidget(checkbox_afetado_por_efeitos, 2, 0, 1, 1);
-
-        checkbox_colisao = new QCheckBox(groupBox_7);
-        checkbox_colisao->setObjectName(QStringLiteral("checkbox_colisao"));
-
-        gridLayout_3->addWidget(checkbox_colisao, 2, 1, 1, 1);
-
         checkbox_fixa = new QCheckBox(groupBox_7);
         checkbox_fixa->setObjectName(QStringLiteral("checkbox_fixa"));
 
         gridLayout_3->addWidget(checkbox_fixa, 1, 1, 1, 1);
 
-        checkbox_dois_lados = new QCheckBox(groupBox_7);
-        checkbox_dois_lados->setObjectName(QStringLiteral("checkbox_dois_lados"));
+        checkbox_respeita_solo = new QCheckBox(groupBox_7);
+        checkbox_respeita_solo->setObjectName(QStringLiteral("checkbox_respeita_solo"));
 
-        gridLayout_3->addWidget(checkbox_dois_lados, 0, 1, 1, 1);
+        gridLayout_3->addWidget(checkbox_respeita_solo, 0, 0, 1, 1);
 
-        checkbox_faz_sombra = new QCheckBox(groupBox_7);
-        checkbox_faz_sombra->setObjectName(QStringLiteral("checkbox_faz_sombra"));
+        checkbox_colisao = new QCheckBox(groupBox_7);
+        checkbox_colisao->setObjectName(QStringLiteral("checkbox_colisao"));
 
-        gridLayout_3->addWidget(checkbox_faz_sombra, 1, 2, 1, 1);
+        gridLayout_3->addWidget(checkbox_colisao, 2, 1, 1, 1);
 
         checkbox_visibilidade = new QCheckBox(groupBox_7);
         checkbox_visibilidade->setObjectName(QStringLiteral("checkbox_visibilidade"));
@@ -412,10 +393,35 @@ public:
 
         gridLayout_3->addWidget(checkbox_visibilidade, 2, 2, 1, 1);
 
+        checkbox_selecionavel = new QCheckBox(groupBox_7);
+        checkbox_selecionavel->setObjectName(QStringLiteral("checkbox_selecionavel"));
+
+        gridLayout_3->addWidget(checkbox_selecionavel, 1, 0, 1, 1);
+
+        checkbox_afetado_por_efeitos = new QCheckBox(groupBox_7);
+        checkbox_afetado_por_efeitos->setObjectName(QStringLiteral("checkbox_afetado_por_efeitos"));
+
+        gridLayout_3->addWidget(checkbox_afetado_por_efeitos, 2, 0, 1, 1);
+
         checkbox_ignora_luz = new QCheckBox(groupBox_7);
         checkbox_ignora_luz->setObjectName(QStringLiteral("checkbox_ignora_luz"));
 
         gridLayout_3->addWidget(checkbox_ignora_luz, 0, 2, 1, 1);
+
+        checkbox_dois_lados = new QCheckBox(groupBox_7);
+        checkbox_dois_lados->setObjectName(QStringLiteral("checkbox_dois_lados"));
+
+        gridLayout_3->addWidget(checkbox_dois_lados, 0, 1, 1, 1);
+
+        checkbox_faz_sombra = new QCheckBox(groupBox_7);
+        checkbox_faz_sombra->setObjectName(QStringLiteral("checkbox_faz_sombra"));
+
+        gridLayout_3->addWidget(checkbox_faz_sombra, 1, 2, 1, 1);
+
+        checkbox_especular = new QCheckBox(groupBox_7);
+        checkbox_especular->setObjectName(QStringLiteral("checkbox_especular"));
+
+        gridLayout_3->addWidget(checkbox_especular, 0, 3, 1, 1);
 
 
         gridLayout_4->addWidget(groupBox_7, 1, 0, 1, 1);
@@ -1339,9 +1345,18 @@ public:
         label_6->setText(QApplication::translate("ifg::qt::DialogoForma", "Altura", nullptr));
         groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Atributos", nullptr));
 #ifndef QT_NO_TOOLTIP
+        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 fixa (implicando que n\303\243o ser\303\241 selecionada com um clique nem sele\303\247\303\243o de \303\241rea)", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", nullptr));
+#ifndef QT_NO_TOOLTIP
         checkbox_respeita_solo->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade n\303\243o afundar\303\241 no solo.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_respeita_solo->setText(QApplication::translate("ifg::qt::DialogoForma", "Respeita Solo", nullptr));
+#ifndef QT_NO_TOOLTIP
+        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, n\303\243o ser\303\241 poss\303\255vel colidor com a entidade.", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", nullptr));
+        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", nullptr));
 #ifndef QT_NO_TOOLTIP
         checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade poder\303\241 ser selecionada por jogadores.", nullptr));
 #endif // QT_NO_TOOLTIP
@@ -1351,13 +1366,9 @@ public:
 #endif // QT_NO_TOOLTIP
         checkbox_afetado_por_efeitos->setText(QApplication::translate("ifg::qt::DialogoForma", "Afetado por Efeitos", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, n\303\243o ser\303\241 poss\303\255vel colidor com a entidade.", nullptr));
+        checkbox_ignora_luz->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 desenhada com ilumina\303\247\303\243o total.", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", nullptr));
-#ifndef QT_NO_TOOLTIP
-        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 fixa (implicando que n\303\243o ser\303\241 selecionada com um clique nem sele\303\247\303\243o de \303\241rea)", nullptr));
-#endif // QT_NO_TOOLTIP
-        checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", nullptr));
+        checkbox_ignora_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Ignora Luz", nullptr));
 #ifndef QT_NO_TOOLTIP
         checkbox_dois_lados->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nos dois lados da primitiva ser\303\243o desenhados.", nullptr));
 #endif // QT_NO_TOOLTIP
@@ -1366,11 +1377,10 @@ public:
         checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade n\303\243o far\303\241 sombra.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", nullptr));
-        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", nullptr));
 #ifndef QT_NO_TOOLTIP
-        checkbox_ignora_luz->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, a entidade ser\303\241 desenhada com ilumina\303\247\303\243o total.", nullptr));
+        checkbox_especular->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, objeto brilhar\303\241 como metal", nullptr));
 #endif // QT_NO_TOOLTIP
-        checkbox_ignora_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Ignora Luz", nullptr));
+        checkbox_especular->setText(QApplication::translate("ifg::qt::DialogoForma", "Especular", nullptr));
         groupBox_10->setTitle(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especiais", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
