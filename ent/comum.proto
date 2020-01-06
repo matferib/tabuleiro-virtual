@@ -972,6 +972,9 @@ message ParametrosDesenho {
 
   // Se presente, apenas a entidade devera ser desenhada e nada mais, de forma decomposta.
   optional uint32 desenha_objeto_desmembrado = 61;
+
+  // Se verdadeiro, mostra entidades invisiveis por causa de invisibilidade.
+  optional bool observador_ve_invisivel = 62;
 }
 
 enum TipoVeneno {
