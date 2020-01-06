@@ -375,8 +375,8 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_unidade_textura_luz", &shader->uni_gltab_unidade_textura_luz },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
-
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
+          {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
@@ -924,6 +924,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
     return;
   }
   Uniforme(interno::BuscaShader().uni_gltab_luz_direcional_cor, r, g, b, 1.0f);
+
   // Transforma o vetor em coordenadas da camera.
   float m[16];
   gl::Le(GL_MODELVIEW_MATRIX, m);
@@ -934,6 +935,12 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   Vector3 vp(pos[0], pos[1], pos[2]);
   vp = nm * vp;
   //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
+
+//  float glm[16];
+//  gl::Le(GL_MODELVIEW_MATRIX, glm);
+//  Matrix4 m(glm);
+//  Vector4 vp(pos[0], pos[1], pos[2], pos[3]);
+//  vp = m * vp;
   Uniforme(interno::BuscaShader().uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
 }
 
@@ -955,6 +962,14 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
+}
+
+void Especularidade(bool ligado) {
+  if (!interno::UsandoShaderLuz()) {
+    return;
+  }
+  const auto& shader = interno::BuscaShader();
+  Uniforme(shader.uni_gltab_especularidade_ligada, ligado);
 }
 
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {
