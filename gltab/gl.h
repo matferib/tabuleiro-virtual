@@ -421,6 +421,9 @@ void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio);
 
+
+/* Liga desliga especularidade. */
+void Especularidade(bool ligado);
 /** Funcoes de nevoa. */
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */
