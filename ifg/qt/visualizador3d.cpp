@@ -356,7 +356,11 @@ Visualizador3d::Visualizador3d(
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
-  luz_por_pixel_ = opcoes.iluminacao_por_pixel();
+  if (opcoes.has_tipo_iluminacao()) {
+    tipo_iluminacao_ = opcoes.tipo_iluminacao();
+  } else {
+    tipo_iluminacao_ = opcoes.iluminacao_por_pixel() ? ent::OpcoesProto::TI_PIXEL : ent::OpcoesProto::TI_VERTICE;
+  }
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -381,7 +385,7 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      gl::IniciaGl(luz_por_pixel_, scale_);
+      gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {
@@ -2572,7 +2576,9 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // Mapeamento de sombras.
   gerador.checkbox_mapeamento_de_sombras->setCheckState(opcoes_proto.mapeamento_sombras() ? Qt::Checked : Qt::Unchecked);
   // Iluminacao por pixel.
-  gerador.checkbox_iluminacao_por_pixel->setCheckState(opcoes_proto.iluminacao_por_pixel() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_iluminacao_por_pixel->setCheckState(
+      opcoes_proto.iluminacao_por_pixel() || opcoes_proto.tipo_iluminacao() == ent::OpcoesProto::TI_PIXEL ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_luzes_especulares->setCheckState(opcoes_proto.tipo_iluminacao() == ent::OpcoesProto::TI_ESPECULAR ? Qt::Checked : Qt::Unchecked);
   // Oclusao.
   gerador.checkbox_mapeamento_oclusao->setCheckState(opcoes_proto.mapeamento_oclusao() ? Qt::Checked : Qt::Unchecked);
   // Ataque vs defesa posicao real.
@@ -2594,8 +2600,14 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
    proto_retornado->set_mapeamento_sombras(
         gerador.checkbox_mapeamento_de_sombras->checkState() == Qt::Checked ? true : false);
-    proto_retornado->set_iluminacao_por_pixel(
-        gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked ? true : false);
+    proto_retornado->clear_iluminacao_por_pixel();
+    if (gerador.checkbox_luzes_especulares->checkState() == Qt::Checked) {
+      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_ESPECULAR);
+    } else if (gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked) {
+      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_PIXEL);
+    } else {
+      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_VERTICE);
+    }
     proto_retornado->set_mapeamento_oclusao(
         gerador.checkbox_mapeamento_oclusao->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_ataque_vs_defesa_posicao_real(
@@ -2727,6 +2739,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
+  gerador.spin_raio_quad->setValue(ent::METROS_PARA_QUADRADOS * (entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f));
   gerador.checkbox_cor->setCheckState(entidade.has_cor() ? Qt::Checked : Qt::Unchecked);
   gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &ent_cor] {
@@ -2737,6 +2750,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     gerador.checkbox_cor->setCheckState(Qt::Checked);
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
+    if (gerador.spin_raio_quad->value() == 0.0) {
+      gerador.spin_raio_quad->setValue(ent::METROS_PARA_QUADRADOS * 6.0f);
+    }
   });
   gerador.slider_alfa->setValue(static_cast<int>(ent_cor.cor().a() * 100.0f));
   // Luz.
@@ -2880,6 +2896,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     }
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
+      if (gerador.spin_raio_quad->value() > 0.0f) {
+        proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio_quad->value() * ent::QUADRADOS_PARA_METROS);
+      } else {
+        proto_retornado->mutable_luz()->clear_raio_m();
+      }
     } else {
       proto_retornado->clear_luz();
     }
