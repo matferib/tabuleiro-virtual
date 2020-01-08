@@ -214,10 +214,13 @@ class Entidade {
   /** Retorna a acao executada pela entidade ou uma acao padrao caso a entidade nao possua a acao. */
   std::string TipoAcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const;
 
-  /** @return a posicao das acoes da entidade. */
+  /** @return a posicao das acoes da entidade, ja modificador pelas matrizes de transformacao. */
   const Posicao PosicaoAcao() const;
-  /** @return a posicao de algo a uma altura do personagem, dada por fator * ALTURA. */
+  const Posicao PosicaoAcaoSemTransformacoes() const;
+  const Posicao PosicaoAcaoSecundariaSemTransformacoes() const;
+  /** @return a posicao de algo a uma altura do personagem, dada por fator * ALTURA ja transformada pelas marizes de transformacao. */
   const Posicao PosicaoAltura(float fator) const;
+  const Posicao PosicaoAlturaSemTransformacoes(float fator) const;
 
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
   void DesenhaLuz(ParametrosDesenho* pd);
@@ -250,7 +253,7 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Retorna nullptr caso nao haja.
-  const DadosAtaque* DadoCorrente() const;
+  const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
   const DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
@@ -387,7 +390,7 @@ class Entidade {
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 17;
+  constexpr static unsigned short NUM_VBOS = 25;
   constexpr static unsigned short
       VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3,
       VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7,

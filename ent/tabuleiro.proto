@@ -44,7 +44,13 @@ message OpcoesProto {
 
   // Estas opcoes nao podem ser alteradas durante o jogo. ie deve-se reiniciar.
   optional bool mapeamento_sombras = 11 [default=true];
-  optional bool iluminacao_por_pixel = 12 [default=false];
+  optional bool iluminacao_por_pixel = 12 [default=false, deprecated=true];
+  enum TipoIluminacao {
+    TI_VERTICE = 0;
+    TI_PIXEL = 1;
+    TI_ESPECULAR = 2;
+  }
+  optional TipoIluminacao tipo_iluminacao = 20 [default=TI_VERTICE];
   optional bool mapeamento_oclusao = 13 [default=true];
   optional bool mapeamento_luzes = 18 [default=true];
 

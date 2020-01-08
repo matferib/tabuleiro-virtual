@@ -163,6 +163,7 @@ modelo {
   id: 'Cachorro Celestial'
   id_entidade_base: 'Cachorro'
   entidade {
+    # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 6 complementos: 5 }
     info_classes {
       id: 'besta_magica'
@@ -180,6 +181,36 @@ modelo {
     tendencia { simples: TD_LEAL_BOM }
   }
 }
+# Modelos de Invocar criaturas.
+modelo {
+  id: 'Cachorro Celestial ICI'
+  id_entidade_base: 'Cachorro Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Pequena Abissal ICI'
+  id_entidade_base: 'Cobra, Víbora Pequena Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Coruja Celestial ICI'
+  id_entidade_base: 'Coruja Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Falcão Abissal ICI'
+  id_entidade_base: 'Falcão Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
 modelo {
   id: 'Cobra, Víbora Miúda'
   entidade {
@@ -287,7 +318,6 @@ modelo {
     }
   }
 }
-
 modelo {
   id: 'Sapo'
   entidade {
@@ -574,6 +604,61 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Coruja'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1d8' tamanho: TM_MIUDO cor { r: 0.4 g: 0.1 b: 0.1 }
+    voadora: true info_textura { id: 'owl.png' }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 1
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'garras' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'acuidade_arma' }
+    }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } } }
+    info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
+    movimento {
+      terrestre_basico_q: 2
+      aereo_basico_q: 8
+    }
+  }
+}
+modelo {
+  id: 'Coruja Celestial'
+  id_entidade_base: 'Coruja'
+  entidade {
+    # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 6 complementos: 5 }
+    dados_ataque {
+      rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+1'
+      taxa_refrescamento: '14400' # 1 dia
+    }
+  }
+}
+
 modelo {
   id: 'Coruja Gigante'
   entidade {
@@ -3309,6 +3394,42 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humana Guerreira 5'
+  entidade {
+    # Elite.
+    dados_vida: '4d10+10+10'
+    raca: 'humano'
+    info_textura { id: 'fighter_female.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      tesouro: 'espada bastarda +1, arco longo composto (3) OP\narmadura batalha'
+    }
+    dados_ataque { rotulo: 'esp bastarda' id_arma: 'espada_bastarda' empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_defesa { id_armadura: 'armadura_batalha' }
+    info_talentos {
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'ataque_poderoso' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Guerreiro 5'
   entidade {

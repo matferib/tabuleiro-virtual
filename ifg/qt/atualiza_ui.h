@@ -2,6 +2,7 @@
 #define IFG_QT_ATUALIZA_UI_H
 
 #include "ifg/qt/ui/entidade.h"
+#include "ifg/qt/ui/forma.h"
 
 //--------------------------------------------------------------------------------------------------
 // As funcoes AtualizaUI* atualizam uma parte especifica da UI. Elas nao chamam dependencias
@@ -57,6 +58,7 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 
 // Atualiza a UI de tesouros: pocoes e lista.
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoForma& gerador, const ent::EntidadeProto& proto);
 
 // Pontos de vida, max e temporarios.
 void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);

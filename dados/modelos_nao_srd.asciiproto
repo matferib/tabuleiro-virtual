@@ -815,6 +815,105 @@ modelo {
   }
 }
 modelo {
+  # Atencao: nao é vulto! Baseado em EotS 119 sem feiticeiro.
+  id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2'
+  entidade {
+    dados_vida: '4d10+2d8+17' raca: 'humano'
+    info_textura { id: 'ranger.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    info_classes { id: 'ranger' nivel: 2 }
+    tendencia { simples: TD_NEUTRO_MAU }
+    dados_ataque_global {
+      inimigos_prediletos {
+        classe: 'ranger'
+        vezes: 1
+        tipo: TIPO_HUMANOIDE
+        sub_tipo: SUBTIPO_ELFO
+      }
+    }
+    info_talentos {
+      # Geral: 1, 3, 6
+      gerais { id: 'prontidao' }
+      gerais { id: 'esquiva' }
+      gerais { id: 'iniciativa_aprimorada' }
+      # Guerreiro: 3.
+      outros { id: 'combate_montado' }
+      outros { id: 'investida_montada' }
+      outros { id: 'investida_implacavel' }
+      # Ranger: 2.
+      outros { id: 'tiro_rapido' }
+      outros { id: 'rastrear' }
+    }
+    # pontos: 28 = 16 guerreiro + 12 ranger, max 10.
+    info_pericias { id: 'concentracao' pontos: 1 }
+    info_pericias { id: 'adestrar_animais' pontos: 5 }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'observar' pontos:  5 }
+    info_pericias { id: 'sobrevivencia' pontos: 1 }
+    info_pericias { id: 'usar_cordas' pontos: 1 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    dados_defesa {
+      id_armadura: 'couro_batido' bonus_magico_armadura: 2
+    }
+
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+      municao: 20
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 0
+    }
+    dados_ataque {
+      grupo: 'arco_tiro_rapido' id_arma: 'arco_longo_composto_2'
+      bonus_magico: 1
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tiro rapido' valor: -2 } } }
+      ordem_ataque: 1
+    }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
+    dados_ataque { grupo: 'espada' id_arma: 'espada_larga' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
+
+    # Lanças podem ser usadas com uma mão quando montado e dá dano duplo (ou seja, x3).
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 0
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+    dados_ataque {
+      grupo: 'lanca montada para carga' id_arma: 'lanca_montada' obra_prima: true empunhadura: EA_ARMA_APENAS ordem_ataque: 1
+      alcance_m: 3 alcance_minimo_m: 1.5
+    }
+
+    dados_ataque { grupo: 'fogo alquimico' id_arma: 'fogo_alquimico' }
+
+    tesouro {
+      aneis { id: 'protecao_1' em_uso: true }
+      aneis { id: 'queda_suave' em_uso: true }
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'protecao_contra_bem' }
+      tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
+    }
+  }
+}
+
+modelo {
   # Atencao: nao é vulto! EotS 119
   # Done.
   # Shadovar aerial scout.

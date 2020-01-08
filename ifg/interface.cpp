@@ -473,9 +473,14 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
           ed.set_efeito(pl.parametros(indice_decisao).efeito());
         }
         break;
-      case ent::AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE:
-        acao.set_id_modelo_entidade(pl.parametros(indice_decisao).id_modelo_entidade());
+      case ent::AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE: {
+        const auto& parametros = pl.parametros(indice_decisao);
+        acao.set_id_modelo_entidade(parametros.id_modelo_entidade());
+        if (!parametros.quantidade().empty()) {
+          acao.set_quantidade_entidades(parametros.quantidade());
+        }
         break;
+      }
       default:
         return;
     }

@@ -166,7 +166,7 @@ const TabuleiroProto& BuscaSubCenario(int id_cenario, const TabuleiroProto& prot
 
 void Tabuleiro::ModelosComPesos::Reset() {
   ids_com_peso.clear();
-  id = "Padrão";
+  ids_com_peso.emplace_back("Padrão", 1);
   quantidade.clear();
 }
 
@@ -1069,6 +1069,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       std::vector<std::string> ids;
       for (const auto& id_com_peso : modelos_selecionados_.ids_com_peso) {
+        VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
         for (int i = 0; i < id_com_peso.peso; ++i) {
           ids.push_back(id_com_peso.id);
         }
@@ -1101,8 +1102,12 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
           offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
         }
-        LOG(INFO) << "id sorteado: " << ids[sorteio] << ", xoffset: " << offset.x << ", yoffset: " << offset.y;
+        LOG(INFO) << "numero sorteado: " << sorteio << " de " << ids.size() << "; id sorteado: " << ids[sorteio] << ", xoffset: " << offset.x << ", yoffset: " << offset.y;
         const auto& modelo_com_parametros = tabelas_.ModeloEntidade(ids[sorteio]);
+        if (!modelo_com_parametros.has_id()) {
+          LOG(INFO) << "modelo invalido, ignorando";
+          continue;
+        }
         AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
       }
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
@@ -1667,11 +1672,11 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
       continue;
     }
     // Atualizacao.
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_selecionada,
-                                           delta_pontos_vida,
-                                           TD_LETAL,
-                                           grupo_notificacoes.add_notificacao(),
-                                           grupo_desfazer.add_notificacao());
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_selecionada,
+                                             delta_pontos_vida,
+                                             TD_LETAL,
+                                             grupo_notificacoes.add_notificacao(),
+                                             grupo_desfazer.add_notificacao());
     // Acao.
     auto* na = grupo_notificacoes.add_notificacao();
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -1766,7 +1771,7 @@ float Tabuleiro::GeraAcaoFilha(const Acao& acao, const AcaoProto::PorEntidade& p
     // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    PreencheNotificacaoAtualizaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade, delta, ap.nao_letal() ? TD_NAO_LETAL : TD_LETAL, &n, nullptr /*desfazer*/);
     TrataNotificacao(n);
   }
   return atraso_s;
@@ -2136,6 +2141,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       } else {
         auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
         *n->mutable_tabuleiro()->mutable_versoes() = notificacao.tabuleiro().versoes();
+        if (notificacao.entidade().has_modelo_3d()) {
+          n->mutable_entidade()->mutable_modelo_3d();
+        }
         central_->AdicionaNotificacao(std::move(n));
       }
       break;
@@ -3176,6 +3184,8 @@ void Tabuleiro::DesenhaCena(bool debug) {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
+      const auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+      parametros_desenho_.set_observador_ve_invisivel(entidade != nullptr && PossuiEvento(EFEITO_VER_INVISIVEL, entidade->Proto()));
       gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
       DesenhaEntidadesTranslucidas();
@@ -6480,6 +6490,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
+
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
@@ -6517,7 +6528,7 @@ void Tabuleiro::DesenhaLuzes() {
   // Iluminação distante direcional.
   {
     gl::MatrizEscopo salva_matriz;
-    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
+    // O vetor inicial esta no leste (origem da luz). O quarto elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
     gl::Roda(cenario_luz.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
@@ -6533,6 +6544,7 @@ void Tabuleiro::DesenhaLuzes() {
       cor_luz[1] = std::min(1.0f, cor_luz[1] * parametros_desenho_.multiplicador_visao_penumbra());
       cor_luz[2] = std::min(1.0f, cor_luz[2] * parametros_desenho_.multiplicador_visao_penumbra());
     }
+    //LOG(INFO) << "luz direcional r:" << cor_luz[0] << ", g: " << cor_luz[1] << ", b: " << cor_luz[2];
     gl::LuzDirecional(pos_luz, cor_luz[0], cor_luz[1], cor_luz[2]);
     gl::Habilita(GL_LIGHT0);
   }
@@ -7226,7 +7238,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
         atraso_s += 0.5f;
         if (dano == 0) continue;
       }
-      PreencheNotificacaoAtualizaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
+      PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
       AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_PARALISIA) {

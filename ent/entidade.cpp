@@ -1006,6 +1006,20 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
+template <typename T>
+void LimpaSeParcialNaoVazio(const T& proto_parcial, T* proto_final) {
+  if (!proto_parcial.empty()) {
+    proto_final->Clear();
+  }
+}
+
+template <typename T>
+void LimpaSeTemSoUmVazio(T* proto_final) {
+  if (proto_final->size() == 1 && !proto_final->Get(0).has_id() && !proto_final->Get(0).has_nome()) {
+    proto_final->Clear();
+  }
+}
+
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
@@ -1070,15 +1084,22 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     }
   }
 
-  if (proto_parcial.tesouro().pocoes_size() > 0) {
-    proto_.mutable_tesouro()->clear_pocoes();
-  }
-  if (proto_parcial.tesouro().pergaminhos_arcanos_size() > 0) {
-    proto_.mutable_tesouro()->clear_pergaminhos_arcanos();
-  }
-  if (proto_parcial.tesouro().pergaminhos_divinos_size() > 0) {
-    proto_.mutable_tesouro()->clear_pergaminhos_divinos();
-  }
+  const auto& tesouro_parcial = proto_parcial.tesouro();
+  auto* tesouro_final= proto_.mutable_tesouro();
+  LimpaSeParcialNaoVazio(tesouro_parcial.pocoes(), tesouro_final->mutable_pocoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.aneis(), tesouro_final->mutable_aneis());
+  LimpaSeParcialNaoVazio(tesouro_parcial.mantos(), tesouro_final->mutable_mantos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.luvas(), tesouro_final->mutable_luvas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.bracadeiras(), tesouro_final->mutable_bracadeiras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.amuletos(), tesouro_final->mutable_amuletos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.botas(), tesouro_final->mutable_botas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.chapeus(), tesouro_final->mutable_chapeus());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armas(), tesouro_final->mutable_armas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armaduras(), tesouro_final->mutable_armaduras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.escudos(), tesouro_final->mutable_escudos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.municoes(), tesouro_final->mutable_municoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
 
   // Limpa itens que vierem no parcial, pois serao mergeados.
   for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
@@ -1185,9 +1206,21 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     CombinaBonus(proto_parcial.bonus_tamanho(), proto_.mutable_bonus_tamanho());
   }
 
-  if (proto_.tesouro().pocoes_size() == 1 && !proto_.tesouro().pocoes(0).has_id() && !proto_.tesouro().pocoes(0).has_nome()) {
-    proto_.mutable_tesouro()->clear_pocoes();
-  }
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pocoes());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_aneis());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_luvas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_bracadeiras());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_amuletos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_botas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_chapeus());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_arcanos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_divinos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armas());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armaduras());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_escudos());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_municoes());
 
   if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();
@@ -1386,7 +1419,7 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
-  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
+  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f); 
   //ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
@@ -1395,6 +1428,10 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //pos.set_y(ponto[1]);
   //pos.set_z(ponto[2]);
   return Vector4ParaPosicao(matriz * ponto);
+}
+
+const Posicao Entidade::PosicaoAlturaSemTransformacoes(float fator) const {
+  return Vector4ParaPosicao(Vector4(0.0f, 0.0f, fator * ALTURA, 1.0f));
 }
 
 const Posicao Entidade::PosicaoAcao() const {
@@ -1410,6 +1447,33 @@ const Posicao Entidade::PosicaoAcao() const {
   pos.set_id_cenario(IdCenario());
   return pos;
 }
+
+const Posicao Entidade::PosicaoAcaoSemTransformacoes() const {
+  Posicao pos;
+  if (proto_.has_posicao_acao()) {
+    pos = proto_.posicao_acao();
+  } else {
+    pos = PosicaoAlturaSemTransformacoes(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+    pos.set_x(TAMANHO_LADO_QUADRADO_2 / 2);
+    pos.set_y(TAMANHO_LADO_QUADRADO_2 / 2 * (proto_.canhota() ? 1 : -1));
+  }
+  pos.set_id_cenario(IdCenario());
+  return pos;
+}
+
+const Posicao Entidade::PosicaoAcaoSecundariaSemTransformacoes() const {
+  Posicao pos;
+  if (proto_.has_posicao_acao_secundaria()) {
+    pos = proto_.posicao_acao_secundaria();
+  } else {
+    pos = PosicaoAlturaSemTransformacoes(proto_.achatado() ? 0.1f : FATOR_ALTURA);
+    pos.set_x(TAMANHO_LADO_QUADRADO_2 / 2);
+    pos.set_y(TAMANHO_LADO_QUADRADO_2 / 2 * (proto_.canhota() ? -1 : 1));
+  }
+  pos.set_id_cenario(IdCenario());
+  return pos;
+}
+
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
   return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);
@@ -1673,7 +1737,7 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-const DadosAtaque* Entidade::DadoCorrente() const {
+const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
@@ -1685,19 +1749,21 @@ const DadosAtaque* Entidade::DadoCorrente() const {
     if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
+      if (ignora_ataques_na_rodada) break;
     }
   }
-  if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+  const int ataques_na_rodada = ignora_ataques_na_rodada ? 0 : vd_.ataques_na_rodada;
+  if (ataques_casados.empty() || ataques_na_rodada >= (int)ataques_casados.size()) {
     VLOG(3) << "Dado corrente nao encontrado, tipo ultima acao: " << ultima_acao
             << ", empty? " << ataques_casados.empty()
-            << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
+            << ", at: " << ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
   VLOG(3)
-      << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque()
-      << ", grupo: " << ataques_casados[vd_.ataques_na_rodada]->grupo();
-  VLOG(4) << "Ataque retornado: " << ataques_casados[vd_.ataques_na_rodada]->DebugString();
-  return ataques_casados[vd_.ataques_na_rodada];
+      << "Retornando " << ataques_na_rodada << "o. ataque para " << ataques_casados[ataques_na_rodada]->tipo_ataque()
+      << ", grupo: " << ataques_casados[ataques_na_rodada]->grupo();
+  VLOG(4) << "Ataque retornado: " << ataques_casados[ataques_na_rodada]->DebugString();
+  return ataques_casados[ataques_na_rodada];
 }
 
 const DadosAtaque* Entidade::DadoAgarrar() const {
@@ -1772,7 +1838,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
   const int bonus_esquiva =
       PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
-  const auto* da = DadoCorrente();
+  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
@@ -1870,7 +1936,14 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     n->mutable_entidade()->mutable_modelo_3d()->set_id("builtin:piramide");
     central->AdicionaNotificacao(n.release());
   }
-
+  // Vbos de armas.
+  std::vector<std::string> dados_vbo = {
+    "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe", "shield" };
+  for (const auto& id : dados_vbo) {
+    std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
+    n->mutable_entidade()->mutable_modelo_3d()->set_id(id);
+    central->AdicionaNotificacao(n.release());
+  }
 
   // Vbo peao.
   {
@@ -2185,8 +2258,25 @@ void Entidade::ReiniciaAtaque() {
   vd_.ataques_na_rodada = 0;
 }
 
+void LimpaSubForma(EntidadeProto* sub_forma) {
+  sub_forma->clear_dados_defesa();
+  sub_forma->clear_dados_ataque();
+  sub_forma->clear_dados_ataque_global();
+  sub_forma->clear_info_pericias();
+  sub_forma->clear_info_talentos();
+  sub_forma->clear_atributos();
+  sub_forma->clear_evento();
+  sub_forma->clear_bba();
+  for (auto& sf : *sub_forma->mutable_sub_forma()) {
+    LimpaSubForma(&sf);
+  }
+}
+
 void Entidade::RecomputaDependencias() {
   ent::RecomputaDependencias(tabelas_, &proto_, this);
+  for (auto& sf : *proto_.mutable_sub_forma()) {
+    LimpaSubForma(&sf);
+  }
 }
 
 bool Entidade::RespeitaSolo() const {

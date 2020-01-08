@@ -40,6 +40,7 @@ struct VarShader {
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
+  GLint uni_gltab_especularidade_ligada;// Objeto especular.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
   GLint uni_gltab_mvm;                  // Matrix camera * model.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
@@ -149,7 +150,7 @@ void UniformeSeValido(GLint location, GLint v0);
 void UniformeSeValido(GLint location, GLfloat v0);
 void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
-void IniciaComum(bool luz_por_vertice, float escala, interno::Contexto* contexto);
+void IniciaComum(TipoLuz, float escala, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);

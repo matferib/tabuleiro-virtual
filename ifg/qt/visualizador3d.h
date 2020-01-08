@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <list>
+#include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -79,7 +80,7 @@ class Visualizador3d :
 
  private:
   const ent::Tabelas& tabelas_;
-  bool luz_por_pixel_;
+  ent::OpcoesProto::TipoIluminacao tipo_iluminacao_;
   ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;

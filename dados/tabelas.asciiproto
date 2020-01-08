@@ -2665,28 +2665,28 @@ tabela_pocoes {
   }
   pocoes {
     id: 'protecao_contra_mal'
-    nome: 'Poteção Contra o Mal'
+    nome: 'Proteção Contra o Mal'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_MAL
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_bem'
-    nome: 'Poteção Contra o Bem'
+    nome: 'Proteção Contra o Bem'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_BEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_ordem'
-    nome: 'Poteção Contra o Ordem'
+    nome: 'Proteção Contra o Ordem'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_ORDEM
     duracao_rodadas: 10
     custo_po: 50
   }
   pocoes {
     id: 'protecao_contra_caos'
-    nome: 'Poteção Contra o Caos'
+    nome: 'Proteção Contra o Caos'
     tipo_efeito: EFEITO_PROTECAO_CONTRA_CAOS
     duracao_rodadas: 10
     custo_po: 50
@@ -7625,7 +7625,11 @@ tabela_feiticos {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
           texto: 'Cachorro Celestial'
-          id_modelo_entidade: 'Cachorro Celestial'
+          id_modelo_entidade: 'Cachorro Celestial ICI'
+        }
+        parametros {
+          texto: 'Coruja Celestial'
+          id_modelo_entidade: 'Coruja Celestial ICI'
         }
         parametros {
           texto: 'Falcão Abissal'
@@ -7633,14 +7637,13 @@ tabela_feiticos {
         }
         parametros {
           texto: 'Víbora Pequena Abissal'
-          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
         }
       }
     }
     escola: 'conjuracao'
   }
   armas {
-    # TODO
     id: 'invocar_criaturas_ii'
     nome: 'invocar criaturas II'
     alcance_quadrados: 5
@@ -7657,10 +7660,33 @@ tabela_feiticos {
       id: 'mago'
       nivel: 2
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-    #  id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Cachorro Celestial (1d3)'
+          id_modelo_entidade: 'Cachorro Celestial ICI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Coruja Celestial (1d3)'
+          id_modelo_entidade: 'Coruja Celestial ICI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Falcão Abissal (1d3)'
+          id_modelo_entidade: 'Falcão Abissal'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Víbora Pequena Abissal (1d3)'
+          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
+          quantidade: '1d3'
+        }
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -9502,7 +9528,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'ver_invisivel'
+    id: 'ver_invisivel'  # see invisibility
     nome: 'ver o invisível'
     info_classes {
       id: 'mago'

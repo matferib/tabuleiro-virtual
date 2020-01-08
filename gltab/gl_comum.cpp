@@ -375,8 +375,8 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_unidade_textura_luz", &shader->uni_gltab_unidade_textura_luz },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
-
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
+          {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
@@ -445,8 +445,8 @@ bool IniciaVariaveis(VarShader* shader) {
   return true;
 }
 
-void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
-  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << luz_por_pixel;
+void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
+  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << (tipo_luz != TL_POR_VERTICE);
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
@@ -457,12 +457,28 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
     std::string nome_fs;
     VarShader* shader;
   };
+  std::string nome_programa_luz;
+  std::string nome_vert_luz;
+  std::string nome_frag_luz;
+  switch (tipo_luz) {
+    case TL_POR_PIXEL:
+      nome_programa_luz = "programa_luz_pixel";
+      nome_vert_luz = "vert_luz.c";
+      nome_frag_luz = "frag_luz.c";
+      break;
+    case TL_POR_PIXEL_ESPECULAR:
+      nome_programa_luz = "programa_luz_pixel_especular";
+      nome_vert_luz = "vert_luz.c";
+      nome_frag_luz = "frag_luz_espec.c";
+      break;
+    case TL_POR_VERTICE:
+      nome_programa_luz = "programa_luz_vertice";
+      nome_vert_luz = "vert_luz_por_vertice.c";
+      nome_frag_luz = "frag_luz_por_vertice.c";
+      break;
+  }
   std::vector<DadosShaders> dados_shaders = {
-    { luz_por_pixel ? "programa_luz_pixel" : "programa_luz_vertice",
-      TSH_LUZ,
-      luz_por_pixel ? "vert_luz.c" : "vert_luz_por_vertice.c",
-      luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
-      &contexto->shaders[TSH_LUZ] },
+    { nome_programa_luz, TSH_LUZ, nome_vert_luz, nome_frag_luz, &contexto->shaders[TSH_LUZ] },
     { "programa_simples", TSH_SIMPLES, "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
     { "programa_caixa_ceu", TSH_CAIXA_CEU, "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
     { "programa_picking", TSH_PICKING, "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
@@ -490,7 +506,7 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 }  // namespace
 
-void IniciaComum(bool luz_por_pixel, float escala, interno::Contexto* contexto) {
+void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_model.push(Matrix4());
   contexto->pilha_view.push(Matrix4());
@@ -505,7 +521,7 @@ void IniciaComum(bool luz_por_pixel, float escala, interno::Contexto* contexto) 
   // a mensagem de erro.
   CarregaExtensoes();
   ImprimeExtensoes();
-  IniciaShaders(luz_por_pixel, contexto);
+  IniciaShaders(tipo_luz, contexto);
   IniciaVbos();
   IniciaChar();
 }
@@ -924,6 +940,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
     return;
   }
   Uniforme(interno::BuscaShader().uni_gltab_luz_direcional_cor, r, g, b, 1.0f);
+
   // Transforma o vetor em coordenadas da camera.
   float m[16];
   gl::Le(GL_MODELVIEW_MATRIX, m);
@@ -933,7 +950,14 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   nm.invert().transpose();
   Vector3 vp(pos[0], pos[1], pos[2]);
   vp = nm * vp;
+  vp.normalize();
   //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
+
+//  float glm[16];
+//  gl::Le(GL_MODELVIEW_MATRIX, glm);
+//  Matrix4 m(glm);
+//  Vector4 vp(pos[0], pos[1], pos[2], pos[3]);
+//  vp = m * vp;
   Uniforme(interno::BuscaShader().uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
 }
 
@@ -955,6 +979,14 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
+}
+
+void Especularidade(bool ligado) {
+  if (!interno::UsandoShaderLuz()) {
+    return;
+  }
+  const auto& shader = interno::BuscaShader();
+  Uniforme(shader.uni_gltab_especularidade_ligada, ligado);
 }
 
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {

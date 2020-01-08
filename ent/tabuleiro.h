@@ -359,7 +359,6 @@ class Tabuleiro : public ntf::Receptor {
   };
   struct ModelosComPesos {
     std::vector<IdModeloComPeso> ids_com_peso;
-    std::string id;
     std::string quantidade;
     void Reset();
   };

@@ -269,6 +269,14 @@ void Tabelas::RecarregaMapas() {
     }
     arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
+    if (arma.modelo_3d().empty()) {
+      if (arma.id().find("espada") != std::string::npos) arma.set_modelo_3d("sword");
+      else if (arma.id().find("besta") != std::string::npos) arma.set_modelo_3d("crossbow");
+      else if (arma.id().find("machado") != std::string::npos) arma.set_modelo_3d("axe");
+      else if (arma.id().find("arco") != std::string::npos) arma.set_modelo_3d("bow");
+      else if (arma.id().find("clava") != std::string::npos) arma.set_modelo_3d("club");
+      else if (arma.id().find("mangual") != std::string::npos) arma.set_modelo_3d("flail");
+    }
     armas_[arma.id()] = &arma;
   }
   const std::vector<std::string> classes_arcanas = {"mago", "bardo"};

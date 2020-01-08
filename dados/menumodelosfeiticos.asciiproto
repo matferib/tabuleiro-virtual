@@ -1,5 +1,12 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 modelo { id: 'Área Escorregadia' }
+sub_menu {
+  id: 'Invocar Criaturas I'
+  modelo { id: 'Cachorro Celestial ICI' texto: 'Cachorro Celestial' }
+  modelo { id: 'Coruja Celestial ICI' texto: 'Coruja Celestial' }
+  modelo { id: 'Cobra, Víbora Pequena Abissal ICI' texto: 'Cobra, Víbora Pequena Abissal' }
+  modelo { id: 'Falcão Abissal ICI' texto: 'Falcão Abissal' }
+}
 modelo { id: 'Constrição' }
 modelo { id: 'Escuridão' }
 modelo { id: 'Esfera Flamejante' }

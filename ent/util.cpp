@@ -983,7 +983,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   // Invisibilidade da +2 ataque desde que alvo nao esteja cego. Neste caso sera tratado
   // na parte de modificadores de CA no final da funcao.
   if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) &&
-      !PossuiEvento(EFEITO_CEGO, ed)) {
+      !PossuiEvento(EFEITO_VER_INVISIVEL, ed) && !PossuiEvento(EFEITO_CEGO, ed)) {
     if (!PossuiTalento("lutar_as_cegas", ed) || tipo_ataque == TipoAtaque::DISTANCIA) {
       modificador += 2;
     }
@@ -1622,7 +1622,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 }
 
 // O delta de pontos de vida afeta outros bits tambem.
-void PreencheNotificacaoAtualizaoPontosVida(
+void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   const auto& proto = entidade.Proto();
   EntidadeProto *e_antes, *e_depois;
@@ -3944,6 +3944,9 @@ ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
+  if (!entidade.PodeSerAfetadoPorAcoes()) {
+    return false;
+  }
   if (acao_proto.nao_afeta_origem() && entidade.Id() == acao_proto.id_entidade_origem()) {
     return false;
   }
@@ -4291,14 +4294,14 @@ bool DestrezaNaCA(const EntidadeProto& proto) {
 }
 
 bool DestrezaNaCAContraAtaque(
-    const DadosAtaque* da, const EntidadeProto& proto, const EntidadeProto& proto_ataque) {
-  if (da == nullptr) return DestrezaNaCA(proto);
-  if (proto.surpreso() || PossuiEvento(EFEITO_ATORDOADO, proto)) {
-    return false;
-  }
-  if ((PossuiEvento(EFEITO_CEGO, proto) ||
-       PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque)) &&
-      (!PossuiTalento("lutar_as_cegas", proto) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
+    const DadosAtaque* da, const EntidadeProto& proto_defesa, const EntidadeProto& proto_ataque) {
+  if (!DestrezaNaCA(proto_defesa)) return false;
+  if (da == nullptr) return true;
+
+  const bool atacante_invisivel_para_defensor = PossuiEvento(EFEITO_CEGO, proto_defesa) ||
+    (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque) && !PossuiEvento(EFEITO_VER_INVISIVEL, proto_defesa));
+  if (atacante_invisivel_para_defensor &&
+      (!PossuiTalento("lutar_as_cegas", proto_defesa) || DaParaTipoAtaque(*da) == TipoAtaque::DISTANCIA)) {
     return false;
   }
   return true;
@@ -4640,7 +4643,7 @@ int CompartilhaDanoSeAplicavel(
   ConcatenaString("dano solidário", por_entidade_compartilhada->mutable_texto());
 
   auto* nd = grupo_desfazer->add_notificacao();
-  PreencheNotificacaoAtualizaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
+  PreencheNotificacaoAtualizacaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
 
   return delta_pontos_vida;
 }
@@ -4773,6 +4776,223 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
 
 int PontosVida(const EntidadeProto& proto) {
   return proto.pontos_vida() + proto.pontos_vida_temporarios();
+}
+
+template <typename T>
+void AtribuiTesouroOuCriaVazio(const T& tesouro_receber, T* tesouro_final) {
+  if (tesouro_receber.empty()) {
+    // Cria vazio para limpar na atualizacao.
+    tesouro_final->Add();
+  } else {
+    // Copia os tesouros, limpando ids dos efeitos para serem recomputados.
+    *tesouro_final = tesouro_receber;
+    for (auto& item : *tesouro_final) {
+      item.clear_ids_efeitos();
+    }
+  }
+}
+
+void AtribuiMoedasOuZeraSeVazio(const EntidadeProto::Moedas& moedas_receber, EntidadeProto::Moedas* moedas_final) {
+  moedas_final->set_po(moedas_receber.po());
+  moedas_final->set_pp(moedas_receber.pp());
+  moedas_final->set_pc(moedas_receber.pc());
+  moedas_final->set_pe(moedas_receber.pe());
+  moedas_final->set_pl(moedas_receber.pl());
+}
+
+template <typename T>
+void MergeTesouro(const T& tesouro_atual, const T& tesouro_receber, T* tesouro_final) {
+  *tesouro_final = tesouro_atual;
+  tesouro_final->MergeFrom(tesouro_receber);
+  for (int i = tesouro_atual.size(); i < tesouro_final->size(); ++i) {
+    auto* item = tesouro_final->Mutable(i);
+    item->set_em_uso(false);
+    item->clear_ids_efeitos();
+  }
+}
+
+template <typename T>
+void MergeMensagemTesouro(
+    const T& tesouro, std::function<const ItemMagicoProto&(const std::string&)> f_pega_item_tabela, std::string* texto) {
+  for (const auto& item : tesouro) {
+    texto->append("\n");
+    texto->append(item.nome().empty() ? f_pega_item_tabela(item.id()).nome() : item.nome());
+  }
+}
+
+void MergeMensagemArma(
+    const Tabelas& tabelas, const RepeatedPtrField<EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& armas, std::string* texto) {
+  for (const auto& arma : armas) {
+    texto->append("\n");
+    texto->append(arma.nome().empty() ? tabelas.Arma(arma.id()).nome() : arma.nome());
+  }
+}
+
+template <typename T>
+void MergeMensagemArmaduraEscudo(
+    const T& tesouro, std::function<const ArmaduraOuEscudoProto&(const std::string&)> f_pega_item_tabela, std::string* texto) {
+  for (const auto& item : tesouro) {
+    texto->append("\n");
+    texto->append(item.nome().empty() ? f_pega_item_tabela(item.id()).nome() : item.nome());
+  }
+}
+
+void MergeMensagemMoedas(const EntidadeProto::Moedas& moedas, std::string* texto) {
+  if (moedas.po() <= 0 && moedas.pp() <= 0 && moedas.pc() <= 0 && moedas.pe() <= 0 && moedas.pl() <= 0) return;
+  texto->append("\n");
+  if (moedas.po() > 0) { texto->append(StringPrintf("%d PO, ", moedas.pl())); }
+  if (moedas.pl() > 0) { texto->append(StringPrintf("%d PL, ", moedas.pl())); }
+  if (moedas.pp() > 0) { texto->append(StringPrintf("%d PP, ", moedas.pp())); }
+  if (moedas.pc() > 0) { texto->append(StringPrintf("%d PC, ", moedas.pc())); }
+  if (moedas.pe() > 0) { texto->append(StringPrintf("%d PE, ", moedas.pe())); }
+  texto->resize(texto->size() - 2);
+}
+
+void LimpaMoedas(EntidadeProto::Moedas* moedas) {
+  moedas->set_po(0);
+  moedas->set_pp(0);
+  moedas->set_pc(0);
+  moedas->set_pl(0);
+  moedas->set_pe(0);
+}
+
+void MergeMoedas(const EntidadeProto::Moedas& atual, const EntidadeProto::Moedas& receber, EntidadeProto::Moedas* moedas_final) {
+  moedas_final->set_po(atual.po() + receber.po());
+  moedas_final->set_pp(atual.pp() + receber.pp());
+  moedas_final->set_pc(atual.pc() + receber.pc());
+  moedas_final->set_pl(atual.pl() + receber.pl());
+  moedas_final->set_pe(atual.pe() + receber.pe());
+}
+
+void PreencheNotificacoesTransicaoTesouro(
+    const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  {
+    // Doador perde tudo.
+    ntf::Notificacao* n_perdeu;
+    EntidadeProto* e_antes;
+    EntidadeProto* e_depois;
+    std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
+
+    auto* tesouro_perdeu_antes = e_antes->mutable_tesouro();
+    const auto& tesouro_transicao_antes = doador.Proto().tesouro();
+    tesouro_perdeu_antes->set_tesouro(tesouro_transicao_antes.tesouro());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.pocoes(), tesouro_perdeu_antes->mutable_pocoes());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.aneis(), tesouro_perdeu_antes->mutable_aneis());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.mantos(), tesouro_perdeu_antes->mutable_mantos());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.luvas(), tesouro_perdeu_antes->mutable_luvas());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.bracadeiras(), tesouro_perdeu_antes->mutable_bracadeiras());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.amuletos(), tesouro_perdeu_antes->mutable_amuletos());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.botas(), tesouro_perdeu_antes->mutable_botas());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.chapeus(), tesouro_perdeu_antes->mutable_chapeus());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.armas(), tesouro_perdeu_antes->mutable_armas());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.armaduras(), tesouro_perdeu_antes->mutable_armaduras());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.escudos(), tesouro_perdeu_antes->mutable_escudos());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.municoes(), tesouro_perdeu_antes->mutable_municoes());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.pergaminhos_arcanos(), tesouro_perdeu_antes->mutable_pergaminhos_arcanos());
+    AtribuiTesouroOuCriaVazio(tesouro_transicao_antes.pergaminhos_divinos(), tesouro_perdeu_antes->mutable_pergaminhos_divinos());
+    AtribuiMoedasOuZeraSeVazio(tesouro_transicao_antes.moedas(), tesouro_perdeu_antes->mutable_moedas());
+
+    auto* tesouro_perdeu = e_depois->mutable_tesouro();
+    tesouro_perdeu->set_tesouro("");
+    tesouro_perdeu->add_pocoes();
+    tesouro_perdeu->add_aneis();
+    tesouro_perdeu->add_mantos();
+    tesouro_perdeu->add_luvas();
+    tesouro_perdeu->add_bracadeiras();
+    tesouro_perdeu->add_amuletos();
+    tesouro_perdeu->add_botas();
+    tesouro_perdeu->add_chapeus();
+    tesouro_perdeu->add_pergaminhos_arcanos();
+    tesouro_perdeu->add_pergaminhos_divinos();
+    tesouro_perdeu->add_armas();
+    tesouro_perdeu->add_armaduras();
+    tesouro_perdeu->add_escudos();
+    tesouro_perdeu->add_municoes();
+    LimpaMoedas(tesouro_perdeu->mutable_moedas());
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_perdeu;
+    }
+  }
+  {
+    // Receptor ganha alem do que ja tem.
+    ntf::Notificacao* n_ganhou;
+    EntidadeProto* e_antes;
+    EntidadeProto* e_depois;
+    std::tie(n_ganhou, e_antes, e_depois) = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
+    auto* tesouro_ganhou_antes = e_antes->mutable_tesouro();
+    const auto& tesouro_receptor = receptor.Proto().tesouro();
+    const std::string& tesouro_str_corrente = tesouro_receptor.tesouro();
+    tesouro_ganhou_antes->set_tesouro(tesouro_str_corrente);
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.pocoes(), tesouro_ganhou_antes->mutable_pocoes());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.aneis(), tesouro_ganhou_antes->mutable_aneis());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.mantos(), tesouro_ganhou_antes->mutable_mantos());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.luvas(), tesouro_ganhou_antes->mutable_luvas());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.bracadeiras(), tesouro_ganhou_antes->mutable_bracadeiras());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.amuletos(), tesouro_ganhou_antes->mutable_amuletos());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.botas(), tesouro_ganhou_antes->mutable_botas());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.chapeus(), tesouro_ganhou_antes->mutable_chapeus());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.pergaminhos_arcanos(), tesouro_ganhou_antes->mutable_pergaminhos_arcanos());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.pergaminhos_divinos(), tesouro_ganhou_antes->mutable_pergaminhos_divinos());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.armas(), tesouro_ganhou_antes->mutable_armas());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.armaduras(), tesouro_ganhou_antes->mutable_armaduras());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.escudos(), tesouro_ganhou_antes->mutable_escudos());
+    AtribuiTesouroOuCriaVazio(tesouro_receptor.municoes(), tesouro_ganhou_antes->mutable_municoes());
+    AtribuiMoedasOuZeraSeVazio(tesouro_receptor.moedas(), tesouro_ganhou_antes->mutable_moedas());
+
+    auto* tesouro_ganhou = e_depois->mutable_tesouro();
+    const auto& tesouro_receber = doador.Proto().tesouro();
+    tesouro_ganhou->set_tesouro(
+        tesouro_str_corrente + (tesouro_str_corrente.empty() ? "" : "\n") + tesouro_receber.tesouro());
+    MergeTesouro(tesouro_receptor.pocoes(), tesouro_receber.pocoes(), tesouro_ganhou->mutable_pocoes());
+    MergeTesouro(tesouro_receptor.aneis(), tesouro_receber.aneis(), tesouro_ganhou->mutable_aneis());
+    MergeTesouro(tesouro_receptor.mantos(), tesouro_receber.mantos(), tesouro_ganhou->mutable_mantos());
+    MergeTesouro(tesouro_receptor.luvas(), tesouro_receber.luvas(), tesouro_ganhou->mutable_luvas());
+    MergeTesouro(tesouro_receptor.bracadeiras(), tesouro_receber.bracadeiras(), tesouro_ganhou->mutable_bracadeiras());
+    MergeTesouro(tesouro_receptor.amuletos(), tesouro_receber.amuletos(), tesouro_ganhou->mutable_amuletos());
+    MergeTesouro(tesouro_receptor.botas(), tesouro_receber.botas(), tesouro_ganhou->mutable_botas());
+    MergeTesouro(tesouro_receptor.chapeus(), tesouro_receber.chapeus(), tesouro_ganhou->mutable_chapeus());
+    MergeTesouro(tesouro_receptor.pergaminhos_arcanos(), tesouro_receber.pergaminhos_arcanos(), tesouro_ganhou->mutable_pergaminhos_arcanos());
+    MergeTesouro(tesouro_receptor.pergaminhos_divinos(), tesouro_receber.pergaminhos_divinos(), tesouro_ganhou->mutable_pergaminhos_divinos());
+    MergeTesouro(tesouro_receptor.armas(), tesouro_receber.armas(), tesouro_ganhou->mutable_armas());
+    MergeTesouro(tesouro_receptor.armaduras(), tesouro_receber.armaduras(), tesouro_ganhou->mutable_armaduras());
+    MergeTesouro(tesouro_receptor.escudos(), tesouro_receber.escudos(), tesouro_ganhou->mutable_escudos());
+    MergeTesouro(tesouro_receptor.municoes(), tesouro_receber.municoes(), tesouro_ganhou->mutable_municoes());
+    MergeMoedas(tesouro_receptor.moedas(), tesouro_receber.moedas(), tesouro_ganhou->mutable_moedas());
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_ganhou;
+    }
+  }
+  {
+    // Texto de transicao.
+    auto* n_texto = n_grupo->add_notificacao();
+    n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* acao = n_texto->mutable_acao();
+    acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    const auto& tesouro_doador = doador.Proto().tesouro();
+    std::string texto = tesouro_doador.tesouro();
+    // Os lambdas aqui devem ter o retorno explicit, caso contrario o C++ assumira copia e a referencia retornada pela funcao ficara invalida.
+    MergeMensagemTesouro(tesouro_doador.pocoes(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Pocao(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.aneis(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Anel(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.mantos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Manto(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.luvas(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Luvas(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.bracadeiras(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Bracadeiras(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.amuletos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Amuleto(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.botas(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Botas(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.chapeus(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Chapeu(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.pergaminhos_arcanos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoArcano(id); }, &texto);
+    MergeMensagemTesouro(tesouro_doador.pergaminhos_divinos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoDivino(id); }, &texto);
+    MergeMensagemArma(tabelas, tesouro_doador.armas(), &texto);
+    MergeMensagemArmaduraEscudo(tesouro_doador.armaduras(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Armadura(id); }, &texto);
+    MergeMensagemArmaduraEscudo(tesouro_doador.escudos(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Escudo(id); }, &texto);
+    MergeMensagemMoedas(tesouro_doador.moedas(), &texto);
+    acao->set_texto(texto);
+    acao->add_por_entidade()->set_id(receptor.Id());
+    //*acao->mutable_pos_entidade() = receptor->Pos();
+  }
 }
 
 }  // namespace ent

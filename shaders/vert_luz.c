@@ -37,6 +37,7 @@ uniform highp mat4 gltab_mvm_luz;       // modelagem luz.
 uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste textura.
 uniform highp mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
+uniform bool gltab_especularidade_ligada;
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
@@ -47,6 +48,7 @@ void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
+  v_Pos = v_Pos / v_Pos.w;
   v_Pos_model = gltab_vertice;
   v_Tex.st = (gltab_mvm_ajuste_textura * vec4(gltab_texel.st, 1.0, 1.0)).st;
   gl_Position = gltab_prm * v_Pos;

@@ -182,6 +182,8 @@ message ArmaProto {
     TDV_1D4_POR_NIVEL_MAX_20D4 = 2;
   };
   optional ModeloTotalDadosVida modelo_total_dv = 30;
+  // Caso a arma tenha modelo 3d.
+  optional string modelo_3d = 31;
 }
 
 message TabelaArmaduraOuEscudo {

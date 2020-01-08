@@ -6,6 +6,7 @@
 #include "ent/constantes.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
+#include "ent/tabelas.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -70,9 +71,10 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
       desenhar_objeto = false;
     }
   } else {
-    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
-    // Para jogador desenha se for selecionavel.
-    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
+    bool ve_invisivel = pd->observador_ve_invisivel() && PossuiEvento(EFEITO_INVISIBILIDADE, proto_);
+    // Invisivel, so desenha para o mestre, independente da cor (sera translucido).
+    // Para jogador desenha se for selecionavel, ou se o objeto estiver invisivel e o observador puder enxerga-lo.
+    if (!ve_invisivel && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
       desenhar_objeto = false;
     }
   }
@@ -97,7 +99,9 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   }
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   gl::Habilita(GL_NORMALIZE);
+  gl::Especularidade(proto_.especular());
   DesenhaObjeto(pd);
+  gl::Especularidade(false);
   DesenhaDecoracoes(pd);
   gl::Desabilita(GL_NORMALIZE);
 }
@@ -227,6 +231,32 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (proto_.tipo() != TE_ENTIDADE) {
     // Apenas entidades tem decoracoes.
     return;
+  }
+  if (const DadosAtaque* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true); da != nullptr) {
+    // TODO desenhar escudo de acordo com empunhadura.
+    if (da->has_id_arma()) {
+      const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
+      const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
+      VLOG(3) << "tentando desenhar " << da->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
+      if (modelo != nullptr) {
+        VLOG(3) << "desenhando " << da->id_arma();
+        const auto posicao = PosicaoAcaoSemTransformacoes();
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        modelo->vbos_gravados.Desenha();
+      }
+    }
+    if (da->empunhadura() == EA_ARMA_ESCUDO) {
+      const auto* modelo = vd_.m3d->Modelo("shield");
+      if (modelo != nullptr) {
+        const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
+        gl::MatrizEscopo salva_matriz;
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        modelo->vbos_gravados.Desenha();
+      }
+    }
   }
   // Disco da entidade.
   if (proto_.modelo_3d().id().empty() && proto_.info_textura().id().empty() && pd->entidade_selecionada()) {

@@ -1087,7 +1087,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       VLOG(1) << "Alvo " << RotuloEntidade(entidade_destino) << " destruido.";
       // Apenas para desfazer, o dano sera dado pela acao.
       auto* nd = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta, TD_LETAL, nd, nd);
+      PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta, TD_LETAL, nd, nd);
     } else {
       por_entidade->set_texto("afetado por expulsão");
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
@@ -1220,7 +1220,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     // Para desfazer.
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1373,7 +1373,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     por_entidade->set_delta(delta_pv_pos_salvacao);
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
   }
   VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1416,18 +1416,52 @@ float Tabuleiro::TrataAcaoCriacao(
   }
 
   const auto* referencia = entidade;
-  ntf::Notificacao notificacao;
-  notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  auto* modelo_entidade = notificacao.mutable_entidade();
-  *modelo_entidade = modelo_com_parametros.entidade();
-  if (modelo_com_parametros.has_parametros()) {
-    PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
-                                              : tabelas_.Feitico(da->id_arma()),
-                                modelo_com_parametros.parametros(), *referencia, modelo_entidade);
+  int quantidade = 1;
+  if (!acao_proto->quantidade_entidades().empty()) {
+    try {
+      quantidade = RolaValor(acao_proto->quantidade_entidades());
+    } catch (...) {
+      quantidade = -1;
+    }
+    // colocar uns limites.
+    if (quantidade < 0 || quantidade > 100) {
+      LOG(ERROR) << "Quantidade invalida: " << acao_proto->quantidade_entidades() << " gerou: " << quantidade;
+      quantidade = 1;
+    }
   }
-  *modelo_entidade->mutable_pos() = pos_criacao;
-
-  TrataNotificacao(notificacao);
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (int i = 0; i < quantidade; ++i) {
+    ntf::Notificacao* filha;
+    ent::EntidadeProto* e_antes, *modelo_entidade;
+    std::tie(filha, e_antes, modelo_entidade) = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
+    // A entidade nao tem id ainda.
+    e_antes->clear_id();
+    modelo_entidade->clear_id();
+    *modelo_entidade = modelo_com_parametros.entidade();
+    if (modelo_com_parametros.has_parametros()) {
+      PreencheModeloComParametros(da == nullptr ? ArmaProto::default_instance()
+                                                : tabelas_.Feitico(da->id_arma()),
+                                  modelo_com_parametros.parametros(), *referencia, modelo_entidade);
+    }
+    Vector2 offset;
+    if (i > 0) {
+      offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
+      offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
+    }
+    *modelo_entidade->mutable_pos() = pos_criacao;
+    modelo_entidade->mutable_pos()->set_x(pos_criacao.x() + offset.x);
+    modelo_entidade->mutable_pos()->set_y(pos_criacao.y() + offset.y);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+    for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+      grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+      grupo_desfazer->add_notificacao()->Swap(grupo_notificacoes.mutable_notificacao(i));
+    }
+  } else {
+    LOG(ERROR) << "ids_adicionados diferente do numero de notificacoes: " << ids_adicionados_.size() << " x " << grupo_notificacoes.notificacao_size();
+  }
   return atraso_s;
 }
 
@@ -1479,9 +1513,15 @@ float Tabuleiro::TrataAcaoIndividual(
   acao_proto->set_bem_sucedida(true);
   std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
   std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
-  if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+  if (entidade_destino == nullptr) {
+    // Pode ser um projetil de area. Então retorna a acao como veio.
+    *n->mutable_acao() = *acao_proto;
+    return atraso_s;
+  }
+
+  if (HaValorListaPontosVida()) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-    auto pos_alvo = opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
+    auto pos_alvo = entidade_destino->Tipo() != TE_ENTIDADE || opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
     float distancia_m = 0.0f;
     // Verifica alcance.
     {
@@ -1676,8 +1716,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Reducao de dano.
     std::string texto_reducao;
-    if (delta_pontos_vida < 0 &&
-        !IgnoraReducaoDano(&da, *acao_proto) && entidade_destino != nullptr) {
+    if (delta_pontos_vida < 0 && !IgnoraReducaoDano(&da, *acao_proto)) {
       google::protobuf::RepeatedField<int> descritores = da.descritores();
       ResultadoReducaoDano rrd = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
       const int dano_absorvido = -(delta_pontos_vida - rrd.delta_pv);
@@ -1780,10 +1819,10 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_proto->set_afeta_pontos_vida(true);
       // Apenas para desfazer.
       auto* nd = grupo_desfazer->add_notificacao();
-      PreencheNotificacaoAtualizaoPontosVida(
+      PreencheNotificacaoAtualizacaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
     }
-    if (entidade_origem != nullptr && entidade_destino != nullptr &&
+    if (entidade_origem != nullptr &&
         delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
       atraso_s += 1.0f;
@@ -1791,13 +1830,14 @@ float Tabuleiro::TrataAcaoIndividual(
     }
   }
 
-  if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida() && entidade_destino != nullptr) {
+  if (acao_proto->tipo() == ACAO_AGARRAR && acao_proto->bem_sucedida()) {
     // Se agarrou, desfaz aqui.
     auto* no = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
   }
+
   VLOG(1) << "Acao individual: " << acao_proto->ShortDebugString();
   // Projetil de area usa isso para saber se a acao foi realizada ou nao. Caso mude, ver a funcao TrataAcaoProjetilArea.
   *n->mutable_acao() = *acao_proto;
@@ -2168,14 +2208,14 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
     return;
   }
-  Entidade* entidade_transicao = BuscaEntidade(id);
-  if (entidade_transicao == nullptr) {
+  Entidade* doador = BuscaEntidade(id);
+  if (doador == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
-  if (entidade_transicao->Tipo() == TE_ENTIDADE || entidade_transicao->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
+  if (doador->Tipo() == TE_ENTIDADE || doador->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
     LOG(INFO) << "Transicao de tesouro";
-    if (tipo_objeto == OBJ_ENTIDADE && !entidade_transicao->Morta()) {
+    if (doador->Tipo() == TE_ENTIDADE && !doador->Morta()) {
       // invalido.
       LOG(INFO) << "Transicao de tesouro so funciona em entidades mortas";
       return;
@@ -2190,51 +2230,13 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       LOG(INFO) << "Receptor eh nullptr";
       return;
     }
-    if (receptor->Id() == entidade_transicao->Id()) {
+    if (receptor->Id() == doador->Id()) {
       LOG(INFO) << "Receptor tem que ser diferente";
       return;
     }
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    {
-      auto* n_perdeu = n.add_notificacao();
-      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-      n_perdeu->mutable_entidade()->set_id(id);
-      n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
-      n_perdeu->mutable_entidade()->mutable_tesouro()->add_pocoes();
-      n_perdeu->mutable_entidade_antes()->set_id(id);
-      n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
-      *n_perdeu->mutable_entidade_antes()->mutable_tesouro()->mutable_pocoes() = entidade_transicao->Proto().tesouro().pocoes();
-
-      auto* n_ganhou = n.add_notificacao();
-      const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
-      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-      n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
-      n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
-          tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
-      *n_ganhou->mutable_entidade()->mutable_tesouro()->mutable_pocoes() =
-        receptor->Proto().tesouro().pocoes();
-      n_ganhou->mutable_entidade()->mutable_tesouro()->mutable_pocoes()->MergeFrom(entidade_transicao->Proto().tesouro().pocoes());
-      n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
-      n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
-      *n_ganhou->mutable_entidade_antes()->mutable_tesouro()->mutable_pocoes() = receptor->Proto().tesouro().pocoes();
-    }
-    {
-      // Texto de transicao.
-      auto* n_texto = n.add_notificacao();
-      n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
-      auto* acao = n_texto->mutable_acao();
-      acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-      std::string texto = entidade_transicao->Proto().tesouro().tesouro();
-      for (const auto& pocao : entidade_transicao->Proto().tesouro().pocoes()) {
-        texto.append("\n");
-        texto.append(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
-      }
-      acao->set_texto(texto);
-      acao->add_por_entidade()->set_id(receptor->Id());
-      //*acao->mutable_pos_entidade() = receptor->Pos();
-    }
-
+    PreencheNotificacoesTransicaoTesouro(tabelas_, *doador, *receptor, &n, /*n_desfazer=*/nullptr);
     TrataNotificacao(n);
     AdicionaNotificacaoListaEventos(n);
     return;
@@ -2245,6 +2247,8 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(INFO) << "Transicao de cenario so funciona em entidades";
     return;
   }
+  // Neste contexto, o nome faz mais sentido.
+  auto* entidade_transicao = doador;
   if (!entidade_transicao->Proto().transicao_cenario().has_id_cenario()) {
     LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
     return;

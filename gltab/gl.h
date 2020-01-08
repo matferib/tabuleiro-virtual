@@ -69,7 +69,12 @@
 namespace gl {
 
 // Inicializacao e finalizacao da parte grafica. Da excecao em caso de erro.
-void IniciaGl(bool luz_por_pixel, float escala = 1.0f);
+enum TipoLuz {
+  TL_POR_VERTICE = 0,
+  TL_POR_PIXEL = 1,
+  TL_POR_PIXEL_ESPECULAR = 2
+};
+void IniciaGl(TipoLuz tipo_luz, float escala = 1.0f);
 void FinalizaGl();
 
 // Atualiza as matrizes do shader de acordo com o modo. Apenas as necessarias serao atualizadas.
@@ -421,6 +426,9 @@ void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio);
 
+
+/* Liga desliga especularidade. */
+void Especularidade(bool ligado);
 /** Funcoes de nevoa. */
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */
