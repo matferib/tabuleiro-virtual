@@ -72,23 +72,57 @@ uniform highp vec4 gltab_nevoa_referencia;      // Ponto de referencia para comp
 //uniform bool gltab_stencil;              // Stencil ligado?
 uniform highp mat3 gltab_nm;     // normal matrix
 
-lowp vec4 CorLuzDirecionalEspecular(in lowp vec3 vetor_olho_objeto_refletido, in InfoLuzDirecional luz_direcional) {
-  highp vec3 direcao_luz = vec3(luz_direcional.pos * (1 / luz_direcional.pos.w));
+//-------------------------------
+// Luz distante direcional (sol).
+//-------------------------------
+lowp vec4 CorLuzDirecionalDifusa() {
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, direcao_luz));
+  lowp float cos_ref = max(0.0, dot(v_Normal, gltab_luz_direcional.pos.xyz));
+  lowp vec4 cor_final = clamp(gltab_luz_direcional.cor * cos_ref, 0.0, 1.0);
+  return cor_final * step(0.1, gltab_luz_direcional.cor.a);
+}
+
+lowp vec4 CorLuzDirecionalEspecular(
+    in lowp vec3 vetor_olho_objeto_refletido) {
+  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
+  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, gltab_luz_direcional.pos.xyz));
   cos_ref = pow(cos_ref, 8);
-  lowp vec4 cor_final = clamp(luz_direcional.cor * cos_ref, 0.0, 1.0);
-  return cor_final * step(0.1, luz_direcional.cor.a);
+  lowp vec4 cor_final = clamp(gltab_luz_direcional.cor * cos_ref, 0.0, 1.0);
+  return cor_final * step(0.1, gltab_luz_direcional.cor.a);
 }
 
-lowp vec4 CorLuzDirecionalDifusa(in lowp vec3 vetor_referencia, in InfoLuzDirecional luz_direcional) {
-  highp vec3 direcao_luz = vec3(luz_direcional.pos * (1 / luz_direcional.pos.w));
+//-------------
+// Demais luzes
+//--------------
+lowp vec4 CorLuzPontualDifusa(
+    in lowp float atenuacao, in InfoLuzPontual luz) {
+  if (luz.cor.a == 0.0) return vec4(0.0);
+  // Vetor objeto luz.
+  highp vec4 objeto_luz_homogeneo = (luz.pos / luz.pos.w) - v_Pos;
+  highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
+  highp float distancia_objeto_luz = length(objeto_luz);
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_referencia, direcao_luz));
-  lowp vec4 cor_final = clamp(luz_direcional.cor * cos_ref, 0.0, 1.0);
-  return cor_final * step(0.1, luz_direcional.cor.a);
+  lowp float cos_ref = max(0.0, dot(v_Normal, normalize(objeto_luz)));
+  return luz.cor * cos_ref * atenuacao;
 }
 
+lowp vec4 CorLuzPontualEspecular(
+    in lowp float atenuacao, in lowp vec3 vetor_olho_objeto_refletido, in InfoLuzPontual luz) {
+  if (luz.cor.a == 0.0) return vec4(0.0);
+  // Vetor objeto luz.
+  highp vec4 objeto_luz_homogeneo = (luz.pos / luz.pos.w) - v_Pos;
+  highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
+  highp float distancia_objeto_luz = length(objeto_luz);
+  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
+  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, normalize(objeto_luz)));
+  //cos_ref = smoothstep(0.95, 0.98, cos_ref);
+  cos_ref = pow(cos_ref, 8);
+  return atenuacao * cos_ref * luz.cor * cos_ref;
+}
+
+//---------------------------
+// Funcoes auxiliares de luz.
+//---------------------------
 lowp float AtenuacaoLuz(in mediump float distancia_objeto_luz, in InfoLuzPontual luz) {
   if (luz.cor.a == 0.0) return 0.0;
   lowp float distancia_pos_raio = max(0.0, distancia_objeto_luz - luz.atributos.r);
@@ -105,31 +139,6 @@ mediump vec4 VetorLuzObjeto(in InfoLuzPontual luz) {
   if (luz.cor.a == 0.0) return vec4(0.0);
   // Vetor objeto luz.
   return (luz.pos / luz.pos.w) - v_Pos;
-}
-
-lowp vec4 CorLuzPontualEspecular(in lowp float atenuacao, in lowp vec3 vetor_olho_objeto_refletido, in InfoLuzPontual luz) {
-  if (luz.cor.a == 0.0) return vec4(0.0);
-  // Vetor objeto luz.
-  highp vec4 objeto_luz_homogeneo = (luz.pos / luz.pos.w) - v_Pos;
-  highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
-  highp float distancia_objeto_luz = length(objeto_luz);
-  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, normalize(objeto_luz)));
-  //cos_ref = smoothstep(0.95, 0.98, cos_ref);
-  cos_ref = pow(cos_ref, 8);
-  return atenuacao * cos_ref * luz.cor * cos_ref;
-}
-
-lowp vec4 CorLuzPontualDifusa(
-    in lowp float atenuacao, in lowp vec3 vetor_referencia, in InfoLuzPontual luz) {
-  if (luz.cor.a == 0.0) return vec4(0.0);
-  // Vetor objeto luz.
-  highp vec4 objeto_luz_homogeneo = (luz.pos / luz.pos.w) - v_Pos;
-  highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
-  highp float distancia_objeto_luz = length(objeto_luz);
-  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_referencia, normalize(objeto_luz)));
-  return luz.cor * cos_ref * atenuacao;
 }
 
 lowp float VisibilidadeLuzDirecional() {
@@ -236,15 +245,15 @@ void main() {
 
     // As luzes.
     lowp mat4 cor_luzes_difusas_1 = mat4(
-        visibilidades_1[0] * CorLuzDirecionalDifusa(v_Normal, gltab_luz_direcional),
-        visibilidades_1[1] * CorLuzPontualDifusa(atenuacoes_1[1], v_Normal, gltab_luzes[0]),
-        visibilidades_1[2] * CorLuzPontualDifusa(atenuacoes_1[2], v_Normal, gltab_luzes[1]),
-        visibilidades_1[3] * CorLuzPontualDifusa(atenuacoes_1[3], v_Normal, gltab_luzes[2]));
+        visibilidades_1[0] * CorLuzDirecionalDifusa(),
+        visibilidades_1[1] * CorLuzPontualDifusa(atenuacoes_1[1], gltab_luzes[0]),
+        visibilidades_1[2] * CorLuzPontualDifusa(atenuacoes_1[2], gltab_luzes[1]),
+        visibilidades_1[3] * CorLuzPontualDifusa(atenuacoes_1[3], gltab_luzes[2]));
     lowp mat4 cor_luzes_difusas_2 = mat4(
-        visibilidades_2[0] * CorLuzPontualDifusa(atenuacoes_2[0], v_Normal, gltab_luzes[3]),
-        visibilidades_2[1] * CorLuzPontualDifusa(atenuacoes_2[1], v_Normal, gltab_luzes[4]),
-        visibilidades_2[2] * CorLuzPontualDifusa(atenuacoes_2[2], v_Normal, gltab_luzes[5]),
-        visibilidades_2[3] * CorLuzPontualDifusa(atenuacoes_2[3], v_Normal, gltab_luzes[6]));
+        visibilidades_2[0] * CorLuzPontualDifusa(atenuacoes_2[0], gltab_luzes[3]),
+        visibilidades_2[1] * CorLuzPontualDifusa(atenuacoes_2[1], gltab_luzes[4]),
+        visibilidades_2[2] * CorLuzPontualDifusa(atenuacoes_2[2], gltab_luzes[5]),
+        visibilidades_2[3] * CorLuzPontualDifusa(atenuacoes_2[3], gltab_luzes[6]));
 
     // Cor difusa e ambiente aplicada.
     cor_final *= gltab_luz_ambiente + cor_luzes_difusas_1 * uns + cor_luzes_difusas_2 * uns;
@@ -253,15 +262,15 @@ void main() {
     if (gltab_especularidade_ligada) {
       lowp vec3 vetor_olho_objeto_refletido = normalize(reflect(vec3(v_Pos), v_Normal));
       lowp mat4 cor_luzes_especulares_1 = mat4(
-          visibilidades_1[0] * CorLuzDirecionalEspecular(vetor_olho_objeto_refletido, gltab_luz_direcional),
+          visibilidades_1[0] * CorLuzDirecionalEspecular(vetor_olho_objeto_refletido),
           visibilidades_1[1] * CorLuzPontualEspecular(atenuacoes_1[1], vetor_olho_objeto_refletido, gltab_luzes[0]),
           visibilidades_1[2] * CorLuzPontualEspecular(atenuacoes_1[2], vetor_olho_objeto_refletido, gltab_luzes[1]),
           visibilidades_1[3] * CorLuzPontualEspecular(atenuacoes_1[3], vetor_olho_objeto_refletido, gltab_luzes[2]));
       lowp mat4 cor_luzes_especulares_2 = mat4(
-          CorLuzPontualEspecular(atenuacoes_2[0], vetor_olho_objeto_refletido, gltab_luzes[3]),
-          CorLuzPontualEspecular(atenuacoes_2[1], vetor_olho_objeto_refletido, gltab_luzes[4]),
-          CorLuzPontualEspecular(atenuacoes_2[2], vetor_olho_objeto_refletido, gltab_luzes[5]),
-          CorLuzPontualEspecular(atenuacoes_2[3], vetor_olho_objeto_refletido, gltab_luzes[6]));
+          visibilidades_2[0] * CorLuzPontualEspecular(atenuacoes_2[0], vetor_olho_objeto_refletido, gltab_luzes[3]),
+          visibilidades_2[1] * CorLuzPontualEspecular(atenuacoes_2[1], vetor_olho_objeto_refletido, gltab_luzes[4]),
+          visibilidades_2[2] * CorLuzPontualEspecular(atenuacoes_2[2], vetor_olho_objeto_refletido, gltab_luzes[5]),
+          visibilidades_2[3] * CorLuzPontualEspecular(atenuacoes_2[3], vetor_olho_objeto_refletido, gltab_luzes[6]));
 
       // Usa clamp porque especularidade pode aumentar para acima de 1.
       cor_final = clamp(cor_final + cor_luzes_especulares_1 * uns + cor_luzes_especulares_2 * uns, 0.0, 1.0);

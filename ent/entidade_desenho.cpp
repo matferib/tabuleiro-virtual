@@ -565,7 +565,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
 
     // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
-    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA);
   } else {
     gl::Translada(X(), Y(), Z());
   }
