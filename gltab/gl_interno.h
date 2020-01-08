@@ -150,7 +150,7 @@ void UniformeSeValido(GLint location, GLint v0);
 void UniformeSeValido(GLint location, GLfloat v0);
 void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
-void IniciaComum(bool luz_por_vertice, float escala, interno::Contexto* contexto);
+void IniciaComum(TipoLuz, float escala, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);

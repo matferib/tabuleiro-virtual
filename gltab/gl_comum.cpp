@@ -445,8 +445,8 @@ bool IniciaVariaveis(VarShader* shader) {
   return true;
 }
 
-void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
-  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << luz_por_pixel;
+void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
+  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << (tipo_luz != TL_POR_VERTICE);
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
@@ -457,12 +457,28 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
     std::string nome_fs;
     VarShader* shader;
   };
+  std::string nome_programa_luz;
+  std::string nome_vert_luz;
+  std::string nome_frag_luz;
+  switch (tipo_luz) {
+    case TL_POR_PIXEL:
+      nome_programa_luz = "programa_luz_pixel";
+      nome_vert_luz = "vert_luz.c";
+      nome_frag_luz = "frag_luz.c";
+      break;
+    case TL_POR_PIXEL_ESPECULAR:
+      nome_programa_luz = "programa_luz_pixel_especular";
+      nome_vert_luz = "vert_luz.c";
+      nome_frag_luz = "frag_luz_espec.c";
+      break;
+    case TL_POR_VERTICE:
+      nome_programa_luz = "programa_luz_vertice";
+      nome_vert_luz = "vert_luz_por_vertice.c";
+      nome_frag_luz = "frag_luz_por_vertice.c";
+      break;
+  }
   std::vector<DadosShaders> dados_shaders = {
-    { luz_por_pixel ? "programa_luz_pixel" : "programa_luz_vertice",
-      TSH_LUZ,
-      luz_por_pixel ? "vert_luz.c" : "vert_luz_por_vertice.c",
-      luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
-      &contexto->shaders[TSH_LUZ] },
+    { nome_programa_luz, TSH_LUZ, nome_vert_luz, nome_frag_luz, &contexto->shaders[TSH_LUZ] },
     { "programa_simples", TSH_SIMPLES, "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
     { "programa_caixa_ceu", TSH_CAIXA_CEU, "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
     { "programa_picking", TSH_PICKING, "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
@@ -490,7 +506,7 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 }  // namespace
 
-void IniciaComum(bool luz_por_pixel, float escala, interno::Contexto* contexto) {
+void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_model.push(Matrix4());
   contexto->pilha_view.push(Matrix4());
@@ -505,7 +521,7 @@ void IniciaComum(bool luz_por_pixel, float escala, interno::Contexto* contexto) 
   // a mensagem de erro.
   CarregaExtensoes();
   ImprimeExtensoes();
-  IniciaShaders(luz_por_pixel, contexto);
+  IniciaShaders(tipo_luz, contexto);
   IniciaVbos();
   IniciaChar();
 }
@@ -934,6 +950,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   nm.invert().transpose();
   Vector3 vp(pos[0], pos[1], pos[2]);
   vp = nm * vp;
+  vp.normalize();
   //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
 
 //  float glm[16];
