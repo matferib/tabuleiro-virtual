@@ -26,12 +26,12 @@ if sistema == 'win32':
 elif sistema == 'apple':
   if 'QTDIR' not in env:
     env['QTDIR'] = '/usr/local/Cellar/qt5/5.14.0/'
-  env['FRAMEWORKPATH'] = ['/usr/local/Cellar/qt5/5.14.0/lib']
+  env['FRAMEWORKPATH'] = [env['QTDIR'] + 'lib']
   frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'OpenGL']
   env['FRAMEWORKS'] = frameworks
-  env['QT_CPPPATH'] = (map(lambda x: '/usr/local/Cellar/qt5/5.14.0/lib/' + x + '.framework/Headers/', frameworks) +
-                       map(lambda x: '/usr/local/Cellar/qt5/5.14.0/include/' + x + '/', frameworks) +
-                       ['/usr/local/Cellar/qt5/5.14.0/include/'])
+  env['QT_CPPPATH'] = (map(lambda x: env['QTDIR'] + 'lib/' + x + '.framework/Headers/', frameworks) +
+                       map(lambda x: env['QTDIR'] + 'include/' + x + '/', frameworks) +
+                       [env['QTDIR'] + 'include/'])
   env['QT_LIB'] = []
 else:
   if 'QTDIR' not in env:
