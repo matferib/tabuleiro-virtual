@@ -2471,7 +2471,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     }
     // Textura ceu.
     if (gerador.combo_herdar_ceu->currentData().toInt() != CENARIO_INVALIDO) {
-      proto_retornado->set_herdar_ceu_de(gerador.combo_herdar_piso->currentData().toInt());
+      proto_retornado->set_herdar_ceu_de(gerador.combo_herdar_ceu->currentData().toInt());
     } else {
       proto_retornado->clear_herdar_ceu_de();
       if (gerador.combo_ceu->currentIndex() == 0) {
