@@ -347,7 +347,6 @@ Visualizador3d::Visualizador3d(
        tabelas_(tabelas),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
-  //setFormat(Formato());
   const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   if (opcoes.has_tipo_iluminacao()) {
     tipo_iluminacao_ = opcoes.tipo_iluminacao();
