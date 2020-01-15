@@ -3022,6 +3022,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
 
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
+  // O depth buffer sera sempre limpo com 1.0 (valor padrao de glClearDepth, ver glGet).
   int bits_limpar = GL_DEPTH_BUFFER_BIT;
   bool desenhar_caixa_ceu = false;
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
@@ -3194,7 +3195,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
       if (parametros_desenho_.desenha_acoes()) {
         DesenhaAcoesTranslucidas();
       }
-      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 1.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
