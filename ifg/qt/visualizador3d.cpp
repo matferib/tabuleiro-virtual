@@ -123,14 +123,6 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
   return static_cast<botoesmouse_e>(botao_qt);
 }
 
-// Formato da janela.
-QGLFormat Formato() {
-  auto format = QGLFormat(
-      QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers | QGL::StencilBuffer);
-  format.setVersion(2, 1);
-  return format;
-}
-
 void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
   QStandardItem* item = new QStandardItem(rotulo);
   item->setFlags(item->flags() & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
@@ -351,10 +343,11 @@ Visualizador3d::Visualizador3d(
     const ent::Tabelas& tabelas,
     TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(Formato(), pai),
+    :  QOpenGLWidget(pai),
        tabelas_(tabelas),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
+  //setFormat(Formato());
   const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   if (opcoes.has_tipo_iluminacao()) {
     tipo_iluminacao_ = opcoes.tipo_iluminacao();
@@ -396,7 +389,11 @@ void Visualizador3d::initializeGL() {
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
+  LOG(INFO) << "w: " << width << ", h: " << height;
+  width *= scale_;
+  height *= scale_;
   tabuleiro_->TrataRedimensionaJanela(width, height);
+  update();
 }
 
 void Visualizador3d::paintGL() {
@@ -410,41 +407,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
-#if 0
-    case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
-      QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
-          tr("Abrir tabuleiro"),
-          arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
-      if (file_str.isEmpty()) {
-        VLOG(1) << "Operação de restaurar cancelada.";
-        break;
-      }
-      auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-      if (notificacao.tabuleiro().manter_entidades()) {
-        n->mutable_tabuleiro()->set_manter_entidades(true);
-      }
-      n->set_endereco(file_str.toStdString());
-      central_->AdicionaNotificacao(n);
-      break;
-    }
-#endif
-    /*
-    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
-      // Abre dialogo de arquivo.
-      QString file_str = QFileDialog::getSaveFileName(
-          qobject_cast<QWidget*>(parent()),
-          tr("Salvar tabuleiro"),
-          tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
-      if (file_str.isEmpty()) {
-        VLOG(1) << "Operação de salvar cancelada.";
-        return false;
-      }
-      auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-      n->set_endereco(file_str.toStdString());
-      central_->AdicionaNotificacao(n);
-      break;
-    }
-    */
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;
@@ -492,19 +454,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n.release());
       break;
     }
-    /*
-    case ntf::TN_INFO: {
-      DesativadorWatchdogEscopo dw(tabuleiro_);
-      QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
-      break;
-    }
-    case ntf::TN_ERRO: {
-      DesativadorWatchdogEscopo dw(tabuleiro_);
-      QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
-      break;
-    }*/
     case ntf::TN_TEMPORIZADOR:
-      glDraw();
+      update();
+      //glDraw();
       break;
     default: ;
   }
@@ -529,17 +481,21 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
+  makeCurrent();
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x() * scale_,
        (height() - event->y()) * scale_);
   event->accept();
+  doneCurrent();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
+  makeCurrent();
   teclado_mouse_->TrataBotaoMouseLiberado();
   event->accept();
+  doneCurrent();
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -551,14 +507,17 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     delete event2;
     return;
   }
+  makeCurrent();
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
       event->x() * scale_, (height() - event->y()) * scale_);
   event->accept();
+  doneCurrent();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
+  makeCurrent();
   int x = event->globalX();
   int y = event->globalY();
   if (teclado_mouse_->TrataMovimentoMouse(event->x() * scale_, (height() - event->y()) * scale_)) {
@@ -567,12 +526,15 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
     x_antes_ = x;
     y_antes_ = y;
   }
+  doneCurrent();
   event->accept();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
+  makeCurrent();
   teclado_mouse_->TrataRodela(event->delta());
   event->accept();
+  doneCurrent();
 }
 
 namespace {

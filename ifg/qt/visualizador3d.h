@@ -1,7 +1,7 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <list>
 #include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
@@ -27,7 +27,7 @@ namespace qt {
 * mouse e repassa ao contexto 3D.
 */
 class Visualizador3d :
-  public QGLWidget, ntf::Receptor {
+  public QOpenGLWidget, ntf::Receptor {
  public:
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
@@ -40,7 +40,7 @@ class Visualizador3d :
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
 
-  // Interface QGLWidget.
+  // Interface QOpenGLWidget.
   /** inicializacao dos parametros GL. */
   virtual void initializeGL() override;
   /** redimensionamento da janela. */

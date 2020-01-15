@@ -15,6 +15,7 @@
 #include <QLocale>
 #include <Qt>
 #include <QApplication>
+#include <QSurfaceFormat>
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
@@ -74,6 +75,21 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   }
   LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
 }
+
+QSurfaceFormat Formato() {
+  QSurfaceFormat formato;
+  formato.setVersion(2, 1);
+  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  formato.setRedBufferSize(8);
+  formato.setGreenBufferSize(8);
+  formato.setBlueBufferSize(8);
+  formato.setAlphaBufferSize(8);
+  formato.setDepthBufferSize(24);
+  formato.setStencilBufferSize(1);
+  formato.setRenderableType(QSurfaceFormat::OpenGL);
+  return formato;
+}
+
 }  // namespace
 
 #if ANDROID
@@ -96,6 +112,7 @@ int main(int argc, char** argv) {
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
   //MyApp q_app(argc, argv);
+  QSurfaceFormat::setDefaultFormat(Formato());
   QApplication q_app(argc, argv);
   QDir dir(QCoreApplication::applicationDirPath());
 
