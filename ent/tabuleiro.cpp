@@ -2041,7 +2041,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_));
+      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
@@ -2061,68 +2061,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       RemoveEntidadeNotificando(notificacao);
       return true;
     }
+#if !USAR_QT
+    // No QT, tem que ser chamado com contexto.
     case ntf::TN_TEMPORIZADOR: {
-      // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-      auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
-#if DEBUG
-      //glFinish();
-#endif
-      timer_entre_atualizacoes_.start();
-      timer_uma_atualizacao_.start();
-      if (regerar_vbos_entidades_) {
-        parametros_desenho_.set_regera_vbo(true);
-      }
-
-      AtualizaEntidades(passou_ms);
-      AtualizaLuzesPontuais();
-
-      if (indice_iniciativa_ != -1 && EmModoMestre()) {
-        AtualizaIniciativas();
-      }
-      // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
-      // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
-      if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
-        AtualizaOlho(passou_ms, false  /*forcar*/);
-      }
-      AtualizaAcoes(passou_ms);
-#if DEBUG
-      //glFinish();
-#endif
-      timer_uma_atualizacao_.stop();
-      EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
-      if (ciclos_para_atualizar_ == 0) {
-        if (ModoClique() == MODO_TERRENO) {
-          RefrescaTerrenoParaClientes();
-          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
-        } else {
-          RefrescaMovimentosParciais();
-          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
-        }
-      } else if (ciclos_para_atualizar_ > 0) {
-        --ciclos_para_atualizar_;
-      }
-      if (temporizador_detalhamento_ms_ > 0) {
-        temporizador_detalhamento_ms_ -= passou_ms;
-      }
-      if (temporizador_info_geral_ms_ > 0) {
-        temporizador_info_geral_ms_ -= passou_ms;
-      } else if (!info_geral_.empty()) {
-        info_geral_.clear();
-      }
-#if USAR_WATCHDOG
-      if (EmModoMestre()) {
-        watchdog_.Refresca();
-      }
-#endif
-      if (regerar_vbos_entidades_) {
-        parametros_desenho_.clear_regera_vbo();
-        regerar_vbos_entidades_ = false;
-      }
-
-      //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
-      //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
+      AtualizaPorTemporizacao();
       return true;
     }
+#endif
     case ntf::TN_REINICIAR_TABULEIRO: {
       EstadoInicial();
       // Repassa aos clientes.
@@ -2637,6 +2582,68 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   }
   AdicionaNotificacaoListaEventos(n);
   TrataNotificacao(n);
+}
+
+void Tabuleiro::AtualizaPorTemporizacao() {
+  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
+  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
+#if DEBUG
+  //glFinish();
+#endif
+  timer_entre_atualizacoes_.start();
+  timer_uma_atualizacao_.start();
+  if (regerar_vbos_entidades_) {
+    parametros_desenho_.set_regera_vbo(true);
+  }
+
+  AtualizaEntidades(passou_ms);
+  AtualizaLuzesPontuais();
+
+  if (indice_iniciativa_ != -1 && EmModoMestre()) {
+    AtualizaIniciativas();
+  }
+  // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
+  // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
+  if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
+    AtualizaOlho(passou_ms, false  /*forcar*/);
+  }
+  AtualizaAcoes(passou_ms);
+#if DEBUG
+  //glFinish();
+#endif
+  timer_uma_atualizacao_.stop();
+  EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
+  if (ciclos_para_atualizar_ == 0) {
+    if (ModoClique() == MODO_TERRENO) {
+      RefrescaTerrenoParaClientes();
+      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+    } else {
+      RefrescaMovimentosParciais();
+      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+    }
+  } else if (ciclos_para_atualizar_ > 0) {
+    --ciclos_para_atualizar_;
+  }
+  if (temporizador_detalhamento_ms_ > 0) {
+    temporizador_detalhamento_ms_ -= passou_ms;
+  }
+  if (temporizador_info_geral_ms_ > 0) {
+    temporizador_info_geral_ms_ -= passou_ms;
+  } else if (!info_geral_.empty()) {
+    info_geral_.clear();
+  }
+#if USAR_WATCHDOG
+  if (EmModoMestre()) {
+    watchdog_.Refresca();
+  }
+#endif
+  if (regerar_vbos_entidades_) {
+    parametros_desenho_.clear_regera_vbo();
+    regerar_vbos_entidades_ = false;
+  }
+
+  //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
+  //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
 }
 
 void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao) {

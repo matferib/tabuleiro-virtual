@@ -118,6 +118,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void SelecionaTudo(bool fixas);
 
+  /** Atualiza tudo dependente de timer apos o intervalo. */
+  void AtualizaPorTemporizacao();
+
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
