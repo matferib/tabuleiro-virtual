@@ -21,12 +21,15 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
 
   /** Retorna uma textura. */
   unsigned int Textura(const std::string& id) const override;
-  unsigned int TipoTextura(const std::string& id) const override; 
+  unsigned int TipoTextura(const std::string& id) const override;
 
   /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo).
   * @param rele tambem realiza a releitura dos bits crus, decodificando-os.
   */
   void Recarrega(bool rele = false);
+
+  void CarregaTexturas(const ntf::Notificacao& notificacao);
+  void DescarregaTexturas(const ntf::Notificacao& notificacao);
 
   /** Le e decodifica uma imagem, preenchendo os bits crus de info_textura e retornando as dimensoes.
   * @throw std::logic_error caso a leitura da imagem falhe.
