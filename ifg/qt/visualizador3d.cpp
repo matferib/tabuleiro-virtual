@@ -402,6 +402,18 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_REINICIAR_GRAFICO: {
+      makeCurrent();
+      tabuleiro_->ResetGrafico();
+      doneCurrent();
+      break;
+    }
+    case ntf::TN_TEMPORIZADOR_MOUSE: {
+      makeCurrent();
+      tabuleiro_->TrataMouseParadoEm(notificacao.pos().x(), notificacao.pos().y());
+      doneCurrent();
+      break;
+    }
     case ntf::TN_INICIADO:
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
