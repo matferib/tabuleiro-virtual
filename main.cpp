@@ -88,6 +88,7 @@ QSurfaceFormat Formato() {
   formato.setDepthBufferSize(24);
   formato.setStencilBufferSize(1);
   formato.setRenderableType(QSurfaceFormat::OpenGL);
+  formato.setSamples(2);
   return formato;
 }
 
