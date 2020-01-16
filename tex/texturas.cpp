@@ -361,21 +361,31 @@ Texturas::Texturas(ntf::CentralNotificacoes* central) {
 
 Texturas::~Texturas() {}
 
+void Texturas::CarregaTexturas(const ntf::Notificacao& notificacao) {
+  for (const auto& info_textura : notificacao.info_textura()) {
+    CarregaTextura(info_textura);
+  }
+}
+
+void Texturas::DescarregaTexturas(const ntf::Notificacao& notificacao) {
+  for (const auto& info_textura : notificacao.info_textura()) {
+    DescarregaTextura(info_textura);
+  }
+}
+
 // Interface de ent::Texturas.
 bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+#if !USAR_QT
     case ntf::TN_CARREGAR_TEXTURA: {
-      for (const auto& info_textura : notificacao.info_textura()) {
-        CarregaTextura(info_textura);
-      }
+      CarregaTexturas(notificacao);
       return true;
     }
     case ntf::TN_DESCARREGAR_TEXTURA: {
-      for (const auto& info_textura : notificacao.info_textura()) {
-        DescarregaTextura(info_textura);
-      }
+      DescarregaTexturas(notificacao);
       return true;
     }
+#endif
     case ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: {
       // Primeira notificacao eh local;
       if (!notificacao.local()) {

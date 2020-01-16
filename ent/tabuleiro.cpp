@@ -210,7 +210,7 @@ Tabuleiro::Tabuleiro(
   //opcoes_.set_desenha_olho(true);
 #endif
 
-  EstadoInicial(false);
+  EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
@@ -258,7 +258,16 @@ void Tabuleiro::DadosFramebuffer::Apaga() {
   gl::ApagaRenderbuffers(1, &renderbuffer);
 }
 
-void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
+void Tabuleiro::ResetGrafico() {
+  IniciaGL(true);
+  RegeraVboTabuleiro();
+  // TODO reenviar as texturas?
+
+  // Atencao V_ERRO so pode ser usado com contexto grafico.
+  V_ERRO("estado inicial pos grafico");
+}
+
+void Tabuleiro::EstadoInicial() {
   // Proto do tabuleiro.
   proto_.Clear();
   //cenario_corrente_ = CENARIO_PRINCIPAL;
@@ -267,6 +276,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   ReiniciaIluminacao(&proto_);
   // Olho.
   ReiniciaCamera();
+  LiberaTextura();
 
   // Valores iniciais.
   ultimo_x_ = ultimo_y_ = 0;
@@ -308,13 +318,6 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // iniciativa.
   indice_iniciativa_ = -1;
   iniciativas_.clear();
-
-  if (reiniciar_grafico) {
-    LiberaTextura();
-    IniciaGL(reiniciar_grafico);
-    // Atencao V_ERRO so pode ser usado com contexto grafico.
-    V_ERRO("estado inicial pos grafico");
-  }
 }
 
 void Tabuleiro::EscreveInfoGeral(const std::string& info_geral) {
@@ -2038,7 +2041,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_));
+      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
@@ -2058,76 +2061,28 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       RemoveEntidadeNotificando(notificacao);
       return true;
     }
+#if !USAR_QT
+    // No QT, tem que ser chamado com contexto.
     case ntf::TN_TEMPORIZADOR: {
-      // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-      auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
-#if DEBUG
-      //glFinish();
-#endif
-      timer_entre_atualizacoes_.start();
-      timer_uma_atualizacao_.start();
-      if (regerar_vbos_entidades_) {
-        parametros_desenho_.set_regera_vbo(true);
-      }
-
-      AtualizaEntidades(passou_ms);
-      AtualizaLuzesPontuais();
-
-      if (indice_iniciativa_ != -1 && EmModoMestre()) {
-        AtualizaIniciativas();
-      }
-      // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
-      // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
-      if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
-        AtualizaOlho(passou_ms, false  /*forcar*/);
-      }
-      AtualizaAcoes(passou_ms);
-#if DEBUG
-      //glFinish();
-#endif
-      timer_uma_atualizacao_.stop();
-      EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
-      if (ciclos_para_atualizar_ == 0) {
-        if (ModoClique() == MODO_TERRENO) {
-          RefrescaTerrenoParaClientes();
-          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
-        } else {
-          RefrescaMovimentosParciais();
-          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
-        }
-      } else if (ciclos_para_atualizar_ > 0) {
-        --ciclos_para_atualizar_;
-      }
-      if (temporizador_detalhamento_ms_ > 0) {
-        temporizador_detalhamento_ms_ -= passou_ms;
-      }
-      if (temporizador_info_geral_ms_ > 0) {
-        temporizador_info_geral_ms_ -= passou_ms;
-      } else if (!info_geral_.empty()) {
-        info_geral_.clear();
-      }
-#if USAR_WATCHDOG
-      if (EmModoMestre()) {
-        watchdog_.Refresca();
-      }
-#endif
-      if (regerar_vbos_entidades_) {
-        parametros_desenho_.clear_regera_vbo();
-        regerar_vbos_entidades_ = false;
-      }
-
-      //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
-      //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
+      AtualizaPorTemporizacao();
       return true;
     }
+#endif
     case ntf::TN_REINICIAR_TABULEIRO: {
-      EstadoInicial(true);
+      EstadoInicial();
       // Repassa aos clientes.
       if (notificacao.local()) {
         central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO));
       }
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
       return true;
     }
+#if !USAR_QT
+    case ntf::TN_REINICIAR_GRAFICO: {
+      ResetGrafico();
+      return true;
+    }
+#endif
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
       if (TemNome()) {
         auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
@@ -2236,15 +2191,18 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
         central_->AdicionaNotificacaoRemota(SerializaTabuleiro(/*salvar_versoes=*/false));
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
       } else {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
       }
       return true;
     }
     case ntf::TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO: {
       DeserializaTabuleiro(notificacao);
       central_->AdicionaNotificacaoRemota(SerializaTabuleiro(/*salvar_versoes=*/false));
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
     }
     case ntf::TN_CRIAR_CENARIO: {
       CriaSubCenarioNotificando(notificacao);
@@ -2624,6 +2582,68 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   }
   AdicionaNotificacaoListaEventos(n);
   TrataNotificacao(n);
+}
+
+void Tabuleiro::AtualizaPorTemporizacao() {
+  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
+  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
+#if DEBUG
+  //glFinish();
+#endif
+  timer_entre_atualizacoes_.start();
+  timer_uma_atualizacao_.start();
+  if (regerar_vbos_entidades_) {
+    parametros_desenho_.set_regera_vbo(true);
+  }
+
+  AtualizaEntidades(passou_ms);
+  AtualizaLuzesPontuais();
+
+  if (indice_iniciativa_ != -1 && EmModoMestre()) {
+    AtualizaIniciativas();
+  }
+  // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
+  // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
+  if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
+    AtualizaOlho(passou_ms, false  /*forcar*/);
+  }
+  AtualizaAcoes(passou_ms);
+#if DEBUG
+  //glFinish();
+#endif
+  timer_uma_atualizacao_.stop();
+  EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
+  if (ciclos_para_atualizar_ == 0) {
+    if (ModoClique() == MODO_TERRENO) {
+      RefrescaTerrenoParaClientes();
+      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+    } else {
+      RefrescaMovimentosParciais();
+      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+    }
+  } else if (ciclos_para_atualizar_ > 0) {
+    --ciclos_para_atualizar_;
+  }
+  if (temporizador_detalhamento_ms_ > 0) {
+    temporizador_detalhamento_ms_ -= passou_ms;
+  }
+  if (temporizador_info_geral_ms_ > 0) {
+    temporizador_info_geral_ms_ -= passou_ms;
+  } else if (!info_geral_.empty()) {
+    info_geral_.clear();
+  }
+#if USAR_WATCHDOG
+  if (EmModoMestre()) {
+    watchdog_.Refresca();
+  }
+#endif
+  if (regerar_vbos_entidades_) {
+    parametros_desenho_.clear_regera_vbo();
+    regerar_vbos_entidades_ = false;
+  }
+
+  //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
+  //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
 }
 
 void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao) {
@@ -3022,6 +3042,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
 
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
+  // O depth buffer sera sempre limpo com 1.0 (valor padrao de glClearDepth, ver glGet).
   int bits_limpar = GL_DEPTH_BUFFER_BIT;
   bool desenhar_caixa_ceu = false;
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
@@ -3194,7 +3215,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
       if (parametros_desenho_.desenha_acoes()) {
         DesenhaAcoesTranslucidas();
       }
-      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 1.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
@@ -4056,7 +4077,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   } else if (parametros_desenho_.desenha_texturas() && cenario_piso.has_info_textura_piso()) {
     // Eh possivel que a textura esteja carregando ainda.
-    LOG_EVERY_N(WARNING, 100) << "TEXTURA INVALIDA: " << cenario_piso.info_textura_piso().id();
+    LOG_EVERY_N(WARNING, 100) << "Textura de piso de tabuleiro invalida ou nao carregada ainda: " << cenario_piso.info_textura_piso().id();
   } else {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -5178,13 +5199,20 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(bool salvar_versoes, const std::
 // na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   const auto& novo_tabuleiro = notificacao.tabuleiro();
-  bool manter_entidades = novo_tabuleiro.manter_entidades();
+  const bool manter_entidades = novo_tabuleiro.manter_entidades();
+  std::vector<EntidadeProto> entidades_mantidas;
   if (manter_entidades) {
     VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << novo_tabuleiro.ShortDebugString();
+    for (const auto& par_id_entidade : entidades_) {
+      if (manter_entidades && par_id_entidade.second->SelecionavelParaJogador()) {
+        // Faz a copia pq vai tudo pro saco.
+        entidades_mantidas.emplace_back(par_id_entidade.second->Proto());
+      }
+    }
   } else {
     VLOG(1) << "Deserializando tabuleiro todo: " << novo_tabuleiro.ShortDebugString();
-    EstadoInicial(true);
   }
+  EstadoInicial();
   if (notificacao.has_erro()) {
     auto ne = ntf::NovaNotificacao(ntf::TN_ERRO);
     ne->set_erro(std::string("Erro ao deserializar tabuleiro: ") + notificacao.erro());
@@ -5200,14 +5228,14 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
   AtualizaPisoCeuIncluindoSubCenarios(novo_tabuleiro);
-  proto_.CopyFrom(novo_tabuleiro);
+  proto_ = novo_tabuleiro;
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
   }
   proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
-  RegeraVboTabuleiro();
+  //RegeraVboTabuleiro();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
@@ -5215,21 +5243,12 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     id_cliente_ = novo_tabuleiro.id_cliente();
   }
 
-  // Remove as entidades do tabuleiro corrente.
-  std::vector<unsigned int> entidades_a_remover;
-  for (const auto& id_entidade : entidades_) {
-    if (manter_entidades && id_entidade.second->SelecionavelParaJogador()) {
-      continue;
-    }
-    entidades_a_remover.push_back(id_entidade.first);
-  }
-  for (unsigned int id : entidades_a_remover) {
-    RemoveEntidade(id);
-  }
-
   // Recebe as entidades.
-  for (EntidadeProto ep : novo_tabuleiro.entidade()) {
-    if (manter_entidades) {
+  entidades_mantidas.insert(entidades_mantidas.end(), novo_tabuleiro.entidade().begin(), novo_tabuleiro.entidade().end());
+
+  int i = 0;
+  for (EntidadeProto ep : entidades_mantidas) {
+    if (BuscaEntidade(ep.id()) != nullptr) {
       // Para manter as entidades, os ids tem que ser regerados para as entidades do tabuleiro,
       // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
@@ -5237,7 +5256,9 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     auto* e = NovaEntidade(ep, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
+      delete e;
     }
+    ++i;
   }
   VLOG(1) << "Foram adicionadas " << novo_tabuleiro.entidade_size() << " entidades";
 }

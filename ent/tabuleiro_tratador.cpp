@@ -536,11 +536,19 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       VLOG(1) << "olho altura: " << olho_altura;
       olho_.set_altura(olho_altura);
+#if __APPLE__ && !USAR_OPENGL_ES
+      // Bizarramente, o macosx ta ignorando o setCursor.
+      ultimo_x_ = x;
+      ultimo_y_ = y;
+      AtualizaOlho(0, true  /*forcar*/);
+      return false;
+#else
       // A rotacao nao altera o cursor, portanto nao deve atualizar o ultimo_xy.
       //ultimo_x_ = x;
       //ultimo_y_ = y;
       AtualizaOlho(0, true  /*forcar*/);
       return true;
+#endif
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {

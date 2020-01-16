@@ -10,6 +10,13 @@
 namespace ent {
 class Tabelas;
 class Tabuleiro;
+}  // namespace tex
+
+namespace m3d {
+class Modelos3d;
+}  // namespace m3d
+
+namespace tex {
 class Texturas;
 }  // namespace tex
 
@@ -34,7 +41,8 @@ class Principal : public QWidget, ntf::Receptor {
   static Principal* Cria(QCoreApplication* qapp,
                          const ent::Tabelas& tabelas,
                          ent::Tabuleiro* tabuleiro,
-                         ent::Texturas* texturas,
+                         m3d::Modelos3d* m3d,
+                         tex::Texturas* texturas,
                          ifg::TratadorTecladoMouse* teclado_mouse,
                          ntf::CentralNotificacoes* central);
   ~Principal();
@@ -56,7 +64,7 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-  Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ent::Texturas* texturas,
+  Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, m3d::Modelos3d* m3d, tex::Texturas* texturas,
             ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QCoreApplication* q_app);
 
   /** central de notificacoes da interface. */

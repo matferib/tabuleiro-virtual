@@ -7,7 +7,7 @@ import "ent/tabuleiro.proto";
 package ntf;
 option java_package = "com.matferib.Tabuleiro.ntf";
 
-// Proximo: 74.
+// Proximo: 76.
 enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
@@ -78,12 +78,15 @@ enum Tipo {
   TN_ABRIR_DIALOGO_REMOVER_VERSAO = 71;
   TN_DESERIALIZAR_VERSAO_TABULEIRO_NOTIFICANDO = 70;
   TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO = 73;  // para feiticos que tem multiplos efeitos a serem escolhidos no lancamento.
+  TN_REINICIAR_GRAFICO = 74;  // para centralizar as funcoes que mexem diretamente com grafico em um lugar que tenha contexto correto.
+  TN_TEMPORIZADOR_MOUSE = 75;  // Relacionado a mouse. Se tiver posicao, eh que parou ali. Caso contrario, mouse moveu.
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
+// Proximo id: 22.
 message Notificacao {
   optional Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
@@ -126,6 +129,8 @@ message Notificacao {
   optional ent.TodasTabelas tabelas = 20;
   // Indica se o jogo esta em modo mestre ou nao.
   optional bool modo_mestre = 10;
+  // Para eventos de mouse e relacionados a posicao.
+  optional ent.Posicao pos = 21;
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
   // Este campo eh preenchido para false durante recebimento de notificacoes pela rede.
   optional bool local = 11 [default=true];

@@ -467,7 +467,15 @@ void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
 
 void TratadorTecladoMouse::TrataAcaoTemporizadaMouse() {
   VLOG(1) << "Tratando acao temporizada de mouse em: " << ultimo_x_ << ", " << ultimo_y_;
+#if USAR_QT
+  // No QT, o picking tem que ser feito dentro de contexto.
+  auto n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR_MOUSE);
+  n->mutable_pos()->set_x(ultimo_x_);
+  n->mutable_pos()->set_y(ultimo_y_);
+  central_->AdicionaNotificacao(n.release());
+#else
   tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
+#endif
 }
 
 bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao) {
