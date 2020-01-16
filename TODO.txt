@@ -1,3 +1,5 @@
+Problema sao acoes fora de contexto OpenGL, por exemplo: MouseParadoEm que eh tratado na ifg/teclado_mouse ao inves do visualizador3d.
+Isso afeta tambem carregamento de tabuleiro por causa do EstadoInicial (mantendo graficos). Que alias, ta bugado quando se deve manter entidades.
 Terminar invocar criaturas I.
 Terminar CP_SELECIONA_ENTIDADES_NO_ALCANCE
 Acabar de conferir a adicao em grupo (especialmente ver restaurar selecionaveis).
