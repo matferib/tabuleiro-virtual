@@ -776,6 +776,9 @@ void Tabuleiro::DesenhaMapaSombra() {
 int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
 
+  GLint buffer_original;
+  gl::Le(GL_DRAW_BUFFER, &buffer_original);
+
 #if DEBUG
   //glFinish();
 #endif
@@ -934,8 +937,11 @@ int Tabuleiro::Desenha() {
   }
 #endif
 
+  V_ERRO_RET("AntesMeioDesenha");
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  gl::BufferDesenho(GL_BACK);
+  gl::BufferDesenho(buffer_original);
+  //LOG_EVERY_N(INFO, 100)
+  //   << "buffer original a partir de none: " << (buffer_original - GL_NONE) << ", a partir de attachment: " << (buffer_original - GL_COLOR_ATTACHMENT0);
 #endif
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
