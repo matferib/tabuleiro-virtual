@@ -37,7 +37,7 @@ using namespace std;
 Principal* Principal::Cria(
     QCoreApplication* q_app,
     const ent::Tabelas& tabelas,
-    ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ifg::TratadorTecladoMouse* teclado_mouse,
+    ent::Tabuleiro* tabuleiro, m3d::Modelos3d* m3d, tex::Texturas* texturas, ifg::TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central) {
   static QTranslator* tradutor_qt = new QTranslator();
   bool carregou = tradutor_qt->load("qt_" + QLocale::system().name(),
@@ -53,18 +53,19 @@ Principal* Principal::Cria(
 #if !USAR_QT5
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 #endif
-  return new Principal(tabelas, tabuleiro, texturas, teclado_mouse, central, q_app);
+  return new Principal(tabelas, tabuleiro, m3d, texturas, teclado_mouse, central, q_app);
 }
 
 Principal::Principal(const ent::Tabelas& tabelas,
                      ent::Tabuleiro* tabuleiro,
-                     ent::Texturas* texturas,
+                     m3d::Modelos3d* m3d,
+                     tex::Texturas* texturas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
                      QCoreApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
       tabuleiro_(tabuleiro), menu_principal_(new MenuPrincipal(tabelas, tabuleiro, central, this)),
-      v3d_(new Visualizador3d(tabelas, teclado_mouse, central, tabuleiro, this)) {
+      v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }
