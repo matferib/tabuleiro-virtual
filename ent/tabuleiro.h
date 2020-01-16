@@ -601,6 +601,9 @@ class Tabuleiro : public ntf::Receptor {
       Entidade* entidade, const Posicao& pos_entidade, const Posicao& pos_tabuleiro,
       unsigned int id_entidade_destino, float atraso_s, const AcaoProto* acao_preenchida = nullptr);
 
+  /** Restaura o contexto grafico. Deve ser chamado apenas por quem tem o contexto. */
+  void ResetGrafico();
+
  private:
   struct DadosIniciativa {
     unsigned int id;
@@ -634,9 +637,8 @@ class Tabuleiro : public ntf::Receptor {
       float x, float y, float z,
       ntf::Notificacao* n_desfazer);
 
-  /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
-  void EstadoInicial(bool reiniciar_grafico);
-
+  /** Poe o tabuleiro nas condicoes iniciais. */
+  void EstadoInicial();
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
