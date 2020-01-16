@@ -341,10 +341,14 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
 
 Visualizador3d::Visualizador3d(
     const ent::Tabelas& tabelas,
+    m3d::Modelos3d* m3d,
+    tex::Texturas* texturas,
     TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QOpenGLWidget(pai),
        tabelas_(tabelas),
+       m3d_(m3d),
+       texturas_(texturas),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
@@ -402,6 +406,30 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_CARREGAR_TEXTURA: {
+      makeCurrent();
+      texturas_->CarregaTexturas(notificacao);
+      doneCurrent();
+      break;
+    }
+    case ntf::TN_DESCARREGAR_TEXTURA: {
+      makeCurrent();
+      texturas_->DescarregaTexturas(notificacao);
+      doneCurrent();
+      break;
+    }
+    case ntf::TN_CARREGAR_MODELO_3D: {
+      makeCurrent();
+      m3d_->CarregaModelo3d(notificacao.entidade().modelo_3d().id());
+      doneCurrent();
+      break;
+    }
+    case ntf::TN_DESCARREGAR_MODELO_3D: {
+      makeCurrent();
+      m3d_->DescarregaModelo3d(notificacao.entidade().modelo_3d().id());
+      doneCurrent();
+      break;
+    }
     case ntf::TN_REINICIAR_GRAFICO: {
       makeCurrent();
       tabuleiro_->ResetGrafico();
@@ -414,10 +442,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       doneCurrent();
       break;
     }
-    case ntf::TN_INICIADO:
+    case ntf::TN_INICIADO: {
       // chama o resize pra iniciar a geometria e desenha a janela
+      makeCurrent();
       resizeGL(width(), height());
+      doneCurrent();
       break;
+    }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;
@@ -466,6 +497,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_TEMPORIZADOR:
+      makeCurrent();
+      tabuleiro_->AtualizaPorTemporizacao();
+      doneCurrent();
       update();
       //glDraw();
       break;

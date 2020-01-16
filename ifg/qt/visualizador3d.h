@@ -17,6 +17,14 @@ class Tabuleiro;
 class TabuleiroProto;
 }  // namespace ent
 
+namespace m3d {
+class Modelos3d;
+}  // namespace m3d
+
+namespace tex {
+class Texturas;
+}  // namespace tex
+
 namespace ifg {
 
 class TratadorTecladoMouse;
@@ -34,6 +42,8 @@ class Visualizador3d :
   */
   Visualizador3d(
       const ent::Tabelas& tabelas,
+      m3d::Modelos3d* m3d,
+      tex::Texturas* texturas,
       ifg::TratadorTecladoMouse* teclado_mouse,
       ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
@@ -81,6 +91,8 @@ class Visualizador3d :
  private:
   const ent::Tabelas& tabelas_;
   ent::OpcoesProto::TipoIluminacao tipo_iluminacao_;
+  m3d::Modelos3d* m3d_ = nullptr;
+  tex::Texturas* texturas_ = nullptr;
   ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
