@@ -20,7 +20,7 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
+  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
   virtual ~Acao();
 
   void Atualiza(int intervalo_ms);
@@ -91,6 +91,7 @@ class Acao {
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_ = nullptr;
   tex::Texturas* texturas_ = nullptr;
+  ntf::CentralNotificacoes* central_ = nullptr;
   float atraso_s_ = 0;
   // Por atualizacao.
   float velocidade_m_ms_ = 0;
@@ -109,7 +110,7 @@ class Acao {
 };
 
 // Cria uma nova acao no tabuleiro.
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
 
 // Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
 const std::string& TextoAcao(const AcaoProto& acao_proto);
@@ -121,7 +122,7 @@ void CombinaEfeitos(AcaoProto* acao);
 // Retorna true se a acao for um efeito de area.
 bool EfeitoArea(const AcaoProto& acao_proto);
 
-// Dadas as entidades passadas, seleciona as que estao no mesmo cenario que entidade_origem e pega aquelas sao afetadas pela acao. 
+// Dadas as entidades passadas, seleciona as que estao no mesmo cenario que entidade_origem e pega aquelas sao afetadas pela acao.
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario);
 

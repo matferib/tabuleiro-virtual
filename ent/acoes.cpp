@@ -97,8 +97,8 @@ float ArrumaSePassou(float antes, float depois, float destino) {
 class AcaoSinalizacao : public Acao {
  public:
   constexpr static float TAMANHO_MAXIMO = TAMANHO_LADO_QUADRADO * 2.0f;
-  AcaoSinalizacao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
-      Acao(acao_proto, tabuleiro, texturas), estado_(TAMANHO_MAXIMO) {
+  AcaoSinalizacao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
+      Acao(acao_proto, tabuleiro, texturas, central), estado_(TAMANHO_MAXIMO) {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
@@ -161,8 +161,8 @@ gl::VboGravado AcaoSinalizacao::vbo_;
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoPocao: public Acao {
  public:
-  AcaoPocao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
-      Acao(acao_proto, tabuleiro, texturas) {
+  AcaoPocao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
+      Acao(acao_proto, tabuleiro, texturas, central) {
     bolhas_.emplace_back(gl::VboEsferaSolida(0.15f, 6, 6));
     bolhas_.emplace_back(gl::VboEsferaSolida(0.1f, 6, 6));
     bolhas_.emplace_back(gl::VboEsferaSolida(0.2f, 6, 6));
@@ -211,8 +211,8 @@ class AcaoPocao: public Acao {
 
 class AcaoAgarrar : public Acao {
  public:
-  AcaoAgarrar(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
-      Acao(acao_proto, tabuleiro, texturas) {
+  AcaoAgarrar(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
+      Acao(acao_proto, tabuleiro, texturas, central) {
     Entidade* entidade_destino = EntidadeDestino();
     Entidade* entidade_origem = EntidadeOrigem();
     if (entidade_origem == nullptr || entidade_destino == nullptr || entidade_destino->Proto().fixa())  {
@@ -250,8 +250,8 @@ class AcaoAgarrar : public Acao {
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
-  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
-      : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto, tabuleiro);
     if (!acao_proto_.has_pos_entidade()) {
       if (entidade_destino == nullptr) {
@@ -419,7 +419,8 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
         acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
@@ -525,7 +526,8 @@ class AcaoDispersao : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoProjetilArea: public Acao {
  public:
-  AcaoProjetilArea(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoProjetilArea(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
       VLOG(1) << "Finalizando projetil area, precisa de entidade origem.";
@@ -688,7 +690,8 @@ class AcaoProjetilArea: public Acao {
 // Uma acao de projetil, tipo flecha ou missil magico.
 class AcaoProjetil : public Acao {
  public:
-  AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
@@ -796,7 +799,8 @@ class AcaoProjetil : public Acao {
 // Acao de raio.
 class AcaoRaio : public Acao {
  public:
-  AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     duracao_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.5f;
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0.0f;
@@ -900,7 +904,8 @@ class AcaoRaio : public Acao {
 // Acao ACAO_CORPO_A_CORPO.
 class AcaoCorpoCorpo : public Acao {
  public:
-  AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     rotacao_graus_ = 0.0f;
     if (!acao_proto_.has_id_entidade_origem()) {
       VLOG(1) << "Acao corpo a corpo requer id origem.";
@@ -1007,7 +1012,8 @@ class AcaoCorpoCorpo : public Acao {
 // Acao de feitico.
 class AcaoFeitico : public Acao {
  public:
-  AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoFeitico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
       LOG(ERROR) << "Acao de feitico de toque requer origem e destino, tem origem? "
         << acao_proto_.has_id_entidade_origem() << ", destino vazio? " << acao_proto_.por_entidade().empty();
@@ -1075,7 +1081,8 @@ class AcaoFeitico : public Acao {
 // Nao faz nada.
 class AcaoCriacaoEntidade : public Acao {
  public:
-  AcaoCriacaoEntidade(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoCriacaoEntidade(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+      : Acao(acao_proto, tabuleiro, texturas, central) {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -1094,28 +1101,26 @@ class AcaoCriacaoEntidade : public Acao {
 }  // namespace
 
 // Acao.
-Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
-    : acao_proto_(acao_proto), tabuleiro_(tabuleiro), texturas_(texturas) {
+Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
+    : acao_proto_(acao_proto), tabuleiro_(tabuleiro), texturas_(texturas), central_(central) {
   velocidade_m_ms_ = acao_proto.velocidade().inicial_m_s() / 1000.0f;
   aceleracao_m_ms_2_ = acao_proto.velocidade().aceleracao_m_s_2() / 1000.0f;
   dx_ = dy_ = dz_ = 0;
   dx_total_ = dy_total_ = dz_total_ = 0;
   disco_alvo_rad_ = 0;
   atraso_s_ = acao_proto_.atraso_s();
-  if (!acao_proto_.info_textura().id().empty()) {
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_CARREGAR_TEXTURA);
-    n.add_info_textura()->set_id(acao_proto_.info_textura().id());
-    texturas_->TrataNotificacao(n);
+  if (central_ != nullptr && !acao_proto_.info_textura().id().empty()) {
+    auto n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    n->add_info_textura()->set_id(acao_proto_.info_textura().id());
+    central_->AdicionaNotificacao(n.release());
   }
 }
 
 Acao::~Acao() {
-  if (!acao_proto_.info_textura().id().empty()) {
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_DESCARREGAR_TEXTURA);
-    n.add_info_textura()->set_id(acao_proto_.info_textura().id());
-    texturas_->TrataNotificacao(n);
+  if (central_ != nullptr && !acao_proto_.info_textura().id().empty()) {
+    auto n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    n->add_info_textura()->set_id(acao_proto_.info_textura().id());
+    central_->AdicionaNotificacao(n.release());
   }
 }
 
@@ -1685,33 +1690,33 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
   return false;
 }
 
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) {
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) {
   VLOG(1) << "NovaAcao: " << acao_proto.DebugString();
   switch (acao_proto.tipo()) {
     case ACAO_SINALIZACAO:
-      return new AcaoSinalizacao(acao_proto, tabuleiro, texturas);
+      return new AcaoSinalizacao(acao_proto, tabuleiro, texturas, central);
     case ACAO_PROJETIL:
-      return new AcaoProjetil(acao_proto, tabuleiro, texturas);
+      return new AcaoProjetil(acao_proto, tabuleiro, texturas, central);
     case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
     case ACAO_DISPERSAO:
-      return new AcaoDispersao(acao_proto, tabuleiro, texturas);
+      return new AcaoDispersao(acao_proto, tabuleiro, texturas, central);
     case ACAO_DELTA_PONTOS_VIDA:
-      return new AcaoDeltaPontosVida(acao_proto, tabuleiro, texturas);
+      return new AcaoDeltaPontosVida(acao_proto, tabuleiro, texturas, central);
     case ACAO_RAIO:
-      return new AcaoRaio(acao_proto, tabuleiro, texturas);
+      return new AcaoRaio(acao_proto, tabuleiro, texturas, central);
     case ACAO_CORPO_A_CORPO:
-      return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
+      return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas, central);
     case ACAO_FEITICO_TOQUE:
     case ACAO_FEITICO_PESSOAL:
-      return new AcaoFeitico(acao_proto, tabuleiro, texturas);
+      return new AcaoFeitico(acao_proto, tabuleiro, texturas, central);
     case ACAO_AGARRAR:
-      return new AcaoAgarrar(acao_proto, tabuleiro, texturas);
+      return new AcaoAgarrar(acao_proto, tabuleiro, texturas, central);
     case ACAO_POCAO:
-      return new AcaoPocao(acao_proto, tabuleiro, texturas);
+      return new AcaoPocao(acao_proto, tabuleiro, texturas, central);
     case ACAO_PROJETIL_AREA:
-      return new AcaoProjetilArea(acao_proto, tabuleiro, texturas);
+      return new AcaoProjetilArea(acao_proto, tabuleiro, texturas, central);
     case ACAO_CRIACAO_ENTIDADE:
-      return new AcaoCriacaoEntidade(acao_proto, tabuleiro, texturas);
+      return new AcaoCriacaoEntidade(acao_proto, tabuleiro, texturas, central);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
