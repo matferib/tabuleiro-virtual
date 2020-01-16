@@ -34,14 +34,14 @@ class Modelos3d : public ntf::Receptor {
   // Recarrega os modelos 3d em caso de perda do contexto opengl.
   void Recarrega();
 
-  /** Retorna a lista de modelos 3d disponiveis. */
-  static std::vector<std::string> ModelosDisponiveis(bool global);
-
- private:
   // Realiza a carga de um modelo 3d. Os ids nao possuem a extensao .binproto.
   void CarregaModelo3d(const std::string& id_interno);
   void DescarregaModelo3d(const std::string& id_interno);
 
+  /** Retorna a lista de modelos 3d disponiveis. */
+  static std::vector<std::string> ModelosDisponiveis(bool global);
+
+ private:
   struct Interno;
   std::unique_ptr<Interno> interno_;
   ntf::CentralNotificacoes* central_;
