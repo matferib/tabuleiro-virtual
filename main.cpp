@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
 
   std::unique_ptr<ifg::qt::Principal> p(
-      ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &texturas, &teclado_mouse, &central));
+      ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
 #if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {
