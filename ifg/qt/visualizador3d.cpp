@@ -510,17 +510,21 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
+  makeCurrent();
   teclado_mouse_->TrataTeclaPressionada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
+  doneCurrent();
 }
 
 void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
+  makeCurrent();
   teclado_mouse_->TrataTeclaLiberada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
+  doneCurrent();
 }
 
 // mouse
