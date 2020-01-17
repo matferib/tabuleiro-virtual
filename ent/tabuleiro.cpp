@@ -640,7 +640,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
-void Tabuleiro::DesenhaMapaLuz() {
+void Tabuleiro::DesenhaMapaLuz(int indice_luz) {
   if (luzes_pontuais_.empty()) {
     return;
   }
@@ -658,8 +658,8 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
-  parametros_desenho_.set_nao_desenha_entidades_translucidas(true);  // nao devem afetar o mapa oclusao.
-  parametros_desenho_.set_nao_desenha_entidades_selecionaveis(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_nao_desenha_entidades_translucidas(true);  // nao devem afetar o mapa luz.
+  parametros_desenho_.set_nao_desenha_entidades_selecionaveis(true);  // nao devem afetar o mapa luz.
   parametros_desenho_.set_desenha_lista_objetos(false);
   parametros_desenho_.set_desenha_lista_jogadores(false);
   parametros_desenho_.set_desenha_fps(false);
@@ -677,6 +677,7 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.set_desenha_ligacao_agarrar(false);
+  parametros_desenho_.set_entidade_referencia_luz(luzes_pontuais_[indice_luz].id);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
   gl::UsaShader(gl::TSH_PONTUAL);
@@ -684,21 +685,24 @@ void Tabuleiro::DesenhaMapaLuz() {
   gl::UnidadeTextura(GL_TEXTURE4);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
   gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  // Face a ser desenhada. Aqui setada apenas configucao funcionar (alguma face tem que ser setada).
   parametros_desenho_.set_desenha_mapa_luzes(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoOclusaoLuzes();
+  // Neste caso eh melhor deixar o bind pro original do lado de fora, pq teoricamente isso tem que ser um loop.
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[0].framebuffer);
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
   for (int i = 0; i < 6; ++i) {
     //LOG(INFO) << "DesenhaMapaLuzes " << i;
+    // Face a ser desenhada.
     parametros_desenho_.set_desenha_mapa_luzes(i);
 #if ORDENAR_ENTIDADES
     parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
 #endif
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[0].textura, 0);
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[indice_luz].textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
@@ -4178,8 +4182,12 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (proto.selecionavel_para_jogador() && pd.nao_desenha_entidades_selecionaveis()) {
     return true;
   }
-  if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_luzes() || pd.has_desenha_mapa_oclusao())) {
-    // Para luzes pontuais e oclusao, entidades nao contam (performance).
+  if (proto.tipo() == TE_ENTIDADE && pd.has_desenha_mapa_oclusao()) {
+    // Para oclusao, entidades nao contam (performance).
+    return true;
+  }
+  if (proto.tipo() == TE_ENTIDADE && pd.has_desenha_mapa_luzes() && pd.entidade_referencia_luz() == proto.id()) {
+    // Por enquanto nao desenharemos entidades.
     return true;
   }
   if (proto.fixa() && proto.cor().a() < 1.0f && pd.nao_desenha_entidades_fixas_translucidas()) {
@@ -4226,8 +4234,12 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
-    if (entidade->Pos().id_cenario() != IdCenario()) continue;
-    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) continue;
+    if (entidade->Pos().id_cenario() != IdCenario()) {
+      continue;
+    }
+    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) {
+      continue;
+    }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
     if (camera_presa_ &&  entidade->Id() == IdCameraPresa() &&
         !parametros_desenho_.desenha_mapa_sombras()) {
@@ -6193,6 +6205,7 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
   if (entidade->Tipo() != TE_ENTIDADE) {
     luzes_pontuais_.clear();
   }
+  //luzes_pontuais_.clear();
 }
 
 void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
@@ -6418,6 +6431,7 @@ void Tabuleiro::AtualizaPisoCeuCenario(const TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::AtualizaLuzesPontuais() {
+  const auto* entidade_presa = BuscaEntidade(IdCameraPresa());
   // Posiciona as luzes dinâmicas.
   std::vector<const Entidade*> entidades_com_luz;
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
@@ -6425,14 +6439,18 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->TemLuz()) {
       continue;
     }
+    //if (entidade_presa != nullptr && e->Id() == entidade_presa->Id()) {
+      // Se a camera esta presa nesta entidade, ou ela tera oclusao ou estara em primeira pessoa, nao precisa mapear a luz propria.
+    //  continue;
+    //}
     entidades_com_luz.push_back(e);
   }
   if (entidades_com_luz.empty()) {
     return;
   }
+
   // Posicao para comparacao.
   Vector3 pos_comp;
-  const auto* entidade_presa = BuscaEntidade(IdCameraPresa());
   if (entidade_presa != nullptr) {
     pos_comp = PosParaVector3(entidade_presa->Pos());
     pos_comp.z += entidade_presa->AlturaOlho();
@@ -6457,14 +6475,10 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     } else if (rhs == entidade_presa) {
       return false;
     }
-    float ld = (PosParaVector3(lhs->Pos()) - pos_comp).length();
-    float rd = (PosParaVector3(rhs->Pos()) - pos_comp).length();
+    float ld = (PosParaVector3(lhs->Pos()) - pos_comp).length() - lhs_raio_q;
+    float rd = (PosParaVector3(rhs->Pos()) - pos_comp).length() - rhs_raio_q;
     return ld < rd;
   });
-  // Quando entidade estiver travada, ela tera oclusao, portanto, usa a segunda luz se houver.
-  if (entidade_presa != nullptr && entidades_com_luz[0] == entidade_presa && entidades_com_luz.size() > 1) {
-    std::swap(entidades_com_luz[0], entidades_com_luz[1]);
-  }
 
   bool atualizar_mapa = false;
   if (!luzes_pontuais_.empty()) {
@@ -6495,12 +6509,18 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   ParametrosDesenho salva_pd(parametros_desenho_);
-  // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
-  // corretamente (MousePara3dParaleloZero);
-  gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
-  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
-  DesenhaMapaLuz();
-  parametros_desenho_.set_desenha_mapa_luzes(0);
+
+  // por enquanto apenas a luz 0 eh desenhada.
+  for (unsigned int i = 0; i < 1/*luzes_pontuais_.size()*/; ++i) {
+    // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
+    // corretamente (MousePara3dParaleloZero);
+    gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
+    gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    DesenhaMapaLuz(/*indice_luz=*/i);
+    // Para as funcoes de configuracao funcionarem.
+    parametros_desenho_.set_desenha_mapa_luzes(0);
+  }
+
   // TODO XXX desenhar apenas as entidades fixas.
   // Restaura os valores e usa a textura como mapa de luz.
   // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
