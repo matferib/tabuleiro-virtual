@@ -975,6 +975,9 @@ message ParametrosDesenho {
 
   // Se verdadeiro, mostra entidades invisiveis por causa de invisibilidade.
   optional bool observador_ve_invisivel = 62;
+
+  // Se presente, indica que esta é a entidade que contem a luz.
+  optional uint32 entidade_referencia_luz = 63;
 }
 
 enum TipoVeneno {
