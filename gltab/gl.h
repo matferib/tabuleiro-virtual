@@ -555,6 +555,18 @@ class DesabilitaEscopo {
   GLboolean valor_anterior_;
 };
 
+struct FramebufferEscopo {
+  FramebufferEscopo(GLint framebuffer) {
+    Le(GL_FRAMEBUFFER_BINDING, &original_);
+    LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  }
+  ~FramebufferEscopo() {
+    LigacaoComFramebuffer(GL_FRAMEBUFFER, original_);
+  }
+ private:
+  GLint original_;
+};
+
 /** Stencil. */
 inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }
 
