@@ -41,6 +41,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   }
 #endif
 
+  gl::FramebufferEscopo framebuffer_escopo(dfb_colisao_.framebuffer);
+
   gl::UsaShader(gl::TSH_PICKING);
   //gl::Viewport(0, 0, (GLint)1, (GLint)1);
   // inicia o buffer de picking (selecao)
@@ -108,7 +110,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //if (e != GL_NO_ERROR) {
   //  LOG(ERROR) << "Erro de picking: " << gluErrorString(e);
   //}
- 
+
   // Aqui restaura a projecao sem picking. Nao da pra salvar a projecao no inicio, porque ela eh diferente
   // da projecao usada pelo picking. Entao a responsa eh de quem chama.
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
