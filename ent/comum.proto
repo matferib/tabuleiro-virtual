@@ -346,6 +346,7 @@ message InfoTextura {
   optional bytes bits_crus_baixo = 12;
   // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
   optional int32 modo_textura = 17;
+  optional bool textura_bump = 18;
 }
 
 // A escala nos tres eixos.

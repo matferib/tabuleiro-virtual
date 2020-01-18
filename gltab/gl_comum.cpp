@@ -367,8 +367,10 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_luz_direcional.cor", &shader->uni_gltab_luz_direcional_cor },
           {"gltab_luz_direcional.pos", &shader->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &shader->uni_gltab_textura },
+          {"gltab_textura_bump", &shader->uni_gltab_textura_bump },
           {"gltab_textura_cubo", &shader->uni_gltab_textura_cubo },
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
+          //{"gltab_unidade_textura_bump", &shader->uni_gltab_unidade_textura_bump },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
           {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
           {"gltab_unidade_textura_oclusao", &shader->uni_gltab_unidade_textura_oclusao },
@@ -403,7 +405,7 @@ bool IniciaVariaveis(VarShader* shader) {
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
       shader->uni_gltab_luzes[pos] = LocalUniforme(shader->programa, nome_var);
       if (shader->uni_gltab_luzes[pos] == -1) {
-        LOG(INFO) << "Shader nao possui uniforme array" << nome_var;
+        LOG(INFO) << "Shader '" << shader->nome << "' nao possui uniforme array" << nome_var;
       }
       ++j;
     }
@@ -426,11 +428,11 @@ bool IniciaVariaveis(VarShader* shader) {
     *d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
 #else
     LocalAtributo(shader->programa, d.indice, d.dv.nome);
-    V_ERRO_RET("atribuindo local de atributo");
+    V_ERRO_RET(StringPrintf("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), d.dv.nome).c_str());
     *d.dv.var = d.indice;
 #endif
     if (*d.dv.var == -1) {
-      LOG(INFO) << "Shader nao possui atributo " << d.dv.nome;
+      LOG(INFO) << "Shader '" << shader->nome << "' nao possui atributo " << d.dv.nome;
       continue;
     }
     LOG(INFO) << "Atributo " << d.dv.nome << " na posicao " << *d.dv.var;
@@ -1259,6 +1261,8 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_luz, 4);
+  //interno::UniformeSeValido(shader->uni_gltab_unidade_textura_bump, 5);
+
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
@@ -1639,6 +1643,10 @@ void UnidadeTextura(GLenum unidade) {
   glActiveTexture(unidade);
   //glClientActiveTexture(unidade);
 #endif
+}
+
+void TexturaBump(bool estado) {
+  interno::UniformeSeValido(interno::BuscaShader().uni_gltab_textura_bump, estado ? 1.0f : 0.0f);
 }
 
 void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {

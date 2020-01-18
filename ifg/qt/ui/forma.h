@@ -94,6 +94,7 @@ public:
     QLabel *label_4;
     QComboBox *combo_textura;
     QCheckBox *checkbox_ladrilho;
+    QCheckBox *checkbox_bump;
     QGroupBox *groupBox_6;
     QHBoxLayout *horizontalLayout_22;
     QGroupBox *groupBox_2;
@@ -538,6 +539,11 @@ public:
         checkbox_ladrilho->setSizePolicy(sizePolicy3);
 
         horizontalLayout_8->addWidget(checkbox_ladrilho);
+
+        checkbox_bump = new QCheckBox(groupBox_8);
+        checkbox_bump->setObjectName(QStringLiteral("checkbox_bump"));
+
+        horizontalLayout_8->addWidget(checkbox_bump);
 
 
         horizontalLayout_24->addLayout(horizontalLayout_8);
@@ -1395,6 +1401,7 @@ public:
         checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoForma", "ladrilho", nullptr));
+        checkbox_bump->setText(QApplication::translate("ifg::qt::DialogoForma", "Bump", nullptr));
         groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Transforma\303\247\303\265es", nullptr));
         groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o e Transla\303\247\303\243o em Z", nullptr));
 #ifndef QT_NO_TOOLTIP

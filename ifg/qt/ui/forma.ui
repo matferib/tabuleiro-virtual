@@ -465,6 +465,20 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="checkbox_bump">
+                <property name="text">
+                 <string>Bump</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkbox_textura_movel">
+                <property name="text">
+                 <string>Móvel</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>

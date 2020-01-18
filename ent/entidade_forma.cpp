@@ -277,6 +277,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::TexturaBump(proto.info_textura().textura_bump());
     if (proto.info_textura().has_modo_textura()) {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, proto.info_textura().modo_textura());
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, proto.info_textura().modo_textura());
