@@ -347,6 +347,8 @@ message InfoTextura {
   // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
   optional int32 modo_textura = 17;
   optional bool textura_bump = 18;
+  optional bool textura_movel = 19 [deprecated=true];
+  optional int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
 }
 
 // A escala nos tres eixos.
