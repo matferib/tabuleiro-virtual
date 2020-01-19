@@ -2749,6 +2749,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       : Qt::Unchecked);
   gerador.checkbox_bump->setCheckState(
       entidade.info_textura().textura_bump() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_periodo->setValue(
+      entidade.info_textura().periodo_s());
 
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
@@ -3002,6 +3004,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
         proto_retornado->mutable_info_textura()->clear_modo_textura();
       }
       proto_retornado->mutable_info_textura()->set_textura_bump(gerador.checkbox_bump->checkState() == Qt::Checked);
+      proto_retornado->mutable_info_textura()->set_periodo_s(gerador.spin_periodo->value());
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

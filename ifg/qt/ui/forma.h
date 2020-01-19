@@ -95,6 +95,8 @@ public:
     QComboBox *combo_textura;
     QCheckBox *checkbox_ladrilho;
     QCheckBox *checkbox_bump;
+    QLabel *label_11;
+    QSpinBox *spin_periodo;
     QGroupBox *groupBox_6;
     QHBoxLayout *horizontalLayout_22;
     QGroupBox *groupBox_2;
@@ -544,6 +546,16 @@ public:
         checkbox_bump->setObjectName(QStringLiteral("checkbox_bump"));
 
         horizontalLayout_8->addWidget(checkbox_bump);
+
+        label_11 = new QLabel(groupBox_8);
+        label_11->setObjectName(QStringLiteral("label_11"));
+
+        horizontalLayout_8->addWidget(label_11);
+
+        spin_periodo = new QSpinBox(groupBox_8);
+        spin_periodo->setObjectName(QStringLiteral("spin_periodo"));
+
+        horizontalLayout_8->addWidget(spin_periodo);
 
 
         horizontalLayout_24->addLayout(horizontalLayout_8);
@@ -1402,6 +1414,7 @@ public:
 #endif // QT_NO_TOOLTIP
         checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoForma", "ladrilho", nullptr));
         checkbox_bump->setText(QApplication::translate("ifg::qt::DialogoForma", "Bump", nullptr));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "Per\303\255odo", nullptr));
         groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Transforma\303\247\303\265es", nullptr));
         groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o e Transla\303\247\303\243o em Z", nullptr));
 #ifndef QT_NO_TOOLTIP

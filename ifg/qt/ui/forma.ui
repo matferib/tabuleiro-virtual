@@ -473,11 +473,14 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkbox_textura_movel">
+               <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>Móvel</string>
+                 <string>Período</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_periodo"/>
               </item>
              </layout>
             </item>
