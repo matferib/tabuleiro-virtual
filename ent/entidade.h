@@ -463,6 +463,8 @@ class Entidade {
     float angulo_disco_iniciativa_rad = 0.0f;
     // Usado para inclinar o personagem, de -1.0f a 1.0f.
     float progresso_espiada_ = 0.0f;
+    // Para texturas que se movem.
+    float deslocamento_textura = 0.0f;
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
