@@ -606,7 +606,16 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
+
   if (proto.tipo() != TE_ENTIDADE || (proto.has_modelo_3d() && !proto.desenha_base())) {
+    // Deslocamento de textura para formas e compostos.
+    // O de entidade eh diferente.
+    if (proto.tipo() != TE_ENTIDADE) {
+      Matrix4 m;
+      m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+      m.translate(proto.info_textura().translacao_x() + vd.deslocamento_textura, proto.info_textura().translacao_y(), 0.0f);
+      md.deslocamento_textura = m;
+    }
     return md;
   }
   // tijolo base. Usada para disco de peao tambem.
@@ -650,7 +659,6 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   }
   return md;
 }
-
 
 void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
 #if DEBUG
@@ -763,6 +771,15 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
     }
     vd_.angulo_disco_voo_rad = 0.0f;
   }
+  if (proto_.info_textura().periodo_s() > 0) {
+    vd_.deslocamento_textura += (intervalo_ms / (proto_.info_textura().periodo_s() * 1000.0f));
+    if (vd_.deslocamento_textura > 1.0) {
+      vd_.deslocamento_textura = 0.0f;
+    }
+  } else {
+    vd_.deslocamento_textura = 0.0f;
+  }
+
   if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() &&
       !proto_.info_textura().id().empty()) {
     float angulo = 0.0f;
