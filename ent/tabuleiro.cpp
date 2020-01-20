@@ -640,8 +640,11 @@ void Tabuleiro::DesenhaMapaOclusao() {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
-void Tabuleiro::DesenhaMapaLuz(int indice_luz) {
-  if (luzes_pontuais_.empty()) {
+void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
+  if (indice_luz >= luzes_pontuais_.size() || indice_luz >= dfb_luzes_.size()) {
+    LOG(WARNING) << "Alguma coisa errada na configuracao da luz, indice_luz: " << indice_luz
+                 << ", luzes_pontuais_.size(): " << luzes_pontuais_.size()
+                 << ", dfb_luzes_.size(): " << dfb_luzes_.size();
     return;
   }
 
@@ -1255,6 +1258,7 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
         proto_depois->mutable_luz()->CopyFrom(proto_antes->luz());
       }
     }
+    atualizar_mapa_luzes = true;
   }
   if ((bits & BIT_VOO) > 0) {
     proto_antes->set_voadora(proto_original.voadora());
@@ -1522,6 +1526,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
         luz_antes->set_g(0);
         luz_antes->set_b(0);
       }
+      atualizar_mapa_luzes = true;
     }
     if ((bits & BIT_VOO) > 0) {
       proto_antes->set_voadora(proto_original.voadora());
@@ -2851,6 +2856,7 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
 
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
+  luzes_pontuais_.clear();
 
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
@@ -6481,7 +6487,9 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   });
 
   bool atualizar_mapa = false;
+
   if (!luzes_pontuais_.empty()) {
+    // Se ja ha luzes pontuais, ve se houve mudanca de posicao significativa dela (ou e mudou a entidade[0] com a luz).
     Posicao pos = entidades_com_luz[0]->Pos();
     pos.set_z(entidades_com_luz[0]->ZOlho());
     Vector3 pv = PosParaVector3(pos);
@@ -6490,8 +6498,13 @@ void Tabuleiro::AtualizaLuzesPontuais() {
       atualizar_mapa = true;
     }
   } else {
+    // Nao ha luzes, mas ha entidades com luz, atualizar mapa.
     atualizar_mapa = true;
   }
+  if (!atualizar_mapa) {
+    return;
+  }
+
   unsigned int num = std::min((unsigned int)8, (unsigned int)entidades_com_luz.size());
   luzes_pontuais_.resize(num);
   for (unsigned int i = 0; i < num; ++i) {
@@ -6502,15 +6515,13 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     }
   }
 
-  if (!atualizar_mapa) {
-    return;
-  }
   //LOG(INFO) << "atualizando mapa de luz";
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   ParametrosDesenho salva_pd(parametros_desenho_);
 
   // por enquanto apenas a luz 0 eh desenhada.
+  //LOG(INFO) << "gerando mapa de luzes...";
   for (unsigned int i = 0; i < 1/*luzes_pontuais_.size()*/; ++i) {
     // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
     // corretamente (MousePara3dParaleloZero);
