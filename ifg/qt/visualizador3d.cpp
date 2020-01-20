@@ -377,6 +377,7 @@ Visualizador3d::~Visualizador3d() {
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
+  LOG(INFO) << "Inicializando GL.......................";
   static bool once = false;
   try {
     if (!once) {
@@ -384,6 +385,8 @@ void Visualizador3d::initializeGL() {
       gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
     }
     tabuleiro_->IniciaGL();
+    gl_iniciado_ = true;
+    LOG(INFO) << "GL iniciado";
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
@@ -497,10 +500,12 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_TEMPORIZADOR:
-      makeCurrent();
-      tabuleiro_->AtualizaPorTemporizacao();
-      doneCurrent();
-      update();
+      if (gl_iniciado_) {
+        makeCurrent();
+        tabuleiro_->AtualizaPorTemporizacao();
+        doneCurrent();
+        update();
+      }
       //glDraw();
       break;
     default: ;

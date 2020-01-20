@@ -100,6 +100,7 @@ class Visualizador3d :
   int x_antes_ = 0;
   int y_antes_ = 0;
   float scale_ = 1.0f;
+  bool gl_iniciado_ = false;
 };
 
 }  // namespace qt
