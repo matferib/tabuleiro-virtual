@@ -375,6 +375,7 @@ inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormai
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
 void PonteiroMatriz(const GLvoid* matriz);
+void PonteiroMatrizNormal(const GLvoid* matriz);
 
 enum atributo_e {
   ATR_VERTEX_ARRAY        = 0,
@@ -382,6 +383,7 @@ enum atributo_e {
   ATR_COLOR_ARRAY         = 2,
   ATR_TEXTURE_COORD_ARRAY = 3,
   ATR_MATRIX_ARRAY        = 4,
+  ATR_NORMAL_MATRIX_ARRAY = 5,
 };
 void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
