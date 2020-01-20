@@ -283,6 +283,19 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, proto.info_textura().modo_textura());
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
+      if (vd.matriz_deslocamento_textura != Matrix4()) {
+        gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      }
+      gl::AtualizaMatrizes();
+    } else {
+      // Caso nao haja modo, ainda pode haver deslocamento de textura para se houver periodo.
+      // Muito cuidado que o AtualizaMatrizes tem que estar no escopo das mudancas, por isso as repeticoes.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      if (proto.info_textura().periodo_s() > 0) {
+        gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      }
       gl::AtualizaMatrizes();
     }
   }
