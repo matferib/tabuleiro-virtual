@@ -97,6 +97,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::TexturaBump(proto.info_textura().textura_bump());
   }
   vd.vbos_gravados.Desenha();
   gl::Desabilita(GL_TEXTURE_2D);
