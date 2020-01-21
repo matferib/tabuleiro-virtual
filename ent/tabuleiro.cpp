@@ -3093,9 +3093,19 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desabilitando luzes");
 
+  // Idealmente, a gente preencheria a MATRIZ_CAMERA primeiro, mas como a ConfiguraOlhar ta hardcoded pra modelagem
+  // mais facil fazer assim.
   gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+
+  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
+  GLfloat mv[16];
+  gl::Le(GL_MODELVIEW_MATRIX, mv);
+  gl::CarregaIdentidade();
+  gl::MultiplicaMatriz(mv);
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+
 #if ORDENAR_ENTIDADES
   if (parametros_desenho_.ordena_entidades_apos_configura_olhar()) {
     OrdenaEntidades();

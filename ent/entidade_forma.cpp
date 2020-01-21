@@ -278,24 +278,22 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::TexturaBump(proto.info_textura().textura_bump());
-    if (proto.info_textura().has_modo_textura()) {
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, proto.info_textura().modo_textura());
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, proto.info_textura().modo_textura());
+    float periodo_s = proto.info_textura().periodo_s();
+    if (proto.info_textura().has_modo_textura() || periodo_s > 0) {
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
+      float escala_x_inicial = proto.escala().x();
+      float escala_y_inicial = proto.escala().y();
+      gl::Escala(escala_x_inicial / proto.info_textura().escala_x(), escala_y_inicial / proto.info_textura().escala_y(), 1.0f);
       if (vd.matriz_deslocamento_textura != Matrix4()) {
         gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
       }
       gl::AtualizaMatrizes();
     } else {
-      // Caso nao haja modo, ainda pode haver deslocamento de textura para se houver periodo.
-      // Muito cuidado que o AtualizaMatrizes tem que estar no escopo das mudancas, por isso as repeticoes.
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      if (proto.info_textura().periodo_s() > 0) {
-        gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
-      }
       gl::AtualizaMatrizes();
     }
   }

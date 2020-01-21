@@ -324,6 +324,11 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
   if (novo_proto.info_textura().id().empty()) {
     proto_atual->clear_info_textura();
+  } else {
+    auto* info = proto_atual->mutable_info_textura();
+    if (info->escala_x() == 1.0) info->clear_escala_x();
+    if (info->escala_y() == 1.0) info->clear_escala_y();
+    if (info->periodo_s() == 0.0) info->clear_periodo_s();
   }
 }
 
@@ -613,7 +618,8 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
     if (proto.tipo() != TE_ENTIDADE) {
       Matrix4 m;
       m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
-      m.translate(proto.info_textura().translacao_x() + vd.deslocamento_textura, proto.info_textura().translacao_y(), 0.0f);
+      m.rotateZ(-proto.info_textura().direcao_graus());
+      m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
       md.deslocamento_textura = m;
     }
     return md;
@@ -773,7 +779,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   }
   if (proto_.info_textura().periodo_s() > 0) {
     vd_.deslocamento_textura += (intervalo_ms / (proto_.info_textura().periodo_s() * 1000.0f));
-    if (vd_.deslocamento_textura > 1.0) {
+    if (vd_.deslocamento_textura > 2.0) {
       vd_.deslocamento_textura = 0.0f;
     }
   } else {
