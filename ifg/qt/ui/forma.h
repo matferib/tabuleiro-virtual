@@ -561,6 +561,7 @@ public:
 
         spin_tex_escala_x = new QDoubleSpinBox(groupBox1);
         spin_tex_escala_x->setObjectName(QStringLiteral("spin_tex_escala_x"));
+        spin_tex_escala_x->setMaximum(1000);
 
         horizontalLayout_20->addWidget(spin_tex_escala_x);
 
@@ -576,6 +577,7 @@ public:
 
         spin_tex_escala_y = new QDoubleSpinBox(groupBox1);
         spin_tex_escala_y->setObjectName(QStringLiteral("spin_tex_escala_y"));
+        spin_tex_escala_y->setMaximum(1000);
 
         horizontalLayout_8->addWidget(spin_tex_escala_y);
 
@@ -588,6 +590,8 @@ public:
         gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
         spin_tex_direcao = new QSpinBox(groupBox2);
         spin_tex_direcao->setObjectName(QStringLiteral("spin_tex_direcao"));
+        spin_tex_direcao->setMinimum(-180);
+        spin_tex_direcao->setMaximum(180);
 
         gridLayout_7->addWidget(spin_tex_direcao, 2, 0, 1, 1);
 
@@ -601,6 +605,7 @@ public:
 
         spin_tex_periodo = new QSpinBox(groupBox2);
         spin_tex_periodo->setObjectName(QStringLiteral("spin_tex_periodo"));
+        spin_tex_periodo->setMaximum(1000);
 
         verticalLayout_4->addWidget(spin_tex_periodo);
 

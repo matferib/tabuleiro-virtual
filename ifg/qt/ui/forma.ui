@@ -466,7 +466,11 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="spin_tex_escala_x"/>
+                <widget class="QDoubleSpinBox" name="spin_tex_escala_x">
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -480,7 +484,11 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="spin_tex_escala_y"/>
+                <widget class="QDoubleSpinBox" name="spin_tex_escala_y">
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -491,7 +499,14 @@
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
                 <item row="2" column="0">
-                 <widget class="QSpinBox" name="spin_tex_direcao"/>
+                 <widget class="QSpinBox" name="spin_tex_direcao">
+                  <property name="minimum">
+                   <number>-180</number>
+                  </property>
+                  <property name="maximum">
+                   <number>180</number>
+                  </property>
+                 </widget>
                 </item>
                 <item row="0" column="2" rowspan="3">
                  <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -506,7 +521,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="spin_tex_periodo"/>
+                   <widget class="QSpinBox" name="spin_tex_periodo">
+                    <property name="maximum">
+                     <number>1000</number>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <spacer name="verticalSpacer">
