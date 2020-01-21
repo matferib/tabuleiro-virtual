@@ -2684,6 +2684,25 @@ ent::TipoForma IndiceParaSubTipo(int indice) {
   }
 }
 
+void AjustaSliderSpin(float angulo, QDial* dial, QSpinBox* spin) {
+  // Poe o angulo entre -180, 180
+  angulo = fmodf(angulo, 360.0f);
+  if (angulo < -180.0f) {
+    angulo += 360.0f;
+  } else if (angulo > 180.0f) {
+    angulo -= 360.0f;
+  }
+  dial->setSliderPosition(-angulo - 180.0f);
+  spin->setValue(angulo);
+  lambda_connect(dial, SIGNAL(valueChanged(int)), [spin, dial] {
+      spin->setValue(180 - dial->value());
+  });
+  lambda_connect(spin, SIGNAL(valueChanged(int)), [spin, dial] {
+      dial->setValue(-spin->value() - 180);
+  });
+}
+
+
 }  // namespace
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao& notificacao) {
@@ -2754,8 +2773,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       : Qt::Unchecked);
   gerador.checkbox_bump->setCheckState(
       entidade.info_textura().textura_bump() ? Qt::Checked : Qt::Unchecked);
-  gerador.spin_periodo->setValue(
-      entidade.info_textura().periodo_s());
+  gerador.spin_tex_periodo->setValue(entidade.info_textura().periodo_s());
+  gerador.spin_tex_escala_x->setValue(entidade.info_textura().escala_x());
+  gerador.spin_tex_escala_y->setValue(entidade.info_textura().escala_y());
+  AjustaSliderSpin(entidade.info_textura().direcao_graus(), gerador.dial_tex_direcao, gerador.spin_tex_direcao);
 
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
@@ -2805,23 +2826,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
   // Rotacoes.
-  auto AjustaSliderSpin = [] (float angulo, QDial* dial, QSpinBox* spin) {
-    // Poe o angulo entre -180, 180
-    angulo = fmodf(angulo, 360.0f);
-    if (angulo < -180.0f) {
-      angulo += 360.0f;
-    } else if (angulo > 180.0f) {
-      angulo -= 360.0f;
-    }
-    dial->setSliderPosition(-angulo - 180.0f);
-    spin->setValue(angulo);
-    lambda_connect(dial, SIGNAL(valueChanged(int)), [spin, dial] {
-        spin->setValue(180 - dial->value());
-    });
-    lambda_connect(spin, SIGNAL(valueChanged(int)), [spin, dial] {
-        dial->setValue(-spin->value() - 180);
-    });
-  };
   AjustaSliderSpin(entidade.rotacao_z_graus(), gerador.dial_rotacao, gerador.spin_rotacao);
   AjustaSliderSpin(entidade.rotacao_y_graus(), gerador.dial_rotacao_y, gerador.spin_rotacao_y);
   AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
@@ -3009,7 +3013,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
         proto_retornado->mutable_info_textura()->clear_modo_textura();
       }
       proto_retornado->mutable_info_textura()->set_textura_bump(gerador.checkbox_bump->checkState() == Qt::Checked);
-      proto_retornado->mutable_info_textura()->set_periodo_s(gerador.spin_periodo->value());
+      proto_retornado->mutable_info_textura()->set_periodo_s(gerador.spin_tex_periodo->value());
+      proto_retornado->mutable_info_textura()->set_escala_x(gerador.spin_tex_escala_x->value());
+      proto_retornado->mutable_info_textura()->set_escala_y(gerador.spin_tex_escala_y->value());
+      proto_retornado->mutable_info_textura()->set_direcao_graus(-gerador.dial_tex_direcao->sliderPosition() + 180.0f);
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

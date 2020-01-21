@@ -333,6 +333,9 @@ message InfoTextura {
   // Se presente, realiza translacao das coordenadas de textura apos a escala.
   optional float translacao_x = 15 [default = 0.0];
   optional float translacao_y = 16 [default = 0.0];
+  // Se presente, multiplica o ponto pelo valor da escala.
+  optional float escala_x = 21 [default = 1.0];
+  optional float escala_y = 22 [default = 1.0];
   // Para texturas de mapeamento de cubo.
   optional bool textura_cubo = 2;
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
@@ -349,6 +352,7 @@ message InfoTextura {
   optional bool textura_bump = 18;
   optional bool textura_movel = 19 [deprecated=true];
   optional int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
+  optional int32 direcao_graus = 23;  // Para texturas moveis, indica a direcao da rotacao.
 }
 
 // A escala nos tres eixos.
