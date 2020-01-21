@@ -380,6 +380,8 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
           {"gltab_mvm", &shader->uni_gltab_mvm },
+          {"gltab_view", &shader->uni_gltab_camera },
+          {"gltab_view_nm", &shader->uni_gltab_camera_nm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
           {"gltab_mvm_luz", &shader->uni_gltab_mvm_luz },
@@ -422,6 +424,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_normal", &shader->atr_gltab_normal}, 2},
           {{"gltab_cor", &shader->atr_gltab_cor}, 3},
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
+          {{"gltab_matriz_normal", &shader->atr_gltab_matriz_normal}, 5},
   }) {
 #if __APPLE__
     // OpenGL do mac nao curte atribuir o local do atributo.
@@ -490,6 +493,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
   };
 
   for (auto& ds : dados_shaders) {
+    LOG(INFO) << "---------------------------------------------------------------------------";
     LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
     if (!IniciaShader(ds.nome_programa.c_str(), ds.tipo, ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
       LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
@@ -501,6 +505,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     }
     print_uniforms(ds.shader->programa);
     LOG(INFO) << "Programa shaders '" << ds.nome_programa.c_str() << "' iniciado com sucesso";
+    LOG(INFO) << "---------------------------------------------------------------------------";
   }
   UsaShader(TSH_LUZ);
   V_ERRO("usando programa shader");
@@ -511,7 +516,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
 void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_model.push(Matrix4());
-  contexto->pilha_view.push(Matrix4());
+  contexto->pilha_camera.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
@@ -735,7 +740,7 @@ int ModoMatrizCorrente() {
   auto* c = interno::BuscaContexto();
   if (c->pilha_corrente == &c->pilha_mvm) { return MATRIZ_MODELAGEM_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_model) { return MATRIZ_MODELAGEM; }
-  else if (c->pilha_corrente == &c->pilha_view) { return MATRIZ_CAMERA; }
+  else if (c->pilha_corrente == &c->pilha_camera) { return MATRIZ_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
@@ -755,7 +760,7 @@ void MudaModoMatriz(int modo) {
   } else if (modo == MATRIZ_MODELAGEM) {
     c->pilha_corrente = &c->pilha_model;
   } else if (modo == MATRIZ_CAMERA) {
-    c->pilha_corrente = &c->pilha_view;
+    c->pilha_corrente = &c->pilha_camera;
   } else if (modo == MATRIZ_PROJECAO) {
     c->pilha_corrente = &c->pilha_prj;
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
@@ -865,6 +870,17 @@ void PonteiroMatriz(const GLvoid* matriz) {
   if (interno::BuscaShader().atr_gltab_matriz != -1) {
     PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_matriz, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, 0, matriz);
   }
+}
+
+void PonteiroMatrizNormal(const GLvoid* matriz) {
+  const float* matriz_f = (const float*)matriz;
+  GLint indice = interno::BuscaShader().atr_gltab_matriz_normal;
+  if (indice == -1) return;
+  const float stride_bytes = sizeof(float) * 16;
+  PonteiroAtributosVertices(indice + 0, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 0);
+  PonteiroAtributosVertices(indice + 1, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 4);
+  PonteiroAtributosVertices(indice + 2, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 8);
+  PonteiroAtributosVertices(indice + 3, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 12);
 }
 
 bool EstaHabilitado(GLenum cap) {
@@ -1140,7 +1156,7 @@ Matrix4 LeMatriz(matriz_e modo) {
   } else if (modo == MATRIZ_MODELAGEM) {
     return c->pilha_model.top();
   } else if (modo == MATRIZ_CAMERA) {
-    return c->pilha_view.top();
+    return c->pilha_camera.top();
   } else if (modo == MATRIZ_PROJECAO) {
     return c->pilha_prj.top();
   } else if (modo == MATRIZ_SOMBRA) {
@@ -1171,7 +1187,7 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
   } else if (nome_parametro == MATRIZ_MODELAGEM) {
     memcpy(valor, c->pilha_model.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_CAMERA) {
-    memcpy(valor, c->pilha_view.top().get(), 16 * sizeof(float));
+    memcpy(valor, c->pilha_camera.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == GL_PROJECTION_MATRIX) {
     memcpy(valor, c->pilha_prj.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_AJUSTE_TEXTURA) {
@@ -1192,6 +1208,7 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
     case ATR_COLOR_ARRAY: return interno::BuscaShader().atr_gltab_cor;
     case ATR_TEXTURE_COORD_ARRAY: return interno::BuscaShader().atr_gltab_texel;
     case ATR_MATRIX_ARRAY: return interno::BuscaShader().atr_gltab_matriz;
+    case ATR_NORMAL_MATRIX_ARRAY: return interno::BuscaShader().atr_gltab_matriz_normal;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
       return 0;
@@ -1201,11 +1218,27 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
 }  // namespace
 
 void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+  if (tipo == ATR_NORMAL_MATRIX_ARRAY) {
+    GLuint indice = TipoAtribParaIndice(ATR_NORMAL_MATRIX_ARRAY);
+    HabilitaVetorAtributosVertice(indice);
+    HabilitaVetorAtributosVertice(indice + 1);
+    HabilitaVetorAtributosVertice(indice + 2);
+    HabilitaVetorAtributosVertice(indice + 3);
+  } else {
+    HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+  }
 }
 
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+  if (tipo == ATR_NORMAL_MATRIX_ARRAY) {
+    GLuint indice = TipoAtribParaIndice(ATR_NORMAL_MATRIX_ARRAY);
+    DesabilitaVetorAtributosVertice(indice);
+    DesabilitaVetorAtributosVertice(indice + 1);
+    DesabilitaVetorAtributosVertice(indice + 2);
+    DesabilitaVetorAtributosVertice(indice + 3);
+  } else {
+    DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+  }
 }
 
 void HabilitaEstadoCliente(GLenum cap) {
@@ -1310,7 +1343,8 @@ void AtualizaMatrizes() {
   if (shader.uni_gltab_nm != -1) {
     // Normal matrix, apenas para modelview.
     const auto& m = c->pilha_corrente->top();
-    Matrix3 normal(m[0], m[1], m[2],
+    Matrix3 normal(
+        m[0], m[1], m[2],
         m[4], m[5], m[6],
         m[8], m[9], m[10]);
     normal.invert().transpose();
@@ -1324,6 +1358,22 @@ void AtualizaMatrizes() {
   }
   if (shader.uni_gltab_mvm_luz != -1) {
     Matriz4Uniforme(shader.uni_gltab_mvm_luz, 1, false, c->pilha_mvm_luz.top().get());
+  }
+  if (shader.uni_gltab_camera != -1) {
+    Matriz4Uniforme(shader.uni_gltab_camera, 1, false, c->pilha_camera.top().get());
+  }
+  if (shader.uni_gltab_camera_nm != -1) {
+    // Normal matrix, apenas para modelview.
+    const auto& m = c->pilha_camera.top();
+    Matrix3 normal(
+        m[0], m[1], m[2],
+        m[4], m[5], m[6],
+        m[8], m[9], m[10]);
+    normal.invert().transpose();
+    if (normal != c->matriz_camera_normal) {
+      c->matriz_camera_normal = normal;
+      Matriz3Uniforme(shader.uni_gltab_camera_nm, 1, false, normal.get());
+    }
   }
 }
 
@@ -1342,6 +1392,7 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
     { shader.uni_gltab_mvm_luz, &c->pilha_mvm_luz.top() },
     { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },
+    { shader.uni_gltab_camera, &c->pilha_camera.top() },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {
@@ -1350,6 +1401,9 @@ void AtualizaTodasMatrizes() {
   }
   if (shader.uni_gltab_nm != -1) {
     Matriz3Uniforme(shader.uni_gltab_nm, 1, false, c->matriz_normal.get());
+  }
+  if (shader.uni_gltab_camera_nm != -1) {
+    Matriz3Uniforme(shader.uni_gltab_camera_nm, 1, false, c->matriz_camera_normal.get());
   }
 }
 

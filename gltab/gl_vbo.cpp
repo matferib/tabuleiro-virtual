@@ -32,6 +32,21 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   return (y >= 0 ? angulo : -angulo);
 }
 
+// Matriz de rotacao do vetor up (z=1) para o vetor transformado.
+Matrix4 MatrizRotacaoParaZ(const Vector3& vn) {
+  Vector3 a(0.0f, 0.0f, 1.0f);
+  Vector3 b(vn.x, vn.y, vn.z);
+  b.normalize();
+  Vector3 axis = a.cross(b);
+  if (fabs(axis.length()) == 0.0f) {
+    return Matrix4();
+  }
+  axis.normalize();
+  float cosang = a.dot(b);
+  // aparentemente, nao precisa resolver o caso > PI porque o cross sempre vai retornar o menor angulo entre eles..
+  return Matrix4().rotate(acosf(cosang) * RAD_PARA_GRAUS, axis);
+}
+
 enum Vbos {
   VBO_CUBO = 0,
   VBO_ESFERA,
@@ -273,6 +288,7 @@ void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
       normais_[i+1] = c[1];
       normais_[i+2] = c[2];
     }
+    ArrumaMatrizesNormais();
   }
 }
 
@@ -312,6 +328,7 @@ void VboNaoGravado::Multiplica(const Matrix4& m) {
     normais[i+1] = v[1];
     normais[i+2] = v[2];
   }
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
@@ -332,6 +349,7 @@ void VboNaoGravado::RodaX(GLfloat angulo_graus) {
     normais[i + 1] = c[1];
     normais[i + 2] = c[2];
   }
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::RodaY(GLfloat angulo_graus) {
@@ -352,6 +370,7 @@ void VboNaoGravado::RodaY(GLfloat angulo_graus) {
     normais[i]   = c[0];
     normais[i+2] = c[2];
   }
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
@@ -364,10 +383,6 @@ void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
     coordenadas[i]     = c[0];
     coordenadas[i + 1] = c[1];
   }
-  if (num_dimensoes_ != 3) {
-    // So rotacao Z tem essa verificacao.
-    return;
-  }
   // Mesma transformada.
   float* normais = &(*normais_.begin());
   for (unsigned int i = 0; i < normais_.size(); i += 3) {
@@ -376,6 +391,7 @@ void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
     normais[i]     = c[0];
     normais[i + 1] = c[1];
   }
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
@@ -400,6 +416,8 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
   normais_.reserve(normais_.size() + rhs.normais_.size());
   normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
+  //matrizes_normais_.reserve(matrizes_normais_.size() + rhs.matrizes_normais_.size());
+  //matrizes_normais_.insert(matrizes_normais_.end(), rhs.matrizes_normais_.begin(), rhs.matrizes_normais_.end());
   auto indices_size_antes = indices_.size();
   indices_.resize(indices_.size() + rhs.indices_.size());
   unsigned short* indices = &(*indices_.begin());
@@ -426,13 +444,15 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
 std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_normais,
     unsigned int* deslocamento_cores,
-    unsigned int* deslocamento_texturas) const {
+    unsigned int* deslocamento_texturas,
+    unsigned int* deslocamento_matrizes_normais) const {
   std::vector<float> buffer_unico;
   buffer_unico.clear();
   buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
   buffer_unico.insert(buffer_unico.end(), normais_.begin(), normais_.end());
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
+  //buffer_unico.insert(buffer_unico.end(), matrizes_normais_.begin(), matrizes_normais_.end());
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
   if (tem_normais()) {
     *deslocamento_normais = pos_final;
@@ -445,6 +465,10 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   if (tem_texturas()) {
     *deslocamento_texturas = pos_final;
     pos_final += texturas_.size() * sizeof(float);
+  }
+  if (tem_matrizes_normais()) {
+    *deslocamento_matrizes_normais = pos_final;
+    pos_final += matrizes_normais_.size() * sizeof(float);
   }
   return buffer_unico;
 }
@@ -476,13 +500,29 @@ void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, std::vector
   num_dimensoes_ = num_dimensoes;
 }
 
+void VboNaoGravado::ArrumaMatrizesNormais() {
+  return;
+  matrizes_normais_.clear();
+  for (unsigned int i = 0; i < normais_.size(); i += 3) {
+    Matrix4 mr = MatrizRotacaoParaZ(Vector3(normais_[i], normais_[i+1], normais_[i+2]));
+    mr = Matrix4(1.0, 0.0, 0.0, 1.0,
+                 0.0, 1.0, 0.0, 1.0,
+                 0.0, 0.0, 1.0, 1.0,
+                 1.0, 1.0, 1.0, 1.0);
+    const float* mrp = mr.get();
+    std::copy(mrp, mrp + 16, std::back_inserter(matrizes_normais_));
+  }
+}
+
 void VboNaoGravado::AtribuiNormais(const float* dados) {
   normais_.clear();
   normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::AtribuiNormais(std::vector<float>* dados) {
   normais_.swap(*dados);
+  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
@@ -599,8 +639,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
+  deslocamento_matrizes_normais_ = -1;
   auto tam_antes = buffer_unico_.size();
-  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_);
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_, &deslocamento_matrizes_normais_);
   if (tam_antes != buffer_unico_.size()) {
     usar_buffer_sub_data = false;
   }
@@ -1598,12 +1639,17 @@ void DesenhaVbo(GLenum modo,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores,
                 bool tem_matriz, const void* matriz, int d_matriz,
+                bool tem_matrizes_normais, const void* matrizes_normais, int d_matrizes_normais,
                 bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
   gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
+  }
+  if (tem_matrizes_normais) {
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
+    gl::PonteiroMatrizNormal(static_cast<const char*>(matrizes_normais) + d_matrizes_normais);
   }
   if (tem_texturas) {
     gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
@@ -1632,6 +1678,9 @@ void DesenhaVbo(GLenum modo,
   if (tem_normais) {
     gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
   }
+  if (tem_matrizes_normais) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
+  }
   V_ERRO("DesenhaVBO: tres quartos");
   if (tem_cores) {
     gl::DesabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
@@ -1658,6 +1707,7 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
              vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
              vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
              vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
+             vbo.tem_matrizes_normais(), nullptr, vbo.DeslocamentoMatrizesNormais(),
              atualiza_matrizes);
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
@@ -1670,6 +1720,7 @@ void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
              vbo.tem_texturas(), vbo.texturas().data(), 0,
              vbo.tem_cores(), vbo.cores().data(), 0,
              vbo.tem_matriz(), vbo.matriz().data(), 0,
+             vbo.tem_matrizes_normais(), vbo.matrizes_normais().data(), 0,
              atualiza_matrizes);
 }
 

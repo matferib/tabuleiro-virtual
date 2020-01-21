@@ -58,7 +58,8 @@ class VboNaoGravado {
   // TODO: destruir os dados para liberar memoria.
   std::vector<float> GeraBufferUnico(unsigned int* deslocamento_normais,
                                      unsigned int* deslocamento_cores,
-                                     unsigned int* deslocamento_texturas) const;
+                                     unsigned int* deslocamento_texturas,
+                                     unsigned int* deslocamento_matrizes_normais) const;
 
   unsigned int NumVertices() const {
     return indices_.size();
@@ -74,24 +75,31 @@ class VboNaoGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
   bool tem_matriz() const { return false; }
+  bool tem_matrizes_normais() const { return !matrizes_normais_.empty(); }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
   std::vector<float>& normais() { return normais_; }
   std::vector<float>& texturas() { return texturas_; }
   std::vector<float>& cores() { return cores_; }
+  std::vector<float>& matriz() { return matriz_; }
+  std::vector<float>& matrizes_normais() { return matrizes_normais_; }
   const std::vector<float>& coordenadas() const { return coordenadas_; }
   const std::vector<float>& normais() const { return normais_; }
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
   const std::vector<float>& matriz() const { return matriz_; }
+  const std::vector<float>& matrizes_normais() const { return matrizes_normais_; }
 
  private:
+  void ArrumaMatrizesNormais();
+
   std::vector<float> coordenadas_;
   std::vector<float> normais_;
   std::vector<float> cores_;
   std::vector<float> texturas_;
   std::vector<float> matriz_;
+  std::vector<float> matrizes_normais_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
@@ -126,6 +134,8 @@ class VboGravado {
   unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
   // Deslocamento em bytes para a primeira coordenada da matriz.
   unsigned int DeslocamentoMatriz() const { return deslocamento_matriz_; }
+  // Deslocamento em bytes para a primeira coordenada das matrizes de normais.
+  unsigned int DeslocamentoMatrizesNormais() const { return deslocamento_matrizes_normais_; }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
 
@@ -133,6 +143,7 @@ class VboGravado {
   GLuint nome_indices() const { return nome_indices_; }
 
   bool tem_normais() const { return tem_normais_; }
+  bool tem_matrizes_normais() const { return false; }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
@@ -167,6 +178,7 @@ class VboGravado {
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
   unsigned int deslocamento_matriz_ = 0;
+  unsigned int deslocamento_matrizes_normais_ = 0;
   unsigned short num_dimensoes_ = 0;
 
   bool tem_normais_ = false;
