@@ -424,7 +424,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_normal", &shader->atr_gltab_normal}, 2},
           {{"gltab_cor", &shader->atr_gltab_cor}, 3},
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
-          {{"gltab_matriz_normal", &shader->atr_gltab_matriz_normal}, 5},
+          {{"gltab_tangent", &shader->atr_gltab_tangente}, 5},
   }) {
 #if __APPLE__
     // OpenGL do mac nao curte atribuir o local do atributo.
@@ -847,11 +847,26 @@ void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
   PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
 }
 
+void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* tangentes) {
+  if (!interno::UsandoShaderLuz()) {
+    return;
+  }
+  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_tangente, 3  /**dimensoes*/, tipo, GL_FALSE, passo, tangentes);
+}
+
+
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
   if (!interno::UsandoShaderLuz()) {
     return;
   }
   AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
+}
+
+void Tangente(GLfloat x, GLfloat y, GLfloat z) {
+  if (!interno::UsandoShaderLuz()) {
+    return;
+  }
+  AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
 }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
@@ -1205,10 +1220,9 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
   switch (tipo) {
     case ATR_VERTEX_ARRAY: return interno::BuscaShader().atr_gltab_vertice;
     case ATR_NORMAL_ARRAY: return interno::BuscaShader().atr_gltab_normal;
+    case ATR_TANGENT_ARRAY: return interno::BuscaShader().atr_gltab_tangente;
     case ATR_COLOR_ARRAY: return interno::BuscaShader().atr_gltab_cor;
     case ATR_TEXTURE_COORD_ARRAY: return interno::BuscaShader().atr_gltab_texel;
-    case ATR_MATRIX_ARRAY: return interno::BuscaShader().atr_gltab_matriz;
-    case ATR_NORMAL_MATRIX_ARRAY: return interno::BuscaShader().atr_gltab_matriz_normal;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
       return 0;
@@ -1218,27 +1232,11 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
 }  // namespace
 
 void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  if (tipo == ATR_NORMAL_MATRIX_ARRAY) {
-    GLuint indice = TipoAtribParaIndice(ATR_NORMAL_MATRIX_ARRAY);
-    HabilitaVetorAtributosVertice(indice);
-    HabilitaVetorAtributosVertice(indice + 1);
-    HabilitaVetorAtributosVertice(indice + 2);
-    HabilitaVetorAtributosVertice(indice + 3);
-  } else {
-    HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
-  }
+  HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
 }
 
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  if (tipo == ATR_NORMAL_MATRIX_ARRAY) {
-    GLuint indice = TipoAtribParaIndice(ATR_NORMAL_MATRIX_ARRAY);
-    DesabilitaVetorAtributosVertice(indice);
-    DesabilitaVetorAtributosVertice(indice + 1);
-    DesabilitaVetorAtributosVertice(indice + 2);
-    DesabilitaVetorAtributosVertice(indice + 3);
-  } else {
-    DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
-  }
+  DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
 }
 
 void HabilitaEstadoCliente(GLenum cap) {

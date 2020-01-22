@@ -20,6 +20,8 @@
 // Output pro frag shader, interpolado dos vertices.
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
+varying lowp vec3 v_Tangent;
+varying lowp vec3 v_Bitangent;
 varying lowp vec3 v_Normal_model;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying highp vec4 v_Pos_model;
@@ -45,12 +47,15 @@ uniform bool gltab_especularidade_ligada;
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
+attribute mediump vec3 gltab_tangent;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
 attribute lowp mat4 gltab_matriz_normal;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
+  v_Tangent = normalize(gltab_nm * gltab_tangent);
+  v_Bitangent = cross(v_Normal, v_Tangent);
   v_Normal_model = gltab_normal;
   v_Matrix_Normal = gltab_matriz_normal;
   v_Color = gltab_cor;

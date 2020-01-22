@@ -26,6 +26,8 @@
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;  // normalizado.
+varying lowp vec3 v_Tangent;  // normalizado.
+varying lowp vec3 v_Bitangent;  // normalizado.
 varying lowp vec3 v_Normal_model;  // normalizado.
 varying lowp mat4 v_Matriz_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
@@ -197,7 +199,9 @@ void main() {
       // pois assume que as normais do objeto todas apontam para cima, portanto transforma-se apenas
       // de acordo com a orientacao da camera.
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
-      normal = normalize(gltab_view_nm * desvio);
+      mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
+      normal = normalize(tbn * desvio);
+      //normal = normalize(gltab_view_nm * desvio);
       // Uma forma boa de testar.
       //gl_FragColor = vec4(gltab_view_nm[0], 1.0);
       //return;

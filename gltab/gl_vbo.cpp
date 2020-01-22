@@ -33,6 +33,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 }
 
 // Matriz de rotacao do vetor up (z=1) para o vetor transformado.
+#if 0
 Matrix4 MatrizRotacaoParaZ(const Vector3& vn) {
   Vector3 a(0.0f, 0.0f, 1.0f);
   Vector3 b(vn.x, vn.y, vn.z);
@@ -46,6 +47,7 @@ Matrix4 MatrizRotacaoParaZ(const Vector3& vn) {
   // aparentemente, nao precisa resolver o caso > PI porque o cross sempre vai retornar o menor angulo entre eles..
   return Matrix4().rotate(acosf(cosang) * RAD_PARA_GRAUS, axis);
 }
+#endif
 
 enum Vbos {
   VBO_CUBO = 0,
@@ -280,15 +282,19 @@ void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
       coordenadas_[i+2] = c[2];
     }
     m.invert().transpose();
-    for (unsigned int i = 0; i < normais_.size(); i += 3) {
-      Vector4 c(normais_[i], normais_[i+1], normais_[i+2], 1.0f);
-      c = m * c;
-      c.normalize();
-      normais_[i]   = c[0];
-      normais_[i+1] = c[1];
-      normais_[i+2] = c[2];
-    }
-    ArrumaMatrizesNormais();
+    auto TransformaNormalTangente = [&m] (unsigned int tam, float* c) {
+      Vector4 vc;
+      for (unsigned int i = 0; i < tam; i += 3) {
+        vc.set(c[i], c[i+1], c[i+2], 1.0f);
+        vc = m * vc;
+        vc.normalize();
+        c[i]   = vc[0];
+        c[i+1] = vc[1];
+        c[i+2] = vc[2];
+      }
+    };
+    TransformaNormalTangente(normais_.size(), &(*normais_.begin()));
+    TransformaNormalTangente(tangentes_.size(), &(*tangentes_.begin()));
   }
 }
 
@@ -319,16 +325,19 @@ void VboNaoGravado::Multiplica(const Matrix4& m) {
   }
   Matrix4 mn = m;
   mn.invert().transpose();
-  float* normais = &(*normais_.begin());
-  for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    v.set(normais[i], normais[i+1], normais[i+2], 1.0f);
-    v = mn * v;
-    v.normalize();
-    normais[i]   = v[0];
-    normais[i+1] = v[1];
-    normais[i+2] = v[2];
-  }
-  ArrumaMatrizesNormais();
+  auto TransformaNormalTangente = [&mn](unsigned int tam, float* c) {
+    Vector4 vc;
+    for (unsigned int i = 0; i < tam; i += 3) {
+      vc.set(c[i], c[i+1], c[i+2], 1.0f);
+      vc = mn * vc;
+      vc.normalize();
+      c[i]   = vc[0];
+      c[i+1] = vc[1];
+      c[i+2] = vc[2];
+    }
+  };
+  TransformaNormalTangente(normais_.size(), &(*normais_.begin()));
+  TransformaNormalTangente(tangentes_.size(), &(*tangentes_.begin()));
 }
 
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
@@ -341,15 +350,18 @@ void VboNaoGravado::RodaX(GLfloat angulo_graus) {
     coordenadas[i + 1] = c[1];
     coordenadas[i + 2] = c[2];
   }
+  auto TransformaNormalTangente = [&m](unsigned int tam, float* c) {
+    Vector4 vc;
+    for (unsigned int i = 0; i < tam; i += 3) {
+      vc.set(0.0f, c[i + 1], c[i + 2], 1.0f);
+      vc = m * vc;
+      c[i + 1] = vc[1];
+      c[i + 2] = vc[2];
+    }
+  };
   // Mesma transformada.
-  float* normais = &(*normais_.begin());
-  for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(0.0f, normais[i + 1], normais[i + 2], 1.0f);
-    c = m * c;
-    normais[i + 1] = c[1];
-    normais[i + 2] = c[2];
-  }
-  ArrumaMatrizesNormais();
+  TransformaNormalTangente(normais_.size(),  &(*normais_.begin()));
+  TransformaNormalTangente(tangentes_.size(),  &(*tangentes_.begin()));
 }
 
 void VboNaoGravado::RodaY(GLfloat angulo_graus) {
@@ -363,14 +375,17 @@ void VboNaoGravado::RodaY(GLfloat angulo_graus) {
     coordenadas[i + 2] = c[2];
   }
   // Mesma transformada.
-  float* normais = &(*normais_.begin());
-  for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(normais[i], 0.0f, normais[i+2], 1.0f);
-    c = m * c;
-    normais[i]   = c[0];
-    normais[i+2] = c[2];
-  }
-  ArrumaMatrizesNormais();
+  auto TransformaNormalTangente = [&m](unsigned int tam, float* c) {
+    Vector4 vc;
+    for (unsigned int i = 0; i < tam; i += 3) {
+      vc.set(c[i], 0.0f, c[i+2], 1.0f);
+      vc = m * vc;
+      c[i]   = vc[0];
+      c[i+2] = vc[2];
+    }
+  };
+  TransformaNormalTangente(normais_.size(), &(*normais_.begin()));
+  TransformaNormalTangente(tangentes_.size(), &(*tangentes_.begin()));
 }
 
 void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
@@ -384,14 +399,17 @@ void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
     coordenadas[i + 1] = c[1];
   }
   // Mesma transformada.
-  float* normais = &(*normais_.begin());
-  for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(normais[i], normais[i + 1], normais[i + 2], 1.0f);
-    c = m * c;
-    normais[i]     = c[0];
-    normais[i + 1] = c[1];
-  }
-  ArrumaMatrizesNormais();
+  auto TransformaNormalTangente = [&m](unsigned int tam, float* c) {
+    Vector4 vc;
+    for (unsigned int i = 0; i < tam; i += 3) {
+      vc.set(c[i], c[i + 1], c[i + 2], 1.0f);
+      vc = m * vc;
+      c[i]     = vc[0];
+      c[i + 1] = vc[1];
+    }
+  };
+  TransformaNormalTangente(normais_.size(), &(*normais_.begin()));
+  TransformaNormalTangente(tangentes_.size(), &(*tangentes_.begin()));
 }
 
 void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
@@ -416,8 +434,9 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
   normais_.reserve(normais_.size() + rhs.normais_.size());
   normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
-  //matrizes_normais_.reserve(matrizes_normais_.size() + rhs.matrizes_normais_.size());
-  //matrizes_normais_.insert(matrizes_normais_.end(), rhs.matrizes_normais_.begin(), rhs.matrizes_normais_.end());
+  tangentes_.reserve(tangentes_.size() + rhs.tangentes_.size());
+  tangentes_.insert(tangentes_.end(), rhs.tangentes_.begin(), rhs.tangentes_.end());
+
   auto indices_size_antes = indices_.size();
   indices_.resize(indices_.size() + rhs.indices_.size());
   unsigned short* indices = &(*indices_.begin());
@@ -443,20 +462,24 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_normais,
+    unsigned int* deslocamento_tangentes,
     unsigned int* deslocamento_cores,
-    unsigned int* deslocamento_texturas,
-    unsigned int* deslocamento_matrizes_normais) const {
+    unsigned int* deslocamento_texturas) const {
   std::vector<float> buffer_unico;
   buffer_unico.clear();
   buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
   buffer_unico.insert(buffer_unico.end(), normais_.begin(), normais_.end());
+  buffer_unico.insert(buffer_unico.end(), tangentes_.begin(), tangentes_.end());
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
-  //buffer_unico.insert(buffer_unico.end(), matrizes_normais_.begin(), matrizes_normais_.end());
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
   if (tem_normais()) {
     *deslocamento_normais = pos_final;
     pos_final += normais_.size() * sizeof(float);
+  }
+  if (tem_tangentes()) {
+    *deslocamento_tangentes = pos_final;
+    pos_final += tangentes_.size() * sizeof(float);
   }
   if (tem_cores_) {
     *deslocamento_cores = pos_final;
@@ -465,10 +488,6 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   if (tem_texturas()) {
     *deslocamento_texturas = pos_final;
     pos_final += texturas_.size() * sizeof(float);
-  }
-  if (tem_matrizes_normais()) {
-    *deslocamento_matrizes_normais = pos_final;
-    pos_final += matrizes_normais_.size() * sizeof(float);
   }
   return buffer_unico;
 }
@@ -500,29 +519,28 @@ void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, std::vector
   num_dimensoes_ = num_dimensoes;
 }
 
-void VboNaoGravado::ArrumaMatrizesNormais() {
-  return;
-  matrizes_normais_.clear();
-  for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Matrix4 mr = MatrizRotacaoParaZ(Vector3(normais_[i], normais_[i+1], normais_[i+2]));
-    mr = Matrix4(1.0, 0.0, 0.0, 1.0,
-                 0.0, 1.0, 0.0, 1.0,
-                 0.0, 0.0, 1.0, 1.0,
-                 1.0, 1.0, 1.0, 1.0);
-    const float* mrp = mr.get();
-    std::copy(mrp, mrp + 16, std::back_inserter(matrizes_normais_));
-  }
-}
-
 void VboNaoGravado::AtribuiNormais(const float* dados) {
   normais_.clear();
   normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
-  ArrumaMatrizesNormais();
 }
 
 void VboNaoGravado::AtribuiNormais(std::vector<float>* dados) {
   normais_.swap(*dados);
-  ArrumaMatrizesNormais();
+}
+
+void VboNaoGravado::AtribuiTangentes(const float* dados) {
+  tangentes_.clear();
+  tangentes_.insert(tangentes_.end(), dados, dados + coordenadas_.size());
+  if (tangentes_.size() != normais_.size()) {
+    tangentes_.clear();
+  }
+}
+
+void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
+  tangentes_.swap(*dados);
+  if (tangentes_.size() != normais_.size()) {
+    tangentes_.clear();
+  }
 }
 
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
@@ -610,6 +628,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
          ", num indices: " + std::to_string(indices_.size()) +
          ", cores_size: " + std::to_string(tem_cores_ ? cores_.size() : 0) +
          ", normais_size: " + std::to_string(normais_.size()) +
+         ", tangentes_size: " + std::to_string(tangentes_.size()) +
          ", texturas_size: " + std::to_string(texturas_.size()) +
          ", coordenadas_size: " + std::to_string(coordenadas_.size()) +
          coords;
@@ -637,16 +656,17 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
   V_ERRO("na ligacao com buffer");
   deslocamento_normais_ = -1;
+  deslocamento_tangentes_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
-  deslocamento_matrizes_normais_ = -1;
   auto tam_antes = buffer_unico_.size();
-  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_, &deslocamento_matrizes_normais_);
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_tangentes_, &deslocamento_cores_, &deslocamento_texturas_);
   if (tam_antes != buffer_unico_.size()) {
     usar_buffer_sub_data = false;
   }
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
   tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
+  tem_tangentes_ = (deslocamento_tangentes_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
   if (usar_buffer_sub_data) {
@@ -873,6 +893,7 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> tangentes(num_coordenadas_total);
   std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
@@ -932,6 +953,7 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       coordenadas_textura[i_coordenadas_textura + 3]  = coordenada_textura_v;
       coordenadas_textura[i_coordenadas_textura + 10] = coordenada_textura_h + inc_textura_h;
       coordenadas_textura[i_coordenadas_textura + 11] = 1.0f - coordenada_textura_v;
+
       // v3 = vtopo.
       coordenadas[i_coordenadas + 9] = v_topo[0];
       coordenadas[i_coordenadas + 10] = v_topo[1];
@@ -959,6 +981,34 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
         coordenadas[i_coordenadas + 12 + c] = -coordenadas[i_coordenadas + c];
       }
 
+      Vector3 c0(coordenadas[i_coordenadas], coordenadas[i_coordenadas + 1], coordenadas[i_coordenadas + 2]);
+      Vector3 c1(coordenadas[i_coordenadas + 3], coordenadas[i_coordenadas + 4], coordenadas[i_coordenadas + 5]);
+      Vector3 c0c1 = c1 - c0;
+      tangentes[i_coordenadas + 0 ] = c0c1.x;
+      tangentes[i_coordenadas + 1 ] = c0c1.y;
+      tangentes[i_coordenadas + 2 ] = c0c1.z;
+      tangentes[i_coordenadas + 3 ] = c0c1.x;
+      tangentes[i_coordenadas + 4 ] = c0c1.y;
+      tangentes[i_coordenadas + 5 ] = c0c1.z;
+      tangentes[i_coordenadas + 6 ] = c0c1.x;
+      tangentes[i_coordenadas + 7 ] = c0c1.y;
+      tangentes[i_coordenadas + 8 ] = c0c1.z;
+      tangentes[i_coordenadas + 9 ] = c0c1.x;
+      tangentes[i_coordenadas + 10] = c0c1.y;
+      tangentes[i_coordenadas + 11] = c0c1.z;
+      tangentes[i_coordenadas + 12] = c0c1.x;
+      tangentes[i_coordenadas + 13] = c0c1.y;
+      tangentes[i_coordenadas + 14] = c0c1.z;
+      tangentes[i_coordenadas + 15] = c0c1.x;
+      tangentes[i_coordenadas + 16] = c0c1.y;
+      tangentes[i_coordenadas + 17] = c0c1.z;
+      tangentes[i_coordenadas + 18] = c0c1.x;
+      tangentes[i_coordenadas + 19] = c0c1.y;
+      tangentes[i_coordenadas + 20] = c0c1.z;
+      tangentes[i_coordenadas + 21] = c0c1.x;
+      tangentes[i_coordenadas + 22] = c0c1.y;
+      tangentes[i_coordenadas + 23] = c0c1.z;
+
       // Indices: V0, V1, V2, V0, V2, V3.
       indices[i_indices] = coordenada_inicial;
       indices[i_indices + 1] = coordenada_inicial + 1;
@@ -980,6 +1030,17 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       coordenada_inicial += 8;
     }
   }
+
+  std::vector<float> normais(coordenadas);
+  float* na = &normais[0];
+  for (unsigned int i = 0; i < normais.size(); i += 3) {
+    Vector3 vn(na[i], na[i+1], na[i+2]);
+    vn.normalize();
+    na[i] = vn.x;
+    na[i+1] = vn.y;
+    na[i+2] = vn.z;
+  }
+
   //LOG(INFO) << "raio: " << raio;
   //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
   //  LOG(INFO) << "indices[" << i << "]: " << indices[i];
@@ -991,7 +1052,8 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
 
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
-  vbo.AtribuiNormais(coordenadas.data());  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiTangentes(tangentes.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.Nomeia("esfera");
@@ -1012,6 +1074,7 @@ VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_toco
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> tangentes(num_coordenadas_total);
   std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
@@ -1084,6 +1147,23 @@ VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_toco
       coordenadas_textura[i_coordenadas_textura + 4]  = coordenada_textura_h + inc_textura_h;
       coordenadas_textura[i_coordenadas_textura + 5]  = coordenada_textura_v + inc_textura_v;
 
+      Vector3 c0(coordenadas[i_coordenadas], coordenadas[i_coordenadas + 1], coordenadas[i_coordenadas + 2]);
+      Vector3 c1(coordenadas[i_coordenadas + 3], coordenadas[i_coordenadas + 4], coordenadas[i_coordenadas + 5]);
+      Vector3 c0c1 = c1 - c0;
+      tangentes[i_coordenadas + 0 ] = c0c1.x;
+      tangentes[i_coordenadas + 1 ] = c0c1.y;
+      tangentes[i_coordenadas + 2 ] = c0c1.z;
+      tangentes[i_coordenadas + 3 ] = c0c1.x;
+      tangentes[i_coordenadas + 4 ] = c0c1.y;
+      tangentes[i_coordenadas + 5 ] = c0c1.z;
+      tangentes[i_coordenadas + 6 ] = c0c1.x;
+      tangentes[i_coordenadas + 7 ] = c0c1.y;
+      tangentes[i_coordenadas + 8 ] = c0c1.z;
+      tangentes[i_coordenadas + 9 ] = c0c1.x;
+      tangentes[i_coordenadas + 10] = c0c1.y;
+      tangentes[i_coordenadas + 11] = c0c1.z;
+      tangentes[i_coordenadas + 12] = c0c1.x;
+
       // Indices: V0, V1, V2, V0, V2, V3.
       indices[i_indices] = coordenada_inicial;
       indices[i_indices + 1] = coordenada_inicial + 1;
@@ -1108,9 +1188,20 @@ VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_toco
   //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
+  std::vector<float> normais(coordenadas);
+  float* na = &normais[0];
+  for (unsigned int i = 0; i < normais.size(); i += 3) {
+    Vector3 vn(na[i], na[i+1], na[i+2]);
+    vn.normalize();
+    na[i] = vn.x;
+    na[i+1] = vn.y;
+    na[i+2] = vn.z;
+  }
+
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
-  vbo.AtribuiNormais(coordenadas.data());  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiTangentes(tangentes.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.Nomeia("hemisferio");
@@ -1133,41 +1224,55 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   std::vector<float> coordenadas(num_coordenadas_total);
   std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<float> normais(num_coordenadas_total);
+  std::vector<float> tangentes(num_coordenadas_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
 
   int i_normais = 0;
   float v_base[2];
+  float* na = &normais[0];
   for (int toco = 1; toco <= num_tocos; ++toco) {
     v_base[0] = 0.0f;
-    v_base[1] = raio;
+    v_base[1] = 1.0;  // normais tem tamanho 1.
     for (int i = 0; i < num_fatias; ++i) {
       // Cada faceta possui 4 vertices (anti horario).
       // V0 = vbase.
-      normais[i_normais] = v_base[0];
-      normais[i_normais + 1] = v_base[1];
-      normais[i_normais + 2] = 0;
+      na[i_normais] = v_base[0];
+      na[i_normais + 1] = v_base[1];
+      na[i_normais + 2] = 0;
+
       // v3 = vbase topo.
-      normais[i_normais + 9] = v_base[0];
-      normais[i_normais + 10] = v_base[1];
-      normais[i_normais + 11] = 0;
+      na[i_normais + 9] = v_base[0];
+      na[i_normais + 10] = v_base[1];
+      na[i_normais + 11] = 0;
+
       // V1 = vbase rodado.
       float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
       float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
       v_base[0] = v_base_0_rodado;
       v_base[1] = v_base_1_rodado;
-      normais[i_normais + 3] = v_base[0];
-      normais[i_normais + 4] = v_base[1];
-      normais[i_normais + 5] = 0;
+      na[i_normais + 3] = v_base[0];
+      na[i_normais + 4] = v_base[1];
+      na[i_normais + 5] = 0;
       // V2 = vtopo rodado.
-      normais[i_normais + 6] = v_base[0];
-      normais[i_normais + 7] = v_base[1];
-      normais[i_normais + 8] = 0;
+      na[i_normais + 6] = v_base[0];
+      na[i_normais + 7] = v_base[1];
+      na[i_normais + 8] = 0;
 
       // Incrementa.
       i_normais += 12;
     }
+  }
+  Matrix4 mt;
+  mt.rotateZ(90);
+  Vector4 nt;
+  float* ta = &tangentes[0];
+  for (unsigned int i = 0; i < normais.size(); i += 3) {
+    nt.set(na[i], na[i + 1], na[i + 2], 1.0);
+    nt = mt * nt;
+    ta[i] = nt.x;
+    ta[i + 1] = nt.y;
   }
 
   float h_delta = altura / num_tocos;
@@ -1253,6 +1358,7 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
   vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiTangentes(tangentes.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.Nomeia("cilindro");
   return vbo;
@@ -1302,6 +1408,39 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     0.0f, 0.0f, -1.0f,
     0.0f, 0.0f, -1.0f,
   };
+  const float tangentes[num_coordenadas] = {
+    // sul.
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    // norte.
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    // oeste.
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    // leste.
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    // cima.
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    // baixo.
+    -1.0f, 0.0f, -1.0f,
+    -1.0f, 0.0f, -1.0f,
+    -1.0f, 0.0f, -1.0f,
+    -1.0f, 0.0f, -1.0f,
+  };
+
   const float coordenadas[num_coordenadas] = {
     // sul: 0-3
     -meio_lado, -meio_lado, -meio_lado,
@@ -1371,6 +1510,7 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
   vbo.AtribuiNormais(normais);
+  vbo.AtribuiTangentes(tangentes);
   vbo.AtribuiIndices(indices, num_indices);
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.Nomeia("cubo");
@@ -1401,7 +1541,7 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   const float comp_xy = cos_a;
   const float sen_a = h / t;
   const float comp_z = sen_a;
-  const float normais[] = {
+  float normais[] = {
     // Face sul
     0.0f, -comp_xy, comp_z,
     0.0f, -comp_xy, comp_z,
@@ -1419,6 +1559,34 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
     -comp_xy, 0.0f, comp_z,
     -comp_xy, 0.0f, comp_z,
   };
+  for (unsigned int i = 0; i < 36; i+=3) {
+    Vector3 nv(normais[i], normais[i+1], normais[i+2]);
+    nv.normalize();
+    normais[i] = nv.x;
+    normais[i+1] = nv.y;
+    normais[i+2] = nv.z;
+  }
+  // Curiosamente, as tangentes sao bem simples de computar, apenas seguem
+  // a aresta da base.
+  const float tangentes[] = {
+    // Face sul
+    1.0f, 0, 0,
+    1.0f, 0, 0,
+    1.0f, 0, 0,
+    // Face leste.
+    0, 1.0f, 0,
+    0, 1.0f, 0,
+    0, 1.0f, 0,
+    // Face norte.
+    -1.0f, 0, 0,
+    -1.0f, 0, 0,
+    -1.0f, 0, 0,
+    // Face Oeste.
+    0, -1.0f, 0,
+    0, -1.0f, 0,
+    0, -1.0f, 0,
+  };
+
   const float coordenadas[] = {
     // Topo.
     // Face sul.
@@ -1461,6 +1629,7 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 12);
   vbo.AtribuiNormais(normais);
+  vbo.AtribuiTangentes(tangentes);
   vbo.Nomeia("piramide");
   return vbo;
 }
@@ -1493,6 +1662,14 @@ VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
     0.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
   };
+  const float tangentes[] = {
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+  };
   const float coordenadas_texel[] = {
     0.0f, 1.0f,  // x1, y1
     1.0f, 1.0f,  // x2, y1
@@ -1504,6 +1681,7 @@ VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
   vbo.AtribuiNormais(normais);
+  vbo.AtribuiTangentes(tangentes);
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, sizeof(indices) / sizeof(unsigned short));
   vbo.Nomeia("retangulo");
@@ -1514,12 +1692,14 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
+  std::vector<float> tangentes(num_coordenadas);
   //std::vector<float> cores((num_coordenadas / 3) * 4);
   std::vector<unsigned short> indices(num_faces * 3);
   // Norte.
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
+  tangentes[0] = 1.0f;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
@@ -1531,6 +1711,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
     coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia;
     coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
     normais[i + 2] = 1.0f;
+    tangentes[i] = 1.0f;
     //int ic = (i / 3) * 4;
     //cores[ic] = ic * 0.1;
     //cores[ic+1] = ic * 0.1;
@@ -1558,6 +1739,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());
   vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiTangentes(tangentes.data());
   //vbo.AtribuiCores(cores.data());
   vbo.AtribuiTexturas(coordenadas_texel.data());
   vbo.AtribuiIndices(indices.data(), indices.size());
@@ -1584,9 +1766,12 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   };
   GLfloat normais[9] = { 0.0f };
   normais[2] = normais[5] = normais[8] = 1.0f;
+  GLfloat tangentes[9] = { 0.0f };
+  tangentes[0] = tangentes[3] = tangentes[5] = 1.0f;
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, 9);
   vbo.AtribuiNormais(normais);
+  vbo.AtribuiNormais(tangentes);
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 3);
   vbo.Nomeia("triangulo");
@@ -1636,10 +1821,10 @@ namespace {
 void DesenhaVbo(GLenum modo,
                 int num_vertices, int num_dimensoes, const void* indices, const void* dados,
                 bool tem_normais, const void* normais, int d_normais,
+                bool tem_tangentes, const void* tangentes, int d_tangentes,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores,
                 bool tem_matriz, const void* matriz, int d_matriz,
-                bool tem_matrizes_normais, const void* matrizes_normais, int d_matrizes_normais,
                 bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
   gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
@@ -1647,9 +1832,9 @@ void DesenhaVbo(GLenum modo,
     gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   }
-  if (tem_matrizes_normais) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
-    gl::PonteiroMatrizNormal(static_cast<const char*>(matrizes_normais) + d_matrizes_normais);
+  if (tem_tangentes) {
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY);
+    gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
   }
   if (tem_texturas) {
     gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
@@ -1678,8 +1863,8 @@ void DesenhaVbo(GLenum modo,
   if (tem_normais) {
     gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
   }
-  if (tem_matrizes_normais) {
-    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
+  if (tem_tangentes) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY);
   }
   V_ERRO("DesenhaVBO: tres quartos");
   if (tem_cores) {
@@ -1704,10 +1889,10 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
 
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
              vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
+             vbo.tem_tangentes(), nullptr, vbo.DeslocamentoTangentes(),
              vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
              vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
              vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
-             vbo.tem_matrizes_normais(), nullptr, vbo.DeslocamentoMatrizesNormais(),
              atualiza_matrizes);
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
@@ -1717,10 +1902,10 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
 void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
              vbo.tem_normais(), vbo.normais().data(), 0,
+             vbo.tem_tangentes(), vbo.tangentes().data(), 0,
              vbo.tem_texturas(), vbo.texturas().data(), 0,
              vbo.tem_cores(), vbo.cores().data(), 0,
              vbo.tem_matriz(), vbo.matriz().data(), 0,
-             vbo.tem_matrizes_normais(), vbo.matrizes_normais().data(), 0,
              atualiza_matrizes);
 }
 

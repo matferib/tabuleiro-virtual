@@ -370,7 +370,9 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
   PonteiroVerticesTexturas(vertices_por_coordenada, tipo, 0, vertices);
 }
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais);
-inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormais(tipo, 0, normais);  }
+inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormais(tipo, 0, normais); }
+void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* normais);
+inline void PonteiroTangentes(GLenum tipo, const GLvoid* tangentes) { PonteiroTangentes(tipo, 0, tangentes); }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
@@ -383,7 +385,7 @@ enum atributo_e {
   ATR_COLOR_ARRAY         = 2,
   ATR_TEXTURE_COORD_ARRAY = 3,
   ATR_MATRIX_ARRAY        = 4,
-  ATR_NORMAL_MATRIX_ARRAY = 5,
+  ATR_TANGENT_ARRAY       = 5,
 };
 void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
@@ -442,6 +444,7 @@ void PlanoDistanteOclusao(GLfloat distancia);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
+void Tangente(GLfloat x, GLfloat y, GLfloat z);
 
 void TamanhoPonto(float tam);
 

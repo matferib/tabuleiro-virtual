@@ -60,6 +60,7 @@ struct VarShader {
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
+  GLint atr_gltab_tangente;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
   GLint atr_gltab_matriz;
