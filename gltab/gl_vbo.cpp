@@ -1452,25 +1452,25 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     -1.0f, 0.0f, 0.0f,
     -1.0f, 0.0f, 0.0f,
     // oeste.
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
     // leste.
-    0.0f, -1.0f, 0.0f,
-    0.0f, -1.0f, 0.0f,
-    0.0f, -1.0f, 0.0f,
-    0.0f, -1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
     // cima.
     1.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
     // baixo.
-    -1.0f, 0.0f, -1.0f,
-    -1.0f, 0.0f, -1.0f,
-    -1.0f, 0.0f, -1.0f,
-    -1.0f, 0.0f, -1.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
   };
 
   const float coordenadas[num_coordenadas] = {
@@ -1512,15 +1512,15 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     1.0f, 0.0f,
     0.0f, 0.0f,
     // Norte.
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    1.0f, 0.0f,
     1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
     // Oeste.
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    1.0f, 0.0f,
     1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
     // Leste.
     0.0f, 1.0f,
     1.0f, 1.0f,
@@ -1532,10 +1532,10 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     1.0f, 0.0f,
     0.0f, 0.0f,
     // Baixo.
-    0.0f, 1.0f,
     0.0f, 0.0f,
-    1.0f, 0.0f,
+    0.0f, 1.0f,
     1.0f, 1.0f,
+    1.0f, 0.0f,
   };
 
 
