@@ -1179,6 +1179,8 @@ class Tabuleiro : public ntf::Receptor {
   void PreencheNotificacoesDesmontar(
       const std::vector<const Entidade*>& desmontandos, ntf::Notificacao* grupo) const;
 
+  void RequerAtualizacaoLuzesPontuais();
+
  private:
   const Tabelas& tabelas_;
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

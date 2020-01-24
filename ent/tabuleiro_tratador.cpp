@@ -273,7 +273,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     }
   }
   if (atualizar_mapa_luzes) {
-    luzes_pontuais_.clear();
+    RequerAtualizacaoLuzesPontuais();
   }
 }
 
@@ -339,7 +339,7 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
     AtualizaRaioOlho(olho_.raio() / fator);
   }
   if (atualizar_mapa_luzes) {
-    luzes_pontuais_.clear();
+    RequerAtualizacaoLuzesPontuais();
   }
 }
 
@@ -371,7 +371,7 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   olho_.set_rotacao_rad(olho_rotacao);
   AtualizaOlho(0, true  /*forcar*/);
   if (atualizar_mapa_luzes) {
-    luzes_pontuais_.clear();
+    RequerAtualizacaoLuzesPontuais();
   }
 }
 
@@ -506,7 +506,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         }
       }
       if (atualizar_mapa_luzes) {
-        luzes_pontuais_.clear();
+        RequerAtualizacaoLuzesPontuais();
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
@@ -620,7 +620,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         }
       }
       if (atualizar_mapa_luzes) {
-        luzes_pontuais_.clear();
+        RequerAtualizacaoLuzesPontuais();
       }
       quadrados_movimentados_ += quantidade_movimento;
       ultimo_x_ = x;

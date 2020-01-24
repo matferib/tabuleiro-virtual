@@ -65,8 +65,6 @@
 #define TAM_MAPA_OCLUSAO 1024
 #define APENAS_MESTRE_CRIA_FORMAS 0
 
-#define ORDENAR_ENTIDADES 0
-
 using google::protobuf::RepeatedField;
 
 namespace ent {
@@ -625,9 +623,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
-#if ORDENAR_ENTIDADES
-    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
-#endif
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_oclusao_.textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
@@ -694,17 +689,15 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoOclusaoLuzes();
   // Neste caso eh melhor deixar o bind pro original do lado de fora, pq teoricamente isso tem que ser um loop.
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[0].framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[indice_luz].framebuffer);
 
-  V_ERRO("LigacaoComFramebufferOclusao");
+  V_ERRO(StringPrintf("LigacaoComFramebuffer dfb_luzes_[%d].framebuffer, valor framebuffer %d", indice_luz, dfb_luzes_[indice_luz].framebuffer));
+  //LOG(INFO) << "desenhando mapa de luzes";
 
   for (int i = 0; i < 6; ++i) {
     //LOG(INFO) << "DesenhaMapaLuzes " << i;
     // Face a ser desenhada.
     parametros_desenho_.set_desenha_mapa_luzes(i);
-#if ORDENAR_ENTIDADES
-    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
-#endif
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[indice_luz].textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
@@ -750,9 +743,6 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
-#if ORDENAR_ENTIDADES
-  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
-#endif
 
   if (usar_sampler_sombras_) {
     gl::UsaShader(gl::TSH_SIMPLES);
@@ -957,9 +947,6 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
-#if ORDENAR_ENTIDADES
-  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
-#endif
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
@@ -1372,7 +1359,7 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
   proto_depois->set_id(entidade.Id());
 
   if (atualizar_mapa_luzes) {
-    luzes_pontuais_.clear();
+    RequerAtualizacaoLuzesPontuais();
   }
 }
 
@@ -1670,7 +1657,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
   if (atualizar_mapa_luzes) {
-    luzes_pontuais_.clear();
+    RequerAtualizacaoLuzesPontuais();
   }
 }
 
@@ -2856,7 +2843,7 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
 
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
-  luzes_pontuais_.clear();
+  RequerAtualizacaoLuzesPontuais();
 
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
@@ -3105,12 +3092,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
   gl::CarregaIdentidade();
   gl::MultiplicaMatriz(mv);
   gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
-
-#if ORDENAR_ENTIDADES
-  if (parametros_desenho_.ordena_entidades_apos_configura_olhar()) {
-    OrdenaEntidades();
-  }
-#endif
 
   if (!parametros_desenho_.has_pos_olho()) {
     *parametros_desenho_.mutable_pos_olho() = olho_.pos();
@@ -4240,12 +4221,8 @@ void Tabuleiro::OrdenaEntidades() {
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
-#if ORDENAR_ENTIDADES
-  for (Entidade* entidade : entidades_ordenadas_) {
-#else
   for (auto& it : entidades_) {
     auto* entidade = it.second.get();
-#endif
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
       continue;
@@ -5519,7 +5496,7 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   olho_.clear_destino();
   AtualizaOlho(0, true  /*forcar*/);
   // Atualiza luzes e oclusao.
-  luzes_pontuais_.clear();
+  RequerAtualizacaoLuzesPontuais();
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -6145,7 +6122,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
-    AdicionaLogEvento(google::protobuf::StringPrintf("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
+    AdicionaLogEvento(StringPrintf("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
     TrataNotificacao(n_inversa);
   } else {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
@@ -6153,6 +6130,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   ignorar_lista_eventos_ = false;
   VLOG(1) << "Notificacao desfeita: " << n_original.ShortDebugString() << ", tamanho lista: " << lista_eventos_.size();
   VLOG(1) << "Notificacao inversa: " << n_inversa.ShortDebugString();
+  RequerAtualizacaoLuzesPontuais();
 }
 
 void Tabuleiro::TrataComandoRefazer() {
@@ -6170,6 +6148,7 @@ void Tabuleiro::TrataComandoRefazer() {
   TrataNotificacao(n_original);
   ignorar_lista_eventos_ = false;
   ++evento_corrente_;
+  RequerAtualizacaoLuzesPontuais();
 }
 
 void Tabuleiro::SelecionaTudo(bool fixas) {
@@ -6218,19 +6197,13 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     }
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
-  if (entidade->Tipo() != TE_ENTIDADE) {
-    luzes_pontuais_.clear();
-  }
-  //luzes_pontuais_.clear();
+  RequerAtualizacaoLuzesPontuais();
 }
 
 void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
   auto* entidade = BuscaEntidade(id_remocao);
   if (entidade == nullptr) {
     return;
-  }
-  if (entidade->Tipo() != TE_ENTIDADE) {
-    luzes_pontuais_.clear();
   }
 
   {
@@ -6241,6 +6214,7 @@ void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
   RemoveEntidade(id_remocao);
+  RequerAtualizacaoLuzesPontuais();
   // Envia para os clientes.
   auto n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
   n->mutable_entidade()->set_id(id_remocao);
@@ -6525,9 +6499,10 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     }
   }
 
-  //LOG(INFO) << "atualizando mapa de luz";
+  //LOG(INFO) << "atualizando mapa de luz com " << entidades_.size() << " entidades";
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  V_ERRO("Atualizando mapa de luzes, gl::Le(GL_FRAMEBUFFER_BINDING, &original);");
   ParametrosDesenho salva_pd(parametros_desenho_);
 
   // por enquanto apenas a luz 0 eh desenhada.
@@ -8187,6 +8162,11 @@ void Tabuleiro::RemoveEfeitoInvisibilidadeEntidadesNotificando() {
 
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::RequerAtualizacaoLuzesPontuais() {
+  luzes_pontuais_.clear();
+  AtualizaLuzesPontuais();
 }
 
 }  // namespace ent

@@ -1,6 +1,9 @@
-Conferir os mapas de texturas.
+Fix de atualizacao do mapa de luzes:
+  - undo/redo nao funciona (aparentemente tem contexto, quando for pelo teclado. pelo menu vai dar pau).
+
+Conferir os mapas de texturas:
+ - cubo: ok!
 Hickups de scroll de textura.
-Luzes piscando, porque?
 Problema sao acoes fora de contexto OpenGL, por exemplo: MouseParadoEm que eh tratado na ifg/teclado_mouse ao inves do visualizador3d.
 Isso afeta tambem carregamento de tabuleiro por causa do EstadoInicial (mantendo graficos). Que alias, ta bugado quando se deve manter entidades.
 Terminar invocar criaturas I.
