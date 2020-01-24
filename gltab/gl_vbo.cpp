@@ -738,6 +738,7 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 
   std::vector<float> coordenadas(num_coordenadas_total);
   std::vector<float> normais(num_coordenadas_total);
+  std::vector<float> tangentes(num_coordenadas_total);
   std::vector<unsigned short> indices(num_indices_total);
   std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
 
@@ -746,9 +747,9 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   float delta_raio = (raio_base - raio_topo_original) / num_tocos;
   float raio_topo = raio_base;
 
-  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
-  float cos_fatia = cosf(angulo_fatia);
-  float sen_fatia = sinf(angulo_fatia);
+  float angulo_fatia_rad = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  float cos_fatia = cosf(angulo_fatia_rad);
+  float sen_fatia = sinf(angulo_fatia_rad);
 
   int i_coordenadas = 0;
   int i_indices = 0;
@@ -757,6 +758,7 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   float inc_textura_h = 1.0f / num_fatias;
   float inc_textura_v = 1.0f / num_tocos;
 
+  // Primeiro ponto é apontando para y = 1.0.
   float v_base[2];
   float v_topo[2] = { 0.0f, raio_base };
   // Inclinacao do tronco.
@@ -778,6 +780,7 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
     v_normal[0] = 0.0f;
     v_normal[1] = cos_alfa;
     v_normal[2] = sen_alfa;
+
     // texturas: comeca x do zero e y do inicio do toco.
     float tex_x = 0.0f;
     float tex_y = 1.0f - ((t - 1) * inc_textura_v);
@@ -822,7 +825,23 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
       i_coordenadas_textura += 8;
       tex_x += inc_textura_h;
 
-      // As normais.
+      // As normais e tangentes.
+      Vector3 c0(coordenadas[i_coordenadas + 0], coordenadas[i_coordenadas + 1], coordenadas[i_coordenadas + 2]);
+      Vector3 c1(coordenadas[i_coordenadas + 3], coordenadas[i_coordenadas + 4], coordenadas[i_coordenadas + 5]);
+      Vector3 c0c1 = c1 - c0;
+      tangentes[i_coordenadas + 0] = c0c1.x;
+      tangentes[i_coordenadas + 1] = c0c1.y;
+      tangentes[i_coordenadas + 2] = c0c1.z;
+      tangentes[i_coordenadas + 3] = c0c1.x;
+      tangentes[i_coordenadas + 4] = c0c1.y;
+      tangentes[i_coordenadas + 5] = c0c1.z;
+      tangentes[i_coordenadas + 6] = c0c1.x;
+      tangentes[i_coordenadas + 7] = c0c1.y;
+      tangentes[i_coordenadas + 8] = c0c1.z;
+      tangentes[i_coordenadas + 9] = c0c1.x;
+      tangentes[i_coordenadas + 10] = c0c1.y;
+      tangentes[i_coordenadas + 11] = c0c1.z;
+
       // Vn0.
       normais[i_coordenadas] = v_normal[0];
       normais[i_coordenadas + 1] = v_normal[1];
@@ -872,7 +891,20 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  for (unsigned int i = 0; i < normais.size(); i += 3) {
+    {
+      Vector3 n(normais[i], normais[i+1], normais[i+2]);
+      n.normalize();
+      normais[i] = n.x; normais[i + 1] = n.y; normais[i + 2] = n.z;
+    }
+    {
+      Vector3 t(tangentes[i], tangentes[i+1], tangentes[i+2]);
+      t.normalize();
+      tangentes[i] = t.x; tangentes[i + 1] = t.y; tangentes[i + 2] = t.z;
+    }
+  }
   vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiTangentes(tangentes.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.Nomeia("troncocone");
@@ -891,13 +923,13 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_coordenadas_textura_total = num_vertices_por_toco * 2 * num_tocos * 2;
 
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
-  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  float angulo_fatia_rad = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
   std::vector<float> tangentes(num_coordenadas_total);
   std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<unsigned short> indices(num_indices_total);
-  float cos_fatia = cosf(angulo_fatia);
-  float sen_fatia = sinf(angulo_fatia);
+  float cos_fatia = cosf(angulo_fatia_rad);
+  float sen_fatia = sinf(angulo_fatia_rad);
 
   float v_base[2];
   v_base[0] = 0;

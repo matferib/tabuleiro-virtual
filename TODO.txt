@@ -1,4 +1,4 @@
-Terminar BTN para todas as primitivas: Cone.
+Conferir os mapas de texturas.
 Hickups de scroll de textura.
 Luzes piscando, porque?
 Problema sao acoes fora de contexto OpenGL, por exemplo: MouseParadoEm que eh tratado na ifg/teclado_mouse ao inves do visualizador3d.
