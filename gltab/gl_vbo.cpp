@@ -1208,7 +1208,6 @@ VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_toco
       tangentes[i_coordenadas + 9 ] = c0c1.x;
       tangentes[i_coordenadas + 10] = c0c1.y;
       tangentes[i_coordenadas + 11] = c0c1.z;
-      tangentes[i_coordenadas + 12] = c0c1.x;
 
       // Indices: V0, V1, V2, V0, V2, V3.
       indices[i_indices] = coordenada_inicial;
