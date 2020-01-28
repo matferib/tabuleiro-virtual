@@ -771,15 +771,15 @@ void Tabuleiro::DesenhaMapaSombra() {
 }
 
 int Tabuleiro::Desenha() {
+#if DEBUG
+  glFinish();
+#endif
+  timer_uma_renderizacao_completa_.start();
+
   V_ERRO_RET("InicioDesenha");
 
   GLint buffer_original;
   gl::Le(GL_DRAW_BUFFER, &buffer_original);
-
-#if DEBUG
-  //glFinish();
-#endif
-  timer_uma_renderizacao_completa_.start();
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
@@ -865,7 +865,7 @@ int Tabuleiro::Desenha() {
 #endif
 
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_renderizacao_mapas_.start();
   if (MapeamentoOclusao() && !modo_debug_) {
@@ -921,7 +921,7 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_renderizacao_mapas_.stop();
   EnfileiraTempo(timer_renderizacao_mapas_, &tempos_renderizacao_mapas_);
@@ -950,10 +950,10 @@ int Tabuleiro::Desenha() {
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
-  timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
+  timer_entre_cenas_.start();
   timer_uma_renderizacao_completa_.stop();
   EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   return tempos_entre_cenas_.front();
@@ -8070,7 +8070,7 @@ bool Tabuleiro::UsaNevoa() const {
 }
 
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
-  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
+  //const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   // Apesar de otimizar, causa um efeito de objetos surgindo que nao eh legal.
   //return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
   return DISTANCIA_PLANO_CORTE_DISTANTE;
