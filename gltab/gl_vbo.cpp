@@ -222,10 +222,10 @@ void VbosNaoGravados::Concatena(VbosNaoGravados* rhs) {
   }
 }
 
-void VbosNaoGravados::Desenha() const {
+void VbosNaoGravados::Desenha(GLenum modo) const {
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo, GL_TRIANGLES, false);
+    DesenhaVbo(vbo, modo, false);
   }
 }
 
@@ -518,6 +518,20 @@ void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, std::vector
   coordenadas_.swap(*dados);
   num_dimensoes_ = num_dimensoes;
 }
+
+void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, const std::vector<short>& dados) {
+  int num_coordenadas = dados.size() / num_dimensoes;
+  if ((num_coordenadas / num_dimensoes) > std::numeric_limits<unsigned short>::max()) {
+    LOG(WARNING) << "Nao eh possivel indexar mais que " <<  std::numeric_limits<unsigned short>::max() << " coordenadas";
+  }
+  coordenadas_.resize(dados.size());
+  float* c = &coordenadas_[0];
+  for (unsigned int i = 0; i < dados.size(); ++i) {
+    c[i] = static_cast<float>(dados[i]);
+  }
+  num_dimensoes_ = num_dimensoes;
+}
+
 
 void VboNaoGravado::AtribuiNormais(const float* dados) {
   normais_.clear();

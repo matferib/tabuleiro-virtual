@@ -35,6 +35,7 @@ class VboNaoGravado {
 
   void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas);
   void AtribuiCoordenadas(unsigned short num_dimensoes, std::vector<float>* dados);
+  void AtribuiCoordenadas(unsigned short num_dimensoes, const std::vector<short>& dados);
 
   void AtribuiNormais(const float* dados);
   void AtribuiNormais(std::vector<float>* dados);
@@ -227,7 +228,7 @@ class VbosNaoGravados {
   void Concatena(VbosNaoGravados* rhs);
   void Concatena(const VboNaoGravado& rhs);
   void Concatena(VboNaoGravado* rhs);
-  void Desenha() const;
+  void Desenha(GLenum modo = GL_TRIANGLES) const;
   bool Vazio() const { return vbos_.empty(); }
   void Multiplica(const Matrix4& m);
   void AtribuiCor(float r, float g, float b, float a);
@@ -334,6 +335,9 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
 inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
   DesenhaVbo(VboLivre(pontos, largura));
 }
+
+// Retorna o VBO do caractere.
+VboNaoGravado VboCaractere(int c);
 
 }  // namespace gl
 

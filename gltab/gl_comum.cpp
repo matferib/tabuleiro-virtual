@@ -20,6 +20,7 @@
 
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
+#include "gltab/gl_vbo.h"
 #include "arq/arquivo.h"
 #include "goog/stringprintf.h"
 #include "matrix/matrices.h"
@@ -147,25 +148,25 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   gl::TamanhoPonto(escala);
-  gl::Escala(escala, escala, 1.0f);
-  for (const std::string& str_linha : str_linhas) {
+  std::vector<VboNaoGravado> vbos;
+  for (unsigned int linha = 0; linha < str_linhas.size(); ++linha) {
+    const std::string& str_linha = str_linhas[linha];
     float translacao_x = 0;
     if (alinhamento == 1) {  // direita.
       translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
     } if (alinhamento == 0) {  // central.
       translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
     }
-    gl::Translada(translacao_x, 0.0f, 0.0f);
-    for (const char c : str_linha) {
-      gl::AtualizaMatrizes();
-      gl::DesenhaCaractere(c);
-      gl::Translada(largura_fonte, 0.0f, 0.0f);
+    for (unsigned int i = 0; i < str_linha.size(); ++i) {
+      char c = str_linha[i];
+      VboNaoGravado vbo = VboCaractere(c);
+      vbo.Translada(translacao_x + i * largura_fonte, linha * altura_fonte, 0.0f);
+      vbo.Escala(escala, escala, 1.0f);
+      vbos.emplace_back(std::move(vbo));
     }
-    // A translacao volta tudo que ela andou e anda uma linha.
-    gl::Translada(-static_cast<float>(str_linha.size() * largura_fonte) - translacao_x,
-                  inverte_vertical ? altura_fonte : -altura_fonte,
-                  0.0f);
   }
+  VbosNaoGravados vbos_ng(std::move(vbos));
+  vbos_ng.Desenha(GL_POINTS);
 }
 
 
@@ -1423,7 +1424,7 @@ void TamanhoFonte(int* largura, int* altura, int* escala) {
 }
 
 void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, int* escala) {
-#if 0
+#if 0 
   *escala = 2;
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
   unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
