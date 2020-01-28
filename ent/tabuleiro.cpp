@@ -7032,12 +7032,12 @@ void Tabuleiro::DesenhaTempos() {
   gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
 
-  DesenhaTempo(0, "T", tempos_entre_cenas_);
-  DesenhaTempo(1, "M", tempos_renderizacao_mapas_);
-  DesenhaTempo(2, "R", tempos_uma_renderizacao_completa_);
-  DesenhaTempo(3, "A", tempos_uma_atualizacao_);
-  DesenhaTempo(4, "B", tempos_atualiza_parcial_);
-  DesenhaTempo(5, "C", tempos_uma_renderizacao_controle_virtual_);
+  DesenhaTempo(0, "entre cenas", tempos_entre_cenas_);
+  DesenhaTempo(1, "render mapa", tempos_renderizacao_mapas_);
+  DesenhaTempo(2, "uma render ", tempos_uma_renderizacao_completa_);
+  DesenhaTempo(3, "atualizacao", tempos_uma_atualizacao_);
+  DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
+  DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
   V_ERRO("tempo de renderizacao");
 }
 
@@ -8071,7 +8071,9 @@ bool Tabuleiro::UsaNevoa() const {
 
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
   const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
-  return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
+  // Apesar de otimizar, causa um efeito de objetos surgindo que nao eh legal.
+  //return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
+  return DISTANCIA_PLANO_CORTE_DISTANTE;
 }
 
 void Tabuleiro::PreencheNotificacoesMontarEm(
