@@ -22,14 +22,12 @@ varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying lowp vec3 v_Tangent;
 varying lowp vec3 v_Bitangent;
-varying lowp vec3 v_Normal_model;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying highp vec4 v_Pos_model;
 varying highp vec4 v_Pos_sombra;
 varying highp vec3 v_Pos_oclusao;
 varying highp vec3 v_Pos_luz;
 varying lowp vec2 v_Tex;  // coordenada texel.
-varying lowp mat4 v_Matrix_Normal;
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;           // projecao.
@@ -56,8 +54,6 @@ void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Tangent = normalize(gltab_nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);
-  v_Normal_model = gltab_normal;
-  v_Matrix_Normal = gltab_matriz_normal;
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
   v_Pos = v_Pos / v_Pos.w;

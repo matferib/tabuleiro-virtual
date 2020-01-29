@@ -28,7 +28,6 @@ varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;  // normalizado.
 varying lowp vec3 v_Tangent;  // normalizado.
 varying lowp vec3 v_Bitangent;  // normalizado.
-varying lowp vec3 v_Normal_model;  // normalizado.
 varying lowp mat4 v_Matriz_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
