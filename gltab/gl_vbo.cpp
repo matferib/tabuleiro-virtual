@@ -1611,26 +1611,31 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
     normais[i+1] = nv.y;
     normais[i+2] = nv.z;
   }
-  // Curiosamente, as tangentes sao bem simples de computar, apenas seguem
-  // a aresta da base.
-  const float tangentes[] = {
+  float tangentes[] = {
     // Face sul
-    1.0f, 0, 0,
-    1.0f, 0, 0,
-    1.0f, 0, 0,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
     // Face leste.
-    0, 1.0f, 0,
-    0, 1.0f, 0,
-    0, 1.0f, 0,
+    comp_xy, 0.0f, -comp_z,
+    comp_xy, 0.0f, -comp_z,
+    comp_xy, 0.0f, -comp_z,
     // Face norte.
-    -1.0f, 0, 0,
-    -1.0f, 0, 0,
-    -1.0f, 0, 0,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
     // Face Oeste.
-    0, -1.0f, 0,
-    0, -1.0f, 0,
-    0, -1.0f, 0,
+    comp_xy, 0.0f, comp_z,
+    comp_xy, 0.0f, comp_z,
+    comp_xy, 0.0f, comp_z,
   };
+  for (unsigned int i = 0; i < 36; i+=3) {
+    Vector3 tv(tangentes[i], tangentes[i+1], tangentes[i+2]);
+    tv.normalize();
+    tangentes[i]   = tv.x;
+    tangentes[i+1] = tv.y;
+    tangentes[i+2] = tv.z;
+  }
 
   const float coordenadas[] = {
     // Topo.
@@ -1765,15 +1770,16 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   }
   const unsigned short num_coordenadas_texel = 2 + (num_faces + 1) * 2;
   std::vector<float> coordenadas_texel(num_coordenadas_texel);
-  // Norte.
   coordenadas_texel[0] = 0.0f;
-  coordenadas_texel[1] = -0.5f;
+  coordenadas_texel[1] = -1.0f;
   for (unsigned int i = 2; i < num_coordenadas_texel; i += 2) {
-    coordenadas_texel[i] = coordenadas_texel[i - 2] * cos_fatia - coordenadas_texel[i - 1] * sen_fatia;
-    coordenadas_texel[i + 1] = coordenadas_texel[i - 2] * sen_fatia + coordenadas_texel[i - 1] * cos_fatia;
+    float angulo_rad = (180.0f * GRAUS_PARA_RAD) + ((i / 2) * angulo_fatia);
+    coordenadas_texel[i] = sin(angulo_rad); 
+    coordenadas_texel[i + 1] = cos(angulo_rad); 
   }
+  // Mapeia para [0, 1.0].
   for (unsigned int i = 0; i < coordenadas_texel.size(); ++i) {
-    coordenadas_texel[i] += 0.5f;
+    coordenadas_texel[i] = (coordenadas_texel[i] + 1.0f) / 2.0f;
   }
   for (unsigned int i = 0; i < num_faces; ++i) {
     int ind = i * 3;
@@ -1798,12 +1804,18 @@ void DiscoUnitario() {
 VboNaoGravado VboTriangulo(GLfloat lado) {
   unsigned short indices[] = { 0, 1, 2 };
   GLfloat coordenadas[9] = { 0.0f };
+  GLfloat tangentes[9] = { 0.0f };
+  float h = 0.86602540378f * lado;  // sen 60.
   coordenadas[0] = 0.0f;
-  coordenadas[1] = 0.86602540378f * lado;  // sen 60.
+  coordenadas[1] = h; 
   coordenadas[3] = -lado / 2.0f;
   coordenadas[4] = 0.0f;
   coordenadas[6] = lado / 2.0f;
   coordenadas[7] = 0.0f;
+  tangentes[0] = 1.0f; 
+  tangentes[3] = 1.0f;
+  tangentes[6] = 1.0f;
+
   const float coordenadas_texel[] = {
     0.5f, 0.0f,
     0.0f, 1.0f,
@@ -1811,12 +1823,10 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   };
   GLfloat normais[9] = { 0.0f };
   normais[2] = normais[5] = normais[8] = 1.0f;
-  GLfloat tangentes[9] = { 0.0f };
-  tangentes[0] = tangentes[3] = tangentes[5] = 1.0f;
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, 9);
   vbo.AtribuiNormais(normais);
-  vbo.AtribuiNormais(tangentes);
+  vbo.AtribuiTangentes(tangentes);
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 3);
   vbo.Nomeia("triangulo");
