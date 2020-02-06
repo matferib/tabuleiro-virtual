@@ -51,6 +51,7 @@ struct VarShader {
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_camera;               // Matrix view.
   GLint uni_gltab_camera_nm;            // Matrix de normais para view.
+  GLint uni_gltab_modelagem;            // Matrix de modelagem apenas.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
@@ -106,6 +107,7 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
+  Matrix4 matriz_modelagem;  // Apenas a matriz de modelagem. 
   Matrix3 matriz_normal;  // Computada da mvm corrente.
   Matrix3 matriz_camera_normal;  // Computada da mvm corrente.
   float plano_distante;   // distancia de corte do plano distante.
@@ -145,11 +147,11 @@ inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente
 inline VarShader& BuscaShaderMutavel() { return *BuscaContexto()->shader_corrente; }
 inline bool UsandoShaderComNevoa() {
   auto* c = BuscaContexto();
-  return c->shader_corrente == &c->shaders[TSH_LUZ] || c->shader_corrente == &c->shaders[TSH_PRETO_BRANCO];
+  return c->shader_corrente == &c->shaders[TSH_LUZ] || c->shader_corrente == &c->shaders[TSH_TESTE] || c->shader_corrente == &c->shaders[TSH_PRETO_BRANCO];
 }
 inline bool UsandoShaderLuz() {
   auto* c = BuscaContexto();
-  return c->shader_corrente == &c->shaders[TSH_LUZ];
+  return c->shader_corrente == &c->shaders[TSH_LUZ] || c->shader_corrente == &c->shaders[TSH_TESTE];
 }
 
 // Atualiza um uniforme se ele for valido para o shader (ou seja, nao for -1).

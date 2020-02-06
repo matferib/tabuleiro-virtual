@@ -173,6 +173,7 @@ enum TipoShader {
   TSH_PRETO_BRANCO,  // para visao escuro.
   TSH_CAIXA_CEU,     // para caixa do ceu.
   TSH_PONTUAL,       // para luz e oclusao pontual.
+  TSH_TESTE,         // teste.
   TSH_NUM,  // numero de shaders.
 };
 
@@ -445,6 +446,7 @@ void PlanoDistanteOclusao(GLfloat distancia);
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
 void Tangente(GLfloat x, GLfloat y, GLfloat z);
+void MatrizModelagem(const GLfloat* matriz);
 
 void TamanhoPonto(float tam);
 

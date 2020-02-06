@@ -25,14 +25,6 @@
 #include "goog/stringprintf.h"
 #include "matrix/matrices.h"
 
-using gl::TSH_LUZ;
-using gl::TSH_SIMPLES;
-using gl::TSH_PICKING;
-using gl::TSH_PROFUNDIDADE;
-using gl::TSH_PRETO_BRANCO;
-using gl::TSH_CAIXA_CEU;
-using gl::TSH_PONTUAL;
-
 // Comum.
 namespace gl {
 
@@ -381,6 +373,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
           {"gltab_mvm", &shader->uni_gltab_mvm },
+          {"gltab_model", &shader->uni_gltab_modelagem },
           {"gltab_view", &shader->uni_gltab_camera },
           {"gltab_view_nm", &shader->uni_gltab_camera_nm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
@@ -408,7 +401,7 @@ bool IniciaVariaveis(VarShader* shader) {
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
       shader->uni_gltab_luzes[pos] = LocalUniforme(shader->programa, nome_var);
       if (shader->uni_gltab_luzes[pos] == -1) {
-        LOG(INFO) << "Shader '" << shader->nome << "' nao possui uniforme array" << nome_var;
+        LOG(INFO) << "Shader '" << shader->nome << "' nao possui uniforme array " << nome_var;
       }
       ++j;
     }
@@ -491,6 +484,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
     { "programa_pontual", TSH_PONTUAL, "vert_pontual.c", "frag_pontual.c", &contexto->shaders[TSH_PONTUAL] },
+    { "programa_teste", TSH_TESTE, "vert_luz_model.c", "frag_simples.c", &contexto->shaders[TSH_TESTE] },
   };
 
   for (auto& ds : dados_shaders) {
@@ -868,6 +862,13 @@ void Tangente(GLfloat x, GLfloat y, GLfloat z) {
     return;
   }
   AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
+}
+
+void MatrizModelagem(const GLfloat* matriz) {
+  interno::BuscaContexto()->matriz_modelagem.set(matriz);
+  if (interno::BuscaShader().uni_gltab_modelagem != -1) {
+    Matriz4Uniforme(interno::BuscaShader().uni_gltab_modelagem, 1, false, matriz);
+  }
 }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
@@ -1361,6 +1362,10 @@ void AtualizaMatrizes() {
   if (shader.uni_gltab_camera != -1) {
     Matriz4Uniforme(shader.uni_gltab_camera, 1, false, c->pilha_camera.top().get());
   }
+  if (shader.uni_gltab_modelagem != -1) {
+    Matriz4Uniforme(shader.uni_gltab_modelagem, 1, false, c->matriz_modelagem.get());
+  }
+
   if (shader.uni_gltab_camera_nm != -1) {
     // Normal matrix, apenas para modelview.
     const auto& m = c->pilha_camera.top();
@@ -1392,6 +1397,7 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_mvm_luz, &c->pilha_mvm_luz.top() },
     { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },
     { shader.uni_gltab_camera, &c->pilha_camera.top() },
+    { shader.uni_gltab_modelagem, &c->matriz_modelagem },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {
@@ -1727,6 +1733,7 @@ void FinalizaGl() {
   interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_PRETO_BRANCO]);
   interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_PICKING]);
   interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_CAIXA_CEU]);
+  interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_TESTE]);
 }
 
 bool SelecaoPorCor() {
