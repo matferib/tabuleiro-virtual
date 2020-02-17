@@ -64,8 +64,9 @@ Principal::Principal(const ent::Tabelas& tabelas,
                      ntf::CentralNotificacoes* central,
                      QCoreApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      tabuleiro_(tabuleiro), menu_principal_(new MenuPrincipal(tabelas, tabuleiro, central, this)),
-      v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)) {
+      tabuleiro_(tabuleiro),
+      v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)),
+      menu_principal_(new MenuPrincipal(tabelas, tabuleiro, v3d_, central, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }

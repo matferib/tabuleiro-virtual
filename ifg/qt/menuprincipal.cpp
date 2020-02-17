@@ -30,6 +30,7 @@ Necessary for lupdate.
 #include "ifg/modelos.pb.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/util.h"
+#include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -134,8 +135,8 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
 
 }  // namespace
 
-MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
-    : QMenuBar(pai), tabelas_(tabelas), tabuleiro_(tabuleiro), central_(central) {
+MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, Visualizador3d* v3d, ntf::CentralNotificacoes* central, QWidget* pai)
+    : QMenuBar(pai), tabelas_(tabelas), tabuleiro_(tabuleiro), v3d_(v3d), central_(central) {
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
@@ -382,7 +383,19 @@ void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {
   tabuleiro_->SelecionaAcao(acao->data().toString().toUtf8().constData());
 }
 
+namespace {
+
+struct MakeCurrentScope {
+  MakeCurrentScope(Visualizador3d* v3d) : v3d(v3d) { v3d->makeCurrent(); }
+  ~MakeCurrentScope() { v3d->doneCurrent(); }
+
+  Visualizador3d* v3d;
+};
+
+}  // namespace
+
 void MenuPrincipal::TrataAcaoItem(QAction* acao) {
+  MakeCurrentScope pegaEscopo(v3d_);
   //cout << (const char*)acao->text().toAscii() << endl;
   std::unique_ptr<ntf::Notificacao> notificacao;
   // Jogo.

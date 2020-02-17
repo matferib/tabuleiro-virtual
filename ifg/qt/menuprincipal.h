@@ -24,11 +24,13 @@ class Tabuleiro;
 namespace ifg {
 namespace qt {
 
+class Visualizador3d;
+
 /** A barra de menu principal e as acoes. */
 class MenuPrincipal : public QMenuBar, ntf::Receptor {
   Q_OBJECT
  public:
-  MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai);
+  MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, Visualizador3d* v3d, ntf::CentralNotificacoes* central, QWidget* pai);
   ~MenuPrincipal();
 
   /** Interface ntf::Receptor. */
@@ -118,7 +120,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   // Armazena os modelos por id. O modelo é copiado por nao ser pesistente.
   std::unordered_map<std::string, Modelo> mapa_modelos_;
 
-  ntf::CentralNotificacoes* central_;
+  Visualizador3d* v3d_ = nullptr;
+  ntf::CentralNotificacoes* central_ = nullptr;
 };
 
 } // namespace qt

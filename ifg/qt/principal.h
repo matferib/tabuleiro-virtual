@@ -75,10 +75,10 @@ class Principal : public QWidget, ntf::Receptor {
   QTimer* q_timer_;
   /** O mundo virtual. */
   ent::Tabuleiro* tabuleiro_;
-  /** barra de menu principal. */
-  MenuPrincipal* menu_principal_;
   /** visualizador 3d da aplicacao. */
   Visualizador3d* v3d_;
+  /** barra de menu principal. */
+  MenuPrincipal* menu_principal_;
 };
 
 } // namespace qt
