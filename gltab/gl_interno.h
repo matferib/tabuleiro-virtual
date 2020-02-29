@@ -107,7 +107,7 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
-  Matrix4 matriz_modelagem;  // Apenas a matriz de modelagem. 
+  Matrix4 matriz_modelagem;  // Apenas a matriz de modelagem.
   Matrix3 matriz_normal;  // Computada da mvm corrente.
   Matrix3 matriz_camera_normal;  // Computada da mvm corrente.
   float plano_distante;   // distancia de corte do plano distante.
