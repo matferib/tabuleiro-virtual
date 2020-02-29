@@ -1,6 +1,7 @@
-Fix de atualizacao do mapa de luzes:
-  - undo/redo nao funciona (aparentemente tem contexto, quando for pelo teclado. pelo menu vai dar pau).
-Hickups de scroll de textura.
+Terminar o shader com modelagem separado.
+Colocar uma textura branca para evitar carregamento de textura o tempo todo.
+  - Fazer uma LRU das unidades de texturas com o que sobraram para evitar carregar textura toda hora.
+Hickups de scroll de textura de bump: apos um tempo elas parecem resetar para uma posicao que nao eh continua com o fim.
 Problema sao acoes fora de contexto OpenGL, por exemplo: MouseParadoEm que eh tratado na ifg/teclado_mouse ao inves do visualizador3d.
 Isso afeta tambem carregamento de tabuleiro por causa do EstadoInicial (mantendo graficos). Que alias, ta bugado quando se deve manter entidades.
 Terminar invocar criaturas I.

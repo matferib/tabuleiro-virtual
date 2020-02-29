@@ -4042,6 +4042,9 @@ void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+  if (gl::TipoShaderCorrente() == gl::TSH_LUZ) {
+    //gl::UsaShader(gl::TSH_TESTE);
+  }
   V_ERRO("desenhando tabuleiro inicio");
   gl::CarregaNome(0);
   V_ERRO("desenhando tabuleiro nome");
@@ -4072,9 +4075,10 @@ void Tabuleiro::DesenhaTabuleiro() {
   } else {
     MudaCor(cenario_piso.has_info_textura_piso() ? COR_BRANCA : COR_CINZA_CLARO);
   }
-  gl::Translada(deltaX / 2.0f,
-                deltaY / 2.0f,
-                parametros_desenho_.offset_terreno());
+  Matrix4 modelagem;
+  modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, parametros_desenho_.offset_terreno());
+  gl::MatrizModelagem(modelagem.get());
+  gl::MultiplicaMatriz(modelagem.get());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       cenario_piso.has_info_textura_piso() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
@@ -4114,6 +4118,10 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Desabilita(GL_TEXTURE_2D);
   V_ERRO("depois vbo_tabuleiro_");
+
+  if (gl::TipoShaderCorrente() == gl::TSH_TESTE) {
+    gl::UsaShader(gl::TSH_LUZ);
+  }
 }
 
 void Tabuleiro::DesenhaQuadradoSelecionado() {
@@ -6499,7 +6507,17 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     }
   }
 
-  //LOG(INFO) << "atualizando mapa de luz com " << entidades_.size() << " entidades";
+  //Entidade* sem_luz = nullptr;
+  //for (auto& par : entidades_) {
+  //  if (par.first != luzes_pontuais_[0].id) {
+  //    sem_luz = par.second.get();
+  //    break;
+  //  }
+  //}
+  //LOG(INFO) << "atualizando mapa de luz com " << luzes_pontuais_.size() << " entidades com luz";
+  //if (sem_luz != nullptr) {
+  //  LOG(INFO) << "pos: " << sem_luz->Pos().ShortDebugString();
+  //}
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   V_ERRO("Atualizando mapa de luzes, gl::Le(GL_FRAMEBUFFER_BINDING, &original);");
