@@ -608,7 +608,10 @@ message Modelo {
   message Parametros {
     optional TipoDuracao tipo_duracao = 1;
     // Dano.
+    // Para danos tipo: 1d8 + x/nivel.
     optional string dano_fixo = 2;
+    // Para danos tipo: 1d6/nivel (usar 6 aqui que o multiplicador vira do multiplicador_nivel_dano, gerando xd6).
+    optional int32 dado_dano_por_nivel = 7;
     optional float multiplicador_nivel_dano = 3;
     optional int32 maximo_modificador_dano = 4;
     // Ataque.

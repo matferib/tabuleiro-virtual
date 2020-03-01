@@ -2008,6 +2008,61 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
   }
 }
 
+TEST(TesteFeiticos, TesteArmaEspiritual) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(6);
+  AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+  RecomputaDependencias(g_tabelas, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Clérigo");
+  da->set_id_arma("arma_espiritual_espada");
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+
+  RecomputaDependencias(g_tabelas, &proto);
+
+  AcaoProto acao = da->acao();
+  ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
+  ASSERT_EQ(acao.id_modelo_entidade(), "Arma Espiritual (19-20/x2)");
+
+  const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
+  EntidadeProto proto_arma = modelo_arma.entidade();
+  ASSERT_TRUE(modelo_arma.has_parametros());
+  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
+
+  ASSERT_FALSE(proto_arma.dados_ataque().empty());
+  EXPECT_EQ(proto_arma.dados_ataque(0).dano_basico(), "1d8+2");
+}
+
+TEST(TesteFeiticos, TesteMuralhaLaminas) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(16);
+  AtribuiBaseAtributo(16, TA_SABEDORIA, &proto);
+  RecomputaDependencias(g_tabelas, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Clérigo");
+  da->set_id_arma("barreira_laminas");
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+
+  RecomputaDependencias(g_tabelas, &proto);
+
+  AcaoProto acao = da->acao();
+  ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
+  ASSERT_EQ(acao.parametros_lancamento().parametros_size(), 2);
+  for (int i = 0; i < acao.parametros_lancamento().parametros_size(); ++i) {
+    const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(i).id_modelo_entidade());
+    EntidadeProto proto_arma = modelo_arma.entidade();
+    ASSERT_TRUE(modelo_arma.has_parametros());
+    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
+
+    ASSERT_FALSE(proto_arma.dados_ataque().empty());
+    EXPECT_EQ(proto_arma.dados_ataque(0).dano_basico(), "15d6");
+  }
+}
+
 TEST(TesteFeiticos, TesteConstricao) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
@@ -2929,7 +2984,7 @@ TEST(TesteConsequenciaPontosVida, PontosVidaTemporarios) {
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
 
   ntf::Notificacao n;
-  PreencheNotificacaoAtualizaoPontosVida(*entidade, /*delta_pontos_vida=*/-10, TD_LETAL, &n, nullptr);
+  PreencheNotificacaoAtualizacaoPontosVida(*entidade, /*delta_pontos_vida=*/-10, TD_LETAL, &n, nullptr);
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());

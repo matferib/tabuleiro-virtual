@@ -4373,12 +4373,16 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
     }
   }
   if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
-    std::string dano_str = parametros.dano_fixo();
     int modificador = nivel * parametros.multiplicador_nivel_dano();
     if (parametros.has_maximo_modificador_dano()) {
       modificador = std::min(parametros.maximo_modificador_dano(), modificador);
     }
-    google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
+    std::string dano_str;
+    if (!parametros.dano_fixo().empty()) {
+      dano_str = StringPrintf("%s%+d", parametros.dano_fixo().c_str(), modificador);
+    } else {
+      dano_str = StringPrintf("%dd%d", modificador, parametros.dado_dano_por_nivel());
+    }
     for (auto& da : *modelo->mutable_dados_ataque()) {
       da.set_dano_basico(dano_str);
     }
