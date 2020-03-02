@@ -1,3 +1,9 @@
+Arconte, terminar de conferir os ataques e pericias. Espada esta errado. 
+Aliados extra planares (da magia de conjuracao).
+Implementar efeitos:
+  - imunidade a magia.
+  - inseto gigante.
+  - arma rompimento.
 Terminar o shader com modelagem separado.
 Colocar uma textura branca para evitar carregamento de textura o tempo todo.
   - Fazer uma LRU das unidades de texturas com o que sobraram para evitar carregar textura toda hora.
