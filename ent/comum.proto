@@ -247,6 +247,7 @@ enum SubTipoDnD {
   SUBTIPO_ENXAME = 19;
   SUBTIPO_DEMONIO = 20;
   SUBTIPO_PLANAR = 21;
+  SUBTIPO_ARCONTE = 22;
 }
 
 enum DescritorAtaque {
@@ -284,6 +285,7 @@ enum DescritorAtaque {
   DESC_CORTANTE = 28;
   DESC_ESTOURANTE = 29;
   DESC_MAGICO = 30;
+  DESC_PETRIFICACAO = 31;
 }
 
 enum OperacaoCombinacao {
