@@ -5898,6 +5898,68 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'destruicao'  # destruction 
+    nome: 'destruição'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 7
+    }
+    info_classes {
+      id: 'morte'
+      nivel: 7
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
+      efeitos_adicionais_se_salvou {
+        delta_pontos_vida: '10d6' 
+      }
+    }
+    escola: 'necromancia'
+  }
+
+  armas {
+    id: 'palavra_sagrada'  # holy word 
+    nome: 'palavra sagrada'
+    alcance_quadrados: 0
+    info_classes {
+      id: 'clerigo'
+      nivel: 7
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 7
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      raio_quadrados: 6
+      efeito_area: true
+      duracao_s: 0.350
+      # TODO: complexo
+      # afeta apenas nao bons.
+      # acima nivel caster, nada.
+      # nivel caster: surdo 1d4r
+      # nivel caster -1: cego 2d4r, surdo 1d4r.
+      # nivel caster -5: paralizado 1d10m, cego 2d4r, surdo 1d4r.
+      # nivel caster -10: morto, paralizado 1d10m, cego 1d4r, surdo 1d4r.
+      # Tb bane extra planares se falhar salvacao -4 vontade.
+    }
+    escola: 'evocacao'
+  }
+
+
+
+  armas {
     id: 'rogar_maldicao'  # bestow curse
     nome: 'rogar maldição'
     info_classes {
@@ -6206,6 +6268,15 @@ tabela_feiticos {
     }
     escola: 'conjuracao'
   }
+  armas {
+    id: 'aliado_extra_planar_menor'  # planar ally, greater.
+    nome: 'aliado extra-planar maior'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    escola: 'conjuracao'
+  }
 
   armas {
     id: 'controlar_agua'  # control water.
@@ -6287,6 +6358,134 @@ tabela_feiticos {
     escola: 'evocacao'
   }
 
+  armas {
+    id: 'imunidade_magia'  # spell immunity 
+    nome: 'Imunidade à Magia'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'protecao'
+      nivel: 4
+      dominio: true
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        descricao: 'imune a um feitico de nivel 4 ou menos/4 niveis'
+      }
+    }
+
+    escola: 'abjuracao'
+  }
+  armas {
+    id: 'imunidade_magia_maior'  # greater spell immunity 
+    nome: 'Imunidade à Magia Maior'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        descricao: 'imune a um feitico de nivel 8 ou menos/4 niveis'
+      }
+    }
+
+    escola: 'abjuracao'
+  }
+
+  armas {
+    id: 'arma_rompimento'  # disruping weapon 
+    nome: 'Arma do Rompimento'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    acao {
+      tipo: ACAO_FEITICO_TOQUE
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 1.0 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_RODADAS_NIVEL
+        descricao: 'transforma uma arma corpo a corpo letal a mortos vivos.'
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'cancelar_encantamento'  # break enchantment 
+    nome: 'Cancelar Encantamento'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 5
+      dominio: true
+    }
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    acao {
+      tipo: ACAO_DISPERSAO
+      geometria: ACAO_GEO_ESFERA
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      raio_quadrados: 6
+      efeito_area: true
+      permite_salvacao: false 
+      ignora_resistencia_magia: true
+      duracao_s: 0.350
+    }
+    escola: 'abjuracao'
+  }
+
+
+  armas {
+    id: 'inseto_gigante'  # giant vermin
+    nome: 'Inseto Gigante'
+    info_classes {
+      id: 'clerigo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    escola: 'transmutacao'
+    # Aumenta 3 centopeias, 2 aranhas ou 1 escorpiao de acordo com nivel.
+    # duracao: minutos nivel.
+  }
 
   armas {
     id: 'adivinhacao'  # divination.
@@ -7130,6 +7329,42 @@ tabela_feiticos {
       }
     }
     escola: 'encantamento'
+  }
+  armas {
+    id: 'barreira_laminas'  # blade barrier 
+    nome: 'Barreira de Lâminas'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'bem'
+      nivel: 6
+      dominio: true
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 6
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Muralha de Lâminas'
+          id_modelo_entidade: 'Muralha de Lâminas'
+        }
+        parametros {
+          texto: 'Coluna de Lâminas'
+          id_modelo_entidade: 'Coluna de Lâminas'
+        }
+      }
+    }
+    escola: 'evocacao'
   }
 
   armas {
@@ -8719,6 +8954,57 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
+    id: 'cura_completa'  # heal 
+    nome: 'cura completa'
+    modelo_dano: CURA_10_POR_NIVEL_MAX_150
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 7
+    }
+    info_classes {
+      id: 'cura'
+      nivel: 6
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+    }
+    escola: 'conjuracao'
+  }
+
+  armas {
+    id: 'doenca_plena'  # harm
+    nome: 'doença plena'
+    modelo_dano: DANO_10_POR_NIVEL_MAX_150
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 6
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      cor { r: 0 g: 0 b: 0 a: 0.9 }
+      permite_ataque_vs_defesa: true 
+      permite_salvacao: true
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_MEIO
+    }
+    escola: 'necromancia'
+  }
+
+  armas {
     id: 'curar_ferimentos_minimos'  # cure minor wounds
     nome: 'curar ferimentos mínimos'
     modelo_dano: CURA_1
@@ -10194,6 +10480,25 @@ tabela_feiticos {
       duracao_s: 0.350
     }
     escola: 'adivinhacao'
+  }
+
+  armas {
+    id: 'purgar_invisibilidade'  # invisibility purge
+    nome: 'purgar invisibilidade'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'aura 1 quadrado ao redor purga invisibilidade'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'evocacao'
   }
 
   armas {
