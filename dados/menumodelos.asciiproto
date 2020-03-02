@@ -99,6 +99,10 @@ sub_menu {
   modelo { id: 'Elfo' }
 }
 sub_menu {
+  id: 'Extra-Planares'
+  modelo { id: 'Arconte Guardião' }
+}
+sub_menu {
   id: 'Esfinges'
   modelo { id: 'Androesfinge' }
   modelo { id: 'Crioesfinge' }

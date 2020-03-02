@@ -55,6 +55,111 @@ modelo {
     }
   }
 }
+
+modelo {
+  id: 'Arconte Guardião'
+  entidade {
+    tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_BEM
+    sub_tipo_dnd: SUBTIPO_ORDEM
+    sub_tipo_dnd: SUBTIPO_ARCONTE
+    dados_vida: '6d8+6' tamanho: TM_MEDIO
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    cor { r: 0.9 g: 0.9 b: 1 }
+    modelo_3d { id: 'archon_hound' }
+    aura_m: 6  # 4 q, aura de ameaça.
+    rotulo: 'aura de ameaça CD 16'
+    posicao_acao { x: 0.5 y: -0.2 z: 1.25 }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    info_classes {
+      id: 'extra_planar' nivel: 6
+      salvacoes_fortes: TS_FORTITUDE
+      salvacoes_fortes: TS_REFLEXO
+      salvacoes_fortes: TS_VONTADE
+      progressao_bba: PBBA_UM
+      pericias_monstro: 'concentracao'
+      pericias_monstro: 'diplomacia'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'sobrevivencia'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+    dados_defesa {
+      resistencia_magia_racial: 16
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } }
+      }
+      imunidades: DESC_ELETRICIDADE
+      imunidades: DESC_PETRIFICACAO
+      reducao_dano {
+        descritores: DESC_MAL
+        valor: 10
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MAO_BOA id_arma: 'espada_larga' ordem_ataque: 0 
+    }
+    dados_ataque {
+      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MAO_BOA id_arma: 'espada_larga' ordem_ataque: 1 
+    }
+    dados_ataque {
+      grupo: 'ataque_total_espada' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'ajuda' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'ajuda'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'chama_continua' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'chama_continua'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'detectar_mal' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'detectar_mal'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'teletransporte' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'teletransporte'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'idiomas' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'idiomas'
+    }
+    dados_ataque {
+      grupo: 'a_vontade' rotulo: 'circulo_magico_contral_mal' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'circulo_magico_contra_mal'
+    }
+
+    info_pericias { id: 'concentracao' pontos: 9 }
+    info_pericias { id: 'diplomacia' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 9 }
+    info_pericias { id: 'saltar' pontos: 9 }
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'furtividade' pontos: 9 }
+    info_pericias { id: 'sentir_motivacao' pontos: 9 }
+    info_pericias { id: 'observar' pontos: 9 }
+    info_pericias { id: 'sobrevivencia' pontos: 9 }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'rastrear' }
+    }
+  }
+}
+
 modelo {
   id: 'Falcão'
   entidade {
@@ -371,6 +476,53 @@ modelo {
     rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
   }
 }
+modelo {
+  id: 'Muralha de Lâminas'
+  entidade {
+    modelo_3d { id: 'builtin:retangulo' escala { x: 1.5 y: 66 z: 6 } }
+    cor { r: 0.5 g: 0.5 b: 0.5 }
+    dados_ataque {
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_MEIO
+      }
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+    multiplicador_nivel_dano: 1
+    dado_dano_por_nivel: 6
+    maximo_modificador_dano: 15
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+  }
+}
+modelo {
+  id: 'Coluna de Lâminas'
+  entidade {
+    modelo_3d { id: 'builtin:cilindro' escala { x: 1.5 y: 1.5 z: 6 } }
+    cor { r: 0.5 g: 0.5 b: 0.5 }
+    dados_ataque {
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_MEIO
+      }
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+    multiplicador_nivel_dano: 1
+    dado_dano_por_nivel: 6
+    maximo_modificador_dano: 15
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+  }
+}
+
 modelo {
   id: 'Arma Espiritual (20/x2)'
   entidade {
@@ -3186,6 +3338,167 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Clérigo 16'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    dados_vida: '16d8+32' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 16 }
+    cor { r: 0.6 g: 0.4 b: 0.3 }
+    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 2 id_escudo: 'pesado_aco' bonus_magico_escudo: 2 }
+    dados_ataque {
+      id_arma: 'maca_estrela' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 10
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'reflexos_rapidos' }
+    }
+    info_pericias { id: 'concentracao' pontos: 8 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_4' em_uso: true }
+      tesouro: ''
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'consertar' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'compreender_idiomas' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'invocar_criaturas_i' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'auxilio_divino' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'arma_espiritual' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 6 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'purgar_invisibilidade' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'luz_cegante' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 5 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 6 }
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'poder_divino' }
+        conhecidos { id: 'envenenamento' }
+        conhecidos { id: 'inseto_gigante' }
+        conhecidos { id: 'imunidade_magia' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'arma_rompimento' }
+        conhecidos { id: 'cancelar_encantamento' }
+        conhecidos { id: 'coluna_chamas' }
+        conhecidos { id: 'comando_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 6
+        conhecidos { id: 'barreira_laminas' }
+        conhecidos { id: 'cura_completa' }
+        conhecidos { id: 'dissipar_magia_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 7
+        conhecidos { id: 'destruicao' }
+        conhecidos { id: 'palavra_sagrada' }
+        conhecidos { id: 'restauracao' }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 8
+        conhecidos { id: 'aliado_extra_planar_maior' }
+        conhecidos { id: 'imunidade_magia_maior' }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
+      }
+
+    }
+
+    atributos {
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Druida Base'
   entidade {
