@@ -109,21 +109,29 @@ modelo {
         valor: 10
       }
     }
+    # Tipo que era pra ser ataque mao boa, mas o livro dos monstros calcula como se fosse um ataque primario (sem aplicar penalidade de duas armas).
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO id_arma: 'espada_larga' ordem_ataque: 0
+      alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
-    }
-    dados_ataque {
-      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MAO_BOA id_arma: 'espada_larga' ordem_ataque: 0 
-    }
-    dados_ataque {
-      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MAO_BOA id_arma: 'espada_larga' ordem_ataque: 1 
+      grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO id_arma: 'espada_larga' ordem_ataque: 1
+      alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     dados_ataque {
       grupo: 'ataque_total_espada' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+      alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
+    # Esse é o ataque preferido dele, mas nao faz sentido dado os modificadores melhores da espada.
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
+      alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+    }
+    # Similares a magia.
     dados_ataque {
       grupo: 'a_vontade' rotulo: 'ajuda' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'ajuda'
     }
@@ -144,7 +152,6 @@ modelo {
     }
 
     info_pericias { id: 'concentracao' pontos: 9 }
-    info_pericias { id: 'diplomacia' pontos: 2 }
     info_pericias { id: 'esconderse' pontos: 9 }
     info_pericias { id: 'saltar' pontos: 9 }
     info_pericias { id: 'ouvir' pontos: 9 }
@@ -157,6 +164,7 @@ modelo {
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'rastrear' }
     }
+    # TODO forma alternativa: lobo atroz.
   }
 }
 
