@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 77.
+// Proximo id: 78.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -159,7 +159,8 @@ message DadosAtaque {
   // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
   repeated DescritorAtaque tipo_ataque_fisico = 47;
   // Bem, mal, caos, leal.
-  optional DescritorAtaque alinhamento = 48;
+  optional DescritorAtaque alinhamento_bem_mal = 48;
+  optional DescritorAtaque alinhamento_ordem_caos = 77;
 
   // Para armas que tem que ser carregadas.
   optional bool requer_carregamento = 49;
