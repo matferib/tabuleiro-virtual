@@ -1817,6 +1817,11 @@ tabela_efeitos {
     formato_complementos: 'descritor;quantidade'
   }
   efeitos {
+    id: EFEITO_IMUNIDADE_FEITICO
+    nome: 'imunidade a feitiço'
+    formato_complementos: 'id da magia'
+  }
+  efeitos {
     id: EFEITO_RESISTENCIA_ELEMENTOS
     nome: 'resistência a elementos'
     formato_complementos: 'descritor;valor da resistência'
@@ -6380,8 +6385,14 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
+      parametros_lancamento {
+        consequencia: CP_SELECIONA_FEITICO
+        parametros {
+          nivel_maximo: 4
+        }
+      }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
+        efeito: EFEITO_IMUNIDADE_FEITICO
         modificador_rodadas: MR_10_MINUTOS_NIVEL
         descricao: 'imune a um feitico de nivel 4 ou menos/4 niveis'
       }
@@ -6627,6 +6638,13 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      parametros_lancamento {
+        consequencia: CP_SELECIONA_FEITICO
+        parametros {
+          nivel_maximo: 5
+          id_classe: 'mago'
+        }
+      }
     }
     escola: 'transmutacao'
   }
