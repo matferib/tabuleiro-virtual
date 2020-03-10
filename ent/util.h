@@ -781,6 +781,8 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(bool conversao_espo
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
 // Retorna a melhor resistencia da entidade contra o elemento ou nullptr se nao houver.
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
+// Retorna true se a entidade for imune ao feitico.
+bool EntidadeImuneFeitico(const EntidadeProto& proto, const std::string& id);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);

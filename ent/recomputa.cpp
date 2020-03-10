@@ -272,11 +272,30 @@ bool ImuneMorte(const EntidadeProto& proto) {
          PossuiEvento(EFEITO_PROTECAO_CONTRA_MORTE, proto);
 }
 
+void AplicaAlinhamento(DescritorAtaque desc, DadosAtaque* da) {
+  if (desc == DESC_BEM || desc == DESC_MAL) {
+    da->set_alinhamento_bem_mal(desc);
+  } else if (desc == DESC_LEAL || desc == DESC_CAOS) {
+    da->set_alinhamento_ordem_caos(desc);
+  } else {
+    LOG(ERROR) << "Aplicando descritor errado para alinhamento: " << desc;
+  }
+}
+
 // Entidade pode ser nullptr em testes.
 bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
+    case EFEITO_IMUNIDADE_FEITICO: {
+      if (!evento->has_id_unico() || evento->complementos_str().empty() || evento->complementos_str(0).empty() ||
+          c_any_of(proto->dados_defesa().imunidade_feiticos(),
+            [evento] (const DadosDefesa::ImunidadeFeitico& imf) { return imf.id_unico() == evento->id_unico(); })) break;
+      auto* imf = proto->mutable_dados_defesa()->add_imunidade_feiticos();
+      imf->set_id_unico(evento->id_unico());
+      imf->set_id_feitico(evento->complementos_str(0));
+      break;
+    }
     case EFEITO_METAMORFOSE_TORRIDA:
       if (!evento->processado()) {
         EntidadeProto proto_salvo;
@@ -429,7 +448,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       if (evento->complementos_str().empty()) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
-        da->set_alinhamento(DESC_BEM);
+        AplicaAlinhamento(DESC_BEM, da);
       }
     }
     break;
@@ -453,7 +472,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       if (desc == DESC_NENHUM) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
-        da->set_alinhamento(desc);
+        AplicaAlinhamento(desc, da);
       }
     }
     break;
@@ -507,7 +526,8 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
   // Encontra o dado de ataque.
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (da.rotulo() == rotulo) {
-      da.clear_alinhamento();
+      da.clear_alinhamento_bem_mal();
+      da.clear_alinhamento_ordem_caos();
     }
   }
 }
@@ -515,6 +535,19 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_IMUNIDADE_FEITICO: {
+      if (!evento.has_id_unico()) break;
+      int indice = -1;
+      for (int i = 0; i < proto->dados_defesa().imunidade_feiticos().size(); ++i) {
+        const auto& imf = proto->dados_defesa().imunidade_feiticos(i);
+        if (imf.id_unico() != evento.id_unico()) continue;
+        indice = i;
+        break;
+      }
+      if (indice == -1) break;
+      proto->mutable_dados_defesa()->mutable_imunidade_feiticos()->DeleteSubrange(indice, 1);
+      break;
+    }
     case EFEITO_MORTE: {
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;
@@ -1865,14 +1898,17 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
     if (primeiro->tipo_ataque_fisico().empty()) da->tipo_ataque_fisico();
     else *da->mutable_tipo_ataque_fisico() = primeiro->tipo_ataque_fisico();
     // Alinhamento.
-    if (primeiro->has_alinhamento()) da->set_alinhamento(primeiro->alinhamento());
-    else da->clear_alinhamento();
+    if (primeiro->has_alinhamento_bem_mal()) da->set_alinhamento_bem_mal(primeiro->alinhamento_bem_mal());
+    else da->clear_alinhamento_bem_mal();
+    if (primeiro->has_alinhamento_ordem_caos()) da->set_alinhamento_ordem_caos(primeiro->alinhamento_ordem_caos());
+    else da->clear_alinhamento_ordem_caos();
   }
   // Descritores de ataque.
 
   da->clear_descritores();
   if (da->material_arma() != DESC_NENHUM) da->add_descritores(da->material_arma());
-  if (da->alinhamento() != DESC_NENHUM) da->add_descritores(da->alinhamento());
+  if (da->alinhamento_bem_mal() != DESC_NENHUM) da->add_descritores(da->alinhamento_bem_mal());
+  if (da->alinhamento_ordem_caos() != DESC_NENHUM) da->add_descritores(da->alinhamento_ordem_caos());
   if (BonusIndividualTotal(TB_MELHORIA, da->bonus_dano()) > 0 || da->bonus_magico() > 0) {
     da->add_descritores(DESC_MAGICO);
   }

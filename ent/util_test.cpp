@@ -2108,6 +2108,43 @@ TEST(TesteImunidades, TesteImunidadeElemento) {
   }
 }
 
+TEST(TesteImunidades, TesteImunidadeFeiticoNativa) {
+  {
+    EntidadeProto proto;
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_FALSE(EntidadeImuneFeitico(proto, "bola_fogo"));
+  }
+  {
+    EntidadeProto proto;
+    proto.mutable_dados_defesa()->add_imunidade_feiticos()->set_id_feitico("bola_fogo");
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_TRUE(EntidadeImuneFeitico(proto, "bola_fogo"));
+  }
+}
+
+TEST(TesteImunidades, TesteImunidadeFeiticoEfeito) {
+  EntidadeProto proto;
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_IMUNIDADE_FEITICO);
+  evento->set_rodadas(1);
+  evento->add_complementos_str("bola_fogo");
+  evento->set_id_unico(2);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(EntidadeImuneFeitico(proto, "bola_fogo"));
+
+  evento->set_rodadas(-1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_FALSE(EntidadeImuneFeitico(proto, "bola_fogo"));
+
+  evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_IMUNIDADE_FEITICO);
+  evento->set_rodadas(1);
+  evento->add_complementos_str("maos_flamejantes");
+  evento->set_id_unico(2);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_TRUE(EntidadeImuneFeitico(proto, "maos_flamejantes"));
+}
+
 TEST(TesteImunidades, TesteReducaoDanoFormaGasosa) {
   EntidadeProto proto;
   auto* evento = proto.add_evento();

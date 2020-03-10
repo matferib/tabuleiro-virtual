@@ -39,17 +39,22 @@ using google::protobuf::RepeatedPtrField;
 
 const std::map<std::string, std::string> g_mapa_utf8 = {
     { "á", "a" },
+    { "à", "a" },
     { "ã", "a" },
     { "â", "a" },
     { "é", "e" },
     { "ê", "e" },
+    { "è", "e" },
     { "í", "i" },
+    { "ì", "i" },
     { "ç", "c" },
     { "ô", "o" },
     { "ó", "o" },
     { "õ", "o" },
+    { "ò", "o" },
     { "Á", "A" },
     { "Â", "A" },
+    { "À", "A" },
     { "É", "E" },
     { "Ê", "E" },
     { "Í", "I" },
@@ -58,6 +63,8 @@ const std::map<std::string, std::string> g_mapa_utf8 = {
     { "Ó", "O" },
     { "Ú", "U" },
     { "ú", "u" },
+    { "ù", "u" },
+    { "ñ", "n" },
 };
 
 // Distancia do ponto da matriz de modelagem para a nevoa.
@@ -3792,6 +3799,10 @@ bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   if (elemento == DESC_NENHUM) return false;
   const auto& dd = proto.dados_defesa();
   return c_any(dd.imunidades(), elemento);
+}
+
+bool EntidadeImuneFeitico(const EntidadeProto& proto, const std::string& id) {
+  return c_any_of(proto.dados_defesa().imunidade_feiticos(), [&id] (const DadosDefesa::ImunidadeFeitico& imf) { return imf.id_feitico() == id; } );
 }
 
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento) {
