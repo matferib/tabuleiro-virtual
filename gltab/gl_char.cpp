@@ -465,7 +465,9 @@ void DesenhaCaractere(char c) {
 
 VboNaoGravado VboCaractere(int character) {
   VboNaoGravado vbo_char;
-  if (!(character >= 1) && (character < 256)) return vbo_char;
+  if (!(character >= 1) && (character < 256)) {
+    character = ' ';
+  }
   const auto& face_info = g_face_infos[character - 1];
   vbo_char.AtribuiCoordenadas(/*num_dimensoes=*/2, face_info.points);
   vbo_char.AtribuiIndices(face_info.indices, face_info.nbpoints);
