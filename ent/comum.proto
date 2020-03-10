@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 119.
+// Proximo id: 120.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -169,6 +169,7 @@ enum TipoEfeito {
   EFEITO_FLECHA_ACIDA = 116;
   EFEITO_PELE_ROCHOSA = 117;
   EFEITO_VER_INVISIVEL = 118;
+  EFEITO_IMUNIDADE_FEITICO = 119;
 }
 
 enum TipoEfeitoModelo {
@@ -432,7 +433,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 28.
+// Proximo id: 29.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -460,6 +461,11 @@ message DadosDefesa {
   optional int32 resistencia_magia_racial = 27;
   optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
+  message ImunidadeFeitico {
+    optional string id_feitico = 1;
+    optional int32 id_unico = 2;
+  }
+  repeated ImunidadeFeitico imunidade_feiticos = 28;
   // Reduz ataques que nao corresponderem aos descritores.
   repeated ReducaoDano reducao_dano = 18;
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
