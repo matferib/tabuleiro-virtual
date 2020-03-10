@@ -449,14 +449,38 @@ std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::T
 
 void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& notificacao) {
   std::vector<std::string> lista_parametros;
-  for (const auto& parametro : notificacao.acao().parametros_lancamento().parametros()) {
-    lista_parametros.push_back(parametro.texto());
+  std::vector<std::string> ids;
+  if (notificacao.acao().parametros_lancamento().consequencia() == ent::AcaoProto::CP_SELECIONA_FEITICO) {
+    if (notificacao.acao().parametros_lancamento().parametros().empty()) {
+      LOG(WARNING) << "feitico com CP_SELECIONA_FEITICO deve ter 1 parametro.";
+      return;
+    }
+    const auto& parametro = notificacao.acao().parametros_lancamento().parametros(0);
+    for (const auto& feitico : tabelas_.todas().tabela_feiticos().armas()) {
+      if (!parametro.id_classe().empty() &&
+          c_none_of(feitico.info_classes(),
+            [&parametro](const ent::ArmaProto::InfoClasseParaFeitico& ic) { return ic.id() == parametro.id_classe(); })) {
+        continue;
+      }
+      if (parametro.has_nivel_maximo() &&
+        c_none_of(feitico.info_classes(),
+          [&parametro](const ent::ArmaProto::InfoClasseParaFeitico& ic) { return ic.nivel() <= parametro.nivel_maximo(); })) {
+        continue;
+      }
+      ids.push_back(feitico.id());
+      lista_parametros.push_back(feitico.nome());
+    }
+  } else if (!notificacao.acao().parametros_lancamento().parametros().empty()) {
+    for (const auto& parametro : notificacao.acao().parametros_lancamento().parametros()) {
+      lista_parametros.push_back(parametro.texto());
+    }
   }
+
   if (lista_parametros.empty()) {
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista("Parâmetros de Lancamento", lista_parametros, [this, notificacao, lista_parametros](bool ok_decisao, int indice_decisao) {
+  EscolheItemLista("Parâmetros de Lancamento", lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
     ent::RodaNoRetorno([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
@@ -467,6 +491,11 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
     }
     acao.clear_parametros_lancamento();
     switch (pl.consequencia()) {
+      case ent::AcaoProto::CP_SELECIONA_FEITICO:
+        for (auto& ed : *acao.mutable_efeitos_adicionais()) {
+          ed.add_complementos_str(ids[indice_decisao]);
+        }
+        break;
       case ent::AcaoProto::CP_ATRIBUI_EFEITO:
         for (auto& ed : *acao.mutable_efeitos_adicionais()) {
           if (ed.has_efeito()) continue;
