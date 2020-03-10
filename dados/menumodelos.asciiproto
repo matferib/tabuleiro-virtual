@@ -151,6 +151,7 @@ sub_menu {
     modelo { id: 'Humano Clérigo' }
     modelo { id: 'Humano Clérigo 4' }
     modelo { id: 'Humano Clérigo 5' }
+    modelo { id: 'Humano Clérigo 16' }
   }
   sub_menu {
     id: 'Aristocratas'
