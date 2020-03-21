@@ -57,7 +57,7 @@ modelo {
 }
 
 modelo {
-  id: 'Arconte Guardião'
+  id: 'Arconte Guardião'  # Hound archon.
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_BEM
@@ -164,7 +164,77 @@ modelo {
       gerais { id: 'ataque_poderoso' }
       gerais { id: 'rastrear' }
     }
-    # TODO forma alternativa: lobo atroz.
+    formas_alternativas {
+      rotulo: 'arconte'
+      tamanho: TM_MEDIO
+      modelo_3d { id: 'archon_hound' }
+      # Os atributos se mantem, porque é change shape e não alternate form.
+      dados_defesa {
+        ca {
+          bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } }
+        }
+      }
+      # Tipo que era pra ser ataque mao boa, mas o livro dos monstros calcula como se fosse um ataque primario (sem aplicar penalidade de duas armas).
+       dados_ataque {
+       grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO id_arma: 'espada_larga' ordem_ataque: 0
+       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+     }
+     dados_ataque {
+       grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO id_arma: 'espada_larga' ordem_ataque: 1
+       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+     }
+     dados_ataque {
+       grupo: 'ataque_total_espada' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+     }
+     # Esse é o ataque preferido dele, mas nao faz sentido dado os modificadores melhores da espada.
+     dados_ataque {
+       grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+     }
+     dados_ataque {
+       grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
+       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+     }
+     # Similares a magia.
+     dados_ataque {
+       grupo: 'a_vontade' rotulo: 'ajuda' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'ajuda'
+     }
+     dados_ataque {
+       grupo: 'a_vontade' rotulo: 'chama_continua' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'chama_continua'
+     }
+     dados_ataque {
+       grupo: 'a_vontade' rotulo: 'detectar_mal' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'detectar_mal'
+     }
+     dados_ataque {
+       grupo: 'a_vontade' rotulo: 'teletransporte' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'teletransporte'
+     }
+      dados_ataque {
+        grupo: 'a_vontade' rotulo: 'idiomas' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'idiomas'
+      }
+      dados_ataque {
+        grupo: 'a_vontade' rotulo: 'circulo_magico_contral_mal' tipo_ataque: 'Feitiço de Clérigo' id_arma: 'circulo_magico_contra_mal'
+      }
+    }
+    formas_alternativas {
+      # lobo atroz.
+      rotulo: 'lobo atroz'
+      modelo_3d { id: 'dire_wolf' }
+      tamanho: TM_GRANDE
+      # Os atributos se mantem, porque é change shape e não alternate form.
+      dados_ataque {
+        grupo: 'ataque'
+        rotulo: 'mordida'
+        tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+        derrubar_automatico: true
+        alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
+      } 
+      dados_defesa {
+        ca {
+          bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 3 } }
+        }
+      }
+    }
   }
 }
 
@@ -2721,7 +2791,7 @@ modelo {
     dados_ataque {
       grupo: 'ataque'
       rotulo: 'mordida'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_2_MAOS
       derrubar_automatico: true
     }
     dados_defesa {
@@ -2729,6 +2799,18 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 3 } }
       }
     }
+    info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 0 } } } }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 0 } } } }
+    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'observar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } }  }
+    info_pericias { id: 'sobrevivencia' pontos: 1 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'correr' }
+      gerais { id: 'rastrear' }
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+    }
+
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 25 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
