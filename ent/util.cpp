@@ -2674,8 +2674,12 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     ret.add_dados_ataque()->set_tipo_ataque("");
   }
   // Tamanho.
-  const int tam_base = BonusIndividualPorOrigem(TB_BASE, "base", proto.bonus_tamanho());
-  AtribuiBonus(tam_base, TB_BASE, "base", ret.mutable_bonus_tamanho());
+  if (proto.has_tamanho()) {
+    AtribuiBonus(proto.tamanho(), TB_BASE, "base", ret.mutable_bonus_tamanho());
+  } else {
+    const int tam_base = BonusIndividualPorOrigem(TB_BASE, "base", proto.bonus_tamanho());
+    AtribuiBonus(tam_base, TB_BASE, "base", ret.mutable_bonus_tamanho());
+  }
   // Visao.
   // A forma alternativa nao ganha qualidades especiais (visao, faro).
   // Talento.
