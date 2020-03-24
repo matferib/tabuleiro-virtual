@@ -941,7 +941,54 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   ultimo_y_ = y;
 }
 
+namespace {
+
+// De acordo com o modo de desenho, altera as configuracoes de pd.
+// tipo_objeto: um dos OBJ_*.
+void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd) {
+  pd->set_nao_desenha_entidades_fixas_translucidas(true);
+  switch (modo_clique) {
+    case Tabuleiro::MODO_NORMAL:
+      break;
+    case Tabuleiro::MODO_SELECAO_TRANSICAO:
+      break;
+    case Tabuleiro::MODO_ACAO:
+      if (entidade_origem != nullptr) {
+        const auto& dado_corrente = entidade_origem->DadoCorrente();
+        if (dado_corrente != nullptr && dado_corrente->ignora_origem())
+        pd->add_nao_desenhar_entidades(entidade_origem->Id());
+      }
+      break;
+    case Tabuleiro::MODO_TERRENO:
+      return;
+    case Tabuleiro::MODO_SINALIZACAO:
+      break;
+    case Tabuleiro::MODO_TRANSICAO:
+      pd->set_usar_transparencias(false);
+      break;
+    case Tabuleiro::MODO_REGUA:
+      break;
+    case Tabuleiro::MODO_ROLA_DADO:
+      break;
+    case Tabuleiro::MODO_DESENHO:
+      break;
+    case Tabuleiro::MODO_ROTACAO:
+      break;
+    case Tabuleiro::MODO_AJUDA:
+      break;
+    case Tabuleiro::MODO_ESQUIVA:
+      break;
+    default:
+      ;
+  }
+}
+
+}  // namespace
+
+
+
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
+  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), MODO_ACAO, &parametros_desenho_);
   // Preenche os dados comuns.
   unsigned int id, tipo_objeto;
   float profundidade;
@@ -1428,6 +1475,13 @@ float Tabuleiro::TrataAcaoCriacao(
   if (!acao_proto->quantidade_entidades().empty()) {
     try {
       quantidade = RolaValor(acao_proto->quantidade_entidades());
+      switch (acao_proto->modificador_quantidade()) {
+        case MQ_NENHUM:
+        break;
+        case MQ_POR_NIVEL:
+          quantidade *= NivelConjuradorParaAcao(*acao_proto, *entidade);
+        break;
+      }
     } catch (...) {
       quantidade = -1;
     }
@@ -2467,50 +2521,11 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
-namespace {
-
-// De acordo com o modo de desenho, altera as configuracoes de pd.
-// tipo_objeto: um dos OBJ_*.
-void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd) {
-  pd->set_nao_desenha_entidades_fixas_translucidas(true);
-  switch (modo_clique) {
-    case Tabuleiro::MODO_NORMAL:
-      break;
-    case Tabuleiro::MODO_SELECAO_TRANSICAO:
-      break;
-    case Tabuleiro::MODO_ACAO:
-      break;
-    case Tabuleiro::MODO_TERRENO:
-      return;
-    case Tabuleiro::MODO_SINALIZACAO:
-      break;
-    case Tabuleiro::MODO_TRANSICAO:
-      pd->set_usar_transparencias(false);
-      break;
-    case Tabuleiro::MODO_REGUA:
-      break;
-    case Tabuleiro::MODO_ROLA_DADO:
-      break;
-    case Tabuleiro::MODO_DESENHO:
-      break;
-    case Tabuleiro::MODO_ROTACAO:
-      break;
-    case Tabuleiro::MODO_AJUDA:
-      break;
-    case Tabuleiro::MODO_ESQUIVA:
-      break;
-    default:
-      ;
-  }
-}
-
-}  // namespace
-
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
   ultimo_x_ = x;
   ultimo_y_ = y;
 
-  ConfiguraParametrosDesenho(modo_clique_, &parametros_desenho_);
+  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), modo_clique_, &parametros_desenho_);
   unsigned int id, tipo_objeto;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
