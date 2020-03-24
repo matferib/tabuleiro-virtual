@@ -90,7 +90,12 @@ enum ModificadorComplementos {
   MC_10_POR_NIVEL = 9;  // pele rochosa.
 }
 
-// Proximo id: 81.
+enum ModificadorQuantidade {
+  MQ_NENHUM = 0;
+  MQ_POR_NIVEL = 1; 
+}
+
+// Proximo id: 82.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -252,6 +257,7 @@ message AcaoProto {
   // Para entidades de criacao.
   optional string id_modelo_entidade = 63;
   optional string quantidade_entidades = 80;
+  optional ModificadorQuantidade modificador_quantidade = 81;
   // O veneno da acao.
   optional VenenoProto veneno = 64;
   optional TipoMagia tipo_pergaminho = 65;
