@@ -3606,6 +3606,10 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
       da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(15, nivel_conjurador)));
       return;
     }
+    case ArmaProto::DANO_1D6_POR_NIVEL_MAX_20D6: {
+      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(20, nivel_conjurador)));
+      return;
+    }
     case ArmaProto::DANO_1D8_CADA_2_NIVEIS_MAX_5D8: {
       da->set_dano_basico_fixo(StringPrintf("%dd8", std::min(5, nivel_conjurador / 2)));
       return;
