@@ -2675,6 +2675,10 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
     e_antes->set_em_corpo_a_corpo(true);
     e_depois->set_em_corpo_a_corpo(false);
   }
+  if (entidade.Proto().surpreso()) {
+    e_antes->set_surpreso(true);
+    e_depois->set_surpreso(false);
+  }
   e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
   auto* dga = e_antes->mutable_dados_ataque_global();
