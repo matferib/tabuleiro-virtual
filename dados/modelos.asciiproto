@@ -5731,6 +5731,44 @@ modelo {
   }
 }
 modelo {
+  id: 'Tempestade de Fogo'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 1.5 z: 1.5 } translacao { z: 0.5 } }
+    tamanho: TM_GRANDE
+    cor { r: 1 g: 1 b: 1 a: 0.5 }
+    posicao_acao { x: 0 y: 0 z: 0 }
+    dados_ataque {
+      grupo: 'ataque' tipo_ataque: 'Feitiço de Toque' rotulo: 'fogo'
+      incrementa_proximo_ataque: false alcance_q: 2 ignora_origem: true
+      acao_fixa {
+        tipo: ACAO_FEITICO_TOQUE
+        permite_salvacao: true
+        ignora_resistencia_magia: false
+        permite_ataque_vs_defesa: false
+        #efeito_area: true
+        resultado_ao_salvar: RS_MEIO
+        info_textura { id: 'fire.png' }
+        cor { r: 1.0 g: 0.5 b: 0.0 a: 0.9 }
+        ignora_reducao_dano_barbaro: true
+        ignora_luz: true
+        consequencia: TC_INFLAMA_ALVO
+        duracao_s: 0.250
+        elemento: DESC_FOGO
+      }
+    }
+    info_textura { id: 'fire.png' }
+    faz_sombra: false
+    dois_lados: true
+  }
+  parametros {
+    # 1d6/nivel, max 20d6.
+    multiplicador_nivel_dano: 1
+    dado_dano_por_nivel: 6
+    maximo_modificador_dano: 20
+  }
+}
+
+modelo {
   id: 'Tempestade Glacial'
   entidade {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.

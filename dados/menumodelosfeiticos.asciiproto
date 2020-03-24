@@ -24,4 +24,5 @@ sub_menu {
   modelo { id: 'Arma Espiritual (20/x3)' texto: 'Machado/Martelo de Guerra' }
   modelo { id: 'Arma Espiritual (20/x2)' texto: 'Mangual' }
 }
+modelo { id: 'Tempestade de Fogo' }
 modelo { id: 'Tempestade Glacial' }
