@@ -993,6 +993,8 @@ message ParametrosDesenho {
 
   // Se presente, indica que esta é a entidade que contem a luz.
   optional uint32 entidade_referencia_luz = 63;
+  // Ignorar entidades com o id passado.
+  repeated uint32 nao_desenhar_entidades = 64;
 }
 
 enum TipoVeneno {
