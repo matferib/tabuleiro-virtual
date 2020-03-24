@@ -6401,7 +6401,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'imunidade_magia_maior'  # greater spell immunity 
+    id: 'imunidade_magia_maior'  # greater spell immunity
     nome: 'Imunidade à Magia Maior'
     info_classes {
       id: 'clerigo'
@@ -6421,9 +6421,35 @@ tabela_feiticos {
 
     escola: 'abjuracao'
   }
+  armas {
+    id: 'tempestade_fogo'  # fire storm
+    nome: 'Tempestade de Fogo'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 7
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 7
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Tempestade de Fogo'
+      quantidade_entidades: '2'
+      modificador_quantidade: MQ_POR_NIVEL
+    }
+    escola: 'evocacao'
+  }
 
   armas {
-    id: 'arma_rompimento'  # disruping weapon 
+    id: 'arma_rompimento'  # disruping weapon
     nome: 'Arma do Rompimento'
     info_classes {
       id: 'clerigo'
@@ -6474,7 +6500,7 @@ tabela_feiticos {
       cor: { r: 1.0 b: 1.0 g: 1.0 }
       raio_quadrados: 6
       efeito_area: true
-      permite_salvacao: false 
+      permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
     }
