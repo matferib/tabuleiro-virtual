@@ -10404,7 +10404,6 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_CONFUSAO
         rodadas: 1
-        modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
     escola: 'encantamento'
@@ -10439,7 +10438,6 @@ tabela_feiticos {
       resultado_ao_salvar: RS_ANULOU
       efeitos_adicionais {
         efeito: EFEITO_CONFUSAO
-        rodadas: 1
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
