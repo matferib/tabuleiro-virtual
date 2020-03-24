@@ -4201,6 +4201,9 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (pd.has_desenha_objeto_desmembrado() && proto.id() != pd.desenha_objeto_desmembrado()) {
     return true;
   }
+  if (c_any(pd.nao_desenhar_entidades(), proto.id())) {
+    return true;
+  }
   return false;
 }
 }  // namespace
