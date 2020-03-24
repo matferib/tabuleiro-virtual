@@ -66,7 +66,7 @@ message Movimento {
 
 // Dados para um ataque especifico.
 // Como depende de AcaoProto, nao consegui mover para comum.
-// Proximo id: 78.
+// Proximo id: 79.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -194,6 +194,8 @@ message DadosAtaque {
   // podde usar de novo o ataque.
   optional string taxa_refrescamento = 75;
   optional int32 disponivel_em = 76;
+  // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
+  optional bool ignora_origem = 78;
 }
 
 // Proximo id: 111.
@@ -611,7 +613,7 @@ message Modelo {
     // Dano.
     // Para danos tipo: 1d8 + x/nivel.
     optional string dano_fixo = 2;
-    // Para danos tipo: 1d6/nivel (usar 6 aqui que o multiplicador vira do multiplicador_nivel_dano, gerando xd6).
+    // Para danos tipo: 1d6/nivel (usar 6 aqui que o multiplicador virá do multiplicador_nivel_dano, gerando xd6).
     optional int32 dado_dano_por_nivel = 7;
     optional float multiplicador_nivel_dano = 3;
     optional int32 maximo_modificador_dano = 4;
