@@ -111,6 +111,7 @@ acao {
   permite_ataque_vs_defesa: false
   ignora_resistencia_magia: true
   ignora_reducao_dano_barbaro: true
+  permite_salvacao: false
 }
 acao {
   id: 'Feitiço de Toque a Distância'

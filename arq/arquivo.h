@@ -53,7 +53,8 @@ enum tipo_e {
 void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados);
 void Inicializa(JNIEnv* env, AAssetManager *asset_manager, const std::string& dir_dados);
 #else
-void Inicializa(const std::string& path);
+// x_path: caminho do executavel.
+void Inicializa(const std::string& x_path);
 #endif
 
 // Retorna conteudo de um diretorio. Se o filtro for passado, aqueles que retornarem true serao filtrados (removidos).

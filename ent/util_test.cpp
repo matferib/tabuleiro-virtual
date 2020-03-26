@@ -1639,6 +1639,26 @@ TEST(TesteDependencias, TesteAjuda2) {
   EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
 }
 
+TEST(TesteDependencias, TesteAjuda3) {
+  g_dados_teste.push(4);
+  EntidadeProto proto;
+  std::vector<int> ids_unicos;
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(3);  // 1d8+3 = 7 por causa do dado fixo em 4).
+  RecomputaDependencias(g_tabelas, &proto);
+  // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
+  auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 7);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  EXPECT_EQ(entidade->PontosVida(), 7);
+  // Aplica 1 de dano:
+  ntf::Notificacao n;
+  PreencheNotificacaoAtualizacaoPontosVida(*entidade, /*delta_pontos_vida=*/-1, TD_LETAL, &n, nullptr);
+  entidade->AtualizaParcial(n.entidade());
+  EXPECT_EQ(entidade->PontosVida(), 6);
+}
+
 // Teste basico gera dados.
 TEST(TesteGeraDados, TesteGeraDados) {
   int pv = GeraMaxPontosVida("\t4 d   6 - 5  ");

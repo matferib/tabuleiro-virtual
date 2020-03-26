@@ -1665,8 +1665,8 @@ void PreencheNotificacaoAtualizacaoPontosVida(
             LOG(WARNING) << "Valor de pv temporario invalido: " << po->valor();
           } else if (po->valor() >= abs(delta_pontos_vida)) {
             // Anulou o dano todo, mas continua pra computar temporarios.
-            delta_pontos_vida = 0;
             int novo_valor = po->valor() - abs(delta_pontos_vida);
+            delta_pontos_vida = 0;
             po->set_valor(novo_valor);
             temporarios += novo_valor;
           } else {
