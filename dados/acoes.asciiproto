@@ -94,6 +94,7 @@ acao {
   permite_ataque_vs_defesa: true
   icone: 'icon_touch.png'
   ataque_toque: true
+  ataque_corpo_a_corpo: true
   ignora_reducao_dano_barbaro: true
   dificuldade_salvacao_por_nivel: true
   permite_salvacao: true

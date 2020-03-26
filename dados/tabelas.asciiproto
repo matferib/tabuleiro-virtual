@@ -8084,13 +8084,9 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
-
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque'
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: true
-      ignora_resistencia_magia: true
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
       efeitos_adicionais {
@@ -8998,7 +8994,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'cura_completa'  # heal 
+    id: 'cura_completa'  # heal
     nome: 'cura completa'
     modelo_dano: CURA_10_POR_NIVEL_MAX_150
     info_classes {
@@ -9040,7 +9036,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       cor { r: 0 g: 0 b: 0 a: 0.9 }
-      permite_ataque_vs_defesa: true 
+      permite_ataque_vs_defesa: true
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_MEIO
