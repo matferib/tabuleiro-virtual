@@ -869,6 +869,8 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 
 // Retorna a classe dentro do proto, ou default se nao houver.
 const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto);
+// Como InfoClasseProto, mas considera tb classes com id_para_magia.
+const InfoClasse& InfoClasseProtoParaMagia(const std::string& id_classe, const EntidadeProto& proto);
 
 // Retorna true se a entidade pode agir. Alguns efeitos nao permite (pasmar, atordoado, etc).
 std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto);
