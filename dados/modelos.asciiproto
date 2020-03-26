@@ -79,6 +79,7 @@ modelo {
       salvacoes_fortes: TS_REFLEXO
       salvacoes_fortes: TS_VONTADE
       progressao_bba: PBBA_UM
+      id_para_magia: 'clerigo'
       pericias_monstro: 'concentracao'
       pericias_monstro: 'diplomacia'
       pericias_monstro: 'esconderse'
@@ -1138,7 +1139,7 @@ modelo {
         ignora_resistencia_magia: true
         efeitos_adicionais {
           combinar_com_efeito: EFEITO_REFLEXOS
-          rodadas: 12
+          rodadas: 120
           dado_complementos_str: '1d4+4'
         }
       }
