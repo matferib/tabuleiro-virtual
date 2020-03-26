@@ -1649,7 +1649,7 @@ TEST(TesteDependencias, TesteAjuda3) {
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
-  EXPECT_GT(proto.pontos_vida_temporarios(), 7);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 7);
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   EXPECT_EQ(entidade->PontosVida(), 7);
   // Aplica 1 de dano:
