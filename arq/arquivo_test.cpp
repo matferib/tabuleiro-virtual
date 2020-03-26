@@ -7,7 +7,7 @@
 
 // Teste para verificacao de arquivo. Para funcionar, deve-se criar o arquivo de teste no diretorio de usuario + teste.
 TEST(TesteModelos, TesteModelos) {
-  arq::Inicializa();
+  arq::Inicializa(".");
   const std::vector<std::string> listagem(arq::ConteudoDiretorio(arq::TIPO_TESTE));
   EXPECT_FALSE(listagem.empty());
   std::string dados;
