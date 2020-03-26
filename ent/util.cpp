@@ -2440,7 +2440,12 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
 }
 
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
-  return InfoClasseProto(id_classe, proto).nivel_conjurador();
+  const auto& ic = InfoClasseProtoParaMagia(id_classe, proto);
+  if (ic.has_nivel_conjurador()) {
+    return ic.nivel_conjurador();
+  } else {
+    return ic.nivel();
+  }
 }
 
 int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
@@ -2464,7 +2469,7 @@ std::string NivelAumentadoConjurador(const Tabelas& tabelas, const std::string& 
   }
   // A classe tabelada aumenta nivel de conjurador mas nao especificou.
   // Tenta o que o usuario passou.
-  const auto& ic = InfoClasseProto(id_classe, proto);
+  const auto& ic = InfoClasseProtoParaMagia(id_classe, proto);
   if (ic.has_aumenta_nivel_conjurador_de()) {
     return ic.aumenta_nivel_conjurador_de();
   }
@@ -2921,6 +2926,13 @@ std::string ClasseParaTipoAtaqueFeitico(const Tabelas& tabelas, const std::strin
 const InfoClasse& InfoClasseProto(const std::string& id_classe, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
     if (ic.id() == id_classe) return ic;
+  }
+  return InfoClasse::default_instance();
+}
+
+const InfoClasse& InfoClasseProtoParaMagia(const std::string& id_classe, const EntidadeProto& proto) {
+  for (const auto& ic : proto.info_classes()) {
+    if (ic.id() == id_classe || ic.id_para_magia() == id_classe) return ic;
   }
   return InfoClasse::default_instance();
 }
