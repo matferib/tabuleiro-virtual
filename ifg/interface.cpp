@@ -129,33 +129,57 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
       ? notificacao.entidade().tesouro().pergaminhos_arcanos()
       : notificacao.entidade().tesouro().pergaminhos_divinos();
 
+  // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
+  std::map<std::string, int> mapa_nomes_para_indices;
   std::vector<std::string> nomes_pergaminhos;
+  int i = 0;
   for (const auto& pergaminho : pergaminhos_entidade) {
-    nomes_pergaminhos.push_back(pergaminho.nome().empty() ?
-        (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
-        : pergaminho.nome());
+    const std::string& nome = pergaminho.nome().empty()
+      ? (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
+      : pergaminho.nome();
+    mapa_nomes_para_indices[nome] = i++;
+  }
+
+  std::vector<int> mapa_indices;
+  for (auto it : mapa_nomes_para_indices) {
+    nomes_pergaminhos.push_back(it.first);
+    mapa_indices.push_back(mapa_nomes_para_indices[it.first]);
   }
   EscolheItemLista(
       "Escolha o pergaminho", nomes_pergaminhos,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPergaminho,
-          this, notificacao,
+          this, notificacao, mapa_indices,
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificacao, bool ok, int indice_pergaminho) {
+void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_pergaminho) {
   ent::RodaNoRetorno([this] () {
     tabuleiro_->ReativaWatchdogSeMestre();
   });
+  if (indice_pergaminho < 0 || indice_pergaminho >= (int)mapa_indices.size()) {
+    if (ok) {
+      LOG(ERROR) << "indice de pergaminho invalido: " << indice_pergaminho << ", tam mapa: " << mapa_indices.size();
+    }
+    return;
+  }
 
   const bool arcano = notificacao.entidade().tesouro().pergaminhos_divinos().empty();
   const auto& pergaminhos_entidade = arcano
       ? notificacao.entidade().tesouro().pergaminhos_arcanos()
       : notificacao.entidade().tesouro().pergaminhos_divinos();
-  if (!ok || indice_pergaminho >= pergaminhos_entidade.size()) {
+
+  int indice_real = mapa_indices[indice_pergaminho];
+  if (indice_real < 0 || indice_real >= (int)pergaminhos_entidade.size()) {
+    if (ok) {
+      LOG(ERROR) << "indice real de pergaminho invalido: " << indice_real << ", tam pergaminhos: " << pergaminhos_entidade.size();
+    }
     return;
   }
-  tabuleiro_->UsaPergaminhoNotificando(notificacao.entidade().id(), arcano ? ent::TM_ARCANA : ent::TM_DIVINA, indice_pergaminho);
+  if (!ok) {
+    return;
+  }
+  tabuleiro_->UsaPergaminhoNotificando(notificacao.entidade().id(), arcano ? ent::TM_ARCANA : ent::TM_DIVINA, indice_real);
 }
 
 //----------------
