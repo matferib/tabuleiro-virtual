@@ -7,7 +7,7 @@
 #include "ifg/modelos.pb.h"
 #include "gtest/gtest.h"
 
-// Teste para verificacao dosmodelos.
+// Teste quer verifica que todos os modelos no menu tem correspondencia em modelos.
 TEST(TesteModelos, TesteModelos) {
   ent::Modelos ent_modelos;
   LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos.asciiproto", &ent_modelos);
@@ -34,7 +34,15 @@ TEST(TesteModelos, TesteModelos) {
       if (m.id() == "Padrão") {
         continue;
       }
-      EXPECT_NE(ids_modelos.end(), ids_modelos.find(m.id())) << ", id: " << m.id();
+      if (m.modelos().empty()) {
+        EXPECT_FALSE(ids_modelos.find(m.id()) == ids_modelos.end()) << ", id: " << m.id() << " não encontrado nos modelos.";
+      } else {
+        for (const auto& mm : m.modelos()) {
+          if (mm.id() != "NADA") {
+            EXPECT_FALSE(ids_modelos.find(mm.id()) == ids_modelos.end()) << ", id: " << mm.id() << " não encontrado nos modelos.";
+          }
+        }
+      }
     }
     pilha.pop();
     for (const auto& sub_menu : menu->sub_menu()) {
