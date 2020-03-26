@@ -3604,7 +3604,7 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Druida'
+  id: 'Humano Druida 1'
   id_entidade_base: 'Druida Base'
   entidade {
     rotulo: 'Druida 1'
