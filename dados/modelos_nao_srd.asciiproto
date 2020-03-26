@@ -1315,23 +1315,23 @@ modelo {
 
     # Bote.
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     # apesar de ser grande, alcance 1.
