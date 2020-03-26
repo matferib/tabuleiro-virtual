@@ -33,6 +33,7 @@ elif sistema == 'apple':
                        map(lambda x: env['QTDIR'] + 'include/' + x + '/', frameworks) +
                        [env['QTDIR'] + 'include/'])
   env['QT_LIB'] = []
+  env['RPATH'] = []
 else:
   if 'QTDIR' not in env:
     env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
@@ -229,9 +230,9 @@ compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
 print 'compilar_testes : %r' % compilar_testes
 if compilar_testes:
   env['CPPPATH'] += ['./googletest/googletest/googletest/include', './googletest/googletest/googlemock/include']
-  env['LIBPATH'] += ['./googletest/googletest/lib/']
+  env['LIBPATH'] += ['./googletest/googletest/lib/', './googletest/googletest/bazel-bin']
   env['LIBS'] += ['pthread', 'gtest']
-  env['RPATH'] += ['./googletest/googletest/lib/']
+  #env['RPATH'] = ['./googletest/googletest/lib/', './googletest/googletest/bazel-bin']
   env.Program(
       target = 'teste_ent_ent',
       source = ['ent/ent_test.cpp' ] + objetos)
