@@ -1264,7 +1264,9 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     if (ic.has_atributo_conjuracao() || ic.has_id_para_progressao_de_magia()) {
       const auto& classe_tabelada_conjuracao =
           tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
-      ic.set_atributo_conjuracao(classe_tabelada_conjuracao.atributo_conjuracao());
+      if (!ic.has_atributo_conjuracao()) {
+        ic.set_atributo_conjuracao(classe_tabelada_conjuracao.atributo_conjuracao());
+      }
       ic.set_modificador_atributo_conjuracao(ModificadorAtributo(ic.atributo_conjuracao(), *proto));
       RecomputaNivelConjuracao(tabelas, *proto, &ic);
     }
