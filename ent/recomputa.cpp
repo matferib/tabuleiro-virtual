@@ -1207,6 +1207,10 @@ int OutrosModificadoresNivelConjuracao(const EntidadeProto& proto) {
 }
 
 void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto, InfoClasse* ic) {
+  if (ic->has_nivel_conjurador_nativo()) {
+    ic->set_nivel_conjurador(ic->nivel_conjurador_nativo());
+    return;
+  }
   int niveis_da_classe = NivelParaCalculoMagiasPorDia(tabelas, ic->id(), proto);
   int valor = -proto.niveis_negativos() + OutrosModificadoresNivelConjuracao(proto);
   switch (tabelas.Classe(ic->id()).progressao_conjurador()) {

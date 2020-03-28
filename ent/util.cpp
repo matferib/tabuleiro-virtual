@@ -2441,6 +2441,7 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
 
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
   const auto& ic = InfoClasseProtoParaMagia(id_classe, proto);
+  VLOG(2) << "classe para nivel de conjurador: " << ic.DebugString();
   if (ic.has_nivel_conjurador()) {
     return ic.nivel_conjurador();
   } else {
