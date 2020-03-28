@@ -574,6 +574,9 @@ message InfoClasse {
   optional int32 nivel = 2;
   // Este valor é recomputado para conter os aumentos de classes de prestigio.
   optional int32 nivel_conjurador = 3;
+  // Alguns monstros, como Vrock, tem seu proprio nivel de conjurador, independente de HD (12 nivel, 10 HD).
+  // Se presente, este campo escreverá o valor do nivel de conjurador.
+  optional int32 nivel_conjurador_nativo = 30;
   // Bonus base de ataque do nivel.
   optional int32 bba = 4;
   optional ProgressaoBba progressao_bba = 8;

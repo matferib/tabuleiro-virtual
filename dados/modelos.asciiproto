@@ -1085,7 +1085,8 @@ modelo {
       progressao_bba: PBBA_UM
       progressao_conjurador: PCONJ_UM
       id_para_magia: 'mago'
-      id_para_progressao_de_magia: 'feiticeiro'
+      atributo_conjuracao: TA_CARISMA
+      nivel_conjurador_nativo: 12  # é o que ta no manual, vai entender.
       pericias_monstro: 'concentracao'
       pericias_monstro: 'diplomacia'
       pericias_monstro: 'esconderse'
@@ -1134,27 +1135,10 @@ modelo {
     dados_ataque {
       grupo: 'reflexos' rotulo: 'reflexos' tipo_ataque: 'Feitiço de Mago' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          combinar_com_efeito: EFEITO_REFLEXOS
-          rodadas: 120
-          dado_complementos_str: '1d4+4'
-        }
-      }
     }
     dados_ataque {
       grupo: 'heroismo' rotulo: 'heroismo 1/dia' tipo_ataque: 'Feitiço de Mago' id_arma: 'heroismo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      acao_fixa {
-        tipo: ACAO_FEITICO_TOQUE
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          combinar_com_efeito: EFEITO_HEROISMO
-          rodadas: 120
-        }
-      }
     }
     dados_ataque {
       grupo: 'grito' rotulo: '1/hora nao afeta demonios' tipo_ataque: 'Feitiço de Mago'
@@ -1178,7 +1162,6 @@ modelo {
         efeitos_adicionais {
           efeito: EFEITO_ATORDOADO
           rodadas: 1
-          # TODO nao afeta demonios.
         }
       }
     }
@@ -2202,7 +2185,7 @@ modelo {
   entidade {
     info_classes {
       combinar_com: 0
-      nivel_conjurador: 10
+      nivel_conjurador_nativo: 10
       atributo_conjuracao: TA_CARISMA
     }
     rotulo_especial: '1 dia: forma de pedra, stone tell, transmute rock to mud, transmute mud to rock'
