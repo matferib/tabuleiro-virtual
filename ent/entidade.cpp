@@ -459,6 +459,27 @@ void Entidade::AtualizaLuzAcao(int intervalo_ms) {
   luz.tempo_desde_inicio_ms += intervalo_ms;
 }
 
+namespace {
+gl::VboNaoGravado VboFumaca(const Entidade& entidade, const ParametrosDesenho& pd) {
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * entidade.MultiplicadorTamanho());
+  Vector3 camera = PosParaVector3(pd.pos_olho());
+  Vector3 dc = camera - PosParaVector3(entidade.PosicaoAltura(1.0f));
+  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+  // mais a diferenca de angulo.
+  float inclinacao_graus = 0.0f;
+  float dc_len = dc.length();
+  if (dc_len < 0.001f) {
+    inclinacao_graus = 0.0f;
+  } else {
+    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+  }
+  vbo_ng.RodaY(90.0f - inclinacao_graus);
+  // Agora roda no eixo z.
+  vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
+  return vbo_ng;
+}
+}  // namespace
+
 void Entidade::AtualizaFumaca(int intervalo_ms) {
   auto& f = vd_.fumaca;
   f.duracao_ms -= intervalo_ms;
@@ -483,24 +504,7 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   }
 
   RemoveAtualizaEmissoes(intervalo_ms, &f);
-
-  // Recria o VBO. Deve ficar sempre de frente para camera.
-  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
-  Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
-  Vector3 dc = camera - PosParaVector3(PosicaoAltura(1.0f));
-  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
-  // mais a diferenca de angulo.
-  float inclinacao_graus = 0.0f;
-  float dc_len = dc.length();
-  if (dc_len < 0.001f) {
-    inclinacao_graus = 0.0f;
-  } else {
-    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
-  }
-  vbo_ng.RodaY(90.0f - inclinacao_graus);
-  // Agora roda no eixo z.
-  vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
-  RecriaVboEmissoes(vbo_ng, &f);
+  RecriaVboEmissoes([this]() { return VboFumaca(*this, *parametros_desenho_); }, &f);
 }
 
 void Entidade::EmiteNovaBolha() {
@@ -556,11 +560,18 @@ void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* d
   }
 }
 
-void Entidade::RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const {
-  // Recria o VBO.
+void Entidade::RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> gera_vbo_f, DadosEmissao* dados_emissao) const {
+  if (dados_emissao->emissoes.empty()) {
+    if (!dados_emissao->vbo.Vazio()) {
+      dados_emissao->vbo = gl::VbosNaoGravados();
+    }
+    return;
+  }
   std::vector<gl::VboNaoGravado> vbos;
+  const gl::VboNaoGravado vbo_base = gera_vbo_f();
+  // Recria o VBO.
   for (const auto& emissao: dados_emissao->emissoes) {
-    gl::VboNaoGravado vbo_ng = vbo;
+    gl::VboNaoGravado vbo_ng = vbo_base;
     vbo_ng.Escala(emissao.escala, emissao.escala, emissao.escala);
     vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
     vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
@@ -568,6 +579,12 @@ void Entidade::RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dad
   }
   dados_emissao->vbo = gl::VbosNaoGravados(std::move(vbos));
 }
+
+namespace {
+const gl::VboNaoGravado VboBolha(float multiplicador_tamanho) {
+  return gl::VboEsferaSolida(0.15f * multiplicador_tamanho, 6, 6);
+}
+}  // namespace
 
 void Entidade::AtualizaBolhas(int intervalo_ms) {
   auto& b = vd_.bolhas;
@@ -594,7 +611,7 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
     b.proxima_emissao_ms -= intervalo_ms;
   }
   RemoveAtualizaEmissoes(intervalo_ms, &b);
-  RecriaVboEmissoes(gl::VboEsferaSolida(0.15f * MultiplicadorTamanho(), 6, 6), &b);
+  RecriaVboEmissoes([this] () { return VboBolha(MultiplicadorTamanho()); }, &b);
 }
 
 void Entidade::AtualizaMatrizes() {
@@ -666,11 +683,20 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   return md;
 }
 
-void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
+void Entidade::Atualiza(int intervalo_ms) {
 #if DEBUG
   glFinish();
+  boost::timer::cpu_timer timer;
+  timer.start();
+  RodaNoRetorno r([this, &timer]() {
+      glFinish();
+      timer.stop();
+      auto passou_micro = timer.elapsed().wall / 1000ULL;
+      if (passou_micro >= 100) {
+        LOG(WARNING) << "entidade cara: " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
+      }
+  });
 #endif
-  if (timer != nullptr) timer->stop();
 
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaEscopo {

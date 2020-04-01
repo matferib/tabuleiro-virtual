@@ -2590,7 +2590,7 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
   auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_entre_atualizacoes_.start();
   timer_uma_atualizacao_.start();
@@ -2610,8 +2610,9 @@ void Tabuleiro::AtualizaPorTemporizacao() {
     AtualizaOlho(passou_ms, false  /*forcar*/);
   }
   AtualizaAcoes(passou_ms);
+
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_uma_atualizacao_.stop();
   EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -4634,22 +4635,22 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
-  boost::timer::cpu_timer timer;
-#if DEBUG
-  //glFinish();
-#endif
-
+  boost::timer::cpu_timer timer_todas;
+  timer_todas.start();
+  boost::timer::cpu_timer timer_uma_entidade;
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
-    timer.resume();
-    entidade->Atualiza(intervalo_ms, &timer);
+    timer_uma_entidade.start();
+    entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
   }
-  EnfileiraTempo(timer, &tempos_atualiza_parcial_);
+  timer_todas.stop();
+  VLOG(3) << "Atualizei: " << entidades_.size() << " entidades";
+  EnfileiraTempo(timer_todas, &tempos_atualiza_parcial_);
 }
 
 void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
