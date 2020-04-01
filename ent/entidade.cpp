@@ -582,7 +582,7 @@ void Entidade::RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> 
 
 namespace {
 const gl::VboNaoGravado VboBolha(float multiplicador_tamanho) {
-  return gl::VboEsferaSolida(0.15f * multiplicador_tamanho, 6, 6);
+  return gl::VboEsferaSolida(0.15f * multiplicador_tamanho, 6, 3);
 }
 }  // namespace
 
