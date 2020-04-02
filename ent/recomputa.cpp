@@ -249,6 +249,15 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
       *AchaOuCriaResistenciaElementoEfeitoModelo(re.descritor(), re.id_efeito_modelo(), proto) = re;
     }
   }
+  for (const auto& rd : consequencia.dados_defesa().reducao_dano()) {
+    if (!rd.has_id_efeito_modelo()) continue;
+    if (rd.valor() <= 0) {
+      LimpaReducaoDanoEfeitoModelo(rd.id_efeito_modelo(), proto);
+    } else {
+      *AchaOuCriaReducaoDanoEfeitoModelo(rd.id_efeito_modelo(), proto) = rd;
+    }
+  }
+
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
@@ -756,7 +765,7 @@ ConsequenciaEvento PreencheConsequencia(
     if (!re.has_indice_complemento() || (re.indice_complemento() < 0) || (re.indice_complemento() >= complementos.size())) continue;
     re.set_valor(complementos.Get(re.indice_complemento()));
   }
-  for (auto& rd : *c.mutable_reducao_dano()) {
+  for (auto& rd : *c.mutable_dados_defesa()->mutable_reducao_dano()) {
     if (!rd.has_indice_complemento() || (rd.indice_complemento() < 0) || (rd.indice_complemento() >= complementos.size())) continue;
     rd.set_valor(complementos.Get(rd.indice_complemento()));
   }
