@@ -692,8 +692,8 @@ void Entidade::Atualiza(int intervalo_ms) {
       glFinish();
       timer.stop();
       auto passou_micro = timer.elapsed().wall / 1000ULL;
-      if (passou_micro >= 100) {
-        LOG(WARNING) << "entidade cara: " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
+      if (passou_micro >= 50) {
+        LOG_EVERY_N(WARNING, 60) << "entidade cara: " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
       }
   });
 #endif
