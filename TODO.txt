@@ -1,4 +1,3 @@
-Terminar Reducao de dano em templates (por exemplo, abissal).
 Aliados extra planares (da magia de conjuracao). Especialmente arconte maior.
 Implementar efeitos:
   - imunidade a magia (mais de 1 feitico), imunidade maior (fazer) e elucubracao (fazer).
