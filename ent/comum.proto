@@ -407,6 +407,7 @@ message ReducaoDano {
   optional int32 valor = 2;
   optional TipoCombinacao tipo_combinacao = 3;
   optional int32 id_unico = 4;
+  optional int32 indice_complemento = 5;
 }
 
 message ResistenciaElementos {
@@ -680,6 +681,7 @@ message ConsequenciaEvento {
   optional Bonus bonus_iniciativa = 11;
 
   //repeated DadosAtaque dados_ataque = 12;
+  repeated ReducaoDano reducao_dano = 13;
 }
 
 message EfeitoProto {

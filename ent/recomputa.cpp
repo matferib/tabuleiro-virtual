@@ -756,6 +756,10 @@ ConsequenciaEvento PreencheConsequencia(
     if (!re.has_indice_complemento() || (re.indice_complemento() < 0) || (re.indice_complemento() >= complementos.size())) continue;
     re.set_valor(complementos.Get(re.indice_complemento()));
   }
+  for (auto& rd : *c.mutable_reducao_dano()) {
+    if (!rd.has_indice_complemento() || (rd.indice_complemento() < 0) || (rd.indice_complemento() >= complementos.size())) continue;
+    rd.set_valor(complementos.Get(rd.indice_complemento()));
+  }
   if (c.has_jogada_ataque())            PreencheOrigemValor(origem, complementos, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemValor(origem, complementos, c.mutable_jogada_dano());
   if (c.has_tamanho())                  PreencheOrigemValor(origem, complementos, c.mutable_tamanho());
