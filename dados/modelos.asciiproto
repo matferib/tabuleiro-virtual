@@ -282,6 +282,7 @@ modelo {
   id_entidade_base: 'Falcão'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
+    tendencia { simples: TD_NEUTRO_MAU }
     info_classes {
       id: 'besta_magica'
       combinar_com: 0
@@ -295,7 +296,6 @@ modelo {
     atributos {
       inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 
@@ -484,7 +484,7 @@ modelo {
   id: 'Cobra, Víbora Pequena Abissal'
   id_entidade_base: 'Cobra, Víbora Pequena'
   entidade {
-    tendencia { simples: TD_CAOTICO_MAU }
+    tendencia { simples: TD_NEUTRO_MAU }
     modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
     info_classes {
       id: 'besta_magica'
@@ -931,6 +931,7 @@ modelo {
   id: 'Centopéia Média'
   entidade {
     dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 1 }
     movimento {
       escalando_basico_q: 8
@@ -976,6 +977,7 @@ modelo {
   id: 'Centopéia Grande'
   entidade {
     dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 3 }
     movimento {
       escalando_basico_q: 8
@@ -1021,6 +1023,7 @@ modelo {
   id: 'Centopéia Enorme'
   entidade {
     dados_vida: '6d8+6' tamanho: TM_ENORME modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 6 }
     movimento {
       escalando_basico_q: 8
@@ -1066,12 +1069,14 @@ modelo {
   id: 'Centopéia Enorme Abissal'
   id_entidade_base: 'Centopéia Enorme'
   entidade {
+    tipo_dnd: TIPO_BESTA_MAGICA
     modelos {
       id_efeito: EFEITO_MODELO_ABISSAL ativo: true
       complementos: 11 # RM
       complementos: 5  # resistencia gelo e fogo.
       complementos: 10 # reducao de dano.
     }
+    tendencia { simples: TD_NEUTRO_MAU }
     dados_ataque {
       rotulo: 'mordida com veneno destruir o bem' tipo_ataque: 'Ataque Corpo a Corpo'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
