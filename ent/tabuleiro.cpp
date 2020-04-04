@@ -703,7 +703,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
 #else
-    DesenhaCena(true);
+    DesenhaCena();
 #endif
   }
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -947,7 +947,7 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
-  DesenhaCena();
+  DesenhaCena(true);
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
   glFinish();
@@ -3160,7 +3160,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
     DesenhaElosAgarrar();
   }
   V_ERRO("desenhando elos de agarrar");
-
 
   if (desenhar_caixa_ceu) {
     DesenhaCaixaCeu();
@@ -7058,6 +7057,10 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
     }
     if (linha == 2) {
       LOG_EVERY_N(INFO, 33) << tempo_str;
+      //GLint mem[4] = {};
+      //glGetIntegerv(0x87FC, mem);
+      //glGetError();
+      //LOG_EVERY_N(INFO, 33) << "mem: " << mem[0];
     }
   }
 }
