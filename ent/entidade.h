@@ -372,6 +372,11 @@ class Entidade {
   /** Retorna true se a entidade segue o solo ao se mover. */
   bool RespeitaSolo() const;
 
+  /** Atualiza a matriz de acao da mão principal. */
+  void AtualizaMatrizAcaoPrincipal(const Matrix4& matriz);
+  /** Atualiza a matriz de acao da mão secundaria. */
+  void AtualizaMatrizAcaoSecundaria(const Matrix4& matriz);
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
@@ -480,6 +485,9 @@ class Entidade {
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
     Matrix4 matriz_modelagem;
+    // Essa matriz é aplicada à acao sendo realizada.
+    Matrix4 matriz_acao_principal;
+    Matrix4 matriz_acao_secundaria;
     // Para entidades com textura.
     Matrix4 matriz_modelagem_tijolo_base;
     Matrix4 matriz_modelagem_tijolo_tela;

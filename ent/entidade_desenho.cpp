@@ -239,6 +239,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
   if (const DadosAtaque* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true); da != nullptr) {
     // TODO desenhar escudo de acordo com empunhadura.
+    ParametrosDesenho pd_sem_texturas_de_frente = pd == nullptr ? ParametrosDesenho::default_instance() : *pd;
     if (da->has_id_arma()) {
       const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
       const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
@@ -247,8 +248,10 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         VLOG(3) << "desenhando " << da->id_arma();
         const auto posicao = PosicaoAcaoSemTransformacoes();
         gl::MatrizEscopo salva_matriz;
-        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
         gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        gl::MultiplicaMatriz(vd_.matriz_acao_principal.get());
         modelo->vbos_gravados.Desenha();
       }
     }

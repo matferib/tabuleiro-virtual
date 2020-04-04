@@ -931,15 +931,22 @@ class AcaoCorpoCorpo : public Acao {
     if (eo == nullptr) {
       return;
     }
-    const Posicao& pos_o = eo->PosicaoAcao();
-    MudaCorProto(acao_proto_.cor());
-    gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
-    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
-    gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
-    gl::Roda(90.0f, 1.0f, 0.0f,  0.0f);  // o triangulo eh no Y, entao traz ele pro Z.
-    gl::Roda(rotacao_graus_, 0.0f, 0.0f, -1.0f);
-    gl::Escala(0.2f, distancia_ + TAMANHO_LADO_QUADRADO_2, 0.2f);
-    gl::Triangulo(1.0f);
+    const DadosAtaque* da = eo->DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+    if (da != nullptr && da->has_id_arma()) {
+      Matrix4 matriz;
+      matriz.rotateY(rotacao_graus_);
+      eo->AtualizaMatrizAcaoPrincipal(matriz);
+    } else {
+      const Posicao& pos_o = eo->PosicaoAcao();
+      MudaCorProto(acao_proto_.cor());
+      gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
+      gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
+      gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
+      gl::Roda(90.0f, 1.0f, 0.0f,  0.0f);  // o triangulo eh no Y, entao traz ele pro Z.
+      gl::Roda(rotacao_graus_, 0.0f, 0.0f, -1.0f);
+      gl::Escala(0.2f, distancia_ + TAMANHO_LADO_QUADRADO_2, 0.2f);
+      gl::Triangulo(1.0f);
+    }
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
@@ -965,6 +972,7 @@ class AcaoCorpoCorpo : public Acao {
     if (rotacao_graus_ >= 180.0f && terminou_alvo) {
       VLOG(1) << "Finalizando corpo a corpo";
       finalizado_ = true;
+      eo->AtualizaMatrizAcaoPrincipal(Matrix4());
     }
   }
 
