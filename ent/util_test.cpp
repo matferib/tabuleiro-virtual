@@ -2700,6 +2700,14 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteVrock) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Demônio Vrock");
+  EntidadeProto proto = modelo.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_GT(proto.dados_ataque().size(), 5);
+  EXPECT_EQ(NivelConjurador(TipoAtaqueParaClasse(g_tabelas, proto.dados_ataque(5).tipo_ataque()), proto), 12);
+}
+
 TEST(TesteModelo, TesteModeloVulto) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
