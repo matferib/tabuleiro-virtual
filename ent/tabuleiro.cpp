@@ -2587,11 +2587,11 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
 }
 
 void Tabuleiro::AtualizaPorTemporizacao() {
-  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
 #if DEBUG
   glFinish();
 #endif
+  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
+  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
   timer_entre_atualizacoes_.start();
   timer_uma_atualizacao_.start();
   if (regerar_vbos_entidades_) {
