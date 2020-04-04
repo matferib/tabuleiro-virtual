@@ -1,3 +1,4 @@
+Implementar produce flame de druida (magia de 1o nivel ducaralho).
 Fazer a acao corpo a corpo usar a arma do modelo.
 Esfera flamejante: criando duas ao mesmo tempo ao lancar feitico. Nao consegui reproduzir
 Aterrorizar parece que nao ta funcionando.
