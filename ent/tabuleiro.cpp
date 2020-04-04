@@ -834,7 +834,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
     parametros_desenho_.set_desenha_grade(false);
-    parametros_desenho_.set_desenha_fps(false);
+    parametros_desenho_.set_desenha_fps(true);
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
@@ -7052,6 +7052,14 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   PosicionaRaster2d(2, yi);
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
+  if (modo_debug_) {
+    if (linha == 0) {
+      LOG_EVERY_N(INFO, 33) << tempo_str;
+    }
+    if (linha == 2) {
+      LOG_EVERY_N(INFO, 33) << tempo_str;
+    }
+  }
 }
 
 void Tabuleiro::DesenhaTempos() {
