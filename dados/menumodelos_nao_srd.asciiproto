@@ -74,15 +74,16 @@ sub_menu {
     texto: 'Tilverton, Cidade Velha Pós Orbe'
     quantidade: '1d8'
     aleatorio: true
-    modelos { id: 'NADA' peso: 21 }
-    # Peso total: 21
+    # 50% de nao dar nada.
+    modelos { id: 'NADA' peso: 24 }
+    # Peso total: 17
     modelos { id: 'Vulto Guerreiro 5' peso: 4 }
     modelos { id: 'Vulto Ladino 5' peso: 4 }
     modelos { id: 'Vulto Monge 5' peso: 4 }
-    modelos { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' peso: 2 }
+    modelos { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' peso: 1 }
     modelos { id: 'Vulto Bardo 5' peso: 2 }
-    modelos { id: 'Vulto Feiticeiro 5' peso: 2 }
-    modelos { id: 'Veserab' peso: 3 }
+    modelos { id: 'Vulto Feiticeiro 5' peso: 1 }
+    modelos { id: 'Veserab' peso: 1 }
     # Peso total: 7
     modelos { id: 'Humano Dragão Púrpura: Combatente Arqueiro 2' peso: 2 }
     modelos { id: 'Humano Dragão Púrpura: Combatente Soldado 2' peso: 2 }
