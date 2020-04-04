@@ -2333,4 +2333,12 @@ bool Entidade::RespeitaSolo() const {
   return Tipo() == TE_ENTIDADE;
 }
 
+void Entidade::AtualizaMatrizAcaoPrincipal(const Matrix4& matriz) {
+  vd_.matriz_acao_principal = matriz;
+}
+
+void Entidade::AtualizaMatrizAcaoSecundaria(const Matrix4& matriz) {
+  vd_.matriz_acao_secundaria = matriz;
+}
+
 }  // namespace ent
