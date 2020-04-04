@@ -388,7 +388,8 @@ enum atributo_e {
   ATR_MATRIX_ARRAY        = 4,
   ATR_TANGENT_ARRAY       = 5,
 };
-void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
+// Retorna true se o tipo de atributo possui indice (alguns shaders nao tem, ai ja evita muita coisa).
+bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
 
 /** Funcoes de nomes. */

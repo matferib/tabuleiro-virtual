@@ -464,7 +464,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
       n->mutable_entidade()->Swap(entidade_proto.get());
-      central_->AdicionaNotificacao(n.release());
+      makeCurrent();
+      tabuleiro_->TrataNotificacao(*n);
+      doneCurrent();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
@@ -480,7 +482,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
       n->mutable_tabuleiro()->Swap(tabuleiro);
-      central_->AdicionaNotificacao(n.release());
+      makeCurrent();
+      tabuleiro_->TrataNotificacao(*n);
+      doneCurrent();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_OPCOES: {
@@ -496,7 +500,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
       n->mutable_opcoes()->Swap(opcoes.get());
-      central_->AdicionaNotificacao(n.release());
+      makeCurrent();
+      tabuleiro_->TrataNotificacao(*n);
+      doneCurrent();
       break;
     }
     case ntf::TN_TEMPORIZADOR:

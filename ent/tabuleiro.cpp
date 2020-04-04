@@ -703,7 +703,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
 #else
-    DesenhaCena(true);
+    DesenhaCena();
 #endif
   }
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -834,7 +834,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
     parametros_desenho_.set_desenha_grade(false);
-    parametros_desenho_.set_desenha_fps(false);
+    parametros_desenho_.set_desenha_fps(true);
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
@@ -947,7 +947,7 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
-  DesenhaCena();
+  DesenhaCena(true);
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
   glFinish();
@@ -2590,7 +2590,7 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
   auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_entre_atualizacoes_.start();
   timer_uma_atualizacao_.start();
@@ -2610,8 +2610,9 @@ void Tabuleiro::AtualizaPorTemporizacao() {
     AtualizaOlho(passou_ms, false  /*forcar*/);
   }
   AtualizaAcoes(passou_ms);
+
 #if DEBUG
-  //glFinish();
+  glFinish();
 #endif
   timer_uma_atualizacao_.stop();
   EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -3159,7 +3160,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
     DesenhaElosAgarrar();
   }
   V_ERRO("desenhando elos de agarrar");
-
 
   if (desenhar_caixa_ceu) {
     DesenhaCaixaCeu();
@@ -4634,22 +4634,22 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
-  boost::timer::cpu_timer timer;
-#if DEBUG
-  //glFinish();
-#endif
-
+  boost::timer::cpu_timer timer_todas;
+  timer_todas.start();
+  boost::timer::cpu_timer timer_uma_entidade;
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
-    timer.resume();
-    entidade->Atualiza(intervalo_ms, &timer);
+    timer_uma_entidade.start();
+    entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
   }
-  EnfileiraTempo(timer, &tempos_atualiza_parcial_);
+  timer_todas.stop();
+  VLOG(3) << "Atualizei: " << entidades_.size() << " entidades";
+  EnfileiraTempo(timer_todas, &tempos_atualiza_parcial_);
 }
 
 void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
@@ -7051,6 +7051,18 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   PosicionaRaster2d(2, yi);
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
+  if (modo_debug_) {
+    if (linha == 0) {
+      LOG_EVERY_N(INFO, 33) << tempo_str;
+    }
+    if (linha == 2) {
+      LOG_EVERY_N(INFO, 33) << tempo_str;
+      //GLint mem[4] = {};
+      //glGetIntegerv(0x87FC, mem);
+      //glGetError();
+      //LOG_EVERY_N(INFO, 33) << "mem: " << mem[0];
+    }
+  }
 }
 
 void Tabuleiro::DesenhaTempos() {

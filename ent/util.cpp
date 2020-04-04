@@ -3299,6 +3299,26 @@ void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoM
   }
 }
 
+ReducaoDano* AchaOuCriaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  for (auto& rd : *proto->mutable_dados_defesa()->mutable_reducao_dano()) {
+    if (rd.id_efeito_modelo() == id_efeito_modelo) {
+      return &rd;
+    }
+  }
+  return proto->mutable_dados_defesa()->add_reducao_dano();
+}
+
+void LimpaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto) {
+  int i = 0;
+  for (auto& rd : *proto->mutable_dados_defesa()->mutable_reducao_dano()) {
+    if (rd.id_efeito_modelo() == id_efeito_modelo) {
+      proto->mutable_dados_defesa()->mutable_reducao_dano()->DeleteSubrange(i, 1);
+      return;
+    }
+    ++i;
+  }
+}
+
 void AdicionaEventoItemMagico(
     const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
     std::vector<int>* ids_unicos, EntidadeProto* proto) {

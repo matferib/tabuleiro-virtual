@@ -58,7 +58,7 @@ class Entidade {
   void AtualizaProto(const EntidadeProto& novo_proto);
 
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
-  void Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer);
+  void Atualiza(int intervalo_ms);
 
   /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
   bool TemLuz() const;
@@ -499,7 +499,7 @@ class Entidade {
   /** Atualiza os dados da emissao, baseado no intervalo. Remove as emissoes mortas, atualiza as existentes. */
   void RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const;
   /** Recria os VBOs da emissao. */
-  void RecriaVboEmissoes(const gl::VboNaoGravado& vbo, DadosEmissao* dados_emissao) const;
+  void RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> gera_vbo_f, DadosEmissao* dados_emissao) const;
 
   // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.

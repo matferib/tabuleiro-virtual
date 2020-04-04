@@ -1219,22 +1219,33 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
 namespace {
 
 GLuint TipoAtribParaIndice(atributo_e tipo) {
+  GLuint ret = -1;
   switch (tipo) {
-    case ATR_VERTEX_ARRAY: return interno::BuscaShader().atr_gltab_vertice;
-    case ATR_NORMAL_ARRAY: return interno::BuscaShader().atr_gltab_normal;
-    case ATR_TANGENT_ARRAY: return interno::BuscaShader().atr_gltab_tangente;
-    case ATR_COLOR_ARRAY: return interno::BuscaShader().atr_gltab_cor;
-    case ATR_TEXTURE_COORD_ARRAY: return interno::BuscaShader().atr_gltab_texel;
+    case ATR_VERTEX_ARRAY: ret = interno::BuscaShader().atr_gltab_vertice; break;
+    case ATR_NORMAL_ARRAY: ret = interno::BuscaShader().atr_gltab_normal; break;
+    case ATR_TANGENT_ARRAY: ret = interno::BuscaShader().atr_gltab_tangente; break;
+    case ATR_COLOR_ARRAY: ret = interno::BuscaShader().atr_gltab_cor; break;
+    case ATR_TEXTURE_COORD_ARRAY: ret = interno::BuscaShader().atr_gltab_texel; break;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
-      return 0;
+      break;
   }
+  if (ret >= GL_MAX_VERTEX_ATTRIBS) {
+    VLOG(3) << "valor invalido para tipo: " << tipo << ", ret: " << ret;
+  }
+  return ret;
 }
 
 }  // namespace
 
-void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
+  GLuint indice = TipoAtribParaIndice(tipo);
+  if (indice < GL_MAX_VERTEX_ATTRIBS) {
+    HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {

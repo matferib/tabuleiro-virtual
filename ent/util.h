@@ -509,6 +509,11 @@ void LimpaResistenciaElementoIdUnico(DescritorAtaque descritor, int id_unico, En
 ResistenciaElementos* AchaOuCriaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
 void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
 
+// Funcoes de reducao de dano.
+ReducaoDano* AchaOuCriaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
+void LimpaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
+
+
 // Retorna os eventos do tipo passado.
 std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
 

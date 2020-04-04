@@ -1882,34 +1882,43 @@ void DesenhaVbo(GLenum modo,
                 bool tem_matriz, const void* matriz, int d_matriz,
                 bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
-  gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
-  if (tem_normais) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
+  if (!gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY)) {
+    LOG(ERROR) << "nao ha indice para vertices";
+    return;
+  }
+  if (tem_normais && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY)) {
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
+  } else {
+    tem_normais = false;
   }
-  if (tem_tangentes) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY);
+  if (tem_tangentes && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY)) {
     gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
+  } else {
+    tem_tangentes = false;
   }
-  if (tem_texturas) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
+  if (tem_texturas && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY)) {
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
+  } else {
+    tem_texturas = false;
   }
   V_ERRO("DesenhaVBO: um quarto");
-  if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor()) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
+  if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
+  } else {
+    tem_cores = false;
   }
 
   V_ERRO("DesenhaVBO: meio");
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   V_ERRO("DesenhaVBO: mei ponteiro vertices");
 
-  if (tem_matriz) {
-    gl::HabilitaVetorAtributosVerticePorTipo(ATR_MATRIX_ARRAY);
+  if (tem_matriz && gl::HabilitaVetorAtributosVerticePorTipo(ATR_MATRIX_ARRAY)) {
     gl::PonteiroMatriz(static_cast<const char*>(matriz) + d_matriz);
-  } else if (atualiza_matrizes) {
-    gl::AtualizaMatrizes();
+  } else {
+    if (atualiza_matrizes) {
+      gl::AtualizaMatrizes();
+    }
+    tem_matriz = false;
   }
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
   V_ERRO("DesenhaVBO: mei elementos");

@@ -273,8 +273,10 @@ sub_menu {
   id: 'Vermes'
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
+  modelo { id: 'Centopéia Média' }
+  modelo { id: 'Centopéia Grande' }
   modelo { id: 'Centopéia Enorme' }
-  modelo { id: 'Centopéia Enorme Demoníaca' }
+  modelo { id: 'Centopéia Enorme Abissal' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }

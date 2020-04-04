@@ -222,6 +222,7 @@ enum TipoDnD {
   TIPO_LIMO = 10;
   TIPO_GIGANTE = 11;
   TIPO_HUMANOIDE_MONSTRUOSO = 12;
+  TIPO_VERME = 13;
   // TODO outros.
 }
 
@@ -407,6 +408,8 @@ message ReducaoDano {
   optional int32 valor = 2;
   optional TipoCombinacao tipo_combinacao = 3;
   optional int32 id_unico = 4;
+  optional int32 indice_complemento = 5;
+  optional TipoEfeitoModelo id_efeito_modelo = 6;
 }
 
 message ResistenciaElementos {

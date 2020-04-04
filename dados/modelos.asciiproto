@@ -282,6 +282,7 @@ modelo {
   id_entidade_base: 'Falcão'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
+    tendencia { simples: TD_NEUTRO_MAU }
     info_classes {
       id: 'besta_magica'
       combinar_com: 0
@@ -295,7 +296,6 @@ modelo {
     atributos {
       inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
     }
-    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 
@@ -484,7 +484,7 @@ modelo {
   id: 'Cobra, Víbora Pequena Abissal'
   id_entidade_base: 'Cobra, Víbora Pequena'
   entidade {
-    tendencia { simples: TD_CAOTICO_MAU }
+    tendencia { simples: TD_NEUTRO_MAU }
     modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
     info_classes {
       id: 'besta_magica'
@@ -927,13 +927,109 @@ modelo {
   }
 }
 modelo {
+  # Medium.
+  id: 'Centopéia Média'
+  entidade {
+    dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 1 }
+    movimento {
+      escalando_basico_q: 8
+      terrestre_basico_q: 8
+    }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d3' tipo_dano: TDV_DESTREZA dano_secundario: '1d3' tipo_dano_secundario: TDV_DESTREZA cd: 10 }
+      dano_basico: '1d6'
+    }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
+      dano_basico: '1d6'
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d3' tipo_dano: TDV_DESTREZA dano_secundario: '1d3' tipo_dano_secundario: TDV_DESTREZA cd: 10 }
+      dano_basico: '1d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } } }
+    }
+    mais_de_duas_pernas: true
+    # o bonus racial é 8, mas como ela pode usar a destreza para escalar, vamos adicionar +3 que com -1 da forca da 10 no final.
+    info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 11 } } } }
+    info_pericias { id: 'esconder' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_talentos { gerais { id: 'acuidade_arma' } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  # Large.
+  id: 'Centopéia Grande'
+  entidade {
+    dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 3 }
+    movimento {
+      escalando_basico_q: 8
+      terrestre_basico_q: 8
+    }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d4' tipo_dano: TDV_DESTREZA dano_secundario: '1d4' tipo_dano_secundario: TDV_DESTREZA cd: 11 }
+      dano_basico: '1d8'
+    }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
+      dano_basico: '1d8'
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d4' tipo_dano: TDV_DESTREZA dano_secundario: '1d4' tipo_dano_secundario: TDV_DESTREZA cd: 11 }
+      dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } } }
+    }
+    mais_de_duas_pernas: true
+    # o bonus racial é 8, mas como ela pode usar a destreza para escalar, vamos adicionar +1 que com +1 da forca da 10 no final.
+    info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 9 } } } }
+    info_pericias { id: 'esconder' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_talentos { gerais { id: 'acuidade_arma' } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
   # Huge.
   id: 'Centopéia Enorme'
   entidade {
-    dados_vida: '6d8+6' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
-    info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
+    dados_vida: '6d8+6' tamanho: TM_ENORME modelo_3d { id: 'centipede' }
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 6 }
+    movimento {
+      escalando_basico_q: 8
+      terrestre_basico_q: 8
+    }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    rotulo_especial: 'movimento: 8 quadrados, escalar 8\nveneno fort 14, 1d6 des/1d6 des'
     dados_ataque {
       rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
@@ -955,6 +1051,9 @@ modelo {
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
     }
+    info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'esconder' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
@@ -967,53 +1066,23 @@ modelo {
 }
 modelo {
   # Huge.
-  id: 'Centopéia Enorme Demoníaca'
+  id: 'Centopéia Enorme Abissal'
+  id_entidade_base: 'Centopéia Enorme'
   entidade {
-    dados_vida: '6d8+6' tamanho: TM_ENORME info_textura { id: 'centipede.png' } modelo_3d { id: 'centipede' }
-    info_classes { id: 'verme' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    rotulo_especial: 'movimento: 8 quadrados, escalar 8\nveneno fort 14, 1d6 des/1d6 des\nDestruir o mal 1/dia 6 dano'
+    tipo_dnd: TIPO_BESTA_MAGICA
+    modelos {
+      id_efeito: EFEITO_MODELO_ABISSAL ativo: true
+      complementos: 11 # RM
+      complementos: 5  # resistencia gelo e fogo.
+      complementos: 10 # reducao de dano.
+    }
+    tendencia { simples: TD_NEUTRO_MAU }
     dados_ataque {
-      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      rotulo: 'mordida com veneno destruir o bem' tipo_ataque: 'Ataque Corpo a Corpo'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
-      alcance_m: 3 dano_basico: '2d6'
+      alcance_m: 3 dano_basico: '2d6+6'
       empunhadura: EA_2_MAOS
-    }
-    dados_ataque {
-      rotulo: 'agarrar' tipo_ataque: 'Agarrar'
-      alcance_m: 3 dano_basico: '1d6'
-      empunhadura: EA_2_MAOS
-    }
-    dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
-      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
-      alcance_m: 3 dano_basico: '2d6'
-      empunhadura: EA_2_MAOS
-      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
-    }
-    dados_defesa {
-      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
-      resistencia_magia_racial: 11
-      resistencia_elementos {
-        descritor: DESC_FRIO
-        valor: 5
-      }
-      resistencia_elementos {
-        descritor: DESC_FOGO
-        valor: 5
-      }
-      reducao_dano {
-        descritores: DESC_MAGICO
-        valor: 10
-      }
-    }
-    atributos {
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      taxa_refrescamento: '14400' # 1 dia
     }
   }
 }

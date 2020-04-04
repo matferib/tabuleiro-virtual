@@ -1327,6 +1327,27 @@ TEST(TesteDependencias, TesteNiveisNegativosDrenarTemporario) {
   EXPECT_EQ(proto.niveis_negativos(), 4);
 }
 
+TEST(TesteDependencias, TesteReducaoDanoModeloAbissal) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Centopéia Enorme Abissal");
+  EntidadeProto proto = modelo.entidade();
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  proto = entidade->Proto();
+
+  EntidadeProto proto_ataque;
+  auto* da = proto_ataque.add_dados_ataque();
+  da->set_id_arma("adaga");
+  da->set_obra_prima(true);
+  RecomputaDependencias(g_tabelas, &proto_ataque);
+
+  ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(resultado.delta_pv, 0) << resultado.texto;
+
+  da->set_bonus_magico(1);
+  RecomputaDependencias(g_tabelas, &proto_ataque);
+  resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
+  EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
+}
+
 TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
@@ -2572,6 +2593,7 @@ TEST(TesteImunidades, TesteAbissal) {
   celestial->set_id_efeito(EFEITO_MODELO_ABISSAL);
   celestial->add_complementos(6);  // RM
   celestial->add_complementos(7);  // frio fogo 
+  celestial->add_complementos(10);  // reducao dano.
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
@@ -2585,6 +2607,9 @@ TEST(TesteImunidades, TesteAbissal) {
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_FOGO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
+  ASSERT_FALSE(proto.dados_defesa().reducao_dano().empty());
+  ASSERT_EQ(proto.dados_defesa().reducao_dano(0).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
+  ASSERT_TRUE(c_any(proto.dados_defesa().reducao_dano(0).descritores(), DESC_MAGICO));
   // De novo pra ver se num ta quebrando nada.
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
@@ -2599,6 +2624,9 @@ TEST(TesteImunidades, TesteAbissal) {
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_FOGO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
+  ASSERT_FALSE(proto.dados_defesa().reducao_dano().empty());
+  ASSERT_EQ(proto.dados_defesa().reducao_dano(0).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
+  ASSERT_TRUE(c_any(proto.dados_defesa().reducao_dano(0).descritores(), DESC_MAGICO));
 }
 
 TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {

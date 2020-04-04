@@ -407,6 +407,11 @@ void Tabelas::RecarregaMapas() {
         re.set_id_efeito_modelo(efeito.id());
       }
     }
+    if (!efeito.consequencia().dados_defesa().reducao_dano().empty()) {
+      for (auto& rd : *efeito.mutable_consequencia()->mutable_dados_defesa()->mutable_reducao_dano()) {
+        rd.set_id_efeito_modelo(efeito.id());
+      }
+    }
     efeitos_modelos_[efeito.id()] = &efeito;
   }
 
