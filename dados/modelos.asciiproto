@@ -1842,7 +1842,6 @@ modelo {
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
     info_textura { id: 'fire.png' }
-    aura_m: 1.5  # 1 quadrado de raio
     cor { r: 1 g: 1 b: 1 a: 1 }
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     pode_ser_afetada_por_acao: false
