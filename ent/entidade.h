@@ -254,6 +254,9 @@ class Entidade {
 
   // Retorna nullptr caso nao haja.
   const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
+  // Retorna o dado corrente com a mao secundaria, se houver. Implica ataque de duas armas.
+  const DadosAtaque* DadoCorrenteSecundario() const;
+  const DadosAtaque* DadoAtaque(const std::string& grupo, int indice_ataque) const;
   const DadosAtaque* DadoAgarrar() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
@@ -283,6 +286,7 @@ class Entidade {
   void AtaqueAnterior() {
     vd_.ataques_na_rodada = std::max(0, vd_.ataques_na_rodada-1); vd_.ultimo_ataque_ms = 0;
   }
+  int IndiceAtaque() const { return vd_.ataques_na_rodada; }
   // A chance de falha ao atacar.
   int ChanceFalhaAtaque() const;
   // A chance de um inimigo falhar um ataque contra esta entidade.

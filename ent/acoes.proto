@@ -95,7 +95,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1; 
 }
 
-// Proximo id: 83.
+// Proximo id: 85.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -298,6 +298,8 @@ message AcaoProto {
   optional ParametrosLancamento parametros_lancamento = 78;
   // Para acoes que tem modelo 3d, indica qual modelo usar.
   optional string modelo_acao = 82;
+  optional string grupo_ataque = 83;
+  optional int32 indice_ataque = 84;
 }
 
 // O arquivo de acoes é serializado desta forma.

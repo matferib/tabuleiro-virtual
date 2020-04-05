@@ -1598,6 +1598,10 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     // Verifica carregamento.
     const auto& da = DadoCorrenteOuPadrao(entidade_origem);
+    if (!da.grupo().empty() && entidade_origem != nullptr) {
+      acao_proto->set_grupo_ataque(da.grupo());
+      acao_proto->set_indice_ataque(entidade_origem->IndiceAtaque());
+    }
     if (da.requer_carregamento() && da.descarregada()) {
       const auto& arma = tabelas_.Arma(da.id_arma());
       std::unique_ptr<ntf::Notificacao> n_carregamento(new ntf::Notificacao);

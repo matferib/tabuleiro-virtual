@@ -232,20 +232,32 @@ void Entidade::DesenhaObjetoEntidadeProto(
       vd.matriz_modelagem, vd.matriz_modelagem_tijolo_base, vd.matriz_modelagem_tijolo_tela, vd.matriz_modelagem_tela_textura, vd.matriz_deslocamento_textura);
 }
 
+bool MaoPrincipal(EmpunhaduraArma empunhadura) {
+  switch (empunhadura) {
+    case EA_MAO_RUIM:
+    case EA_MONSTRO_ATAQUE_SECUNDARIO:
+      return false;
+    default:
+      return true;
+  }
+}
+
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (proto_.tipo() != TE_ENTIDADE) {
     // Apenas entidades tem decoracoes.
     return;
   }
-  if (const DadosAtaque* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true); da != nullptr) {
+  const DadosAtaque* dac = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+  const DadosAtaque* das = DadoCorrenteSecundario();
+  if (dac != nullptr) {
     // TODO desenhar escudo de acordo com empunhadura.
     ParametrosDesenho pd_sem_texturas_de_frente = pd == nullptr ? ParametrosDesenho::default_instance() : *pd;
-    if (da->has_id_arma()) {
-      const auto& arma_tabelada = tabelas_.Arma(da->id_arma());
+    if (dac->has_id_arma()) {
+      const auto& arma_tabelada = tabelas_.Arma(dac->id_arma());
       const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
-      VLOG(3) << "tentando desenhar " << da->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
+      VLOG(3) << "tentando desenhar " << dac->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
       if (modelo != nullptr) {
-        VLOG(3) << "desenhando " << da->id_arma();
+        VLOG(3) << "desenhando " << dac->id_arma();
         const auto posicao = PosicaoAcaoSemTransformacoes();
         gl::MatrizEscopo salva_matriz;
         pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
@@ -255,7 +267,23 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         modelo->vbos_gravados.Desenha();
       }
     }
-    if (da->empunhadura() == EA_ARMA_ESCUDO) {
+    // O da se refere ao primeiro ataque, caso a empunhadura seja MAO_BOA, implica 2 armas, desenha a secundaria tb.
+    if (das != nullptr) {
+      // Busca a segunda arma.
+      const auto& arma_tabelada = tabelas_.Arma(das->id_arma());
+      const auto* modelo = vd_.m3d->Modelo(arma_tabelada.modelo_3d());
+      VLOG(3) << "tentando desenhar " << das->id_arma() << " usando modelo " << arma_tabelada.modelo_3d();
+      if (modelo != nullptr) {
+        VLOG(3) << "desenhando " << das->id_arma();
+        const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
+        gl::MatrizEscopo salva_matriz;
+        pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
+        gl::Translada(posicao.x(), posicao.y(), posicao.z());
+        gl::MultiplicaMatriz(vd_.matriz_acao_secundaria.get());
+        modelo->vbos_gravados.Desenha();
+      }
+    } else if (dac->empunhadura() == EA_ARMA_ESCUDO) {
       const auto* modelo = vd_.m3d->Modelo("shield");
       if (modelo != nullptr) {
         const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();

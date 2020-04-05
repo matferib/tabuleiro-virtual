@@ -1786,6 +1786,19 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
+const DadosAtaque* Entidade::DadoAtaque(const std::string& grupo, int indice_ataque) const {
+  std::vector<const DadosAtaque*> ataques_casados;
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.grupo() == grupo) {
+      ataques_casados.push_back(&da);
+    }
+  }
+  if (ataques_casados.empty() || indice_ataque < 0 || indice_ataque >= (int)ataques_casados.size()) {
+    return nullptr;
+  }
+  return ataques_casados[indice_ataque];
+}
+
 const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
@@ -1813,6 +1826,18 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
       << ", grupo: " << ataques_casados[ataques_na_rodada]->grupo();
   VLOG(4) << "Ataque retornado: " << ataques_casados[ataques_na_rodada]->DebugString();
   return ataques_casados[ataques_na_rodada];
+}
+
+const DadosAtaque* Entidade::DadoCorrenteSecundario() const {
+  const DadosAtaque* dac = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+  if (dac == nullptr) return nullptr;
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.grupo() == dac->grupo() && da.empunhadura() == EA_MAO_RUIM) {
+      VLOG(3) << "Encontrei ataque secundario para " << da.tipo_ataque() << ", grupo: " << da.grupo();
+      return &da;
+    }
+  }
+  return nullptr;
 }
 
 const DadosAtaque* Entidade::DadoAgarrar() const {
