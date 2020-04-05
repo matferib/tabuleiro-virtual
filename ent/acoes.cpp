@@ -922,6 +922,14 @@ class AcaoCorpoCorpo : public Acao {
       finalizado_ = true;
       return;
     }
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    const DadosAtaque* da = eo != nullptr && acao_proto_.has_grupo_ataque() && acao_proto_.has_indice_ataque()
+        ? eo->DadoAtaque(acao_proto_.grupo_ataque(), acao_proto_.indice_ataque())
+        : eo->DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+    if (da != nullptr) {
+      dados_ataque_ = *da;
+    }
+
     AtualizaDeltas();
     finalizado_ = false;
   }
@@ -931,11 +939,14 @@ class AcaoCorpoCorpo : public Acao {
     if (eo == nullptr) {
       return;
     }
-    const DadosAtaque* da = eo->DadoCorrente(/*ignora_ataques_na_rodada=*/true);
-    if (da != nullptr && da->has_id_arma()) {
+    if (dados_ataque_.has_id_arma()) {
       Matrix4 matriz;
       matriz.rotateY(rotacao_graus_);
-      eo->AtualizaMatrizAcaoPrincipal(matriz);
+      if (dados_ataque_.empunhadura() != EA_MAO_RUIM) {
+        eo->AtualizaMatrizAcaoPrincipal(matriz);
+      } else {
+        eo->AtualizaMatrizAcaoSecundaria(matriz);
+      }
     } else {
       const Posicao& pos_o = eo->PosicaoAcao();
       MudaCorProto(acao_proto_.cor());
@@ -972,7 +983,11 @@ class AcaoCorpoCorpo : public Acao {
     if (rotacao_graus_ >= 180.0f && terminou_alvo) {
       VLOG(1) << "Finalizando corpo a corpo";
       finalizado_ = true;
-      eo->AtualizaMatrizAcaoPrincipal(Matrix4());
+      if (dados_ataque_.empunhadura() != EA_MAO_RUIM) {
+        eo->AtualizaMatrizAcaoPrincipal(Matrix4());
+      } else {
+        eo->AtualizaMatrizAcaoSecundaria(Matrix4());
+      }
     }
   }
 
@@ -1014,6 +1029,7 @@ class AcaoCorpoCorpo : public Acao {
   float direcao_graus_;
   float rotacao_graus_;
   bool finalizado_;
+  DadosAtaque dados_ataque_;
   constexpr static int DURACAO_MS = 180;
 };
 
