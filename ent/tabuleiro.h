@@ -87,11 +87,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Uma cor personalizada foi escolhida. */
   void SelecionaCorPersonalizada(float r, float g, float b, float a);
 
-  /** adiciona a entidade ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
+  /** adiciona entidades ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
   * for local.
   * @throw logic_error se o limite de entidades for alcançado.
   */
-  void AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao);
+  void AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao);
 
   /** Trata a remocao de entidades do tabuleiro, pelo id da entidade passada ou a selecionada se nao houver
   * id de entidade. Se a notificacao for local, envia notificacao aos clientes.

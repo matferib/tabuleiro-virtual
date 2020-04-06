@@ -1048,7 +1048,7 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
   central_->AdicionaNotificacaoRemota(n.release());
 }
 
-void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
+void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
       VLOG(1) << "buscando referencia para criacao de entidade";
@@ -2040,7 +2040,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ADICIONAR_ENTIDADE:
-      AdicionaEntidadeNotificando(notificacao);
+      AdicionaEntidadesNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
       std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_, central_));
