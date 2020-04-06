@@ -2837,6 +2837,7 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(alvo_proto, g_tabelas));
   ASSERT_TRUE(alvo->TemLuz());
   {
+    ASSERT_GT(proto.dados_ataque().size(), 2);
     auto acao = proto.dados_ataque(2).acao();
     ntf::Notificacao n;
     PreencheNotificacaoReducaoLuzComConsequencia(NivelConjuradorParaAcao(acao, *entidade), *alvo, &acao, &n, nullptr);
@@ -2844,6 +2845,14 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
     EXPECT_FLOAT_EQ(alvo->Proto().luz().raio_m(), 12 * 0.4);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
     EXPECT_FLOAT_EQ(acao.reducao_luz(), 0.4f);
+  }
+  {
+    // Ataque de morte.
+    ASSERT_GT(proto.dados_ataque().size(), 5);
+    const auto& da = proto.dados_ataque(5);
+    EXPECT_TRUE(da.ataque_toque()) << da.DebugString();
+    EXPECT_FALSE(da.acao().efeitos_adicionais().empty());
+    EXPECT_EQ(da.acao().efeitos_adicionais(0).efeito(), EFEITO_MORTE);
   }
 }
 
@@ -3327,6 +3336,28 @@ TEST(TesteTesouro, TesteTransicao) {
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 400);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 4000);
   }
+}
+
+TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
+  EntidadeProto proto;
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Ataque Corpo a Corpo");
+    da->set_ataque_toque(true);
+    da->set_ataque_agarrar(true);
+    da->set_grupo("teste");
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  DadosAtaque* dat = nullptr;
+  for (auto& da : *proto.mutable_dados_ataque()) {
+    if (da.grupo() == "teste") {
+      dat = &da;
+      break;
+    }
+  }
+  ASSERT_NE(dat, nullptr);
+  EXPECT_FALSE(dat->ataque_agarrar()); 
+  EXPECT_FALSE(dat->ataque_toque()); 
 }
 
 }  // namespace ent.

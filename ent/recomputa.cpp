@@ -1655,6 +1655,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
   CombinaEfeitos(da->mutable_acao());
 
+  // Aqui temos a acao finalizada. Agora passa tudo pro da.
   const AcaoProto& acao = da->acao();
   if (acao.has_ignora_reflexos()) {
     da->set_ignora_reflexos(acao.ignora_reflexos());
@@ -1819,7 +1820,17 @@ void RecomputaDependenciasBesta(const DadosAtaque& da, Bonus* bonus_ataque) {
   AtribuiOuRemoveBonus(-penalidade, TB_SEM_NOME, kBestaUmaMao, bonus_ataque);
 }
 
+void ResetDadosAtaque(DadosAtaque* da) {
+  da->clear_ataque_agarrar();
+  da->clear_ataque_toque();
+  da->clear_ataque_distancia();
+  da->clear_ataque_arremesso();
+  da->clear_ataque_corpo_a_corpo();
+  da->clear_nao_letal();
+}
+
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
+  ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
 
   // Passa alguns campos da acao para o ataque.
