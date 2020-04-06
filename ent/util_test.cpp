@@ -2700,6 +2700,20 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, CamposResetadosNaoSetados) {
+  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    const auto& e = modelo.entidade();
+    for (const auto& da : e.dados_ataque()) {
+      ASSERT_FALSE(da.has_ataque_agarrar()) << " modelo: " << modelo.id();
+      ASSERT_FALSE(da.has_ataque_toque()) << " modelo: " << modelo.id();
+      ASSERT_FALSE(da.has_ataque_distancia()) << " modelo: " << modelo.id();
+      ASSERT_FALSE(da.has_ataque_arremesso()) << " modelo: " << modelo.id();
+      ASSERT_FALSE(da.has_ataque_corpo_a_corpo()) << " modelo: " << modelo.id();
+      ASSERT_FALSE(da.has_nao_letal()) << " modelo: " << modelo.id();
+    }
+  }
+}
+
 TEST(TesteModelo, TesteVrock) {
   const auto& modelo = g_tabelas.ModeloEntidade("Demônio Vrock");
   EntidadeProto proto = modelo.entidade();
@@ -3356,8 +3370,8 @@ TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
     }
   }
   ASSERT_NE(dat, nullptr);
-  EXPECT_FALSE(dat->ataque_agarrar()); 
-  EXPECT_FALSE(dat->ataque_toque()); 
+  EXPECT_FALSE(dat->ataque_agarrar());
+  EXPECT_FALSE(dat->ataque_toque());
 }
 
 }  // namespace ent.
