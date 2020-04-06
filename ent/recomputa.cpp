@@ -1821,6 +1821,7 @@ void RecomputaDependenciasBesta(const DadosAtaque& da, Bonus* bonus_ataque) {
 }
 
 void ResetDadosAtaque(DadosAtaque* da) {
+  // Ao alterar aqui, altere o teste CamposResetadosNaoSetados em utils_test.cpp.
   da->clear_ataque_agarrar();
   da->clear_ataque_toque();
   da->clear_ataque_distancia();
