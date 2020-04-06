@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1403</width>
-    <height>771</height>
+    <height>809</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -340,7 +340,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_24">
             <item>
-             <widget class="QGroupBox" name="">
+             <widget class="QGroupBox" name="groupBox">
               <property name="title">
                <string>Cor</string>
               </property>
@@ -421,7 +421,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QGroupBox" name="">
+           <widget class="QGroupBox" name="groupBox">
             <property name="title">
              <string>Textura</string>
             </property>
@@ -1173,6 +1173,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_amuleto">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1234,6 +1241,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_manto">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1278,6 +1292,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_pergaminho_arcano">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1318,6 +1339,13 @@
              <widget class="QPushButton" name="botao_remover_luvas">
               <property name="text">
                <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_luvas">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>
@@ -1455,6 +1483,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_botas">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1492,6 +1527,13 @@
              <widget class="QPushButton" name="botao_remover_bracadeiras">
               <property name="text">
                <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_bracadeiras">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>
@@ -1535,6 +1577,13 @@
              <widget class="QPushButton" name="botao_remover_anel">
               <property name="text">
                <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_anel">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>
@@ -1594,6 +1643,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_pocao">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1635,6 +1691,13 @@
              <widget class="QPushButton" name="botao_ordenar_pergaminhos_divinos">
               <property name="text">
                <string>Ordenar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_pergaminho_divino">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>
@@ -1691,6 +1754,13 @@
              <widget class="QPushButton" name="botao_remover_chapeu">
               <property name="text">
                <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_chapeu">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>

@@ -504,6 +504,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_ESQUIVA,      // Usado para escolher a entidade de esquiva.
     MODO_REMOCAO_DE_GRUPO,  // usado para remover entidades de grupos.
     MODO_MONTAR,            // usado para montar entidades em outras.
+    MODO_DOACAO,            // usado para doar itens de um personagem para outro.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -1424,6 +1425,7 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<Entidade*> entidades_ordenadas_;
 
   ntf::Notificacao notificacao_selecao_transicao_;
+  ntf::Notificacao notificacao_doacao_;
 
   // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
   struct LuzPontual {

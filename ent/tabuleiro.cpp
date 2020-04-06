@@ -1960,6 +1960,15 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       notificacao_selecao_transicao_ = notificacao;
       return true;
     }
+    case ntf::TN_ENTRAR_MODO_DOACAO: {
+      const Entidade* e = BuscaEntidade(notificacao.entidade().id());
+      if (e == nullptr) {
+        return true;
+      }
+      notificacao_doacao_ = notificacao;
+      EntraModoClique(MODO_DOACAO);
+      return true;
+    }
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
       opcoes_.set_ultimo_endereco(notificacao.endereco());

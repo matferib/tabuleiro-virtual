@@ -165,6 +165,7 @@ public:
     QPushButton *botao_usar_amuleto;
     QPushButton *botao_adicionar_amuleto;
     QPushButton *botao_remover_amuleto;
+    QPushButton *botao_doar_amuleto;
     QGroupBox *groupBox_20;
     QHBoxLayout *horizontalLayout_65;
     QListWidget *lista_mantos;
@@ -172,6 +173,7 @@ public:
     QPushButton *botao_usar_manto;
     QPushButton *botao_adicionar_manto;
     QPushButton *botao_remover_manto;
+    QPushButton *botao_doar_manto;
     QGroupBox *groupBox_15;
     QHBoxLayout *horizontalLayout_60;
     QListWidget *lista_pergaminhos_arcanos;
@@ -180,6 +182,7 @@ public:
     QPushButton *botao_duplicar_pergaminho_arcano;
     QPushButton *botao_remover_pergaminho_arcano;
     QPushButton *botao_ordenar_pergaminhos_arcanos;
+    QPushButton *botao_doar_pergaminho_arcano;
     QGroupBox *groupBox_18;
     QHBoxLayout *horizontalLayout_63;
     QListWidget *lista_luvas;
@@ -187,6 +190,7 @@ public:
     QPushButton *botao_usar_luvas;
     QPushButton *botao_adicionar_luvas;
     QPushButton *botao_remover_luvas;
+    QPushButton *botao_doar_luvas;
     QGroupBox *groupBox_11;
     QVBoxLayout *verticalLayout_21;
     QHBoxLayout *horizontalLayout_53;
@@ -211,6 +215,7 @@ public:
     QPushButton *botao_usar_botas;
     QPushButton *botao_adicionar_botas;
     QPushButton *botao_remover_botas;
+    QPushButton *botao_doar_botas;
     QGroupBox *groupBox_22;
     QHBoxLayout *horizontalLayout_67;
     QListWidget *lista_bracadeiras;
@@ -218,6 +223,7 @@ public:
     QPushButton *botao_usar_bracadeiras;
     QPushButton *botao_adicionar_bracadeiras;
     QPushButton *botao_remover_bracadeiras;
+    QPushButton *botao_doar_bracadeiras;
     QGroupBox *groupBox_17;
     QHBoxLayout *horizontalLayout_62;
     QListWidget *lista_aneis;
@@ -225,6 +231,7 @@ public:
     QPushButton *botao_usar_anel;
     QPushButton *botao_adicionar_anel;
     QPushButton *botao_remover_anel;
+    QPushButton *botao_doar_anel;
     QGroupBox *groupBox_14;
     QHBoxLayout *horizontalLayout_59;
     QListWidget *lista_pocoes;
@@ -233,6 +240,7 @@ public:
     QPushButton *botao_duplicar_pocao;
     QPushButton *botao_remover_pocao;
     QPushButton *botao_ordenar_pocoes;
+    QPushButton *botao_doar_pocao;
     QGroupBox *groupBox_16;
     QHBoxLayout *horizontalLayout_61;
     QListWidget *lista_pergaminhos_divinos;
@@ -241,6 +249,7 @@ public:
     QPushButton *botao_duplicar_pergaminho_divino;
     QPushButton *botao_remover_pergaminho_divino;
     QPushButton *botao_ordenar_pergaminhos_divinos;
+    QPushButton *botao_doar_pergaminho_divino;
     QGroupBox *groupBox_21;
     QHBoxLayout *horizontalLayout_66;
     QPlainTextEdit *lista_tesouro;
@@ -251,12 +260,13 @@ public:
     QPushButton *botao_vestir_chapeu;
     QPushButton *botao_adicionar_chapeu;
     QPushButton *botao_remover_chapeu;
+    QPushButton *botao_doar_chapeu;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QStringLiteral("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(1403, 771);
+        ifg__qt__DialogoForma->resize(1403, 809);
         gridLayout_2 = new QGridLayout(ifg__qt__DialogoForma);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
@@ -971,6 +981,11 @@ public:
 
         verticalLayout_19->addWidget(botao_remover_amuleto);
 
+        botao_doar_amuleto = new QPushButton(groupBox_13);
+        botao_doar_amuleto->setObjectName(QStringLiteral("botao_doar_amuleto"));
+
+        verticalLayout_19->addWidget(botao_doar_amuleto);
+
 
         horizontalLayout_58->addLayout(verticalLayout_19);
 
@@ -1010,6 +1025,11 @@ public:
 
         verticalLayout_9->addWidget(botao_remover_manto);
 
+        botao_doar_manto = new QPushButton(groupBox_20);
+        botao_doar_manto->setObjectName(QStringLiteral("botao_doar_manto"));
+
+        verticalLayout_9->addWidget(botao_doar_manto);
+
 
         horizontalLayout_65->addLayout(verticalLayout_9);
 
@@ -1047,6 +1067,11 @@ public:
 
         verticalLayout_23->addWidget(botao_ordenar_pergaminhos_arcanos);
 
+        botao_doar_pergaminho_arcano = new QPushButton(groupBox_15);
+        botao_doar_pergaminho_arcano->setObjectName(QStringLiteral("botao_doar_pergaminho_arcano"));
+
+        verticalLayout_23->addWidget(botao_doar_pergaminho_arcano);
+
 
         horizontalLayout_60->addLayout(verticalLayout_23);
 
@@ -1079,6 +1104,11 @@ public:
         botao_remover_luvas->setObjectName(QStringLiteral("botao_remover_luvas"));
 
         verticalLayout_8->addWidget(botao_remover_luvas);
+
+        botao_doar_luvas = new QPushButton(groupBox_18);
+        botao_doar_luvas->setObjectName(QStringLiteral("botao_doar_luvas"));
+
+        verticalLayout_8->addWidget(botao_doar_luvas);
 
 
         horizontalLayout_63->addLayout(verticalLayout_8);
@@ -1200,6 +1230,11 @@ public:
 
         verticalLayout_22->addWidget(botao_remover_botas);
 
+        botao_doar_botas = new QPushButton(groupBox_12);
+        botao_doar_botas->setObjectName(QStringLiteral("botao_doar_botas"));
+
+        verticalLayout_22->addWidget(botao_doar_botas);
+
 
         horizontalLayout_44->addLayout(verticalLayout_22);
 
@@ -1231,6 +1266,11 @@ public:
         botao_remover_bracadeiras->setObjectName(QStringLiteral("botao_remover_bracadeiras"));
 
         verticalLayout_7->addWidget(botao_remover_bracadeiras);
+
+        botao_doar_bracadeiras = new QPushButton(groupBox_22);
+        botao_doar_bracadeiras->setObjectName(QStringLiteral("botao_doar_bracadeiras"));
+
+        verticalLayout_7->addWidget(botao_doar_bracadeiras);
 
 
         horizontalLayout_67->addLayout(verticalLayout_7);
@@ -1264,6 +1304,11 @@ public:
         botao_remover_anel->setObjectName(QStringLiteral("botao_remover_anel"));
 
         verticalLayout_10->addWidget(botao_remover_anel);
+
+        botao_doar_anel = new QPushButton(groupBox_17);
+        botao_doar_anel->setObjectName(QStringLiteral("botao_doar_anel"));
+
+        verticalLayout_10->addWidget(botao_doar_anel);
 
 
         horizontalLayout_62->addLayout(verticalLayout_10);
@@ -1306,6 +1351,11 @@ public:
 
         verticalLayout_6->addWidget(botao_ordenar_pocoes);
 
+        botao_doar_pocao = new QPushButton(groupBox_14);
+        botao_doar_pocao->setObjectName(QStringLiteral("botao_doar_pocao"));
+
+        verticalLayout_6->addWidget(botao_doar_pocao);
+
 
         horizontalLayout_59->addLayout(verticalLayout_6);
 
@@ -1342,6 +1392,11 @@ public:
         botao_ordenar_pergaminhos_divinos->setObjectName(QStringLiteral("botao_ordenar_pergaminhos_divinos"));
 
         verticalLayout_24->addWidget(botao_ordenar_pergaminhos_divinos);
+
+        botao_doar_pergaminho_divino = new QPushButton(groupBox_16);
+        botao_doar_pergaminho_divino->setObjectName(QStringLiteral("botao_doar_pergaminho_divino"));
+
+        verticalLayout_24->addWidget(botao_doar_pergaminho_divino);
 
 
         horizontalLayout_61->addLayout(verticalLayout_24);
@@ -1387,6 +1442,11 @@ public:
         botao_remover_chapeu->setObjectName(QStringLiteral("botao_remover_chapeu"));
 
         verticalLayout_20->addWidget(botao_remover_chapeu);
+
+        botao_doar_chapeu = new QPushButton(groupBox_19);
+        botao_doar_chapeu->setObjectName(QStringLiteral("botao_doar_chapeu"));
+
+        verticalLayout_20->addWidget(botao_doar_chapeu);
 
 
         horizontalLayout_64->addLayout(verticalLayout_20);
@@ -1623,6 +1683,7 @@ public:
         botao_usar_amuleto->setText(QString());
         botao_adicionar_amuleto->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_amuleto->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_amuleto->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_20->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Mantos", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_usar_manto->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Usar/retirar anel", nullptr));
@@ -1630,11 +1691,13 @@ public:
         botao_usar_manto->setText(QString());
         botao_adicionar_manto->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_manto->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_manto->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_15->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Pergaminhos Arcanos", nullptr));
         botao_adicionar_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_duplicar_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
         botao_ordenar_pergaminhos_arcanos->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
+        botao_doar_pergaminho_arcano->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_18->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Luvas e Manoplas", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_usar_luvas->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Usar/retirar anel", nullptr));
@@ -1642,6 +1705,7 @@ public:
         botao_usar_luvas->setText(QString());
         botao_adicionar_luvas->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_luvas->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_luvas->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_11->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Moedas", nullptr));
         label_107->setText(QApplication::translate("ifg::qt::DialogoForma", "Ouro", nullptr));
         label_108->setText(QApplication::translate("ifg::qt::DialogoForma", "Prata", nullptr));
@@ -1652,6 +1716,7 @@ public:
         botao_usar_botas->setText(QString());
         botao_adicionar_botas->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_botas->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_botas->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_22->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Bra\303\247adeiras", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_usar_bracadeiras->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Usar/retirar anel", nullptr));
@@ -1659,6 +1724,7 @@ public:
         botao_usar_bracadeiras->setText(QString());
         botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_17->setTitle(QApplication::translate("ifg::qt::DialogoForma", "An\303\251is", nullptr));
 #ifndef QT_NO_TOOLTIP
         botao_usar_anel->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Usar/retirar anel", nullptr));
@@ -1666,16 +1732,19 @@ public:
         botao_usar_anel->setText(QString());
         botao_adicionar_anel->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_anel->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_anel->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_14->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Po\303\247\303\265es", nullptr));
         botao_adicionar_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_duplicar_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
         botao_ordenar_pocoes->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
+        botao_doar_pocao->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_16->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Pergaminhos Divinos", nullptr));
         botao_adicionar_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_duplicar_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "Duplicar", nullptr));
         botao_remover_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
         botao_ordenar_pergaminhos_divinos->setText(QApplication::translate("ifg::qt::DialogoForma", "Ordenar", nullptr));
+        botao_doar_pergaminho_divino->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         groupBox_21->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Outros", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
@@ -1684,6 +1753,7 @@ public:
         botao_vestir_chapeu->setText(QString());
         botao_adicionar_chapeu->setText(QApplication::translate("ifg::qt::DialogoForma", "+", nullptr));
         botao_remover_chapeu->setText(QApplication::translate("ifg::qt::DialogoForma", "-", nullptr));
+        botao_doar_chapeu->setText(QApplication::translate("ifg::qt::DialogoForma", "Doar", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("ifg::qt::DialogoForma", "Tesouro", nullptr));
     } // retranslateUi
 
