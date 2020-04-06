@@ -1377,9 +1377,9 @@ modelo {
       incrementos: 3  # maximo 6 qudrados.
       dano_basico: '0'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      ataque_toque: true
       acao_fixa {
         icone: 'icon_web.png'
+        ataque_toque: true
         efeitos_adicionais {
           efeito: EFEITO_ENREDADO
         }

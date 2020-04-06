@@ -1078,8 +1078,9 @@ modelo {
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo'
       rotulo: 'toque morte 1/dia' grupo: 'dominio' empunhadura: EA_ARMA_ESCUDO
-      ataque_toque: true limite_vezes: 1
+      limite_vezes: 1
       acao_fixa {
+        ataque_toque: true
         tipo: ACAO_FEITICO_TOQUE
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
         dado_pv_mais_alto: '5d6'
