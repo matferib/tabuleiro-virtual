@@ -2575,7 +2575,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         ntf::Notificacao grupo_notificacoes;
         grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
         PreencheNotificacoesDoacaoParcialTesouro(
-            tabelas_, notificacao_doacao_.entidade(), *receptor, &grupo_notificacoes, &grupo_notificacoes);
+            tabelas_, notificacao_doacao_.entidade_antes(), notificacao_doacao_.entidade(), *receptor, &grupo_notificacoes, &grupo_notificacoes);
         TrataNotificacao(grupo_notificacoes);
         AdicionaNotificacaoListaEventos(grupo_notificacoes);
         break;

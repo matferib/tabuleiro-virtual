@@ -357,8 +357,8 @@ void PreencheNotificacoesTransicaoTesouro(
 
 // Botao de doacao: apenas alguns tesouros.
 void PreencheNotificacoesDoacaoParcialTesouro(
-    const Tabelas& tabelas, const EntidadeProto& tesouro_doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
-
+    const Tabelas& tabelas, const EntidadeProto& proto_doador_antes, const EntidadeProto& proto_doador_depois, const Entidade& receptor,
+    ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
 void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
