@@ -4122,6 +4122,7 @@ RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
     case TipoItem::TIPO_BRACADEIRAS: return proto->mutable_tesouro()->mutable_bracadeiras();
+    case TipoItem::TIPO_POCAO: return proto->mutable_tesouro()->mutable_pocoes();
     case TipoItem::TIPO_AMULETO: return proto->mutable_tesouro()->mutable_amuletos();
     case TipoItem::TIPO_BOTAS: return proto->mutable_tesouro()->mutable_botas();
     case TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
