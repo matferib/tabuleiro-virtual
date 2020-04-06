@@ -1,9 +1,8 @@
-Implementar produce flame de druida (magia de 1o nivel ducaralho).
-Esfera flamejante: criando duas ao mesmo tempo ao lancar feitico. Nao consegui reproduzir
-Aterrorizar parece que nao ta funcionando.
-Criar criatura ja com iniciativa?
+Criar criatura ja com iniciativa? Melhor nao, tem varios casos que nao queremos iniciativa.
 Botao que permite passar item de um PC para outro.
-Ordenar pocoes.
+Aterrorizar parece que nao ta funcionando em vultos? verificar.
+Implementar UI: checkbox ataque agarrar e de toque.
+Implementar produce flame de druida (magia de 1o nivel ducaralho).
 Aliados extra planares (da magia de conjuracao). Especialmente arconte maior.
 Implementar efeitos:
   - imunidade a magia (mais de 1 feitico), imunidade maior (fazer) e elucubracao (fazer).
