@@ -106,6 +106,25 @@ TEST(TesteItemMagico, TesteItemMagicoParalisia) {
   EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
 
+TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(12, TA_DESTREZA, &proto);
+  {
+    auto* luvas = proto.mutable_tesouro()->add_luvas();
+    luvas->set_id("luvas_destreza_2");
+    luvas->set_em_uso(true);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
+  {
+    auto* luvas = proto.mutable_tesouro()->mutable_luvas(0);
+    luvas->set_id("luvas_destreza_2");
+    luvas->set_em_uso(false);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
+}
+
 TEST(TesteArmas, TestePedrada) {
   EntidadeProto proto;
   auto* da = proto.add_dados_ataque();
@@ -3402,9 +3421,8 @@ TEST(TesteTesouro, TesteDoacao) {
     EXPECT_TRUE(doador->Proto().evento().empty());
     EXPECT_TRUE(doador->Proto().tesouro().aneis().empty());
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
-    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 40);
-    EXPECT_EQ(doador->Proto().tesouro().moedas().pe(), 400);
-    EXPECT_EQ(doador->Proto().tesouro().moedas().pl(), 4000);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
 
     receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
     EXPECT_EQ(receptor->Proto().evento().size(), 1);
@@ -3413,18 +3431,15 @@ TEST(TesteTesouro, TesteDoacao) {
     EXPECT_FALSE(receptor->Proto().tesouro().aneis(1).em_uso());
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 7);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
-    EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 400);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 400);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 4000);
   }
-  if (0) {
+  {
     // Aplica desfazer.
     doador->AtualizaParcial(n_grupo.notificacao(0).entidade_antes());
     EXPECT_EQ(doador->Proto().evento().size(), 1);
     EXPECT_FALSE(doador->Proto().tesouro().aneis().empty());
     EXPECT_TRUE(doador->Proto().tesouro().aneis(0).em_uso());
-    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
-    EXPECT_FALSE(doador->Proto().tesouro().armas().empty());
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 3);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
@@ -3435,8 +3450,6 @@ TEST(TesteTesouro, TesteDoacao) {
     EXPECT_EQ(receptor->Proto().evento().size(), 1);
     ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 1);
     EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
-    EXPECT_TRUE(receptor->Proto().tesouro().armaduras().empty());
-    EXPECT_TRUE(receptor->Proto().tesouro().armas().empty());
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 4);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 0);
