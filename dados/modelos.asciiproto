@@ -2331,7 +2331,7 @@ modelo {
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_leves' }
-      tesouro: '100 PO'
+      moedas { po: 100 }
     }
     modificador_iniciativa: 0
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
@@ -2486,7 +2486,8 @@ modelo {
     rotulo_especial: ''
     tesouro {
       # 1d100 po
-      tesouro: '50 PO\nespada longa OP, besta leve OP'
+      tesouro: 'espada longa OP, besta leve OP'
+      moedas { po: 50 }
       pocoes { id: 'forca_touro' }
       pocoes { id: 'agilidade_gato' }
       pocoes { id: 'curar_ferimentos_leves' }
@@ -2940,7 +2941,8 @@ modelo {
     info_pericias { id: 'oficios' pontos: 3 }
     tesouro {
       # O tesouro seria 150 PO, mas isso inclui todos os bens do cidadao. O que ele carrega é isso.
-      tesouro: '1d10 PP, joia de 1d20 PP'
+      tesouro: 'joia de 1d20 PP'
+      moedas { pp: 5 }  # 1d10 PP
     }
     atributos {
       # Usa o array padrao. Faltou 13 e 8.
@@ -3018,7 +3020,10 @@ modelo {
     cor { r: 0.9 g: 0.9 b: 0.8 }
     dados_vida: '2d4+5'
     # O tesouro seria 300 PO, mas isso inclui todos os bens do cidadao. O que ele carrega é isso.
-    tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+    tesouro {
+      tesouro: 'joia de 2d20 PP'
+      moedas { po: 10 }  # 2d10 pp
+    }
     # pericias: 6.
     info_pericias { id: 'sobrevivencia' pontos: 2 }
     info_pericias { id: 'oficios' pontos: 2 }
@@ -3176,7 +3181,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'santuario' }
       pocoes { id: 'escudo_fe_2' }
-      tesouro: '30 PO'
+      moedas { po: 30 }
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
@@ -3211,7 +3216,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'santuario' }
       pocoes { id: 'escudo_fe_2' }
-      tesouro: '30 PO'
+      moedas { po: 30 }
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
@@ -3245,7 +3250,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'santuario' }
       pocoes { id: 'escudo_fe_2' }
-      tesouro: '30 PO'
+      moedas { po: 30 }
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
@@ -3272,7 +3277,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'santuario' }
       pocoes { id: 'escudo_fe_2' }
-      tesouro: '30 PO'
+      moedas { po: 30 }
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
@@ -3316,7 +3321,7 @@ modelo {
       pocoes { id: 'protecao_contra_mal' }
       pocoes { id: 'protecao_contra_caos' }
       pocoes { id: 'escudo_fe_2' }
-      tesouro: '150 PO'
+      moedas { po: 150 }
     }
   }
 }
@@ -3349,7 +3354,8 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       aneis { id: 'protecao_1' em_uso: true }
       amuletos { id: 'periapto_sabedoria_2' em_uso: true }
-      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+      tesouro: 'simbolo sagrado\n6tochas'
+      moedas { po: 10 }
     }
 
     feiticos_classes {
@@ -3425,7 +3431,8 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       aneis { id: 'protecao_1' em_uso: true }
       amuletos { id: 'periapto_sabedoria_2' em_uso: true }
-      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+      tesouro: 'simbolo sagrado\n6tochas'
+      moedas { po: 10 }
     }
     feiticos_classes {
       id_classe: 'clerigo'
@@ -3667,7 +3674,18 @@ modelo {
     dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'madeira_pesado' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
-    tesouro { tesouro: '25 PO, 5 pergaminhos de curar ferimentos leves, 4 pergaminhos de pedra magica' }
+    tesouro {
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      moedas { po: 25 }
+    }
     # feiticos: 3/2
     # TODO talentos e usar tesouro.
   }
@@ -3687,7 +3705,29 @@ modelo {
     tesouro {
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'ajuda' }
-      tesouro: '50 PO\npena de quaal, árvore, 10 pergaminhos de curar ferimentos leves, 10 pergaminhos de pedra mágica\n2 pergaminhos santuário'
+      tesouro: 'pena de quaal, árvore'
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'santuario' }
+      moedas { po: 50 }
     }
     feiticos_classes {
       id_classe: 'druida'
@@ -3785,7 +3825,7 @@ modelo {
 
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
       mantos { id: 'manto_resistencia_1' em_uso: true }
-      tesouro: '10 PO'
+      moedas { po: 10 }
     }
 
     feiticos_classes {
@@ -4043,7 +4083,8 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'neutralizar_venenos' }
-      tesouro: '10 PO\nferramenta de ladino OP'
+      tesouro: 'ferramenta de ladino OP'
+      moedas { po: 10 }
     }
 
     # Humano tem mais pontos.
@@ -4162,7 +4203,7 @@ modelo {
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'protecao_contra_mal' }
       pergaminhos_arcanos { id: 'curar_ferimentos_moderados' }
-      tesouro: '10 PO'
+      moedas { po: 10 }
     }
     feiticos_classes {
       id_classe: 'bardo'
@@ -4257,7 +4298,7 @@ modelo {
       pocoes { id: 'escudo_fe_3' }
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'protecao_contra_mal' }
-      tesouro: '10 PO'
+      moedas { po: 10 }
     }
     feiticos_classes {
       id_classe: 'bardo'
@@ -4350,7 +4391,8 @@ modelo {
       pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
 
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
-      tesouro: '10 PO\nbesta obra prima'
+      tesouro: 'besta obra prima'
+      moedas { po: 10 }
     }
 
     feiticos_classes {
@@ -4470,7 +4512,8 @@ modelo {
       pergaminhos_arcanos { id: 'reflexos' }
       pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
 
-      tesouro: '10 PO\nbesta obra prima'
+      tesouro: 'besta obra prima'
+      moedas { po: 10 }
     }
 
     feiticos_classes {
@@ -4602,7 +4645,8 @@ modelo {
       # Porem, para o mago, ele sai pelo preco do livro apenas 15.
       # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
       # Total aqui: 11 magias + todas de 0 nivel.
-      tesouro: '10 PO\nbesta obra prima\ngrimório com 23 páginas escritas (valor cheio 2300 PO)'
+      tesouro: 'besta obra prima\ngrimório com 23 páginas escritas (valor cheio 2300 PO)'
+      moedas { po: 10 }
     }
 
     feiticos_classes {
@@ -4725,7 +4769,8 @@ modelo {
       # Porem, para o mago, ele sai pelo preco do livro apenas 15 PO.
       # O mago comeca com todas de 0 nivel + 3 de primeiro + bonus inteligencia (2). Depois ganha 2 por nivel.
       # Total aqui: 13 magias + todas de 0 nivel.
-      tesouro: '10 PO\nbesta obra prima\ngrimório com 29 páginas escritas (valor cheio 2900 PO)'
+      tesouro: 'besta obra prima\ngrimório com 29 páginas escritas (valor cheio 2900 PO)'
+      moedas { po: 10 }
     }
 
     # Deixar um slot sempre aberto para aleatorizar.
@@ -4806,14 +4851,8 @@ modelo {
     dados_ataque {
       id_arma: 'bordao' bonus_magico: 1 empunhadura: EA_ARMA_APENAS
     }
-    dados_ataque {
-      tipo_ataque: 'Pergaminho Arcano' id_arma: 'dissipar_magia_maior'
-    }
-    dados_ataque {
-      tipo_ataque: 'Pergaminho Arcano' id_arma: 'remover_maldicao'
-    }
 
-   # Tesouros.
+    # Tesouros.
     tesouro {
       bracadeiras { id: 'bracadeira_armadura_6' em_uso: true }
       chapeus { id: 'tiara_intelecto_6' em_uso: true }
@@ -4826,7 +4865,10 @@ modelo {
       pocoes { id: 'remover_doenca' }
       pocoes { id: 'forma_gasosa' }
 
-      tesouro: '1000 PO em componentes materiais, 100 PO, pergaminhos: ver ataques'
+      tesouro: '1000 PO em componentes materiais, pergaminhos: ver ataques'
+      moedas { po: 100 }
+      pergaminhos_arcanos { id: 'dissipar_magia_maior' }
+      pergaminhos_arcanos { id: 'remover_maldicao' }
     }
 
     info_talentos {
@@ -5184,7 +5226,7 @@ modelo {
   entidade {
     dados_vida: '1d8+2+3d6+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.4 g: 0.6 b: 0.4 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
-    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 2d6\nevasao ref 7 for 9 von 5\npocao agilidade gato, pocao forca touro, pocao cura serio\n150 PO'
+    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 2d6\nevasao ref 7 for 9 von 5\npocao agilidade gato, pocao forca touro, pocao cura serio'
     modificador_iniciativa: 4
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
@@ -5203,6 +5245,9 @@ modelo {
       rotulo_especial: 'doença febre esgoto CD 12'
       dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 8 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
     }
+    tesouro {
+      moedas { po: 150 }
+    }
   }
 }
 modelo {
@@ -5210,7 +5255,7 @@ modelo {
   entidade {
     dados_vida: '1d8+2+5d6+5' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.6 g: 0.8 b: 0.5 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
-    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 3d6 evasao, esquiva sobrenatural\nref 7 for 10 von 5\npocao cura serio\nsabre + 1, besta + 1, bracadura armadura + 2 anel prot 1\n250 PO'
+    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 3d6 evasao, esquiva sobrenatural\nref 7 for 10 von 5\npocao cura serio\nsabre + 1, besta + 1, bracadura armadura + 2 anel prot 1'
     modificador_iniciativa: 4
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
@@ -5228,6 +5273,9 @@ modelo {
       modificador_iniciativa: 3
       rotulo_especial: 'doença febre esgoto CD 12'
       dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    }
+    tesouro {
+      moedas { po: 250 }
     }
   }
 }
@@ -5281,7 +5329,7 @@ modelo {
     }
     tesouro {
       # Esse valor é so um chute. Segundo o DMG, smattering of coins.
-      tesouro: '5 PO'
+      moedas { po: 5 }
     }
     tendencia { simples: TD_CAOTICO_MAU }
   }
@@ -5308,7 +5356,7 @@ modelo {
     }
     tesouro {
       # Esse valor é so um chute. Segundo o DMG, smattering of coins.
-      tesouro: '5 PO'
+      moedas { po: 5 }
     }
     tendencia { simples: TD_CAOTICO_MAU }
   }
@@ -5327,10 +5375,11 @@ modelo {
     info_classes { id: 'combatente' nivel: 3 }
     info_talentos { gerais { id: 'prontidao' }  gerais { id: 'foco_em_arma' complemento: 'falcione' } }
     tesouro {
-      tesouro: 'falcione OP, besta pesada OP, peitoral de aço\n40 PO'
+      tesouro: 'falcione OP, besta pesada OP, peitoral de aço'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'nublar' }
       pocoes { id: 'escudo_fe_3' }
+      moedas { po: 40 }
     }
     atributos {
       # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
@@ -5359,11 +5408,12 @@ modelo {
     info_classes { id: 'barbaro' nivel: 5 }
     info_talentos { gerais { id: 'ataque_poderoso' }  gerais { id: 'foco_em_arma' complemento: 'machado_grande' } }
     tesouro {
-      tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1\n20PO'
+      tesouro: 'Machado Grande OP, Arco Longo Composto (5), peitoral de aço+1'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'protecao_contra_mal' }
+      moedas { po: 20 }
     }
     atributos {
       # Usa o array elite +4 for, -2 int, -2 sab, -2 car.
@@ -5410,11 +5460,12 @@ modelo {
     info_pericias { id: 'escalar' pontos: 5 }
     info_pericias { id: 'saltar' pontos: 4 }
     tesouro {
-      tesouro: 'Machado Grande +1, Arco Longo Composto (5) OP, peitoral de aço+1\nAmuleto armadura natural+1\n50PO'
+      tesouro: 'Machado Grande +1, Arco Longo Composto (5) OP, peitoral de aço+1\nAmuleto armadura natural+1'
       pocoes { id: 'forca_touro' }
       pocoes { id: 'escudo_fe_3' }
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'protecao_contra_mal' }
+      moedas { po: 50 }
     }
     atributos {
       # Usa o array elite +4 for, -2 int, -2 sab, -2 car.
