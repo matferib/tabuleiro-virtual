@@ -637,7 +637,6 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     da.clear_ordem_ataque();
   }
-
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
@@ -680,6 +679,16 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.mutable_acao_fixa()->set_permite_salvacao(true);
   } else {
     da.mutable_acao_fixa()->clear_permite_salvacao();
+  }
+  if (gerador.checkbox_ataque_agarrar->checkState() == Qt::Checked) {
+    da.mutable_acao_fixa()->set_ataque_agarrar(true);
+  } else {
+    da.mutable_acao_fixa()->clear_ataque_agarrar();
+  }
+  if (gerador.checkbox_ataque_toque->checkState() == Qt::Checked) {
+    da.mutable_acao_fixa()->set_ataque_toque(true);
+  } else {
+    da.mutable_acao_fixa()->clear_ataque_toque();
   }
 
   if (indice_valido) {
@@ -1683,6 +1692,8 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_ignora_rm, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_permite_salvacao, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_ataque_agarrar, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_ataque_toque, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );

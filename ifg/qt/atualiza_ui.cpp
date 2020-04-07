@@ -297,6 +297,8 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.checkbox_op->setCheckState(Qt::Unchecked);
   gerador.checkbox_ignora_rm->setCheckState(Qt::Unchecked);
   gerador.checkbox_permite_salvacao->setCheckState(Qt::Unchecked);
+  gerador.checkbox_ataque_agarrar->setCheckState(Qt::Unchecked);
+  gerador.checkbox_ataque_toque->setCheckState(Qt::Unchecked);
   gerador.botao_bonus_ataque->setText("0");
   gerador.botao_bonus_dano->setText("0");
   gerador.spin_bonus_magico->setValue(0);
@@ -378,7 +380,8 @@ int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
 
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
-      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_ignora_rm, gerador.checkbox_permite_salvacao, gerador.spin_municao,
+      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_ignora_rm, gerador.checkbox_permite_salvacao,
+       gerador.checkbox_ataque_agarrar, gerador.checkbox_ataque_toque, gerador.spin_municao,
        gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.spin_limite_vezes, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma,
@@ -446,6 +449,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ignora_rm->setCheckState(da.acao_fixa().ignora_resistencia_magia() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_permite_salvacao->setCheckState(da.acao_fixa().permite_salvacao() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_ataque_agarrar->setCheckState(da.acao_fixa().ataque_agarrar() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_ataque_toque->setCheckState(da.acao_fixa().ataque_toque() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_municao->setValue(da.municao());
