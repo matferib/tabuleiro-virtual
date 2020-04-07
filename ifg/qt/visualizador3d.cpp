@@ -1217,8 +1217,8 @@ void ConfiguraListaItensMagicos(
     auto* item_notificacao = itens_notificacao->Add();
     *item_notificacao = item;
     central->AdicionaNotificacao(notificacao.release());
+    LOG(INFO) << "fechando dialogo para doacao de: " << item.DebugString();
     dialogo->reject();
-    LOG(INFO) << "fechando dialogo para doacao";
   });
 }
 
