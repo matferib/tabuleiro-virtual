@@ -1,4 +1,3 @@
-Ao doar itens em uso, os bonus estao continuando. Fazer unit test
 Criar criatura ja com iniciativa? Melhor nao, tem varios casos que nao queremos iniciativa.
 Aterrorizar parece que nao ta funcionando em vultos? verificar.
 Implementar UI: checkbox ataque agarrar e de toque.
