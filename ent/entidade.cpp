@@ -1062,6 +1062,23 @@ void LimpaSeParcialNaoVazio(const T& proto_parcial, T* proto_final) {
   }
 }
 
+void LimpaTesourosNaoVazios(const EntidadeProto::DadosTesouro& tesouro_parcial, EntidadeProto::DadosTesouro* tesouro_final) {
+  LimpaSeParcialNaoVazio(tesouro_parcial.pocoes(), tesouro_final->mutable_pocoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.aneis(), tesouro_final->mutable_aneis());
+  LimpaSeParcialNaoVazio(tesouro_parcial.mantos(), tesouro_final->mutable_mantos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.luvas(), tesouro_final->mutable_luvas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.bracadeiras(), tesouro_final->mutable_bracadeiras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.amuletos(), tesouro_final->mutable_amuletos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.botas(), tesouro_final->mutable_botas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.chapeus(), tesouro_final->mutable_chapeus());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armas(), tesouro_final->mutable_armas());
+  LimpaSeParcialNaoVazio(tesouro_parcial.armaduras(), tesouro_final->mutable_armaduras());
+  LimpaSeParcialNaoVazio(tesouro_parcial.escudos(), tesouro_final->mutable_escudos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.municoes(), tesouro_final->mutable_municoes());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+}
+
 template <typename T>
 void LimpaSeTemSoUmVazio(T* proto_final) {
   if (proto_final->size() == 1 && !proto_final->Get(0).has_id() && !proto_final->Get(0).has_nome()) {
@@ -1135,20 +1152,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
 
   const auto& tesouro_parcial = proto_parcial.tesouro();
   auto* tesouro_final= proto_.mutable_tesouro();
-  LimpaSeParcialNaoVazio(tesouro_parcial.pocoes(), tesouro_final->mutable_pocoes());
-  LimpaSeParcialNaoVazio(tesouro_parcial.aneis(), tesouro_final->mutable_aneis());
-  LimpaSeParcialNaoVazio(tesouro_parcial.mantos(), tesouro_final->mutable_mantos());
-  LimpaSeParcialNaoVazio(tesouro_parcial.luvas(), tesouro_final->mutable_luvas());
-  LimpaSeParcialNaoVazio(tesouro_parcial.bracadeiras(), tesouro_final->mutable_bracadeiras());
-  LimpaSeParcialNaoVazio(tesouro_parcial.amuletos(), tesouro_final->mutable_amuletos());
-  LimpaSeParcialNaoVazio(tesouro_parcial.botas(), tesouro_final->mutable_botas());
-  LimpaSeParcialNaoVazio(tesouro_parcial.chapeus(), tesouro_final->mutable_chapeus());
-  LimpaSeParcialNaoVazio(tesouro_parcial.armas(), tesouro_final->mutable_armas());
-  LimpaSeParcialNaoVazio(tesouro_parcial.armaduras(), tesouro_final->mutable_armaduras());
-  LimpaSeParcialNaoVazio(tesouro_parcial.escudos(), tesouro_final->mutable_escudos());
-  LimpaSeParcialNaoVazio(tesouro_parcial.municoes(), tesouro_final->mutable_municoes());
-  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
-  LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  LimpaTesourosNaoVazios(tesouro_parcial, tesouro_final);
 
   // Limpa itens que vierem no parcial, pois serao mergeados.
   for (auto* item : TodosItensExcetoPocoes(proto_parcial)) {
