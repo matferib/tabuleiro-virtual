@@ -30,7 +30,7 @@ windows_debug:
 	scons sistema=win32 debug=1 -j 1
 
 apple:
-	scons sistema=apple debug=0 -j 1
+	scons sistema=apple debug=0 -j 2
 
 apple_profile:
 	scons sistema=apple debug=1 gerar_profile=1 -j 1
@@ -39,7 +39,7 @@ apple_opengles:
 	scons sistema=apple debug=0 usar_opengl_es=1 -j 1
 
 apple_debug:
-	scons sistema=apple debug=1 -j 1
+	scons sistema=apple debug=1 -j 2
 
 apple_debug_opengles:
 	scons sistema=apple debug=1 usar_opengl_es=1 -j 1
