@@ -736,7 +736,11 @@ void PreencheOrigemValor(
 void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
+      if (origem.empty()) {
+        po.set_origem(po.origem());
+      } else {
+        po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
+      }
       po.set_valor(0);
     }
   }
@@ -1527,8 +1531,17 @@ std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) 
   std::unordered_set<unsigned int> ids;
   std::vector<const ItemMagicoProto*> itens = TodosItensExcetoPocoes(proto);
   for (const auto* item : itens) {
+    //LOG(INFO) << "-> item: " << item->ShortDebugString();
+    if (!item->em_uso()) {
+      //LOG(INFO) << "   nao adicionando nenhum id";
+      continue;
+    }
+    if (item->ids_efeitos().empty()) {
+      //LOG(INFO) << "   nao adicionando nenhum id, vazio";
+    }
     for (unsigned int id_efeito : item->ids_efeitos()) {
       ids.insert(id_efeito);
+      //LOG(INFO) << "   adicionando id efeito " << id_efeito;
     }
   }
   return ids;
@@ -1547,16 +1560,20 @@ bool EventoOrfao(const Tabelas& tabelas, const EntidadeProto::Evento& evento, co
   if (evento.has_requer_modelo_ativo() && !PossuiModelo(tabelas, evento.requer_modelo_ativo(), proto)) {
     return true;
   }
-  return evento.requer_pai() && c_none(ids_itens, evento.id_unico());
+  bool ret = evento.requer_pai() && c_none(ids_itens, evento.id_unico());
+  //LOG(INFO) << "EventoOrfao: " << ret << ", evento: " << evento.ShortDebugString();
+  return ret;
 }
 
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
+  //LOG(INFO) << "-----------------------------";
   std::set<int, std::greater<int>> eventos_a_remover;
   const std::unordered_set<unsigned int> ids_itens = IdsItensComEfeitos(*proto);
   int i = 0;
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
   for (const auto& evento : proto->evento()) {
+    //LOG(INFO) << "evento: " << evento.ShortDebugString();
     const bool encerrado = evento.rodadas() < 0;
     const bool orfao = EventoOrfao(tabelas, evento, ids_itens, *proto);
     if (encerrado || orfao) {

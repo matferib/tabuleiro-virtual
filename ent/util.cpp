@@ -4938,7 +4938,7 @@ void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
   if (tesouro_doado.empty()) return;
   std::set<int, std::greater<int>> indices_a_remover;
   for (const auto& td : tesouro_doado) {
-    LOG(INFO) << "Removendo: " << td.DebugString();
+    //LOG(INFO) << "Removendo: " << td.DebugString();
     int candidato = -1;
     for (int i = 0; i < tesouro_final->size(); ++i) {
       if (tesouro_final->Get(i).id() != td.id()) continue;
