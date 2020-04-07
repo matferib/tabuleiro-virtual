@@ -667,7 +667,7 @@ modelo {
     tesouro {
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'ajuda' }
-      tesouro: '10 PO'
+      moedas { po: 10 }
     }
     feiticos_classes {
       id_classe: 'bardo'
@@ -692,32 +692,15 @@ modelo {
     cor { r: 0.2 g: 0.2 b: 0.2 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
     info_textura { id: 'shade_sorcerer.png' translacao_x: 0.25 largura: 0.5 }
-    dados_ataque {
-      grupo: 'pergaminho' rotulo: 'flecha ácida' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'flecha_acida'
-      limite_vezes: 4
-      acao_fixa {
-        efeitos_adicionais {
-          rodadas_base: 2
-          modificador_rodadas: MR_NENHUM
-          combinar_com_efeito: EFEITO_OUTRO
-        }
-      }
-    }
-    dados_ataque {
-      grupo: 'pergaminho' rotulo: 'teia' tipo_ataque: 'Feitiço de Toque a Distância' id_arma: 'teia'
-      limite_vezes: 2
-      dificuldade_salvacao: 13
-      acao_fixa {
-        efeitos_adicionais {
-          rodadas: 300
-          combinar_com_efeito: EFEITO_ENREDADO
-        }
-      }
-    }
-
     tesouro {
       pocoes { id: 'protecao_contra_bem' }
-      tesouro: '10 PO\nflecha acida x4, teia x2'
+      moedas { po: 10 }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'flecha_acida' }
+      pergaminhos_arcanos { id: 'teia' }
+      pergaminhos_arcanos { id: 'teia' }
     }
   }
 }
@@ -908,7 +891,8 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'protecao_contra_bem' }
-      tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
+      moedas { po: 5 }
+      tesouro : 'lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
     }
   }
 }
@@ -1049,7 +1033,8 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'protecao_contra_bem' }
-      tesouro : '5 PO, lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
+      moedas { po: 5 }
+      tesouro : 'lanca obra prima, espada larga +1, arco longo composto (for 2) +1'
     }
   }
 }
@@ -1108,7 +1093,8 @@ modelo {
       pocoes { id: 'protecao_contra_bem' }
       aneis { id: 'protecao_1' em_uso: true }
       amuletos { id: 'periapto_sabedoria_2' em_uso: true }
-      tesouro: '10 PO\nsimbolo sagrado\n6tochas'
+      moedas { po: 10 }
+      tesouro: 'simbolo sagrado\n6tochas'
     }
     feiticos_classes {
       id_classe: 'clerigo'
@@ -1211,7 +1197,9 @@ modelo {
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
     dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
-    tesouro { tesouro: '2d20 PP' }
+    tesouro {
+      moedas { pp: 20 }
+    }
   }
 }
 modelo {
@@ -1235,7 +1223,9 @@ modelo {
     dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
     dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
-    tesouro { tesouro: '2d20 PP' }
+    tesouro {
+      moedas { pp: 20 }
+    }
   }
 }
 
