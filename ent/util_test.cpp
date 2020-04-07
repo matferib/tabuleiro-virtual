@@ -3352,6 +3352,99 @@ TEST(TesteTesouro, TesteTransicao) {
   }
 }
 
+TEST(TesteTesouro, TesteDoacao) {
+  EntidadeProto doador_proto;
+  {
+    auto* anel = doador_proto.mutable_tesouro()->add_aneis();
+    anel->set_id("protecao_1");
+    anel->set_em_uso(true);
+    auto* moedas = doador_proto.mutable_tesouro()->mutable_moedas();
+    moedas->set_po(3);
+    moedas->set_pp(30);
+    moedas->set_pc(300);
+  }
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  ASSERT_FALSE(doador->Proto().evento().empty());
+
+  EntidadeProto receptor_proto;
+  {
+    auto* anel = receptor_proto.mutable_tesouro()->add_aneis();
+    anel->set_id("escalada");
+    anel->set_em_uso(true);
+    auto* moedas = receptor_proto.mutable_tesouro()->mutable_moedas();
+    moedas->set_po(4);
+    moedas->set_pp(40);
+    moedas->set_pe(400);
+    moedas->set_pl(4000);
+  }
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  ASSERT_FALSE(receptor->Proto().evento().empty());
+
+  ntf::Notificacao notificacao_doacao;
+  {
+    auto* n_doador = notificacao_doacao.mutable_entidade();
+    n_doador->set_id(doador->Id());
+    auto* tesouro_doado = n_doador->mutable_tesouro();
+    tesouro_doado->mutable_moedas()->set_po(3);  // qualquer valor funciona, so pra indicar que eh ouro.
+    EXPECT_FALSE(doador->Proto().tesouro().aneis().empty());
+    *tesouro_doado->add_aneis() = doador->Proto().tesouro().aneis(0);
+  }
+
+  ntf::Notificacao n_grupo;
+  ntf::Notificacao n_desfazer;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacoesDoacaoParcialTesouro(g_tabelas, notificacao_doacao, doador->Proto(), receptor->Proto(), &n_grupo, &n_desfazer);
+
+  {
+    // Aplica.
+    ASSERT_GE(n_grupo.notificacao_size(), 2);
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
+    EXPECT_TRUE(doador->Proto().evento().empty());
+    EXPECT_TRUE(doador->Proto().tesouro().aneis().empty());
+    EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 40);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pe(), 400);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pl(), 4000);
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
+    EXPECT_EQ(receptor->Proto().evento().size(), 1);
+    ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 2);
+    EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
+    EXPECT_FALSE(receptor->Proto().tesouro().aneis(1).em_uso());
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 7);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 400);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 400);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 4000);
+  }
+  if (0) {
+    // Aplica desfazer.
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade_antes());
+    EXPECT_EQ(doador->Proto().evento().size(), 1);
+    EXPECT_FALSE(doador->Proto().tesouro().aneis().empty());
+    EXPECT_TRUE(doador->Proto().tesouro().aneis(0).em_uso());
+    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
+    EXPECT_FALSE(doador->Proto().tesouro().armas().empty());
+    EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 3);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pl(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pe(), 0);
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade_antes());
+    EXPECT_EQ(receptor->Proto().evento().size(), 1);
+    ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 1);
+    EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
+    EXPECT_TRUE(receptor->Proto().tesouro().armaduras().empty());
+    EXPECT_TRUE(receptor->Proto().tesouro().armas().empty());
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 4);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 0);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 400);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 4000);
+  }
+}
+
 TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
   EntidadeProto proto;
   {
