@@ -1,5 +1,5 @@
+Ao doar itens em uso, os bonus estao continuando. Fazer unit test
 Criar criatura ja com iniciativa? Melhor nao, tem varios casos que nao queremos iniciativa.
-Botao que permite passar item de um PC para outro.
 Aterrorizar parece que nao ta funcionando em vultos? verificar.
 Implementar UI: checkbox ataque agarrar e de toque.
 Implementar produce flame de druida (magia de 1o nivel ducaralho).

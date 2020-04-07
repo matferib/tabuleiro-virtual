@@ -7557,6 +7557,9 @@ void Tabuleiro::EntraModoClique(modo_clique_e modo) {
     modo_clique_ = modo_clique_anterior_;
     return;
   }
+  if (modo_clique_ == MODO_DOACAO && modo != MODO_DOACAO) {
+    notificacao_doacao_.Clear();
+  }
   // Muda para o cenario caso nao seja o corrente.
   modo_clique_ = modo;
 }

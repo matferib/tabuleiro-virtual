@@ -2572,10 +2572,19 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           LOG(INFO) << "Entidade receptora nao existe mais.";
           break;
         }
+        if (receptor->Id() == notificacao_doacao_.entidade().id()) {
+          LOG(INFO) << "Nao se pode doar para si mesmo.";
+          break;
+        }
+        const auto* doador = BuscaEntidade(notificacao_doacao_.entidade().id());
+        if (doador == nullptr) {
+          LOG(INFO) << "Doador nao existe mais.";
+          break;
+        }
         ntf::Notificacao grupo_notificacoes;
         grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
         PreencheNotificacoesDoacaoParcialTesouro(
-            tabelas_, notificacao_doacao_.entidade_antes(), notificacao_doacao_.entidade(), *receptor, &grupo_notificacoes, &grupo_notificacoes);
+            tabelas_, notificacao_doacao_, doador->Proto(), receptor->Proto(), &grupo_notificacoes, &grupo_notificacoes);
         TrataNotificacao(grupo_notificacoes);
         AdicionaNotificacaoListaEventos(grupo_notificacoes);
         break;

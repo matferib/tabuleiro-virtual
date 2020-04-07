@@ -1129,7 +1129,7 @@ void ConfiguraListaItensMagicos(
     Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     ent::TipoItem tipo,
     QListWidget* lista, QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_remover, QPushButton* botao_doar,
-    ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
+    const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
   // Delegado.
   std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
   auto* delegado = new ItemMagicoDelegate(tabelas, tipo, lista, proto_retornado);
@@ -1200,26 +1200,23 @@ void ConfiguraListaItensMagicos(
     f_atualiza_ui(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(indice);
   });
-  lambda_connect(botao_doar, SIGNAL(clicked()), [tipo, dialogo, &tabelas, lista, &gerador, proto_retornado, central] {
+  lambda_connect(botao_doar, SIGNAL(clicked()), [tipo, dialogo, &tabelas, lista, &gerador, &proto, proto_retornado, central] {
     const int indice = lista->currentRow();
-    auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
-    if (indice < 0 || indice >= itens->size()) {
+    const auto& itens = ent::ItensProto(tipo, *proto_retornado);
+    if (indice < 0 || indice >= itens.size()) {
       return;
     }
-    auto* item = itens->Mutable(indice);
-    item->set_em_uso(false);
-    // Tira o efeito do personagem.
-    ent::RecomputaDependencias(tabelas, proto_retornado);
-    // Tira o item do personagem.
-    if (indice >= 0 && indice < itens->size()) {
-      itens->DeleteSubrange(indice, 1);
-    }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
-
+    const auto& item = itens.Get(indice);
     auto notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_DOACAO);
     notificacao->mutable_entidade()->set_id(proto_retornado->id());
+    auto* itens_notificacao = ent::ItensProtoMutavel(tipo, notificacao->mutable_entidade());
+    if (itens_notificacao == nullptr) {
+      LOG(WARNING) << "tipo de item invalido: " << tipo;
+      return;
+    }
+    auto* item_notificacao = itens_notificacao->Add();
+    *item_notificacao = item;
     central->AdicionaNotificacao(notificacao.release());
-    delete proto_retornado;
     dialogo->reject();
     LOG(INFO) << "fechando dialogo para doacao";
   });
@@ -1260,11 +1257,11 @@ void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
 }
 
 template <class Dialogo, class Gerador>
-void ConfiguraListaPergaminhos(
+void ConfiguraListaPergaminhosOuPocoes(
     Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     ent::TipoItem tipo, QListWidget* lista,
     QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
-    ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
+    const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
   lambda_connect(botao_duplicar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
     DuplicaItem(tabelas, gerador, tipo, lista, proto_retornado);
   });
@@ -1275,7 +1272,7 @@ void ConfiguraListaPergaminhos(
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, tipo, lista,
       botao_usar, botao_adicionar, botao_remover, botao_doar,
-      proto_retornado, central);
+      proto, proto_retornado, central);
 }
 
 template <class Dialogo, class Gerador>
@@ -1296,8 +1293,9 @@ void PreencheConfiguraTesouro(
   gerador.spin_pe->setValue(proto.tesouro().moedas().pe());
   lambda_connect(gerador.spin_pe, SIGNAL(valueChanged(int)), [tesouro_retornado, &gerador]() { tesouro_retornado->set_pe(gerador.spin_pe->value()); });
 
-  // Pocoes.
-  {
+  // Pocoes: por algum motivo isso tava separado do resto. Comentei pra ver o que da.
+#if 0
+  if (0) {
     std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
     auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
     gerador.lista_pocoes->setItemDelegate(delegado);
@@ -1326,64 +1324,73 @@ void PreencheConfiguraTesouro(
       gerador.lista_pocoes->setCurrentRow(indice);
     });
   }
+#endif
 
+  // Pocoes.
+  ConfiguraListaPergaminhosOuPocoes(
+      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_POCAO,
+      gerador.lista_pocoes, /*usar=*/nullptr,
+      gerador.botao_adicionar_pocao, gerador.botao_duplicar_pocao,
+      gerador.botao_remover_pocao, gerador.botao_ordenar_pocoes,
+      gerador.botao_doar_pocao,
+      proto, proto_retornado, central);
   // Pergaminhos.
-  ConfiguraListaPergaminhos(
+  ConfiguraListaPergaminhosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
       gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_arcano, gerador.botao_duplicar_pergaminho_arcano,
       gerador.botao_remover_pergaminho_arcano, gerador.botao_ordenar_pergaminhos_arcanos,
       gerador.botao_doar_pergaminho_arcano,
-      proto_retornado, central);
-  ConfiguraListaPergaminhos(
+      proto, proto_retornado, central);
+  ConfiguraListaPergaminhosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
       gerador.lista_pergaminhos_divinos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_divino, gerador.botao_duplicar_pergaminho_divino,
       gerador.botao_remover_pergaminho_divino, gerador.botao_ordenar_pergaminhos_divinos,
       gerador.botao_doar_pergaminho_divino,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Aneis.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ANEL,
       gerador.lista_aneis, gerador.botao_usar_anel, gerador.botao_adicionar_anel, gerador.botao_remover_anel,
       gerador.botao_doar_anel,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Luvas.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_LUVAS,
       gerador.lista_luvas, gerador.botao_usar_luvas, gerador.botao_adicionar_luvas, gerador.botao_remover_luvas,
       gerador.botao_doar_luvas,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Botas.
   ConfiguraListaItensMagicos(
-    dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BOTAS,
-    gerador.lista_botas, gerador.botao_usar_botas, gerador.botao_adicionar_botas, gerador.botao_remover_botas,
+      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BOTAS,
+      gerador.lista_botas, gerador.botao_usar_botas, gerador.botao_adicionar_botas, gerador.botao_remover_botas,
       gerador.botao_doar_botas,
-    proto_retornado, central);
+      proto, proto_retornado, central);
   // Amuletos.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_AMULETO,
       gerador.lista_amuletos, gerador.botao_usar_amuleto, gerador.botao_adicionar_amuleto, gerador.botao_remover_amuleto,
       gerador.botao_doar_amuleto,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Mantos.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_MANTO,
       gerador.lista_mantos, gerador.botao_usar_manto, gerador.botao_adicionar_manto, gerador.botao_remover_manto,
       gerador.botao_doar_manto,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Bracadeiras.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BRACADEIRAS,
       gerador.lista_bracadeiras, gerador.botao_usar_bracadeiras, gerador.botao_adicionar_bracadeiras, gerador.botao_remover_bracadeiras,
       gerador.botao_doar_bracadeiras,
-      proto_retornado, central);
+      proto, proto_retornado, central);
   // Chapeu.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_CHAPEU,
       gerador.lista_chapeus, gerador.botao_vestir_chapeu, gerador.botao_adicionar_chapeu, gerador.botao_remover_chapeu,
       gerador.botao_doar_chapeu,
-      proto_retornado, central);
+      proto, proto_retornado, central);
 
   AtualizaUITesouro(tabelas, gerador, proto);
   gerador.lista_tesouro->setPlainText((proto.tesouro().tesouro().c_str()));

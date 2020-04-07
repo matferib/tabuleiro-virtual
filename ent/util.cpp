@@ -11,6 +11,7 @@
 #include <limits>
 #include <queue>
 #include <random>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -3008,6 +3009,15 @@ std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
   return IdsUnicosProto(entidade.Proto());;
 }
 
+bool IdsUnicosIguais(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+bool IdsUnicosIguaisSemOrdem(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
+  std::set<int> lhss(lhs.begin(), lhs.end());
+  std::set<int> rhss(rhs.begin(), rhs.end());
+  return std::equal(lhss.begin(), lhss.end(), rhss.begin());
+}
 
 int AchaIdUnicoEvento(const std::vector<int>& ids_unicos) {
   int candidato = 0;
@@ -4924,6 +4934,59 @@ void MergeTesouroTodo(const EntidadeProto::DadosTesouro& tesouro_receptor, const
 }
 
 template <typename T>
+void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
+  if (tesouro_doado.empty()) return;
+  std::set<int, std::greater<int>> indices_a_remover;
+  for (const auto& td : tesouro_doado) {
+    int candidato = -1;
+    for (int i = 0; i < tesouro_final->size(); ++i) {
+      if (tesouro_final->Get(i).id() != td.id()) continue;
+      if (IdsUnicosIguais(tesouro_final->Get(i).ids_efeitos(), td.ids_efeitos())) {
+        // Achou sem duvidas.
+        indices_a_remover.insert(i);
+        break;
+      }
+      // É um candidato.
+      candidato = i;
+    }
+    // Nao achou exato, usa o candidato.
+    if (candidato != -1) {
+      LOG(WARNING) << "Nao deu match exato, provavelmente houve mudanca de estado na janela da doacao";
+      indices_a_remover.insert(candidato);
+    }
+  }
+  for (int i : indices_a_remover) {
+    tesouro_final->DeleteSubrange(i, 1);
+  } 
+}
+
+void RemoveMoedasDoadas(const EntidadeProto::Moedas& moedas_doadas, EntidadeProto::Moedas* moedas_final) {
+  if (moedas_doadas.has_po()) moedas_final->set_po(0);
+  if (moedas_doadas.has_pp()) moedas_final->set_pp(0);
+  if (moedas_doadas.has_pc()) moedas_final->set_pc(0);
+  if (moedas_doadas.has_pl()) moedas_final->set_pl(0);
+  if (moedas_doadas.has_pe()) moedas_final->set_pe(0);
+}
+
+void RemoveTesourosDoados(const EntidadeProto::DadosTesouro& tesouro_doado, EntidadeProto::DadosTesouro* tesouro_final) {
+  RemoveTesouroDoado(tesouro_doado.pocoes(), tesouro_final->mutable_pocoes());
+  RemoveTesouroDoado(tesouro_doado.aneis(), tesouro_final->mutable_aneis());
+  RemoveTesouroDoado(tesouro_doado.mantos(), tesouro_final->mutable_mantos());
+  RemoveTesouroDoado(tesouro_doado.luvas(), tesouro_final->mutable_luvas());
+  RemoveTesouroDoado(tesouro_doado.bracadeiras(), tesouro_final->mutable_bracadeiras());
+  RemoveTesouroDoado(tesouro_doado.amuletos(), tesouro_final->mutable_amuletos());
+  RemoveTesouroDoado(tesouro_doado.botas(), tesouro_final->mutable_botas());
+  RemoveTesouroDoado(tesouro_doado.chapeus(), tesouro_final->mutable_chapeus());
+  RemoveTesouroDoado(tesouro_doado.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
+  RemoveTesouroDoado(tesouro_doado.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  RemoveTesouroDoado(tesouro_doado.armas(), tesouro_final->mutable_armas());
+  RemoveTesouroDoado(tesouro_doado.armaduras(), tesouro_final->mutable_armaduras());
+  RemoveTesouroDoado(tesouro_doado.escudos(), tesouro_final->mutable_escudos());
+  RemoveTesouroDoado(tesouro_doado.municoes(), tesouro_final->mutable_municoes());
+  RemoveMoedasDoadas(tesouro_doado.moedas(), tesouro_final->mutable_moedas());
+}
+
+template <typename T>
 void MergeMensagemTesouro(
     const T& tesouro, std::function<const ItemMagicoProto&(const std::string&)> f_pega_item_tabela, std::string* texto) {
   for (const auto& item : tesouro) {
@@ -5066,13 +5129,10 @@ void PreencheNotificacoesTransicaoTesouro(
   }
 }
 
-EntidadeProto::DadosTesouro DiferencaTesouroAntesDepois(const EntidadeProto::DadosTesouro& tesouro_antes, const EntidadeProto::DadosTesouro& tesouro_depois) {
-  // TODO
-  return EntidadeProto::DadosTesouro();
-}
 
 void PreencheNotificacoesDoacaoParcialTesouro(
-    const Tabelas& tabelas, const EntidadeProto& proto_doador_antes, const EntidadeProto& proto_doador_depois, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+    const Tabelas& tabelas, const ntf::Notificacao& notificacao_doacao,
+    const EntidadeProto& proto_doador, const EntidadeProto& proto_receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   EntidadeProto::DadosTesouro tesouro_ganho;
   {
     // Doador fica como na notificacao.
@@ -5080,13 +5140,27 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     EntidadeProto* e_antes;
     EntidadeProto* e_depois;
     std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
-        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_doador_antes, n_grupo);
-    *e_antes = proto_doador_antes;
-    *e_depois = proto_doador_depois;
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_doador, n_grupo);
+    *e_antes = proto_doador;
+    // Remove os tesouros doados. 
+    *e_depois->mutable_tesouro() = proto_doador.tesouro();
+    RemoveTesourosDoados(notificacao_doacao.entidade().tesouro(), e_depois->mutable_tesouro());
     if (n_desfazer != nullptr) {
       *n_desfazer->add_notificacao() = *n_perdeu;
     }
-    tesouro_ganho = DiferencaTesouroAntesDepois(proto_doador_antes.tesouro(), proto_doador_depois.tesouro());
+  }
+  {
+    // Receptor: recebe o tesouro.
+    ntf::Notificacao* n_ganhou;
+    EntidadeProto* e_antes;
+    EntidadeProto* e_depois;
+    std::tie(n_ganhou, e_antes, e_depois) = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_receptor, n_grupo);
+    MergeTesouroTodo(proto_receptor.tesouro(), notificacao_doacao.entidade().tesouro(), e_depois->mutable_tesouro());
+    *e_antes = proto_receptor;
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_ganhou;
+    }
   }
 }
 
