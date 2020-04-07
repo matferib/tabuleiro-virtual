@@ -4938,6 +4938,7 @@ void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
   if (tesouro_doado.empty()) return;
   std::set<int, std::greater<int>> indices_a_remover;
   for (const auto& td : tesouro_doado) {
+    LOG(INFO) << "Removendo: " << td.DebugString();
     int candidato = -1;
     for (int i = 0; i < tesouro_final->size(); ++i) {
       if (tesouro_final->Get(i).id() != td.id()) continue;
@@ -4957,7 +4958,10 @@ void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
   }
   for (int i : indices_a_remover) {
     tesouro_final->DeleteSubrange(i, 1);
-  } 
+  }
+  if (!indices_a_remover.empty() && tesouro_final->empty()) {
+    tesouro_final->Add();  // para sinalizar que ta vazio.
+  }
 }
 
 void RemoveMoedasDoadas(const EntidadeProto::Moedas& moedas_doadas, EntidadeProto::Moedas* moedas_final) {
@@ -5142,7 +5146,7 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_doador, n_grupo);
     *e_antes = proto_doador;
-    // Remove os tesouros doados. 
+    // Remove os tesouros doados.
     *e_depois->mutable_tesouro() = proto_doador.tesouro();
     RemoveTesourosDoados(notificacao_doacao.entidade().tesouro(), e_depois->mutable_tesouro());
     if (n_desfazer != nullptr) {
@@ -5161,6 +5165,18 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     if (n_desfazer != nullptr) {
       *n_desfazer->add_notificacao() = *n_ganhou;
     }
+  }
+  {
+    // Texto de doacao.
+    auto* n_texto = n_grupo->add_notificacao();
+    n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* acao = n_texto->mutable_acao();
+    acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    std::string texto;
+    // Os lambdas aqui devem ter o retorno explicit, caso contrario o C++ assumira copia e a referencia retornada pela funcao ficara invalida.
+    MergeMensagensTesouro(notificacao_doacao.entidade().tesouro(), tabelas, &texto);
+    acao->set_texto(texto);
+    acao->add_por_entidade()->set_id(proto_receptor.id());
   }
 }
 
