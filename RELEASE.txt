@@ -1,4 +1,4 @@
-ersoes:
+Versoes:
 
 - instalador/tabvirt*.iss: instalador windows.
 - ifg/qt/menuprincipal.cpp: dialogo de versao.
