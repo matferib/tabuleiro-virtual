@@ -1,7 +1,6 @@
-Criar criatura ja com iniciativa? Melhor nao, tem varios casos que nao queremos iniciativa.
-Aterrorizar parece que nao ta funcionando em vultos? verificar.
-Implementar UI: checkbox ataque agarrar e de toque.
+Falcione sem modelo 3d.
 Implementar produce flame de druida (magia de 1o nivel ducaralho).
+Icone para amedrontado e abalado.
 Aliados extra planares (da magia de conjuracao). Especialmente arconte maior.
 Implementar efeitos:
   - imunidade a magia (mais de 1 feitico), imunidade maior (fazer) e elucubracao (fazer).
