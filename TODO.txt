@@ -1,3 +1,4 @@
+Tirar o shader sem especularidade.
 Falcione sem modelo 3d.
 Implementar produce flame de druida (magia de 1o nivel ducaralho).
 Icone para amedrontado e abalado.
