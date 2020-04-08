@@ -351,12 +351,8 @@ Visualizador3d::Visualizador3d(
        texturas_(texturas),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
-  const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
-  if (opcoes.has_tipo_iluminacao()) {
-    tipo_iluminacao_ = opcoes.tipo_iluminacao();
-  } else {
-    tipo_iluminacao_ = opcoes.iluminacao_por_pixel() ? ent::OpcoesProto::TI_PIXEL : ent::OpcoesProto::TI_VERTICE;
-  }
+  //const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
+  tipo_iluminacao_ = ent::OpcoesProto::TI_ESPECULAR;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -2648,10 +2644,6 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
   // Mapeamento de sombras.
   gerador.checkbox_mapeamento_de_sombras->setCheckState(opcoes_proto.mapeamento_sombras() ? Qt::Checked : Qt::Unchecked);
-  // Iluminacao por pixel.
-  gerador.checkbox_iluminacao_por_pixel->setCheckState(
-      opcoes_proto.iluminacao_por_pixel() || opcoes_proto.tipo_iluminacao() == ent::OpcoesProto::TI_PIXEL ? Qt::Checked : Qt::Unchecked);
-  gerador.checkbox_luzes_especulares->setCheckState(opcoes_proto.tipo_iluminacao() == ent::OpcoesProto::TI_ESPECULAR ? Qt::Checked : Qt::Unchecked);
   // Oclusao.
   gerador.checkbox_mapeamento_oclusao->setCheckState(opcoes_proto.mapeamento_oclusao() ? Qt::Checked : Qt::Unchecked);
   // Ataque vs defesa posicao real.
@@ -2674,13 +2666,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
    proto_retornado->set_mapeamento_sombras(
         gerador.checkbox_mapeamento_de_sombras->checkState() == Qt::Checked ? true : false);
     proto_retornado->clear_iluminacao_por_pixel();
-    if (gerador.checkbox_luzes_especulares->checkState() == Qt::Checked) {
-      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_ESPECULAR);
-    } else if (gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked) {
-      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_PIXEL);
-    } else {
-      proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_VERTICE);
-    }
+    proto_retornado->set_tipo_iluminacao(ent::OpcoesProto::TI_ESPECULAR);
     proto_retornado->set_mapeamento_oclusao(
         gerador.checkbox_mapeamento_oclusao->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_ataque_vs_defesa_posicao_real(
