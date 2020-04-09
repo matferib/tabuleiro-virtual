@@ -1373,7 +1373,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_po"/>
+             <widget class="QSpinBox" name="spin_po">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1390,7 +1394,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pp"/>
+             <widget class="QSpinBox" name="spin_pp">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1407,7 +1415,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pc"/>
+             <widget class="QSpinBox" name="spin_pc">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1424,7 +1436,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pl"/>
+             <widget class="QSpinBox" name="spin_pl">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1441,7 +1457,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pe"/>
+             <widget class="QSpinBox" name="spin_pe">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

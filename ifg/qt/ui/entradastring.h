@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entradastring.ui'
 **
-** Created by: Qt User Interface Compiler version 5.14.0
+** Created by: Qt User Interface Compiler version 5.11.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -29,18 +29,18 @@ public:
     void setupUi(QDialog *ifg__qt__EntradaString)
     {
         if (ifg__qt__EntradaString->objectName().isEmpty())
-            ifg__qt__EntradaString->setObjectName(QString::fromUtf8("ifg__qt__EntradaString"));
+            ifg__qt__EntradaString->setObjectName(QStringLiteral("ifg__qt__EntradaString"));
         ifg__qt__EntradaString->resize(317, 118);
         botoes = new QDialogButtonBox(ifg__qt__EntradaString);
-        botoes->setObjectName(QString::fromUtf8("botoes"));
+        botoes->setObjectName(QStringLiteral("botoes"));
         botoes->setGeometry(QRect(30, 70, 221, 41));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         nome = new QLineEdit(ifg__qt__EntradaString);
-        nome->setObjectName(QString::fromUtf8("nome"));
+        nome->setObjectName(QStringLiteral("nome"));
         nome->setGeometry(QRect(10, 30, 291, 27));
         label_titulo = new QLabel(ifg__qt__EntradaString);
-        label_titulo->setObjectName(QString::fromUtf8("label_titulo"));
+        label_titulo->setObjectName(QStringLiteral("label_titulo"));
         label_titulo->setGeometry(QRect(16, 10, 281, 20));
         label_titulo->setAlignment(Qt::AlignCenter);
 
@@ -53,8 +53,8 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__EntradaString)
     {
-        ifg__qt__EntradaString->setWindowTitle(QCoreApplication::translate("ifg::qt::EntradaString", "Dialog", nullptr));
-        label_titulo->setText(QCoreApplication::translate("ifg::qt::EntradaString", "TextLabel", nullptr));
+        ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", nullptr));
+        label_titulo->setText(QApplication::translate("ifg::qt::EntradaString", "TextLabel", nullptr));
     } // retranslateUi
 
 };
