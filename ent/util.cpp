@@ -3010,7 +3010,7 @@ std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
 }
 
 bool IdsUnicosIguais(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
-  return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
 bool IdsUnicosIguaisSemOrdem(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
@@ -4933,18 +4933,24 @@ void MergeTesouroTodo(const EntidadeProto::DadosTesouro& tesouro_receptor, const
   MergeMoedas(tesouro_receptor.moedas(), tesouro_receber.moedas(), tesouro_final->mutable_moedas());
 }
 
-template <typename T>
-void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
+// T normalmente é ItemMagicoProto, mas pode ser outros tipo, como armas e armaduras.
+template <class T>
+void RemoveTesouroDoado(const RepeatedPtrField<T>& tesouro_doado,
+                        RepeatedPtrField<T>* tesouro_final) {
   if (tesouro_doado.empty()) return;
   std::set<int, std::greater<int>> indices_a_remover;
   for (const auto& td : tesouro_doado) {
-    //LOG(INFO) << "Removendo: " << td.DebugString();
+    //LOG(INFO) << "Removendo: " << td.ShortDebugString() << " do tesouro final";
     int candidato = -1;
     for (int i = 0; i < tesouro_final->size(); ++i) {
+      //LOG(INFO) << "candidato a remocao: " << tesouro_final->Get(i).ShortDebugString() << " do tesouro final";
       if (tesouro_final->Get(i).id() != td.id()) continue;
+      //LOG(INFO) << "encontrei possivel";
       if (IdsUnicosIguais(tesouro_final->Get(i).ids_efeitos(), td.ids_efeitos())) {
         // Achou sem duvidas.
         indices_a_remover.insert(i);
+        candidato = -1;
+        //LOG(INFO) << "match exato";
         break;
       }
       // É um candidato.
@@ -4952,11 +4958,12 @@ void RemoveTesouroDoado(const T& tesouro_doado, T* tesouro_final) {
     }
     // Nao achou exato, usa o candidato.
     if (candidato != -1) {
-      LOG(WARNING) << "Nao deu match exato, provavelmente houve mudanca de estado na janela da doacao";
+      //LOG(WARNING) << "Nao deu match exato, provavelmente houve mudanca de estado na janela da doacao";
       indices_a_remover.insert(candidato);
     }
   }
   for (int i : indices_a_remover) {
+    //LOG(INFO) << "Removendo tesouro final indice " << i;
     tesouro_final->DeleteSubrange(i, 1);
   }
   if (!indices_a_remover.empty() && tesouro_final->empty()) {
