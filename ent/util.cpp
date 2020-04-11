@@ -5152,7 +5152,7 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     EntidadeProto* e_depois;
     std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_doador, n_grupo);
-    *e_antes = proto_doador;
+    AtribuiTesouroTodoOuCriaVazios(proto_doador.tesouro(), e_antes->mutable_tesouro());
     // Remove os tesouros doados.
     *e_depois->mutable_tesouro() = proto_doador.tesouro();
     RemoveTesourosDoados(notificacao_doacao.entidade().tesouro(), e_depois->mutable_tesouro());
@@ -5168,7 +5168,7 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     std::tie(n_ganhou, e_antes, e_depois) = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto_receptor, n_grupo);
     MergeTesouroTodo(proto_receptor.tesouro(), notificacao_doacao.entidade().tesouro(), e_depois->mutable_tesouro());
-    *e_antes = proto_receptor;
+    AtribuiTesouroTodoOuCriaVazios(proto_receptor.tesouro(), e_antes->mutable_tesouro());
     if (n_desfazer != nullptr) {
       *n_desfazer->add_notificacao() = *n_ganhou;
     }
