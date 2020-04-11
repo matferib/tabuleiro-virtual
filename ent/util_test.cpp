@@ -3377,6 +3377,12 @@ TEST(TesteTesouro, TesteDoacao) {
     auto* anel = doador_proto.mutable_tesouro()->add_aneis();
     anel->set_id("protecao_1");
     anel->set_em_uso(true);
+    auto* amuleto = doador_proto.mutable_tesouro()->add_amuletos();
+    amuleto->set_id("protecao_1");
+    amuleto->set_em_uso(true);
+    amuleto = doador_proto.mutable_tesouro()->add_amuletos();
+    amuleto->set_id("protecao_1");
+    amuleto->set_em_uso(false);
     auto* moedas = doador_proto.mutable_tesouro()->mutable_moedas();
     moedas->set_po(3);
     moedas->set_pp(30);
@@ -3407,6 +3413,8 @@ TEST(TesteTesouro, TesteDoacao) {
     tesouro_doado->mutable_moedas()->set_po(3);  // qualquer valor funciona, so pra indicar que eh ouro.
     EXPECT_FALSE(doador->Proto().tesouro().aneis().empty());
     *tesouro_doado->add_aneis() = doador->Proto().tesouro().aneis(0);
+    EXPECT_EQ(doador->Proto().tesouro().amuletos().size(), 2);
+    *tesouro_doado->add_amuletos() = doador->Proto().tesouro().amuletos(1);
   }
 
   ntf::Notificacao n_grupo;
@@ -3420,6 +3428,7 @@ TEST(TesteTesouro, TesteDoacao) {
     doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
     EXPECT_TRUE(doador->Proto().evento().empty());
     EXPECT_TRUE(doador->Proto().tesouro().aneis().empty());
+    EXPECT_EQ(doador->Proto().tesouro().amuletos().size(), 1);
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
@@ -3429,6 +3438,8 @@ TEST(TesteTesouro, TesteDoacao) {
     ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 2);
     EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
     EXPECT_FALSE(receptor->Proto().tesouro().aneis(1).em_uso());
+    ASSERT_FALSE(receptor->Proto().tesouro().amuletos().empty());
+    EXPECT_FALSE(receptor->Proto().tesouro().amuletos(0).em_uso());
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 7);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 400);
@@ -3440,6 +3451,9 @@ TEST(TesteTesouro, TesteDoacao) {
     EXPECT_EQ(doador->Proto().evento().size(), 1);
     EXPECT_FALSE(doador->Proto().tesouro().aneis().empty());
     EXPECT_TRUE(doador->Proto().tesouro().aneis(0).em_uso());
+    EXPECT_EQ(doador->Proto().tesouro().amuletos().size(), 2);
+    EXPECT_TRUE(doador->Proto().tesouro().amuletos(0).em_uso());
+    EXPECT_FALSE(doador->Proto().tesouro().amuletos(1).em_uso());
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 3);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
@@ -3450,6 +3464,7 @@ TEST(TesteTesouro, TesteDoacao) {
     EXPECT_EQ(receptor->Proto().evento().size(), 1);
     ASSERT_EQ(receptor->Proto().tesouro().aneis().size(), 1);
     EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
+    EXPECT_TRUE(receptor->Proto().tesouro().amuletos().empty());
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 4);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 0);
