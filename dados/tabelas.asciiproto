@@ -9289,7 +9289,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'doenca_plena' 
+    id: 'doenca_plena'
     nome_ingles: 'harm'
     nome: 'doença plena'
     modelo_dano: DANO_10_POR_NIVEL_MAX_150
@@ -9314,7 +9314,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_minimos' 
+    id: 'curar_ferimentos_minimos'
     nome_ingles: 'cure minor wounds'
     nome: 'curar ferimentos mínimos'
     modelo_dano: CURA_1
@@ -9341,7 +9341,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_leves' 
+    id: 'curar_ferimentos_leves'
     nome_ingles: 'cure light wounds'
     nome: 'curar ferimentos leves'
     modelo_dano: CURA_1D8_MAIS_1_POR_NIVEL_MAX_5
