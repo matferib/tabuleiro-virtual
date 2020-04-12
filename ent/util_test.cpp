@@ -3495,6 +3495,12 @@ TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
   EXPECT_FALSE(dat->ataque_toque());
 }
 
+TEST(TestFeiticosLink, TesteFeiticosLink) {
+  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+    EXPECT_FALSE(feitico.link().empty()) << "feitico: " << feitico.id();
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
