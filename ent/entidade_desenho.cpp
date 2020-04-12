@@ -232,16 +232,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
       vd.matriz_modelagem, vd.matriz_modelagem_tijolo_base, vd.matriz_modelagem_tijolo_tela, vd.matriz_modelagem_tela_textura, vd.matriz_deslocamento_textura);
 }
 
-bool MaoPrincipal(EmpunhaduraArma empunhadura) {
-  switch (empunhadura) {
-    case EA_MAO_RUIM:
-    case EA_MONSTRO_ATAQUE_SECUNDARIO:
-      return false;
-    default:
-      return true;
-  }
-}
-
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (proto_.tipo() != TE_ENTIDADE) {
     // Apenas entidades tem decoracoes.
@@ -250,7 +240,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   const DadosAtaque* dac = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   const DadosAtaque* das = DadoCorrenteSecundario();
   if (dac != nullptr) {
-    // TODO desenhar escudo de acordo com empunhadura.
     ParametrosDesenho pd_sem_texturas_de_frente = pd == nullptr ? ParametrosDesenho::default_instance() : *pd;
     if (dac->has_id_arma()) {
       const auto& arma_tabelada = tabelas_.Arma(dac->id_arma());
@@ -288,7 +277,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       if (modelo != nullptr) {
         const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
         gl::MatrizEscopo salva_matriz;
-        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+        pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
+        MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
         gl::Translada(posicao.x(), posicao.y(), posicao.z());
         modelo->vbos_gravados.Desenha();
       }

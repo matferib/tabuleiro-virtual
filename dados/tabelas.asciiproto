@@ -196,6 +196,7 @@ tabela_armas {
     id: 'maca_estrela'
     categoria: CAT_CAC
     nome: 'maça estrela'
+    modelo_3d: 'morning_star'
     preco: '8 PO'
     dano { medio: '1d8' }
     multiplicador_critico: 2
@@ -511,6 +512,7 @@ tabela_armas {
   armas {
     id: 'mangual'
     nome: 'mangual'
+    modelo_3d: 'flail'
     preco: '8 PO'
     dano { medio: '1d8' }
     categoria: CAT_CAC
@@ -608,6 +610,7 @@ tabela_armas {
   armas {
     id: 'falcione'
     nome: 'falcione'
+    modelo_3d: 'sword'
     preco: '75 PO'
     dano { medio: '2d4' }
     categoria: CAT_CAC
@@ -687,6 +690,7 @@ tabela_armas {
   armas {
     id: 'mangual_pesado'
     nome: 'mangual pesado'
+    modelo_3d: 'flail'
     preco: '15 PO'
     dano { medio: '1d10' }
     categoria: CAT_CAC
@@ -899,6 +903,7 @@ tabela_armas {
   armas {
     id: 'mangual_atroz'
     nome: 'mangual atroz'
+    modelo_3d: 'flail'
     preco: '90 PO'
     dano { medio: '1d8' }
     dano_secundario { medio: '1d8'}
