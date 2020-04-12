@@ -602,7 +602,9 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       if (pl.usado()) continue;
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
-      lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str()));
+      const auto& feitico = tabelas_.Feitico(c.id());
+      std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
+      lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str(), link.c_str()));
       items.emplace_back(c.id(), nivel_gasto, indice, indice);
     }
     if (lista.empty()) {
@@ -627,7 +629,9 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& fn = fc.feiticos_por_nivel(nivel);
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
-        lista.push_back(StringPrintf("nivel %d[%d]: %s", nivel, indice, NomeFeitico(c, tabelas_).c_str()));
+        const auto& feitico = tabelas_.Feitico(c.id());
+        std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
+        lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel, indice, NomeFeitico(c, tabelas_).c_str(), link.c_str()));
         // Gasta do nivel certo.
         items.emplace_back(c.id(), nivel, indice, indice_gasto);
       }
