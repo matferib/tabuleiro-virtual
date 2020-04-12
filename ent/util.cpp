@@ -5187,4 +5187,11 @@ void PreencheNotificacoesDoacaoParcialTesouro(
   }
 }
 
+int NivelMagia(const ArmaProto& magia, const InfoClasse& ic) {
+  for (const auto& icf : magia.info_classes()) {
+    if (icf.id() == ic.id()) return icf.nivel();
+  }
+  return 0;
+}
+
 }  // namespace ent

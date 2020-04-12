@@ -187,6 +187,9 @@ message ArmaProto {
   optional ModeloTotalDadosVida modelo_total_dv = 30;
   // Caso a arma tenha modelo 3d.
   optional string modelo_3d = 31;
+  // link da arma, feitico ou o que for.
+  optional string link = 32;
+  optional string nome_ingles = 33;
 }
 
 message TabelaArmaduraOuEscudo {

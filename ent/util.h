@@ -941,6 +941,13 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
 // Retorna o total de pontos de vida da entidade (incluindo temporarios).
 int PontosVida(const EntidadeProto& proto);
 
+// Retorna a classe do proto que lanca o feitico passado para o tipo de pergaminho.
+const InfoClasse& ClasseParaLancarPergaminho(
+    const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto);
+
+// Retorna o nivel da magia para uma determinada classe.
+int NivelMagia(const ArmaProto& magia, const InfoClasse& ic);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

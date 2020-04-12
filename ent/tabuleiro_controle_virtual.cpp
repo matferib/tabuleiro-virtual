@@ -503,6 +503,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (id == CONTROLE_USAR_PERGAMINHO_DIVINO && e->Proto().tesouro().pergaminhos_divinos().empty()) return;
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO));
       n->mutable_entidade()->set_id(e->Id());
+      *n->mutable_entidade()->mutable_info_classes() = e->Proto().info_classes();
       if (id == CONTROLE_USAR_PERGAMINHO_ARCANO) {
         *n->mutable_entidade()->mutable_tesouro()->mutable_pergaminhos_arcanos() = e->Proto().tesouro().pergaminhos_arcanos();
       } else {
