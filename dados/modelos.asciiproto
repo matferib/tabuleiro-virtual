@@ -1838,6 +1838,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Silêncio'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' escala { x: 8 y: 8 z: 8 } }
+    cor { r: 1 g: 1 b: 1 a: 0.8 }
+  }
+}
+modelo {
   id: 'Esfera Flamejante'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }

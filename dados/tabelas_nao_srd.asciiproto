@@ -491,7 +491,9 @@ tabela_dominios {
 }
 tabela_feiticos {
   armas {
-    id: 'vigor_menor'  # vigor lesser
+    id: 'vigor_menor'
+    nome_ingles: 'vigor lesser'
+    link: 'http://dnd.arkalseif.info/spells/spell-compendium--86/vigor-lesser--4725/index.html'
     nome: 'vigor menor'
     info_classes {
       id: 'clerigo'

@@ -5162,7 +5162,9 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
-    id: 'cegueira_surdez'  # blindness/deafness
+    id: 'cegueira_surdez' 
+    nome_ingles: 'blindness/deafness'
+    link: 'https://www.d20srd.org/srd/spells/blindnessDeafness.htm'
     nome: 'cegueira/surdez'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5202,7 +5204,9 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'marca_arcana'  # arcane_mark
+    id: 'marca_arcana' 
+    nome_ingles: 'arcane_mark'
+    link: 'https://www.d20srd.org/srd/spells/arcaneMark.htm'
     nome: 'marca arcana'
     info_classes {
       id: 'mago'
@@ -5211,7 +5215,9 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'invocar_enxames'  # summon swarm
+    id: 'invocar_enxames' 
+    nome_ingles: 'summon swarm'
+    link: 'https://www.d20srd.org/srd/spells/summonSwarm.htm'
     nome: 'invocar enxames'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5232,7 +5238,9 @@ tabela_feiticos {
     # duracao concentracao + 2 rodadas
   }
   armas {
-    id: 'nevoa_mortal'  # cloudkill
+    id: 'nevoa_mortal' 
+    nome_ingles: 'cloudkill'
+    link: 'https://www.d20srd.org/srd/spells/cloudkill.htm'
     nome: 'névoa mortal'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5247,7 +5255,9 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'pele_rochosa'  # stoneskin
+    id: 'pele_rochosa' 
+    nome_ingles: 'stoneskin'
+    link: 'https://www.d20srd.org/srd/spells/stoneskin.htm'
     nome: 'pele rochosa'
     info_classes {
       id: 'mago'
@@ -5282,7 +5292,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'vento_sussurrante'  # whispering wind
+    id: 'vento_sussurrante' 
+    nome_ingles: 'whispering wind'
+    link: 'https://www.d20srd.org/srd/spells/whisperingWind.htm'
     nome: 'vento sussurrante'
     # range: 1 milha por nivel
     info_classes {
@@ -5296,7 +5308,9 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'raio_exaustao'  # ray of exhaustion
+    link: 'https://www.d20srd.org/srd/spells/rayOfExhaustion.htm'
+    id: 'raio_exaustao' 
+    nome_ingles: 'ray of exhaustion'
     nome: 'raio da exaustão'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5323,7 +5337,9 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'imagem_silenciosa'  # silent image
+    link: 'https://www.d20srd.org/srd/spells/silentImage.htm'
+    id: 'imagem_silenciosa' 
+    nome_ingles: 'silent image'
     nome: 'imagem silenciosa'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -5338,7 +5354,9 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'dissimular_tendencia'  # undetectable alignment
+    link: 'https://www.d20srd.org/srd/spells/undetectableAlignment.htm'
+    id: 'dissimular_tendencia' 
+    nome_ingles: 'undetectable alignment'
     nome: 'dissimular tendencia'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5368,7 +5386,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'aterrorizar'  # scare
+    link: 'https://www.d20srd.org/srd/spells/scare.htm'
+    id: 'aterrorizar' 
+    nome_ingles: 'scare'
     nome: 'aterrorizar'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5399,7 +5419,9 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'padrao_hipnotico'  # hipnotic pattern
+    link: 'https://www.d20srd.org/srd/spells/hypnoticPattern.htm'
+    id: 'padrao_hipnotico' 
+    nome_ingles: 'hypnotic pattern'
     nome: 'padrão hipnótico'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5430,7 +5452,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'constricao'  # entangle
+    link: 'https://www.d20srd.org/srd/spells/entangle.htm'
+    id: 'constricao' 
+    nome_ingles: 'entangle'
     nome: 'constrição'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -5455,7 +5479,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'detectar_animais_plantar'  # detect animals or plants
+    link: 'https://www.d20srd.org/srd/spells/detectAnimalsOrPlants.htm'
+    id: 'detectar_animais_plantar' 
+    nome_ingles: 'detect animals or plants'
     nome: 'detectar animais ou plantas'
     info_classes {
       id: 'druida'
@@ -5468,7 +5494,9 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'detectar_armadilhas'  # detect snares and traps
+    link: 'https://www.d20srd.org/srd/spells/detectSnaresAndPits.htm'
+    id: 'detectar_armadilhas' 
+    nome_ingles: 'detect snares and pits'
     nome: 'detectar armadilhas'
     info_classes {
       id: 'druida'
@@ -5480,10 +5508,10 @@ tabela_feiticos {
     }
     escola: 'adivinhacao'
   }
-
-
   armas {
-    id: 'enfeiticar_pessoa'  # charm person
+    link: 'https://www.d20srd.org/srd/spells/charmPerson.htm'
+    id: 'enfeiticar_pessoa' 
+    nome_ingles: 'charm person'
     nome: 'enfeitiçar pessoa'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5509,9 +5537,10 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
-
   armas {
-    id: 'enfeiticar_animal'  # charm animal
+    link: 'https://www.d20srd.org/srd/spells/charmAnimal.htm'
+    id: 'enfeiticar_animal' 
+    nome_ingles: 'charm animal'
     nome: 'enfeitiçar animal'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5539,7 +5568,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'acalmar_animais'  # calm animals
+    link: 'https://www.d20srd.org/srd/spells/calmAnimals.htm'
+    id: 'acalmar_animais' 
+    nome_ingles: 'calm animals'
     nome: 'acalmar animais'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5574,7 +5605,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_medo'  # remove fear
+    link: 'https://www.d20srd.org/srd/spells/removeFear.htm'
+    id: 'remover_medo' 
+    nome_ingles: 'remove fear'
     nome: 'remover medo'
     info_classes {
       id: 'bardo'
@@ -5588,7 +5621,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'abrir_fechar'  # open/close
+    link: 'https://www.d20srd.org/srd/spells/openClose.htm'
+    id: 'abrir_fechar' 
+    nome_ingles: 'open/close'
     nome: 'abrir/fechar'
     info_classes {
       id: 'bardo'
@@ -5602,7 +5637,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'invocar_instrumento'  # summon instrument
+    link: 'https://www.d20srd.org/srd/spells/summonInstrument.htm'
+    id: 'invocar_instrumento' 
+    nome_ingles: 'summon instrument'
     nome: 'invocar instrumento'
     info_classes {
       id: 'bardo'
@@ -5611,7 +5648,9 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'cancao_ninar'  # lullaby
+    link: 'https://www.d20srd.org/srd/spells/lullaby.htm'
+    id: 'cancao_ninar' 
+    nome_ingles: 'lullaby'
     nome: 'canção de ninar'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5638,7 +5677,9 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'imobilizar_pessoa'  # hold person
+    link: 'https://www.d20srd.org/srd/spells/holdPerson.htm'
+    id: 'imobilizar_pessoa' 
+    nome_ingles: 'hold person'
     nome: 'imobilizar pessoa'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5669,7 +5710,9 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'imobilizar_mortos_vivos'  # halt undead
+    link: 'https://www.d20srd.org/srd/spells/haltUndead.htm'
+    id: 'imobilizar_mortos_vivos' 
+    nome_ingles: 'halt undead'
     nome: 'imobilizar mortos-vivos'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5697,7 +5740,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'imobilizar_animal'  # hold animal
+    link: 'https://www.d20srd.org/srd/spells/holdAnimal.htm'
+    id: 'imobilizar_animal' 
+    nome_ingles: 'hold animal'
     nome: 'imobilizar animal'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5729,7 +5774,9 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'imobilizar_monstro'  # hold monster
+    link: 'https://www.d20srd.org/srd/spells/holdMonster.htm'
+    id: 'imobilizar_monstro' 
+    nome_ingles: 'hold monster'
     nome: 'imobilizar monstro'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5760,7 +5807,9 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'imobilizar_monstro_massa'  # mass hold monster
+    link: 'https://www.d20srd.org/srd/spells/holdMonsterMass.htm'
+    id: 'imobilizar_monstro_massa' 
+    nome_ingles: 'hold monster, mass'
     nome: 'imobilizar monstro em massa'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5785,7 +5834,9 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'imobilizar_pessoa_massa'  # mass hold person
+    link: 'https://www.d20srd.org/srd/spells/holdPersonMass.htm'
+    id: 'imobilizar_pessoa_massa' 
+    nome_ingles: 'hold person, mass'
     nome: 'imobilizar pessoa em massa'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -5812,7 +5863,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'neutralizar_venenos'  # neutralize poison
+    link: 'https://www.d20srd.org/srd/spells/neutralizePoison.htm'
+    id: 'neutralizar_venenos' 
+    nome_ingles: 'neutralize poison'
     nome: 'neutralizar venenos'
     info_classes {
       id: 'clerigo'
@@ -5846,7 +5899,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'criar_alimentos'  # create food and water
+    link: 'https://www.d20srd.org/srd/spells/createFoodAndWater.htm'
+    id: 'criar_alimentos' 
+    nome_ingles: 'create food and water'
     nome: 'criar alimentos'
     info_classes {
       id: 'clerigo'
@@ -5856,7 +5911,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'chama_continua'  # continual flame
+    link: 'https://www.d20srd.org/srd/spells/continualFlame.htm'
+    id: 'chama_continua' 
+    nome_ingles: 'continual flame'
     nome: 'chama contínua'
     info_classes {
       id: 'mago'
@@ -5870,7 +5927,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'praga'  # contagion
+    link: 'https://www.d20srd.org/srd/spells/contagion.htm'
+    id: 'praga' 
+    nome_ingles: 'contagion'
     nome: 'praga'
     info_classes {
       id: 'mago'
@@ -5903,7 +5962,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'destruicao'  # destruction 
+    link: 'https://www.d20srd.org/srd/spells/destruction.htm'
+    id: 'destruicao' 
+    nome_ingles: 'destruction'
     nome: 'destruição'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -5924,14 +5985,16 @@ tabela_feiticos {
         efeito: EFEITO_MORTE
       }
       efeitos_adicionais_se_salvou {
-        delta_pontos_vida: '10d6' 
+        delta_pontos_vida: '10d6'
       }
     }
     escola: 'necromancia'
   }
 
   armas {
-    id: 'palavra_sagrada'  # holy word 
+    link: 'https://www.d20srd.org/srd/spells/holyWord.htm'
+    id: 'palavra_sagrada' 
+    nome_ingles: 'holy word'
     nome: 'palavra sagrada'
     alcance_quadrados: 0
     info_classes {
@@ -5961,11 +6024,10 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
-
-
-
   armas {
-    id: 'rogar_maldicao'  # bestow curse
+    link: 'https://www.d20srd.org/srd/spells/bestowCurse.htm'
+    id: 'rogar_maldicao' 
+    nome_ingles: 'bestow curse'
     nome: 'rogar maldição'
     info_classes {
       id: 'mago'
@@ -5989,7 +6051,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'silencio'  # silence
+    link: 'https://www.d20srd.org/srd/spells/silence.htm'
+    id: 'silencio' 
+    nome_ingles: 'silence'
     nome: 'silêncio'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -6001,12 +6065,18 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 2
     }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Silêncio'
+    }
     # TODO criacao de uma esfera de 4 quadrados.
     escola: 'ilusao'
   }
 
   armas {
-    id: 'augurio'  # augury
+    link: 'https://www.d20srd.org/srd/spells/augury.htm'
+    id: 'augurio' 
+    nome_ingles: 'augury'
     nome: 'augúrio'
     info_classes {
       id: 'clerigo'
@@ -6019,7 +6089,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'invisibilidade_contra_mortos_vivos'  # hide from undead
+    link: 'https://www.d20srd.org/srd/spells/hideFromUndead.htm'
+    id: 'invisibilidade_contra_mortos_vivos' 
+    nome_ingles: 'hide from undead'
     nome: 'invisibilidade contra mortos-vivos'
     info_classes {
       id: 'clerigo'
@@ -6039,7 +6111,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'comando'  # command
+    link: 'https://www.d20srd.org/srd/spells/command.htm'
+    id: 'comando' 
+    nome_ingles: 'command'
     nome: 'comando'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -6064,7 +6138,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'compreender_idiomas'  # comprehend languages
+    link: 'https://www.d20srd.org/srd/spells/comprehendLanguages.htm'
+    id: 'compreender_idiomas' 
+    nome_ingles: 'comprehend languages'
     nome: 'compreender idiomas'
     info_classes {
       id: 'bardo'
@@ -6090,7 +6166,9 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'purificar_alimentos'  # purify food and drink
+    link: 'https://www.d20srd.org/srd/spells/purifyFoodAndDrink.htm'
+    id: 'purificar_alimentos' 
+    nome_ingles: 'purify food and drink'
     nome: 'purificar alimentos'
     info_classes {
       id: 'duida'
@@ -6104,7 +6182,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'consertar'  # mending
+    id: 'consertar' 
+    nome_ingles: 'mending'
     nome: 'consertar'
     info_classes {
       id: 'bardo'
@@ -6126,7 +6205,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'luz'  # light
+    id: 'luz' 
+    nome_ingles: 'light'
     nome: 'luz'
     info_classes {
       id: 'bardo'
@@ -6158,7 +6238,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'criar_agua'  # create water
+    id: 'criar_agua' 
+    nome_ingles: 'create water'
     nome: 'criar água'
     info_classes {
       id: 'clerigo'
@@ -6176,7 +6257,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_prismatica'  # prismatic wall.
+    id: 'muralha_prismatica' 
+    nome_ingles: 'prismatic wall.'
     nome: 'muralha prismática'
     info_classes {
       id: 'mago'
@@ -6185,7 +6267,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'telecinesia'  # telekinesis.
+    id: 'telecinesia' 
+    nome_ingles: 'telekinesis.'
     nome: 'telecinésia'
     info_classes {
       id: 'mago'
@@ -6194,7 +6277,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'metamorfose_torrida'  # baleful polymorph.
+    id: 'metamorfose_torrida' 
+    nome_ingles: 'baleful polymorph.'
     nome: 'metamorfose tórrida'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -6221,7 +6305,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'desejo_restrito'  # limited wish.
+    id: 'desejo_restrito' 
+    nome_ingles: 'limited wish.'
     nome: 'desejo restrito'
     info_classes {
       id: 'mago'
@@ -6231,7 +6316,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'desejo'  # wish.
+    id: 'desejo' 
+    nome_ingles: 'wish.'
     nome: 'desejo'
     info_classes {
       id: 'mago'
@@ -6240,7 +6326,8 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'circulo_teletransporte'  # teleportation circle.
+    id: 'circulo_teletransporte' 
+    nome_ingles: 'teleportation circle.'
     nome: 'círculo de teletransporte'
     info_classes {
       id: 'mago'
@@ -6250,7 +6337,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'parar_tempo'  # time stop.
+    id: 'parar_tempo' 
+    nome_ingles: 'time stop.'
     nome: 'parar o tempo'
     info_classes {
       id: 'mago'
@@ -6265,7 +6353,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'aliado_extra_planar_menor'  # planar ally.
+    id: 'aliado_extra_planar_menor' 
+    nome_ingles: 'planar ally.'
     nome: 'aliado extra-planar menor'
     info_classes {
       id: 'clerigo'
@@ -6274,7 +6363,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'aliado_extra_planar_menor'  # planar ally, greater.
+    id: 'aliado_extra_planar_menor' 
+    nome_ingles: 'planar ally, greater.'
     nome: 'aliado extra-planar maior'
     info_classes {
       id: 'clerigo'
@@ -6284,7 +6374,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'controlar_agua'  # control water.
+    id: 'controlar_agua' 
+    nome_ingles: 'control water.'
     nome: 'controlar a água'
     info_classes {
       id: 'clerigo'
@@ -6307,7 +6398,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'movimentacao_livre'  # freedom of movement
+    id: 'movimentacao_livre' 
+    nome_ingles: 'freedom of movement'
     nome: 'movimentação livre'
     info_classes {
       id: 'clerigo'
@@ -6341,7 +6433,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'poder_divino'  # divine power
+    id: 'poder_divino' 
+    nome_ingles: 'divine power'
     nome: 'poder divino'
     info_classes {
       id: 'clerigo'
@@ -6364,7 +6457,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'imunidade_magia'  # spell immunity 
+    id: 'imunidade_magia' 
+    nome_ingles: 'spell immunity '
     nome: 'Imunidade à Magia'
     info_classes {
       id: 'clerigo'
@@ -6401,7 +6495,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'imunidade_magia_maior'  # greater spell immunity
+    id: 'imunidade_magia_maior' 
+    nome_ingles: 'greater spell immunity'
     nome: 'Imunidade à Magia Maior'
     info_classes {
       id: 'clerigo'
@@ -6422,7 +6517,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'tempestade_fogo'  # fire storm
+    id: 'tempestade_fogo' 
+    nome_ingles: 'fire storm'
     nome: 'Tempestade de Fogo'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -6449,7 +6545,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'arma_rompimento'  # disruping weapon
+    id: 'arma_rompimento' 
+    nome_ingles: 'disruping weapon'
     nome: 'Arma do Rompimento'
     info_classes {
       id: 'clerigo'
@@ -6469,7 +6566,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'cancelar_encantamento'  # break enchantment 
+    id: 'cancelar_encantamento' 
+    nome_ingles: 'break enchantment '
     nome: 'Cancelar Encantamento'
     info_classes {
       id: 'clerigo'
@@ -6509,7 +6607,8 @@ tabela_feiticos {
 
 
   armas {
-    id: 'inseto_gigante'  # giant vermin
+    id: 'inseto_gigante' 
+    nome_ingles: 'giant vermin'
     nome: 'Inseto Gigante'
     info_classes {
       id: 'clerigo'
@@ -6525,7 +6624,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'adivinhacao'  # divination.
+    id: 'adivinhacao' 
+    nome_ingles: 'divination.'
     nome: 'adivinhação'
     info_classes {
       id: 'clerigo'
@@ -6540,7 +6640,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'assassino_fantasmagorico'  # phantasmal killer.
+    id: 'assassino_fantasmagorico' 
+    nome_ingles: 'phantasmal killer.'
     nome: 'assassino fantasmagórico'
     dano { invariavel: '3d6' }
     alcance_quadrados: 20
@@ -6562,7 +6663,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_gelo'  # wall of ice.
+    id: 'muralha_gelo' 
+    nome_ingles: 'wall of ice.'
     nome: 'muralha de gelo'
     info_classes {
       id: 'mago'
@@ -6576,7 +6678,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_fogo'  # wall of fire.
+    id: 'muralha_fogo' 
+    nome_ingles: 'wall of fire.'
     nome: 'muralha de fogo'
     info_classes {
       id: 'mago'
@@ -6599,7 +6702,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'conjuracao_sombras'  # shadow conjuration
+    id: 'conjuracao_sombras' 
+    nome_ingles: 'shadow conjuration'
     nome: 'conjuração das sombras'
     info_classes {
       id: 'bardo'
@@ -6613,7 +6717,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'grito'  # shout
+    id: 'grito' 
+    nome_ingles: 'shout'
     nome: 'grito'
     dano { invariavel: '3d6' }
     info_classes {
@@ -6646,7 +6751,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'proteger_fortalezas'  # guards and wards
+    id: 'proteger_fortalezas'
+    nome_ingles: 'guards and wards'
     nome: 'proteger fortalezas'
     info_classes {
       id: 'mago'
@@ -6655,7 +6761,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'elucubracao'  # mage's lucubration
+    id: 'elucubracao'
+    nome_ingles: 'mage\'s lucubration'
     nome: 'elucubração'
     alcance_quadrados: 20
     info_classes {
@@ -6675,7 +6782,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'circulo_morte'  # circle of death
+    id: 'circulo_morte'
+    nome_ingles: 'circle of death'
     nome: 'círculo da morte'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -6702,7 +6810,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'globo_invulnerabilidade'  # globe of invulnerability
+    id: 'globo_invulnerabilidade' 
+    nome_ingles: 'globe of invulnerability'
     nome: 'globo de invulnerabilidade'
     alcance_quadrados: 1
     info_classes {
@@ -6717,7 +6826,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'globo_invulnerabilidade_menor'  # globe of invulnerability, lesser
+    id: 'globo_invulnerabilidade_menor' 
+    nome_ingles: 'globe of invulnerability, lesser'
     nome: 'globo de invulnerabilidade menor'
     info_classes {
       id: 'mago'
@@ -6730,7 +6840,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'missao_menor'  # geas, lesser
+    id: 'missao_menor' 
+    nome_ingles: 'geas, lesser'
     nome: 'missão menor'
     info_classes {
       id: 'bardo'
@@ -6753,7 +6864,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'protecao_contra_morte'  # death ward
+    id: 'protecao_contra_morte' 
+    nome_ingles: 'death ward'
     nome: 'proteção contra a morte'
     info_classes {
       id: 'druida'
@@ -6786,7 +6898,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_doencas'  # remove disease
+    id: 'remover_doencas' 
+    nome_ingles: 'remove disease'
     nome: 'remover_maldicao'
     info_classes {
       id: 'druida'
@@ -6804,7 +6917,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_maldicao'  # remove curse
+    id: 'remover_maldicao' 
+    nome_ingles: 'remove curse'
     nome: 'remover_maldicao'
     info_classes {
       id: 'bardo'
@@ -6826,7 +6940,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'falar_com_plantas'  # speak with plants
+    id: 'falar_com_plantas' 
+    nome_ingles: 'speak with plants'
     nome: 'falar_com_plantas'
     info_classes {
       id: 'ranger'
@@ -6852,7 +6967,8 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'forma_gasosa'  # gaseous form
+    id: 'forma_gasosa' 
+    nome_ingles: 'gaseous form'
     nome: 'forma gasosa'
     info_classes {
       id: 'bardo'
@@ -6881,7 +6997,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_paralisia'  # remove paralysis
+    id: 'remover_paralisia' 
+    nome_ingles: 'remove paralysis'
     nome: 'remover paralisia'
     info_classes {
       id: 'clerigo'
@@ -6895,7 +7012,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'salto'  # jump
+    id: 'salto' 
+    nome_ingles: 'jump'
     nome: 'salto'
     info_classes {
       id: 'druida'
@@ -6925,7 +7043,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'presa_magica'  # magic fang.
+    id: 'presa_magica' 
+    nome_ingles: 'magic fang.'
     nome: 'presa mágica'
     info_classes {
       id: 'druida'
@@ -6950,7 +7069,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'malogro'  # blight
+    id: 'malogro' 
+    nome_ingles: 'blight'
     nome: 'malogro'
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
@@ -6972,7 +7092,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'transformacao'  # tenser transformation
+    id: 'transformacao' 
+    nome_ingles: 'tenser transformation'
     nome: 'transformação'
     info_classes {
       id: 'mago'
@@ -6992,7 +7113,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'raio_enfraquecimento'  # ray of enfeeblement
+    id: 'raio_enfraquecimento' 
+    nome_ingles: 'ray of enfeeblement'
     nome: 'raio do enfraquecimento'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7016,7 +7138,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teletransporte'  # teleport
+    id: 'teletransporte' 
+    nome_ingles: 'teleport'
     nome: 'teletransporte'
     info_classes {
       id: 'mago'
@@ -7031,7 +7154,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teletransporte_maior'  # greater teleport
+    id: 'teletransporte_maior' 
+    nome_ingles: 'greater teleport'
     nome: 'teletransporte maior'
     info_classes {
       id: 'mago'
@@ -7045,7 +7169,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'lamina_afiada'  # keen edge
+    id: 'lamina_afiada' 
+    nome_ingles: 'keen edge'
     nome: 'lâmina afiada'
     info_classes {
       id: 'mago'
@@ -7066,7 +7191,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'envenenamento'  # poison
+    id: 'envenenamento' 
+    nome_ingles: 'poison'
     nome: 'envenenamento'
     info_classes {
       id: 'clerigo'
@@ -7087,7 +7213,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'deslocamento'  # displacement
+    id: 'deslocamento' 
+    nome_ingles: 'displacement'
     nome: 'deslocamento'
     info_classes {
       id: 'bardo'
@@ -7110,7 +7237,8 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'luz_cegante'  # searing light.
+    id: 'luz_cegante' 
+    nome_ingles: 'searing light.'
     nome: 'luz cegante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -7139,7 +7267,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'oracao'  # prayer
+    id: 'oracao' 
+    nome_ingles: 'prayer'
     nome: 'oração'
     alcance_quadrados: 8
     info_classes {
@@ -7162,7 +7291,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'drenar_temporario'  # enervation
+    id: 'drenar_temporario' 
+    nome_ingles: 'enervation'
     nome: 'drenar temporário'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7189,7 +7319,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'drenar_forca_vital'  # death knell
+    id: 'drenar_forca_vital' 
+    nome_ingles: 'death knell'
     nome: 'drenar força vital'
     info_classes {
       id: 'clerigo'
@@ -7212,7 +7343,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'condicao'  # status
+    id: 'condicao' 
+    nome_ingles: 'status'
     nome: 'condição'
     info_classes {
       id: 'clerigo'
@@ -7231,7 +7363,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'zona_verdade'  # zone of truth
+    id: 'zona_verdade' 
+    nome_ingles: 'zone of truth'
     nome: 'zona da verdade'
     info_classes {
       id: 'clerigo'
@@ -7248,7 +7381,8 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'tendencia_arma'  # align weapon
+    id: 'tendencia_arma' 
+    nome_ingles: 'align weapon'
     nome: 'tendência em arma'
     info_classes {
       id: 'clerigo'
@@ -7264,7 +7398,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'escuridao'  # darkness
+    id: 'escuridao' 
+    nome_ingles: 'darkness'
     nome: 'escuridão'
     alcance_quadrados: 1
     info_classes {
@@ -7287,7 +7422,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'luz_dia'  # daylight
+    id: 'luz_dia' 
+    nome_ingles: 'daylight'
     nome: 'luz do dia'
     alcance_quadrados: 1
     info_classes {
@@ -7318,7 +7454,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'quebrar_encantamento'  # break enchantment
+    id: 'quebrar_encantamento' 
+    nome_ingles: 'break enchantment'
     nome: 'quebrar encantamento'
     info_classes {
       id: 'bardo'
@@ -7349,7 +7486,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'comando_maior'  # command, greater
+    id: 'comando_maior' 
+    nome_ingles: 'command, greater'
     nome: 'comando maior'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7375,7 +7513,8 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'barreira_laminas'  # blade barrier 
+    id: 'barreira_laminas' 
+    nome_ingles: 'blade barrier '
     nome: 'Barreira de Lâminas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -7412,7 +7551,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'idiomas'  # tongues
+    id: 'idiomas' 
+    nome_ingles: 'tongues'
     nome: 'idiomas'
     info_classes {
       id: 'bardo'
@@ -7440,7 +7580,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'enviar_mensagem'  # sending
+    id: 'enviar_mensagem' 
+    nome_ingles: 'sending'
     nome: 'enviar mensagem'
     info_classes {
       id: 'clerigo'
@@ -7454,7 +7595,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'restauracao'  # restoration
+    id: 'restauracao' 
+    nome_ingles: 'restoration'
     nome: 'restauracao'
     info_classes {
       id: 'clerigo'
@@ -7470,7 +7612,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'restauracao_menor'  # lesser restoration
+    id: 'restauracao_menor' 
+    nome_ingles: 'lesser restoration'
     nome: 'restauracao menor'
     info_classes {
       id: 'clerigo'
@@ -7489,7 +7632,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'cativar'  # enthrall
+    id: 'cativar' 
+    nome_ingles: 'enthrall'
     nome: 'cativar'
     alcance_quadrados: 1
     info_classes {
@@ -7527,7 +7671,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'proteger_outro'  # shield other
+    id: 'proteger_outro' 
+    nome_ingles: 'shield other'
     nome: 'proteger outro'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7559,7 +7704,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'detectar_portas_secretas'  # detect secret doors
+    id: 'detectar_portas_secretas' 
+    nome_ingles: 'detect secret doors'
     nome: 'detectar portas secretas'
     info_classes {
       id: 'bardo'
@@ -7585,7 +7731,8 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'auxilio_divino'  # divine favor
+    id: 'auxilio_divino' 
+    nome_ingles: 'divine favor'
     nome: 'auxílio divino'
     info_classes {
       id: 'clerigo'
@@ -7614,6 +7761,7 @@ tabela_feiticos {
   armas {
     id: 'protecao_contra_mal'
     nome: 'proteção contra o mal'
+    nome_ingles: 'protection from evil'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -7646,6 +7794,7 @@ tabela_feiticos {
   armas {
     id: 'protecao_contra_bem'
     nome: 'proteção contra o bem'
+    nome_ingles: 'protection from good'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -7674,6 +7823,7 @@ tabela_feiticos {
   armas {
     id: 'protecao_contra_ordem'
     nome: 'proteção contra a ordem'
+    nome_ingles: 'protection from law'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -7703,6 +7853,7 @@ tabela_feiticos {
   armas {
     id: 'protecao_contra_caos'
     nome: 'proteção contra o caos'
+    nome_ingles: 'protection from chaos'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -7734,7 +7885,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'alarme'  # alarm
+    id: 'alarme' 
+    nome_ingles: 'alarm'
     nome: 'alarme'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7757,7 +7909,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'aumentar_pessoa'  # enlarge person
+    id: 'aumentar_pessoa' 
+    nome_ingles: 'enlarge person'
     nome: 'aumentar pessoa'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7785,7 +7938,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'prestigidacao'  # prestigidation
+    id: 'prestigidacao' 
+    nome_ingles: 'prestigidation'
     nome: 'prestigidação'
     info_classes {
       id: 'mago'
@@ -7798,7 +7952,8 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'raio_acido'  # acid splash
+    id: 'raio_acido' 
+    nome_ingles: 'acid splash'
     nome: 'raio de ácido'
     dano { invariavel: '1d3' }
     alcance_quadrados: 5
@@ -7819,7 +7974,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'tentaculos_negros'  # black tentacles
+    id: 'tentaculos_negros' 
+    nome_ingles: 'black tentacles'
     nome: 'tentáculos negros'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -7834,7 +7990,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'desespero_esmagador' # crushing despair
+    id: 'desespero_esmagador'
+    nome_ingles: 'crushing despair'
     nome: 'desespero esmagador'
     alcance_quadrados: 6
     info_classes {
@@ -7859,7 +8016,8 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'boa_esperanca' # good hope
+    id: 'boa_esperanca'
+    nome_ingles: 'good hope'
     nome: 'boa esperanca'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -7883,6 +8041,7 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_i'
     nome: 'invocar criaturas I'
+    nome_ingles: 'summon monster I'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -7925,6 +8084,7 @@ tabela_feiticos {
   armas {
     id: 'invocar_criaturas_ii'
     nome: 'invocar criaturas II'
+    nome_ingles: 'summon monster II'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -7972,6 +8132,7 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iii'
     nome: 'invocar criaturas III'
+    nome_ingles: 'summon monster III'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -7996,6 +8157,7 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_iv'
     nome: 'invocar criaturas IV'
+    nome_ingles: 'summon monster IV'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8018,8 +8180,80 @@ tabela_feiticos {
   }
   armas {
     # TODO
+    id: 'invocar_criaturas_v'
+    nome: 'invocar criaturas V'
+    nome_ingles: 'summon monster V'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+    escola: 'conjuracao'
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_vi'
+    nome: 'invocar criaturas VI'
+    nome_ingles: 'summon monster VI'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 6
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+    escola: 'conjuracao'
+  }
+  armas {
+    # TODO
+    id: 'invocar_criaturas_vii'
+    nome: 'invocar criaturas VII'
+    nome_ingles: 'summon monster VII'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 7
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 7
+    }
+    #acao {
+    #  tipo: ACAO_CRIACAO_ENTIDADE
+      #id_modelo_entidade: 'Orc'
+    #}
+    escola: 'conjuracao'
+  }
+  armas {
+    # TODO
     id: 'invocar_criaturas_viii'
     nome: 'invocar criaturas VIII'
+    nome_ingles: 'summon monster VIII'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8040,6 +8274,7 @@ tabela_feiticos {
     # TODO
     id: 'invocar_criaturas_ix'
     nome: 'invocar criaturas IX'
+    nome_ingles: 'summon monster IX'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8078,7 +8313,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'toque_fadiga' #  touch of fatigue
+    id: 'toque_fadiga'
+    nome_ingles: ' touch of fatigue'
     nome: 'toque da fadiga'
     info_classes {
       id: 'mago'
@@ -8097,7 +8333,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'criar_mortos_vivos_menor' #  animate dead
+    id: 'criar_mortos_vivos_menor'
+    nome_ingles: ' animate dead'
     nome: 'criar mortos vivos menor'
     info_classes {
       id: 'clerigo'
@@ -8116,7 +8353,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'vitalidade_ilusoria' #  death knell
+    id: 'vitalidade_ilusoria'
+    nome_ingles: ' death knell'
     nome: 'vitalidade ilusória'
     info_classes {
       id: 'clerigo'
@@ -8146,7 +8384,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'causar_medo' #  cause fear
+    id: 'causar_medo'
+    nome_ingles: ' cause fear'
     nome: 'causar medo'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -8191,7 +8430,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'resistencia_elementos' #  resist energy
+    id: 'resistencia_elementos'
+    nome_ingles: ' resist energy'
     nome: 'resistência a elementos'
     info_classes {
       id: 'clerigo'
@@ -8235,7 +8475,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'flecha_acida' #  acid arrow
+    id: 'flecha_acida'
+    nome_ingles: ' acid arrow'
     nome: 'flecha ácida'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -8266,7 +8507,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teia' #  web
+    id: 'teia'
+    nome_ingles: ' web'
     nome: 'teia'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -8306,7 +8548,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'arrombar' #  knock
+    id: 'arrombar'
+    nome_ingles: ' knock'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     nome: 'arrombar'
@@ -8326,7 +8569,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'nublar' # blur
+    id: 'nublar'
+    nome_ingles: 'blur'
     nome: 'nublar'
     info_classes {
       id: 'bardo'
@@ -8352,7 +8596,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'poeira_ofuscante' # glitterdust
+    id: 'poeira_ofuscante'
+    nome_ingles: 'glitterdust'
     nome: 'poeira ofuscante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -8395,7 +8640,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'explosao_sonora' # sound burst
+    id: 'explosao_sonora'
+    nome_ingles: 'sound burst'
     nome: 'explosão sonora'
     alcance_quadrados: 5
     dano { invariavel: '1d8' }
@@ -8435,6 +8681,7 @@ tabela_feiticos {
   armas {
     id: 'arma_magica'
     nome: 'arma mágica'
+    nome_ingles: 'magic weapon'
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -8467,8 +8714,9 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'arma_magica_maior' # magic weapon, greater
+    id: 'arma_magica_maior'
     nome: 'arma mágica maior'
+    nome_ingles: 'magic weapon, greater'
     info_classes {
       id: 'clerigo'
       nivel: 4
@@ -8498,7 +8746,8 @@ tabela_feiticos {
 
 
   armas {
-    id: 'armadura_arcana'  # mage armor
+    id: 'armadura_arcana' 
+    nome_ingles: 'mage armor'
     nome: 'armadura arcana'
     info_classes {
       id: 'mago'
@@ -8524,6 +8773,7 @@ tabela_feiticos {
   armas {
     id: 'identificacao'
     nome: 'identificação'
+    nome_ingles: 'identify'
     info_classes {
       id: 'bardo'
       nivel: 1
@@ -8548,6 +8798,7 @@ tabela_feiticos {
   armas {
     id: 'leque_cromatico'
     nome: 'leque cromático'
+    nome_ingles: 'color spray'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -8571,6 +8822,7 @@ tabela_feiticos {
   armas {
     id: 'raio_gelo'
     nome: 'raio de gelo'
+    nome_ingles: 'ray of frost'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     dano { invariavel: '1d3' }
@@ -8594,6 +8846,7 @@ tabela_feiticos {
   armas {
     id: 'ler_magias'
     nome: 'ler magias'
+    nome_ingles: 'read magic'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8635,6 +8888,7 @@ tabela_feiticos {
   armas {
     id: 'som_fantasma'
     nome: 'som fantasma'
+    nome_ingles: 'ghost sound'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -8649,7 +8903,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'brilho'  # flare
+    id: 'brilho'
+    nome_ingles: 'flare'
     nome: 'brilho'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -8682,7 +8937,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'pasmar'  # daze
+    id: 'pasmar' 
+    nome_ingles: 'daze'
     nome: 'pasmar'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -8712,7 +8968,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'velocidade'  # haste
+    id: 'velocidade' 
+    nome_ingles: 'haste'
     nome: 'velocidade'
     modelo_limite_vezes: LIMITE_UM_POR_NIVEL
     alcance_quadrados: 5
@@ -8739,7 +8996,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'ataque_certeiro'  # true strike
+    id: 'ataque_certeiro' 
+    nome_ingles: 'true strike'
     nome: 'ataque certeiro'
     info_classes {
       id: 'mago'
@@ -8757,7 +9015,8 @@ tabela_feiticos {
     escola: 'divination'
   }
   armas {
-    id: 'romper_morto_vivo'  # disrupt undead
+    id: 'romper_morto_vivo' 
+    nome_ingles: 'disrupt undead'
     nome: 'romper morto-vivo'
     alcance_quadrados: 20
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -8778,7 +9037,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'mensagem'  # message
+    id: 'mensagem' 
+    nome_ingles: 'message'
     nome: 'mensagem'
     info_classes {
       id: 'bardo'
@@ -8794,7 +9054,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'suportar_elementos' # endure elements
+    id: 'suportar_elementos'
+    nome_ingles: 'endure elements'
     nome: 'suportar elementos'
     info_classes {
       id: 'clerigo'
@@ -8833,7 +9094,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'maos_magicas' # mage hand
+    id: 'maos_magicas'
+    nome_ingles: 'mage hand'
     nome: 'mãos mágicas'
     info_classes {
       id: 'bardo'
@@ -8846,7 +9108,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'virtude' # virtue
+    id: 'virtude'
+    nome_ingles: 'virtue'
     nome: 'virtude'
     info_classes {
       id: 'paladino'
@@ -8876,7 +9139,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'resistencia' # resistance
+    id: 'resistencia'
+    nome_ingles: 'resistance'
     nome: 'resistência'
     info_classes {
       id: 'bardo'
@@ -8913,6 +9177,7 @@ tabela_feiticos {
   armas {
     id: 'escudo_arcano'
     nome: 'escudo arcano'
+    nome_ingles: 'shield'
     info_classes {
       id: 'mago'
       nivel: 1
@@ -8928,7 +9193,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'luz'  # light
+    id: 'luz' 
+    nome_ingles: 'light'
     nome: 'luz'
     info_classes {
       id: 'bardo'
@@ -8959,7 +9225,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'resistencia'  # resistance
+    id: 'resistencia' 
+    nome_ingles: 'resistance'
     nome: 'resistência'
     info_classes {
       id: 'clerigo'
@@ -8994,7 +9261,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'cura_completa'  # heal
+    id: 'cura_completa' 
+    nome_ingles: 'heal'
     nome: 'cura completa'
     modelo_dano: CURA_10_POR_NIVEL_MAX_150
     info_classes {
@@ -9021,7 +9289,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'doenca_plena'  # harm
+    id: 'doenca_plena' 
+    nome_ingles: 'harm'
     nome: 'doença plena'
     modelo_dano: DANO_10_POR_NIVEL_MAX_150
     info_classes {
@@ -9045,7 +9314,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_minimos'  # cure minor wounds
+    id: 'curar_ferimentos_minimos' 
+    nome_ingles: 'cure minor wounds'
     nome: 'curar ferimentos mínimos'
     modelo_dano: CURA_1
     info_classes {
@@ -9071,7 +9341,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_leves'  # cure light wounds
+    id: 'curar_ferimentos_leves' 
+    nome_ingles: 'cure light wounds'
     nome: 'curar ferimentos leves'
     modelo_dano: CURA_1D8_MAIS_1_POR_NIVEL_MAX_5
     info_classes {
@@ -9109,7 +9380,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'infligir_ferimentos_minimos'  # inflict minor wounds
+    id: 'infligir_ferimentos_minimos' 
+    nome_ingles: 'inflict minor wounds'
     nome: 'infligir ferimentos mínimos'
     dano { invariavel: '1' }
     info_classes {
@@ -9130,7 +9402,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_leves'  # inflict light wounds
+    id: 'infligir_ferimentos_leves' 
+    nome_ingles: 'inflict light wounds'
     nome: 'infligir ferimentos leves'
     modelo_dano: DANO_1D8_MAIS_1_POR_NIVEL_MAX_5
     info_classes {
@@ -9155,7 +9428,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'curar_ferimentos_moderados'  # cure moderate wounds
+    id: 'curar_ferimentos_moderados' 
+    nome_ingles: 'cure moderate wounds'
     nome: 'curar ferimentos moderados'
     modelo_dano: CURA_2D8_MAIS_1_POR_NIVEL_MAX_10
     info_classes {
@@ -9193,7 +9467,8 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'infligir_ferimentos_moderados'  # inflict moderate wounds
+    id: 'infligir_ferimentos_moderados' 
+    nome_ingles: 'inflict moderate wounds'
     nome: 'infligir ferimentos moderados'
     modelo_dano: DANO_2D8_MAIS_1_POR_NIVEL_MAX_10
     info_classes {
@@ -9213,7 +9488,8 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'curar_ferimentos_graves'  # cure serious wounds
+    id: 'curar_ferimentos_graves' 
+    nome_ingles: 'cure serious wounds'
     nome: 'curar ferimentos graves'
     modelo_dano: CURA_3D8_MAIS_1_POR_NIVEL_MAX_15
     info_classes {
@@ -9252,7 +9528,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_graves'  # inflict serious wounds
+    id: 'infligir_ferimentos_graves' 
+    nome_ingles: 'inflict serious wounds'
     nome: 'infligir ferimentos graves'
     modelo_dano: DANO_3D8_MAIS_1_POR_NIVEL_MAX_15
     info_classes {
@@ -9272,7 +9549,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_criticos'  # cure critical wounds
+    id: 'curar_ferimentos_criticos' 
+    nome_ingles: 'cure critical wounds'
     nome: 'curar ferimentos críticos'
     modelo_dano: CURA_4D8_MAIS_1_POR_NIVEL_MAX_20
     info_classes {
@@ -9303,7 +9581,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_criticos'  # inflict critical wounds
+    id: 'infligir_ferimentos_criticos' 
+    nome_ingles: 'inflict critical wounds'
     nome: 'infligir ferimentos críticos'
     modelo_dano: DANO_4D8_MAIS_1_POR_NIVEL_MAX_20
     info_classes {
@@ -9330,7 +9609,8 @@ tabela_feiticos {
 
 
   armas {
-    id: 'forca_touro'  # bull's strength
+    id: 'forca_touro'
+    nome_ingles: 'bull\'s strength'
     nome: 'força do touro'
     info_classes {
       id: 'clerigo'
@@ -9368,7 +9648,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'sabedoria_coruja'  # owl's wisdom
+    id: 'sabedoria_coruja' 
+    nome_ingles: 'owl\'s wisdom'
     nome: 'sabedoria da coruja'
     info_classes {
       id: 'clerigo'
@@ -9405,7 +9686,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'agilidade_gato'  # cat's grace
+    id: 'agilidade_gato'
+    nome_ingles: 'cat\'s grace'
     nome: 'agilidade do gato'
     info_classes {
       id: 'clerigo'
@@ -9438,7 +9720,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'esplendor_aguia'  # eagle's splendor
+    id: 'esplendor_aguia'
+    nome_ingles: 'eagle\'s splendor'
     nome: 'esplendor da águia'
     info_classes {
       id: 'bardo'
@@ -9471,7 +9754,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'vigor_urso'  # bear's endurance
+    id: 'vigor_urso'
+    nome_ingles: 'bear\'s endurance'
     nome: 'vigor do urso'
     info_classes {
       id: 'druida'
@@ -9504,7 +9788,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'astucia_raposa'  # fox's cunning
+    id: 'astucia_raposa'
+    nome_ingles: 'fox\'s cunning'
     nome: 'astúcia da raposa'
     info_classes {
       id: 'bardo'
@@ -9528,6 +9813,7 @@ tabela_feiticos {
   armas {
     id: 'ajuda'
     nome: 'ajuda'
+    nome_ingles: 'aid'
     categoria: CAT_CAC
     info_classes {
       id: 'clerigo'
@@ -9558,9 +9844,11 @@ tabela_feiticos {
     escola: 'encantamento'
   }
 
+  # TODO fazer como uma magia so com escolhas.
   armas {
     id: 'arma_espiritual_mangual'
     nome: 'arma espiritual mangual (20/x2)'
+    nome_ingles: 'spiritual weapon'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -9582,6 +9870,7 @@ tabela_feiticos {
   armas {
     id: 'arma_espiritual_machado_martelo'
     nome: 'arma espiritual machado ou martelo (20/x3)'
+    nome_ingles: 'spiritual weapon'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -9603,6 +9892,7 @@ tabela_feiticos {
   armas {
     id: 'arma_espiritual_espada'
     nome: 'arma espiritual espada (19-20/x2)'
+    nome_ingles: 'spiritual weapon'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -9624,6 +9914,7 @@ tabela_feiticos {
   armas {
     id: 'escudo_fe'
     nome: 'escudo da fé'
+    nome_ingles: 'shield of faith'
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -9645,7 +9936,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'santuario'  # sanctuary
+    id: 'santuario' 
+    nome_ingles: 'sanctuary'
     nome: 'santuário'
     info_classes {
       id: 'clerigo'
@@ -9670,7 +9962,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'circulo_magico_contra_mal' # magic circle against evil
+    id: 'circulo_magico_contra_mal'
+    nome_ingles: 'magic circle against evil'
     nome: 'círculo mágico contra o mal'
     alcance_quadrados: 1
     info_classes {
@@ -9708,7 +10001,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'circulo_magico_contra_bem' # magic circle against good
+    id: 'circulo_magico_contra_bem'
+    nome_ingles: 'magic circle against good'
     nome: 'círculo mágico contra o bem'
     alcance_quadrados: 1
     info_classes {
@@ -9742,7 +10036,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'circulo_magico_contra_caos' # magic circle against chaos
+    id: 'circulo_magico_contra_caos'
+    nome_ingles: 'magic circle against chaos'
     nome: 'círculo mágico contra o caos'
     alcance_quadrados: 1
     info_classes {
@@ -9776,7 +10071,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'circulo_magico_contra_ordem' # magic circle against law
+    id: 'circulo_magico_contra_ordem'
+    nome_ingles: 'magic circle against law'
     nome: 'círculo mágico contra a ordem'
     alcance_quadrados: 1
     info_classes {
@@ -9800,7 +10096,7 @@ tabela_feiticos {
       efeito_area: true
       raio_quadrados: 2
       permite_salvacao: false
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_ORDEM
@@ -9813,6 +10109,7 @@ tabela_feiticos {
   armas {
     id: 'protecao_contra_elementos'
     nome: 'proteção contra elementos'
+    nome_ingles: 'protection from energy'
     info_classes {
       id: 'clerigo'
       nivel: 3
@@ -9857,7 +10154,8 @@ tabela_feiticos {
 
 
   armas {
-    id: 'ver_invisivel'  # see invisibility
+    id: 'ver_invisivel'
+    nome_ingles: 'see invisibility'
     nome: 'ver o invisível'
     info_classes {
       id: 'mago'
@@ -9879,6 +10177,7 @@ tabela_feiticos {
   armas {
     id: 'invisibilidade'
     nome: 'invisibilidade'
+    nome_ingles: 'invisibility'
     info_classes {
       id: 'mago'
       nivel: 2
@@ -9906,6 +10205,7 @@ tabela_feiticos {
   armas {
     id: 'invisibilidade_maior'
     nome: 'invisibilidade maior'
+    nome_ingles: 'invisibility, greater'
     info_classes {
       id: 'mago'
       nivel: 4
@@ -9926,7 +10226,8 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'escudo_fogo'  # fire shield
+    id: 'escudo_fogo' 
+    nome_ingles: 'fire shield'
     nome: 'escudo de fogo'
     info_classes {
       id: 'mago'
@@ -9955,7 +10256,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'ancora_dimensional'  # dimensional anchor
+    id: 'ancora_dimensional' 
+    nome_ingles: 'dimensional anchor'
     nome: 'âncora dimensional'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -9983,7 +10285,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'andar_ar'  # air walk
+    id: 'andar_ar' 
+    nome_ingles: 'air walk'
     nome: 'andar no ar'
     info_classes {
       id: 'ar'
@@ -10012,7 +10315,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'maos_flamejantes'  # burning hands
+    id: 'maos_flamejantes' 
+    nome_ingles: 'burning hands'
     nome: 'mãos flamejantes'
     alcance_quadrados: 3
     modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
@@ -10046,7 +10350,8 @@ tabela_feiticos {
   }
   armas {
     id: 'metamorfose'
-    nome: 'metamorfose'  # polymorph
+    nome: 'metamorfose' 
+    nome_ingles: 'polymorph'
     info_classes {
       id: 'mago'
       nivel: 4
@@ -10063,7 +10368,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'praga_insetos' # insect plague
+    id: 'praga_insetos'
+    nome_ingles: 'insect plague'
     nome: 'praga de insetos'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -10085,7 +10391,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'coluna_chamas' # flame strike
+    id: 'coluna_chamas'
+    nome_ingles: 'flame strike'
     nome: 'coluna de chamas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -10129,6 +10436,7 @@ tabela_feiticos {
   armas {
     id: 'bencao'
     nome: 'benção'
+    nome_ingles: 'bless'
     alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
@@ -10157,7 +10465,8 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'maldicao_menor' # bane
+    id: 'maldicao_menor'
+    nome_ingles: 'bane'
     nome: 'maldição menor'
     alcance_quadrados: 1
     info_classes {
@@ -10185,7 +10494,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'criar_agua' # create water
+    id: 'criar_agua'
+    nome_ingles: 'create water'
     nome: 'criar água'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -10209,7 +10519,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'bola_fogo' # fireball
+    id: 'bola_fogo'
+    nome_ingles: 'fireball'
     nome: 'bola de fogo'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
@@ -10240,7 +10551,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'expulsao' # dismissal
+    id: 'expulsao'
+    nome_ingles: 'dismissal'
     nome: 'expulsão'
     info_classes {
       id: 'mago'
@@ -10266,7 +10578,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'banimento' # banishment
+    id: 'banimento'
+    nome_ingles: 'banishment'
     nome: 'banimento'
     info_classes {
       id: 'mago'
@@ -10299,7 +10612,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'ondas_exaustao' # waves of exhaustion
+    id: 'ondas_exaustao'
+    nome_ingles: 'waves of exhaustion'
     nome: 'onde de exaustão'
     alcance_quadrados: 12
     info_classes {
@@ -10324,7 +10638,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'explosao_solar' # sunburst
+    id: 'explosao_solar'
+    nome_ingles: 'sunburst'
     nome: 'explosão solar'
     dano { invariavel: '6d6' }
     alcance_quadrados: 80
@@ -10365,7 +10680,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'area_escorregadia'  # grease
+    id: 'area_escorregadia' 
+    nome_ingles: 'grease'
     nome: 'área escorregadia'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -10385,7 +10701,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'confusao_menor'  # confusion, lesser
+    id: 'confusao_menor' 
+    nome_ingles: 'confusion, lesser'
     nome: 'confusão menor'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -10408,7 +10725,8 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'confusao'  # confusion
+    id: 'confusao' 
+    nome_ingles: 'confusion'
     nome: 'confusão'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -10445,6 +10763,7 @@ tabela_feiticos {
   armas {
     id: 'cone_glacial'
     nome: 'cone glacial'
+    nome_ingles: 'cone of cold'
     alcance_quadrados: 12
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
@@ -10475,7 +10794,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'detectar_mal' # detect evil
+    id: 'detectar_mal'
+    nome_ingles: 'detect evil'
     nome: 'detectar o mal'
     info_classes {
       id: 'clerigo'
@@ -10492,7 +10812,8 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'detectar_magia' # detect magic
+    id: 'detectar_magia'
+    nome_ingles: 'detect magic'
     nome: 'detectar magia'
     info_classes {
       id: 'bardo'
@@ -10524,7 +10845,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'purgar_invisibilidade'  # invisibility purge
+    id: 'purgar_invisibilidade' 
+    nome_ingles: 'invisibility purge'
     nome: 'purgar invisibilidade'
     info_classes {
       id: 'clerigo'
@@ -10545,6 +10867,7 @@ tabela_feiticos {
   armas {
     id: 'dissipar_magia'
     nome: 'dissipar magia'
+    nome_ingles: 'dispel magic'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -10578,6 +10901,7 @@ tabela_feiticos {
     id: 'dissipar_magia_maior'
     nome: 'dissipar magia maior'
     alcance_quadrados: 20
+    nome_ingles: 'dispel magic, greater'
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'bardo'
@@ -10599,7 +10923,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'enfeiticar_monstro' # charm monster
+    id: 'enfeiticar_monstro'
+    nome_ingles: 'charm monster'
     nome: 'enfeitiçar monstro'
     alcance_quadrados: 12
     info_classes {
@@ -10637,6 +10962,7 @@ tabela_feiticos {
   armas {
     id: 'heroismo'
     nome: 'heroismo'
+    nome_ingles: 'heroism'
     info_classes {
       id: 'mago'
       nivel: 3
@@ -10659,6 +10985,7 @@ tabela_feiticos {
   armas {
     id: 'martelo_caos'
     nome: 'martelo do caos'
+    nome_ingles: 'chaos hammer'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     # dano { invariavel: '1d8' }
@@ -10693,7 +11020,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'nuvem_profana'  # unholy blight
+    id: 'nuvem_profana' 
+    nome_ingles: 'unholy blight'
     nome: 'nuvem profana'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -10729,8 +11057,10 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'missil_magico'  # magic missile
-    nome: 'mísseis mágico'
+    id: 'missil_magico' 
+    nome_ingles: 'magic missile'
+    nome: 'mísseis mágicos'
+    link: 'https://www.d20srd.org/srd/spells/magicMissile.htm'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
@@ -10761,7 +11091,8 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'intuir_direcao'  # know direction
+    id: 'intuir_direcao' 
+    nome_ingles: 'know direction'
     nome: 'intuir direcao'
     info_classes {
       id: 'bardo'
@@ -10774,7 +11105,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'orientacao'  # guidance.
+    id: 'orientacao' 
+    nome_ingles: 'guidance.'
     nome: 'orientação'
     info_classes {
       id: 'clerigo'
@@ -10803,6 +11135,7 @@ tabela_feiticos {
   armas {
     id: 'detectar_veneno'
     nome: 'detectar veneno'
+    nome_ingles: 'detect poison'
     info_classes {
       id: 'clerigo'
       nivel: 0
@@ -10836,7 +11169,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'pedra_encantada'  # magic stone
+    id: 'pedra_encantada' 
+    nome_ingles: 'magic stone'
     nome: 'pedra encantada'
     info_classes {
       id: 'clerigo'
@@ -10867,7 +11201,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'raio_ardente'  # scorching ray
+    id: 'raio_ardente' 
+    nome_ingles: 'scorching ray'
     nome: 'raio ardente'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -10894,6 +11229,7 @@ tabela_feiticos {
   armas {
     id: 'relampago'
     nome: 'relâmpago'
+    nome_ingles: 'lightning bolt'
     alcance_quadrados: 24
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6
     info_classes {
@@ -10920,8 +11256,9 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'inverter_gravidade'  # reverse gravity
+    id: 'inverter_gravidade'
     nome: 'inverter gravidade'
+    nome_ingles: 'reverse gravity'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -10942,6 +11279,7 @@ tabela_feiticos {
   armas {
     id: 'palavra_poder_cegar'
     nome: 'palavra do poder: cegar'
+    nome_ingles: 'power word blind'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -10972,6 +11310,7 @@ tabela_feiticos {
   armas {
     id: 'palavra_poder_atordoar'
     nome: 'palavra do poder: atordoar'
+    nome_ingles: 'power word stun'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -11001,6 +11340,7 @@ tabela_feiticos {
   armas {
     id: 'palavra_poder_matar'
     nome: 'palavra do poder: matar'
+    nome_ingles: 'power word kill'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -11028,7 +11368,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'piscar'  # blink
+    id: 'piscar'
+    nome_ingles: 'blink'
     nome: 'piscar'
     info_classes {
       id: 'mago'
@@ -11051,7 +11392,8 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'reflexos'  # mirror image
+    id: 'reflexos' 
+    nome_ingles: 'mirror image'
     nome: 'reflexos'
     info_classes {
       id: 'mago'
@@ -11075,7 +11417,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'dissipar_mal'  # dispel evil
+    id: 'dissipar_mal' 
+    nome_ingles: 'dispel evil'
     nome: 'dissipar o mal'
     info_classes {
       id: 'clerigo'
@@ -11101,7 +11444,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_bem'  # dispel good
+    id: 'dissipar_bem' 
+    nome_ingles: 'dispel good'
     nome: 'dissipar o bem'
     info_classes {
       id: 'clerigo'
@@ -11123,7 +11467,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_caos'  # dispel chaos
+    id: 'dissipar_caos' 
+    nome_ingles: 'dispel chaos'
     nome: 'dissipar o caos'
     info_classes {
       id: 'clerigo'
@@ -11145,7 +11490,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_ordem'  # dispel law
+    id: 'dissipar_ordem' 
+    nome_ingles: 'dispel law'
     nome: 'dissipar a ordem'
     info_classes {
       id: 'clerigo'
@@ -11167,7 +11513,8 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'visao_verdade'  # true seeing
+    id: 'visao_verdade' 
+    nome_ingles: 'true seeing'
     nome: 'visão da verdade'
     info_classes {
       id: 'clerigo'
@@ -11201,7 +11548,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'resistencia_magia'  # spell resistance
+    id: 'resistencia_magia' 
+    nome_ingles: 'spell resistance'
     nome: 'resistência à magia'
     info_classes {
       id: 'clerigo'
@@ -11230,7 +11578,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'matar'  # slay living
+    id: 'matar' 
+    nome_ingles: 'slay living'
     nome: 'matar'
     modelo_dano: DANO_3D6_MAIS_1_POR_NIVEL
     dano_ignora_salvacao: true
@@ -11254,7 +11603,8 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'viagem_planar'  # plane shift
+    id: 'viagem_planar' 
+    nome_ingles: 'plane shift'
     nome: 'viagem planar'
     info_classes {
       id: 'clerigo'
@@ -11268,6 +11618,7 @@ tabela_feiticos {
   }
 
   armas {
+    link: 'https://www.d20srd.org/srd/spells/flamingSphere.htm'
     id: 'esfera_flamejante'
     nome: 'esfera flamejante'
     alcance_quadrados: 20
@@ -11290,6 +11641,7 @@ tabela_feiticos {
   armas {
     id: 'sono'
     nome: 'sono'
+    nome_ingles: 'sleep'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -11329,6 +11681,7 @@ tabela_feiticos {
   armas {
     id: 'sugestao'
     nome: 'sugestão'
+    nome_ingles: 'suggestion'
     alcance_quadrados: 5  # 1/2 niveis
     info_classes {
       id: 'mago'
@@ -11367,6 +11720,7 @@ tabela_feiticos {
   armas {
     id: 'tempestade_glacial'
     nome: 'tempestade glacial'
+    nome_ingles: 'ice storm'
     alcance_quadrados: 80
     modificador_alcance: MOD_8_QUAD_NIVEL
     info_classes {
