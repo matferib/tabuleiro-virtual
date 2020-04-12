@@ -1954,6 +1954,23 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
   }
 }
 
+TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Clérigo");
+    da->set_id_arma("curar_ferimentos_minimos");
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(da->dano(), "1");
+    EXPECT_TRUE(da->cura());
+  }
+}
+
 TEST(TesteFeiticos, TesteFeiticos) {
   {
     EntidadeProto proto;

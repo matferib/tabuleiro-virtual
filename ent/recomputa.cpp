@@ -2016,11 +2016,12 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
   } else if (da->ataque_agarrar()) {
     bba = proto.bba().agarrar();
     usar_forca_dano = true;
+  } else if (da->ataque_toque()) {
+    // Toque nao aplica bonus de forca.
+    bba = PossuiTalento("acuidade_arma", proto) ? std::max(bba_distancia, bba_cac) : bba_cac;
   } else if (da->ataque_corpo_a_corpo()) {
     bba = da->acuidade() ? bba_distancia : bba_cac;
     usar_forca_dano = true;
-  } else if (da->ataque_toque()) {
-    bba = PossuiTalento("acuidade_arma", proto) ? std::max(bba_distancia, bba_cac) : bba_cac;
   } else if (da->acao().permite_ataque_vs_defesa()) {
     LOG(WARNING) << "Tipo de ataque não se enquadra em nada: " << da->DebugString();
   }
