@@ -44,8 +44,13 @@ void InterfaceGraficaQt::EscolheItemLista(
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
   dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
-  for (const auto& item : lista) {
-    new QListWidgetItem(QString::fromUtf8(item.c_str()), gerador.lista);
+  for (const auto& item_str : lista) {
+    auto* item = new QListWidgetItem(gerador.lista);
+    auto* label = new QLabel(QString::fromUtf8(item_str.c_str()));
+    label->setTextFormat(Qt::RichText);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setOpenExternalLinks(true);
+    gerador.lista->setItemWidget(item, label);
   }
   gerador.lista->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, lista, funcao_volta] () {

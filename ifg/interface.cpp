@@ -130,23 +130,47 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
       : notificacao.entidade().tesouro().pergaminhos_divinos();
 
   // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
-  typedef std::pair<int,int> ParIndiceQuantidade;
-  std::map<std::string, ParIndiceQuantidade> mapa_nomes_para_indices;
+  struct IndiceQuantidadeNivel {
+    int indice = 0;
+    int quantidade = 0;
+    int nivel = 0;
+    std::string link;
+  };
+  std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
   std::vector<std::string> nomes_pergaminhos;
   int i = 0;
   for (const auto& pergaminho : pergaminhos_entidade) {
     const std::string& nome = pergaminho.nome().empty()
       ? (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
       : pergaminho.nome();
-    mapa_nomes_para_indices[nome] = std::make_pair(i++, ++mapa_nomes_para_indices[nome].second);
+    // Classe para conjurar pergaminho.
+    const auto& ic = ent::ClasseParaLancarPergaminho(
+        tabelas_, arcano ? ent::TM_ARCANA: ent::TM_DIVINA, pergaminho.id(), notificacao.entidade());
+    if (ic.id().empty()) {
+      LOG(WARNING) << "Nao achei classe de conjuracao para pergaminho: " << pergaminho.id();
+    }
+    const auto& feitico = tabelas_.Feitico(pergaminho.id());
+    IndiceQuantidadeNivel& iqn = mapa_nomes_para_indices[nome];
+    iqn.indice = i++;
+    ++iqn.quantidade;
+    iqn.nivel = ent::NivelMagia(feitico, ic);
+    iqn.link = feitico.link();
   }
 
   std::vector<int> mapa_indices;
   for (auto it : mapa_nomes_para_indices) {
     const std::string& nome = it.first;
-    int quantidade = it.second.second;
-    nomes_pergaminhos.push_back(StringPrintf("%s%s", nome.c_str(), quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : ""));
-    int indice = it.second.first;
+    const std::string& link = it.second.link;
+    int quantidade =  it.second.quantidade;
+    int nivel = it.second.nivel;
+    std::string texto = StringPrintf(
+        "%s%s, nivel: %d %s",
+        nome.c_str(),
+        quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : "",
+        nivel,
+        link.empty() ? "" : StringPrintf("<a href='%s'>link</a>", link.c_str()).c_str());
+    nomes_pergaminhos.push_back(texto);
+    int indice = it.second.indice;
     mapa_indices.push_back(indice);
   }
   EscolheItemLista(
