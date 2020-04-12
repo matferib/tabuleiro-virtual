@@ -12,7 +12,9 @@
 namespace ent {
 
 namespace {
+using google::protobuf::JoinStrings;
 using google::protobuf::StringPrintf;
+using google::protobuf::SplitStringUsing;
 
 void ConverteDano(ArmaProto* arma) {
   if (PossuiCategoria(CAT_PROJETIL_AREA, *arma)) {
@@ -284,6 +286,18 @@ void Tabelas::RecarregaMapas() {
   for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
+    }
+    if (feitico.link().empty() && !feitico.nome_ingles().empty()) {
+      std::vector<std::string> res;
+      SplitStringUsing(feitico.nome_ingles(), " ,-'", &res);
+      for (unsigned int i = 1; i < res.size(); ++i) {
+        if (!res[i].empty() && (res[i][0] >= 'A') && (res[i][0] <= 'Z')) {
+          res[i][0] += 'a' - 'A';
+        }
+      }
+      std::string joined;
+      JoinStrings(res, "", &joined);
+      feitico.set_link(StringPrintf("https://www.d20srd.org/srd/spells/%s.htm", joined.c_str()));
     }
     if (feitico.has_acao()) {
       for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais()) {
