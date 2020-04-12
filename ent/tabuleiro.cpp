@@ -1127,6 +1127,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
     central_->AdicionaNotificacao(n.release());
     return;
   }
+  AtualizaLuzesPontuais();
 }
 
 void Tabuleiro::AlteraFormaEntidadeNotificando() {
@@ -6445,6 +6446,7 @@ void Tabuleiro::AtualizaPisoCeuCenario(const TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::AtualizaLuzesPontuais() {
+  //LOG(INFO) << "atualizando luzes pontuais";
   const auto* entidade_presa = BuscaEntidade(IdCameraPresa());
   // Posiciona as luzes dinâmicas.
   std::vector<const Entidade*> entidades_com_luz;
@@ -6460,10 +6462,11 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     entidades_com_luz.push_back(e);
   }
   if (entidades_com_luz.empty()) {
+    //LOG(INFO) << "nada pra fazer com luzes pontuais, retornando";
     return;
   }
 
-  // Posicao para comparacao.
+  // Posicao de referência para calcular distância da luz.
   Vector3 pos_comp;
   if (entidade_presa != nullptr) {
     pos_comp = PosParaVector3(entidade_presa->Pos());
@@ -6494,7 +6497,9 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     return ld < rd;
   });
 
-  bool atualizar_mapa = false;
+  // Indica que o mapa de luzes deve ser atualizado.
+  // Fazer sempre.
+  bool atualizar_mapa = false; // se flipar para true, vai recomputar o mapa de luzes todo frame;
 
   if (!luzes_pontuais_.empty()) {
     // Se ja ha luzes pontuais, ve se houve mudanca de posicao significativa dela (ou e mudou a entidade[0] com a luz).
@@ -6509,18 +6514,21 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     // Nao ha luzes, mas ha entidades com luz, atualizar mapa.
     atualizar_mapa = true;
   }
-  if (!atualizar_mapa) {
-    return;
-  }
-
   unsigned int num = std::min((unsigned int)8, (unsigned int)entidades_com_luz.size());
   luzes_pontuais_.resize(num);
+  // Atualiza as luzes pontuais, independente do mapa.
   for (unsigned int i = 0; i < num; ++i) {
     luzes_pontuais_[i].id = entidades_com_luz[i]->Id();
     if (atualizar_mapa || i > 0) {
       luzes_pontuais_[i].pos = entidades_com_luz[i]->Pos();
       luzes_pontuais_[i].pos.set_z(entidades_com_luz[i]->ZOlho());
     }
+  }
+
+  // Aqui ja atualizou o objeto de luzes_pontuais. So pressegue se precisar atualizar o mapa.
+  if (!atualizar_mapa) {
+    //LOG(INFO) << "mapa de luzes pontuais nao precisa ser atualizado, retornando.";
+    return;
   }
 
   //Entidade* sem_luz = nullptr;
