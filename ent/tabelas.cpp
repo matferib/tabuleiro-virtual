@@ -291,8 +291,11 @@ void Tabelas::RecarregaMapas() {
       std::vector<std::string> res;
       SplitStringUsing(feitico.nome_ingles(), " ,-'", &res);
       for (unsigned int i = 1; i < res.size(); ++i) {
-        if (!res[i].empty() && (res[i][0] >= 'A') && (res[i][0] <= 'Z')) {
-          res[i][0] += 'a' - 'A';
+        if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
+          // Pega o caso do 's.
+          if (res[i].size() > 1 || res[i][0] != 's') {
+            res[i][0] += 'A' - 'a';
+          }
         }
       }
       std::string joined;
