@@ -289,8 +289,7 @@ enum DescritorAtaque {
   DESC_ESTOURANTE = 29;
   DESC_MAGICO = 30;
   DESC_PETRIFICACAO = 31;
-  DESC_ACAO_MENTAL = 32;
-  DESC_ACAO_MENTAL_PADRAO_VISIVEL  = 33;  // ilusoes visuais, afetam a mente e sao visiveis.
+  DESC_MENTAL_PADRAO_VISIVEL  = 32;  // ilusoes visuais, afetam a mente e sao visiveis.
 }
 
 enum OperacaoCombinacao {

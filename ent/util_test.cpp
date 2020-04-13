@@ -1916,6 +1916,29 @@ TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
   EXPECT_EQ(n.entidade().evento(0).id_unico(), ids_unicos[0]);
 }
 
+TEST(TesteSalvacaoDinamica, TesteRodadasDinamicoDependenciaAnterior) {
+  ntf::Notificacao n;
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(4);
+    ic->set_id("mago");
+  }
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("leque_cromatico");
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
+  AcaoProto acao = proto.dados_ataque(0).acao(); 
+  ResolveEfeitosAdicionaisVariaveis(4, *alvo, &acao);
+  EXPECT_GT(acao.efeitos_adicionais(1).rodadas(), 0);
+  EXPECT_EQ(acao.efeitos_adicionais(2).rodadas(), acao.efeitos_adicionais(1).rodadas() + 1);
+}
+
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
 TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
   {
@@ -2200,6 +2223,16 @@ TEST(TesteImunidades, TesteImunidadeElemento) {
     proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
     RecomputaDependencias(g_tabelas, &proto);
     EXPECT_TRUE(EntidadeImuneElemento(proto, DESC_ACIDO));
+  }
+}
+
+TEST(TesteImunidades, TesteImunidadePadrao) {
+  {
+    EntidadeProto proto;
+    proto.set_naturalmente_cego(true);
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_FALSE(EntidadeImuneElemento(proto, DESC_MENTAL));
+    EXPECT_TRUE(EntidadeImuneElemento(proto, DESC_MENTAL_PADRAO_VISIVEL));
   }
 }
 
@@ -3530,9 +3563,22 @@ TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
   EXPECT_FALSE(dat->ataque_toque());
 }
 
-TEST(TestFeiticosLink, TesteFeiticosLink) {
+TEST(TestFeiticos, TesteFeiticosLink) {
   for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
     EXPECT_FALSE(feitico.link().empty()) << "feitico: " << feitico.id();
+  }
+}
+
+TEST(TestFeiticos, RodadasBaseAnterior) {
+  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+    if (!feitico.acao().efeitos_adicionais().empty()) {
+      EXPECT_FALSE(feitico.acao().efeitos_adicionais(0).rodadas_base_igual_efeito_anterior())
+        << "rodadas_base_igual_efeito_anterior invalido para feitico " << feitico.id();
+    }
+    if (!feitico.acao().efeitos_adicionais_se_salvou().empty()) {
+      EXPECT_FALSE(feitico.acao().efeitos_adicionais_se_salvou(0).rodadas_base_igual_efeito_anterior())
+        << "rodadas_base_igual_efeito_anterior (se salvou) invalido para feitico " << feitico.id();
+    }
   }
 }
 

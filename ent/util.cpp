@@ -1844,7 +1844,7 @@ void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, nivel_conjurador, efeito_adicional, ids_unicos, entidade_destino, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, nivel_conjurador, efeito_adicional, da.acao(), ids_unicos, entidade_destino, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -3087,18 +3087,46 @@ EntidadeProto::Evento* AdicionaEventoOld(
   return e;
 }
 
+// Acha o efeito anterior para fins de efeitos que herdam atributos dos anteriores.
+const EfeitoAdicional* EfeitoAnterior(const EfeitoAdicional& efeito_adicional, const AcaoProto& acao) {
+  // Encontra o efeito para saber qual o anterior.
+  for (int i = 1; i < acao.efeitos_adicionais().size(); ++i) {
+    if (&acao.efeitos_adicionais(i) == &efeito_adicional) {
+      return &acao.efeitos_adicionais(i - 1);
+    }
+  }
+  for (int i = 1; i < acao.efeitos_adicionais_se_salvou().size(); ++i) {
+    if (&acao.efeitos_adicionais_se_salvou(i) == &efeito_adicional) {
+      return &acao.efeitos_adicionais_se_salvou(i - 1);
+    }
+  }
+  return nullptr;
+}
+
 // Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo.
 constexpr int kEfeitoContinuo = std::numeric_limits<int>::max();
-int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const Entidade& alvo) {
+int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const Entidade& alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_rodadas()) {
     VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
     return efeito_adicional.rodadas();
   }
+  int rodadas_base = efeito_adicional.rodadas_base();
+  if (efeito_adicional.rodadas_base_igual_efeito_anterior()) {
+    // Encontra o efeito para saber qual o anterior.
+    const EfeitoAdicional* efeito_anterior = EfeitoAnterior(efeito_adicional, acao);
+    if (efeito_anterior == nullptr) {
+      LOG(WARNING) << "nao encontrei efeito adicional anterior: "  << efeito_adicional.ShortDebugString();
+      rodadas_base = 0;
+    } else {
+      // Usa o valor final do anterior.
+      rodadas_base = efeito_anterior->rodadas();
+    }
+  }
   if (efeito_adicional.has_dado_modificador_rodadas()) {
     int modificador = RolaValor(efeito_adicional.dado_modificador_rodadas());
-    VLOG(1) << "Calculo de rodadas por string, valor final: " << (efeito_adicional.rodadas_base() + modificador);
-    return efeito_adicional.rodadas_base() + modificador;
+    VLOG(1) << "Calculo de rodadas por string, valor final: " << (rodadas_base + modificador);
+    return rodadas_base + modificador;
   }
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
@@ -3161,12 +3189,12 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
       default:
         break;
     }
-    VLOG(1) << "Calculo de rodadas, valor final: " << (efeito_adicional.rodadas_base() + modificador);
-    return modificador == kEfeitoContinuo ? kEfeitoContinuo : efeito_adicional.rodadas_base() + modificador;
+    VLOG(1) << "Calculo de rodadas, valor final: " << (rodadas_base + modificador);
+    return modificador == kEfeitoContinuo ? kEfeitoContinuo : rodadas_base + modificador;
   }
   if (efeito_adicional.has_rodadas_base()) {
-    VLOG(1) << "Calculo de rodadas base, valor final: " << (efeito_adicional.rodadas_base());
-    return efeito_adicional.rodadas_base();
+    VLOG(1) << "Calculo de rodadas base, valor final: " << rodadas_base;
+    return rodadas_base;
   }
   VLOG(1) << "Sem dado para rodadas, retornando efeito contínuo";
   return kEfeitoContinuo;
@@ -3219,9 +3247,9 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
-  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, alvo);
+  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
                         (!efeito_adicional.has_rodadas() &&
                          !efeito_adicional.has_modificador_rodadas() &&
@@ -3848,8 +3876,8 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   if (elemento == DESC_NENHUM) return false;
-  if ((elemento == DESC_ACAO_MENTAL || elemento == DESC_ACAO_MENTAL_PADRAO_VISIVEL) && ImuneAcaoMental(proto)) return true; 
-  if (DESC_ACAO_MENTAL_PADRAO_VISIVEL && NaoEnxerga(proto)) return true;
+  if ((elemento == DESC_MENTAL || elemento == DESC_MENTAL_PADRAO_VISIVEL) && ImuneAcaoMental(proto)) return true; 
+  if (elemento == DESC_MENTAL_PADRAO_VISIVEL && NaoEnxerga(proto)) return true;
   const auto& dd = proto.dados_defesa();
   return c_any(dd.imunidades(), elemento);
 }
@@ -5220,6 +5248,64 @@ bool NaoEnxerga(const EntidadeProto& proto) {
 
 bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto) {
   return tendencia == proto.tendencia().simples();
+}
+
+void ResolveEfeitoAdicional(int nivel_conjurador, const Entidade& alvo, EfeitoAdicional* efeito_adicional, AcaoProto* acao_proto) {
+  if (!efeito_adicional->has_rodadas()) {
+    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, alvo));
+  }
+}
+
+void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const Entidade& alvo, AcaoProto* acao_proto) {
+  for (auto& efeito_adicional : *acao_proto->mutable_efeitos_adicionais()) {
+    ResolveEfeitoAdicional(nivel_conjurador, alvo, &efeito_adicional, acao_proto);
+  }
+  for (auto& efeito_adicional : *acao_proto->mutable_efeitos_adicionais_se_salvou()) {
+    ResolveEfeitoAdicional(nivel_conjurador, alvo, &efeito_adicional, acao_proto);
+  }
+  //LOG(INFO) << "resolvido: " << acao_proto->DebugString();
+}
+
+float AplicaEfeitosAdicionais(
+    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
+    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
+    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
+  const int nivel_conjurador =
+      da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
+  ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_destino, acao_proto);
+  for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
+    if (!EntidadeAfetadaPorEfeito(efeito_adicional, entidade_destino.Proto())) {
+      continue;
+    }
+    std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+    PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+        entidade_origem.Id(), da, nivel_conjurador, entidade_destino, efeito_adicional,
+        ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
+    central->AdicionaNotificacao(n_efeito.release());
+    atraso_s += 0.5f;
+    // TODO criar tabela de nome dos efeitos.
+    ConcatenaString(EfeitoParaString(efeito_adicional.efeito()), por_entidade->mutable_texto());
+  }
+  if (!salvou && !acao_proto->efeitos_adicionais_conjurador().empty()) {
+    auto* por_entidade = acao_proto->add_por_entidade();
+    por_entidade->set_id(entidade_origem.Id());
+    por_entidade->set_delta(0);
+    for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
+      std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
+      PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
+          entidade_origem.Id(), da, nivel_conjurador, entidade_origem, efeito_adicional,
+          ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
+      central->AdicionaNotificacao(n_efeito.release());
+      atraso_s += 0.5f;
+      ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
+    }
+  }
+  if (acao_proto->reduz_luz() && entidade_destino.TemLuz()) {
+    // Apenas desfazer, pois o efeito fara a luz diminuir.
+    auto* nd = grupo_desfazer->add_notificacao();
+    PreencheNotificacaoReducaoLuzComConsequencia(nivel_conjurador, entidade_destino, acao_proto, nd, nd);
+  }
+  return atraso_s;
 }
 
 }  // namespace ent

@@ -8825,17 +8825,17 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       info_textura { id: 'rainbow.png' }
-      elemento: DESC_ACAO_MENTAL_PADRAO_VISIVEL
+      elemento: DESC_MENTAL_PADRAO_VISIVEL
       # 5 HD ou mais.
       efeitos_adicionais {
         efeito: EFEITO_ATORDOADO
         rodadas: 1
-        afeta_apenas_dados_vida_igual_a: 5
+        afeta_apenas_dados_vida_maior_igual_a: 5
       }
       # 3-4 HD.
       efeitos_adicionais {
         efeito: EFEITO_CEGO
-        dado_modificador_rodadas: '1d4' 
+        dado_modificador_rodadas: '1d4'
         afeta_apenas_dados_vida_menor_igual_a: 4
         afeta_apenas_dados_vida_maior_igual_a: 3
       }
@@ -8849,7 +8849,7 @@ tabela_feiticos {
       # 2 ou menos HD.
       efeitos_adicionais {
         efeito: EFEITO_INCONSCIENTE
-        dado_modificador_rodadas: '2d4' 
+        dado_modificador_rodadas: '2d4'
         afeta_apenas_dados_vida_menor_igual_a: 2
       }
       efeitos_adicionais {

@@ -13,6 +13,7 @@
 #include "ent/controle_virtual.pb.h"
 #include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
+#include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
 // Funcoes uteis de ent.
@@ -673,7 +674,7 @@ EntidadeProto::Evento* AdicionaEvento(
     const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     unsigned int id_origem, int nivel_conjurador,
-    const AcaoProto::EfeitoAdicional& efeito_adicional,
+    const AcaoProto::EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
 // Dado um item magico, adiciona o efeito dele ao proto.
@@ -955,6 +956,14 @@ bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto)
 bool ImuneAcaoMental(const EntidadeProto& proto);
 
 bool NaoEnxerga(const EntidadeProto& proto);
+
+// Antes de aplicar os efeitos adicionais, resolve a parte variavel que for possivel. Exemplo: rodadas.
+void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const Entidade& alvo, AcaoProto* acao_proto);
+
+float AplicaEfeitosAdicionais(
+    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
+    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
+    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central);
 
 }  // namespace ent
 

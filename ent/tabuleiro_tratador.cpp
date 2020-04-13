@@ -1012,46 +1012,6 @@ const DadosAtaque& DadoCorrenteOuPadrao(const Entidade* entidade) {
   return *da;
 }
 
-float AplicaEfeitosAdicionais(
-    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
-    AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
-    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
-  const int nivel_conjurador =
-      da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
-  for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
-    if (!EntidadeAfetadaPorEfeito(efeito_adicional, entidade_destino.Proto())) {
-      continue;
-    }
-    std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-    PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-        entidade_origem.Id(), da, nivel_conjurador, entidade_destino, efeito_adicional,
-        ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
-    central->AdicionaNotificacao(n_efeito.release());
-    atraso_s += 0.5f;
-    // TODO criar tabela de nome dos efeitos.
-    ConcatenaString(EfeitoParaString(efeito_adicional.efeito()), por_entidade->mutable_texto());
-  }
-  if (!salvou && !acao_proto->efeitos_adicionais_conjurador().empty()) {
-    auto* por_entidade = acao_proto->add_por_entidade();
-    por_entidade->set_id(entidade_origem.Id());
-    por_entidade->set_delta(0);
-    for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
-      std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
-      PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-          entidade_origem.Id(), da, nivel_conjurador, entidade_origem, efeito_adicional,
-          ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
-      central->AdicionaNotificacao(n_efeito.release());
-      atraso_s += 0.5f;
-      ConcatenaString(StringEfeito(efeito_adicional.efeito()), por_entidade->mutable_texto());
-    }
-  }
-  if (acao_proto->reduz_luz() && entidade_destino.TemLuz()) {
-    // Apenas desfazer, pois o efeito fara a luz diminuir.
-    auto* nd = grupo_desfazer->add_notificacao();
-    PreencheNotificacaoReducaoLuzComConsequencia(nivel_conjurador, entidade_destino, acao_proto, nd, nd);
-  }
-  return atraso_s;
-}
 }  // namespace
 
 
