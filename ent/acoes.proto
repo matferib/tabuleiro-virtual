@@ -236,6 +236,8 @@ message AcaoProto {
     // Para mudar o valor de rodadas.
     optional int32 rodadas_base = 7;
     optional ModificadorRodadas modificador_rodadas = 8;
+    // Se verdadeiro, rodadas base vira do efeito anterior.
+    optional bool rodadas_base_igual_efeito_anterior = 21;
     // Outra forma de gerar rodadas, quando o modificador de rodadas so depende de dados.
     optional string dado_modificador_rodadas = 14;
     // Modificador dos complementos.
@@ -248,6 +250,10 @@ message AcaoProto {
     optional int32 pontos_vida_temporarios = 15;
     // Caso o modelo seja desativado, o efeito também desaparecerá.
     optional TipoEfeitoModelo requer_modelo_ativo = 17;
+    // Se presente, o efeito so se aplicara em criaturas que estejam nos criterios. 
+    optional int32 afeta_apenas_dados_vida_menor_igual_a = 18;
+    optional int32 afeta_apenas_dados_vida_maior_igual_a = 19;
+    optional int32 afeta_apenas_dados_vida_igual_a = 20;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.

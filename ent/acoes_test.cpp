@@ -258,6 +258,19 @@ TEST(TesteAcoes, TesteMaximoAfetados) {
   }
 }
 
+TEST(TesteAcoes, TesteEfeitoAfetaApenas) {
+  AcaoProto acao;
+  auto* efeito = acao.add_efeitos_adicionais();
+  efeito->set_afeta_apenas_dados_vida_menor_igual_a(5);
+  efeito->set_afeta_apenas_dados_vida_maior_igual_a(4);
+  std::map<int, bool> esperado = { {3, false}, {4, true}, {5, true}, {6, false}};
+  for (int nivel = 3; nivel <= 6; ++nivel) {
+    EntidadeProto proto;
+    proto.add_info_classes()->set_nivel(nivel);
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(*efeito, proto), esperado[nivel]) << "nivel: " << nivel;
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

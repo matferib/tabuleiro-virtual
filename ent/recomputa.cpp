@@ -325,6 +325,18 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         AtribuiBonus(TM_DIMINUTO, TB_BASE, "base", proto->mutable_bonus_tamanho());
       }
       break;
+    case EFEITO_INCONSCIENTE:
+      if (!evento->processado()) {
+        if (!ImuneAcaoMental(*proto)) {
+          EntidadeProto proto_salvo;
+          proto_salvo.set_inconsciente(proto->inconsciente());
+          proto_salvo.set_caida(proto->caida());
+          evento->set_estado_anterior(proto_salvo.SerializeAsString());
+          proto->set_inconsciente(true);
+          proto->set_caida(true);
+        }
+      }
+      break;
     case EFEITO_MORTE:
       if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
@@ -557,6 +569,14 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->mutable_dados_defesa()->mutable_imunidade_feiticos()->DeleteSubrange(indice, 1);
       break;
     }
+    case EFEITO_INCONSCIENTE: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      proto->set_inconsciente(proto_salvo.inconsciente());
+    }
+    break;
     case EFEITO_MORTE: {
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;
@@ -1454,7 +1474,8 @@ void RecomputaDependenciasIniciativa(int modificador_destreza, EntidadeProto* pr
 }
 
 void RecomputaDependenciasTendencia(EntidadeProto* proto) {
-  if (proto->tendencia().has_simples()) {
+  if (!proto->tendencia().has_eixo_bem_mal() || !proto->tendencia().has_eixo_ordem_caos()) {
+    // se nao tem dinamica, computa.
     float bem_mal = 0.5f;
     float ordem_caos = 0.5f;
     switch (proto->tendencia().simples()) {
@@ -1468,9 +1489,43 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
       case TD_CAOTICO_NEUTRO: bem_mal = 0.5f; ordem_caos = 0.0f; break;
       case TD_CAOTICO_MAU:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
     }
-    proto->mutable_tendencia()->clear_simples();
+    // So pra escrever o valor se for o padrao do proto.
+    proto->mutable_tendencia()->set_simples(proto->tendencia().simples());
     proto->mutable_tendencia()->set_eixo_bem_mal(bem_mal);
     proto->mutable_tendencia()->set_eixo_ordem_caos(ordem_caos);
+  } else {
+    // Se tem tendencia dinamica, recalcula simplificada.
+    const float bem_mal = proto->tendencia().eixo_bem_mal();
+    const float ordem_caos = proto->tendencia().eixo_ordem_caos();
+    const float kLimiteCima = 0.66;
+    const float kLimiteBaixo = 0.33;
+    if (bem_mal >= kLimiteCima) {
+      if (ordem_caos >= kLimiteCima) {
+        proto->mutable_tendencia()->set_simples(TD_LEAL_BOM);
+      } else if (ordem_caos <= kLimiteBaixo) {
+        proto->mutable_tendencia()->set_simples(TD_CAOTICO_BOM);
+      } else {
+        proto->mutable_tendencia()->set_simples(TD_NEUTRO_BOM);
+      }
+    } else if (bem_mal <= kLimiteBaixo) {
+      // Mau.
+      if (ordem_caos >= kLimiteCima) {
+        proto->mutable_tendencia()->set_simples(TD_LEAL_MAU);
+      } else if (ordem_caos <= kLimiteBaixo) {
+        proto->mutable_tendencia()->set_simples(TD_CAOTICO_MAU);
+      } else {
+        proto->mutable_tendencia()->set_simples(TD_NEUTRO_MAU);
+      }
+    } else {
+      // Nem bom nem mau.
+      if (ordem_caos >= kLimiteCima) {
+        proto->mutable_tendencia()->set_simples(TD_LEAL_NEUTRO);
+      } else if (ordem_caos <= kLimiteBaixo) {
+        proto->mutable_tendencia()->set_simples(TD_CAOTICO_NEUTRO);
+      } else {
+        proto->mutable_tendencia()->set_simples(TD_NEUTRO);
+      }
+    }
   }
 }
 

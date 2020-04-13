@@ -126,6 +126,9 @@ bool EfeitoArea(const AcaoProto& acao_proto);
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario);
 
+// Retorna true se a entidade puder ser afetada pelo efeito.
+bool EntidadeAfetadaPorEfeito(const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo);
+
 }  // namespace ent
 
 #endif  // ENT_ACOES_H

@@ -1830,4 +1830,21 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
   return ids_afetados;
 }
 
+bool EntidadeAfetadaPorEfeito(const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
+  int nivel = NivelPersonagem(alvo);
+  if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
+    return nivel == efeito.afeta_apenas_dados_vida_igual_a();
+  }
+  if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel > efeito.afeta_apenas_dados_vida_menor_igual_a()) {
+    return false;
+  }
+  if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel < efeito.afeta_apenas_dados_vida_maior_igual_a()) {
+    return false;
+  }
+  if (efeito.has_afeta_apenas_tendencia() && !MesmaTendencia(efeito.afeta_apenas_tendencia(), alvo)) {
+    return false;
+  }
+  return true;
+}
+
 }  // namespace ent

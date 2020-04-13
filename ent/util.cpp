@@ -3848,6 +3848,8 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   if (elemento == DESC_NENHUM) return false;
+  if ((elemento == DESC_ACAO_MENTAL || elemento == DESC_ACAO_MENTAL_PADRAO_VISIVEL) && ImuneAcaoMental(proto)) return true; 
+  if (DESC_ACAO_MENTAL_PADRAO_VISIVEL && NaoEnxerga(proto)) return true;
   const auto& dd = proto.dados_defesa();
   return c_any(dd.imunidades(), elemento);
 }
@@ -5192,6 +5194,32 @@ int NivelMagia(const ArmaProto& magia, const InfoClasse& ic) {
     if (icf.id() == ic.id()) return icf.nivel();
   }
   return 0;
+}
+
+int NivelPersonagem(const EntidadeProto& proto) {
+  int total = 0;
+  for (const auto& info_classe : proto.info_classes()) {
+    total += info_classe.nivel();
+  }
+  return total - proto.niveis_negativos();
+}
+
+bool TendenciaSimples(TendenciaSimplificada tendencia, const EntidadeProto& proto) {
+  return tendencia == proto.tendencia().simples();
+}
+
+bool ImuneAcaoMental(const EntidadeProto& proto) {
+  return TemTipoDnD(TIPO_MORTO_VIVO, proto) || TemTipoDnD(TIPO_LIMO, proto) || 
+         TemTipoDnD(TIPO_CONSTRUCTO, proto) || TemTipoDnD(TIPO_PLANTA, proto) ||
+         TemTipoDnD(TIPO_VERME, proto);
+}
+
+bool NaoEnxerga(const EntidadeProto& proto) {
+  return proto.naturalmente_cego() || TemTipoDnD(TIPO_LIMO, proto) || PossuiEvento(EFEITO_CEGO, proto);
+}
+
+bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto) {
+  return tendencia == proto.tendencia().simples();
 }
 
 }  // namespace ent

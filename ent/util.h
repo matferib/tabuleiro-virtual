@@ -948,6 +948,14 @@ const InfoClasse& ClasseParaLancarPergaminho(
 // Retorna o nivel da magia para uma determinada classe.
 int NivelMagia(const ArmaProto& magia, const InfoClasse& ic);
 
+int NivelPersonagem(const EntidadeProto& proto);
+
+bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto);
+
+bool ImuneAcaoMental(const EntidadeProto& proto);
+
+bool NaoEnxerga(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

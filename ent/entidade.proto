@@ -198,7 +198,7 @@ message DadosAtaque {
   optional bool ignora_origem = 78;
 }
 
-// Proximo id: 111.
+// Proximo id: 112.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -531,7 +531,7 @@ message EntidadeProto {
   // Alinhamento ou tendencia.
   message TendenciaDetalhada {
     // Daqui se geram os eixos.
-    optional TendenciaSimplificada simples = 3;
+    optional TendenciaSimplificada simples = 3 [default = TD_NEUTRO];
     optional float eixo_bem_mal = 1 [default = 0.5];
     optional float eixo_ordem_caos = 2 [default = 0.5];
   }
@@ -602,6 +602,8 @@ message EntidadeProto {
   optional bool canhota = 108;
   // Se verdadeiro, objeto brilhara como metal.
   optional bool especular = 110;
+  // Indica criatura cega por padrao.
+  optional bool naturalmente_cego = 111;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.

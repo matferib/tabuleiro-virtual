@@ -987,11 +987,7 @@ const Posicao& Entidade::PosTransicao() const {
 }
 
 int Entidade::NivelPersonagem() const {
-  int total = 0;
-  for (const auto& info_classe : proto_.info_classes()) {
-    total += info_classe.nivel();
-  }
-  return total - proto_.niveis_negativos();
+  return ent::NivelPersonagem(proto_);
 }
 
 int Entidade::NivelConjurador(const std::string& id_classe) const {
@@ -1971,6 +1967,10 @@ bool Entidade::ImuneCritico() const {
 
 bool Entidade::ImuneFurtivo() const {
   return proto_.dados_defesa().imune_furtivo();
+}
+
+bool Entidade::ImuneAcaoMental() const {
+  return ent::ImuneAcaoMental(proto_);
 }
 
 // static
