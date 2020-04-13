@@ -228,6 +228,7 @@ acao {
   geometria: ACAO_GEO_ESFERA
   permite_ataque_vs_defesa: false
   permite_salvacao: true
+  efeito_area: true
   dificuldade_salvacao_por_nivel: true
   ignora_resistencia_magia: false
   ignora_reducao_dano_barbaro: true
@@ -238,6 +239,7 @@ acao {
   geometria: ACAO_GEO_CONE
   permite_ataque_vs_defesa: false
   permite_salvacao: true
+  efeito_area: true
   dificuldade_salvacao_por_nivel: true
   ignora_resistencia_magia: false
   ignora_reducao_dano_barbaro: true

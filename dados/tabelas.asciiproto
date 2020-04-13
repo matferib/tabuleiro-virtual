@@ -1176,10 +1176,13 @@ tabela_efeitos {
       }
     }
   }
-
   efeitos {
     id: EFEITO_MORTE
     nome: 'morte'
+  }
+  efeitos {
+    id: EFEITO_INCONSCIENTE
+    nome: 'inconsciente'
   }
   efeitos {
     id: EFEITO_VITALIDADE_ILUSORIA
@@ -8805,21 +8808,61 @@ tabela_feiticos {
     id: 'leque_cromatico'
     nome: 'leque cromático'
     nome_ingles: 'color spray'
+    alcance_quadrados: 3
     info_classes {
       id: 'mago'
       nivel: 1
     }
     acao {
+      id: 'Feitiço Dispersão Cone'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_CONE
       distancia_quadrados: 3
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      ignora_luz: true
+      efeito_area: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
       icone: 'icon_touch.png'
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
+      info_textura { id: 'rainbow.png' }
+      elemento: DESC_ACAO_MENTAL_PADRAO_VISIVEL
+      # 5 HD ou mais.
       efeitos_adicionais {
-        efeito: EFEITO_LEQUE_CROMATICO
-        # totalmente variavel a duracao de acordo com nivel do alvo.
+        efeito: EFEITO_ATORDOADO
+        rodadas: 1
+        afeta_apenas_dados_vida_igual_a: 5
+      }
+      # 3-4 HD.
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        dado_modificador_rodadas: '1d4' 
+        afeta_apenas_dados_vida_menor_igual_a: 4
+        afeta_apenas_dados_vida_maior_igual_a: 3
+      }
+       efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        rodadas_base_igual_efeito_anterior: true
+        dado_modificador_rodadas: '1'  # vai dar 1d4+1
+        afeta_apenas_dados_vida_menor_igual_a: 4
+        afeta_apenas_dados_vida_maior_igual_a: 3
+      }
+      # 2 ou menos HD.
+      efeitos_adicionais {
+        efeito: EFEITO_INCONSCIENTE
+        dado_modificador_rodadas: '2d4' 
+        afeta_apenas_dados_vida_menor_igual_a: 2
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_CEGO
+        rodadas_base_igual_efeito_anterior: true
+        dado_modificador_rodadas: '1d4'  # vai dar 3d4
+        afeta_apenas_dados_vida_menor_igual_a: 2
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_ATORDOADO
+        rodadas_base_igual_efeito_anterior: true
+        dado_modificador_rodadas: '1'  # vai dar 3d4+1
+        afeta_apenas_dados_vida_menor_igual_a: 2
       }
     }
     escola: 'ilusao'
@@ -10782,6 +10825,7 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
+      id: 'Feitiço Dispersão Cone'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_CONE
       cor: { r: 0.3 b: 1.0 g: 0.3 }

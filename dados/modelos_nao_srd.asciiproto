@@ -1242,6 +1242,7 @@ modelo {
     info_classes { id: 'besta_magica' nivel: 5 }
     tipo_dnd: TIPO_BESTA_MAGICA
     sub_tipo_dnd: SUBTIPO_PLANAR
+    naturalmente_cego: true
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
@@ -1429,5 +1430,6 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     # apesar de ser grande, alcance 1.
+    naturalmente_cego: true
   }
 }
