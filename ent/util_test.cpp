@@ -839,6 +839,23 @@ TEST(TestePergaminho, MaosFlamejantes) {
   EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
 }
 
+TEST(TestePergaminho, FlechaAcida) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
+  AtribuiBaseAtributo(15, TA_DESTREZA, &proto);  // +2
+
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Pergaminho Arcano");
+  da->set_id_arma("flecha_acida");
+  da->set_nivel_conjurador_pergaminho(3);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
+  EXPECT_EQ(da->dano(), "2d4") << "DA completo: " << da->DebugString();
+  EXPECT_EQ(da->bonus_ataque_final(), 3);  // 1 bba + 2 des.
+}
 
 TEST(TestePergaminho, ValoresTabelados) {
   {

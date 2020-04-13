@@ -8491,6 +8491,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Feitiço de Toque a Distância'
       tipo: ACAO_PROJETIL
       geometria: ACAO_GEO_CUBO
       escala { x: 1.0 y: 0.05 z: 0.05 }
