@@ -30,7 +30,7 @@ public:
     {
         if (ifg__qt__ListaPaginada->objectName().isEmpty())
             ifg__qt__ListaPaginada->setObjectName(QStringLiteral("ifg__qt__ListaPaginada"));
-        ifg__qt__ListaPaginada->resize(400, 300);
+        ifg__qt__ListaPaginada->resize(623, 312);
         gridLayout = new QGridLayout(ifg__qt__ListaPaginada);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         lista = new QListWidget(ifg__qt__ListaPaginada);

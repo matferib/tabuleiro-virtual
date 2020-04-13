@@ -20,6 +20,50 @@ using google::protobuf::StringPrintf;
 
 namespace ifg {
 
+namespace {
+
+std::string StringDuracao(ent::ModificadorRodadas mr) {
+  switch (mr) {
+    case ent::MR_NENHUM: return "nenhum";
+    case ent::MR_RODADAS_NIVEL: return "rodadas/nível";
+    case ent::MR_MINUTOS_NIVEL: return "minutos/nível";
+    case ent::MR_10_MINUTOS_NIVEL: return "10 minutos/nível";
+    case ent::MR_HORAS_NIVEL: return "horas/nível";
+    case ent::MR_2_HORAS_NIVEL: return "2 horas/nível";
+    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/ 3 níveis (max 6)";
+    case ent::MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15: return "10 rodadas +1/nível (max 15)";
+    case ent::MR_HORAS_NIVEL_MAX_15: return "horas/nivel (max 15)";
+    case ent::MR_2_MINUTOS_NIVEL: return "2 minutos/nivel";
+    case ent::MR_DIAS_POR_NIVEL: return "dias/nivel";
+    case ent::MR_PALAVRA_PODER_ATORDOAR: return "variável por PV: max 4d4 rodadas";
+    case ent::MR_PALAVRA_PODER_CEGAR: return "variável por PV: max permanente";
+    case ent::MR_CONTINUO: return "continuo";
+  }
+  // Nao deveria chegar aqui.
+  return "desconhecida";
+}
+
+std::string StringArea(const ent::AcaoProto& acao) {
+  std::string str_geo;
+  switch (acao.geometria()) {
+    case ent::ACAO_GEO_CONE:
+      str_geo = StringPrintf("cone %f (q)", acao.distancia_quadrados());
+      break;
+    case ent::ACAO_GEO_CILINDRO:
+      str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
+      break;
+    case ent::ACAO_GEO_ESFERA:
+      str_geo = StringPrintf("esfera raio %.1f (q)", acao.raio_quadrados());
+      break;
+    case ent::ACAO_GEO_CUBO:
+      // Isso é mais para modelar objetos geometricos, como flecha acida.
+      break;
+  }
+  return str_geo;
+}
+
+}  // namespace
+
 void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
   for (const auto& m : entrada.modelo()) {
     saida->add_modelo()->CopyFrom(m);
@@ -135,6 +179,7 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
     int quantidade = 0;
     int nivel = 0;
     std::string link;
+    std::string duracao;
   };
   std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
   std::vector<std::string> nomes_pergaminhos;
@@ -155,6 +200,13 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
     ++iqn.quantidade;
     iqn.nivel = ent::NivelMagia(feitico, ic);
     iqn.link = feitico.link();
+    if (feitico.acao().efeitos_adicionais().size() == 1) {
+      iqn.duracao = feitico.acao().efeitos_adicionais(0).has_modificador_rodadas()
+          ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
+          : "-";
+    } else {
+      iqn.duracao = "-";
+    }
   }
 
   std::vector<int> mapa_indices;
@@ -164,10 +216,11 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
     int quantidade =  it.second.quantidade;
     int nivel = it.second.nivel;
     std::string texto = StringPrintf(
-        "%s%s, nivel: %d %s",
+        "%s%s, nivel: %d, duração: %s %s",
         nome.c_str(),
         quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : "",
         nivel,
+        it.second.duracao.c_str(),
         link.empty() ? "" : StringPrintf("<a href='%s'>link</a>", link.c_str()).c_str());
     nomes_pergaminhos.push_back(texto);
     int indice = it.second.indice;
@@ -428,49 +481,6 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
-namespace {
-
-std::string StringDuracao(ent::ModificadorRodadas mr) {
-  switch (mr) {
-    case ent::MR_NENHUM: return "nenhum";
-    case ent::MR_RODADAS_NIVEL: return "rodadas/nível";
-    case ent::MR_MINUTOS_NIVEL: return "minutos/nível";
-    case ent::MR_10_MINUTOS_NIVEL: return "10 minutos/nível";
-    case ent::MR_HORAS_NIVEL: return "horas/nível";
-    case ent::MR_2_HORAS_NIVEL: return "2 horas/nível";
-    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/ 3 níveis (max 6)";
-    case ent::MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15: return "10 rodadas +1/nível (max 15)";
-    case ent::MR_HORAS_NIVEL_MAX_15: return "horas/nivel (max 15)";
-    case ent::MR_2_MINUTOS_NIVEL: return "2 minutos/nivel";
-    case ent::MR_DIAS_POR_NIVEL: return "dias/nivel";
-    case ent::MR_PALAVRA_PODER_ATORDOAR: return "variável por PV: max 4d4 rodadas";
-    case ent::MR_PALAVRA_PODER_CEGAR: return "variável por PV: max permanente";
-    case ent::MR_CONTINUO: return "continuo";
-  }
-  // Nao deveria chegar aqui.
-  return "desconhecida";
-}
-
-std::string StringArea(const ent::AcaoProto& acao) {
-  std::string str_geo;
-  switch (acao.geometria()) {
-    case ent::ACAO_GEO_CONE:
-      str_geo = StringPrintf("cone %f (q)", acao.distancia_quadrados());
-      break;
-    case ent::ACAO_GEO_CILINDRO:
-      str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
-      break;
-    case ent::ACAO_GEO_ESFERA:
-      str_geo = StringPrintf("esfera raio %.1f (q)", acao.raio_quadrados());
-      break;
-    case ent::ACAO_GEO_CUBO:
-      // Isso é mais para modelar objetos geometricos, como flecha acida.
-      break;
-  }
-  return str_geo;
-}
-
-}  // namespace
 std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
   if (!c.id().empty()) {
     const auto& feitico = tabelas.Feitico(c.id());
