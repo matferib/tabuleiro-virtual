@@ -1140,6 +1140,16 @@ void RecomputaClasseFeiticoAtiva(const Tabelas& tabelas, EntidadeProto* proto) {
   }
 }
 
+void PreencheFeiticoAleatorio(const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, EntidadeProto::InfoConhecido* fc) {
+  if (fc->id() == "auto") {
+    fc->set_id(tabelas.FeiticoAleatorio(id_para_magia, nivel_magia));
+    fc->clear_nome();
+  }
+  if (!fc->has_nome()) {
+    fc->set_nome(tabelas.Feitico(fc->id()).nome());
+  }
+}
+
 void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
@@ -1152,8 +1162,15 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
     if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
     const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
     // Classe nao tem magias conhecidas.
-    if (magias_conhecidas.empty()) continue;
-
+    if (magias_conhecidas.empty()) {
+      // Seta os feiticos que sao auto.
+      for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
+        for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+          PreencheFeiticoAleatorio(tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+        }
+      }
+      continue;
+    }
     const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
 
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
@@ -1168,18 +1185,11 @@ void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto
       const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
       Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
       for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
-        if (fc.id() == "auto") {
-          fc.set_id(tabelas.FeiticoAleatorio(classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia));
-          fc.clear_nome();
-        }
-        if (!fc.has_nome()) {
-          fc.set_nome(tabelas.Feitico(fc.id()).nome());
-        }
+        PreencheFeiticoAleatorio(tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
       }
     }
   }
 }
-
 
 void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
   // TODO fazer isso igual ao de resistencia a magia, usando TB_BASE.
