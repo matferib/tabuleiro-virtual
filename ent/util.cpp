@@ -2776,6 +2776,15 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
   return false;
 }
 
+int ValorFinalPericia(const std::string& id, const EntidadeProto& proto) {
+  for (const auto& info_pericia : proto.info_pericias()) {
+    if (info_pericia.id() == id) {
+      return BonusTotal(info_pericia.bonus());
+    }
+  }
+  return 0;
+}
+
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {
   for (const auto& ic : proto.info_classes()) {
     const auto& ct = tabelas.Classe(ic.id());
@@ -5308,6 +5317,76 @@ float AplicaEfeitosAdicionais(
     PreencheNotificacaoReducaoLuzComConsequencia(nivel_conjurador, entidade_destino, acao_proto, nd, nd);
   }
   return atraso_s;
+}
+
+namespace {
+void PreencheEntidadeDefesaTotal(bool ativar, const EntidadeProto& proto, EntidadeProto* proto_ntf) {
+  proto_ntf->set_id(proto.id());
+  auto* ca = proto_ntf->mutable_dados_defesa()->mutable_ca();
+  *proto_ntf->mutable_dados_ataque() = proto.dados_ataque();
+  if (ativar) {
+    // Entra em defesa total (sai da luta defensiva).
+    AtribuiBonus(ValorFinalPericia("acrobacias", proto) >= 5 ? 6 : 4, TB_ESQUIVA, "defesa_total", ca);
+    AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+    for (auto& da : *proto_ntf->mutable_dados_ataque()) {
+      AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+    }
+  } else {
+    // Sai da defesa total.
+    AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+  }
+}
+}  // namespace
+
+ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto) {
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  PreencheEntidadeDefesaTotal(ativar, proto, n.mutable_entidade());
+  PreencheEntidadeDefesaTotal(!ativar, proto, n.mutable_entidade_antes());
+  return n;
+}
+
+namespace {
+void PreencheEntidadeLutarDefensivamente(bool ativar, const EntidadeProto& proto, EntidadeProto* proto_ntf) {
+  proto_ntf->set_id(proto.id());
+  auto* ca = proto_ntf->mutable_dados_defesa()->mutable_ca();
+  *proto_ntf->mutable_dados_ataque() = proto.dados_ataque();
+  if (ativar) {
+    int bonus_defesa = ValorFinalPericia("acrobacias", proto) >= 5 ? 3 : 2;
+    int penalidade_ataque = -4;
+    auto* t = Talento("especializacao_em_combate", proto);
+    if (t != nullptr) {
+      penalidade_ataque = 2;
+      if (t->has_complemento()) {
+        int complemento = atoi(t->complemento().c_str());
+        if (complemento > 0 && complemento <= 5) {
+          bonus_defesa = complemento;
+          penalidade_ataque = -complemento;
+        }
+      }
+    }
+    // Entra em luta defensiva (exclui defesa total).
+    AtribuiBonus(bonus_defesa, TB_ESQUIVA, "luta_defensiva", ca);
+    AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
+    for (auto& da : *proto_ntf->mutable_dados_ataque()) {
+      AtribuiBonus(penalidade_ataque, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+    }
+  } else {
+    // Sai da luta defensiva.
+    AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
+    for (auto& da : *proto_ntf->mutable_dados_ataque()) {
+      AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
+    }
+  }
+}
+}  // namespace
+
+ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto) {
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  PreencheEntidadeLutarDefensivamente(ativar, proto, n.mutable_entidade());
+  PreencheEntidadeLutarDefensivamente(!ativar, proto, n.mutable_entidade_antes());
+  return n;
 }
 
 }  // namespace ent

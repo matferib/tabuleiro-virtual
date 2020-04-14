@@ -662,6 +662,94 @@ TEST(TesteArmas, TesteProjetilArea) {
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
 }
 
+TEST(TesteCA, TesteLutaDefensiva) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, e->Proto());
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 12);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -4) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteLutaDefensivaComAcrobacias) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ladino");
+    ic->set_nivel(2);
+    auto* ip = proto.add_info_pericias();
+    ip->set_id("acrobacias");
+    ip->set_pontos(5);
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, e->Proto());
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 13);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -4) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteDefesaTotal) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 14);
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+}
+
+TEST(TesteCA, TesteDefesaTotalComAcrobacia) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ladino");
+    ic->set_nivel(2);
+    auto* ip = proto.add_info_pericias();
+    ip->set_id("acrobacias");
+    ip->set_pontos(5);
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 16);
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+}
+
 TEST(TesteCA, TesteDestrezaCA) {
   EntidadeProto proto;
   RecomputaDependencias(g_tabelas, &proto);

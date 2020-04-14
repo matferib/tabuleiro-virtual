@@ -8020,85 +8020,21 @@ void Tabuleiro::AlternaFuria() {
 void Tabuleiro::AlternaDefesaTotal() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
-  {
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
-    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-  }
-  {
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
-    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
-    if (EmDefesaTotal(entidade->Proto())) {
-      // Sai da defesa total.
-      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
-    } else {
-      // Entra em defesa total (sai da luta defensiva).
-      AtribuiBonus(4, TB_ESQUIVA, "defesa_total", ca);
-      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
-      for (auto& da : *e_depois->mutable_dados_ataque()) {
-        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
-      }
-    }
-  }
+  ntf::Notificacao n = PreencheNotificacaoDefesaTotal(!EmDefesaTotal(entidade->Proto()), entidade->Proto());
   // Vai notificar remoto.
-  TrataNotificacao(*n);
+  TrataNotificacao(n);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(*n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 void Tabuleiro::AlternaLutaDefensiva() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
-  {
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    *e_antes->mutable_dados_defesa()->mutable_ca() = entidade->Proto().dados_defesa().ca();
-    *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-  }
-  {
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
-    auto* ca = e_depois->mutable_dados_defesa()->mutable_ca();
-    *ca = entidade->Proto().dados_defesa().ca();
-    *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
-
-    if (LutandoDefensivamente(entidade->Proto())) {
-      // Sai da luta defensiva.
-      AtribuiBonus(0, TB_ESQUIVA, "luta_defensiva", ca);
-      for (auto& da : *e_depois->mutable_dados_ataque()) {
-        AtribuiBonus(0, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
-      }
-    } else {
-      int bonus_defesa = 2;
-      int penalidade_ataque = -4;
-      auto* t = Talento("especializacao_em_combate", entidade->Proto());
-      if (t != nullptr) {
-        penalidade_ataque = 2;
-        if (t->has_complemento()) {
-          int complemento = atoi(t->complemento().c_str());
-          if (complemento > 0 && complemento <= 5) {
-            bonus_defesa = complemento;
-            penalidade_ataque = -complemento;
-          }
-        }
-      }
-      // Entra em luta defensiva (exclui defesa total).
-      AtribuiBonus(bonus_defesa, TB_ESQUIVA, "luta_defensiva", ca);
-      AtribuiBonus(0, TB_ESQUIVA, "defesa_total", ca);
-      for (auto& da : *e_depois->mutable_dados_ataque()) {
-        AtribuiBonus(penalidade_ataque, TB_SEM_NOME, "luta_defensiva", da.mutable_bonus_ataque());
-      }
-    }
-  }
+  ntf::Notificacao n = PreencheNotificacaoLutarDefensivamente(!LutandoDefensivamente(entidade->Proto()), entidade->Proto());
   // Vai notificar remoto.
-  TrataNotificacao(*n);
+  TrataNotificacao(n);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(*n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 bool Tabuleiro::HaEntidadesSelecionaveis() const {

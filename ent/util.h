@@ -422,6 +422,11 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
 // Notificacao que a entidade desviou ou resetou o valor de desviar objetos.
 void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd);
 
+// Preenche a notificacao para entidade entrar em defesa total (aumenta CA, nao pode atacar).
+ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto);
+// Preenche a notificacao para entidade entrar em luta defensiva (aumenta CA, ataque com penalidade).
+ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto);
+
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
 std::string NomeTipoBonus(TipoBonus tipo);
@@ -720,6 +725,8 @@ InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
 InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto);
 // Retorna default caso nao encontre.
 const InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
+// Retorna o valor final da pericia para o personagem.
+int ValorFinalPericia(const std::string& id, const EntidadeProto& proto);
 
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);
