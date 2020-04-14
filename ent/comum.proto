@@ -1,7 +1,6 @@
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
-
 enum TipoMagia {
   TM_NENHUMA = 0;
   TM_ARCANA = 1;
@@ -34,7 +33,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 121.
+// Proximo id: 122.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -171,6 +170,7 @@ enum TipoEfeito {
   EFEITO_VER_INVISIVEL = 118;
   EFEITO_IMUNIDADE_FEITICO = 119;
   EFEITO_INCONSCIENTE = 120;
+  EFEITO_CRIAR_CHAMA = 121;
 }
 
 enum TipoEfeitoModelo {
@@ -664,51 +664,6 @@ message RestricaoArma {
   optional bool apenas_armas = 3;
   repeated string id_arma = 2;
   optional bool apenas_armas_para_dano = 4;
-}
-
-message ConsequenciaEvento {
-  // Afeta todos atributos.
-  optional Atributos atributos = 1;
-  // Afeta os dados de defesa: ca e salvacoes.
-  optional DadosDefesa dados_defesa = 2;
-  // Afeta o bonus das jogadas de ataque.
-  optional Bonus jogada_ataque = 3;
-  optional Bonus jogada_dano = 6;
-  // Efeito so vale para algumas armas.
-  optional RestricaoArma restricao_arma = 7;
-  // Alteracao no tamanho da entidade.
-  optional Bonus tamanho = 4;
-  // Alteracao na pericia.
-  repeated InfoPericia dados_pericia = 5;
-  //optional EntidadeProto.DadosAtaque ataques_adicionais = 8;
-
-  optional Bonus bonus_iniciativa = 11;
-
-  //repeated DadosAtaque dados_ataque = 12;
-}
-
-message EfeitoProto {
-  optional TipoEfeito id = 1;  // id do efeito.
-  optional string nome = 5;  // nome do efeito, legibilidade.
-  optional string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
-  // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
-  // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
-  // que se acumula).
-  optional bool nao_cumulativo = 4;
-  // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
-  // O que ocorre quando o efeito termina.
-  optional ConsequenciaEvento consequencia_fim = 3;
-}
-
-message EfeitoModeloProto {
-  optional TipoEfeitoModelo id = 1;  // id do efeito.
-  optional string nome = 5;  // nome do efeito, legibilidade.
-  // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
-  // Indica que o template pode ser desligado, tipo vulto com luz.
-  optional bool desligavel = 3;
-  optional string descricao = 4;
 }
 
 // Como os efeitos de uma pocao se combinam.

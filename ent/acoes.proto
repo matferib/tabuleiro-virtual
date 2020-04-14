@@ -308,6 +308,203 @@ message AcaoProto {
   optional int32 indice_ataque = 84;
 }
 
+// Como uma arma esta empunhada.
+// Na UI, deve ter a mesma ordem no combo.
+enum EmpunhaduraArma {
+  // Apenas arma e mais nada.
+  EA_ARMA_APENAS = 0;
+  // Empunhada em duas maos.
+  EA_2_MAOS = 1;
+  // 2 armas: empunhada na mao boa.
+  EA_MAO_BOA = 2;
+  // 2 armas: empunhada na mao ruim.
+  EA_MAO_RUIM = 3;
+  // Arma e escudo.
+  EA_ARMA_ESCUDO = 4;
+  // Monstros.
+  EA_MONSTRO_ATAQUE_PRIMARIO = 5;
+  EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
+}
+
+
+// Dados para um ataque especifico.
+// Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
+// Proximo id: 79.
+message DadosAtaque {
+  // O rotulo de um ataque, para identificacao. Identifica uma arma.
+  optional string rotulo = 9;
+  // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
+  optional string grupo = 40;
+
+  // Deve casar com as strings de id do arquivo de dados das acoes.
+  optional string tipo_ataque = 1;
+  optional TipoAcao tipo_acao_deprecated = 39 [deprecated=true];
+  // Bonus final para ataque.
+  optional int32 bonus_ataque_final = 2;
+  // O dano final da arma: 1d8+5.
+  optional string dano = 3;
+  optional int32 margem_critico = 6 [default=20];
+  optional int32 multiplicador_critico = 7 [default=2];
+  // Devem ser derivados do dado de defesa.
+  optional int32 ca_normal = 4;
+  optional int32 ca_surpreso = 5;
+  optional int32 ca_toque = 8;
+  optional float alcance_m = 10;
+  optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario). TODO: deprecar alcance_m.
+  optional float alcance_minimo_m = 33;
+  optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
+  // A diferenca desses dois eh importante.
+  // O campo acao eh o valor final, recomputado sempre a partir da acao da arma e da acao_fixa.
+  // Por que nao deixar tudo na arma? Alguns monstros tem modificadores de dados de ataque
+  // sem usar armas, portanto eles tem na entrada deles acao_fixa. Por exemplo, o ankheg.
+  // Caso o jato dele tivesse acao ao inves de acao_fixa, qualquer mudanca que cause recomputacao
+  // (tipo drenar forca), apagaria o campo acao.
+  optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
+  optional AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
+  // Indica arma obra prima. Modifica bonus_ataque.
+  optional bool obra_prima = 14;
+  optional EmpunhaduraArma empunhadura = 15;
+  // Arma permite acuidade.
+  optional bool acuidade = 17;
+  // Para arcos compostos.
+  optional int32 bonus_composto = 20;
+  // Os bonus de ataque e dano.
+  optional Bonus bonus_ataque = 21;
+  optional Bonus bonus_dano = 22;
+  // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
+  optional string dano_basico = 23;
+  // Gera o dano basico independente de tamanho ou qualquer outra coisa.
+  optional string dano_basico_fixo = 37;
+  // Para ataques que curam.
+  optional bool cura = 54;
+  // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
+  optional string id_arma = 24;
+  // A arma pode ter tamanho diferente.
+  optional TamanhoEntidade tamanho = 26;
+  // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
+  // TODO implementar.
+  optional string dano_adicional = 27;
+  // Indica ataque de toque.
+  optional bool ataque_toque = 28;
+  // Indica que o ataque eh a distancia.
+  optional bool ataque_distancia = 29;
+  // Indica um ataque corpo a corpo.
+  optional bool ataque_corpo_a_corpo = 65;
+  optional bool ataque_arremesso = 66;
+  // Indica ataque de agarrar.
+  optional bool ataque_agarrar = 30;
+  // Para manobra agarrar.
+  optional bool ignora_ataque_toque = 35;
+  // Bonus magico da arma. Modifica o bonus_ataque e bonus_dano.
+  optional int32 bonus_magico = 31;
+  // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
+  optional int32 ordem_ataque = 32;
+  // Ataque da dano nao letal.
+  optional bool nao_letal = 34;
+  // Para efeitos que criam dados ataque.
+  optional int32 id_unico_efeito  = 36;
+  // Municao para a arma.
+  optional uint32 municao = 38;
+  // Para ataques com veneno.
+  optional VenenoProto veneno = 42;
+  // Se presente, ataque desaparecerá após ser usado esse número de vezes.
+  // É diferente de munição, que permanece após zerar.
+  optional int32 limite_vezes = 43;
+  // Alguns ataques são limitados, mas não devem ser zerados. Na prática, funciona como munição
+  // para ataques por dia. Exemplo, inspirar coragem.
+  optional bool mantem_com_limite_zerado = 73;
+  // Se false, ao realizar o ataque nao passa para o proximo. Isso ocorre com algumas entidades conjuradas com varios ataques na rodada
+  // que sao muito dificeis de modelar como um so.
+  optional bool incrementa_proximo_ataque = 68 [default=true];
+  // TODO: passar isso tudo pra acao? Me parece mais adequado.
+  // Ferro frio, adamante etc.
+  optional DescritorAtaque material_arma = 46;
+  // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
+  repeated DescritorAtaque tipo_ataque_fisico = 47;
+  // Bem, mal, caos, leal.
+  optional DescritorAtaque alinhamento_bem_mal = 48;
+  optional DescritorAtaque alinhamento_ordem_caos = 77;
+
+  // Para armas que tem que ser carregadas.
+  optional bool requer_carregamento = 49;
+  optional bool descarregada = 50;
+  // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
+  optional bool derrubar_automatico = 51;
+  // Parecido com anterior, mas se bem sucedida, derruba sem teste.
+  optional bool derruba_sem_teste = 67;
+
+  // Para pergaminhos, que já vem com estas variaveis definidas.
+  optional int32 nivel_conjurador_pergaminho = 52;
+  optional int32 modificador_atributo_pergaminho = 53;
+  optional TipoMagia tipo_pergaminho = 55;
+  // Computado dinamicamente.
+  repeated DescritorAtaque descritores = 57;
+  optional DescritorAtaque elemento = 58;
+  optional int32 dificuldade_salvacao = 59;
+  optional string icone = 60;
+  optional TipoSalvacao tipo_salvacao = 61;
+  // O que acontece quando salva.
+  optional ResultadoSalvacao resultado_ao_salvar = 62;
+  optional bool dano_ignora_salvacao = 63;
+  optional bool ignora_reflexos = 69;
+  // Ataque so disponivel se modelo estiver ativado.
+  optional TipoEfeitoModelo requer_modelo_ativo = 71;
+  // O identificador do ataque dentro do modelo, para aplicá-lo e desligá-lo.
+  optional int32 id_ataque_modelo = 72;
+  // Indica que ataque é proveniente de uma arma.
+  optional bool eh_arma = 74;
+  // Para cool down. Se houver taxa de refrescamento, atualiza disponivel_em. Quando disponivel_em for 0,
+  // podde usar de novo o ataque.
+  optional string taxa_refrescamento = 75;
+  optional int32 disponivel_em = 76;
+  // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
+  optional bool ignora_origem = 78;
+}
+
+message ConsequenciaEvento {
+  // Afeta todos atributos.
+  optional Atributos atributos = 1;
+  // Afeta os dados de defesa: ca e salvacoes.
+  optional DadosDefesa dados_defesa = 2;
+  // Afeta o bonus das jogadas de ataque.
+  optional Bonus jogada_ataque = 3;
+  optional Bonus jogada_dano = 6;
+  // Efeito so vale para algumas armas.
+  optional RestricaoArma restricao_arma = 7;
+  // Alteracao no tamanho da entidade.
+  optional Bonus tamanho = 4;
+  // Alteracao na pericia.
+  repeated InfoPericia dados_pericia = 5;
+  // Evento da bonus de iniciativa.
+  optional Bonus bonus_iniciativa = 11;
+  // Evento cria os dados de ataque passado.
+  optional DadosAtaque dados_ataque = 12;
+}
+
+message EfeitoProto {
+  optional TipoEfeito id = 1;  // id do efeito.
+  optional string nome = 5;  // nome do efeito, legibilidade.
+  optional string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
+  // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
+  // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
+  // que se acumula).
+  optional bool nao_cumulativo = 4;
+  // O que ocorre com a entidade quando efeito comeca.
+  optional ConsequenciaEvento consequencia = 2;
+  // O que ocorre quando o efeito termina.
+  optional ConsequenciaEvento consequencia_fim = 3;
+}
+
+message EfeitoModeloProto {
+  optional TipoEfeitoModelo id = 1;  // id do efeito.
+  optional string nome = 5;  // nome do efeito, legibilidade.
+  // O que ocorre com a entidade quando efeito comeca.
+  optional ConsequenciaEvento consequencia = 2;
+  // Indica que o template pode ser desligado, tipo vulto com luz.
+  optional bool desligavel = 3;
+  optional string descricao = 4;
+}
+
 // O arquivo de acoes é serializado desta forma.
 message Acoes {
   repeated AcaoProto acao = 1;

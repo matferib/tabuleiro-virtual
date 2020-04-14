@@ -291,9 +291,36 @@ void AplicaAlinhamento(DescritorAtaque desc, DadosAtaque* da) {
   }
 }
 
+void AplicaInicioAtaqueIdUnico(int id_unico, const DadosAtaque& dados_ataque, EntidadeProto* proto) {
+  DadosAtaque da = dados_ataque;
+  da.set_id_unico_efeito(id_unico);
+  if (proto->dados_defesa().id_escudo().empty()) {
+    da.set_empunhadura(EA_ARMA_APENAS);
+  } else {
+    da.set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  InsereInicio(&da, proto->mutable_dados_ataque());
+}
+
+// TODO remover todos.
+void AplicaFimAtaquePorIdUnico(int id_unico, EntidadeProto* proto) {
+  // Encontra o dado de ataque.
+  int i = 0;
+  for (const auto& da : proto->dados_ataque()) {
+    if (da.has_id_unico_efeito() && da.id_unico_efeito() == id_unico) {
+      proto->mutable_dados_ataque()->DeleteSubrange(i, 1);
+      return;
+    }
+  }
+}
+
+
 // Entidade pode ser nullptr em testes.
 bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
+  if (consequencia.has_dados_ataque() && !evento->processado()) {
+    AplicaInicioAtaqueIdUnico(evento->id_unico(), consequencia.dados_ataque(), proto);
+  }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
     case EFEITO_IMUNIDADE_FEITICO: {
@@ -446,23 +473,19 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
+    case EFEITO_CRIAR_CHAMA:
+    break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento->processado()) {
         const auto* funda = DadosAtaqueProto("funda", *proto);
-        DadosAtaque da;
-        da.set_id_unico_efeito(evento->id_unico());
-        da.set_bonus_magico(1);
-        da.set_dano_basico_fixo("1d6");
         if (funda != nullptr) {
-          da.set_id_arma("funda");
-          da.set_empunhadura(funda->empunhadura());
-        } else {
-          da.set_empunhadura(EA_ARMA_ESCUDO);
+          for (auto& da : *proto->mutable_dados_ataque()) {
+            if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
+            da.set_id_arma("funda");
+            da.set_empunhadura(funda->empunhadura());
+            da.set_rotulo("pedra encantada com funda");
+          }
         }
-        da.set_rotulo(funda != nullptr ? "pedra encantada com funda" : "pedra encantada");
-        da.set_tipo_ataque("Ataque a Distância");
-        da.set_municao(3);
-        InsereInicio(&da, proto->mutable_dados_ataque());
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
@@ -531,18 +554,6 @@ void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
   evento->set_rodadas(100);
 }
 
-void AplicaFimPedraEncantada(int id_unico, EntidadeProto* proto) {
-  // Encontra o dado de ataque.
-  int i = 0;
-  for (const auto& da : proto->dados_ataque()) {
-    if (da.id_unico_efeito() == id_unico) {
-      proto->mutable_dados_ataque()->DeleteSubrange(i, 1);
-      return;
-    }
-  }
-}
-
-
 void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
   // Encontra o dado de ataque.
   for (auto& da : *proto->mutable_dados_ataque()) {
@@ -555,6 +566,7 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
 
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
+  AplicaFimAtaquePorIdUnico(evento.id_unico(), proto);
   switch (evento.id_efeito()) {
     case EFEITO_IMUNIDADE_FEITICO: {
       if (!evento.has_id_unico()) break;
@@ -697,9 +709,6 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
 
     case EFEITO_FURIA_BARBARO:
       AplicaFimFuriaBarbaro(proto);
-    break;
-    case EFEITO_PEDRA_ENCANTADA:
-      AplicaFimPedraEncantada(evento.id_unico(), proto);
     break;
     case EFEITO_ABENCOAR_ARMA:
     case EFEITO_TENDENCIA_EM_ARMA: {

@@ -1037,6 +1037,40 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_PEDRA_ENCANTADA
+    nome: 'pedra encantada'
+    consequencia {
+      dados_ataque {
+        # TODO: empunhadura.
+        # TODO: se tiver funda, usa a funda.
+        bonus_magico: 1;
+        dano_basico_fixo: "1d6"
+        rotulo: "pedra encantada"
+        tipo_ataque: "Ataque a Distância"
+        municao: 3
+      }
+    }
+  }
+  #efeitos {
+  #  # TODO modificador de dano.
+  #  # TODO limite de vezes.
+  #  id: 'EFEITO_CRIAR_CHAMA'
+  #  nome: 'criar chama'
+  #  consequencia {
+  #    dados_ataque {
+  #      dano_basico_fixo: "1d6"
+  #      rotulo: "pedra encantada"
+  #      tipo_ataque: "Feitiço de Toque a Distância"
+  #      ataque_toque: true
+  #      municao: 3
+  #      acao_fixa {
+  #        permite_salvacao: false
+  #      }
+  #    }
+  #  }
+  #}
+
+  efeitos {
     id: EFEITO_OUTRO
     nome: 'outros'
   }
@@ -5183,6 +5217,15 @@ tabela_feiticos {
       nivel: 2
       dominio: true
     }
+    acao {
+      id: 'Feitiço Pessoal'
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_CRIAR_CHAMA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'evocacao'
   }
   armas {
     id: 'lamina_flamejante'
@@ -5192,6 +5235,7 @@ tabela_feiticos {
       id: 'druida'
       nivel: 2
     }
+    escola: 'evocacao'
   }
 
   armas {
@@ -11243,7 +11287,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'pedra_encantada' 
+    id: 'pedra_encantada'
     nome_ingles: 'magic stone'
     nome: 'pedra encantada'
     info_classes {
@@ -11275,7 +11319,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'raio_ardente' 
+    id: 'raio_ardente'
     nome_ingles: 'scorching ray'
     nome: 'raio ardente'
     alcance_quadrados: 5
