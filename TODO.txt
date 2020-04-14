@@ -1,3 +1,5 @@
+Acrobacia: melhora lutar defensivamente.
+Especialização em combate: idem.
 Nublar ta aparecendo sem transparencia.
 Leque cromatico.
 Arma espiritual: fazer como uma magia so com parametros de escolha.
