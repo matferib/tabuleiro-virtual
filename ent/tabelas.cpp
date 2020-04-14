@@ -289,7 +289,7 @@ void Tabelas::RecarregaMapas() {
     }
     if (feitico.link().empty() && !feitico.nome_ingles().empty()) {
       std::vector<std::string> res;
-      SplitStringUsing(feitico.nome_ingles(), " ,-'", &res);
+      SplitStringUsing(feitico.nome_ingles(), " ,-'/", &res);
       for (unsigned int i = 1; i < res.size(); ++i) {
         if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
           // Pega o caso do 's.
