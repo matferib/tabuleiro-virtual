@@ -7327,7 +7327,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'drenar_forca_vital' 
+    id: 'drenar_forca_vital'
     nome_ingles: 'death knell'
     nome: 'drenar força vital'
     info_classes {
@@ -7351,7 +7351,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'condicao' 
+    id: 'condicao'
     nome_ingles: 'status'
     nome: 'condição'
     info_classes {
@@ -7371,7 +7371,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'zona_verdade' 
+    id: 'zona_verdade'
     nome_ingles: 'zone of truth'
     nome: 'zona da verdade'
     info_classes {
