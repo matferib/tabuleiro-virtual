@@ -1,7 +1,9 @@
+Unit test de dados_ataque em consequencias (pedra encantada).
+Ordenar UI de rolar pericias.
 Magias:
-Implementar produce flame de druida (magia de 1o nivel ducaralho).
+Implementar flame blade de druida (magia de 2o nivel ducaralho): lamina flamejante.
+Implementar produce flame de druida (magia de 1o nivel ducaralho): criar chama.
 Icone para amedrontado e abalado.
-Acrobacia: melhora lutar defensivamente.
 Especialização em combate: idem.
 Nublar ta aparecendo sem transparencia.
 Arma espiritual: fazer como uma magia so com parametros de escolha.
