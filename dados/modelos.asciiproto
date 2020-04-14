@@ -3693,8 +3693,25 @@ modelo {
       pergaminhos_divinos { id: 'pedra_encantada' }
       moedas { po: 25 }
     }
-    # feiticos: 3/2
-    # TODO talentos e usar tesouro.
+    feiticos_classes {
+      id_classe: 'druida'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'orientacao' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'criar_chama' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+      }
+    }
   }
 }
 modelo {
@@ -3740,10 +3757,10 @@ modelo {
       id_classe: 'druida'
       feiticos_por_nivel {
         nivel: 0
-        conhecidos { id: 'detectar_magia' nome: 'Detectar Magia' }
-        conhecidos { id: 'detectar_veneno' nome: 'Detectar Veneno' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'detectar_veneno' }
         conhecidos { id: 'orientacao' }
-        conhecidos { id: 'luz' nome: 'Luz' }
+        conhecidos { id: 'luz' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
@@ -3751,9 +3768,9 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'constricao' nome: 'Constrição' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'criar_chama' }
         conhecidos { id: 'pedra_encantada' }
-        conhecidos { id: 'presa_magica' nome: 'Presa Mágica' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }

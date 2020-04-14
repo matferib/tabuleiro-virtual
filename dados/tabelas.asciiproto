@@ -455,6 +455,7 @@ tabela_armas {
   armas {
     id: 'cimitarra'
     nome: 'cimitarra'
+    modelo_3d: 'sword'
     preco: '15 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
@@ -5170,9 +5171,32 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'criar_chama'
+    nome_ingles: 'produce flame'
+    nome: 'criar chama'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'fogo'
+      nivel: 2
+      dominio: true
+    }
+  }
+  armas {
+    id: 'lamina_flamejante'
+    nome_ingles: 'flame blade'
+    nome: 'lâmina flamejante'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+  }
+
+  armas {
     id: 'cegueira_surdez' 
     nome_ingles: 'blindness/deafness'
-    link: 'https://www.d20srd.org/srd/spells/blindnessDeafness.htm'
     nome: 'cegueira/surdez'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
