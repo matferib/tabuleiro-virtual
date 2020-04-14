@@ -3010,7 +3010,9 @@ std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
 }
 
 bool IdsUnicosIguais(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
-  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+  // Por algum motivo, usar rhs.end da erro no mac.
+  if (lhs.size() != rhs.size()) return false;
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin());//, rhs.end());
 }
 
 bool IdsUnicosIguaisSemOrdem(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {

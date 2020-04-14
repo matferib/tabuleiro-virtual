@@ -1,6 +1,8 @@
 Magias:
 Implementar produce flame de druida (magia de 1o nivel ducaralho).
 Icone para amedrontado e abalado.
+Acrobacia: melhora lutar defensivamente.
+Especialização em combate: idem.
 Nublar ta aparecendo sem transparencia.
 Arma espiritual: fazer como uma magia so com parametros de escolha.
 Implementar poder de protection domain (dar um bonus de resistencia igual ao nivel de clerigo para a proxima salvacao, duracao 1h). 1x dia
