@@ -144,20 +144,30 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
 void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
   const auto& pericias_entidade = notificacao.entidade().info_pericias();
-  std::vector<std::string> nomes_pericias;
+  std::map<std::string, int> mapa_nomes;
+  int indice = 0;
   for (const auto& pericia : pericias_entidade) {
-    nomes_pericias.push_back(tabelas_.Pericia(pericia.id()).nome());
+    std::string nome = tabelas_.Pericia(pericia.id()).nome();
+    mapa_nomes.insert(std::make_pair(nome, indice++));
+  }
+  std::map<int, int> mapa_pericias;
+  std::vector<std::string> nomes_pericias;
+  indice = 0;
+  for (const auto& it : mapa_nomes) {
+    nomes_pericias.push_back(it.first);
+    mapa_pericias.insert(std::make_pair(indice++, it.second));
   }
   EscolheItemLista(
       "Escolha a pericia", nomes_pericias,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPericia,
-          this, notificacao,
+          this, notificacao, mapa_pericias,
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, bool ok, int indice_pericia) {
-  if (ok && indice_pericia <= notificacao.entidade().info_pericias_size()) {
+void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, std::map<int, int> mapa_pericias, bool ok, int indice_selecao) {
+  if (ok && indice_selecao >= 0 && indice_selecao <= notificacao.entidade().info_pericias_size()) {
+    int indice_pericia = mapa_pericias[indice_selecao];
     tabuleiro_->TrataRolarPericiaNotificando(indice_pericia, notificacao.entidade());
   }
   tabuleiro_->ReativaWatchdogSeMestre();
