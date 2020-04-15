@@ -267,7 +267,8 @@ class AcaoDeltaPontosVida : public Acao {
       const auto* entidade_primeira_pessoa = tabuleiro_->EntidadePrimeiraPessoa();
       if (entidade_primeira_pessoa == nullptr || entidade_primeira_pessoa->Id() != entidade_destino->Id()) {
         pos_ = entidade_destino->Pos();
-        pos_.set_z(entidade_destino->ZOlho());
+        // ficar mais alto.
+        pos_.set_z(entidade_destino->ZOlho() + entidade_destino->AlturaOlho());
         VLOG(1) << "Acao usando entidade destino " << pos_.ShortDebugString();
       } else {
         // Entidade destino é a mesma da primeira pessoa. Vamos colocar a acao
@@ -300,7 +301,7 @@ class AcaoDeltaPontosVida : public Acao {
     // Monta a string de delta.
     if (TemDeltaAcao(acao_proto_)) {
       if (TemTextoAcao(acao_proto_)) {
-        string_texto_ = TextoAcao(acao_proto_);
+        string_texto_ = StringPrintf("\n%s", TextoAcao(acao_proto_).c_str());
       }
       delta_acao_ = DeltaAcao(acao_proto_);
       const int delta_abs = abs(delta_acao_);
@@ -318,7 +319,7 @@ class AcaoDeltaPontosVida : public Acao {
       return;
     }
     VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
-    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS + std::count(string_texto_.begin(), string_texto_.end(), '\n') * 2.0f;
+    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS * std::count(string_texto_.begin(), string_texto_.end(), '\n');
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -347,7 +348,7 @@ class AcaoDeltaPontosVida : public Acao {
         const float cor[] = { acao_proto_.cor().r(), acao_proto_.cor().g(), acao_proto_.cor().b() };
         MudaCorAplicandoNevoa(cor, pd);
       } else {
-        MudaCorAplicandoNevoa(COR_BRANCA, pd);
+        MudaCorAplicandoNevoa(COR_AMARELA, pd);
       }
       DesenhaStringTexto();
     }
@@ -397,8 +398,8 @@ class AcaoDeltaPontosVida : public Acao {
         gl::DesenhaString(StringSemUtf8(string_texto_));
       }
     } else {
-      if (gl::PosicaoRaster(0.0f, 0.0f, -0.5f)) {
-        gl::DesenhaString(StringSemUtf8(string_texto_));
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        gl::DesenhaString(StringSemUtf8(string_texto_), /*inverte_vertical=*/true);
       }
     }
   }
