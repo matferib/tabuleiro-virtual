@@ -504,7 +504,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
           if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
           // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
           int nivel_conjurador = evento->rodadas() / 10;
-          int mod = std::min(5, nivel_conjurador); 
+          int mod = std::min(5, nivel_conjurador);
           da.set_dano_basico_fixo(StringPrintf("%s+%d", da.dano_basico_fixo().c_str(), mod));
           da.set_limite_vezes(std::max(1, nivel_conjurador));
           break;
@@ -521,6 +521,18 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         if (!encontrou) {
           // Fim do evento.
           evento->set_rodadas(-1);
+        }
+      }
+    break;
+    case EFEITO_LAMINA_FLAMEJANTE:
+      if (!evento->processado()) {
+        for (auto& da : *proto->mutable_dados_ataque()) {
+          if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
+          // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
+          int nivel_conjurador = evento->rodadas() / 10;
+          int mod = std::min(10, nivel_conjurador / 2);
+          da.set_dano_basico_fixo(StringPrintf("%s+%d", da.dano_basico_fixo().c_str(), mod));
+          break;
         }
       }
     break;

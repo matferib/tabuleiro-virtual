@@ -1094,6 +1094,30 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_LAMINA_FLAMEJANTE
+    nome: 'lâmina flamejante'
+    consequencia {
+      dados_ataque {
+        id_arma: 'cimitarra'
+        dano_basico_fixo: "1d8"
+        rotulo: "lamina flamejante"
+        tipo_ataque: "Feitiço de Toque"
+        elemento: DESC_FOGO
+        acao_fixa {
+          tipo: ACAO_CORPO_A_CORPO
+          permite_salvacao: false
+          consequencia: TC_INFLAMA_ALVO
+        }
+      }
+      # Na verdade nao tem luz. Aqui é so pra dar um efeito legal.
+      luz {
+        raio_m: 1
+        cor { r: 1.0 g: 0.5 b: 0.0 a: 1.0 }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_OUTRO
     nome: 'outros'
   }
@@ -5257,6 +5281,14 @@ tabela_feiticos {
     info_classes {
       id: 'druida'
       nivel: 2
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_LAMINA_FLAMEJANTE
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
     }
     escola: 'evocacao'
   }
