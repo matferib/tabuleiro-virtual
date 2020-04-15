@@ -540,13 +540,13 @@ void Entidade::EmiteNovaNuvem() {
 }
 
 void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const {
-  std::vector<unsigned int> a_remover;
+  std::set<unsigned int, std::greater<int>> a_remover;
   float intervalo_s = intervalo_ms / 1000.0f;
   for (unsigned int i = 0; i < dados_emissao->emissoes.size(); ++i) {
     auto& emissao = dados_emissao->emissoes[i];
     emissao.duracao_ms -= intervalo_ms;
     if (emissao.duracao_ms <= 0) {
-      a_remover.push_back(i);
+      a_remover.insert(i);
       continue;
     }
     emissao.pos += emissao.direcao * emissao.velocidade_m_s * intervalo_s;
@@ -554,9 +554,8 @@ void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* d
     emissao.cor[3] = static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms;
   }
   // Remove as que tem que remover.
-  unsigned int removidas = 0;
   for (int i : a_remover) {
-    dados_emissao->emissoes.erase(dados_emissao->emissoes.begin() + (i - removidas));
+    dados_emissao->emissoes.erase(dados_emissao->emissoes.begin() + i);
   }
 }
 
