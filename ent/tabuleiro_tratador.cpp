@@ -1718,7 +1718,7 @@ float Tabuleiro::TrataAcaoIndividual(
       ConcatenaString(veneno_str, por_entidade->mutable_texto());
     }
 
-    if (!acao_proto->ignora_resistencia_magia() &&
+    if (resultado.Sucesso() && !acao_proto->ignora_resistencia_magia() &&
         entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
       std::string resultado_rm;
       bool sucesso;
