@@ -314,12 +314,23 @@ void AplicaFimAtaquePorIdUnico(int id_unico, EntidadeProto* proto) {
   }
 }
 
+void AplicaLuz(const IluminacaoPontual& luz, EntidadeProto::Evento* evento, EntidadeProto* proto) {
+  if (proto->has_luz()) {
+    EntidadeProto proto_salvo;
+    *proto_salvo.mutable_luz() = proto->luz();
+    evento->set_estado_anterior(proto_salvo.SerializeAsString());
+  }
+  *proto->mutable_luz() = luz;
+}
 
 // Entidade pode ser nullptr em testes.
 bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   if (consequencia.has_dados_ataque() && !evento->processado()) {
     AplicaInicioAtaqueIdUnico(evento->id_unico(), consequencia.dados_ataque(), proto);
+  }
+  if (consequencia.has_luz() && !evento->processado()) {
+    AplicaLuz(consequencia.luz(), evento, proto);
   }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
@@ -473,8 +484,6 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
-    case EFEITO_CRIAR_CHAMA:
-    break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento->processado()) {
         const auto* funda = DadosAtaqueProto("funda", *proto);
@@ -484,7 +493,34 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
             da.set_id_arma("funda");
             da.set_empunhadura(funda->empunhadura());
             da.set_rotulo("pedra encantada com funda");
+            break;
           }
+        }
+      }
+    break;
+    case EFEITO_CRIAR_CHAMA:
+      if (!evento->processado()) {
+        for (auto& da : *proto->mutable_dados_ataque()) {
+          if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
+          // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
+          int nivel_conjurador = evento->rodadas() / 10;
+          int mod = std::min(5, nivel_conjurador); 
+          da.set_dano_basico_fixo(StringPrintf("%s+%d", da.dano_basico_fixo().c_str(), mod));
+          da.set_limite_vezes(std::max(1, nivel_conjurador));
+          break;
+        }
+      } else {
+        // Se ja processou, elimina o evento se gastou tudo.
+        bool encontrou = false;
+        for (auto& da : *proto->mutable_dados_ataque()) {
+          if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
+          // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
+          encontrou = true;
+          break;
+        }
+        if (!encontrou) {
+          // Fim do evento.
+          evento->set_rodadas(-1);
         }
       }
     break;
@@ -564,9 +600,24 @@ void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
   }
 }
 
+void AplicaFimLuz(const EntidadeProto::Evento& evento, EntidadeProto* proto) {
+  if (evento.has_estado_anterior()) {
+    EntidadeProto proto_salvo;
+    proto_salvo.ParseFromString(evento.estado_anterior());
+    if (proto_salvo.has_luz()) {
+      *proto->mutable_luz() = proto_salvo.luz();
+      return;
+    }
+  }
+  proto->clear_luz();
+}
+
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   AplicaFimAtaquePorIdUnico(evento.id_unico(), proto);
+  if (consequencia.has_luz()) {
+    AplicaFimLuz(evento, proto);
+  }
   switch (evento.id_efeito()) {
     case EFEITO_IMUNIDADE_FEITICO: {
       if (!evento.has_id_unico()) break;

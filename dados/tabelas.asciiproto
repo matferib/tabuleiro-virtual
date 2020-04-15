@@ -322,6 +322,16 @@ tabela_armas {
       requer_carregamento: true
       tipo_carregamento: TC_MOVIMENTO
     }
+    acao {
+      id: 'Ataque a Distância'
+      geometria: ACAO_GEO_ESFERA
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      cor { r: 0.7 g: 0.7 b: 0.7 a: 1.0 }
+      velocidade {
+        tipo_aceleracao: ACAO_ACEL_CONSTANTE
+        aceleracao_m_s_2: 0.04
+      }
+    }
   }
   # Fim armas leves.
 
@@ -1055,25 +1065,34 @@ tabela_efeitos {
       }
     }
   }
-  #efeitos {
-  #  # TODO modificador de dano.
-  #  # TODO limite de vezes.
-  #  id: 'EFEITO_CRIAR_CHAMA'
-  #  nome: 'criar chama'
-  #  consequencia {
-  #    dados_ataque {
-  #      dano_basico_fixo: "1d6"
-  #      rotulo: "pedra encantada"
-  #      tipo_ataque: "Feitiço de Toque a Distância"
-  #      ataque_toque: true
-  #      municao: 3
-  #      acao_fixa {
-  #        permite_salvacao: false
-  #      }
-  #    }
-  #  }
-  #}
-
+  efeitos {
+    id: EFEITO_CRIAR_CHAMA
+    nome: 'criar chama'
+    consequencia {
+      dados_ataque {
+        dano_basico_fixo: "1d6"
+        rotulo: "criar chama"
+        tipo_ataque: "Feitiço de Toque a Distância"
+        elemento: DESC_FOGO
+        alcance_q: 20
+        acao_fixa {
+          tipo: ACAO_PROJETIL
+          permite_salvacao: false
+          geometria: ACAO_GEO_ESFERA
+          escala { x: 0.2 y: 0.2 z: 0.2 }
+          distancia_quadrados: 24
+          cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+          info_textura { id: 'fire.png' }
+          consequencia: TC_INFLAMA_ALVO
+          ignora_luz: true
+        }
+      }
+      luz {
+        raio_m: 6
+        cor { r: 1.0 g: 0.5 b: 0.0 a: 1.0 }
+      }
+    }
+  }
   efeitos {
     id: EFEITO_OUTRO
     nome: 'outros'
@@ -5500,7 +5519,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/hypnoticPattern.htm'
-    id: 'padrao_hipnotico' 
+    id: 'padrao_hipnotico'
     nome_ingles: 'hypnotic pattern'
     nome: 'padrão hipnótico'
     alcance_quadrados: 20
@@ -6155,7 +6174,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/augury.htm'
-    id: 'augurio' 
+    id: 'augurio'
     nome_ingles: 'augury'
     nome: 'augúrio'
     info_classes {
@@ -6170,7 +6189,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/hideFromUndead.htm'
-    id: 'invisibilidade_contra_mortos_vivos' 
+    id: 'invisibilidade_contra_mortos_vivos'
     nome_ingles: 'hide from undead'
     nome: 'invisibilidade contra mortos-vivos'
     info_classes {
@@ -6247,7 +6266,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/purifyFoodAndDrink.htm'
-    id: 'purificar_alimentos' 
+    id: 'purificar_alimentos'
     nome_ingles: 'purify food and drink'
     nome: 'purificar alimentos'
     info_classes {
@@ -6513,7 +6532,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'poder_divino' 
+    id: 'poder_divino'
     nome_ingles: 'divine power'
     nome: 'poder divino'
     info_classes {
@@ -6537,7 +6556,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'imunidade_magia' 
+    id: 'imunidade_magia'
     nome_ingles: 'spell immunity '
     nome: 'Imunidade à Magia'
     info_classes {
@@ -11182,7 +11201,6 @@ tabela_feiticos {
     id: 'missil_magico' 
     nome_ingles: 'magic missile'
     nome: 'mísseis mágicos'
-    link: 'https://www.d20srd.org/srd/spells/magicMissile.htm'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     dano { invariavel: '1d4+1' }
