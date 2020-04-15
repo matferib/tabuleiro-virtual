@@ -141,18 +141,18 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   gl::TamanhoPonto(escala);
   std::vector<VboNaoGravado> vbos;
-  for (unsigned int linha = 0; linha < str_linhas.size(); ++linha) {
+  for (int linha = 0; linha < (int)str_linhas.size(); ++linha) {
     const std::string& str_linha = str_linhas[linha];
     float translacao_x = 0;
     if (alinhamento == 1) {  // direita.
       translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
-    } if (alinhamento == 0) {  // central.
+    } else if (alinhamento == 0) {  // central.
       translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
     }
     for (unsigned int i = 0; i < str_linha.size(); ++i) {
       char c = str_linha[i];
       VboNaoGravado vbo = VboCaractere(c);
-      vbo.Translada(translacao_x + i * largura_fonte, linha * altura_fonte, 0.0f);
+      vbo.Translada(translacao_x + i * largura_fonte, (inverte_vertical ? -1 : 1) * linha * altura_fonte, 0.0f);
       vbo.Escala(escala, escala, 1.0f);
       vbos.emplace_back(std::move(vbo));
     }
