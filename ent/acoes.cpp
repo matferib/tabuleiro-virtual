@@ -319,7 +319,7 @@ class AcaoDeltaPontosVida : public Acao {
       return;
     }
     VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
-    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS * std::count(string_texto_.begin(), string_texto_.end(), '\n');
+    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS * (1 + std::count(string_texto_.begin(), string_texto_.end(), '\n'));
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
