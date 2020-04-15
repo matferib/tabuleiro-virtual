@@ -1,10 +1,5 @@
-Unit test de dados_ataque em consequencias (pedra encantada).
-Ordenar UI de rolar pericias.
-Magias:
-Implementar flame blade de druida (magia de 2o nivel ducaralho): lamina flamejante.
-Implementar produce flame de druida (magia de 1o nivel ducaralho): criar chama.
+Conferir que lamina flamejante esta atacando toque e nao esta aplicando forca no dano.
 Icone para amedrontado e abalado.
-Especialização em combate: idem.
 Nublar ta aparecendo sem transparencia.
 Arma espiritual: fazer como uma magia so com parametros de escolha.
 Implementar poder de protection domain (dar um bonus de resistencia igual ao nivel de clerigo para a proxima salvacao, duracao 1h). 1x dia
