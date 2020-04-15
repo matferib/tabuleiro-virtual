@@ -1045,6 +1045,10 @@ tabela_efeitos {
         # TODO: se tiver funda, usa a funda.
         bonus_magico: 1;
         dano_basico_fixo: "1d6"
+        dano_por_tipo {
+          dano: '2d6+2'
+          tipo: TIPO_MORTO_VIVO
+        }
         rotulo: "pedra encantada"
         tipo_ataque: "Ataque a Distância"
         municao: 3

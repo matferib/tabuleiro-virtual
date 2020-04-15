@@ -2635,11 +2635,19 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da)
 
 std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
   int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, alvo);
-  return google::protobuf::StringPrintf(
+  const std::string* dano = &da.dano();
+  if (!da.dano_por_tipo().empty()) {
+    for (const auto& dt : da.dano_por_tipo()) {
+      if (TemTipoDnD(dt.tipo(), alvo)) {
+        dano = &dt.dano();
+        break;
+      }
+    }
+  }
+  return StringPrintf(
       "%s%s",
-      da.dano().c_str(),
+      dano->c_str(),
       modificador_dano != 0 ? google::protobuf::StringPrintf("%+d", modificador_dano).c_str() : "");
-
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.

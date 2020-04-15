@@ -177,6 +177,42 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
   EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
 }
 
+TEST(TesteArmas, TestePedraEncantadaComFunda) {
+  EntidadeProto proto;
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 1);
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("funda");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PEDRA_ENCANTADA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 3);
+  EXPECT_EQ(proto.dados_ataque(0).rotulo(), "pedra encantada com funda");
+  EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_ARMA_ESCUDO);
+}
+
+TEST(TesteArmas, TestePedraEncantada) {
+  EntidadeProto proto;
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 1);
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PEDRA_ENCANTADA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  EXPECT_EQ(proto.dados_ataque(0).rotulo(), "pedra encantada");
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+1");
+  EXPECT_EQ(proto.dados_ataque(0).municao(), 3);
+}
+
 TEST(TesteArmas, TesteMetamorfoseTorrida) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();

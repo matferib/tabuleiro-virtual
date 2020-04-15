@@ -1844,6 +1844,10 @@ bool EntidadeAfetadaPorEfeito(const AcaoProto::EfeitoAdicional& efeito, const En
   if (efeito.has_afeta_apenas_tendencia() && !MesmaTendencia(efeito.afeta_apenas_tendencia(), alvo)) {
     return false;
   }
+  if (!efeito.afeta_apenas().empty() &&
+      c_none_of(efeito.afeta_apenas(), [&alvo](int tipo) { return TemTipoDnD(static_cast<TipoDnD>(tipo), alvo); })) {
+    return false;
+  }
   return true;
 }
 

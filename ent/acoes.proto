@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 // Tudo relacionado as acoes que os jogadores podem realizar.
 import "ent/comum.proto";
 
@@ -225,6 +227,7 @@ message AcaoProto {
     optional string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
     optional TendenciaSimplificada afeta_apenas_tendencia = 11;
+    repeated TipoDnD afeta_apenas = 22;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
     optional int32 rodadas = 2;
     repeated int32 complementos = 3;
@@ -326,10 +329,14 @@ enum EmpunhaduraArma {
   EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
 }
 
+message DanoPorTipoDnD {
+  optional string dano = 1;
+  optional TipoDnD tipo = 2;
+}
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 79.
+// Proximo id: 80.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -343,6 +350,8 @@ message DadosAtaque {
   optional int32 bonus_ataque_final = 2;
   // O dano final da arma: 1d8+5.
   optional string dano = 3;
+  // Se presente, aplicara ao dano de acordo com tipo do alvo. Se nao houver, fallback pra dano.
+  repeated DanoPorTipoDnD dano_por_tipo = 79;
   optional int32 margem_critico = 6 [default=20];
   optional int32 multiplicador_critico = 7 [default=2];
   // Devem ser derivados do dado de defesa.
