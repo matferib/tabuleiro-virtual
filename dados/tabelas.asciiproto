@@ -10015,11 +10015,9 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
-
-  # TODO fazer como uma magia so com escolhas.
   armas {
-    id: 'arma_espiritual_mangual'
-    nome: 'arma espiritual mangual (20/x2)'
+    id: 'arma_espiritual'
+    nome: 'arma espiritual'
     nome_ingles: 'spiritual weapon'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -10034,55 +10032,28 @@ tabela_feiticos {
     }
     acao {
       id: 'Criação de Entidade'
-      id_modelo_entidade: 'Arma Espiritual (20/x2)'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Mangual'
+          id_modelo_entidade: 'Arma Espiritual Mangual'
+        }
+        parametros {
+          texto: 'Martelo'
+          id_modelo_entidade: 'Arma Espiritual Martelo'
+        }
+        parametros {
+          texto: 'Espada'
+          id_modelo_entidade: 'Arma Espiritual Espada'
+        }
+        parametros {
+          texto: 'Machado'
+          id_modelo_entidade: 'Arma Espiritual Machado'
+        }
+      }
     }
     escola: 'evocacao'
   }
-
-  armas {
-    id: 'arma_espiritual_machado_martelo'
-    nome: 'arma espiritual machado ou martelo (20/x3)'
-    nome_ingles: 'spiritual weapon'
-    alcance_quadrados: 20
-    modificador_alcance: MOD_2_QUAD_NIVEL
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'guerra'
-      nivel: 2
-      dominio: true
-    }
-    acao {
-      id: 'Criação de Entidade'
-      id_modelo_entidade: 'Arma Espiritual (20/x3)'
-    }
-    escola: 'evocacao'
-  }
-
-  armas {
-    id: 'arma_espiritual_espada'
-    nome: 'arma espiritual espada (19-20/x2)'
-    nome_ingles: 'spiritual weapon'
-    alcance_quadrados: 20
-    modificador_alcance: MOD_2_QUAD_NIVEL
-    info_classes {
-      id: 'clerigo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'guerra'
-      nivel: 2
-      dominio: true
-    }
-    acao {
-      id: 'Criação de Entidade'
-      id_modelo_entidade: 'Arma Espiritual (19-20/x2)'
-    }
-    escola: 'evocacao'
-  }
-
   armas {
     id: 'escudo_fe'
     nome: 'escudo da fé'
@@ -10106,7 +10077,6 @@ tabela_feiticos {
     }
     escola: 'abjuracao'
   }
-
   armas {
     id: 'santuario' 
     nome_ingles: 'sanctuary'

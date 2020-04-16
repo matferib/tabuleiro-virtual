@@ -603,7 +603,7 @@ modelo {
 }
 
 modelo {
-  id: 'Arma Espiritual (20/x2)'
+  id: 'Arma Espiritual Mangual'
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'flail' }
@@ -625,7 +625,30 @@ modelo {
   }
 }
 modelo {
-  id: 'Arma Espiritual (20/x3)'
+  id: 'Arma Espiritual Martelo'
+  entidade {
+    cor { r: 1 g: 1 }
+    modelo_3d { id: 'hammer' }
+    dados_ataque {
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    }
+    desenha_base: true
+    voadora: true
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    evento { rodadas: 3 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    multiplicador_nivel_dano: 0.334
+    dano_fixo: '1d8'
+    maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
+  }
+}
+
+modelo {
+  id: 'Arma Espiritual Machado'
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'axe' }
@@ -647,7 +670,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Arma Espiritual (19-20/x2)'
+  id: 'Arma Espiritual Espada'
   entidade {
     cor { r: 1 g: 1 }
     modelo_3d { id: 'sword' }
