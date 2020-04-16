@@ -1,8 +1,13 @@
-Conferir que lamina flamejante esta atacando toque e nao esta aplicando forca no dano.
+Fazer os druidas direito. Pericias, tesouro, outros niveis.
+Crash de desagrupar formas.
+Desenhar escudo de acordo com material (marrom para madeira).
+Ui de talentos, colocar origem.
+Armas muito grandes.
+Fazer objetos esfumacarem tb.
+Colocar posicao da acao na UI.
 Link para pocoes e magias na UI.
 Icone para amedrontado e abalado.
 Nublar ta aparecendo sem transparencia.
-Arma espiritual: fazer como uma magia so com parametros de escolha.
 Implementar poder de protection domain (dar um bonus de resistencia igual ao nivel de clerigo para a proxima salvacao, duracao 1h). 1x dia
 Implementar fumaça .
 ---------------------------
