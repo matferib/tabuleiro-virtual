@@ -20,5 +20,6 @@ const float COR_AZUL[]     = { 0.0f, 0.0f, 1.0f, 1.0f };
 const float COR_AZUL_ALFA[]     = { 0.0f, 0.0f, 1.0f, 0.5f };
 const float COR_AMARELA[]  = { 1.0f, 1.0f, 0.0f, 1.0f };
 const float COR_LARANJA[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+const float COR_MARROM[] = { 0.58f, 0.29f, 0.0f, 1.0f };
 
 }  // namespace ent
