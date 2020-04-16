@@ -272,9 +272,13 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         gl::MultiplicaMatriz(vd_.matriz_acao_secundaria.get());
         modelo->vbos_gravados.Desenha();
       }
-    } else if (dac->empunhadura() == EA_ARMA_ESCUDO) {
+    } else if (dac->empunhadura() == EA_ARMA_ESCUDO && !proto_.dados_defesa().id_escudo().empty()) {
       const auto* modelo = vd_.m3d->Modelo("shield");
       if (modelo != nullptr) {
+        if (proto_.dados_defesa().id_escudo().find("madeira") != std::string::npos) {
+          // Nao funciona pq o VBO tem cor.
+          MudaCor(COR_MARROM);
+        }
         const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
         gl::MatrizEscopo salva_matriz;
         pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
