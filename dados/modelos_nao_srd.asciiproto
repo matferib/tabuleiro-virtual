@@ -1192,6 +1192,7 @@ modelo {
   id_entidade_base: 'Combatente Base'
   entidade {
     rotulo: 'Dragão Púrpura Soldado 2'
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_warrior' }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
@@ -1207,6 +1208,7 @@ modelo {
   id_entidade_base: 'Humano Guerreiro 5'
   entidade {
     rotulo: 'Dragão Púrpura Tenente 5'
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     cor { r: 1 g: 1 b: 1 }
     info_textura { id: '' }
     modelo_3d { id: 'purple_dragon_soldier' }
@@ -1219,6 +1221,7 @@ modelo {
   entidade {
     rotulo: 'Dragão Púrpura Arqueiro 2'
     dados_vida: '2d8+5' modelo_3d { id: 'purple_dragon_archer' }
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     info_classes { id: 'combatente' nivel: 2 }
     dados_ataque { grupo: 'dist' id_arma: 'arco_curto_composto_1' tipo_ataque: 'Ataque a Distância' municao: 20 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
