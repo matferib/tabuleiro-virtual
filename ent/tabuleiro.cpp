@@ -6304,6 +6304,7 @@ void Tabuleiro::AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao)
     n_desfazer.mutable_entidade_antes()->Swap(&proto_antes);
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
+  RequerAtualizacaoLuzesPontuais();
 }
 
 #define BITS_CLIENTE 4
