@@ -3701,7 +3701,7 @@ modelo {
     dados_vida: '9'
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.7 b: 0.3 }
-    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'madeira_pesado' }
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     tesouro {
@@ -3715,6 +3715,10 @@ modelo {
       pergaminhos_divinos { id: 'pedra_encantada' }
       pergaminhos_divinos { id: 'pedra_encantada' }
       moedas { po: 25 }
+    }
+    info_talentos {
+      gerais { id: 'escrever_pergaminho' }
+      outros { id: 'vitalidade' origem: 'humano' }
     }
     feiticos_classes {
       id_classe: 'druida'
@@ -3744,11 +3748,15 @@ modelo {
     rotulo: 'Druida 2'
     info_classes { id: 'druida' nivel: 2 }
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
-    cor { r: 0.3 g: 0.7 b: 0.3 }
+    cor { r: 0.2 g: 0.6 b: 0.2 }
     dados_vida: '1d8+10'
-    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'madeira_pesado' }
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    info_talentos {
+      gerais { id: 'escrever_pergaminho' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
     tesouro {
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'ajuda' }
