@@ -1890,18 +1890,14 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       *da->mutable_acao() = arma.acao();
     }
   }
-  if (da->tipo_ataque().empty()) {
+
+  // Toda acao valida deve ter um tipo. Se comecou sem, ja preenche com alguns automaticos.
+  if (!da->acao().has_tipo()) {
     if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
-      da->set_tipo_ataque("Projétil de Área");
-      da->mutable_acao()->set_id("Projétil de Área");
       da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
     } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
-      da->set_tipo_ataque("Ataque a Distância");
-      da->mutable_acao()->set_id("Ataque a Distância");
       da->mutable_acao()->set_tipo(ACAO_PROJETIL);
     } else {
-      da->set_tipo_ataque("Ataque Corpo a Corpo");
-      da->mutable_acao()->set_id("Ataque Corpo a Corpo");
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
     }
   }
@@ -1911,7 +1907,8 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   if (arma.has_ataque_toque()) {
     da->set_ataque_toque(arma.ataque_toque());
   }
-  if (PossuiCategoria(CAT_CAC, arma)) {
+  // Como corpo a corpo é o padrao se nao tiver nada, verifica aqui ao inves da categoria.
+  if (PossuiCategoria(CAT_CAC, arma) || da->acao().tipo() == ACAO_CORPO_A_CORPO) {
     da->set_ataque_corpo_a_corpo(true);
   }
   if (PossuiCategoria(CAT_DISTANCIA, arma)) {
