@@ -2259,16 +2259,17 @@ TEST(TesteFeiticos, TesteArmaEspiritual) {
   RecomputaDependencias(g_tabelas, &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
-  da->set_id_arma("arma_espiritual_espada");
+  da->set_id_arma("arma_espiritual");
   std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
 
   RecomputaDependencias(g_tabelas, &proto);
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
-  ASSERT_EQ(acao.id_modelo_entidade(), "Arma Espiritual (19-20/x2)");
+  ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 4);
+  ASSERT_EQ(acao.parametros_lancamento().parametros(2).id_modelo_entidade(), "Arma Espiritual Espada");
 
-  const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
+  const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(2).id_modelo_entidade());
   EntidadeProto proto_arma = modelo_arma.entidade();
   ASSERT_TRUE(modelo_arma.has_parametros());
   PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
