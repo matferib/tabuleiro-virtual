@@ -3705,15 +3705,25 @@ modelo {
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     tesouro {
+      # inicio 250 PO.
+      pocoes { id: 'escudo_fe_2' }  # 50
+      pocoes { id: 'curar_ferimentos_leves' }  # 50
+      # sobram 150 PO.
+      # Pergaminhos saem pela metade do preco.
+      # 0: 6.25 PO (4), 1: 12.5 (8)
+      pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
+      pergaminhos_divinos { id: 'luz' }
+      pergaminhos_divinos { id: 'virtude' }
+      pergaminhos_divinos { id: 'resistencia' }
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'constricao' }
       pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'falar_com_animais' }
+      pergaminhos_divinos { id: 'criar_chama' }
+      pergaminhos_divinos { id: 'fogo_das_fadas' }
+      pergaminhos_divinos { id: 'passos_longos' }
+
       moedas { po: 25 }
     }
     info_talentos {
@@ -3758,31 +3768,29 @@ modelo {
       outros { id: 'vitalidade' origem: 'humano' }
     }
     tesouro {
-      pocoes { id: 'escudo_fe_2' }
-      pocoes { id: 'ajuda' }
-      tesouro: 'pena de quaal, árvore'
+      # inicio 1350 PO.
+      pocoes { id: 'curar_ferimentos_leves' }  # 50
+      pocoes { id: 'escudo_fe_3' }  # 300
+      pocoes { id: 'agilidade_gato' } # 300
+      pocoes { id: 'ajuda' } # 300
+      pocoes { id: 'pele_arvore_2' } # 300
+
+      # sobram 100 PO.
+      # Pergaminhos saem pela metade do preco.
+      # 0: 6.25 PO (4)
+      pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
+      pergaminhos_divinos { id: 'luz' }
+      pergaminhos_divinos { id: 'virtude' }
+      pergaminhos_divinos { id: 'resistencia' }
+      # Sobram 75 PO. 1: 12.5 (6)
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'constricao' }
       pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'santuario' }
-      moedas { po: 50 }
+      pergaminhos_divinos { id: 'criar_chama' }
+      pergaminhos_divinos { id: 'passos_longos' }
+
+      moedas { po:  3 }
     }
     feiticos_classes {
       id_classe: 'druida'
