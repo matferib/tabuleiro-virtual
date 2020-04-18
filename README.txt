@@ -4,3 +4,4 @@ elf_fighter: Imagem de <a href="https://pixabay.com/pt/users/anaterate-2348028/?
 human_bard: Imagem de <a href="https://pixabay.com/pt/users/anaterate-2348028/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=3276861">Wolfgang Eckert</a> por <a href="https://pixabay.com/pt/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=3276861">Pixabay</a>
 icon_melee: Imagem de <a href="https://pixabay.com/pt/users/Clker-Free-Vector-Images-3736/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=311733">Clker-Free-Vector-Images</a> por <a href="https://pixabay.com/pt/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=311733">Pixabay</a>
 bump maps: https://3dtextures.me/
+icon_sling: Imagem de <a href="https://delapouite.com/">Delapouite</a>, inverted colors.
