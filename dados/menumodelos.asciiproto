@@ -175,8 +175,16 @@ sub_menu {
   }
   sub_menu {
     id: 'Druidas'
-    modelo { id: 'Humano Druida 1' }
-    modelo { id: 'Humano Druida 2' }
+    modelo {
+      id: 'Humano Druida 1 + Rato Atroz' 
+      modelos { id: 'Humano Druida 1' }
+      modelos { id: 'Rato Atroz' }
+    }
+    modelo {
+      id: 'Humano Druida 2 + Lobo'
+      modelos { id: 'Humano Druida 2' }
+      modelos { id: 'Lobo' }
+    }
   }
   sub_menu {
     id: 'Feiticeiros'
