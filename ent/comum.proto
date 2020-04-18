@@ -1,3 +1,4 @@
+syntax = "proto2";
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
@@ -33,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 123.
+// Proximo id: 126.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -172,6 +173,9 @@ enum TipoEfeito {
   EFEITO_INCONSCIENTE = 120;
   EFEITO_CRIAR_CHAMA = 121;
   EFEITO_LAMINA_FLAMEJANTE = 122;
+  EFEITO_FOGO_DAS_FADAS = 123;
+  EFEITO_BOM_FRUTO = 124;
+  EFEITO_PASSOS_LONGOS = 125;
 }
 
 enum TipoEfeitoModelo {
@@ -297,6 +301,22 @@ enum OperacaoCombinacao {
   OC_NOP = 0;
   OC_COMBINA = 1;
   OC_SOBRESCREVE = 2;
+}
+
+// Os tipos de movimento, em quadrados, da entidade.
+message Movimento {
+  // valores computados.
+  optional Bonus terrestre_q = 1;
+  optional Bonus aereo_q = 2;
+  optional Bonus aquatico_q = 3;
+  optional Bonus escavando_q = 4;
+  optional Bonus escalando_q = 5;
+  // valores basicos.
+  optional int32 terrestre_basico_q = 10;
+  optional int32 aereo_basico_q = 11;
+  optional int32 aquatico_basico_q = 12;
+  optional int32 escavando_basico_q = 13;
+  optional int32 escalando_basico_q = 14;
 }
 
 // Tambem usado como vetor.

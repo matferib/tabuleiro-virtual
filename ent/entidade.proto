@@ -26,22 +26,6 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Os tipos de movimento, em quadrados, da entidade.
-message Movimento {
-  // valores computados.
-  optional Bonus terrestre_q = 1;
-  optional Bonus aereo_q = 2;
-  optional Bonus aquatico_q = 3;
-  optional Bonus escavando_q = 4;
-  optional Bonus escalando_q = 5;
-  // valores basicos.
-  optional int32 terrestre_basico_q = 10;
-  optional int32 aereo_basico_q = 11;
-  optional int32 aquatico_basico_q = 12;
-  optional int32 escavando_basico_q = 13;
-  optional int32 escalando_basico_q = 14;
-}
-
 // Proximo id: 112.
 message EntidadeProto {
   optional string raca = 99;
