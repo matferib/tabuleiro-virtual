@@ -3731,6 +3731,14 @@ modelo {
       gerais { id: 'escrever_pergaminho' }
       outros { id: 'vitalidade' origem: 'humano' }
     }
+    info_pericias { id: 'adestrar_animais' pontos: 4 }
+    info_pericias { id: 'concentracao' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 4 }
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'identificar_magia' pontos: 1 }
+    info_pericias { id: 'cura' pontos: 1 }
     feiticos_classes {
       id_classe: 'druida'
       feiticos_por_nivel {
@@ -3769,6 +3777,14 @@ modelo {
       gerais { id: 'escrever_pergaminho' }
       outros { id: 'vitalidade' origem: 'humano' }
     }
+    info_pericias { id: 'adestrar_animais' pontos: 5 }
+    info_pericias { id: 'concentracao' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 5 }
+    info_pericias { id: 'sobrevivencia' pontos: 3 }
+    info_pericias { id: 'identificar_magia' pontos: 1 }
+    info_pericias { id: 'cura' pontos: 1 }
     tesouro {
       # inicio 1330 PO.
       pocoes { id: 'curar_ferimentos_leves' }  # 50
