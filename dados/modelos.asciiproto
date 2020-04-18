@@ -3703,9 +3703,10 @@ modelo {
     cor { r: 0.3 g: 0.7 b: 0.3 }
     dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
-    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 municao: 20 }
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 1 }
     tesouro {
-      # inicio 250 PO.
+      # inicio 230 PO.
       pocoes { id: 'escudo_fe_2' }  # 50
       pocoes { id: 'curar_ferimentos_leves' }  # 50
       # sobram 150 PO.
@@ -3724,7 +3725,7 @@ modelo {
       pergaminhos_divinos { id: 'fogo_das_fadas' }
       pergaminhos_divinos { id: 'passos_longos' }
 
-      moedas { po: 25 }
+      moedas { po: 5 }
     }
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
@@ -3762,35 +3763,33 @@ modelo {
     dados_vida: '1d8+10'
     dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
-    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 municao: 20 }
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 1 }
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
       outros { id: 'vitalidade' origem: 'humano' }
     }
     tesouro {
-      # inicio 1350 PO.
+      # inicio 1330 PO.
       pocoes { id: 'curar_ferimentos_leves' }  # 50
       pocoes { id: 'escudo_fe_3' }  # 300
       pocoes { id: 'agilidade_gato' } # 300
       pocoes { id: 'ajuda' } # 300
       pocoes { id: 'pele_arvore_2' } # 300
 
-      # sobram 100 PO.
+      # sobram 70 PO.
       # Pergaminhos saem pela metade do preco.
-      # 0: 6.25 PO (4)
+      # 0: 6.25 PO (3)
       pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
       pergaminhos_divinos { id: 'luz' }
       pergaminhos_divinos { id: 'virtude' }
-      pergaminhos_divinos { id: 'resistencia' }
-      # Sobram 75 PO. 1: 12.5 (6)
+      # Sobram 50 PO. 1: 12.5 (4)
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
-      pergaminhos_divinos { id: 'constricao' }
       pergaminhos_divinos { id: 'pedra_encantada' }
       pergaminhos_divinos { id: 'criar_chama' }
       pergaminhos_divinos { id: 'passos_longos' }
 
-      moedas { po:  3 }
+      moedas { po:  1 }
     }
     feiticos_classes {
       id_classe: 'druida'
