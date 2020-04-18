@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "ent/entidade.proto";
 import "ent/comum.proto";
 

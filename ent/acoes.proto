@@ -490,6 +490,8 @@ message ConsequenciaEvento {
   optional DadosAtaque dados_ataque = 12;
   // Para efeitos que causam iluminacao.
   optional IluminacaoPontual luz = 13;
+  // Para efeitos que alteram movimento.
+  optional Movimento movimento = 14;
 }
 
 message EfeitoProto {
