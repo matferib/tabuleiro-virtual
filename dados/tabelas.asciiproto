@@ -1047,6 +1047,37 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_BOM_FRUTO
+    nome: 'bom fruto'
+    consequencia {
+      dados_ataque {
+        dano_basico_fixo: '1'
+        rotulo: 'bom fruto'
+        tipo_ataque: 'Ataque de Toque'
+        # limite de vezes: 2d4
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_FOGO_DAS_FADAS
+    nome: 'fogo das fadas'
+    consequencia {
+      luz {
+        raio_m: 1
+        cor { r: 0.6 g: 0 b: 0.9 a: 1.0 }
+      }
+    }
+  }
+  efeitos {
+    id: EFEITO_PASSOS_LONGOS
+    nome: 'passos longos'
+    consequencia {
+      movimento {
+        terrestre_q { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 2 origem: 'passos longos' } } }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_PEDRA_ENCANTADA
     nome: 'pedra encantada'
     consequencia {
@@ -5252,6 +5283,75 @@ tabela_pericias {
 
 tabela_feiticos {
   armas {
+    id: 'fogo_das_fadas'
+    nome: 'fogo das fadas'
+    nome_ingles: 'faerie fire'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+      elemento: DESC_LUZ
+      efeitos_adicionais {
+        efeito: EFEITO_FOGO_DAS_FADAS
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'evocacao'
+  }
+
+  armas {
+    id: 'bom fruto'
+    nome: 'bom_fruto'
+    nome_ingles: 'goodberry'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 1.0 }
+      efeitos_adicionais {
+        efeito: EFEITO_BOM_FRUTO  # criar um ataque de toque que cura 1 PV e so afeta criaturas conscientes.
+        modificador_rodadas: MR_DIAS_POR_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'passos_longos'
+    nome: 'passos longos'
+    nome_ingles: 'longstrider'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_PASSOS_LONGOS
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
     id: 'criar_chama'
     nome_ingles: 'produce flame'
     nome: 'criar chama'
@@ -7069,11 +7169,38 @@ tabela_feiticos {
     }
     escola: 'abjuracao'
   }
+  armas {
+    id: 'falar_com_animais' 
+    nome_ingles: 'speak with animals'
+    nome: 'falar com animais'
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_FEITICO_PESSOAL
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'falar com animais'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
 
   armas {
     id: 'falar_com_plantas' 
+    nome: 'falar com plantas'
     nome_ingles: 'speak with plants'
-    nome: 'falar_com_plantas'
     info_classes {
       id: 'ranger'
       nivel: 2
