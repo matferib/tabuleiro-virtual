@@ -300,6 +300,7 @@
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
