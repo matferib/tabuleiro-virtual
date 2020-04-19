@@ -37,6 +37,23 @@ acao {
   ignora_resistencia_magia: true
 }
 acao {
+  id: 'Ataque de Arremesso'
+  tipo: ACAO_PROJETIL
+  icone: 'icon_sling.png'
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.2 y: 0.2 z: 0.2 }
+  cor { r: 0.7 g: 0.7 b: 0.7 a: 1.0 }
+  velocidade {
+    tipo_aceleracao: ACAO_ACEL_CONSTANTE
+    aceleracao_m_s_2: 0.04
+  }
+  permite_ataque_vs_defesa: true
+  consequencia: TC_DESLOCA_ALVO
+  ataque_distancia: true
+  ignora_resistencia_magia: true
+  ataque_arremesso: true
+}
+acao {
   id: 'Expulsar Mortos Vivos'
   tipo: ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS
   geometria: ACAO_GEO_ESFERA
