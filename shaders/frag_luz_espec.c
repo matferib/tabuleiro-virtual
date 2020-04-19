@@ -276,7 +276,7 @@ void main() {
         visibilidades_2[3] * CorLuzPontualDifusa(atenuacoes_2[3], normal, gltab_luzes[6]));
 
     // Cor difusa e ambiente aplicada.
-    cor_final *= gltab_luz_ambiente + cor_luzes_difusas_1 * uns + cor_luzes_difusas_2 * uns;
+    cor_final.rgb *= (gltab_luz_ambiente + cor_luzes_difusas_1 * uns + cor_luzes_difusas_2 * uns).rgb;
 
     // Aplica especularidade.
     if (gltab_especularidade_ligada) {
@@ -293,7 +293,7 @@ void main() {
           visibilidades_2[3] * CorLuzPontualEspecular(atenuacoes_2[3], vetor_olho_objeto_refletido, gltab_luzes[6]));
 
       // Usa clamp porque especularidade pode aumentar para acima de 1.
-      cor_final = clamp(cor_final + cor_luzes_especulares_1 * uns + cor_luzes_especulares_2 * uns, 0.0, 1.0);
+      cor_final.rgb = clamp(cor_final + cor_luzes_especulares_1 * uns + cor_luzes_especulares_2 * uns, 0.0, 1.0).rgb;
     }
   }
   //mediump float gamma_correction = 1.0 / 2.2;
@@ -301,7 +301,7 @@ void main() {
   //cor_final = pow(cor_final, gamma);
 
   // Nevoa.
-  cor_final *= gltab_cor_mistura_pre_nevoa * cor_oclusao;
+  cor_final.rgb *= (gltab_cor_mistura_pre_nevoa * cor_oclusao).rgb;
   if (gltab_nevoa_cor.a > 0.0) {
     mediump float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
     lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
