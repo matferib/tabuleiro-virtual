@@ -298,6 +298,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         erro_str += ": " + erro.mensagem() + ", esperava: " + to_string((int)cliente->buffer_recepcao.size()) +
                     ", recebi: " + to_string((int)bytes_recebidos);
       }
+      LOG(INFO) << "erro recebendo dados cliente: " << erro_str;
       n->set_erro(erro_str);
       central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
