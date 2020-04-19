@@ -577,10 +577,11 @@ modelo {
   id: 'Vulto Base'
   entidade {
     dados_ataque {
-      limite_vezes: 3
       rotulo: 'reflexos 3/dia' grupo: 'reflexos' tipo_ataque: 'Feitiço Pessoal' id_arma: 'reflexos'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
+      limite_vezes: 3
+      mantem_com_limite_zerado: true
       acao_fixa {
         classe_conjuracao: ''
         efeitos_adicionais {
@@ -593,6 +594,7 @@ modelo {
       rotulo: 'invisibilidade a vontade' grupo: 'invisibilidade' tipo_ataque: 'Feitiço Pessoal' id_arma: 'invisibilidade'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
+      mantem_com_limite_zerado: true
       acao_fixa {
         id: 'Feitiço Pessoal'
         classe_conjuracao: ''
@@ -606,6 +608,7 @@ modelo {
       rotulo: 'reduzir luz a vontade' grupo: 'reduzir luz' tipo_ataque: 'Feitiço de Toque a Distância' alcance_q: 20
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       requer_modelo_ativo: EFEITO_MODELO_VULTO
+      mantem_com_limite_zerado: true
       incrementa_proximo_ataque: false
       acao_fixa {
         classe_conjuracao: ''

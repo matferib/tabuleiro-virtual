@@ -64,6 +64,22 @@ bool c_none(const C& c, const T& t) {
   return std::find(c.begin(), c.end(), t) == c.end();
 }
 
+// Remove os indices passados do container.
+template <class T>
+void RemoveIndices(const std::set<int, std::greater<int>>& indices, google::protobuf::RepeatedPtrField<T>* c) {
+  for (int i : indices) {
+    c->DeleteSubrange(i, 1);
+  }
+}
+
+// Remove o item do container se bater com predicado.
+template <class T>
+void RemoveSe(const std::function<bool(const T& t)>& predicado, google::protobuf::RepeatedPtrField<T>* c) {
+  for (int i = c->size() - 1; i >= 0; --i) {
+    if (predicado(c->Get(i))) c->DeleteSubrange(i, 1);
+  }
+}
+
 void IniciaUtil();
 
 /** Cria uma notificacao do tipo TN_GRUPO_NOTIFICACOES. */

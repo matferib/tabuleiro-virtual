@@ -16,6 +16,19 @@ enum TipoArmadura {
   TA_PESADO = 2;
 }
 
+message RacaProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
+  optional Atributos bonus_atributos = 4;
+  repeated InfoPericia bonus_pericias = 9;
+  optional TamanhoEntidade tamanho = 5 [default=TM_MEDIO];
+  optional DadosDefesa dados_defesa = 6;
+  optional TipoDnD tipo = 7;
+  optional SubTipoDnD sub_tipo = 8;
+  repeated DadosAtaque dados_ataque = 10;
+}
+
 message ArmaduraOuEscudoProto {
   optional string nome = 1;
   optional Preco preco = 2;

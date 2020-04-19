@@ -12087,7 +12087,13 @@ tabela_racas {
     bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     tamanho: TM_MEDIO
-    # luz do dia 1/dia
+    dados_ataque {
+      rotulo: 'luz do dia'
+      tipo_ataque: 'Feitiço de Toque'
+      id_arma: 'luz_dia'
+      limite_vezes: 1
+      mantem_com_limite_zerado: true
+    }
     # visao no escuro 12 q
     # ajuste de nivel: 1
   }

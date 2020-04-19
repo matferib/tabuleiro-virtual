@@ -3712,6 +3712,7 @@ TEST(TesteRacas, TesteAasimar) {
   AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);  // com bonus de aasimar fica 14, +2 de bonus.
   proto.set_raca("aasimar");
   RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(g_tabelas, &proto);  // duas vezes pra ver se num gera duas vezes o ataque.
   int c = 0;
   for (const auto& pericia : proto.info_pericias()) {
     if (pericia.id() == "observar" || pericia.id() == "ouvir") {
@@ -3720,6 +3721,8 @@ TEST(TesteRacas, TesteAasimar) {
     }
   }
   ASSERT_EQ(c, 2);
+  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  EXPECT_EQ(proto.dados_ataque(0).id_raca(), "aasimar") << proto.dados_ataque(0).DebugString();
 }
 
 TEST(TesteRacas, TesteFalcao) {

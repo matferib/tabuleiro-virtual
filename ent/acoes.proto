@@ -94,7 +94,7 @@ enum ModificadorComplementos {
 
 enum ModificadorQuantidade {
   MQ_NENHUM = 0;
-  MQ_POR_NIVEL = 1; 
+  MQ_POR_NIVEL = 1;
 }
 
 // Proximo id: 85.
@@ -336,7 +336,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 80.
+// Proximo id: 81.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -412,6 +412,8 @@ message DadosAtaque {
   optional bool nao_letal = 34;
   // Para efeitos que criam dados ataque.
   optional int32 id_unico_efeito  = 36;
+  // Se o dado de ataque tiver origem racial.
+  optional string id_raca = 80;
   // Municao para a arma.
   optional uint32 municao = 38;
   // Para ataques com veneno.

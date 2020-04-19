@@ -247,7 +247,10 @@ void Tabelas::RecarregaMapas() {
     dominios_[dominio.id()] = &dominio;
   }
 
-  for (const auto& raca : tabelas_.tabela_racas().racas()) {
+  for (auto& raca : *tabelas_.mutable_tabela_racas()->mutable_racas()) {
+    for (auto& da : *raca.mutable_dados_ataque()) {
+      da.set_id_raca(raca.id());
+    }
     racas_[raca.id()] = &raca;
   }
 

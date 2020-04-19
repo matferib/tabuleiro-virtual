@@ -13,14 +13,6 @@ namespace {
 using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 
-// Remove o item do container se bater com predicado.
-template <class T>
-void RemoveSe(const std::function<bool(const T& t)>& predicado, RepeatedPtrField<T>* c) {
-  for (int i = c->size() - 1; i >= 0; --i) {
-    if (predicado(c->Get(i))) c->DeleteSubrange(i, 1);
-  }
-}
-
 // Redimensiona o container.
 template <class T>
 void Redimensiona(int tam, RepeatedPtrField<T>* c) {
@@ -1122,8 +1114,20 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
+  for (const auto& dados_ataque_raca : raca_tabelada.dados_ataque()) {
+    if (c_none_of(proto->dados_ataque(), [&raca_tabelada, &dados_ataque_raca](const DadosAtaque& da) {
+          return da.id_raca() == raca_tabelada.id() && da.rotulo() == dados_ataque_raca.rotulo();
+        })) {
+      *proto->add_dados_ataque() = dados_ataque_raca;
+    }
+  }
+  RemoveSe<DadosAtaque>(
+      [&raca_tabelada](const DadosAtaque& da) {
+        return da.has_id_raca() && da.id_raca() != raca_tabelada.id();
+      }, proto->mutable_dados_ataque());
+
   if (proto->has_raca()) {
-    // So aplica os modificadores de pericia se tiver raca, para nao apagar o que estiver tabelado.
+    // So aplica os modificadores de pericia se tiver raca, para nao apagar o que estiver tabelado nos monstros.
     for (auto& info_pericia : *proto->mutable_info_pericias()) {
       LimpaBonus(TB_RACIAL, "racial", info_pericia.mutable_bonus());
     }
