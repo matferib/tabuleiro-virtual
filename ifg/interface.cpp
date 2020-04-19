@@ -173,52 +173,31 @@ void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, std::m
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
-//--------------------
-// Escolher Pergaminho
-//--------------------
-void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificacao) {
-  tabuleiro_->DesativaWatchdogSeMestre();
-  const bool arcano = notificacao.entidade().tesouro().pergaminhos_divinos().empty();
-  const auto& pergaminhos_entidade = arcano
-      ? notificacao.entidade().tesouro().pergaminhos_arcanos()
-      : notificacao.entidade().tesouro().pergaminhos_divinos();
+struct IndiceQuantidadeNivel {
+  int indice = 0;
+  int quantidade = 0;
+  int nivel = 0;
+  std::string link;
+  std::string duracao;
 
-  // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
-  struct IndiceQuantidadeNivel {
-    int indice = 0;
-    int quantidade = 0;
-    int nivel = 0;
-    std::string link;
-    std::string duracao;
-  };
-  std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
-  std::vector<std::string> nomes_pergaminhos;
-  int i = 0;
-  for (const auto& pergaminho : pergaminhos_entidade) {
-    const std::string& nome = pergaminho.nome().empty()
-      ? (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
-      : pergaminho.nome();
-    // Classe para conjurar pergaminho.
-    const auto& ic = ent::ClasseParaLancarPergaminho(
-        tabelas_, arcano ? ent::TM_ARCANA: ent::TM_DIVINA, pergaminho.id(), notificacao.entidade());
-    if (ic.id().empty()) {
-      LOG(WARNING) << "Nao achei classe de conjuracao para pergaminho: " << pergaminho.id();
-    }
-    const auto& feitico = tabelas_.Feitico(pergaminho.id());
-    IndiceQuantidadeNivel& iqn = mapa_nomes_para_indices[nome];
-    iqn.indice = i++;
-    ++iqn.quantidade;
-    iqn.nivel = ent::NivelMagia(feitico, ic);
-    iqn.link = feitico.link();
+  void PreencheIncrementando(int indice, const ent::ArmaProto& feitico, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+    this->indice = indice;
+    ++quantidade;
+    nivel = ic.has_id() ? ent::NivelMagia(feitico, ic) :  ent::NivelMaisAltoMagia(feitico);
+    link = feitico.link();
     if (feitico.acao().efeitos_adicionais().size() == 1) {
-      iqn.duracao = feitico.acao().efeitos_adicionais(0).has_modificador_rodadas()
+      duracao = feitico.acao().efeitos_adicionais(0).has_modificador_rodadas()
           ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
           : "-";
     } else {
-      iqn.duracao = "-";
+      duracao = "-";
     }
   }
+};
 
+std::pair<std::vector<std::string>, std::vector<int>>
+PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& mapa_nomes_para_indices) {
+  std::vector<std::string> nomes;
   std::vector<int> mapa_indices;
   for (auto it : mapa_nomes_para_indices) {
     const std::string& nome = it.first;
@@ -232,12 +211,45 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
         nivel,
         it.second.duracao.c_str(),
         link.empty() ? "" : StringPrintf("<a href='%s'>link</a>", link.c_str()).c_str());
-    nomes_pergaminhos.push_back(texto);
+    nomes.push_back(texto);
     int indice = it.second.indice;
     mapa_indices.push_back(indice);
   }
+  return std::make_pair(nomes, mapa_indices);
+}
+
+//--------------------
+// Escolher Pergaminho
+//--------------------
+void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const bool arcano = notificacao.entidade().tesouro().pergaminhos_divinos().empty();
+  const auto& pergaminhos_entidade = arcano
+      ? notificacao.entidade().tesouro().pergaminhos_arcanos()
+      : notificacao.entidade().tesouro().pergaminhos_divinos();
+
+  // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
+  std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
+  std::vector<std::string> nomes_pergaminhos;
+  int i = 0;
+  for (const auto& pergaminho : pergaminhos_entidade) {
+    const std::string& nome = pergaminho.nome().empty()
+      ? (arcano ? tabelas_.PergaminhoArcano(pergaminho.id()).nome() : tabelas_.PergaminhoDivino(pergaminho.id()).nome())
+      : pergaminho.nome();
+    // Classe para conjurar pergaminho.
+    const auto& ic = ent::ClasseParaLancarPergaminho(
+        tabelas_, arcano ? ent::TM_ARCANA: ent::TM_DIVINA, pergaminho.id(), notificacao.entidade());
+    if (ic.id().empty()) {
+      LOG(WARNING) << "Nao achei classe de conjuracao para pergaminho: " << pergaminho.id();
+    }
+    mapa_nomes_para_indices[nome].PreencheIncrementando(i++, tabelas_.Feitico(pergaminho.id()), ic);
+  }
+
+  std::vector<int> mapa_indices;
+  std::vector<std::string> nomes;
+  std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
-      "Escolha o pergaminho", nomes_pergaminhos,
+      "Escolha o pergaminho", nomes,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPergaminho,
           this, notificacao, mapa_indices,
@@ -279,24 +291,34 @@ void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificaca
 void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
-  std::vector<std::string> nomes_pocoes;
+  std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
+  int i = 0;
   for (const auto& pocao : pocoes_entidade) {
-    nomes_pocoes.push_back(pocao.nome().empty() ? tabelas_.Pocao(pocao.id()).nome() : pocao.nome());
+    const auto& pocao_tabelada = tabelas_.Pocao(pocao.id());
+    const std::string& nome = pocao.nome().empty() ? pocao_tabelada.nome() : pocao.nome();
+    mapa_nomes_para_indices[nome].PreencheIncrementando(
+        i++, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
   }
+
+  std::vector<std::string> nomes;
+  std::vector<int> mapa_indices;
+  std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
-      "Escolha a poção", nomes_pocoes,
+      "Escolha a poção", nomes,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPocao,
-          this, notificacao,
+          this, notificacao, mapa_indices,
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(const ntf::Notificacao notificacao, bool ok, int indice_pocao) {
+void InterfaceGrafica::VoltaEscolherPocao(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado) {
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
+  int indice_pocao = mapa_indices[indice_selecionado];
   if (!ok || indice_pocao >= pocoes_entidade.size()) {
     VoltaEscolherEfeito(notificacao, 0, false, 0);
     return;
   }
+  // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
   const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao).id());
   if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
     VoltaEscolherEfeito(notificacao, indice_pocao, true, 0);
