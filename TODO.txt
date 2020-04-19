@@ -1,4 +1,11 @@
-Fazer os druidas direito. Pericias, tesouro, outros niveis.
+Feitico de Aliados da natureza.
+Implementar o menu de entidades que nao sao aleatorias (druida + companheiro animal).
+Efeitos: bom fruto, passos longos, fogo das fadas.
+Feiticos que criam ataques: colocar o ultimo grupo igual ao do ataque criado.
+Fazer os druidas direito. outros niveis. Companheiro animal.
+Permitir criacao de entidades com recursos usados.
+Para armas de aremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
+Barra de progresso de carregamento.
 Crash de desagrupar formas.
 Desenhar escudo de acordo com material (marrom para madeira).
 Ui de talentos, colocar origem.
