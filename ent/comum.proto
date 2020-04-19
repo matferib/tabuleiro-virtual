@@ -801,6 +801,8 @@ enum TipoComplementoItemMagico {
 message ItemMagicoProto {
   // Chave do item na tabela.
   optional string id = 1;
+  // Para gerar link da pocao.
+  optional string id_feitico = 23;
   // O tipo do item, para buscar na tabela (usando id tipo).
   optional TipoItem tipo = 17;
   // Nome legivel.

@@ -971,6 +971,8 @@ const InfoClasse& ClasseParaLancarPergaminho(
 
 // Retorna o nivel da magia para uma determinada classe.
 int NivelMagia(const ArmaProto& magia, const InfoClasse& ic);
+// Retorna o nivel mais alto para a magia.
+int NivelMaisAltoMagia(const ArmaProto& magia);
 
 int NivelPersonagem(const EntidadeProto& proto);
 

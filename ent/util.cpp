@@ -5243,6 +5243,14 @@ int NivelMagia(const ArmaProto& magia, const InfoClasse& ic) {
   return 0;
 }
 
+int NivelMaisAltoMagia(const ArmaProto& magia) {
+  int nivel = 0;
+  for (const auto& icf : magia.info_classes()) {
+    nivel = std::max(nivel, icf.nivel());
+  }
+  return nivel;
+}
+
 int NivelPersonagem(const EntidadeProto& proto) {
   int total = 0;
   for (const auto& info_classe : proto.info_classes()) {

@@ -1654,7 +1654,7 @@ tabela_efeitos {
     nome: 'roupa encantada'
     formato_complementos: 'bônus de melhoria em armadura'
     consequencia {
-      dados_defesa {
+     dados_defesa {
         ca { bonus_individual { tipo: TB_ARMADURA_MELHORIA por_origem { indice_complemento: 0 origem: 'roupa_encantada' } } }
       }
     }
@@ -2887,8 +2887,6 @@ tabela_pocoes {
     nome: 'Remover Maldição'
     custo_po: 750
   }
-
-
   pocoes {
     id: 'agilidade_gato'
     nome: 'Agilidade do Gato'
@@ -2927,6 +2925,7 @@ tabela_pocoes {
 
   pocoes {
     id: 'escudo_fe_2'
+    id_feitico: 'escudo_fe'
     nome: 'Escudo da Fé (2)'
     tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 2
@@ -2935,6 +2934,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'escudo_fe_3'
+    id_feitico: 'escudo_fe'
     nome: 'Escudo da Fé (3)'
     tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 3
@@ -2943,6 +2943,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'escudo_fe_4'
+    id_feitico: 'escudo_fe'
     nome: 'Escudo da Fé (4)'
     tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 4
@@ -2951,6 +2952,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'escudo_fe_5'
+    id_feitico: 'escudo_fe'
     nome: 'Escudo da Fé (5)'
     tipo_efeito: EFEITO_ESCUDO_FE
     complementos: 5
@@ -2981,6 +2983,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'roupa_encantada_1'
+    id_feitico: 'roupa_encantada'
     nome: 'Roupa Encantada (1)'
     tipo_efeito: EFEITO_ROUPA_ENCANTADA
     tipo_efeito: EFEITO_ESCUDO_ENCANTADO
@@ -2991,6 +2994,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'roupa_encantada_2'
+    id_feitico: 'roupa_encantada'
     nome: 'Roupa Encantada (2)'
     tipo_efeito: EFEITO_ROUPA_ENCANTADA
     tipo_efeito: EFEITO_ESCUDO_ENCANTADO
@@ -3001,6 +3005,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'roupa_encantada_3'
+    id_feitico: 'roupa_encantada'
     nome: 'Roupa Encantada (3)'
     tipo_efeito: EFEITO_ROUPA_ENCANTADA
     tipo_efeito: EFEITO_ESCUDO_ENCANTADO
@@ -3011,6 +3016,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'roupa_encantada_4'
+    id_feitico: 'roupa_encantada'
     nome: 'Roupa Encantada (4)'
     tipo_efeito: EFEITO_ROUPA_ENCANTADA
     tipo_efeito: EFEITO_ESCUDO_ENCANTADO
@@ -3021,6 +3027,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'roupa_encantada_5'
+    id_feitico: 'roupa_encantada'
     nome: 'Roupa Encantada (5)'
     tipo_efeito: EFEITO_ROUPA_ENCANTADA
     tipo_efeito: EFEITO_ESCUDO_ENCANTADO
@@ -3038,6 +3045,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'pele_arvore_2'
+    id_feitico: 'pele_arvore'
     nome: 'Pele de Árvore (2)'
     descricao: '+2 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
@@ -3047,6 +3055,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'pele_arvore_3'
+    id_feitico: 'pele_arvore'
     nome: 'Pele de Árvore (3)'
     descricao: '+3 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
@@ -3056,6 +3065,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'pele_arvore_4'
+    id_feitico: 'pele_arvore'
     nome: 'Pele de Árvore (4)'
     descricao: '+4 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
@@ -3065,6 +3075,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'pele_arvore_5'
+    id_feitico: 'pele_arvore'
     nome: 'Pele de Árvore (5)'
     descricao: '+5 de melhoria na armadura natural.'
     tipo_efeito: EFEITO_PELE_ARVORE
@@ -3091,6 +3102,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'arma_magica_maior_1'
+    id_feitico: 'arma_magica_maior'
     nome: 'Arma Mágica Maior +1'
     tipo_efeito: EFEITO_ARMA_MAGICA
     complementos_str: ''
@@ -3100,6 +3112,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'arma_magica_maior_2'
+    id_feitico: 'arma_magica_maior'
     nome: 'Arma Mágica Maior +2'
     tipo_efeito: EFEITO_ARMA_MAGICA
     complementos_str: ''
@@ -3110,6 +3123,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'arma_magica_maior_3'
+    id_feitico: 'arma_magica_maior'
     nome: 'Arma Mágica Maior +3'
     tipo_efeito: EFEITO_ARMA_MAGICA
     complementos_str: ''
@@ -3120,6 +3134,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'arma_magica_maior_4'
+    id_feitico: 'arma_magica_maior'
     nome: 'Arma Mágica Maior +4'
     tipo_efeito: EFEITO_ARMA_MAGICA
     complementos_str: ''
@@ -3130,6 +3145,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'arma_magica_maior_5'
+    id_feitico: 'arma_magica_maior'
     nome: 'Arma Mágica Maior +5'
     tipo_efeito: EFEITO_ARMA_MAGICA
     complementos_str: ''
@@ -3157,6 +3173,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'resistencia_elementos_10'
+    id_feitico: 'resistencia_elementos'
     nome: 'Resistência a Elementos (10)'
     descricao: 'Dá resistência 10 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
@@ -3167,6 +3184,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'resistencia_elementos_20'
+    id_feitico: 'resistencia_elementos'
     nome: 'Resistência a Elementos (20)'
     descricao: 'Dá resistência 20 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
@@ -3177,6 +3195,7 @@ tabela_pocoes {
   }
   pocoes {
     id: 'resistencia_elementos_30'
+    id_feitico: 'resistencia_elementos'
     nome: 'Resistência a Elementos (30)'
     descricao: 'Dá resistência 30 a um tipo de elemento.'
     tipo_efeito: EFEITO_RESISTENCIA_ELEMENTOS
@@ -5282,6 +5301,46 @@ tabela_pericias {
 }
 
 tabela_feiticos {
+  armas {
+    id: 'roupa_encantada'
+    nome: 'roupa encantada'
+    nome_ingles: 'magic vestiment'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'guerra'
+      nivel: 3
+      dominio: true
+    }
+    info_classes {
+      id: 'forca'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+      permite_salvacao: false
+      ignora_resistencia_magia: true 
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_EFEITO
+        parametros {
+          texto: 'armadura'
+          efeito: EFEITO_ROUPA_ENCANTADA
+        }
+        parametros {
+          texto: 'escudo'
+          efeito: EFEITO_ESCUDO_ENCANTADO
+        }
+      }
+      efeitos_adicionais {
+        modificador_rodadas: MR_HORAS_NIVEL 
+      }
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'fogo_das_fadas'
     nome: 'fogo das fadas'
