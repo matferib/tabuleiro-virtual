@@ -269,6 +269,18 @@ void Tabelas::RecarregaMapas() {
           [] (int c) { return c == CAT_ARMA_DUPLA; })) {
       arma.add_categoria(CAT_DUAS_MAOS);
     }
+    // seta os tipos de acoes.
+    if (!arma.acao().has_id()) {
+      if (c_any(arma.categoria(), CAT_PROJETIL_AREA)) {
+        arma.mutable_acao()->set_id("Projétil de Área");
+      } else if (c_any(arma.categoria(), CAT_ARREMESSO)) {
+        arma.mutable_acao()->set_id("Ataque de Arremesso");
+      } else if (c_any(arma.categoria(), CAT_DISTANCIA)) {
+        arma.mutable_acao()->set_id("Ataque a Distância");
+      } else if (c_any(arma.categoria(), CAT_CAC)) {
+        arma.mutable_acao()->set_id("Ataque Corpo a Corpo");
+      }
+    }
     arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
     if (arma.modelo_3d().empty()) {

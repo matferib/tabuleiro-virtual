@@ -1979,6 +1979,7 @@ void ResetDadosAtaque(DadosAtaque* da) {
   da->clear_ataque_arremesso();
   da->clear_ataque_corpo_a_corpo();
   da->clear_nao_letal();
+  da->clear_requer_carregamento();
 }
 
 void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
@@ -2016,6 +2017,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
       RecomputaDependenciasBesta(*da, bonus_ataque);
     }
     da->set_requer_carregamento(arma.carregamento().requer_carregamento());
+    if (!da->requer_carregamento()) {
+      da->clear_descarregada();
+    }
 
     // Aplica diferenca de tamanho de arma.
     int tamanho = proto.tamanho();
