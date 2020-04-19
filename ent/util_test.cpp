@@ -3707,6 +3707,35 @@ TEST(TestFeiticos, RodadasBaseAnterior) {
   }
 }
 
+TEST(TesteRacas, TesteAasimar) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);  // com bonus de aasimar fica 14, +2 de bonus.
+  proto.set_raca("aasimar");
+  RecomputaDependencias(g_tabelas, &proto);
+  int c = 0;
+  for (const auto& pericia : proto.info_pericias()) {
+    if (pericia.id() == "observar" || pericia.id() == "ouvir") {
+      EXPECT_EQ(BonusTotal(pericia.bonus()), 4) << "pericia: " << pericia.DebugString();
+      ++c;
+    }
+  }
+  ASSERT_EQ(c, 2);
+}
+
+TEST(TesteRacas, TesteFalcao) {
+  Modelos modelos;
+  EntidadeProto proto = g_tabelas.ModeloEntidade("Falcão").entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+  int c = 0;
+  for (const auto& pericia : proto.info_pericias()) {
+    if (pericia.id() == "observar") {
+      EXPECT_EQ(BonusTotal(pericia.bonus()), 16) << "pericia: " << pericia.DebugString();
+      ++c;
+    }
+  }
+  ASSERT_EQ(c, 1);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

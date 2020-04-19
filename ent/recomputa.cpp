@@ -1122,8 +1122,27 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
+  if (proto->has_raca()) {
+    // So aplica os modificadores de pericia se tiver raca, para nao apagar o que estiver tabelado.
+    for (auto& info_pericia : *proto->mutable_info_pericias()) {
+      LimpaBonus(TB_RACIAL, "racial", info_pericia.mutable_bonus());
+    }
+    for (const auto& info_pericia_raca : raca_tabelada.bonus_pericias()) {
+      InfoPericia* pericia = nullptr;
+      for (auto& info_pericia : *proto->mutable_info_pericias()) {
+        if (info_pericia_raca.id() == info_pericia.id()) {
+          pericia = &info_pericia;
+          break;
+        }
+      }
+      if (pericia == nullptr) {
+        pericia = proto->add_info_pericias();
+        pericia->set_id(info_pericia_raca.id());
+      }
+      AplicaBonusPenalidadeOuRemove(info_pericia_raca.bonus(), pericia->mutable_bonus());
+    }
+  }
 }
-
 
 void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
   // Pericias afetadas por talentos.
@@ -1192,7 +1211,6 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto->mutable_bonus());
    //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
   }
-  // TODO sinergia e talentos.
 }
 
 void RecomputaClasseFeiticoAtiva(const Tabelas& tabelas, EntidadeProto* proto) {

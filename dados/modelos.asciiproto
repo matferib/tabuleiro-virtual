@@ -255,12 +255,12 @@ modelo {
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
     dados_defesa {
       ca {
-        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
       }
     }
     dados_ataque {
