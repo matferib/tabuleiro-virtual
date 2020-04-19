@@ -1,5 +1,12 @@
+Ao resetar ataques, tirar descarregado.
+Bonus racial de aasimar.
+Problema da textura.
+Inspirar coragem na UI.
+Habilidade do dominio de protecao.
+Se perder conexao tentar reconectar.
+UI de movimento: colocar que é em quadrados.
+Botao de doar no menu de pergaminhas.
 Feitico de Aliados da natureza.
-Implementar o menu de entidades que nao sao aleatorias (druida + companheiro animal).
 Efeitos: bom fruto, passos longos, fogo das fadas.
 Feiticos que criam ataques: colocar o ultimo grupo igual ao do ataque criado.
 Fazer os druidas direito. outros niveis. Companheiro animal.
@@ -14,7 +21,6 @@ Fazer objetos esfumacarem tb.
 Colocar posicao da acao na UI.
 Link para pocoes e magias na UI.
 Icone para amedrontado e abalado.
-Nublar ta aparecendo sem transparencia.
 Implementar poder de protection domain (dar um bonus de resistencia igual ao nivel de clerigo para a proxima salvacao, duracao 1h). 1x dia
 Implementar fumaça .
 ---------------------------

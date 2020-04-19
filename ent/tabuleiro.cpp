@@ -166,6 +166,7 @@ void Tabuleiro::ModelosComPesos::Reset() {
   ids_com_peso.clear();
   ids_com_peso.emplace_back("Padrão", 1);
   quantidade.clear();
+  aleatorio = false;
 }
 
 Tabuleiro::Tabuleiro(
@@ -1048,6 +1049,44 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
   central_->AdicionaNotificacaoRemota(n.release());
 }
 
+namespace {
+// Retorna a quantidade de entidades a serem adicionadas baseada em modelos_com_pesos.
+// Retorna 0 em caso de erro.
+int QuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+  if (!modelos_com_pesos.aleatorio) {
+    LOG(INFO) << "quantidade nao aleatoria a adicionar, retornando: " << modelos_com_pesos.ids_com_peso.size();
+    return modelos_com_pesos.ids_com_peso.size();
+  }
+  if (modelos_com_pesos.quantidade.empty()) {
+    LOG(ERROR) << "quantidade aleatoria invalida a adicionar: " << modelos_com_pesos.quantidade;
+    return 0;
+  }
+  int quantidade = 0;
+  try {
+    LOG(INFO) << "rolando " << modelos_com_pesos.quantidade << " para gerar entidades";
+    quantidade = RolaValor(modelos_com_pesos.quantidade);
+    if (quantidade > 100) {
+      throw std::logic_error("");
+    }
+  } catch (...) {
+    LOG(ERROR) << "quantidade invalida: " << modelos_com_pesos.quantidade;
+  }
+  return quantidade;
+}
+
+std::vector<std::string> MontaVetorIdsAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+  std::vector<std::string> ids;
+  for (const auto& id_com_peso : modelos_com_pesos.ids_com_peso) {
+    VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
+    for (int i = 0; i < id_com_peso.peso; ++i) {
+      ids.push_back(id_com_peso.id);
+    }
+  }
+  return ids;
+}
+
+}  // namespace
+
 void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
@@ -1057,26 +1096,8 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
         referencia = BuscaEntidade(notificacao.id_referencia());
       }
-      int quantidade = 1;
-      if (!modelos_selecionados_.quantidade.empty()) {
-        try {
-          LOG(INFO) << "rolando " << modelos_selecionados_.quantidade << " para gerar entidades";
-          quantidade = RolaValor(modelos_selecionados_.quantidade);
-          if (quantidade > 100) {
-            throw std::logic_error("");
-          }
-        } catch (...) {
-          LOG(ERROR) << "quantidade invalida: " << modelos_selecionados_.quantidade;
-          return;
-        }
-      }
-      std::vector<std::string> ids;
-      for (const auto& id_com_peso : modelos_selecionados_.ids_com_peso) {
-        VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
-        for (int i = 0; i < id_com_peso.peso; ++i) {
-          ids.push_back(id_com_peso.id);
-        }
-      }
+      int quantidade = QuantidadeAdicionar(modelos_selecionados_);
+      std::vector<std::string> ids = MontaVetorIdsAdicionar(modelos_selecionados_);
       float x = 0, y = 0, z = 0;
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
@@ -1095,9 +1116,9 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       ntf::Notificacao grupo_desfazer;
       grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);;
       for (int i = 0; i < quantidade; ++i) {
-        int sorteio = RolaDado(ids.size()) - 1;
+        int sorteio = modelos_selecionados_.aleatorio ? RolaDado(ids.size()) - 1 : i;
         if (sorteio < 0 || sorteio >= (int)ids.size()) {
-          LOG(ERROR) << "sorteio invalido: " << sorteio << ", tamanho: " << ids.size();
+          LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids.size();
           continue;
         }
         Vector2 offset;

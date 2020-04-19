@@ -363,6 +363,7 @@ class Tabuleiro : public ntf::Receptor {
   struct ModelosComPesos {
     std::vector<IdModeloComPeso> ids_com_peso;
     std::string quantidade;
+    bool aleatorio = false;
     void Reset();
   };
   /** Seleciona o modelo de entidade através do identificador. */

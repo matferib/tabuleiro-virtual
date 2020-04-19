@@ -356,27 +356,30 @@ void MenuPrincipal::Modo(modomenu_e modo){
 }
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao) {
-  ent::Tabuleiro::ModelosComPesos modelos;
   std::string id = acao->data().toString().toUtf8().constData();
   auto it = mapa_modelos_.find(id);
   if (it == mapa_modelos_.end()) {
     LOG(ERROR) << "Nao achei modelo: " << id;
     return;
   }
+  ent::Tabuleiro::ModelosComPesos modelos_com_pesos;
   if (it->second.modelos().empty()) {
-    modelos.ids_com_peso.emplace_back(id);
+    modelos_com_pesos.ids_com_peso.emplace_back(id);
   } else {
-    if (it->second.quantidade().empty()) {
-      LOG(ERROR) << "Modelo de grupo sem quantidade: " << id;
-      return;
+    if (it->second.aleatorio()) {
+      modelos_com_pesos.aleatorio = true;
+      if (it->second.quantidade().empty()) {
+        LOG(ERROR) << "Modelo de grupo sem quantidade: " << id;
+        return;
+      }
+      modelos_com_pesos.quantidade = it->second.quantidade();
+      LOG(INFO) << "quantidade a ser gerada " << modelos_com_pesos.quantidade;
     }
-    modelos.quantidade = it->second.quantidade();
-    LOG(INFO) << "quantidade a ser gerada " << modelos.quantidade;
     for (const auto& m : it->second.modelos()) {
-      modelos.ids_com_peso.emplace_back(m.id(), m.peso());
+      modelos_com_pesos.ids_com_peso.emplace_back(m.id(), m.has_peso() ? m.peso() : 1);
     }
   }
-  tabuleiro_->SelecionaModelosEntidades(modelos);
+  tabuleiro_->SelecionaModelosEntidades(modelos_com_pesos);
 }
 
 void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {
