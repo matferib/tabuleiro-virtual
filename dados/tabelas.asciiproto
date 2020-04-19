@@ -12085,8 +12085,7 @@ tabela_racas {
       resistencia_elementos { descritor: DESC_FRIO valor: 5 }
     }
     tamanho: TM_MEDIO
-    # resistencia acido, frio e eletricidade 5.
-    # luz 1/dia
+    # luz do dia 1/dia
     # +2 ouvir e observar
     # visao no escuro 12 q
     # ajuste de nivel: 1
