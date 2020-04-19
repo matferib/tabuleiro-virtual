@@ -1,18 +1,16 @@
-Bonus racial de aasimar.
-Problema da textura.
+Aasimar: lzu do dia / dia.
 Inspirar coragem na UI.
 Habilidade do dominio de protecao.
 Se perder conexao tentar reconectar.
 UI de movimento: colocar que é em quadrados.
-Botao de doar no menu de pergaminhas.
+Botao de doar no menu de pergaminhos.
 Feitico de Aliados da natureza.
 Efeitos: bom fruto, passos longos, fogo das fadas.
 Feiticos que criam ataques: colocar o ultimo grupo igual ao do ataque criado.
-Fazer os druidas direito. outros niveis. Companheiro animal.
+Fazer os druidas direito. outros niveis.
 Permitir criacao de entidades com recursos usados.
 Para armas de aremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
 Barra de progresso de carregamento.
-Crash de desagrupar formas.
 Desenhar escudo de acordo com material (marrom para madeira).
 Ui de talentos, colocar origem.
 Armas muito grandes.

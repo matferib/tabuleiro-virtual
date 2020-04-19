@@ -4865,6 +4865,9 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
 }
 
 void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids) {
+  if (ids.empty()) {
+    return;
+  }
   for (unsigned int id : ids) {
     auto* entidade = BuscaEntidade(id);
     if (entidade == nullptr || entidade->Fixa() ||
@@ -4874,7 +4877,7 @@ void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& i
     ids_entidades_selecionadas_.insert(id);
   }
   if (ids_entidades_selecionadas_.size() == 1) {
-    SelecionaEntidade(ids[0]);
+    SelecionaEntidade(*ids_entidades_selecionadas_.begin());
   }
   MudaEstadoAposSelecao();
 }
@@ -5800,6 +5803,9 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     notificacao_remocao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
     *notificacao_remocao->mutable_entidade() = proto_composto;
   }
+  if (num_adicionados) {
+    return;
+  }
   TrataNotificacao(grupo_notificacoes);
   AdicionaEntidadesSelecionadas(ids_adicionados_);
   {
@@ -5814,7 +5820,8 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
       }
       AdicionaNotificacaoListaEventos(grupo_notificacoes);
     } else {
-      LOG(WARNING) << "Impossivel desfazer desagrupamento porque numero de adicionados difere.";
+      LOG(WARNING) << "Impossivel desfazer desagrupamento porque numero de adicionados difere. num_adicionados: "
+                   << num_adicionados << ", ids_adicinados_.size(): " << ids_adicionados_.size();
     }
   }
 }
