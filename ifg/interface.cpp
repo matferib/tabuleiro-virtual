@@ -38,6 +38,7 @@ std::string StringDuracao(ent::ModificadorRodadas mr) {
     case ent::MR_PALAVRA_PODER_ATORDOAR: return "variável por PV: max 4d4 rodadas";
     case ent::MR_PALAVRA_PODER_CEGAR: return "variável por PV: max permanente";
     case ent::MR_CONTINUO: return "continuo";
+    case ent::MR_MOD_CARISMA: return "modificador de carisma";
   }
   // Nao deveria chegar aqui.
   return "desconhecida";

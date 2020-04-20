@@ -1047,6 +1047,26 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_DOMINIO_PROTECAO
+    nome: 'escudo protetor (dominio proteção)'
+    consequencia {
+    formato_complementos: 'bônus aplicado em todos os testes de resistência (salvação)'
+    # descricao: bonus para a proxima salvacao apenas.
+    consequencia {
+      dados_defesa {
+        salvacao_fortitude {
+          bonus_individual { tipo: TB_RESISTENCIA por_origem { indice_complemento: 0 origem: 'resistencia_salvacao' } }
+        }
+        salvacao_reflexo {
+          bonus_individual { tipo: TB_RESISTENCIA por_origem { indice_complemento: 0 origem: 'resistencia_salvacao' } }
+        }
+        salvacao_vontade {
+          bonus_individual { tipo: TB_RESISTENCIA por_origem { indice_complemento: 0 origem: 'resistencia_salvacao' } }
+        }
+      }
+    }
+  }
+  efeitos {
     id: EFEITO_BOM_FRUTO
     nome: 'bom fruto'
     consequencia {
@@ -3984,7 +4004,7 @@ tabela_talentos {
     # Pre requisito: voar.
   }
   talentos {
-    id: 'pairar'  # hover 
+    id: 'pairar'  # hover
     nome: 'Pairar'
     descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
     # Pre requisito: voar.
@@ -5323,7 +5343,7 @@ tabela_feiticos {
       id: 'Feitiço de Toque'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
       permite_salvacao: false
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       parametros_lancamento {
         consequencia: CP_ATRIBUI_EFEITO
         parametros {
@@ -5336,7 +5356,7 @@ tabela_feiticos {
         }
       }
       efeitos_adicionais {
-        modificador_rodadas: MR_HORAS_NIVEL 
+        modificador_rodadas: MR_HORAS_NIVEL
       }
     }
     escola: 'transmutacao'
@@ -5453,7 +5473,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'cegueira_surdez' 
+    id: 'cegueira_surdez'
     nome_ingles: 'blindness/deafness'
     nome: 'cegueira/surdez'
     alcance_quadrados: 20
@@ -5494,7 +5514,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'marca_arcana' 
+    id: 'marca_arcana'
     nome_ingles: 'arcane_mark'
     link: 'https://www.d20srd.org/srd/spells/arcaneMark.htm'
     nome: 'marca arcana'
@@ -5505,7 +5525,7 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'invocar_enxames' 
+    id: 'invocar_enxames'
     nome_ingles: 'summon swarm'
     link: 'https://www.d20srd.org/srd/spells/summonSwarm.htm'
     nome: 'invocar enxames'
@@ -5528,7 +5548,7 @@ tabela_feiticos {
     # duracao concentracao + 2 rodadas
   }
   armas {
-    id: 'nevoa_mortal' 
+    id: 'nevoa_mortal'
     nome_ingles: 'cloudkill'
     link: 'https://www.d20srd.org/srd/spells/cloudkill.htm'
     nome: 'névoa mortal'
@@ -5545,7 +5565,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'pele_rochosa' 
+    id: 'pele_rochosa'
     nome_ingles: 'stoneskin'
     link: 'https://www.d20srd.org/srd/spells/stoneskin.htm'
     nome: 'pele rochosa'
@@ -5582,7 +5602,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'vento_sussurrante' 
+    id: 'vento_sussurrante'
     nome_ingles: 'whispering wind'
     link: 'https://www.d20srd.org/srd/spells/whisperingWind.htm'
     nome: 'vento sussurrante'
@@ -5599,7 +5619,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/rayOfExhaustion.htm'
-    id: 'raio_exaustao' 
+    id: 'raio_exaustao'
     nome_ingles: 'ray of exhaustion'
     nome: 'raio da exaustão'
     alcance_quadrados: 5
@@ -5628,7 +5648,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/silentImage.htm'
-    id: 'imagem_silenciosa' 
+    id: 'imagem_silenciosa'
     nome_ingles: 'silent image'
     nome: 'imagem silenciosa'
     alcance_quadrados: 80
@@ -5645,7 +5665,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/undetectableAlignment.htm'
-    id: 'dissimular_tendencia' 
+    id: 'dissimular_tendencia'
     nome_ingles: 'undetectable alignment'
     nome: 'dissimular tendencia'
     alcance_quadrados: 5
@@ -5677,7 +5697,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/scare.htm'
-    id: 'aterrorizar' 
+    id: 'aterrorizar'
     nome_ingles: 'scare'
     nome: 'aterrorizar'
     alcance_quadrados: 20
@@ -5743,7 +5763,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/entangle.htm'
-    id: 'constricao' 
+    id: 'constricao'
     nome_ingles: 'entangle'
     nome: 'constrição'
     alcance_quadrados: 80
@@ -5770,7 +5790,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/detectAnimalsOrPlants.htm'
-    id: 'detectar_animais_plantar' 
+    id: 'detectar_animais_plantar'
     nome_ingles: 'detect animals or plants'
     nome: 'detectar animais ou plantas'
     info_classes {
@@ -5785,7 +5805,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/detectSnaresAndPits.htm'
-    id: 'detectar_armadilhas' 
+    id: 'detectar_armadilhas'
     nome_ingles: 'detect snares and pits'
     nome: 'detectar armadilhas'
     info_classes {
@@ -5800,7 +5820,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/charmPerson.htm'
-    id: 'enfeiticar_pessoa' 
+    id: 'enfeiticar_pessoa'
     nome_ingles: 'charm person'
     nome: 'enfeitiçar pessoa'
     alcance_quadrados: 5
@@ -5829,7 +5849,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/charmAnimal.htm'
-    id: 'enfeiticar_animal' 
+    id: 'enfeiticar_animal'
     nome_ingles: 'charm animal'
     nome: 'enfeitiçar animal'
     alcance_quadrados: 5
@@ -5859,7 +5879,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/calmAnimals.htm'
-    id: 'acalmar_animais' 
+    id: 'acalmar_animais'
     nome_ingles: 'calm animals'
     nome: 'acalmar animais'
     alcance_quadrados: 5
@@ -5896,7 +5916,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/removeFear.htm'
-    id: 'remover_medo' 
+    id: 'remover_medo'
     nome_ingles: 'remove fear'
     nome: 'remover medo'
     info_classes {
@@ -5912,7 +5932,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/openClose.htm'
-    id: 'abrir_fechar' 
+    id: 'abrir_fechar'
     nome_ingles: 'open/close'
     nome: 'abrir/fechar'
     info_classes {
@@ -5928,7 +5948,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/summonInstrument.htm'
-    id: 'invocar_instrumento' 
+    id: 'invocar_instrumento'
     nome_ingles: 'summon instrument'
     nome: 'invocar instrumento'
     info_classes {
@@ -5939,7 +5959,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/lullaby.htm'
-    id: 'cancao_ninar' 
+    id: 'cancao_ninar'
     nome_ingles: 'lullaby'
     nome: 'canção de ninar'
     alcance_quadrados: 20
@@ -5968,7 +5988,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/holdPerson.htm'
-    id: 'imobilizar_pessoa' 
+    id: 'imobilizar_pessoa'
     nome_ingles: 'hold person'
     nome: 'imobilizar pessoa'
     alcance_quadrados: 20
@@ -6001,7 +6021,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/haltUndead.htm'
-    id: 'imobilizar_mortos_vivos' 
+    id: 'imobilizar_mortos_vivos'
     nome_ingles: 'halt undead'
     nome: 'imobilizar mortos-vivos'
     alcance_quadrados: 20
@@ -6031,7 +6051,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/holdAnimal.htm'
-    id: 'imobilizar_animal' 
+    id: 'imobilizar_animal'
     nome_ingles: 'hold animal'
     nome: 'imobilizar animal'
     alcance_quadrados: 20
@@ -6065,7 +6085,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/holdMonster.htm'
-    id: 'imobilizar_monstro' 
+    id: 'imobilizar_monstro'
     nome_ingles: 'hold monster'
     nome: 'imobilizar monstro'
     alcance_quadrados: 20
@@ -6098,7 +6118,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/holdMonsterMass.htm'
-    id: 'imobilizar_monstro_massa' 
+    id: 'imobilizar_monstro_massa'
     nome_ingles: 'hold monster, mass'
     nome: 'imobilizar monstro em massa'
     alcance_quadrados: 20
@@ -6125,7 +6145,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/holdPersonMass.htm'
-    id: 'imobilizar_pessoa_massa' 
+    id: 'imobilizar_pessoa_massa'
     nome_ingles: 'hold person, mass'
     nome: 'imobilizar pessoa em massa'
     alcance_quadrados: 20
@@ -6154,7 +6174,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/neutralizePoison.htm'
-    id: 'neutralizar_venenos' 
+    id: 'neutralizar_venenos'
     nome_ingles: 'neutralize poison'
     nome: 'neutralizar venenos'
     info_classes {
@@ -6190,7 +6210,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/createFoodAndWater.htm'
-    id: 'criar_alimentos' 
+    id: 'criar_alimentos'
     nome_ingles: 'create food and water'
     nome: 'criar alimentos'
     info_classes {
@@ -6202,7 +6222,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/continualFlame.htm'
-    id: 'chama_continua' 
+    id: 'chama_continua'
     nome_ingles: 'continual flame'
     nome: 'chama contínua'
     info_classes {
@@ -6218,7 +6238,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/contagion.htm'
-    id: 'praga' 
+    id: 'praga'
     nome_ingles: 'contagion'
     nome: 'praga'
     info_classes {
@@ -6316,7 +6336,7 @@ tabela_feiticos {
   }
   armas {
     link: 'https://www.d20srd.org/srd/spells/bestowCurse.htm'
-    id: 'rogar_maldicao' 
+    id: 'rogar_maldicao'
     nome_ingles: 'bestow curse'
     nome: 'rogar maldição'
     info_classes {
@@ -6342,7 +6362,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/silence.htm'
-    id: 'silencio' 
+    id: 'silencio'
     nome_ingles: 'silence'
     nome: 'silêncio'
     alcance_quadrados: 80
@@ -6402,7 +6422,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/command.htm'
-    id: 'comando' 
+    id: 'comando'
     nome_ingles: 'command'
     nome: 'comando'
     alcance_quadrados: 5
@@ -6429,7 +6449,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/comprehendLanguages.htm'
-    id: 'compreender_idiomas' 
+    id: 'compreender_idiomas'
     nome_ingles: 'comprehend languages'
     nome: 'compreender idiomas'
     info_classes {
@@ -6472,7 +6492,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'consertar' 
+    id: 'consertar'
     nome_ingles: 'mending'
     nome: 'consertar'
     info_classes {
@@ -6495,7 +6515,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'luz' 
+    id: 'luz'
     nome_ingles: 'light'
     nome: 'luz'
     info_classes {
@@ -6528,7 +6548,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'criar_agua' 
+    id: 'criar_agua'
     nome_ingles: 'create water'
     nome: 'criar água'
     info_classes {
@@ -6547,7 +6567,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_prismatica' 
+    id: 'muralha_prismatica'
     nome_ingles: 'prismatic wall.'
     nome: 'muralha prismática'
     info_classes {
@@ -6557,7 +6577,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'telecinesia' 
+    id: 'telecinesia'
     nome_ingles: 'telekinesis.'
     nome: 'telecinésia'
     info_classes {
@@ -6567,7 +6587,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'metamorfose_torrida' 
+    id: 'metamorfose_torrida'
     nome_ingles: 'baleful polymorph.'
     nome: 'metamorfose tórrida'
     alcance_quadrados: 5
@@ -6595,7 +6615,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'desejo_restrito' 
+    id: 'desejo_restrito'
     nome_ingles: 'limited wish.'
     nome: 'desejo restrito'
     info_classes {
@@ -6606,7 +6626,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'desejo' 
+    id: 'desejo'
     nome_ingles: 'wish.'
     nome: 'desejo'
     info_classes {
@@ -6616,7 +6636,7 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'circulo_teletransporte' 
+    id: 'circulo_teletransporte'
     nome_ingles: 'teleportation circle.'
     nome: 'círculo de teletransporte'
     info_classes {
@@ -6627,7 +6647,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'parar_tempo' 
+    id: 'parar_tempo'
     nome_ingles: 'time stop.'
     nome: 'parar o tempo'
     info_classes {
@@ -6643,7 +6663,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'aliado_extra_planar_menor' 
+    id: 'aliado_extra_planar_menor'
     nome_ingles: 'planar ally.'
     nome: 'aliado extra-planar menor'
     info_classes {
@@ -6653,7 +6673,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'aliado_extra_planar_menor' 
+    id: 'aliado_extra_planar_menor'
     nome_ingles: 'planar ally, greater.'
     nome: 'aliado extra-planar maior'
     info_classes {
@@ -6664,7 +6684,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'controlar_agua' 
+    id: 'controlar_agua'
     nome_ingles: 'control water.'
     nome: 'controlar a água'
     info_classes {
@@ -6688,7 +6708,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'movimentacao_livre' 
+    id: 'movimentacao_livre'
     nome_ingles: 'freedom of movement'
     nome: 'movimentação livre'
     info_classes {
@@ -6785,7 +6805,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'imunidade_magia_maior' 
+    id: 'imunidade_magia_maior'
     nome_ingles: 'greater spell immunity'
     nome: 'Imunidade à Magia Maior'
     info_classes {
@@ -6807,7 +6827,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'tempestade_fogo' 
+    id: 'tempestade_fogo'
     nome_ingles: 'fire storm'
     nome: 'Tempestade de Fogo'
     alcance_quadrados: 20
@@ -6835,7 +6855,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'arma_rompimento' 
+    id: 'arma_rompimento'
     nome_ingles: 'disruping weapon'
     nome: 'Arma do Rompimento'
     info_classes {
@@ -6856,7 +6876,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'cancelar_encantamento' 
+    id: 'cancelar_encantamento'
     nome_ingles: 'break enchantment '
     nome: 'Cancelar Encantamento'
     info_classes {
@@ -6897,7 +6917,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'inseto_gigante' 
+    id: 'inseto_gigante'
     nome_ingles: 'giant vermin'
     nome: 'Inseto Gigante'
     info_classes {
@@ -6914,7 +6934,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'adivinhacao' 
+    id: 'adivinhacao'
     nome_ingles: 'divination.'
     nome: 'adivinhação'
     info_classes {
@@ -6992,7 +7012,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'conjuracao_sombras' 
+    id: 'conjuracao_sombras'
     nome_ingles: 'shadow conjuration'
     nome: 'conjuração das sombras'
     info_classes {
@@ -7007,7 +7027,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'grito' 
+    id: 'grito'
     nome_ingles: 'shout'
     nome: 'grito'
     dano { invariavel: '3d6' }
@@ -7100,7 +7120,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'globo_invulnerabilidade' 
+    id: 'globo_invulnerabilidade'
     nome_ingles: 'globe of invulnerability'
     nome: 'globo de invulnerabilidade'
     alcance_quadrados: 1
@@ -7116,7 +7136,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'globo_invulnerabilidade_menor' 
+    id: 'globo_invulnerabilidade_menor'
     nome_ingles: 'globe of invulnerability, lesser'
     nome: 'globo de invulnerabilidade menor'
     info_classes {
@@ -7188,7 +7208,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_doencas' 
+    id: 'remover_doencas'
     nome_ingles: 'remove disease'
     nome: 'remover_maldicao'
     info_classes {
@@ -7207,7 +7227,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_maldicao' 
+    id: 'remover_maldicao'
     nome_ingles: 'remove curse'
     nome: 'remover_maldicao'
     info_classes {
@@ -7229,7 +7249,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'falar_com_animais' 
+    id: 'falar_com_animais'
     nome_ingles: 'speak with animals'
     nome: 'falar com animais'
     info_classes {
@@ -7257,7 +7277,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'falar_com_plantas' 
+    id: 'falar_com_plantas'
     nome: 'falar com plantas'
     nome_ingles: 'speak with plants'
     info_classes {
@@ -7284,7 +7304,7 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'forma_gasosa' 
+    id: 'forma_gasosa'
     nome_ingles: 'gaseous form'
     nome: 'forma gasosa'
     info_classes {
@@ -7314,7 +7334,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'remover_paralisia' 
+    id: 'remover_paralisia'
     nome_ingles: 'remove paralysis'
     nome: 'remover paralisia'
     info_classes {
@@ -7329,7 +7349,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'salto' 
+    id: 'salto'
     nome_ingles: 'jump'
     nome: 'salto'
     info_classes {
@@ -7360,7 +7380,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'presa_magica' 
+    id: 'presa_magica'
     nome_ingles: 'magic fang.'
     nome: 'presa mágica'
     info_classes {
@@ -7386,7 +7406,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'malogro' 
+    id: 'malogro'
     nome_ingles: 'blight'
     nome: 'malogro'
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
@@ -7409,7 +7429,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'transformacao' 
+    id: 'transformacao'
     nome_ingles: 'tenser transformation'
     nome: 'transformação'
     info_classes {
@@ -7430,7 +7450,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'raio_enfraquecimento' 
+    id: 'raio_enfraquecimento'
     nome_ingles: 'ray of enfeeblement'
     nome: 'raio do enfraquecimento'
     alcance_quadrados: 5
@@ -7455,7 +7475,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teletransporte' 
+    id: 'teletransporte'
     nome_ingles: 'teleport'
     nome: 'teletransporte'
     info_classes {
@@ -7471,7 +7491,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'teletransporte_maior' 
+    id: 'teletransporte_maior'
     nome_ingles: 'greater teleport'
     nome: 'teletransporte maior'
     info_classes {
@@ -7486,7 +7506,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'lamina_afiada' 
+    id: 'lamina_afiada'
     nome_ingles: 'keen edge'
     nome: 'lâmina afiada'
     info_classes {
@@ -7508,7 +7528,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'envenenamento' 
+    id: 'envenenamento'
     nome_ingles: 'poison'
     nome: 'envenenamento'
     info_classes {
@@ -7530,7 +7550,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'deslocamento' 
+    id: 'deslocamento'
     nome_ingles: 'displacement'
     nome: 'deslocamento'
     info_classes {
@@ -7554,7 +7574,7 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'luz_cegante' 
+    id: 'luz_cegante'
     nome_ingles: 'searing light.'
     nome: 'luz cegante'
     alcance_quadrados: 20
@@ -7584,7 +7604,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'oracao' 
+    id: 'oracao'
     nome_ingles: 'prayer'
     nome: 'oração'
     alcance_quadrados: 8
@@ -7608,7 +7628,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'drenar_temporario' 
+    id: 'drenar_temporario'
     nome_ingles: 'enervation'
     nome: 'drenar temporário'
     alcance_quadrados: 5
@@ -7698,7 +7718,7 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'tendencia_arma' 
+    id: 'tendencia_arma'
     nome_ingles: 'align weapon'
     nome: 'tendência em arma'
     info_classes {
@@ -7715,7 +7735,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'escuridao' 
+    id: 'escuridao'
     nome_ingles: 'darkness'
     nome: 'escuridão'
     alcance_quadrados: 1
@@ -7739,7 +7759,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'luz_dia' 
+    id: 'luz_dia'
     nome_ingles: 'daylight'
     nome: 'luz do dia'
     alcance_quadrados: 1
@@ -7771,7 +7791,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'quebrar_encantamento' 
+    id: 'quebrar_encantamento'
     nome_ingles: 'break enchantment'
     nome: 'quebrar encantamento'
     info_classes {
@@ -7803,7 +7823,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'comando_maior' 
+    id: 'comando_maior'
     nome_ingles: 'command, greater'
     nome: 'comando maior'
     alcance_quadrados: 5
@@ -7830,7 +7850,7 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'barreira_laminas' 
+    id: 'barreira_laminas'
     nome_ingles: 'blade barrier '
     nome: 'Barreira de Lâminas'
     alcance_quadrados: 20
@@ -7868,7 +7888,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'idiomas' 
+    id: 'idiomas'
     nome_ingles: 'tongues'
     nome: 'idiomas'
     info_classes {
@@ -7897,7 +7917,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'enviar_mensagem' 
+    id: 'enviar_mensagem'
     nome_ingles: 'sending'
     nome: 'enviar mensagem'
     info_classes {
@@ -7912,7 +7932,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'restauracao' 
+    id: 'restauracao'
     nome_ingles: 'restoration'
     nome: 'restauracao'
     info_classes {
@@ -7929,7 +7949,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'restauracao_menor' 
+    id: 'restauracao_menor'
     nome_ingles: 'lesser restoration'
     nome: 'restauracao menor'
     info_classes {
@@ -7949,7 +7969,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'cativar' 
+    id: 'cativar'
     nome_ingles: 'enthrall'
     nome: 'cativar'
     alcance_quadrados: 1
@@ -8021,7 +8041,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'detectar_portas_secretas' 
+    id: 'detectar_portas_secretas'
     nome_ingles: 'detect secret doors'
     nome: 'detectar portas secretas'
     info_classes {
@@ -8048,7 +8068,7 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'auxilio_divino' 
+    id: 'auxilio_divino'
     nome_ingles: 'divine favor'
     nome: 'auxílio divino'
     info_classes {
@@ -8202,7 +8222,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'alarme' 
+    id: 'alarme'
     nome_ingles: 'alarm'
     nome: 'alarme'
     alcance_quadrados: 5
@@ -8226,7 +8246,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'aumentar_pessoa' 
+    id: 'aumentar_pessoa'
     nome_ingles: 'enlarge person'
     nome: 'aumentar pessoa'
     alcance_quadrados: 5
@@ -8255,7 +8275,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'prestigidacao' 
+    id: 'prestigidacao'
     nome_ingles: 'prestigidation'
     nome: 'prestigidação'
     info_classes {
@@ -8269,7 +8289,7 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'raio_acido' 
+    id: 'raio_acido'
     nome_ingles: 'acid splash'
     nome: 'raio de ácido'
     dano { invariavel: '1d3' }
@@ -8291,7 +8311,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'tentaculos_negros' 
+    id: 'tentaculos_negros'
     nome_ingles: 'black tentacles'
     nome: 'tentáculos negros'
     alcance_quadrados: 20
@@ -9064,7 +9084,7 @@ tabela_feiticos {
 
 
   armas {
-    id: 'armadura_arcana' 
+    id: 'armadura_arcana'
     nome_ingles: 'mage armor'
     nome: 'armadura arcana'
     info_classes {
@@ -9295,7 +9315,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'pasmar' 
+    id: 'pasmar'
     nome_ingles: 'daze'
     nome: 'pasmar'
     alcance_quadrados: 5
@@ -9373,7 +9393,7 @@ tabela_feiticos {
     escola: 'divination'
   }
   armas {
-    id: 'romper_morto_vivo' 
+    id: 'romper_morto_vivo'
     nome_ingles: 'disrupt undead'
     nome: 'romper morto-vivo'
     alcance_quadrados: 20
@@ -9395,7 +9415,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'mensagem' 
+    id: 'mensagem'
     nome_ingles: 'message'
     nome: 'mensagem'
     info_classes {
@@ -9551,7 +9571,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'luz' 
+    id: 'luz'
     nome_ingles: 'light'
     nome: 'luz'
     info_classes {
@@ -9583,7 +9603,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'resistencia' 
+    id: 'resistencia'
     nome_ingles: 'resistance'
     nome: 'resistência'
     info_classes {
@@ -9619,7 +9639,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'cura_completa' 
+    id: 'cura_completa'
     nome_ingles: 'heal'
     nome: 'cura completa'
     modelo_dano: CURA_10_POR_NIVEL_MAX_150
@@ -9738,7 +9758,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'infligir_ferimentos_minimos' 
+    id: 'infligir_ferimentos_minimos'
     nome_ingles: 'inflict minor wounds'
     nome: 'infligir ferimentos mínimos'
     dano { invariavel: '1' }
@@ -9760,7 +9780,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_leves' 
+    id: 'infligir_ferimentos_leves'
     nome_ingles: 'inflict light wounds'
     nome: 'infligir ferimentos leves'
     modelo_dano: DANO_1D8_MAIS_1_POR_NIVEL_MAX_5
@@ -9786,7 +9806,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'curar_ferimentos_moderados' 
+    id: 'curar_ferimentos_moderados'
     nome_ingles: 'cure moderate wounds'
     nome: 'curar ferimentos moderados'
     modelo_dano: CURA_2D8_MAIS_1_POR_NIVEL_MAX_10
@@ -9825,7 +9845,7 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
-    id: 'infligir_ferimentos_moderados' 
+    id: 'infligir_ferimentos_moderados'
     nome_ingles: 'inflict moderate wounds'
     nome: 'infligir ferimentos moderados'
     modelo_dano: DANO_2D8_MAIS_1_POR_NIVEL_MAX_10
@@ -9846,7 +9866,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    id: 'curar_ferimentos_graves' 
+    id: 'curar_ferimentos_graves'
     nome_ingles: 'cure serious wounds'
     nome: 'curar ferimentos graves'
     modelo_dano: CURA_3D8_MAIS_1_POR_NIVEL_MAX_15
@@ -9886,7 +9906,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_graves' 
+    id: 'infligir_ferimentos_graves'
     nome_ingles: 'inflict serious wounds'
     nome: 'infligir ferimentos graves'
     modelo_dano: DANO_3D8_MAIS_1_POR_NIVEL_MAX_15
@@ -9907,7 +9927,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'curar_ferimentos_criticos' 
+    id: 'curar_ferimentos_criticos'
     nome_ingles: 'cure critical wounds'
     nome: 'curar ferimentos críticos'
     modelo_dano: CURA_4D8_MAIS_1_POR_NIVEL_MAX_20
@@ -9939,7 +9959,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'infligir_ferimentos_criticos' 
+    id: 'infligir_ferimentos_criticos'
     nome_ingles: 'inflict critical wounds'
     nome: 'infligir ferimentos críticos'
     modelo_dano: DANO_4D8_MAIS_1_POR_NIVEL_MAX_20
@@ -10006,7 +10026,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'sabedoria_coruja' 
+    id: 'sabedoria_coruja'
     nome_ingles: 'owl\'s wisdom'
     nome: 'sabedoria da coruja'
     info_classes {
@@ -10264,7 +10284,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'santuario' 
+    id: 'santuario'
     nome_ingles: 'sanctuary'
     nome: 'santuário'
     info_classes {
@@ -10319,7 +10339,7 @@ tabela_feiticos {
       efeito_area: true
       raio_quadrados: 2
       permite_salvacao: false
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_MAL
@@ -10354,7 +10374,7 @@ tabela_feiticos {
       efeito_area: true
       raio_quadrados: 2
       permite_salvacao: false
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_BEM
@@ -10389,7 +10409,7 @@ tabela_feiticos {
       efeito_area: true
       raio_quadrados: 2
       permite_salvacao: false
-      ignora_resistencia_magia: true 
+      ignora_resistencia_magia: true
       duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_CAOS
@@ -10554,7 +10574,7 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    id: 'escudo_fogo' 
+    id: 'escudo_fogo'
     nome_ingles: 'fire shield'
     nome: 'escudo de fogo'
     info_classes {
@@ -10584,7 +10604,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'ancora_dimensional' 
+    id: 'ancora_dimensional'
     nome_ingles: 'dimensional anchor'
     nome: 'âncora dimensional'
     alcance_quadrados: 20
@@ -10613,7 +10633,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'andar_ar' 
+    id: 'andar_ar'
     nome_ingles: 'air walk'
     nome: 'andar no ar'
     info_classes {
@@ -10643,7 +10663,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'maos_flamejantes' 
+    id: 'maos_flamejantes'
     nome_ingles: 'burning hands'
     nome: 'mãos flamejantes'
     alcance_quadrados: 3
@@ -10678,7 +10698,7 @@ tabela_feiticos {
   }
   armas {
     id: 'metamorfose'
-    nome: 'metamorfose' 
+    nome: 'metamorfose'
     nome_ingles: 'polymorph'
     info_classes {
       id: 'mago'
@@ -11008,7 +11028,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'area_escorregadia' 
+    id: 'area_escorregadia'
     nome_ingles: 'grease'
     nome: 'área escorregadia'
     alcance_quadrados: 5
@@ -11029,7 +11049,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'confusao_menor' 
+    id: 'confusao_menor'
     nome_ingles: 'confusion, lesser'
     nome: 'confusão menor'
     alcance_quadrados: 20
@@ -11053,7 +11073,7 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    id: 'confusao' 
+    id: 'confusao'
     nome_ingles: 'confusion'
     nome: 'confusão'
     alcance_quadrados: 20
@@ -11174,7 +11194,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'purgar_invisibilidade' 
+    id: 'purgar_invisibilidade'
     nome_ingles: 'invisibility purge'
     nome: 'purgar invisibilidade'
     info_classes {
@@ -11349,7 +11369,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'nuvem_profana' 
+    id: 'nuvem_profana'
     nome_ingles: 'unholy blight'
     nome: 'nuvem profana'
     alcance_quadrados: 20
@@ -11386,7 +11406,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'missil_magico' 
+    id: 'missil_magico'
     nome_ingles: 'magic missile'
     nome: 'mísseis mágicos'
     alcance_quadrados: 20
@@ -11720,7 +11740,7 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'reflexos' 
+    id: 'reflexos'
     nome_ingles: 'mirror image'
     nome: 'reflexos'
     info_classes {
@@ -11745,7 +11765,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'dissipar_mal' 
+    id: 'dissipar_mal'
     nome_ingles: 'dispel evil'
     nome: 'dissipar o mal'
     info_classes {
@@ -11772,7 +11792,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_bem' 
+    id: 'dissipar_bem'
     nome_ingles: 'dispel good'
     nome: 'dissipar o bem'
     info_classes {
@@ -11795,7 +11815,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_caos' 
+    id: 'dissipar_caos'
     nome_ingles: 'dispel chaos'
     nome: 'dissipar o caos'
     info_classes {
@@ -11818,7 +11838,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'dissipar_ordem' 
+    id: 'dissipar_ordem'
     nome_ingles: 'dispel law'
     nome: 'dissipar a ordem'
     info_classes {
@@ -11841,7 +11861,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'visao_verdade' 
+    id: 'visao_verdade'
     nome_ingles: 'true seeing'
     nome: 'visão da verdade'
     info_classes {
@@ -11876,7 +11896,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'resistencia_magia' 
+    id: 'resistencia_magia'
     nome_ingles: 'spell resistance'
     nome: 'resistência à magia'
     info_classes {
@@ -12341,19 +12361,18 @@ tabela_dominios {
     nome: 'proteção'
     descricao: 'Você pode gerar um escudo de proteção, uma habilidade sobrenatural que concede ao alvo tocado um bônus de resistência no próximo teste de resistência igual ao seu nível de clérigo. Ativar este poder usa uma ação padrão. O escudo de proteção é um efeito de abjuração, com duração de 1 hora, que pode ser usado uma vez por dia.'
     dados_ataque {
-      tipo_ataque: 'Feitiço de Toque'
+      tipo_ataque: 'Feitiço de Clérigo'
       rotulo: 'escudo protetor' grupo: 'dominio protecao' empunhadura: EA_ARMA_ESCUDO
-      limite_vezes: 1
-      mantem_com_limite_zerado: true
+      taxa_refrescamento: '14400' # 1 dia
       acao_fixa {
-        ataque_toque: true
-        tipo: ACAO_FEITICO_TOQUE
+        tipo: 'Feitiço de Toque'
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_DOMINIO_PROTECAO
           rodadas: 600 # 1 hora
+          modificador_complementos: MR_NIVEL_CLERIGO
         }
       }
     }

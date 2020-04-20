@@ -91,6 +91,7 @@ enum ModificadorComplementos {
   MC_1_POR_NIVEL = 7;  // poder divino.
   MC_ID_ENTIDADE = 8;  // Proteger outro.
   MC_10_POR_NIVEL = 9;  // pele rochosa.
+  MC_NIVEL_CLERIGO = 10;  // dominio: proteção
 }
 
 enum ModificadorQuantidade {
@@ -254,7 +255,7 @@ message AcaoProto {
     optional int32 pontos_vida_temporarios = 15;
     // Caso o modelo seja desativado, o efeito também desaparecerá.
     optional TipoEfeitoModelo requer_modelo_ativo = 17;
-    // Se presente, o efeito so se aplicara em criaturas que estejam nos criterios. 
+    // Se presente, o efeito so se aplicara em criaturas que estejam nos criterios.
     optional int32 afeta_apenas_dados_vida_menor_igual_a = 18;
     optional int32 afeta_apenas_dados_vida_maior_igual_a = 19;
     optional int32 afeta_apenas_dados_vida_igual_a = 20;

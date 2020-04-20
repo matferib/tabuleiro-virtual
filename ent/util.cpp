@@ -3271,6 +3271,10 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
       evento->add_complementos(std::min(5, (nivel_conjurador / 6) + 2));
       break;
     }
+    case MC_NIVEL_CLERIGO: {
+      evento->add_complementos(nivel_conjurador);
+      break;
+    }
     default:
       *evento->mutable_complementos() = efeito_adicional.complementos();
   }
