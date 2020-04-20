@@ -1831,6 +1831,7 @@ void PreencheConfiguraCombosDominio(
         *fc->mutable_dominios(indice_dominio) = id;
         combo->setToolTip(combo->tr(tabelas.Dominio(id).descricao().c_str()));
       }
+      ent::RecomputaDependencias(tabelas, proto_retornado);
       AtualizaUI(tabelas, gerador, *proto_retornado);
       combo->blockSignals(false);
     });
