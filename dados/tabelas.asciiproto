@@ -6253,7 +6253,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/destruction.htm'
-    id: 'destruicao' 
+    id: 'destruicao'
     nome_ingles: 'destruction'
     nome: 'destruição'
     alcance_quadrados: 5
@@ -6283,7 +6283,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/holyWord.htm'
-    id: 'palavra_sagrada' 
+    id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'
     alcance_quadrados: 0
@@ -6930,7 +6930,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'assassino_fantasmagorico' 
+    id: 'assassino_fantasmagorico'
     nome_ingles: 'phantasmal killer.'
     nome: 'assassino fantasmagórico'
     dano { invariavel: '3d6' }
@@ -6953,7 +6953,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_gelo' 
+    id: 'muralha_gelo'
     nome_ingles: 'wall of ice.'
     nome: 'muralha de gelo'
     info_classes {
@@ -6968,7 +6968,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'muralha_fogo' 
+    id: 'muralha_fogo'
     nome_ingles: 'wall of fire.'
     nome: 'muralha de fogo'
     info_classes {
@@ -7130,7 +7130,7 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
-    id: 'missao_menor' 
+    id: 'missao_menor'
     nome_ingles: 'geas, lesser'
     nome: 'missão menor'
     info_classes {
@@ -7154,7 +7154,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'protecao_contra_morte' 
+    id: 'protecao_contra_morte'
     nome_ingles: 'death ward'
     nome: 'proteção contra a morte'
     info_classes {
@@ -9326,7 +9326,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'velocidade' 
+    id: 'velocidade'
     nome_ingles: 'haste'
     nome: 'velocidade'
     modelo_limite_vezes: LIMITE_UM_POR_NIVEL
@@ -9354,7 +9354,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'ataque_certeiro' 
+    id: 'ataque_certeiro'
     nome_ingles: 'true strike'
     nome: 'ataque certeiro'
     info_classes {
@@ -11419,7 +11419,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'intuir_direcao' 
+    id: 'intuir_direcao'
     nome_ingles: 'know direction'
     nome: 'intuir direcao'
     info_classes {
@@ -11433,7 +11433,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'orientacao' 
+    id: 'orientacao'
     nome_ingles: 'guidance.'
     nome: 'orientação'
     info_classes {
@@ -11906,7 +11906,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'matar' 
+    id: 'matar'
     nome_ingles: 'slay living'
     nome: 'matar'
     modelo_dano: DANO_3D6_MAIS_1_POR_NIVEL
@@ -11931,7 +11931,7 @@ tabela_feiticos {
   }
 
   armas {
-    id: 'viagem_planar' 
+    id: 'viagem_planar'
     nome_ingles: 'plane shift'
     nome: 'viagem planar'
     info_classes {
@@ -12314,7 +12314,7 @@ tabela_dominios {
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo'
       rotulo: 'toque morte 1/dia' grupo: 'dominio morte' empunhadura: EA_ARMA_ESCUDO
-      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
       acao_fixa {
         ataque_toque: true
         tipo: ACAO_FEITICO_TOQUE
