@@ -1026,6 +1026,23 @@ void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* 
   }
 }
 
+void RecomputaDependenciasDominios(const Tabelas& tabelas, EntidadeProto* proto) {
+  auto* ifc_ptr = FeiticosClasseOuNullptr("clerigo", proto);
+  const auto& ifc = ifc_ptr == nullptr ? EntidadeProto::InfoFeiticosClasse::default_instance() : *ifc_ptr;
+  for (const auto& d : ifc.dominios()) {
+    const auto& dominio_tabelado = tabelas.Dominio(d);
+    for (const auto& da_tabelado : dominio_tabelado.dados_ataque()) {
+      if (c_none_of(proto->dados_ataque(), [&dominio_tabelado, &da_tabelado](const DadosAtaque& da) {
+            return da.has_dominio() && da.dominio() == dominio_tabelado.id() && da.rotulo() == da_tabelado.rotulo(); })) {
+        *proto->add_dados_ataque() = da_tabelado;
+      }
+    }
+  }
+  RemoveSe<DadosAtaque>([&ifc](const DadosAtaque& da) {
+      return da.has_dominio() && c_none(ifc.dominios(), da.dominio());
+  }, proto->mutable_dados_ataque());
+}
+
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
   CombinaFeiticosClasse(proto->mutable_feiticos_classes());
   for (auto& ic : *proto->mutable_info_classes()) {
@@ -2292,6 +2309,9 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   for (auto& da : *proto->mutable_dados_ataque()) {
     RecomputaDependenciasArma(tabelas, *proto, &da);
   }
+  //EntidadeProto p;
+  //*p.mutable_dados_ataque() = proto->dados_ataque();
+  //LOG(INFO) << "dados_ataque: "  << p.DebugString();
 }
 
 }  // namespace
@@ -2324,6 +2344,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasNiveisNegativos(tabelas, proto);
   RecomputaDependenciasDestrezaLegado(tabelas, proto);
   RecomputaDependenciasClasses(tabelas, proto);
+  RecomputaDependenciasDominios(tabelas, proto);
   RecomputaDependenciasTalentos(tabelas, proto);
   RecomputaDependenciaTamanho(proto);
   RecomputaDependenciasPontosVidaTemporarios(proto);

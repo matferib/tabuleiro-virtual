@@ -210,7 +210,7 @@ TEST(TesteArmas, TestePedraEncantada) {
   ASSERT_EQ(proto.dados_ataque().size(), 2);
   EXPECT_EQ(proto.dados_ataque(0).rotulo(), "pedra encantada");
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+1");
-  EXPECT_EQ(proto.dados_ataque(0).municao(), 3);
+  EXPECT_EQ(proto.dados_ataque(0).municao(), static_cast<unsigned int>(3));
 }
 
 TEST(TesteArmas, TesteMetamorfoseTorrida) {
@@ -2057,10 +2057,32 @@ TEST(TesteSalvacaoDinamica, TesteRodadasDinamicoDependenciaAnterior) {
   RecomputaDependencias(g_tabelas, &proto);
 
   std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
-  AcaoProto acao = proto.dados_ataque(0).acao(); 
-  ResolveEfeitosAdicionaisVariaveis(4, *alvo, &acao);
+  AcaoProto acao = proto.dados_ataque(0).acao();
+  ResolveEfeitosAdicionaisVariaveis(4, proto, *alvo, &acao);
   EXPECT_GT(acao.efeitos_adicionais(1).rodadas(), 0);
   EXPECT_EQ(acao.efeitos_adicionais(2).rodadas(), acao.efeitos_adicionais(1).rodadas() + 1);
+}
+
+TEST(TesteSalvacaoDinamica, TesteRodadasDinamicoModCarisma) {
+  ntf::Notificacao n;
+  EntidadeProto proto;
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  AtribuiBaseAtributo(14, TA_CARISMA, &proto);  // +2
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("clerigo");
+    auto* ifc = FeiticosClasse("clerigo", &proto);
+    ifc->add_dominios("nobreza");
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+
+  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  AcaoProto acao = proto.dados_ataque(0).acao();
+  ResolveEfeitosAdicionaisVariaveis(/*nivel_conjurador=*/1, proto, *alvo, &acao);
+  ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_INSPIRAR_CORAGEM);
+  EXPECT_GT(acao.efeitos_adicionais(0).rodadas(), 2);
 }
 
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.

@@ -3124,7 +3124,7 @@ const EfeitoAdicional* EfeitoAnterior(const EfeitoAdicional& efeito_adicional, c
 
 // Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo.
 constexpr int kEfeitoContinuo = std::numeric_limits<int>::max();
-int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const Entidade& alvo) {
+int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const EntidadeProto& lancador, const Entidade& alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_rodadas()) {
     VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
@@ -3150,6 +3150,9 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_MOD_CARISMA:
+        modificador = BonusTotal(lancador.atributos().carisma());
+      break;
       case MR_CONTINUO:
         modificador = kEfeitoContinuo;
       break;
@@ -3268,7 +3271,7 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
-  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, alvo);
+  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
                         (!efeito_adicional.has_rodadas() &&
                          !efeito_adicional.has_modificador_rodadas() &&
@@ -5277,18 +5280,18 @@ bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto)
   return tendencia == proto.tendencia().simples();
 }
 
-void ResolveEfeitoAdicional(int nivel_conjurador, const Entidade& alvo, EfeitoAdicional* efeito_adicional, AcaoProto* acao_proto) {
+void ResolveEfeitoAdicional(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, EfeitoAdicional* efeito_adicional, AcaoProto* acao_proto) {
   if (!efeito_adicional->has_rodadas()) {
-    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, alvo));
+    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, lancador, alvo));
   }
 }
 
-void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const Entidade& alvo, AcaoProto* acao_proto) {
+void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, AcaoProto* acao_proto) {
   for (auto& efeito_adicional : *acao_proto->mutable_efeitos_adicionais()) {
-    ResolveEfeitoAdicional(nivel_conjurador, alvo, &efeito_adicional, acao_proto);
+    ResolveEfeitoAdicional(nivel_conjurador, lancador, alvo, &efeito_adicional, acao_proto);
   }
   for (auto& efeito_adicional : *acao_proto->mutable_efeitos_adicionais_se_salvou()) {
-    ResolveEfeitoAdicional(nivel_conjurador, alvo, &efeito_adicional, acao_proto);
+    ResolveEfeitoAdicional(nivel_conjurador, lancador, alvo, &efeito_adicional, acao_proto);
   }
   //LOG(INFO) << "resolvido: " << acao_proto->DebugString();
 }
@@ -5299,7 +5302,7 @@ float AplicaEfeitosAdicionais(
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   const int nivel_conjurador =
       da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
-  ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_destino, acao_proto);
+  ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
     if (!EntidadeAfetadaPorEfeito(efeito_adicional, entidade_destino.Proto())) {
       continue;

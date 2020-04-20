@@ -243,7 +243,10 @@ void Tabelas::RecarregaMapas() {
   dominios_.clear();
   modelos_entidades_.clear();
 
-  for (const auto& dominio : tabelas_.tabela_dominios().dominios()) {
+  for (auto& dominio : *tabelas_.mutable_tabela_dominios()->mutable_dominios()) {
+    for (auto& da : *dominio.mutable_dados_ataque()) {
+      da.set_dominio(dominio.id());
+    }
     dominios_[dominio.id()] = &dominio;
   }
 

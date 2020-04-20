@@ -983,7 +983,7 @@ bool ImuneAcaoMental(const EntidadeProto& proto);
 bool NaoEnxerga(const EntidadeProto& proto);
 
 // Antes de aplicar os efeitos adicionais, resolve a parte variavel que for possivel. Exemplo: rodadas.
-void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const Entidade& alvo, AcaoProto* acao_proto);
+void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, AcaoProto* acao_proto);
 
 float AplicaEfeitosAdicionais(
     float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,

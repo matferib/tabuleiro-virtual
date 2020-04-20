@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 126.
+// Proximo id: 127.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -176,6 +176,7 @@ enum TipoEfeito {
   EFEITO_FOGO_DAS_FADAS = 123;
   EFEITO_BOM_FRUTO = 124;
   EFEITO_PASSOS_LONGOS = 125;
+  EFEITO_DOMINIO_PROTECAO = 126;
 }
 
 enum TipoEfeitoModelo {
@@ -1025,12 +1026,6 @@ message ModeloDnD {
   optional TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
   optional bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
   repeated int32 complementos = 3;             // variaveis do modelo.
-}
-
-message DominioProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional string descricao = 3;
 }
 
 enum TipoDuracao {

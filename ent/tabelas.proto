@@ -285,6 +285,13 @@ message TabelaRacas {
   repeated RacaProto racas = 1;
 }
 
+message DominioProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional string descricao = 3;
+  repeated DadosAtaque dados_ataque = 4;
+}
+
 message TabelaDominios {
   repeated DominioProto dominios = 1;
 }
