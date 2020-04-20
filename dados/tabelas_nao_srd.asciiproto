@@ -422,6 +422,23 @@ tabela_dominios {
     id: 'nobreza'
     nome: 'nobreza'
     descricao: 'Uma vez por dia por rodadas igual ao bônus de carisma, inspirar aliados: +2 moral em testes de resistência, ataque e dano, habilidade e perícia. Devem ser capazes de ouvir o personagem.'
+    dados_ataque {
+      tipo_ataque: 'Feitiço a Distância' rotulo: 'inspirar aliados'
+      mantem_com_limite_zerado: true
+      ignora_reflexos: true
+      incrementa_proximo_ataque: false
+      alcance_q: 6
+      acao_fixa {
+        icone: 'icon_bardic_music.png'
+        ignora_resistencia_magia: true
+        permite_salvacao: false
+        efeitos_adicionais {
+          efeito: EFEITO_INSPIRAR_CORAGEM
+          complementos: 2
+          modificador_rodadas: MR_MOD_CARISMA
+        }
+      }
+    }
   }
   dominios {
     id: 'oceano'
