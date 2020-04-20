@@ -5420,4 +5420,10 @@ ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entid
   return n;
 }
 
+ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade) {
+  ntf::Notificacao n;
+  PreencheNotificacaoRemocaoEvento(entidade.Proto(), EFEITO_DOMINIO_PROTECAO, &n);
+  return n.entidade().evento().empty() ? ntf::Notificacao::default_instance() : n;
+}
+
 }  // namespace ent

@@ -1350,6 +1350,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       std::string texto_salvacao;
       // pega o dano da acao.
       std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(acao_proto->delta_pontos_vida(), &da, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      if (n->has_tipo()) {
+        *grupo_desfazer->add_notificacao() = *n;
+        central_->AdicionaNotificacao(n.release());
+      }
       atraso_s += 1.5f;
       ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
@@ -1739,6 +1744,11 @@ float Tabuleiro::TrataAcaoIndividual(
         (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
          ((da.derrubar_automatico() || da.derruba_sem_teste())))) {
       std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, &da, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      if (n->has_tipo()) {
+        *grupo_desfazer->add_notificacao() = *n;
+        central_->AdicionaNotificacao(n.release());
+      }
       // Corrige o valor.
       por_entidade->set_delta(delta_pontos_vida);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());

@@ -1049,7 +1049,6 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_DOMINIO_PROTECAO
     nome: 'escudo protetor (dominio proteção)'
-    consequencia {
     formato_complementos: 'bônus aplicado em todos os testes de resistência (salvação)'
     # descricao: bonus para a proxima salvacao apenas.
     consequencia {
@@ -12365,14 +12364,14 @@ tabela_dominios {
       rotulo: 'escudo protetor' grupo: 'dominio protecao' empunhadura: EA_ARMA_ESCUDO
       taxa_refrescamento: '14400' # 1 dia
       acao_fixa {
-        tipo: 'Feitiço de Toque'
+        id: 'Feitiço de Toque'
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
           efeito: EFEITO_DOMINIO_PROTECAO
           rodadas: 600 # 1 hora
-          modificador_complementos: MR_NIVEL_CLERIGO
+          modificador_complementos: MC_NIVEL_CLERIGO
         }
       }
     }

@@ -3770,6 +3770,37 @@ TEST(TesteDominios, TesteNobrezaMorte) {
   }
 }
 
+TEST(TesteDominios, TesteProtecao) {
+  EntidadeProto proto;
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_DOMINIO_PROTECAO);
+  }
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  AtribuiBaseAtributo(14, TA_CARISMA, &proto);  // +2
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(3);
+    ic->set_id("clerigo");
+    auto* ifc = FeiticosClasse("clerigo", &proto);
+    ifc->add_dominios("protecao");
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(g_tabelas, &proto);  // pra garantir que num vai adicionar duas vezes.
+
+  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  {
+    AcaoProto acao = proto.dados_ataque(0).acao();
+    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(1).DebugString();
+    EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_DOMINIO_PROTECAO);
+    EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 600);  // 1 hora
+  }
+  ntf::Notificacao n = PreencheNotificacaoExpiracaoEventoPosSalvacao(*alvo);
+  ASSERT_FALSE(alvo->Proto().evento().empty());
+  EXPECT_EQ(alvo->Proto().evento(0).id_efeito(), EFEITO_DOMINIO_PROTECAO);
+  alvo->AtualizaParcial(n.entidade());
+  ASSERT_TRUE(alvo->Proto().evento().empty());
+}
 
 }  // namespace ent.
 

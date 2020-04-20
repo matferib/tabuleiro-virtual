@@ -443,6 +443,10 @@ ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto
 // Preenche a notificacao para entidade entrar em luta defensiva (aumenta CA, ataque com penalidade).
 ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto);
 
+// Alguns efeitos valem ate a proxima salvacao. Cria uma notificacao para expira-los.
+// Caso nao haja eventos assim, retorna uma notificacao defaul (vazia).
+ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade);
+
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
 std::string NomeTipoBonus(TipoBonus tipo);
@@ -992,6 +996,7 @@ float AplicaEfeitosAdicionais(
 
 // Encontra um ataque no proto igual a da. Compara rotulo, tipo e grupo.
 DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
