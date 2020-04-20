@@ -1063,22 +1063,6 @@ modelo {
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
       municao: 10
     }
-    dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      rotulo: 'toque morte 1/dia' grupo: 'dominio' empunhadura: EA_ARMA_ESCUDO
-      limite_vezes: 1
-      acao_fixa {
-        ataque_toque: true
-        tipo: ACAO_FEITICO_TOQUE
-        cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-        dado_pv_mais_alto: '5d6'
-        permite_salvacao: false
-        ignora_resistencia_magia: true
-        efeitos_adicionais {
-          efeito: EFEITO_MORTE
-        }
-      }
-    }
     info_talentos {
       gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
       gerais { id: 'magia_trama_sombras' }
