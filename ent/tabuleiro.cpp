@@ -2774,6 +2774,7 @@ void Tabuleiro::ProximaIniciativa() {
     // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
     const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa_antes != nullptr) {
+      AtualizaAtaquesAoPassarRodada(*entidade_iniciativa_antes, &grupo);
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
     }
 
@@ -2790,7 +2791,6 @@ void Tabuleiro::ProximaIniciativa() {
     TrataNotificacao(grupo);
     grupo_desfazer.Swap(&grupo);
   }
-
 
   {
     ntf::Notificacao grupo;
@@ -7432,6 +7432,20 @@ void Tabuleiro::AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Not
   *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   *proto_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   for (auto& da : *proto_depois->mutable_dados_ataque()) {
+    if (da.has_taxa_refrescamento() && da.usado_rodada()) {
+      // Trata o caso de ataques consumidos so ao fim da rodada.
+      int valor = 0;
+      auto* da_depois = EncontraAtaque(da, proto_depois);
+      try {
+        valor = RolaValor(da_depois->taxa_refrescamento());
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+        valor = 0;
+      }
+      da_depois->set_disponivel_em(valor);
+      da_depois->clear_usado_rodada();
+    }
+    // Decrementa numero de rodadas que faltam para disponibilizar ataque.
     if (da.disponivel_em() > 0) {
       da.set_disponivel_em(da.disponivel_em() - 1);
     }
@@ -7449,6 +7463,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
+  LOG(INFO) << "passando rodada";
   ntf::Notificacao alias_grupo;
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);

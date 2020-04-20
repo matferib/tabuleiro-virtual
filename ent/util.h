@@ -990,6 +990,8 @@ float AplicaEfeitosAdicionais(
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central);
 
+// Encontra um ataque no proto igual a da. Compara rotulo, tipo e grupo.
+DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto);
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

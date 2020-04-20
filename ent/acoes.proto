@@ -337,7 +337,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 83.
+// Proximo id: 84.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -423,8 +423,6 @@ message DadosAtaque {
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
   optional int32 limite_vezes = 43;
-  // Se setado, pode usar infinito na rodada, mas depois zera.
-  optional int32 limite_vezes_dia = 81;
   // Alguns ataques são limitados, mas não devem ser zerados. Na prática, funciona como munição
   // para ataques por dia. Exemplo, inspirar coragem.
   optional bool mantem_com_limite_zerado = 73;
@@ -469,8 +467,12 @@ message DadosAtaque {
   // Indica que ataque é proveniente de uma arma.
   optional bool eh_arma = 74;
   // Para cool down. Se houver taxa de refrescamento, atualiza disponivel_em. Quando disponivel_em for 0,
-  // podde usar de novo o ataque.
+  // pode usar de novo o ataque.
   optional string taxa_refrescamento = 75;
+  // Se verdadeiro, pode usar livremente na rodada, mas apos termino calcula disponivel_em.
+  optional bool refresca_apos_rodada = 81;
+  // indica que o ataque foi usado na rodada.
+  optional bool usado_rodada = 83;
   optional int32 disponivel_em = 76;
   // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
   optional bool ignora_origem = 78;

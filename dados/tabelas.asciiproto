@@ -12312,12 +12312,10 @@ tabela_dominios {
     nome: 'morte'
     descricao: 'Você pode usar o toque da morte uma vez por dia, uma habilidade sobrenatural que gera um efeito de morte. É preciso realizar um ataque de toque corporal contra uma criatura viva (usando as regras para magias de toque). Caso acerte, jogue 1d6 por nível de clérigo. Se o total igualar ou superar os pontos de vida do alvo, ele morre (sem testes de resistência).'
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
+      tipo_ataque: 'Feitiço de Toque'
       rotulo: 'toque morte 1/dia' grupo: 'dominio morte' empunhadura: EA_ARMA_ESCUDO
       taxa_refrescamento: "14400"  # 1 dia
       acao_fixa {
-        ataque_toque: true
-        tipo: ACAO_FEITICO_TOQUE
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
         dado_pv_mais_alto: '5d6'
         permite_salvacao: false

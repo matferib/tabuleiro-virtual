@@ -1289,7 +1289,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
 
   if (!proto_parcial.dados_ataque().empty()) {
     *proto_.mutable_dados_ataque() = proto_parcial.dados_ataque();
-    if (proto_.dados_ataque_size() == 1 && proto_.dados_ataque(0).tipo_ataque().empty()) proto_.clear_dados_ataque();
+    if (proto_.dados_ataque_size() == 1 && proto_.dados_ataque(0).tipo_ataque().empty()) {
+      proto_.clear_dados_ataque();
+    }
   }
 
   // casos especiais.

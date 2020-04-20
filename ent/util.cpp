@@ -1763,6 +1763,8 @@ bool AtaqueIgual(const DadosAtaque& lda, const DadosAtaque& rda) {
          lda.grupo() == rda.grupo();
 }
 
+}  // namespace
+
 // Encontra determinado dado de ataque em um proto. Retorna nullptr caso nao encontre.
 DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   for (auto& pda : *proto->mutable_dados_ataque()) {
@@ -1772,7 +1774,6 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   }
   return nullptr;
 }
-}  // namespace
 
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
@@ -1793,15 +1794,22 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
     }
     if (!da_depois->taxa_refrescamento().empty()) {
-      int valor = 0;
-      try {
-        valor = RolaValor(da_depois->taxa_refrescamento());
-      } catch (const std::exception& e) {
-        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
-        valor = 0;
+      if (da_depois->refresca_apos_rodada()) {
+        // Marca como usado para refrescar apos rodada.
+        da_depois->set_usado_rodada(true);
+        VLOG(1) << "refrescar apos rodada";
+      } else {
+        // Ja atualiza.
+        int valor = 0;
+        try {
+          valor = RolaValor(da_depois->taxa_refrescamento());
+        } catch (const std::exception& e) {
+          LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+          valor = 0;
+        }
+        da_depois->set_disponivel_em(valor);
+        VLOG(1) << "refrescando valor para " << valor;
       }
-      LOG(INFO) << "refrescando valor para " << valor;
-      da_depois->set_disponivel_em(valor);
     }
   }
   if (n_desfazer != nullptr) {

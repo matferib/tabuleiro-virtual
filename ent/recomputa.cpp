@@ -2287,16 +2287,9 @@ void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& prot
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
   // Remove ataques cujo numero de vezes exista e seja zero.
-  std::vector<int> indices_a_remover;
-  for (int i = proto->dados_ataque().size() - 1; i >= 0; --i) {
-    const auto& da = proto->dados_ataque(i);
-    if (da.has_limite_vezes() && da.limite_vezes() <= 0 && !da.mantem_com_limite_zerado()) {
-      indices_a_remover.push_back(i);
-    }
-  }
-  for (int indice : indices_a_remover) {
-    proto->mutable_dados_ataque()->DeleteSubrange(indice, 1);
-  }
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return da.has_limite_vezes() && da.limite_vezes() <= 0 && !da.mantem_com_limite_zerado();
+  }, proto->mutable_dados_ataque());
 
   // Se nao tiver agarrar, cria um.
   if (proto->gerar_agarrar() && std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),

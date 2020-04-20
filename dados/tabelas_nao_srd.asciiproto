@@ -428,6 +428,7 @@ tabela_dominios {
       incrementa_proximo_ataque: false
       alcance_q: 6
       taxa_refrescamento: "14400"  # 1 dia
+      refresca_apos_rodada: true
       acao_fixa {
         icone: 'icon_bardic_music.png'
         ignora_resistencia_magia: true
