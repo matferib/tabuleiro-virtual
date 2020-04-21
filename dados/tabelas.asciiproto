@@ -12366,6 +12366,7 @@ tabela_dominios {
       acao_fixa {
         id: 'Feitiço de Toque'
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+        permite_ataque_vs_defesa: false 
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
