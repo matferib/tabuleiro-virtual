@@ -222,6 +222,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   pd->set_id_cenario(IdCenario());
   a->set_texto(texto);
   central_->AdicionaNotificacao(n.release());
+  mostrar_dados_ = false;
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {

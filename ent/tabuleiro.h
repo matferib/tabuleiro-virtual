@@ -1375,6 +1375,7 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_dano_automatico_ = true;
   bool bonus_dano_negativo_ = false;
   bool bonus_ataque_negativo_ = false;
+  bool mostrar_dados_ = false;
 
   gl::VbosGravados vbos_tabuleiro_;
   gl::VbosGravados vbos_grade_;

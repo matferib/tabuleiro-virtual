@@ -219,9 +219,29 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_CLASSE_FEITICO_ATIVA:
       TrataMudarClasseFeiticoAtiva();
       break;
-    case CONTROLE_ROLAR_D20:
+    case CONTROLE_ROLAR_D4:
+      AlternaModoDado(4);
+      break;
+    case CONTROLE_ROLAR_D6:
+      AlternaModoDado(6);
+      break;
+     case CONTROLE_ROLAR_D8:
+      AlternaModoDado(8);
+      break;
+     case CONTROLE_ROLAR_D10:
+      AlternaModoDado(10);
+      break;
+     case CONTROLE_ROLAR_D12:
+      AlternaModoDado(12);
+      break;
+     case CONTROLE_ROLAR_D20:
+      AlternaModoDado(20);
+      break;
+    case CONTROLE_DADOS:
+      mostrar_dados_ = !mostrar_dados_;
+      break;
     case CONTROLE_ROLAR_D100:
-      AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
+      AlternaModoDado(100);
       break;
     case CONTROLE_ROLAR_PERICIA: {
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA));
@@ -965,6 +985,8 @@ bool Tabuleiro::EstadoBotao(IdBotao id) const {
       return bonus_ataque_negativo_;
     case CONTROLE_BONUS_DANO_NEGATIVO:
       return bonus_dano_negativo_;
+    case CONTROLE_DADOS:
+      return mostrar_dados_;
     default:
       return false;
   }
@@ -1329,6 +1351,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
+    { CONTROLE_ROLAR_D4,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 4; } },
+    { CONTROLE_ROLAR_D6,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 6; } },
+    { CONTROLE_ROLAR_D8,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 8; } },
+    { CONTROLE_ROLAR_D10,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 10; } },
+    { CONTROLE_ROLAR_D12,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 12; } },
     { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 20; } },
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },

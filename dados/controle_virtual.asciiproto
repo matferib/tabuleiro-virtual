@@ -473,7 +473,7 @@ fixo {
   dados_botoes {
     tamanho: 1
     linha: -5
-    coluna: -3
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "dP"
@@ -489,17 +489,88 @@ fixo {
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d%"
-    id: CONTROLE_ROLAR_D100
-    textura: "icon_d100.png"
+    rotulo: "dd"
+    id: CONTROLE_DADOS
+    textura: "icon_d20.png"
     forma: FORMA_RETANGULO
     mestre_apenas: false
-    dica: "Rola um d100."
+    dica: "Rola dados."
+    visibilidade { referencia { tipo: VIS_INVERSO_DE id: CONTROLE_DADOS } }
   }
   dados_botoes {
     tamanho: 1
     linha: -5
-    coluna: -1
+    coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d4"
+    id: CONTROLE_ROLAR_D4
+    textura: "icon_d4.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d4."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d6"
+    id: CONTROLE_ROLAR_D6
+    textura: "icon_d6.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d6."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -4
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d8"
+    id: CONTROLE_ROLAR_D8
+    textura: "icon_d8.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d8."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -5
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d10"
+    id: CONTROLE_ROLAR_D10
+    textura: "icon_d10.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d10."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -6
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d12"
+    id: CONTROLE_ROLAR_D12
+    textura: "icon_d12.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d12."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -7
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "20"
@@ -508,7 +579,23 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d20."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
   }
+  dados_botoes {
+    tamanho: 1
+    linha: -5
+    coluna: -8
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "d%"
+    id: CONTROLE_ROLAR_D100
+    textura: "icon_d100.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola um d100."
+    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+  }
+
   dados_botoes {
     tamanho: 1
     linha: -6
