@@ -3795,7 +3795,7 @@ bool NotificacaoConsequenciaFeitico(
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
     return false;
   }
-  if (FeiticoPessoal(feitico_tabelado)) {
+  if (FeiticoPessoal(tabelas, feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
     std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
     std::string string_efeitos;
@@ -4352,8 +4352,11 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
   });
 }
 
-bool FeiticoPessoal(const ArmaProto& feitico_tabelado) {
-  return feitico_tabelado.acao().tipo() == ACAO_FEITICO_PESSOAL;
+bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) {
+  if (feitico_tabelado.acao().has_tipo()) {
+    return feitico_tabelado.acao().tipo() == ACAO_FEITICO_PESSOAL;
+  }
+  return feitico_tabelado.acao().has_id() && tabelas.Acao(feitico_tabelado.acao().id()).tipo() == ACAO_FEITICO_PESSOAL;
 }
 
 int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_para_conjuracao) {
