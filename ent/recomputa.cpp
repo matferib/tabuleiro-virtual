@@ -1844,6 +1844,10 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
   // O que for especifico deste ataque.
   if (da->has_acao_fixa()) {
+    if (!da->acao_fixa().id().empty()) {
+      const auto& acao_tabelada = tabelas.Acao(da->acao_fixa().id());
+      da->mutable_acao()->MergeFrom(acao_tabelada);
+    }
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
   CombinaEfeitos(da->mutable_acao());
