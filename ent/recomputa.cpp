@@ -291,7 +291,10 @@ void AplicaInicioAtaqueIdUnico(int id_unico, const DadosAtaque& dados_ataque, En
   } else {
     da.set_empunhadura(EA_ARMA_ESCUDO);
   }
+  std::string grupo = da.grupo();
   InsereInicio(&da, proto->mutable_dados_ataque());
+  proto->set_ultimo_grupo_acao(grupo);
+  proto->set_ultima_acao(da.tipo_ataque());
 }
 
 // TODO remover todos.

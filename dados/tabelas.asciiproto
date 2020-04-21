@@ -1121,7 +1121,8 @@ tabela_efeitos {
     consequencia {
       dados_ataque {
         dano_basico_fixo: "1d6"
-        rotulo: "criar chama"
+        rotulo: 'criar chama'
+        grupo: 'criar chama'
         tipo_ataque: "Feitiço de Toque a Distância"
         elemento: DESC_FOGO
         alcance_q: 20
@@ -1149,9 +1150,10 @@ tabela_efeitos {
     consequencia {
       dados_ataque {
         id_arma: 'cimitarra'
-        dano_basico_fixo: "1d8"
-        rotulo: "lamina flamejante"
-        tipo_ataque: "Feitiço de Toque"
+        dano_basico_fixo: '1d8'
+        rotulo: 'lamina flamejante'
+        grupo: 'lamina flamejante'
+        tipo_ataque: 'Feitiço de Toque'
         elemento: DESC_FOGO
         acao_fixa {
           tipo: ACAO_CORPO_A_CORPO
@@ -12332,7 +12334,9 @@ tabela_dominios {
     descricao: 'Você pode usar o toque da morte uma vez por dia, uma habilidade sobrenatural que gera um efeito de morte. É preciso realizar um ataque de toque corporal contra uma criatura viva (usando as regras para magias de toque). Caso acerte, jogue 1d6 por nível de clérigo. Se o total igualar ou superar os pontos de vida do alvo, ele morre (sem testes de resistência).'
     dados_ataque {
       tipo_ataque: 'Feitiço de Toque'
-      rotulo: 'toque morte 1/dia' grupo: 'dominio morte' empunhadura: EA_ARMA_ESCUDO
+      rotulo: 'toque morte 1/dia'
+      grupo: 'dominio morte'
+      empunhadura: EA_ARMA_ESCUDO
       taxa_refrescamento: "14400"  # 1 dia
       acao_fixa {
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
@@ -12361,7 +12365,9 @@ tabela_dominios {
     descricao: 'Você pode gerar um escudo de proteção, uma habilidade sobrenatural que concede ao alvo tocado um bônus de resistência no próximo teste de resistência igual ao seu nível de clérigo. Ativar este poder usa uma ação padrão. O escudo de proteção é um efeito de abjuração, com duração de 1 hora, que pode ser usado uma vez por dia.'
     dados_ataque {
       tipo_ataque: 'Feitiço de Clérigo'
-      rotulo: 'escudo protetor' grupo: 'dominio protecao' empunhadura: EA_ARMA_ESCUDO
+      rotulo: 'escudo protetor'
+      grupo: 'dominio protecao'
+      empunhadura: EA_ARMA_ESCUDO
       taxa_refrescamento: '14400' # 1 dia
       acao_fixa {
         id: 'Feitiço de Toque'
