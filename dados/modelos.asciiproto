@@ -2830,6 +2830,7 @@ modelo {
   id: 'Lobo'
   entidade {
     dados_vida: '2d8+4' tamanho: TM_MEDIO modelo_3d { id: 'wolf' }
+    tipo_dnd: TIPO_ANIMAL
     rotulo_especial: 'faro\nderrubar automático +1'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes { id: 'animal' nivel: 2 }
