@@ -3120,6 +3120,7 @@ void Tabuleiro::DescansaPersonagemNotificando() {
   const auto& proto = e->Proto();
   int nivel = Nivel(proto);
   auto n_grupo = ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES);
+  const int kNumRodadas = 8 * 60 * 10;
 
   // Cura 1 PV por nivel.
   {
@@ -3131,6 +3132,7 @@ void Tabuleiro::DescansaPersonagemNotificando() {
     e_depois->set_pontos_vida(std::min(e->MaximoPontosVida(), e->PontosVida() + nivel));
     AdicionaAcaoDeltaPontosVidaSemAfetar(e->Id(), nivel, 0);
   }
+  // Renova feiticos.
   {
     ntf::Notificacao* n_feitico;
     EntidadeProto *e_antes, *e_depois;
@@ -3139,6 +3141,38 @@ void Tabuleiro::DescansaPersonagemNotificando() {
     *e_antes->mutable_feiticos_classes() = proto.feiticos_classes();
     *e_depois->mutable_feiticos_classes() = proto.feiticos_classes();
     RenovaFeiticos(e_depois);
+  }
+  // Atualiza taxas de refrescamento de ataques.
+  {
+    ntf::Notificacao* n_feitico;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(n_feitico, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo.get());
+    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+    for (auto& da : *e_depois->mutable_dados_ataque()) {
+      if (da.requer_carregamento()) {
+        da.set_descarregada(false);
+      }
+      if (da.has_disponivel_em() && da.disponivel_em() > 0) {
+        // passaram-se 8 horas.
+        da.set_disponivel_em(std::max(da.disponivel_em() - kNumRodadas, 0));
+      }
+    }
+  }
+  // Efeitos.
+  {
+    ntf::Notificacao* n_feitico;
+    EntidadeProto *e_antes, *e_depois;
+    std::tie(n_feitico, e_antes, e_depois) =
+        NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo.get());
+    *e_antes->mutable_evento() = proto.evento();
+    *e_depois->mutable_evento() = proto.evento();
+    for (auto& evento : *e_depois->mutable_evento()) {
+      if (!evento.continuo()) {
+        evento.set_rodadas(std::max(-1, evento.rodadas() - kNumRodadas));
+      }
+    }
   }
 
   AdicionaNotificacaoListaEventos(*n_grupo);
