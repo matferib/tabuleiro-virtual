@@ -144,32 +144,35 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
 //-----------------
 void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
-  const auto& pericias_entidade = notificacao.entidade().info_pericias();
-  std::map<std::string, int> mapa_nomes;
-  int indice = 0;
-  for (const auto& pericia : pericias_entidade) {
-    std::string nome = tabelas_.Pericia(pericia.id()).nome();
-    mapa_nomes.insert(std::make_pair(nome, indice++));
+  std::map<std::string, std::string> mapa_nomes;
+  for (const auto& pericia : tabelas_.todas().tabela_pericias().pericias()) {
+    mapa_nomes.insert(std::make_pair(pericia.nome(), pericia.id()));
   }
-  std::map<int, int> mapa_pericias;
   std::vector<std::string> nomes_pericias;
-  indice = 0;
-  for (const auto& it : mapa_nomes) {
+  std::vector<std::string> mapa_indice_id;
+  for (auto& it : mapa_nomes) {
     nomes_pericias.push_back(it.first);
-    mapa_pericias.insert(std::make_pair(indice++, it.second));
+    mapa_indice_id.push_back(it.second);
   }
   EscolheItemLista(
       "Escolha a pericia", nomes_pericias,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPericia,
-          this, notificacao, mapa_pericias,
+          this, notificacao, mapa_indice_id,
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPericia(ntf::Notificacao notificacao, std::map<int, int> mapa_pericias, bool ok, int indice_selecao) {
-  if (ok && indice_selecao >= 0 && indice_selecao <= notificacao.entidade().info_pericias_size()) {
-    int indice_pericia = mapa_pericias[indice_selecao];
-    tabuleiro_->TrataRolarPericiaNotificando(indice_pericia, notificacao.entidade());
+void InterfaceGrafica::VoltaEscolherPericia(
+    ntf::Notificacao notificacao, std::vector<std::string> mapa_indice_id,
+    bool ok, int indice_selecao) {
+  if (ok && indice_selecao >= 0 && indice_selecao <= mapa_indice_id.size()) {
+    if (notificacao.notificacao().empty()) {
+      tabuleiro_->TrataRolarPericiaNotificando(mapa_indice_id[indice_selecao], notificacao.entidade());
+    } else {
+      for (const auto& n : notificacao.notificacao()) {
+        tabuleiro_->TrataRolarPericiaNotificando(mapa_indice_id[indice_selecao], n.entidade());
+      }
+    }
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }

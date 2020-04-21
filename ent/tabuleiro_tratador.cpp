@@ -3205,8 +3205,12 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(int indice_pericia, const EntidadeProto& proto) {
-  const auto& pericia = proto.info_pericias(indice_pericia);
+void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, const EntidadeProto& proto) {
+  const auto& pericia = Pericia(id_pericia, proto);
+  if (!pericia.has_id()) {
+    LOG(ERROR) << "Personagem " << RotuloEntidade(proto) << " nao tem pericia " << id_pericia;
+    return;
+  }
   const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
   const bool treinado = pericia.pontos() > 0;
   std::string texto;

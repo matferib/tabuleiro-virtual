@@ -224,11 +224,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
       break;
     case CONTROLE_ROLAR_PERICIA: {
-      const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      if (e == nullptr) return;
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA));
-      n->mutable_entidade()->set_id(e->Id());
-      *n->mutable_entidade()->mutable_info_pericias() = e->Proto().info_pericias();
+      for (const auto* entidade : EntidadesSelecionadas()) {
+        auto* e = n->add_notificacao()->mutable_entidade();
+        e->set_id(entidade->Id());
+        *e->mutable_info_pericias() = entidade->Proto().info_pericias();
+      }
       central_->AdicionaNotificacao(n.release());
       break;
     }
