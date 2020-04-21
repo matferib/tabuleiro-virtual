@@ -3761,7 +3761,7 @@ TEST(TesteDominios, TesteNobrezaMorte) {
     ResolveEfeitosAdicionaisVariaveis(/*nivel_conjurador=*/1, proto, *alvo, &acao);
     ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(1).DebugString();
     EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_INSPIRAR_CORAGEM);
-    EXPECT_GT(acao.efeitos_adicionais(0).rodadas(), 2);
+    EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 2);
   }
   {
     AcaoProto acao = proto.dados_ataque(1).acao();
@@ -3791,9 +3791,12 @@ TEST(TesteDominios, TesteProtecao) {
   ASSERT_EQ(proto.dados_ataque().size(), 2);
   {
     AcaoProto acao = proto.dados_ataque(0).acao();
-    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(1).DebugString();
+    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(0).DebugString();
     EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_DOMINIO_PROTECAO);
     EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 600);  // 1 hora
+    EXPECT_FALSE(acao.permite_ataque_vs_defesa());
+    EXPECT_FALSE(acao.permite_salvacao());
+    EXPECT_TRUE(acao.ignora_resistencia_magia());
   }
   ntf::Notificacao n = PreencheNotificacaoExpiracaoEventoPosSalvacao(*alvo);
   ASSERT_FALSE(alvo->Proto().evento().empty());

@@ -3159,7 +3159,7 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
       case MR_MOD_CARISMA:
-        modificador = BonusTotal(lancador.atributos().carisma());
+        modificador = ModificadorAtributo(TA_CARISMA, lancador);
       break;
       case MR_CONTINUO:
         modificador = kEfeitoContinuo;
