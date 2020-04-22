@@ -5320,8 +5320,50 @@ tabela_pericias {
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
 }
-
 tabela_feiticos {
+  armas {
+    id: 'invocar_aliado_natureza_i'
+    nome: 'invocar aliado da natureza I'
+    nome_ingles: "summon nature's ally I"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Rato Atroz'
+          id_modelo_entidade: 'Rato Atroz IANI'
+        }
+        parametros {
+          texto: 'Águia'
+          id_modelo_entidade: 'Águia IANI'
+        }
+        parametros {
+          texto: 'Coruja'
+          id_modelo_entidade: 'Coruja IANI'
+        }
+        parametros {
+          texto: 'Cobra, Víbora Pequena'
+          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
+        }
+        parametros {
+          texto: 'Lobo'
+          id_modelo_entidade: 'Lobo IANI'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
   armas {
     id: 'roupa_encantada'
     nome: 'roupa encantada'

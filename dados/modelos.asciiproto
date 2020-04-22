@@ -238,12 +238,48 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Águia'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'eagle.png' }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 1
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    info_talentos {
+      outros { id: 'acuidade_arma' }
+    }
+    info_pericias { id: 'ouvir' pontos: 0 }
+    info_pericias { id: 'observar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    movimento {
+      aereo_basico_q: 12
+    }
+  }
+}
 modelo {
   id: 'Falcão'
   entidade {
     tipo_dnd: TIPO_ANIMAL
-    dados_vida: '1d8' tamanho: TM_MIUDO voadora: true info_textura { id: 'eagle.png' }
+    dados_vida: '1d8' tamanho: TM_MIUDO voadora: true info_textura { id: 'hawk.png' }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes {
       id: 'animal' nivel: 1
@@ -365,6 +401,44 @@ modelo {
     tendencia { simples: TD_LEAL_BOM }
   }
 }
+# Modelo de Invocar aliado da natureza
+modelo {
+  id: 'Rato Atroz IANI'
+  id_entidade_base: 'Rato Atroz'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Pequena IANI'
+  id_entidade_base: 'Cobra, Víbora Pequena Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Águia IANI'
+  id_entidade_base: 'Águia'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Coruja IANI'
+  id_entidade_base: 'Coruja'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Lobo IANI'
+  id_entidade_base: 'Lobo'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+
 # Modelos de Invocar criaturas.
 modelo {
   id: 'Cachorro Celestial ICI'
