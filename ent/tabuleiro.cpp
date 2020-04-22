@@ -5776,7 +5776,10 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     if (e == nullptr) continue;
 
     const auto& proto_composto = e->Proto();
-    if (proto_composto.sub_forma().size() < 2) continue;
+    if (proto_composto.sub_forma().size() < 2) {
+      VLOG(1) << "Proto tem menos de 2 formas";
+      continue;
+    }
 
     Matrix4 m_pai = MatrizDecomposicaoPai(proto_composto);
     for (const auto& sub_entidade : proto_composto.sub_forma()) {
@@ -5803,7 +5806,7 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     notificacao_remocao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
     *notificacao_remocao->mutable_entidade() = proto_composto;
   }
-  if (num_adicionados) {
+  if (num_adicionados == 0) {
     return;
   }
   TrataNotificacao(grupo_notificacoes);
