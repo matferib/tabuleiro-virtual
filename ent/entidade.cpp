@@ -460,10 +460,21 @@ void Entidade::AtualizaLuzAcao(int intervalo_ms) {
 }
 
 namespace {
+
+float MultiplicadorTamanho(const Entidade& entidade) {
+  if (entidade.Tipo() == TE_ENTIDADE) {
+    return entidade.MultiplicadorTamanho();
+  }
+  const auto& proto = entidade.Proto();
+  return std::max(proto.escala().x(), std::max(proto.escala().y(), proto.escala().z()));
+}
+
 gl::VboNaoGravado VboFumaca(const Entidade& entidade, const ParametrosDesenho& pd) {
-  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * entidade.MultiplicadorTamanho());
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho(entidade));
   Vector3 camera = PosParaVector3(pd.pos_olho());
-  Vector3 dc = camera - PosParaVector3(entidade.PosicaoAltura(1.0f));
+  Vector3 dc = entidade.Tipo() == TE_ENTIDADE
+      ? camera - PosParaVector3(entidade.PosicaoAltura(entidade.Tipo() == TE_ENTIDADE ? 1.0f : 0.5f))
+      : camera - PosParaVector3(entidade.Pos());
   // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
   // mais a diferenca de angulo.
   float inclinacao_graus = 0.0f;
@@ -487,7 +498,7 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     f.duracao_ms = 0;
   }
   bool fim = f.duracao_ms == 0;
-  if (fim && PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_)) {
+  if (fim && (proto_.fumegando() || PossuiEvento(EFEITO_QUEIMANDO_FOGO_ALQUIMICO, proto_))) {
     AtivaFumegando(1000);
     // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
     // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
@@ -529,7 +540,7 @@ void Entidade::EmiteNovaNuvem() {
   auto& fumaca = vd_.fumaca;
   DadosUmaEmissao nuvem;
   nuvem.direcao.z = 1.0f;
-  nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+  nuvem.pos = PosParaVector3(PosicaoAltura(Tipo() == TE_ENTIDADE ? 1.0f : 0.5f));
   nuvem.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
   nuvem.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
   nuvem.duracao_ms = fumaca.duracao_nuvem_ms;
@@ -1469,7 +1480,7 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
-  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f); 
+  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
   //ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
