@@ -5415,11 +5415,14 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      id: 'Feitiço a Distância'
+      id: 'Feitiço Dispersão Esfera'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+      raio_quadrados: 1  # quadrados.
       permite_salvacao: false
       ignora_resistencia_magia: false
       elemento: DESC_LUZ
+      ignora_luz: true
+      duracao_s: 0.350
       efeitos_adicionais {
         efeito: EFEITO_FOGO_DAS_FADAS
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -5427,7 +5430,6 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
-
   armas {
     id: 'bom fruto'
     nome: 'bom_fruto'
