@@ -1,22 +1,17 @@
+Armas muito grandes.
+Efeitos: bom fruto: criar 8 ataques?
 Feitico de Aliados da natureza.
-Efeitos: bom fruto, passos longos, fogo das fadas.
 Fazer os druidas direito. outros niveis.
 Permitir criacao de entidades com recursos usados.
-Icones de dados: d4, d6, d8, d10, d12.
 Link para magias na UI.
-Inspirar coragem na UI.
 Se perder conexao tentar reconectar.
-UI de movimento: colocar que é em quadrados.
 Botao de doar no menu de pergaminhos.
-Para armas de aremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
+Para armas de arremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
 Barra de progresso de carregamento.
-Desenhar escudo de acordo com material (marrom para madeira).
 Ui de talentos, colocar origem.
-Armas muito grandes.
 Fazer objetos esfumacarem tb.
 Colocar posicao da acao na UI.
 Icone para amedrontado e abalado.
-Implementar fumaça .
 ---------------------------
 Proxima sessao.
 Aliados extra planares (da magia de conjuracao). Especialmente arconte maior.
