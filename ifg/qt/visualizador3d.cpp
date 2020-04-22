@@ -1435,18 +1435,36 @@ void PreencheConfiguraMovimento(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
   // Atualiza os campos.
   auto* mov = proto_retornado->mutable_movimento();
-  std::vector<std::tuple<QSpinBox*, std::function<void(int)>>> tuplas = {
-    std::make_tuple(gerador.spin_mov_terrestre, [mov](int v) { mov->set_terrestre_basico_q(v); }),
-    std::make_tuple(gerador.spin_mov_aereo,     [mov](int v) { mov->set_aereo_basico_q(v); }),
-    std::make_tuple(gerador.spin_mov_nadando,   [mov](int v) { mov->set_aquatico_basico_q(v); }),
-    std::make_tuple(gerador.spin_mov_escavando, [mov](int v) { mov->set_escavando_basico_q(v); }),
+  std::vector<std::tuple<QSpinBox*, std::function<void(int)>, QPushButton*, ent::Bonus*>> tuplas = {
+    std::make_tuple(
+        gerador.spin_mov_terrestre, [mov](int v) { mov->set_terrestre_basico_q(v); },
+        gerador.botao_mov_terrestre, proto_retornado->mutable_movimento()->mutable_terrestre_q()),
+    std::make_tuple(
+        gerador.spin_mov_aereo, [mov](int v) { mov->set_aereo_basico_q(v); },
+        gerador.botao_mov_aereo, proto_retornado->mutable_movimento()->mutable_aereo_q()),
+    std::make_tuple(
+        gerador.spin_mov_nadando, [mov](int v) { mov->set_aquatico_basico_q(v); },
+        gerador.botao_mov_nadando, proto_retornado->mutable_movimento()->mutable_aquatico_q()),
+    std::make_tuple(
+        gerador.spin_mov_escavando, [mov](int v) { mov->set_escavando_basico_q(v); },
+        gerador.botao_mov_escavando, proto_retornado->mutable_movimento()->mutable_escavando_q()),
+    std::make_tuple(
+        gerador.spin_mov_escalando, [mov](int v) { mov->set_escalando_basico_q(v); },
+        gerador.botao_mov_escalando, proto_retornado->mutable_movimento()->mutable_escalando_q()),
   };
   for (auto& t : tuplas) {
     QSpinBox* spin;
     std::function<void(int)> setter;
-    std::tie(spin, setter) = t;
+    QPushButton* botao;
+    ent::Bonus* bonus;
+    std::tie(spin, setter, botao, bonus) = t;
     lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, setter, proto_retornado] () {
       setter(spin->value());
+      ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+      AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
+    });
+    lambda_connect(botao, SIGNAL(clicked()), [this_, &gerador, botao, bonus, proto_retornado]() {
+      AbreDialogoBonus(this_, bonus);
       ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });

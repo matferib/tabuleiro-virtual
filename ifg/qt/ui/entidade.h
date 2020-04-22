@@ -227,6 +227,7 @@ public:
     QCheckBox *checkbox_imune_critico;
     QGroupBox *groupBox;
     QGridLayout *gridLayout_19;
+    QLabel *label_37;
     QLabel *label_25;
     QLabel *label_90;
     QLabel *label_32;
@@ -235,6 +236,14 @@ public:
     QSpinBox *spin_mov_terrestre;
     QSpinBox *spin_mov_escavando;
     QLabel *label_97;
+    QPushButton *botao_mov_terrestre;
+    QPushButton *botao_mov_nadando;
+    QPushButton *botao_mov_aereo;
+    QPushButton *botao_mov_escavando;
+    QLabel *label_15;
+    QSpinBox *spin_mov_escalando;
+    QLabel *label_74;
+    QPushButton *botao_mov_escalando;
     QWidget *tab_7;
     QHBoxLayout *horizontalLayout_34;
     QHBoxLayout *horizontalLayout_19;
@@ -1659,49 +1668,100 @@ public:
         groupBox->setObjectName(QStringLiteral("groupBox"));
         gridLayout_19 = new QGridLayout(groupBox);
         gridLayout_19->setObjectName(QStringLiteral("gridLayout_19"));
+        label_37 = new QLabel(groupBox);
+        label_37->setObjectName(QStringLiteral("label_37"));
+        QFont font1;
+        font1.setBold(true);
+        font1.setWeight(75);
+        label_37->setFont(font1);
+        label_37->setAlignment(Qt::AlignCenter);
+
+        gridLayout_19->addWidget(label_37, 0, 2, 1, 1);
+
         label_25 = new QLabel(groupBox);
         label_25->setObjectName(QStringLiteral("label_25"));
         label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_19->addWidget(label_25, 0, 0, 1, 1);
+        gridLayout_19->addWidget(label_25, 1, 0, 1, 1);
 
         label_90 = new QLabel(groupBox);
         label_90->setObjectName(QStringLiteral("label_90"));
         label_90->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_19->addWidget(label_90, 2, 0, 1, 1);
+        gridLayout_19->addWidget(label_90, 3, 0, 1, 1);
 
         label_32 = new QLabel(groupBox);
         label_32->setObjectName(QStringLiteral("label_32"));
         label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_19->addWidget(label_32, 1, 0, 1, 1);
+        gridLayout_19->addWidget(label_32, 2, 0, 1, 1);
 
         spin_mov_aereo = new QSpinBox(groupBox);
         spin_mov_aereo->setObjectName(QStringLiteral("spin_mov_aereo"));
 
-        gridLayout_19->addWidget(spin_mov_aereo, 1, 1, 1, 1);
+        gridLayout_19->addWidget(spin_mov_aereo, 2, 1, 1, 1);
 
         spin_mov_nadando = new QSpinBox(groupBox);
         spin_mov_nadando->setObjectName(QStringLiteral("spin_mov_nadando"));
 
-        gridLayout_19->addWidget(spin_mov_nadando, 2, 1, 1, 1);
+        gridLayout_19->addWidget(spin_mov_nadando, 3, 1, 1, 1);
 
         spin_mov_terrestre = new QSpinBox(groupBox);
         spin_mov_terrestre->setObjectName(QStringLiteral("spin_mov_terrestre"));
 
-        gridLayout_19->addWidget(spin_mov_terrestre, 0, 1, 1, 1);
+        gridLayout_19->addWidget(spin_mov_terrestre, 1, 1, 1, 1);
 
         spin_mov_escavando = new QSpinBox(groupBox);
         spin_mov_escavando->setObjectName(QStringLiteral("spin_mov_escavando"));
 
-        gridLayout_19->addWidget(spin_mov_escavando, 3, 1, 1, 1);
+        gridLayout_19->addWidget(spin_mov_escavando, 4, 1, 1, 1);
 
         label_97 = new QLabel(groupBox);
         label_97->setObjectName(QStringLiteral("label_97"));
         label_97->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_19->addWidget(label_97, 3, 0, 1, 1);
+        gridLayout_19->addWidget(label_97, 4, 0, 1, 1);
+
+        botao_mov_terrestre = new QPushButton(groupBox);
+        botao_mov_terrestre->setObjectName(QStringLiteral("botao_mov_terrestre"));
+
+        gridLayout_19->addWidget(botao_mov_terrestre, 1, 2, 1, 1);
+
+        botao_mov_nadando = new QPushButton(groupBox);
+        botao_mov_nadando->setObjectName(QStringLiteral("botao_mov_nadando"));
+
+        gridLayout_19->addWidget(botao_mov_nadando, 3, 2, 1, 1);
+
+        botao_mov_aereo = new QPushButton(groupBox);
+        botao_mov_aereo->setObjectName(QStringLiteral("botao_mov_aereo"));
+
+        gridLayout_19->addWidget(botao_mov_aereo, 2, 2, 1, 1);
+
+        botao_mov_escavando = new QPushButton(groupBox);
+        botao_mov_escavando->setObjectName(QStringLiteral("botao_mov_escavando"));
+
+        gridLayout_19->addWidget(botao_mov_escavando, 4, 2, 1, 1);
+
+        label_15 = new QLabel(groupBox);
+        label_15->setObjectName(QStringLiteral("label_15"));
+
+        gridLayout_19->addWidget(label_15, 0, 1, 1, 1);
+
+        spin_mov_escalando = new QSpinBox(groupBox);
+        spin_mov_escalando->setObjectName(QStringLiteral("spin_mov_escalando"));
+
+        gridLayout_19->addWidget(spin_mov_escalando, 5, 1, 1, 1);
+
+        label_74 = new QLabel(groupBox);
+        label_74->setObjectName(QStringLiteral("label_74"));
+        label_74->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_19->addWidget(label_74, 5, 0, 1, 1);
+
+        botao_mov_escalando = new QPushButton(groupBox);
+        botao_mov_escalando->setObjectName(QStringLiteral("botao_mov_escalando"));
+
+        gridLayout_19->addWidget(botao_mov_escalando, 5, 2, 1, 1);
 
 
         gridLayout_17->addWidget(groupBox, 3, 1, 1, 1);
@@ -2189,11 +2249,11 @@ public:
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
         label_94 = new QLabel(tab_5);
         label_94->setObjectName(QStringLiteral("label_94"));
-        QFont font1;
-        font1.setPointSize(11);
-        font1.setBold(true);
-        font1.setWeight(75);
-        label_94->setFont(font1);
+        QFont font2;
+        font2.setPointSize(11);
+        font2.setBold(true);
+        font2.setWeight(75);
+        label_94->setFont(font2);
 
         verticalLayout_17->addWidget(label_94);
 
@@ -2532,9 +2592,9 @@ public:
         label_36->setObjectName(QStringLiteral("label_36"));
         sizePolicy7.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
         label_36->setSizePolicy(sizePolicy7);
-        QFont font2;
-        font2.setKerning(false);
-        label_36->setFont(font2);
+        QFont font3;
+        font3.setKerning(false);
+        label_36->setFont(font3);
         label_36->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_13->addWidget(label_36, 0, 2, 1, 1);
@@ -3574,10 +3634,18 @@ public:
         botao_resistencia_magia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", nullptr));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico?", nullptr));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Movimento", nullptr));
+        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", nullptr));
         label_25->setText(QApplication::translate("ifg::qt::DialogoEntidade", "terrestre", nullptr));
         label_90->setText(QApplication::translate("ifg::qt::DialogoEntidade", "nadando", nullptr));
         label_32->setText(QApplication::translate("ifg::qt::DialogoEntidade", "a\303\251reo", nullptr));
         label_97->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escavando", nullptr));
+        botao_mov_terrestre->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
+        botao_mov_nadando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
+        botao_mov_aereo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
+        botao_mov_escavando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\241sico", nullptr));
+        label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escalando", nullptr));
+        botao_mov_escalando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
         tabs->setTabText(tabs->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", nullptr));
         label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", nullptr));
         botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));

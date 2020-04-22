@@ -33,20 +33,26 @@ void AtualizaUIEventos(
 
 void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& mov = proto.movimento();
-  std::vector<std::tuple<QSpinBox*, int>> tuplas = {
-    std::make_tuple(gerador.spin_mov_terrestre, mov.terrestre_basico_q()),
-    std::make_tuple(gerador.spin_mov_aereo,     mov.aereo_basico_q()),
-    std::make_tuple(gerador.spin_mov_nadando,   mov.aquatico_basico_q()),
-    std::make_tuple(gerador.spin_mov_escavando, mov.escavando_basico_q()),
+  std::vector<std::tuple<QSpinBox*, int, QPushButton*, const ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.spin_mov_terrestre, mov.terrestre_basico_q(),  gerador.botao_mov_terrestre, &proto.movimento().terrestre_q()),
+    std::make_tuple(gerador.spin_mov_aereo,     mov.aereo_basico_q(),      gerador.botao_mov_aereo,     &proto.movimento().aereo_q()),
+    std::make_tuple(gerador.spin_mov_nadando,   mov.aquatico_basico_q(),   gerador.botao_mov_nadando,   &proto.movimento().aquatico_q()),
+    std::make_tuple(gerador.spin_mov_escavando, mov.escavando_basico_q(),  gerador.botao_mov_escavando, &proto.movimento().escavando_q()),
+    std::make_tuple(gerador.spin_mov_escalando, mov.escalando_basico_q(),  gerador.botao_mov_escalando, &proto.movimento().escalando_q()),
   };
 
   for (const auto& t : tuplas) {
     QSpinBox* spin;
     int basico;
-    std::tie(spin, basico) = t;
+    QPushButton* botao;
+    const ent::Bonus* bonus;
+    std::tie(spin, basico, botao, bonus) = t;
     spin->blockSignals(true);
     spin->setValue(basico);
     spin->blockSignals(false);
+    botao->blockSignals(true);
+    botao->setText(QString::number(BonusTotal(*bonus)));
+    botao->blockSignals(false);
   }
 }
 
