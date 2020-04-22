@@ -2825,6 +2825,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   // Colisao.
   gerador.checkbox_colisao->setCheckState(entidade.causa_colisao() ? Qt::Checked : Qt::Unchecked);
 
+  // Fumegando.
+  gerador.checkbox_fumegando->setCheckState(entidade.fumegando() ? Qt::Checked : Qt::Unchecked);
+
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(),
                        notificacao.tabuleiro().id_cliente(),
@@ -3013,6 +3016,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     } else {
       proto_retornado->clear_ignora_luz();
     }
+    if (gerador.checkbox_fumegando->checkState() == Qt::Checked) {
+      proto_retornado->set_fumegando(true);
+    } else {
+      proto_retornado->clear_fumegando();
+    }
+
     proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_dois_lados(gerador.checkbox_dois_lados->checkState() == Qt::Checked);

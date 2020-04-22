@@ -3643,7 +3643,7 @@ public:
         botao_mov_nadando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
         botao_mov_aereo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
         botao_mov_escavando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
-        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\241sico", nullptr));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\241sico Quadrados", nullptr));
         label_74->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escalando", nullptr));
         botao_mov_escalando->setText(QApplication::translate("ifg::qt::DialogoEntidade", "PushButton", nullptr));
         tabs->setTabText(tabs->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", nullptr));

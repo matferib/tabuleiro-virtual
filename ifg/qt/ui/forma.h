@@ -73,6 +73,7 @@ public:
     QCheckBox *checkbox_dois_lados;
     QCheckBox *checkbox_faz_sombra;
     QCheckBox *checkbox_especular;
+    QCheckBox *checkbox_fumegando;
     QGroupBox *groupBox_10;
     QHBoxLayout *horizontalLayout_11;
     QPlainTextEdit *lista_rotulos;
@@ -448,6 +449,11 @@ public:
         checkbox_especular->setObjectName(QStringLiteral("checkbox_especular"));
 
         gridLayout_3->addWidget(checkbox_especular, 0, 3, 1, 1);
+
+        checkbox_fumegando = new QCheckBox(groupBox_7);
+        checkbox_fumegando->setObjectName(QStringLiteral("checkbox_fumegando"));
+
+        gridLayout_3->addWidget(checkbox_fumegando, 1, 3, 1, 1);
 
 
         gridLayout_4->addWidget(groupBox_7, 1, 0, 1, 1);
@@ -1623,6 +1629,7 @@ public:
         checkbox_especular->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, objeto brilhar\303\241 como metal", nullptr));
 #endif // QT_NO_TOOLTIP
         checkbox_especular->setText(QApplication::translate("ifg::qt::DialogoForma", "Especular", nullptr));
+        checkbox_fumegando->setText(QApplication::translate("ifg::qt::DialogoForma", "Fumegando", nullptr));
         groupBox_10->setTitle(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especiais", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));
