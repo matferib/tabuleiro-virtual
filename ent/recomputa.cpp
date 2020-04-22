@@ -265,6 +265,12 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
     if (pericia == nullptr) continue;
     AplicaBonusPenalidadeOuRemove(dp.bonus(), pericia->mutable_bonus());
   }
+
+  AplicaBonusPenalidadeOuRemove(consequencia.movimento().terrestre_q(), proto->mutable_movimento()->mutable_terrestre_q());
+  AplicaBonusPenalidadeOuRemove(consequencia.movimento().aereo_q(),     proto->mutable_movimento()->mutable_aereo_q());
+  AplicaBonusPenalidadeOuRemove(consequencia.movimento().aquatico_q(),  proto->mutable_movimento()->mutable_aquatico_q());
+  AplicaBonusPenalidadeOuRemove(consequencia.movimento().escavando_q(), proto->mutable_movimento()->mutable_escavando_q());
+  AplicaBonusPenalidadeOuRemove(consequencia.movimento().escalando_q(), proto->mutable_movimento()->mutable_escalando_q());
 }
 
 bool ImuneMorte(const EntidadeProto& proto) {
@@ -428,7 +434,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
     case EFEITO_VENENO:
       break;
     case EFEITO_INVISIBILIDADE:
-      if (!PossuiEvento(EFEITO_POEIRA_OFUSCANTE, *proto)) {
+      if (!PossuiEvento(EFEITO_POEIRA_OFUSCANTE, *proto) && !PossuiEvento(EFEITO_FOGO_DAS_FADAS, *proto)) {
         proto->set_visivel(false);
       }
       break;
@@ -2314,6 +2320,15 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   //LOG(INFO) << "dados_ataque: "  << p.DebugString();
 }
 
+void RecomputaDependenciasMovimento(const Tabelas& tabelas, EntidadeProto* proto) {
+  auto* movimento = proto->mutable_movimento();
+  AtribuiOuRemoveBonus(movimento->terrestre_basico_q(), TB_BASE, "base", movimento->mutable_terrestre_q());
+  AtribuiOuRemoveBonus(movimento->aereo_basico_q(),     TB_BASE, "base", movimento->mutable_aereo_q());
+  AtribuiOuRemoveBonus(movimento->aquatico_basico_q(),  TB_BASE, "base", movimento->mutable_aquatico_q());
+  AtribuiOuRemoveBonus(movimento->escavando_basico_q(), TB_BASE, "base", movimento->mutable_escavando_q());
+  AtribuiOuRemoveBonus(movimento->escalando_basico_q(), TB_BASE, "base", movimento->mutable_escalando_q());
+}
+
 }  // namespace
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
@@ -2394,6 +2409,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaClasseFeiticoAtiva(tabelas, proto);
   RecomputaDependenciasMagiasConhecidas(tabelas, proto);
   RecomputaDependenciasMagiasPorDia(tabelas, proto);
+  RecomputaDependenciasMovimento(tabelas, proto);
 
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }

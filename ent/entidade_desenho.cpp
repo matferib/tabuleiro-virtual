@@ -517,7 +517,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     }
     break;
     case EFEITO_NUBLAR: {
-      if (!pd->has_alfa_translucidos()) {
+      if (!pd->has_alfa_translucidos() || PossuiEvento(EFEITO_FOGO_DAS_FADAS, proto_)) {
         return;
       }
       // Desenha a entidade maior e translucida.
@@ -532,7 +532,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     }
     break;
     case EFEITO_DESLOCAMENTO: {
-      if (!pd->has_alfa_translucidos()) {
+      if (!pd->has_alfa_translucidos() || PossuiEvento(EFEITO_FOGO_DAS_FADAS, proto_)) {
         return;
       }
       // Desenha a entidade maior e translucida.
