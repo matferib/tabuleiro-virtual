@@ -319,7 +319,8 @@ class AcaoDeltaPontosVida : public Acao {
       return;
     }
     VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
-    faltam_ms_ = duracao_total_ms_ = DURACAO_BASICA_MS * (1 + std::count(string_texto_.begin(), string_texto_.end(), '\n'));
+    num_linhas_ = 1 + std::count(string_texto_.begin(), string_texto_.end(), '\n');
+    faltam_ms_ = duracao_total_ms_ = DURACAO_UMA_LINHA_MS * num_linhas_;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -362,7 +363,7 @@ class AcaoDeltaPontosVida : public Acao {
       if (pos_2d_.has_y()) {
         pos_2d_.set_y(pos_2d_.y() + (static_cast<float>(intervalo_ms) * max_delta_y_) / duracao_total_ms_);
       } else {
-        pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / duracao_total_ms_);
+        pos_.set_z(pos_.z() + intervalo_ms * num_linhas_ * MAX_DELTA_Z_POR_LINHA / duracao_total_ms_);
       }
       faltam_ms_ -= intervalo_ms;
     }
@@ -372,7 +373,7 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   bool Finalizada() const override {
-    return faltam_ms_ <= 0;  // 3s.
+    return faltam_ms_ <= 0;
   }
 
  private:
@@ -404,8 +405,8 @@ class AcaoDeltaPontosVida : public Acao {
     }
   }
 
-  constexpr static int DURACAO_BASICA_MS = 4000;
-  constexpr static float MAX_DELTA_Z = 2.0f;
+  constexpr static int DURACAO_UMA_LINHA_MS = 2000;
+  constexpr static float MAX_DELTA_Z_POR_LINHA = 0.5f;
 
   int delta_acao_ = 0;
   std::string string_texto_;
@@ -415,6 +416,7 @@ class AcaoDeltaPontosVida : public Acao {
   Posicao pos_2d_;
   int faltam_ms_;
   int max_delta_y_ = 0;
+  int num_linhas_ = 0;
 };
 
 // Acao de dispersao, estilo bola de fogo.
