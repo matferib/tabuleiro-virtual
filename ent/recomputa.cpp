@@ -499,6 +499,15 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         }
       }
     break;
+    case EFEITO_BOM_FRUTO: 
+      if (!evento->processado()) {
+        for (auto& da : *proto->mutable_dados_ataque()) {
+          if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
+          da.set_limite_vezes(RolaValor("2d4"));
+          break;
+        }
+      }
+    break;
     case EFEITO_CRIAR_CHAMA:
       if (!evento->processado()) {
         for (auto& da : *proto->mutable_dados_ataque()) {

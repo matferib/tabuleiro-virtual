@@ -375,6 +375,7 @@ tabela_armas {
   armas {
     id: 'espada_curta'
     nome: 'espada curta'
+    modelo_3d: 'short_sword'
     preco: '10 PO'
     dano { medio: '1d6' }
     categoria: CAT_LEVE
@@ -1070,10 +1071,16 @@ tabela_efeitos {
     nome: 'bom fruto'
     consequencia {
       dados_ataque {
+        tipo_ataque: 'Feitiço de Toque'
         dano_basico_fixo: '1'
+        cura: true
         rotulo: 'bom fruto'
-        tipo_ataque: 'Ataque de Toque'
-        # limite de vezes: 2d4
+        acao_fixa {
+          cor { r: 1 g: 0 b: 0.5 a: 1.0 }
+          ignora_resistencia_magia: true
+          permite_ataque_vs_defesa: false
+          permite_salvacao: false
+        }
       }
     }
   }
@@ -5439,10 +5446,13 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      id: 'Feitiço Pessoal'
-      cor { r: 0.0 g: 1.0 b: 0.0 a: 1.0 }
+      id: 'Feitiço de Toque'
+      cor { r: 1.0 g: 0 b: 0.5 a: 1.0 }
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
       efeitos_adicionais {
-        efeito: EFEITO_BOM_FRUTO  # criar um ataque de toque que cura 1 PV e so afeta criaturas conscientes.
+        efeito: EFEITO_BOM_FRUTO
         modificador_rodadas: MR_DIAS_POR_NIVEL
       }
     }
