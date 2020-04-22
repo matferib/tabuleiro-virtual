@@ -276,8 +276,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       const auto* modelo = vd_.m3d->Modelo("shield");
       if (modelo != nullptr) {
         if (proto_.dados_defesa().id_escudo().find("madeira") != std::string::npos) {
-          // Nao funciona pq o VBO tem cor.
-          MudaCor(COR_MARROM);
+          gl::Habilita(GL_TEXTURE_2D);
+          gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("wood.png"));
         }
         const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
         gl::MatrizEscopo salva_matriz;
@@ -285,6 +285,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
         gl::Translada(posicao.x(), posicao.y(), posicao.z());
         modelo->vbos_gravados.Desenha();
+        gl::Desabilita(GL_TEXTURE_2D);
       }
     }
   }

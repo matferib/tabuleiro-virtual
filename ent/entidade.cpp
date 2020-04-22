@@ -2216,6 +2216,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     // TODO remover essa textura.
     auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     n_tex->add_info_textura()->set_id("smoke.png");
+    n_tex->add_info_textura()->set_id("wood.png");
     central->AdicionaNotificacao(n_tex.release());
   }
 }
