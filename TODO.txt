@@ -1,3 +1,4 @@
+Entidades compostas nao transparentes.
 Armas muito grandes.
 Efeitos: bom fruto: criar 8 ataques?
 Feitico de Aliados da natureza.
