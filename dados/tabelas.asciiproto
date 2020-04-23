@@ -5372,6 +5372,67 @@ tabela_feiticos {
     escola: 'conjuracao'
   }
   armas {
+    id: 'invocar_aliado_natureza_ii'
+    nome: 'invocar aliado da natureza II'
+    nome_ingles: "summon nature's ally II"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Urso Negro'
+          id_modelo_entidade: 'Urso Negro IANII'
+        }
+        parametros {
+          texto: 'Hipogrifo'
+          id_modelo_entidade: 'Hipogrifo IANII'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Pequeno)'
+          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
+        }
+        parametros {
+          texto: 'Rato Atroz'
+          id_modelo_entidade: 'Rato Atroz IANI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Águia'
+          id_modelo_entidade: 'Águia IANI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Coruja'
+          id_modelo_entidade: 'Coruja IANI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Cobra, Víbora Pequena'
+          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Lobo'
+          id_modelo_entidade: 'Lobo IANI'
+          quantidade: '1d3'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+
+  armas {
     id: 'roupa_encantada'
     nome: 'roupa encantada'
     nome_ingles: 'magic vestiment'
@@ -5439,7 +5500,7 @@ tabela_feiticos {
   }
   armas {
     id: 'bom fruto'
-    nome: 'bom_fruto'
+    nome: 'bom fruto'
     nome_ingles: 'goodberry'
     info_classes {
       id: 'druida'
