@@ -239,6 +239,51 @@ modelo {
   }
 }
 modelo {
+  id: 'Gorila'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ape.png' }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+
+    info_talentos {
+      outros { id: 'prontidao' }
+      outros { id: 'vitalidade' }
+    }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'escalar' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+  }
+}
+
+modelo {
   id: 'Águia'
   entidade {
     tipo_dnd: TIPO_ANIMAL
@@ -458,7 +503,27 @@ modelo {
     tipo_duracao: TD_RODADAS_NIVEL
   }
 }
-
+modelo {
+  id: 'Lobo Atroz IANIII'
+  id_entidade_base: 'Lobo Atroz'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Leão IANIII'
+  id_entidade_base: 'Leão'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Gorila IANIII'
+  id_entidade_base: 'Gorila'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
 
 # Modelos de Invocar criaturas.
 modelo {
@@ -3049,7 +3114,7 @@ modelo {
       pericias_monstro: 'sobrevivencia'
     }
 
-    rotulo_especial: 'faro\nderrubar automático +11'
+    rotulo_especial: 'faro'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     mais_de_duas_pernas: true
     dados_ataque {

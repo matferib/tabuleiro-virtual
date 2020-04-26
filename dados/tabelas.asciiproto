@@ -5403,29 +5403,104 @@ tabela_feiticos {
           id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
         }
         parametros {
-          texto: 'Rato Atroz'
+          texto: 'Rato Atroz (1d3)'
           id_modelo_entidade: 'Rato Atroz IANI'
           quantidade: '1d3'
         }
         parametros {
-          texto: 'Águia'
+          texto: 'Águia (1d3)'
           id_modelo_entidade: 'Águia IANI'
           quantidade: '1d3'
         }
         parametros {
-          texto: 'Coruja'
+          texto: 'Coruja (1d3)'
           id_modelo_entidade: 'Coruja IANI'
           quantidade: '1d3'
         }
         parametros {
-          texto: 'Cobra, Víbora Pequena'
+          texto: 'Cobra, Víbora Pequena (1d3)'
           id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
           quantidade: '1d3'
         }
         parametros {
-          texto: 'Lobo'
+          texto: 'Lobo (1d3)'
           id_modelo_entidade: 'Lobo IANI'
           quantidade: '1d3'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_iii'
+    nome: 'invocar aliado da natureza III'
+    nome_ingles: "summon nature's ally III"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Lobo Atroz'
+          id_modelo_entidade: 'Lobo Atroz IANIII'
+        }
+        parametros {
+          texto: 'Leão'
+          id_modelo_entidade: 'Leão IANIII'
+        }
+        parametros {
+          texto: 'Gorila'
+          id_modelo_entidade: 'Gorila IANIII'
+        }
+        parametros {
+          texto: 'Urso Negro (1d3)'
+          id_modelo_entidade: 'Urso Negro IANII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Hipogrifo (1d3)'
+          id_modelo_entidade: 'Hipogrifo IANII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Pequeno) (1d3)'
+          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Rato Atroz (1d4+1)'
+          id_modelo_entidade: 'Rato Atroz IANI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Águia (1d4+1)'
+          id_modelo_entidade: 'Águia IANI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Coruja (1d4+1)'
+          id_modelo_entidade: 'Coruja IANI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Cobra, Víbora Pequena (1d4+1)'
+          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Lobo (1d4+1)'
+          id_modelo_entidade: 'Lobo IANI'
+          quantidade: '1d4+1'
         }
       }
     }
