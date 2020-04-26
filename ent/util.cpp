@@ -1658,7 +1658,7 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
     e_depois->set_forma_alternativa_corrente(proximo_indice);
     *e_depois->mutable_formas_alternativas() = proto.formas_alternativas();
     // Salva os dados da forma corrente na forma alternativa.
-    *e_depois->mutable_formas_alternativas(indice) = ProtoFormaAlternativa(proto); 
+    *e_depois->mutable_formas_alternativas(indice) = ProtoFormaAlternativa(proto);
 
     if (indice == 0) {
       // saindo da forma principal. Salva os tesouros em uso.
@@ -2747,7 +2747,11 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     const int nivel = PossuiBonus(TB_NIVEL, bonus) ? BonusIndividualTotal(TB_NIVEL, bonus) : 0;
     // Tem que por o valor zero para sobrescrever.
     AtribuiBonus(nivel, TB_NIVEL, "nivel", BonusAtributo(ta, &ret));
+    const int racial = PossuiBonus(TB_RACIAL, bonus) ? BonusIndividualTotal(TB_RACIAL, bonus) : 0;
+    // Tem que por o valor zero para sobrescrever.
+    AtribuiBonus(racial, TB_RACIAL, "racial", BonusAtributo(ta, &ret));
   }
+  ret.set_raca(proto.raca());
   *ret.mutable_info_textura() = proto.info_textura();
   *ret.mutable_modelo_3d() = proto.modelo_3d();
   if (!proto.dados_ataque().empty()) {

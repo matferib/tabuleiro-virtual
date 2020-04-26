@@ -1483,6 +1483,39 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
   }
 }
 
+TEST(TesteFormaAlternativa, TesteFormaAlternativa3) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Elfo Druida 5");
+  EntidadeProto proto = modelo.entidade();
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 11);
+  }
+  {
+   // Vira urso.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    ASSERT_EQ(n.notificacao_size(), 2);
+    entidade->AtualizaParcial(n.notificacao(0).entidade());
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 13);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 15);
+  }
+  {
+    // Volta humano.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    ASSERT_EQ(n.notificacao_size(), 1);
+    entidade->AtualizaParcial(n.notificacao(0).entidade());
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 11);
+  }
+}
+
 TEST(TesteDependencias, TestePericias) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
