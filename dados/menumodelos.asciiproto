@@ -53,6 +53,7 @@ sub_menu {
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Sapo' }
+  modelo { id: 'Texugo Atroz' }
   modelo { id: 'Tubarão Médio' }
   modelo { id: 'Tubarão Grande' }
   modelo { id: 'Tubarão Imenso' }
@@ -100,6 +101,11 @@ sub_menu {
 sub_menu {
   id: 'Elfos'
   modelo { id: 'Elfo' }
+  modelo {
+    id: 'Elfo Druida 5 + Texugo Atroz'
+    modelos { id: 'Elfo Druida 5' }
+    modelos { id: 'Texugo Atroz' }
+  }
 }
 sub_menu {
   id: 'Extra-Planares'

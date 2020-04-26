@@ -3171,6 +3171,65 @@ modelo {
   }
 }
 modelo {
+  id: 'Texugo Atroz'  # dire badger
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '3d8+15' tamanho: TM_MEDIO
+    info_textura { id: 'badger.png' altura: 0.6 translacao_y: 0.4 }
+    info_classes {
+      id: 'animal_atroz' nivel: 3
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    movimento {
+      terrestre_basico_q: 6
+      escavando_basico_q: 2
+    }
+    rotulo_especial: 'faro\nfuria se atingido'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    mais_de_duas_pernas: true
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 3 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 0 } } } }
+    info_pericias { id: 'observar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } }  }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'rastrear' }
+      gerais { id: 'vitalidade' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }
@@ -4083,10 +4142,9 @@ modelo {
   }
 }
 modelo {
-  id: 'Humano Druida 5'
+  id: 'Druida 5 Base'
   id_entidade_base: 'Druida Base'
   entidade {
-    raca: 'humano'
     rotulo: 'Druida 5'
     info_classes { id: 'druida' nivel: 5 }
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
@@ -4105,7 +4163,6 @@ modelo {
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
       gerais { id: 'ataques_multiplos' }
-      outros { id: 'vitalidade' origem: 'humano' }
     }
     info_pericias { id: 'adestrar_animais' pontos: 5 }
     info_pericias { id: 'concentracao' pontos: 8 }
@@ -4188,6 +4245,24 @@ modelo {
       id_forma_alternativa: 'Urso Negro 5 DV'
       rotulo: 'urso negro 5 DV'
     }
+  }
+}
+modelo {
+  id: 'Humano Druida 5'
+  id_entidade_base: 'Druida 5 Base'
+  entidade {
+    raca: 'humano'
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+  }
+}
+modelo {
+  id: 'Elfo Druida 5'
+  id_entidade_base: 'Druida 5 Base'
+  entidade {
+    raca: 'elfo'
+    info_textura { id: 'elf.png' translacao_x: 0.25 largura: 0.5 }
   }
 }
 modelo {

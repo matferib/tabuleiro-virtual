@@ -558,6 +558,7 @@ tabela_armas {
   armas {
     id: 'sabre'
     nome: 'sabre'
+    modelo_3d: 'short_sword'
     preco: '20 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
