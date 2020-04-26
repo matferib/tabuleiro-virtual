@@ -249,6 +249,7 @@ modelo {
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
       pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
@@ -3942,6 +3943,7 @@ modelo {
   id: 'Humano Druida 1'
   id_entidade_base: 'Druida Base'
   entidade {
+    raca: 'humano'
     rotulo: 'Druida 1'
     info_classes { id: 'druida' nivel: 1 }
     dados_vida: '9'
@@ -4010,6 +4012,7 @@ modelo {
   id: 'Humano Druida 2'
   id_entidade_base: 'Druida Base'
   entidade {
+    raca: 'humano'
     rotulo: 'Druida 2'
     info_classes { id: 'druida' nivel: 2 }
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
@@ -4053,6 +4056,7 @@ modelo {
 
       moedas { po:  1 }
     }
+
     feiticos_classes {
       id_classe: 'druida'
       feiticos_por_nivel {
@@ -4075,6 +4079,116 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
       }
+    }
+    }
+  }
+}
+modelo {
+  id: 'Humano Druida 5'
+  id_entidade_base: 'Druida Base'
+  entidade {
+    raca: 'humano'
+    rotulo: 'Druida 5'
+    info_classes { id: 'druida' nivel: 5 }
+    info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.1 g: 0.5 b: 0.1 }
+    atributos {
+      sabedoria {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+    }
+    dados_vida: '4d8+13'
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
+    dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 municao: 20 }
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 2 }
+    dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 1 }
+    info_talentos {
+      gerais { id: 'escrever_pergaminho' }
+      gerais { id: 'ataques_multiplos' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    info_pericias { id: 'adestrar_animais' pontos: 5 }
+    info_pericias { id: 'concentracao' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 8 }
+    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 8 }
+    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'identificar_magia' pontos: 2 }
+    info_pericias { id: 'cura' pontos: 5 }
+    tesouro {
+      mantos { id: 'manto_resistencia_1' em_uso: true }  # 1000
+
+      pocoes { id: 'curar_ferimentos_leves' }  # 50
+      pocoes { id: 'escudo_fe_4' }  # 600
+      pocoes { id: 'ajuda' } # 300
+      pocoes { id: 'pele_arvore_3' } # 600
+
+      # Pergaminhos saem pela metade do preco.
+      # 0: 6.25 PO (3)
+      pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
+      pergaminhos_divinos { id: 'luz' }
+      pergaminhos_divinos { id: 'virtude' }
+      # 1: 12.5 (4)
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'criar_chama' }
+      # 2: 75
+      pergaminhos_divinos { id: 'agilidade_gato' }
+      pergaminhos_divinos { id: 'forca_touro' }
+      # 3: 187.5
+      pergaminhos_divinos { id: 'curar_ferimentos_moderados' }
+
+      moedas { po: 10 }
+    }
+    feiticos_classes {
+      id_classe: 'druida'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'pedra_encantada' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'sabedoria_coruja' }
+        conhecidos { id: 'esfera_flamejante' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'curar_ferimentos_moderados' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+      }
+    }
+    formas_alternativas {
+      # Humano.
+      rotulo: 'humano'
+      dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
+    }
+    formas_alternativas {
+      id_forma_alternativa: 'Urso Negro 5 DV'
+      rotulo: 'urso negro 5 DV'
     }
   }
 }
@@ -6394,6 +6508,7 @@ modelo {
 modelo {
   id: 'Urso Marrom'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '6d8+24' tamanho: TM_GRANDE info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
     rotulo_especial: 'ini: +1\nat: 2x +11 1d8+8 +6 2d6+4\nca: 15'
     modificador_iniciativa: 1
@@ -6402,9 +6517,139 @@ modelo {
 modelo {
   id: 'Urso Negro'
   entidade {
-    dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini: +1\nat: 2x +6 1d4+4 +1 1d6+2\nca: 13'
-    modificador_iniciativa: 1
+    tipo_dnd: TIPO_ANIMAL
+    tamanho: TM_MEDIO
+    dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.2 g: 0.2 b: 0.2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 3
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+  }
+}
+modelo {
+  id: 'Urso Negro 4 DV'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    tamanho: TM_MEDIO
+    dados_vida: '4d8+8' info_textura { id: 'black_bear.png' } cor { r: 0.2 g: 0.2 b: 0.2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
+  }
+}
+modelo {
+  id: 'Urso Negro 5 DV'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    tamanho: TM_MEDIO
+    dados_vida: '5d8+8' info_textura { id: 'black_bear.png' } cor { r: 0 g: 0 b: 0 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 5
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+    }
   }
 }
 

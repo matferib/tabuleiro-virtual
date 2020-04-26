@@ -3992,7 +3992,7 @@ tabela_talentos {
   }
   # Talentos de monstros.
   talentos {
-    id: 'ataques_multiplos'
+    id: 'ataques_multiplos'  # multiattack
     nome: 'Ataques Múltiplos'
     descricao: 'Diminui a penalidade de ataques secundários de -5 para -2 para monstros com múltiplos ataques naturais.'
     monstro: true

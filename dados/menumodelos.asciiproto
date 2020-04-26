@@ -59,6 +59,8 @@ sub_menu {
   modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
+  modelo { id: 'Urso Negro 4 DV' }
+  modelo { id: 'Urso Negro 5 DV' }
 }
 sub_menu {
   id: 'Bestas Mágicas'
@@ -185,6 +187,11 @@ sub_menu {
       id: 'Humano Druida 2 + Lobo'
       modelos { id: 'Humano Druida 2' }
       modelos { id: 'Lobo' }
+    }
+    modelo {
+      id: 'Humano Druida 5 + Gorila'
+      modelos { id: 'Humano Druida 5' }
+      modelos { id: 'Gorila' }
     }
   }
   sub_menu {
