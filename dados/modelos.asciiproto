@@ -4154,7 +4154,6 @@ modelo {
         bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
       }
     }
-    dados_vida: '4d8+13'
     dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
     dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 }
     dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 municao: 20 }
@@ -4251,6 +4250,7 @@ modelo {
   id: 'Humano Druida 5'
   id_entidade_base: 'Druida 5 Base'
   entidade {
+    dados_vida: '4d8+13'
     raca: 'humano'
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
@@ -4261,6 +4261,7 @@ modelo {
   id: 'Elfo Druida 5'
   id_entidade_base: 'Druida 5 Base'
   entidade {
+    dados_vida: '4d8+8'
     raca: 'elfo'
     info_textura { id: 'elf.png' translacao_x: 0.25 largura: 0.5 }
   }
