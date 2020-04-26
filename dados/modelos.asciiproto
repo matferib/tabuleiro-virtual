@@ -4263,7 +4263,7 @@ modelo {
   entidade {
     dados_vida: '4d8+8'
     raca: 'elfo'
-    info_textura { id: 'elf.png' translacao_x: 0.25 largura: 0.5 }
+    info_textura { id: 'elf_druid.png' translacao_x: 0.25 largura: 0.5 }
   }
 }
 modelo {
