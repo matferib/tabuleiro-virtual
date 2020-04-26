@@ -528,11 +528,25 @@ const std::string Tabelas::FeiticoConversaoEspontanea(
       case 2: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_moderados" : "infligir_gerimentos_moderados";
       case 3: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_graves" : "infligir_ferimentos_graves";
       case 4: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_criticos" : "infligir_ferimentos_criticos";
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-      case 9:
+      case 5: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_leves_massa" : "infligir_ferimentos_leves_massa";
+      case 6: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_moderados_massa" : "infligir_ferimentos_moderados_massa";
+      case 7: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_graves_massa" : "infligir_ferimentos_graves_massa";
+      case 8: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_criticos_massa" : "infligir_ferimentos_criticos_massa";
+      case 9: return cura_ou_infligir == COI_CURA ? "curar_ferimentos_criticos_massa" : "infligir_ferimentos_criticos_massa";
+      default: ;
+    }
+  }
+  if (id_classe == "druida") {
+    switch (nivel) {
+      case 1: return "invocar_aliado_natureza_i";
+      case 2: return "invocar_aliado_natureza_ii";
+      case 3: return "invocar_aliado_natureza_iii"; 
+      case 4: return "invocar_aliado_natureza_iv";
+      case 5: return "invocar_aliado_natureza_v";
+      case 6: return "invocar_aliado_natureza_vi";
+      case 7: return "invocar_aliado_natureza_vii";
+      case 8: return "invocar_aliado_natureza_viii";
+      case 9: return "invocar_aliado_natureza_ix";
       default: ;
     }
   }
