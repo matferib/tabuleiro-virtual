@@ -230,7 +230,6 @@ enum TipoDnD {
   TIPO_GIGANTE = 11;
   TIPO_HUMANOIDE_MONSTRUOSO = 12;
   TIPO_VERME = 13;
-  TIPO_ELEMENTAL = 14;
   // TODO outros.
 }
 
