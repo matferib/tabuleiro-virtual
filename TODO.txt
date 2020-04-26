@@ -1,3 +1,4 @@
+Conversao espontanea de druida.
 Forma alternativa: cura.
 Modificadores de ataque e dano de elementais.
 Imunidade a sono e atordoado de elementais.
