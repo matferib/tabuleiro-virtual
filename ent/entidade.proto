@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 113.
+// Proximo id: 114.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -324,6 +324,8 @@ message EntidadeProto {
   repeated ModeloDnD modelos = 95;
   // Se houver forma alternativa, indica qual esta em uso.
   optional int32 forma_alternativa_corrente = 74;
+  // Se presente, usara este id como base para a forma alternativa.
+  optional string id_forma_alternativa = 113;
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;

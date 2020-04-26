@@ -1180,7 +1180,13 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
     }
     {
       auto* proto_depois = n->mutable_entidade();
-      *proto_depois = ProtoFormaAlternativa(proto.formas_alternativas(proximo_indice));
+      const auto& nova_forma = proto.formas_alternativas(proximo_indice);
+      if (nova_forma.has_id_forma_alternativa()) {
+        auto& modelo = tabelas_.ModeloEntidade(nova_forma.id_forma_alternativa());
+        *proto_depois = ProtoFormaAlternativa(modelo.entidade());
+      } else {
+        *proto_depois = ProtoFormaAlternativa(nova_forma);
+      }
       proto_depois->set_forma_alternativa_corrente(proximo_indice);
       proto_depois->set_id(id);
       if (indice == 0) {
@@ -1192,12 +1198,15 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
           item->clear_ids_efeitos();
         }
         PreencheComTesourosEmUso(proto, /*manter_uso=*/false, proto_depois);
+        *proto_depois->mutable_formas_alternativas(0)->mutable_dados_ataque() = proto.dados_ataque();
+        *proto_depois->mutable_formas_alternativas(0)->mutable_info_textura() = proto.info_textura();
+        *proto_depois->mutable_formas_alternativas(0)->mutable_modelo_3d() = proto.modelo_3d();
+        // TODO: preservar armadura e escudo.
       } else if (proximo_indice == 0) {
         // Restaura tesouros em uso.
         *proto_depois->mutable_formas_alternativas() = proto.formas_alternativas();
         PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, proto_depois);
       }
-
       VLOG(1) << "Alterando para forma " << proximo_indice
               << ", entidade " << id << ", proto: " << proto_depois->DebugString();
     }
