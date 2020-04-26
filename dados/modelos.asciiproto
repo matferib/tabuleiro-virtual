@@ -4080,7 +4080,6 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
       }
     }
-    }
   }
 }
 modelo {
