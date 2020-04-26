@@ -1418,6 +1418,71 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   }
 }
 
+TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Humano Druida 5");
+  EntidadeProto proto = modelo.entidade();
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  const int max_pv = entidade->MaximoPontosVida();
+  {
+    // 10 de dano.
+    ntf::Notificacao n;
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade, -10, TD_LETAL, &n, nullptr);
+    entidade->AtualizaParcial(n.entidade());
+    EXPECT_EQ(entidade->PontosVida(), max_pv - 10);
+  }
+  {
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 10);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 14);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 13);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 12);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, proto)), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, proto)), 8);
+    ASSERT_EQ(proto.dados_ataque().size(), 5);
+    EXPECT_EQ(proto.dados_ataque(0).id_arma(), "cimitarra");
+    EXPECT_EQ(entidade->PontosVida(), max_pv - 10);
+  }
+
+  {
+   // Vira urso.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    ASSERT_EQ(n.notificacao_size(), 2);
+    entidade->AtualizaParcial(n.notificacao(0).entidade());
+    entidade->AtualizaParcial(n.notificacao(1).entidade());
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 20);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 13);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 15);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 12);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, proto)), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, proto)), 8);
+    ASSERT_EQ(proto.dados_ataque().size(), 4);
+    EXPECT_EQ(proto.dados_ataque(0).rotulo(), "garra");
+    EXPECT_EQ(entidade->PontosVida(), max_pv - 5);
+  }
+  {
+    // Volta humano.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    ASSERT_EQ(n.notificacao_size(), 1);
+    entidade->AtualizaParcial(n.notificacao(0).entidade());
+    const EntidadeProto& proto = entidade->Proto();
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 10);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 14);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto)), 13);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 12);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, proto)), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, proto)), 8);
+    ASSERT_EQ(proto.dados_ataque().size(), 5);
+    EXPECT_EQ(proto.dados_ataque(0).id_arma(), "cimitarra");
+    // Nao cura.
+    EXPECT_EQ(entidade->PontosVida(), max_pv - 5);
+  }
+}
+
 TEST(TesteDependencias, TestePericias) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);

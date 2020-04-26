@@ -1629,13 +1629,73 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
-// O delta de pontos de vida afeta outros bits tambem.
+void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  if (proto.formas_alternativas_size() < 2) {
+    LOG(INFO) << "Nao foi possivel alterar forma, entidade " << RotuloEntidade(proto) << "nao possui formas alternativas.";
+    return;
+  }
+
+  ntf::Notificacao* n;
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo);
+
+  int indice = proto.forma_alternativa_corrente();
+  int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
+  {
+    e_antes->MergeFrom(ProtoFormaAlternativa(proto));
+    e_antes->set_forma_alternativa_corrente(indice);
+    *e_antes->mutable_formas_alternativas() = proto.formas_alternativas();
+    PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_antes);
+  }
+  {
+    const auto& nova_forma = proto.formas_alternativas(proximo_indice);
+    if (nova_forma.has_id_forma_alternativa()) {
+      auto& modelo = tabelas.ModeloEntidade(nova_forma.id_forma_alternativa());
+      e_depois->MergeFrom(ProtoFormaAlternativa(modelo.entidade()));
+    } else {
+      e_depois->MergeFrom(ProtoFormaAlternativa(nova_forma));
+    }
+    e_depois->set_forma_alternativa_corrente(proximo_indice);
+    *e_depois->mutable_formas_alternativas() = proto.formas_alternativas();
+    // Salva os dados da forma corrente na forma alternativa.
+    *e_depois->mutable_formas_alternativas(indice) = ProtoFormaAlternativa(proto); 
+
+    if (indice == 0) {
+      // saindo da forma principal. Salva os tesouros em uso.
+      PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_depois->mutable_formas_alternativas(0));
+      // Como os itens serao desativados, limpa os ids para casar com MesmoItem na atualizacao parcial de volta.
+      for (auto* item : TodosItensExcetoPocoes(e_depois->mutable_formas_alternativas(0))) {
+        item->clear_ids_efeitos();
+      }
+      PreencheComTesourosEmUso(proto, /*manter_uso=*/false, e_depois);
+      // TODO: preservar armadura e escudo.
+    } else if (proximo_indice == 0) {
+      // Restaura tesouros em uso.
+      PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, e_depois);
+    }
+    VLOG(1) << "Alterando para forma " << proximo_indice
+            << ", entidade " << RotuloEntidade(proto) << ", proto: " << e_depois->DebugString();
+  }
+  if (n_desfazer != nullptr) {
+    *n_desfazer->add_notificacao() = *n;
+  }
+  if (Nivel("druida", proto) >= 5 && proximo_indice != 0) {
+    int nivel = NivelPersonagem(proto);
+    PreencheNotificacaoAtualizacaoPontosVida(proto, nivel, TD_LETAL, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+  }
+}
+
 void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  const auto& proto = entidade.Proto();
+  PreencheNotificacaoAtualizacaoPontosVida(entidade.Proto(), delta_pontos_vida, td, n, n_desfazer);
+}
+ 
+// O delta de pontos de vida afeta outros bits tambem.
+void PreencheNotificacaoAtualizacaoPontosVida(
+    const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(
-      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
 
   // Aqui vamos tratar nao letais e temporarios. Depois tratamos os pontos de vida mesmo.
   int temporarios = proto.pontos_vida_temporarios();
@@ -1685,7 +1745,7 @@ void PreencheNotificacaoAtualizacaoPontosVida(
   e_depois->set_pontos_vida(std::min(pv, proto.max_pontos_vida()));
   e_depois->set_dano_nao_letal(dano_nao_letal);
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
-      pv + temporarios, dano_nao_letal, entidade.Proto(), n);
+      pv + temporarios, dano_nao_letal, proto, n);
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
@@ -3237,6 +3297,11 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
     return;
   }
   switch (efeito_adicional.modificador_complementos()) {
+    case MC_PELE_ARVORE: {
+      int valor = 2 + ((nivel_conjurador - 3) / 3);
+      evento->add_complementos(std::min(5, valor));
+      break;
+    }
     case MC_ID_ENTIDADE: {
       evento->add_complementos(id_origem);
       break;

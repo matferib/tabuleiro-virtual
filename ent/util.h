@@ -369,6 +369,9 @@ enum tipo_dano_e {
   TD_NAO_LETAL = 1
 };
 
+// Preenche a notificacao de forma alternativa para a entidade, alternando para a proxima, ou para a original se ja estiver na ultima.
+void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
@@ -377,6 +380,9 @@ void PreencheNotificacoesDoacaoParcialTesouro(
     const Tabelas& tabelas, const ntf::Notificacao& notificacao_doacao, const EntidadeProto& proto_doador, const EntidadeProto& proto_receptor,
     ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
+// Para cura, usar delta positivo.
+void PreencheNotificacaoAtualizacaoPontosVida(
+    const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);

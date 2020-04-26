@@ -1085,6 +1085,31 @@ std::vector<std::string> MontaVetorIdsAdicionar(const Tabuleiro::ModelosComPesos
   return ids;
 }
 
+const Modelo& SorteiaModelo(const Tabelas& tabelas, int i, const std::vector<std::string>& ids, const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+  int sorteio = modelos_com_pesos.aleatorio ? RolaDado(ids.size()) - 1 : i;
+  if (sorteio < 0 || sorteio >= (int)ids.size()) {
+    LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids.size();
+    return Modelo::default_instance();
+  }
+  LOG(INFO) << "numero sorteado: " << sorteio << " de " << ids.size() << "; id sorteado: " << ids[sorteio];
+  const auto& modelo_com_parametros = tabelas.ModeloEntidade(ids[sorteio]);
+  if (!modelo_com_parametros.has_id()) {
+    LOG(INFO) << "modelo invalido, ignorando";
+    return Modelo::default_instance();
+  }
+  return modelo_com_parametros;
+}
+
+Vector2 ComputaOffset(int i) {
+  Vector2 offset;
+  if (i > 0) {
+    offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
+    offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
+  }
+  LOG(INFO) << "Offset: x: " << offset.x << ", y: " << offset.y;
+  return offset;
+}
+
 }  // namespace
 
 void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao) {
@@ -1096,8 +1121,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
         referencia = BuscaEntidade(notificacao.id_referencia());
       }
-      int quantidade = QuantidadeAdicionar(modelos_selecionados_);
-      std::vector<std::string> ids = MontaVetorIdsAdicionar(modelos_selecionados_);
+      int quantidade = 1;
       float x = 0, y = 0, z = 0;
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
@@ -1106,33 +1130,30 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         }
         // Notificacao sem entidade: posicao do quadrado selecionado.
         CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+        quantidade = QuantidadeAdicionar(modelos_selecionados_);
       }
 
       if (!Desfazendo()) {
         DeselecionaEntidades();
       }
 
-      LOG(INFO) << "gerando " << quantidade << " entidades";
       ntf::Notificacao grupo_desfazer;
       grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);;
-      for (int i = 0; i < quantidade; ++i) {
-        int sorteio = modelos_selecionados_.aleatorio ? RolaDado(ids.size()) - 1 : i;
-        if (sorteio < 0 || sorteio >= (int)ids.size()) {
-          LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids.size();
-          continue;
+      if (notificacao.has_entidade()) {
+        LOG(INFO) << "gerando entidade ja pronta";
+        Modelo nao_usado;
+        AdicionaUmaEntidadeNotificando(notificacao, referencia, nao_usado, x, y, z + 0, grupo_desfazer.add_notificacao());
+      } else {
+        LOG(INFO) << "gerando " << quantidade << " entidades";
+        std::vector<std::string> ids = MontaVetorIdsAdicionar(modelos_selecionados_);
+        for (int i = 0; i < quantidade; ++i) {
+          const auto& modelo_com_parametros = SorteiaModelo(tabelas_, i, ids, modelos_selecionados_);
+          if (!modelo_com_parametros.has_id()) {
+            continue;
+          }
+          Vector2 offset = ComputaOffset(i);
+          AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
         }
-        Vector2 offset;
-        if (i > 0) {
-          offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
-          offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
-        }
-        LOG(INFO) << "numero sorteado: " << sorteio << " de " << ids.size() << "; id sorteado: " << ids[sorteio] << ", xoffset: " << offset.x << ", yoffset: " << offset.y;
-        const auto& modelo_com_parametros = tabelas_.ModeloEntidade(ids[sorteio]);
-        if (!modelo_com_parametros.has_id()) {
-          LOG(INFO) << "modelo invalido, ignorando";
-          continue;
-        }
-        AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
       }
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
@@ -1154,66 +1175,19 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
 void Tabuleiro::AlteraFormaEntidadeNotificando() {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       LOG(INFO) << "Nao foi possivel alterar forma, entidade nao encontrada: " << id;;
-      return;
+      continue;
     }
-    const auto& proto = entidade_selecionada->Proto();
-    if (proto.formas_alternativas_size() < 2) {
-      LOG(INFO) << "Nao foi possivel alterar forma, entidade nao possui formas alternativas.";
-      return;
-    }
-
-    int indice = proto.forma_alternativa_corrente();
-    int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
-
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    {
-      auto* proto_antes = n->mutable_entidade_antes();
-      *proto_antes = ProtoFormaAlternativa(proto);
-      proto_antes->set_forma_alternativa_corrente(indice);
-      proto_antes->set_id(id);
-      PreencheComTesourosEmUso(proto, /*manter_uso=*/true, proto_antes);
-    }
-    {
-      auto* proto_depois = n->mutable_entidade();
-      const auto& nova_forma = proto.formas_alternativas(proximo_indice);
-      if (nova_forma.has_id_forma_alternativa()) {
-        auto& modelo = tabelas_.ModeloEntidade(nova_forma.id_forma_alternativa());
-        *proto_depois = ProtoFormaAlternativa(modelo.entidade());
-      } else {
-        *proto_depois = ProtoFormaAlternativa(nova_forma);
-      }
-      proto_depois->set_forma_alternativa_corrente(proximo_indice);
-      proto_depois->set_id(id);
-      if (indice == 0) {
-        // saindo da forma principal. Salva os tesouros em uso.
-        *proto_depois->mutable_formas_alternativas() = proto.formas_alternativas();
-        PreencheComTesourosEmUso(proto, /*manter_uso=*/true, proto_depois->mutable_formas_alternativas(0));
-        // Como os itens serao desativados, limpa os ids para casar com MesmoItem na atualizacao parcial de volta.
-        for (auto* item : TodosItensExcetoPocoes(proto_depois->mutable_formas_alternativas(0))) {
-          item->clear_ids_efeitos();
-        }
-        PreencheComTesourosEmUso(proto, /*manter_uso=*/false, proto_depois);
-        *proto_depois->mutable_formas_alternativas(0)->mutable_dados_ataque() = proto.dados_ataque();
-        *proto_depois->mutable_formas_alternativas(0)->mutable_info_textura() = proto.info_textura();
-        *proto_depois->mutable_formas_alternativas(0)->mutable_modelo_3d() = proto.modelo_3d();
-        // TODO: preservar armadura e escudo.
-      } else if (proximo_indice == 0) {
-        // Restaura tesouros em uso.
-        *proto_depois->mutable_formas_alternativas() = proto.formas_alternativas();
-        PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, proto_depois);
-      }
-      VLOG(1) << "Alterando para forma " << proximo_indice
-              << ", entidade " << id << ", proto: " << proto_depois->DebugString();
-    }
+    PreencheNotificacaoFormaAlternativa(tabelas_, entidade_selecionada->Proto(), &grupo_notificacoes, &n_desfazer);
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(n_desfazer);
 }
 
 void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {

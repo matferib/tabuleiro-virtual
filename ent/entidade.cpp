@@ -1178,11 +1178,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     atualizar_vbo = true;
   }
 
-  auto atributos_antes = proto_.atributos();
-  if (proto_parcial.has_atributos()) {
-    proto_.clear_atributos();
-  }
-
   auto ca_antes = proto_.dados_defesa().ca();
   if (proto_parcial.dados_defesa().has_ca()) {
     proto_.mutable_dados_defesa()->clear_ca();
@@ -1217,6 +1212,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     talento_proto->MergeFrom(talento);
   }
   proto_parcial.clear_info_talentos();
+
+  auto atributos_antes = proto_.atributos();
+  if (proto_parcial.has_atributos()) {
+    // Merge nao funciona neste caso, tem que fazer na mao com CombinaAtributos.
+    proto_.clear_atributos();
+  }
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
@@ -2309,6 +2310,9 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 bool Entidade::ImuneVeneno() const {
   if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO) ||
       PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
+    return true;
+  }
+  if (Nivel("druida", proto_) >= 9) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });

@@ -1493,7 +1493,7 @@ float Tabuleiro::TrataAcaoCriacao(
       grupo_desfazer->add_notificacao()->Swap(grupo_notificacoes.mutable_notificacao(i));
     }
   } else {
-    LOG(ERROR) << "ids_adicionados diferente do numero de notificacoes: " << ids_adicionados_.size() << " x " << grupo_notificacoes.notificacao_size();
+    LOG(ERROR) << "ids_adicionados diferente do numero de notificacoes: " << ids_adicionados_.size() << " x " << grupo_notificacoes.notificacao_size() << ", quantidade era: " << quantidade << ", n: " << grupo_notificacoes.DebugString();
   }
   return atraso_s;
 }

@@ -92,6 +92,7 @@ enum ModificadorComplementos {
   MC_ID_ENTIDADE = 8;  // Proteger outro.
   MC_10_POR_NIVEL = 9;  // pele rochosa.
   MC_NIVEL_CLERIGO = 10;  // dominio: proteção
+  MC_PELE_ARVORE = 11;  // 2 + 1 / cada 3 apos 3o, max 5 no 12o.
 }
 
 enum ModificadorQuantidade {

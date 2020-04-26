@@ -5329,6 +5329,36 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'pele_arvore'
+    nome: 'pele de árvore'
+    nome_ingles: "barkskin"
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'planta'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_PELE_ARVORE
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+        modificador_complementos: MC_PELE_ARVORE
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
     id: 'invocar_aliado_natureza_i'
     nome: 'invocar aliado da natureza I'
     nome_ingles: "summon nature's ally I"

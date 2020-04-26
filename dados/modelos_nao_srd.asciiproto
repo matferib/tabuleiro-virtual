@@ -1115,7 +1115,7 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'arma_espiritual_mangual' }
+        conhecidos { id: 'arma_espiritual' }
         conhecidos { id: 'escuridao' }
         conhecidos { id: 'curar_ferimentos_moderados' }
         conhecidos { id: 'explosao_sonora' }
