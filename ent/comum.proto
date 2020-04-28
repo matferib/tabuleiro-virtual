@@ -822,6 +822,8 @@ message ItemMagicoProto {
   optional int32 custo_po = 5;
   // Para efeitos que usam complemento.
   repeated int32 complementos = 6;
+  // Se presente, gerara complementos a partir de uma rolagem. Exemplo: 1d8+3.
+  repeated string complementos_variavel = 24;
   // Para efeitos que usam complemento de string (como pericia).
   repeated string complementos_str = 12;
   // Para efeitos de cura.

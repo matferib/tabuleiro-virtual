@@ -1898,13 +1898,13 @@ TEST(TesteDependencias, TesteVirtude) {
 TEST(TesteDependencias, TesteAjuda) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
-  ev->add_complementos(3);
+  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(5);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
-  EXPECT_GT(proto.pontos_vida_temporarios(), 3);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 5);
   const int valor = po->valor();
 
   // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
@@ -1924,14 +1924,16 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
-  ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(5);
+  ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(6);
   int id_segundo_evento = ev->id_unico();
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
-  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
-  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
-  EXPECT_EQ("ajuda", proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem(0).origem());
+  ASSERT_EQ(proto.pontos_vida_temporarios_por_fonte().bonus_individual().size(), 1) << proto.pontos_vida_temporarios_por_fonte().DebugString();
+  ASSERT_EQ(proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size(), 1);
+  EXPECT_EQ(proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem(0).origem(), "ajuda");
 
   // Forcar o temporario a vir do segundo evento (porque sao aleatorios os valores).
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -1947,20 +1949,22 @@ TEST(TesteDependencias, TesteAjuda3) {
   g_dados_teste.push(4);
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
-  ev->add_complementos(3);  // 1d8+3 = 7 por causa do dado fixo em 4).
+  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(7);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 7);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
-  EXPECT_EQ(entidade->PontosVida(), 7);
-  // Aplica 1 de dano:
-  ntf::Notificacao n;
-  PreencheNotificacaoAtualizacaoPontosVida(*entidade, /*delta_pontos_vida=*/-1, TD_LETAL, &n, nullptr);
-  entidade->AtualizaParcial(n.entidade());
-  EXPECT_EQ(entidade->PontosVida(), 6);
+  {
+    std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_EQ(entidade->PontosVida(), 7);
+    // Aplica 1 de dano:
+    ntf::Notificacao n;
+    PreencheNotificacaoAtualizacaoPontosVida(*entidade, /*delta_pontos_vida=*/-1, TD_LETAL, &n, nullptr);
+    entidade->AtualizaParcial(n.entidade());
+    EXPECT_EQ(entidade->PontosVida(), 6) << entidade->Proto().pontos_vida_temporarios_por_fonte().DebugString();
+  }
 }
 
 // Teste basico gera dados.

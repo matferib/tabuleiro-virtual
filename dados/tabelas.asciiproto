@@ -1568,9 +1568,10 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_AJUDA
     nome: 'ajuda'
-    formato_complementos: 'adicionar aos PV (1d8+complemento)'
+    formato_complementos: 'Pontos de vida temporários'
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'ajuda' } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
     }
@@ -2791,9 +2792,8 @@ tabela_pocoes {
     tipo_efeito: EFEITO_AJUDA
     duracao_rodadas: 30
     custo_po: 300
-    complementos: 3  # 1d8+3.
+    complementos_variavel: '1d8+3'
   }
-
   pocoes {
     id: 'invisibilidade'
     nome: 'Invisilidade'
@@ -10450,7 +10450,7 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_AJUDA
         modificador_rodadas: MR_10_MINUTOS_NIVEL
-        modificador_complementos: MC_1_POR_NIVEL_MAX_10
+        modificador_complementos: MC_1D8_MAIS_1_POR_NIVEL_MAX_10
       }
     }
     escola: 'encantamento'

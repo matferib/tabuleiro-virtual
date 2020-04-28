@@ -3328,6 +3328,10 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
       evento->add_complementos(std::min(10, nivel_conjurador));
       break;
     }
+    case MC_1D8_MAIS_1_POR_NIVEL_MAX_10: {
+      evento->add_complementos(RolaValor("1d8") + std::min(10, nivel_conjurador));
+      break;
+    }
     case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
       int adicionais = std::min(4, nivel_conjurador / 3);
       evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
@@ -3482,7 +3486,17 @@ void AdicionaEventoItemMagico(
     auto tipo_efeito = efeitos_origens[i].first;
     const std::string& origem = efeitos_origens[i].second;
     auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
-    if (!item.complementos().empty()) {
+    if (item.complementos().empty() && !item.complementos_variavel().empty()) {
+      for (const auto& cv : item.complementos_variavel()) {
+        int valor = 0;
+        try {
+          valor = RolaValor(cv);
+        } catch (...) {
+          LOG(ERROR) << "Valor de complemento mal formado: " << cv;
+        }
+        evento->add_complementos(valor);
+      }
+    } else if (!item.complementos().empty()) {
       *evento->mutable_complementos() = item.complementos();
     }
     if (!item.complementos_str().empty()) {

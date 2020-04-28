@@ -271,8 +271,6 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().aquatico_q(),  proto->mutable_movimento()->mutable_aquatico_q());
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().escavando_q(), proto->mutable_movimento()->mutable_escavando_q());
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().escalando_q(), proto->mutable_movimento()->mutable_escalando_q());
-
-  AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
 }
 
 bool ImuneMorte(const EntidadeProto& proto) {
@@ -326,14 +324,23 @@ void AplicaLuz(const IluminacaoPontual& luz, EntidadeProto::Evento* evento, Enti
   *proto->mutable_luz() = luz;
 }
 
+void AplicaEfeitoComumNaoProcessado(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
+  if (consequencia.has_dados_ataque()) {
+    AplicaInicioAtaqueIdUnico(evento->id_unico(), consequencia.dados_ataque(), proto);
+  }
+  if (consequencia.has_luz()) {
+    AplicaLuz(consequencia.luz(), evento, proto);
+  }
+  if (consequencia.has_pontos_vida_temporarios()) {
+    AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
+  }
+}
+
 // Entidade pode ser nullptr em testes.
 bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
-  if (consequencia.has_dados_ataque() && !evento->processado()) {
-    AplicaInicioAtaqueIdUnico(evento->id_unico(), consequencia.dados_ataque(), proto);
-  }
-  if (consequencia.has_luz() && !evento->processado()) {
-    AplicaLuz(consequencia.luz(), evento, proto);
+  if (!evento->processado()) {
+    AplicaEfeitoComumNaoProcessado(evento, consequencia, proto);
   }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
@@ -465,17 +472,6 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         if (complemento < 0) return false;
         auto* po = AtribuiBonusPenalidadeSeMaior(
             complemento, TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
-        if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
-      }
-    break;
-    case EFEITO_AJUDA:
-      if (!evento->processado()) {
-        // Gera os pontos de vida temporarios.
-        int complemento = evento->complementos().empty() ? 3 : evento->complementos(0);
-        if (complemento < 3) complemento = 3;
-        else if (complemento > 10) complemento = 10;
-        const int tmp = RolaDado(8) + complemento;
-        auto* po = AtribuiBonusPenalidadeSeMaior(tmp, TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
         if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
@@ -636,12 +632,17 @@ void AplicaFimLuz(const EntidadeProto::Evento& evento, EntidadeProto* proto) {
   proto->clear_luz();
 }
 
-void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
-  AplicaEfeitoComum(consequencia, proto);
+void AplicaFimEfeitosProcessados(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
   AplicaFimAtaquePorIdUnico(evento.id_unico(), proto);
   if (consequencia.has_luz()) {
     AplicaFimLuz(evento, proto);
   }
+  AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
+}
+
+void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
+  AplicaEfeitoComum(consequencia, proto);
+  AplicaFimEfeitosProcessados(evento, consequencia, proto);
   switch (evento.id_efeito()) {
     case EFEITO_IMUNIDADE_FEITICO: {
       if (!evento.has_id_unico()) break;
@@ -742,24 +743,6 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
         // Nao tem id, remove a ajuda por completo. Pode dar merda.
         LOG(WARNING) << "Removendo ajuda sem id unico.";
         RemoveBonus(TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
-      }
-    }
-    break;
-    case EFEITO_AJUDA: {
-      auto* bi = BonusIndividualSePresente(TB_SEM_NOME, proto->mutable_pontos_vida_temporarios_por_fonte());
-      auto* po = OrigemSePresente("ajuda", bi);
-      if (po == nullptr) {
-        break;
-      }
-      if (evento.has_id_unico()) {
-        // Se tiver id unico, respeita o id.
-        RemoveSe<BonusIndividual::PorOrigem>([&evento] (const BonusIndividual::PorOrigem& ipo) {
-          return ipo.id_unico() == evento.id_unico();
-        }, bi->mutable_por_origem());
-      } else {
-        // Nao tem id, remove a ajuda por completo. Pode dar merda.
-        LOG(WARNING) << "Removendo ajuda sem id unico.";
-        RemoveBonus(TB_SEM_NOME, "ajuda", proto->mutable_pontos_vida_temporarios_por_fonte());
       }
     }
     break;
