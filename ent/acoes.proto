@@ -502,6 +502,8 @@ message ConsequenciaEvento {
   optional IluminacaoPontual luz = 13;
   // Para efeitos que alteram movimento.
   optional Movimento movimento = 14;
+  // Pontos de vida temporarios.
+  optional Bonus pontos_vida_temporarios = 15;
 }
 
 message EfeitoProto {

@@ -50,6 +50,7 @@ sub_menu {
   modelo { id: 'Lobo' }
   modelo { id: 'Lobo Atroz' }
   modelo { id: 'Lobo Atroz Abissal' }
+  modelo { id: 'Megaraptor' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Sapo' }
@@ -90,6 +91,15 @@ sub_menu {
   modelo { id: 'Drow Sargento 3' }
   modelo { id: 'Drow Lider 6' }
 }
+sub_menu {
+  id: 'Halfling'
+  modelo {
+    id: 'Halfling Druida 10 + Leão Atroz'
+    modelos { id: 'Halfling Druida 10' }
+    modelos { id: 'Leão Atroz' }
+  }
+}
+
 modelo { id: 'Elemental do Ar (Pequeno)' }
 sub_menu {
   id: 'Enxames'
@@ -185,7 +195,7 @@ sub_menu {
   sub_menu {
     id: 'Druidas'
     modelo {
-      id: 'Humano Druida 1 + Rato Atroz' 
+      id: 'Humano Druida 1 + Rato Atroz'
       modelos { id: 'Humano Druida 1' }
       modelos { id: 'Rato Atroz' }
     }
@@ -198,6 +208,11 @@ sub_menu {
       id: 'Humano Druida 5 + Gorila'
       modelos { id: 'Humano Druida 5' }
       modelos { id: 'Gorila' }
+    }
+    modelo {
+      id: 'Humano Druida 10 + Leão Atroz'
+      modelos { id: 'Humano Druida 10' }
+      modelos { id: 'Leão Atroz' }
     }
   }
   sub_menu {

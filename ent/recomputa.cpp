@@ -271,6 +271,8 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().aquatico_q(),  proto->mutable_movimento()->mutable_aquatico_q());
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().escavando_q(), proto->mutable_movimento()->mutable_escavando_q());
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().escalando_q(), proto->mutable_movimento()->mutable_escalando_q());
+
+  AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
 }
 
 bool ImuneMorte(const EntidadeProto& proto) {
@@ -882,6 +884,7 @@ ConsequenciaEvento PreencheConsequencia(
   for (auto& dp : *c.mutable_dados_pericia()) {
     PreencheOrigemValor(origem, complementos, dp.mutable_bonus());
   }
+  if (c.has_pontos_vida_temporarios())  PreencheOrigemValor(origem, complementos, c.mutable_pontos_vida_temporarios());
   return c;
 }
 
@@ -909,6 +912,7 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   for (auto& dp : *c.mutable_dados_pericia()) {
     PreencheOrigemZeraValor(origem, dp.mutable_bonus());
   }
+  PreencheOrigemZeraValor(origem, c.mutable_pontos_vida_temporarios());
   return c;
 }
 

@@ -1871,6 +1871,30 @@ TEST(TesteDependencias, TesteAgarrar) {
   EXPECT_EQ(13, proto.bba().agarrar());
 }
 
+TEST(TesteDependencias, TesteVirtude) {
+  EntidadeProto proto;
+  std::vector<int> ids_unicos;
+  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
+  RecomputaDependencias(g_tabelas, &proto);
+  // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
+  auto* po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr) << proto.pontos_vida_temporarios_por_fonte().DebugString();
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 1);
+
+  // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
+  po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 1);
+
+  // Termina o efeito.
+  ev->set_rodadas(-1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 0) << proto.pontos_vida_temporarios_por_fonte().DebugString();
+}
+
 TEST(TesteDependencias, TesteAjuda) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;

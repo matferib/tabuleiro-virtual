@@ -1557,6 +1557,15 @@ tabela_efeitos {
     consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
   }
   efeitos {
+    id: EFEITO_VIRTUDE
+    nome: 'virtude'
+    # 1 PV temporario.
+    consequencia {
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'virtude' } } }
+    }
+  }
+
+  efeitos {
     id: EFEITO_AJUDA
     nome: 'ajuda'
     formato_complementos: 'adicionar aos PV (1d8+complemento)'
@@ -6698,10 +6707,10 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/purifyFoodAndDrink.htm'
     id: 'purificar_alimentos'
     nome_ingles: 'purify food and drink'
     nome: 'purificar alimentos'
+    alcance_quadrados: 10
     info_classes {
       id: 'duida'
       nivel: 0
@@ -6709,6 +6718,9 @@ tabela_feiticos {
     info_classes {
       id: 'clerigo'
       nivel: 0
+    }
+    acao {
+      id: 'Feitiço à Distância'
     }
     escola: 'transmutacao'
   }
@@ -9730,8 +9742,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'virtude, 1 PV temporário.'
+        efeito: EFEITO_VIRTUDE
         rodadas: 10
       }
     }
@@ -9816,6 +9827,7 @@ tabela_feiticos {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
+      elemento: DESC_LUZ
       efeitos_adicionais {
         efeito: EFEITO_LUZ
         rodadas: 10
@@ -11383,6 +11395,39 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
+    id: 'detectar_venenos'
+    nome_ingles: 'detect poison'
+    nome: 'detectar venenos'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: false
+    }
+  }
+  armas {
     id: 'detectar_magia'
     nome_ingles: 'detect magic'
     nome: 'detectar magia'
@@ -11672,11 +11717,15 @@ tabela_feiticos {
       id: 'druida'
       nivel: 0
     }
+    acao {
+      id: 'Feitiço Pessoal'
+    }
+    escola: 'adivinhacao'
   }
 
   armas {
     id: 'orientacao'
-    nome_ingles: 'guidance.'
+    nome_ingles: 'guidance'
     nome: 'orientação'
     info_classes {
       id: 'clerigo'

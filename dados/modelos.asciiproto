@@ -2972,7 +2972,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'correr' }
+      gerais { id: 'corrida' }
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
@@ -3066,10 +3066,80 @@ modelo {
 modelo {
   id: 'Leão Atroz'
   entidade {
-    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
-    rotulo_especial: 'ini: +2\nca 15/11/13 agarrar +17 mordida/garrax2 +7/+13/+13\ndano: 1d8+3/1d6+7/1d6+7\nagarrar aprimorado'
-    modificador_iniciativa: 2
+    dados_vida: '8d8+24'
+    rotulo_especial: 'bote ao investir'
+    tamanho: TM_GRANDE
+    info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    info_classes {
+      id: 'animal_atroz' nivel: 8
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 25 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'corrida' }
+      gerais { id: 'foco_em_arma' complemento: 'garra' }
+    }
+    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 6 }
+    info_pericias { id: 'observar' pontos: 6 }
+
     mais_de_duas_pernas: true
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 8
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 4 } }
+      }
+    }
+    # Normal.
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    # bota cargando.
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
   }
 }
 modelo {
@@ -3081,6 +3151,9 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes { id: 'animal' nivel: 2 }
     mais_de_duas_pernas: true
+    movimento {
+      terrestre_basico_q: 10
+    }
     dados_ataque {
       grupo: 'ataque'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
@@ -3091,6 +3164,14 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 2 } }
       }
     }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'mordida'  }
+      outros { id: 'rastrear' origem: 'bonus' }
+    }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'sobrevivencia' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } }  }
+
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
@@ -3101,6 +3182,73 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Megaraptor'
+  entidade {
+    rotulo_especial: 'faro\nbota na investida'
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '8d8+43' tamanho: TM_GRANDE
+    info_textura { id: 'megaraptor.png' altura: 0.6 translacao_y: 0.3 }
+    movimento {
+      terrestre_basico_q: 12
+    }
+    info_classes {
+      id: 'animal' nivel: 8
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+      pericias_monstro: 'saltar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    # normal.
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'garra traseira'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'garra traseira'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 6 } }
+      }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'saltar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'ouvir' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'observar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'sobrevivencia' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_talentos {
+      gerais { id: 'vitalidade' }
+      gerais { id: 'corrida' }
+      gerais { id: 'rastrear' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Lobo Atroz'
   entidade {
@@ -3136,7 +3284,7 @@ modelo {
     info_pericias { id: 'sobrevivencia' pontos: 1 }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'correr' }
+      gerais { id: 'corrida' }
       gerais { id: 'rastrear' }
       gerais { id: 'foco_em_arma' complemento: 'mordida' }
     }
@@ -4017,13 +4165,11 @@ modelo {
       pocoes { id: 'escudo_fe_2' }  # 50
       pocoes { id: 'curar_ferimentos_leves' }  # 50
       # sobram 150 PO.
-      # Pergaminhos saem pela metade do preco.
-      # 0: 6.25 PO (4), 1: 12.5 (8)
-      pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
+      # Pergaminhos saem por 70% do preco (dmg 110, handcrafted npc).
+      # 0: 8.75 PO (3), 1: 17.5 (7)
       pergaminhos_divinos { id: 'luz' }
       pergaminhos_divinos { id: 'virtude' }
       pergaminhos_divinos { id: 'resistencia' }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'constricao' }
       pergaminhos_divinos { id: 'pedra_encantada' }
@@ -4102,7 +4248,7 @@ modelo {
       pocoes { id: 'pele_arvore_2' } # 300
 
       # sobram 70 PO.
-      # Pergaminhos saem pela metade do preco.
+      # Pergaminhos saem por 70% do preco (dmg 110 handcrafted).
       # 0: 6.25 PO (3)
       pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
       pergaminhos_divinos { id: 'luz' }
@@ -4110,7 +4256,6 @@ modelo {
       # Sobram 50 PO. 1: 12.5 (4)
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'criar_chama' }
       pergaminhos_divinos { id: 'passos_longos' }
 
       moedas { po:  1 }
@@ -4161,7 +4306,7 @@ modelo {
     dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 1 }
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'ataques_multiplos' }
+      gerais { id: 'magia_natural' }
     }
     info_pericias { id: 'adestrar_animais' pontos: 5 }
     info_pericias { id: 'concentracao' pontos: 8 }
@@ -4179,19 +4324,17 @@ modelo {
       pocoes { id: 'ajuda' } # 300
       pocoes { id: 'pele_arvore_3' } # 600
 
-      # Pergaminhos saem pela metade do preco.
-      # 0: 6.25 PO (3)
+      # Pergaminhos saem por 70% do preco.
+      # 0: 8.25 PO (3)
       pergaminhos_divinos { id: 'curar_ferimentos_minimos' }
       pergaminhos_divinos { id: 'luz' }
       pergaminhos_divinos { id: 'virtude' }
-      # 1: 12.5 (4)
+      # 1: 17.5
       pergaminhos_divinos { id: 'curar_ferimentos_leves' }
       pergaminhos_divinos { id: 'pedra_encantada' }
-      pergaminhos_divinos { id: 'criar_chama' }
-      # 2: 75
-      pergaminhos_divinos { id: 'agilidade_gato' }
+      # 2: 105
       pergaminhos_divinos { id: 'forca_touro' }
-      # 3: 187.5
+      # 3: 262.5
       pergaminhos_divinos { id: 'curar_ferimentos_moderados' }
 
       moedas { po: 10 }
@@ -4264,6 +4407,157 @@ modelo {
     dados_vida: '4d8+8'
     raca: 'elfo'
     info_textura { id: 'elf_druid.png' translacao_x: 0.25 largura: 0.5 }
+  }
+}
+modelo {
+  id: 'Druida 10 Base'
+  id_entidade_base: 'Druida Base'
+  entidade {
+    rotulo: 'Druida 10'
+    info_classes { id: 'druida' nivel: 10 }
+    info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.1 g: 0.5 b: 0.1 }
+    atributos {
+      sabedoria {
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao {
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+    }
+    dados_defesa {
+        id_armadura: 'gibao_peles' bonus_magico_armadura: 1 id_escudo: 'pesado_madeira' bonus_magico_escudo: 1
+    }
+    dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: true }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: true municao: 20 }
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 5 }
+    dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 5 }
+    info_talentos {
+      gerais { id: 'escrever_pergaminho' }
+      gerais { id: 'magia_natural' }
+      gerais { id: 'ataques_multiplos' }
+      gerais { id: 'iniciativa_aprimorada' }
+    }
+    info_pericias { id: 'adestrar_animais' pontos: 10 }
+    info_pericias { id: 'concentracao' pontos: 13 }
+    info_pericias { id: 'observar' pontos: 13 }
+    info_pericias { id: 'ouvir' pontos: 13 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 13 }
+    info_pericias { id: 'sobrevivencia' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 5 }
+    info_pericias { id: 'cura' pontos: 6 }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      aneis { id: 'protecao_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      luvas { id: 'luvas_destreza_2' em_uso: true }
+
+      pocoes { id: 'arma_magica' }
+      pocoes { id: 'escudo_fe_3' }
+      pocoes { id: 'velocidade' }
+      pocoes { id: 'invisibilidade' }
+
+      moedas { po: 8000 }
+    }
+    feiticos_classes {
+      id_classe: 'druida'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'curar_ferimentos_minimos' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'pedra_encantada' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 2
+        conhecidos { id: 'sabedoria_coruja' }
+        conhecidos { id: 'esfera_flamejante' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel {
+        nivel: 3
+        conhecidos { id: 'curar_ferimentos_moderados' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel {
+        nivel: 4
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 5
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
+      }
+    }
+    formas_alternativas {
+      rotulo: 'original'
+      dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
+    }
+    formas_alternativas {
+      id_forma_alternativa: 'Megaraptor'
+      rotulo: 'Megaraptor'
+    }
+  }
+}
+modelo {
+  id: 'Humano Druida 10'
+  id_entidade_base: 'Druida 10 Base'
+  entidade {
+    dados_vida: '9d8+23'
+    raca: 'humano'
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+  }
+}
+modelo {
+  id: 'Halfling Druida 10'
+  id_entidade_base: 'Druida 10 Base'
+  entidade {
+    dados_vida: '9d8+20'
+    raca: 'halfling'
+    info_textura { id: 'halfling_druid.png' }
   }
 }
 modelo {

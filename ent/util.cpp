@@ -2751,6 +2751,7 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
     // Tem que por o valor zero para sobrescrever.
     AtribuiBonus(racial, TB_RACIAL, "racial", BonusAtributo(ta, &ret));
   }
+  ret.set_mais_de_duas_pernas(proto.mais_de_duas_pernas());
   ret.set_raca(proto.raca());
   *ret.mutable_info_textura() = proto.info_textura();
   *ret.mutable_modelo_3d() = proto.modelo_3d();
