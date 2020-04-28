@@ -6,3 +6,4 @@ icon_melee: Imagem de <a href="https://pixabay.com/pt/users/Clker-Free-Vector-Im
 bump maps: https://3dtextures.me/
 icon_sling: Imagem de <a href="https://delapouite.com/">Delapouite</a>, inverted colors.
 icon roll skill: https://imgur.com/a/KBQkz
+megaraptor: <a href='https://en.wikipedia.org/wiki/Megaraptor#/media/File:Megaraptor_namunhuaiquii.jpg'>Alexander Thomas Lovrgrove as per CC BY SA 4.0</a>
