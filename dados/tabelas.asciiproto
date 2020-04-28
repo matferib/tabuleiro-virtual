@@ -53,7 +53,7 @@ tabela_armas {
     categoria: CAT_PROJETIL_AREA
     categoria: CAT_DISTANCIA
     preco: '10 PO'
-    dano { medio: '1d6' }
+    dano { invariavel: '1d6' }
     dano_dispersao: '1'
     multiplicador_critico: 2
     alcance_quadrados: 2
@@ -71,7 +71,7 @@ tabela_armas {
     categoria: CAT_PROJETIL_AREA
     categoria: CAT_DISTANCIA
     preco: '20 PO'
-    dano { medio: '1d6' }
+    dano { invariavel: '1d6' }
     dano_dispersao: '1'
     multiplicador_critico: 2
     alcance_quadrados: 2
@@ -1048,6 +1048,26 @@ tabela_armas {
 }
 
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_ARMA_ABENCOADA
+    nome: 'arma abençoada (shillelagh)'
+    # descricao: transforma o porrete ou bordão em +1 e da dano como duas categorias maior. Tenta bordao primeiro;
+    consequencia {
+      dados_ataque {
+        bonus_magico: 1
+        grupo: 'shillelagh'
+        rotulo: "mão boa"
+        tipo_ataque: "Ataque Corpo a Corpo"
+      }
+      dados_ataque {
+        bonus_magico: 1
+        grupo: 'shillelagh'
+        rotulo: "mão ruim"
+        tipo_ataque: "Ataque Corpo a Corpo"
+        empunhadura: EA_MAO_RUIM  # importante!
+      }
+    }
+  }
   efeitos {
     id: EFEITO_DOMINIO_PROTECAO
     nome: 'escudo protetor (dominio proteção)'
@@ -6107,9 +6127,7 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
-
   armas {
-    link: 'https://www.d20srd.org/srd/spells/calmAnimals.htm'
     id: 'acalmar_animais'
     nome_ingles: 'calm animals'
     nome: 'acalmar animais'
@@ -6144,9 +6162,25 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
+  armas {
+    id: 'arma_abencoada'
+    nome_ingles: 'shillelagh'
+    nome: 'arma abençoada (shillelagh)'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_ARMA_ABENCOADA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/removeFear.htm'
     id: 'remover_medo'
     nome_ingles: 'remove fear'
     nome: 'remover medo'

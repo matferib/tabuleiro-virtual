@@ -17,9 +17,8 @@ using google::protobuf::StringPrintf;
 using google::protobuf::SplitStringUsing;
 
 void ConverteDano(ArmaProto* arma) {
-  if (PossuiCategoria(CAT_PROJETIL_AREA, *arma)) {
-    arma->mutable_dano()->set_pequeno(arma->dano().medio());
-    arma->mutable_dano()->set_grande(arma->dano().medio());
+  if (PossuiCategoria(CAT_PROJETIL_AREA, *arma) && arma->dano().invariavel().empty()) {
+    arma->mutable_dano()->set_invariavel(arma->dano().medio());
     return;
   }
 
@@ -76,8 +75,14 @@ void ConverteDano(ArmaProto* arma) {
       }
       return;
     }
+    if (it->second.find(TM_MINUSCULO) != it->second.end()) arma->mutable_dano()->set_minusculo(it->second.find(TM_MINUSCULO)->second);
+    if (it->second.find(TM_DIMINUTO) != it->second.end()) arma->mutable_dano()->set_diminuto(it->second.find(TM_DIMINUTO)->second);
+    if (it->second.find(TM_MIUDO) != it->second.end()) arma->mutable_dano()->set_miudo(it->second.find(TM_MIUDO)->second);
     if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano()->set_pequeno(it->second.find(TM_PEQUENO)->second);
     if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano()->set_grande(it->second.find(TM_GRANDE)->second);
+    if (it->second.find(TM_ENORME) != it->second.end()) arma->mutable_dano()->set_enorme(it->second.find(TM_ENORME)->second);
+    if (it->second.find(TM_IMENSO) != it->second.end()) arma->mutable_dano()->set_imenso(it->second.find(TM_IMENSO)->second);
+    if (it->second.find(TM_COLOSSAL) != it->second.end()) arma->mutable_dano()->set_colossal(it->second.find(TM_COLOSSAL)->second);
   }
   {
     // dano secundario.
@@ -88,8 +93,14 @@ void ConverteDano(ArmaProto* arma) {
       }
       return;
     }
+    if (it->second.find(TM_MINUSCULO) != it->second.end()) arma->mutable_dano_secundario()->set_minusculo(it->second.find(TM_MINUSCULO)->second);
+    if (it->second.find(TM_DIMINUTO) != it->second.end()) arma->mutable_dano_secundario()->set_diminuto(it->second.find(TM_DIMINUTO)->second);
+    if (it->second.find(TM_MIUDO) != it->second.end()) arma->mutable_dano_secundario()->set_miudo(it->second.find(TM_MIUDO)->second);
     if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano_secundario()->set_pequeno(it->second.find(TM_PEQUENO)->second);
     if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano_secundario()->set_grande(it->second.find(TM_GRANDE)->second);
+    if (it->second.find(TM_ENORME) != it->second.end()) arma->mutable_dano_secundario()->set_enorme(it->second.find(TM_ENORME)->second);
+    if (it->second.find(TM_IMENSO) != it->second.end()) arma->mutable_dano_secundario()->set_imenso(it->second.find(TM_IMENSO)->second);
+    if (it->second.find(TM_COLOSSAL) != it->second.end()) arma->mutable_dano_secundario()->set_colossal(it->second.find(TM_COLOSSAL)->second);
   }
 }
 

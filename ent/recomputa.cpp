@@ -74,9 +74,15 @@ std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho
     return dano.invariavel();
   }
   switch (tamanho) {
-    case TM_MEDIO: return dano.medio();
+    case TM_MINUSCULO: return dano.minusculo();
+    case TM_DIMINUTO: return dano.diminuto();
+    case TM_MIUDO: return dano.miudo();
     case TM_PEQUENO: return dano.pequeno();
+    case TM_MEDIO: return dano.medio();
     case TM_GRANDE: return dano.grande();
+    case TM_ENORME: return dano.enorme();
+    case TM_IMENSO: return dano.imenso();
+    case TM_COLOSSAL: return dano.colossal();
     default: return "";
   }
 }
@@ -136,9 +142,23 @@ bool ConsequenciaAfetaDano(const ConsequenciaEvento& consequencia, const DadosAt
 }
 
 // Retorna o dado de ataque que contem a arma, ou nullptr;
-const DadosAtaque* DadosAtaqueProto(const std::string& id_arma, const EntidadeProto& proto) {
+const DadosAtaque* DadosAtaquePorIdArma(const std::string& id_arma, const EntidadeProto& proto, bool mao_ruim = false) {
   for (const auto& da : proto.dados_ataque()) {
-    if (da.id_arma() == id_arma) return &da;
+    if (da.id_arma() == id_arma) {
+      if (mao_ruim && da.empunhadura() != EA_MAO_RUIM) continue;
+      return &da;
+    }
+  }
+  return nullptr;
+}
+
+DadosAtaque* DadosAtaquePorIdUnico(int id_unico, EntidadeProto* proto, bool mao_ruim = false) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.id_unico_efeito() == id_unico) {
+      if (mao_ruim && da.empunhadura() != EA_MAO_RUIM) continue;
+      if (!mao_ruim && da.empunhadura() == EA_MAO_RUIM) continue;
+      return &da;
+    }
   }
   return nullptr;
 }
@@ -289,30 +309,28 @@ void AplicaAlinhamento(DescritorAtaque desc, DadosAtaque* da) {
   }
 }
 
-void AplicaInicioAtaqueIdUnico(int id_unico, const DadosAtaque& dados_ataque, EntidadeProto* proto) {
-  DadosAtaque da = dados_ataque;
-  da.set_id_unico_efeito(id_unico);
-  if (proto->dados_defesa().id_escudo().empty()) {
-    da.set_empunhadura(EA_ARMA_APENAS);
-  } else {
-    da.set_empunhadura(EA_ARMA_ESCUDO);
+void AplicaInicioAtaqueIdUnico(int id_unico, const RepeatedPtrField<DadosAtaque>& dados_ataque, EntidadeProto* proto) {
+  for (auto it = dados_ataque.rbegin(); it != dados_ataque.rend(); ++it) {
+    DadosAtaque da = *it;
+    da.set_id_unico_efeito(id_unico);
+    if (!da.has_empunhadura()) {
+      if (proto->dados_defesa().id_escudo().empty()) {
+        da.set_empunhadura(EA_ARMA_APENAS);
+      } else {
+        da.set_empunhadura(EA_ARMA_ESCUDO);
+      }
+    }
+    std::string grupo = da.grupo();
+    InsereInicio(&da, proto->mutable_dados_ataque());
+    proto->set_ultimo_grupo_acao(grupo);
+    proto->set_ultima_acao(da.tipo_ataque());
   }
-  std::string grupo = da.grupo();
-  InsereInicio(&da, proto->mutable_dados_ataque());
-  proto->set_ultimo_grupo_acao(grupo);
-  proto->set_ultima_acao(da.tipo_ataque());
 }
 
-// TODO remover todos.
 void AplicaFimAtaquePorIdUnico(int id_unico, EntidadeProto* proto) {
-  // Encontra o dado de ataque.
-  int i = 0;
-  for (const auto& da : proto->dados_ataque()) {
-    if (da.has_id_unico_efeito() && da.id_unico_efeito() == id_unico) {
-      proto->mutable_dados_ataque()->DeleteSubrange(i, 1);
-      return;
-    }
-  }
+  RemoveSe<DadosAtaque>([id_unico](const DadosAtaque& da) {
+    return da.id_unico_efeito() == id_unico;
+  }, proto->mutable_dados_ataque());
 }
 
 void AplicaLuz(const IluminacaoPontual& luz, EntidadeProto::Evento* evento, EntidadeProto* proto) {
@@ -325,7 +343,7 @@ void AplicaLuz(const IluminacaoPontual& luz, EntidadeProto::Evento* evento, Enti
 }
 
 void AplicaEfeitoComumNaoProcessado(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
-  if (consequencia.has_dados_ataque()) {
+  if (!consequencia.dados_ataque().empty()) {
     AplicaInicioAtaqueIdUnico(evento->id_unico(), consequencia.dados_ataque(), proto);
   }
   if (consequencia.has_luz()) {
@@ -475,6 +493,41 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
       }
     break;
+    case EFEITO_ARMA_ABENCOADA: {
+      // A ideia é sempre processar o evento pro tamanho alterar tb.
+      auto* arma_abencoada = DadosAtaquePorIdUnico(evento->id_unico(), proto);
+      auto* arma_abencoada_secundaria = DadosAtaquePorIdUnico(evento->id_unico(), proto, /*mao_ruim=*/true);
+      if (arma_abencoada == nullptr) {
+        LOG(ERROR) << "arma abençoada não foi criada";
+        evento->set_rodadas(-1);
+        break;
+      }
+      const DadosAtaque* da_primario = DadosAtaquePorIdArma("bordao", *proto);
+      const DadosAtaque* da_secundario = DadosAtaquePorIdArma("bordao", *proto, /*mao_ruim=*/true);
+      if (da_primario == nullptr) {
+        da_primario = DadosAtaquePorIdArma("porrete", *proto);
+      }
+      if (da_primario == nullptr) {
+        LOG(INFO) << "arma abençoada não encontrada";
+        evento->set_rodadas(-1);
+        break;
+      }
+      TamanhoEntidade tamanho = static_cast<TamanhoEntidade>(std::min(proto->tamanho() + 2, (int)TM_COLOSSAL));
+      arma_abencoada->set_id_arma(da_primario->id_arma());
+      arma_abencoada->set_empunhadura(da_primario->empunhadura());
+      arma_abencoada->set_tamanho(tamanho);
+      if (da_secundario != nullptr && arma_abencoada_secundaria != nullptr) {
+        arma_abencoada_secundaria->set_id_arma(da_secundario->id_arma());
+        arma_abencoada_secundaria->set_empunhadura(EA_MAO_RUIM);
+        arma_abencoada_secundaria->set_tamanho(tamanho);
+      } else if (arma_abencoada_secundaria != nullptr) { 
+        // Remove o segundo ataque criado.
+        RemoveSe<DadosAtaque>([arma_abencoada_secundaria](const DadosAtaque& da) {
+          return &da == arma_abencoada_secundaria;
+        }, proto->mutable_dados_ataque());
+      }
+    }
+    break;
     case EFEITO_PODER_DIVINO:
       if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
@@ -485,7 +538,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
     break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento->processado()) {
-        const auto* funda = DadosAtaqueProto("funda", *proto);
+        const auto* funda = DadosAtaquePorIdArma("funda", *proto);
         if (funda != nullptr) {
           for (auto& da : *proto->mutable_dados_ataque()) {
             if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
@@ -633,11 +686,15 @@ void AplicaFimLuz(const EntidadeProto::Evento& evento, EntidadeProto* proto) {
 }
 
 void AplicaFimEfeitosProcessados(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto) {
-  AplicaFimAtaquePorIdUnico(evento.id_unico(), proto);
+  if (!consequencia.dados_ataque().empty()) {
+    AplicaFimAtaquePorIdUnico(evento.id_unico(), proto);
+  }
   if (consequencia.has_luz()) {
     AplicaFimLuz(evento, proto);
   }
-  AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
+  if (consequencia.has_pontos_vida_temporarios()) {
+    AplicaBonusPenalidadeOuRemove(consequencia.pontos_vida_temporarios(), proto->mutable_pontos_vida_temporarios_por_fonte());
+  }
 }
 
 void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {

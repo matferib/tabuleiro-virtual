@@ -498,7 +498,7 @@ message ConsequenciaEvento {
   // Evento da bonus de iniciativa.
   optional Bonus bonus_iniciativa = 11;
   // Evento cria os dados de ataque passado.
-  optional DadosAtaque dados_ataque = 12;
+  repeated DadosAtaque dados_ataque = 12;
   // Para efeitos que causam iluminacao.
   optional IluminacaoPontual luz = 13;
   // Para efeitos que alteram movimento.

@@ -82,9 +82,15 @@ enum TipoDano {
 
 // O medio vem de tabela e os outros gerados automaticamente.
 message StringPorTamanho {
-  optional string medio = 1;
+  optional string minusculo = 8;
+  optional string diminuto = 9;
+  optional string miudo = 10;
   optional string pequeno = 2;
+  optional string medio = 1;
   optional string grande = 3;
+  optional string enorme = 5;
+  optional string imenso = 6;
+  optional string colossal = 7;
   // Dano nao varia por tamanho.
   optional string invariavel = 4;
 }

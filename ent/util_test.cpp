@@ -177,6 +177,79 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
   EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
 }
 
+TEST(TesteArmas, TesteArmaAbencoadaComPorrete) {
+  EntidadeProto proto;
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("porrete");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+    proto.mutable_dados_defesa()->set_id_escudo("escudo_grande");
+  }
+  ASSERT_EQ(proto.dados_ataque().size(), 1);
+  RecomputaDependencias(g_tabelas, &proto);
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_ARMA_ABENCOADA);
+  evento->set_rodadas(10);
+  evento->set_id_unico(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EntidadeProto protod;
+  *protod.mutable_dados_ataque() = proto.dados_ataque();
+  ASSERT_EQ(proto.dados_ataque().size(), 3);// << protod.DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).grupo(), "shillelagh");
+  EXPECT_EQ(proto.dados_ataque(0).rotulo(), "mão boa");
+  EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_ARMA_ESCUDO);
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d6+1");
+}
+
+TEST(TesteArmas, TesteArmaAbencoadaComBordao) {
+  EntidadeProto proto;
+  proto.set_tamanho(TM_PEQUENO);
+  AtribuiBaseAtributo(12, TA_FORCA, &proto);
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("bordao");
+    da->set_empunhadura(EA_MAO_BOA);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("bordao");
+    da->set_empunhadura(EA_MAO_RUIM);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 3);
+
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_ARMA_ABENCOADA);
+  evento->set_rodadas(10);
+  evento->set_id_unico(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 5);
+  EXPECT_EQ(proto.dados_ataque(0).grupo(), "shillelagh");
+  EXPECT_EQ(proto.dados_ataque(0).rotulo(), "mão boa");
+  EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_MAO_BOA);
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8+2");
+  EXPECT_EQ(proto.dados_ataque(1).grupo(), "shillelagh");
+  EXPECT_EQ(proto.dados_ataque(1).rotulo(), "mão ruim");
+  EXPECT_EQ(proto.dados_ataque(1).empunhadura(), EA_MAO_RUIM);
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "1d8+1");
+
+  proto.set_tamanho(TM_MEDIO);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 5);
+  EXPECT_EQ(proto.dados_ataque(0).rotulo(), "mão boa");
+  EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_MAO_BOA);
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d6+2");
+  EXPECT_EQ(proto.dados_ataque(1).rotulo(), "mão ruim");
+  EXPECT_EQ(proto.dados_ataque(1).empunhadura(), EA_MAO_RUIM);
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "2d6+1");
+
+  evento->set_rodadas(-1);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 3);
+  EXPECT_NE(proto.dados_ataque(0).grupo(), "shillelagh");
+}
+
 TEST(TesteArmas, TestePedraEncantadaComFunda) {
   EntidadeProto proto;
   RecomputaDependencias(g_tabelas, &proto);
@@ -688,12 +761,14 @@ TEST(TesteArmas, TesteArmaTemAcao) {
 
 TEST(TesteArmas, TesteProjetilArea) {
   EntidadeProto proto_ataque;
+  proto_ataque.set_tamanho(TM_GRANDE);
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("fogo_alquimico");
   RecomputaDependencias(g_tabelas, &proto_ataque);
   EXPECT_TRUE(da->ataque_toque());
   EXPECT_TRUE(da->ataque_distancia());
   EXPECT_TRUE(da->has_acao());
+  EXPECT_EQ(da->dano(), "1d6");
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
 }
