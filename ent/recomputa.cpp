@@ -1904,6 +1904,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
     da->mutable_acao()->MergeFrom(acao_tabelada);
   }
+
   // O que for especifico deste ataque.
   if (da->has_acao_fixa()) {
     if (!da->acao_fixa().id().empty()) {
@@ -1912,15 +1913,13 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     }
     da->mutable_acao()->MergeFrom(da->acao_fixa());
   }
+
   CombinaEfeitos(da->mutable_acao());
 
   // Aqui temos a acao finalizada. Agora passa tudo pro da.
   const AcaoProto& acao = da->acao();
   if (acao.has_ignora_reflexos()) {
     da->set_ignora_reflexos(acao.ignora_reflexos());
-  }
-  if (acao.has_id() && da->tipo_ataque().empty()) {
-    da->set_tipo_ataque(acao.id());
   }
   if (acao.ignora_municao()) {
     da->clear_municao();
@@ -2087,9 +2086,10 @@ void ResetDadosAtaque(DadosAtaque* da) {
   da->clear_requer_carregamento();
 }
 
-void RecomputaDependenciasArma(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
+void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
+
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
@@ -2366,7 +2366,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   }
 
   for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasArma(tabelas, *proto, &da);
+    RecomputaDependenciasUmDadoAtaque(tabelas, *proto, &da);
   }
   //EntidadeProto p;
   //*p.mutable_dados_ataque() = proto->dados_ataque();

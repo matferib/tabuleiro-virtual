@@ -87,7 +87,6 @@ tabela_armas {
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
     }
-    # TODO: apos uma rodada de dano direto, mais 1d6 se o alvo nao extinguiu.
   }
 
   # Armas simples.
@@ -173,6 +172,7 @@ tabela_armas {
   # One-Handed Melee Weapons
   armas {
     id: 'clava'
+    modelo_3d: 'club'
     categoria: CAT_CAC
     categoria: CAT_ARREMESSO
     preco: '0 PO'
@@ -452,6 +452,7 @@ tabela_armas {
   armas {
     id: 'porrete'
     nome: 'porrete'
+    modelo_3d: 'club'
     preco: '1 PO'
     dano { medio: '1d6' }
     categoria: CAT_LEVE
