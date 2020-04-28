@@ -5567,6 +5567,68 @@ tabela_feiticos {
     }
     escola: 'conjuracao'
   }
+  armas {
+    id: 'invocar_aliado_natureza_iv'
+    nome: 'invocar aliado da natureza IV'
+    nome_ingles: "summon nature's ally IV"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 4
+    }
+    info_classes {
+      id: 'animal'
+      nivel: 4
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Urso Marrom'
+          id_modelo_entidade: 'Urso Marrom IANIV'
+        }
+        parametros {
+          texto: 'Lobo Atroz (1d3)'
+          id_modelo_entidade: 'Lobo Atroz IANIII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Leão (1d3)'
+          id_modelo_entidade: 'Leão IANIII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Gorila (1d3)'
+          id_modelo_entidade: 'Gorila IANIII'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Urso Negro (1d4+1)'
+          id_modelo_entidade: 'Urso Negro IANII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Hipogrifo (1d4+1)'
+          id_modelo_entidade: 'Hipogrifo IANII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Pequeno) (1d4+1)'
+          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
+          quantidade: '1d4+1'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
 
   armas {
     id: 'roupa_encantada'

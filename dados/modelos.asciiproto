@@ -491,6 +491,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Urso Marrom IANIV'
+  id_entidade_base: 'Urso Marrom'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+modelo {
   id: 'Hipogrifo IANII'
   id_entidade_base: 'Hipogrifo'
   parametros {
@@ -6877,9 +6885,49 @@ modelo {
   id: 'Urso Marrom'
   entidade {
     tipo_dnd: TIPO_ANIMAL
-    dados_vida: '6d8+24' tamanho: TM_GRANDE info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
-    rotulo_especial: 'ini: +1\nat: 2x +11 1d8+8 +6 2d6+4\nca: 15'
-    modificador_iniciativa: 1
+    dados_vida: '6d8+24'
+    rotulo_especial: 'agarrar aprimorado'
+    tamanho: TM_GRANDE
+    tendencia { simples: TD_NEUTRO }
+    info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 6
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+      gerais { id: 'rastrear' }
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 6 }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6'
+    }
   }
 }
 modelo {
@@ -6889,6 +6937,7 @@ modelo {
     tamanho: TM_MEDIO
     dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    tendencia { simples: TD_NEUTRO }
     info_classes {
       id: 'animal' nivel: 3
       pericias_monstro: 'ouvir'

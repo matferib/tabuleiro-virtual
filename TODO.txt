@@ -1,5 +1,10 @@
-Conversao espontanea de druida.
-Forma alternativa: cura.
+Fazer mais um bicho do summon nature ally iv.
+Agarrar aprimorado: urso marrom.
+Botao de aplicar efeitos na UI.
+Feiticos de druida ate 5o nivel.
+Criaturas conjuradas herdar iniciativa da referencia.
+Druida 10.
+Feiticos de cura e infligir em massa para clerigo.
 Modificadores de ataque e dano de elementais.
 Imunidade a sono e atordoado de elementais.
 Flanquear: fazer automatico?
