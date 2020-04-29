@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 129.
+// Proximo id: 136.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -179,6 +179,12 @@ enum TipoEfeito {
   EFEITO_DOMINIO_PROTECAO = 126;
   EFEITO_VIRTUDE = 127;
   EFEITO_ARMA_ABENCOADA = 128;
+  EFEITO_INVISIBILIDADE_CONTRA_ANIMAIS = 129;
+  EFEITO_ESFRIAR_METAL = 130;
+  EFEITO_CONVOCAR_RELAMPAGOS = 131;
+  EFEITO_RETARDAR_ENVENENAMENTO = 132;
+  EFEITO_REDUZIR_ANIMAL = 133;
+  EFEITO_ESQUENTAR_METAL = 134;
 }
 
 enum TipoEfeitoModelo {
@@ -1023,6 +1029,8 @@ message VenenoProto {
   optional int32 preco_po = 11;
   // Indica pra nao computar CD usando a formula 10 + 1/2 HD + mod CON.
   optional bool nao_usar_cd_dinamico = 12;
+  // Se verdadeiro, efeito primario ja foi aplicado.
+  optional bool primario_aplicado = 13;
 }
 
 // Os templates de D&D.
