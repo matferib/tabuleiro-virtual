@@ -1050,6 +1050,45 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ESFRIAR_METAL
+    nome: 'esfriar metal'
+  }
+ 
+  efeitos {
+    id: EFEITO_ESQUENTAR_METAL
+    nome: 'esquentar metal'
+  }
+ 
+  efeitos {
+    id: EFEITO_RETARDAR_ENVENENAMENTO
+    nome: 'retardar envenenamento'
+  }
+ 
+  efeitos {
+    id: EFEITO_CONVOCAR_RELAMPAGOS
+    nome: 'relâmpago invocado'
+    consequencia {
+      dados_ataque {
+        grupo: 'relampago' rotulo: 'invocacao'
+        tipo_ataque: 'Feitiço de Druida'
+        dano_basico_fixo: '3d6'
+        alcance_q: 20
+        acao_fixa {
+          id: 'Feitiço a Distância'
+          elemento: DESC_ELETRICIDADE
+          info_textura { id: 'lighting.png' }
+          ignora_luz: true
+          consequencia: TC_INFLAMA_ALVO
+          tipo_salvacao: TS_REFLEXO
+          resultado_ao_salvar: RS_MEIO
+          dificuldade_salvacao_base: 13
+        }
+        limite_vezes: 5  # 1 por nivel max 10.
+      }
+    }
+  }
+ 
+  efeitos {
     id: EFEITO_ARMA_ABENCOADA
     nome: 'arma abençoada (shillelagh)'
     # descricao: transforma o porrete ou bordão em +1 e da dano como duas categorias maior. Tenta bordao primeiro;
@@ -1908,6 +1947,18 @@ tabela_efeitos {
       }
     }
   }
+  efeitos {
+    id: EFEITO_REDUZIR_ANIMAL
+    nome: 'reduzir animal'
+    consequencia {
+      tamanho { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -1 origem: 'reduzir_animal' } } }
+      atributos {
+        forca { bonus_individual { tipo: TB_TAMANHO por_origem { valor: -2 origem: 'reduzir_animal' } } }
+        destreza { bonus_individual { tipo: TB_TAMANHO por_origem { valor: 2 origem: 'reduzir_animal' } } }
+      }
+    }
+  }
+ 
   # Esses efeitos tem regras um pouco diferentes, porque dependem da tendencia do agressor.
   # +2 deflexao CA e +2 resistencia na salvacao dependendo alinhamento do agressor.
   # Imune a efeitos de encantamento (independente de alinhamento).
@@ -1978,6 +2029,15 @@ tabela_efeitos {
     id: EFEITO_INVISIBILIDADE
     nome: 'invisibilidade'
   }
+  efeitos {
+    id: EFEITO_INVISIBILIDADE_CONTRA_MORTOS_VIVOS
+    nome: 'invisibilidade contra mortos-vivos'
+  }
+  efeitos {
+    id: EFEITO_INVISIBILIDADE_CONTRA_ANIMAIS
+    nome: 'invisibilidade contra animais'
+  }
+
   efeitos {
     # Veneno tem um efeito imediato (primario) e um secundario (10 minutos depois).
     id: EFEITO_VENENO
@@ -5360,6 +5420,55 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'patas_de_aranha'
+    nome: 'patas de aranha'
+    nome_ingles: 'spider climb'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'patas de aranha'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+
+ 
+  armas {
+    id: 'forma_de_arvore'
+    nome: 'forma de árvore'
+    nome_ingles: "tree shape"
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
     id: 'pele_arvore'
     nome: 'pele de árvore'
     nome_ingles: "barkskin"
@@ -5697,7 +5806,7 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    id: 'bom fruto'
+    id: 'bom_fruto'
     nome: 'bom fruto'
     nome_ingles: 'goodberry'
     info_classes {
@@ -5745,9 +5854,36 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    id: 'criar_chama'
+    id: 'passos_sem_pegadas'
+    nome: 'passos sem pegadas'
+    nome_ingles: 'pass without trace'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO 
+        descricao: 'passos sem pegadas'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
+    id: 'criar_chamas'
     nome_ingles: 'produce flame'
-    nome: 'criar chama'
+    nome: 'criar chamas'
     info_classes {
       id: 'druida'
       nivel: 1
@@ -5782,6 +5918,25 @@ tabela_feiticos {
         efeito: EFEITO_LAMINA_FLAMEJANTE
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+    }
+    escola: 'evocacao'
+  }
+  armas {
+    id: 'lufada_de_vento'
+    nome_ingles: 'gust of wind'
+    nome: 'lufada de vento'
+    alcance_quadrados: 12
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      elemento: DESC_AR
     }
     escola: 'evocacao'
   }
@@ -5878,6 +6033,40 @@ tabela_feiticos {
     }
     escola: 'conjuracao'
   }
+  armas {
+    id: 'nevoa_obscurescente'
+    nome_ingles: 'obscuring mist'
+    nome: 'névoa obscurescente'
+    alcance_quadrados: 20
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 1
+      dominio: true
+    }
+    info_classes {
+      id: 'ar'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Névoa Obscurescente'
+    }
+    escola: 'conjuracao'
+  }
+
   armas {
     id: 'pele_rochosa'
     nome_ingles: 'stoneskin'
@@ -6104,7 +6293,7 @@ tabela_feiticos {
 
   armas {
     link: 'https://www.d20srd.org/srd/spells/detectAnimalsOrPlants.htm'
-    id: 'detectar_animais_plantar'
+    id: 'detectar_animais_plantas'
     nome_ingles: 'detect animals or plants'
     nome: 'detectar animais ou plantas'
     info_classes {
@@ -6315,7 +6504,6 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holdPerson.htm'
     id: 'imobilizar_pessoa'
     nome_ingles: 'hold person'
     nome: 'imobilizar pessoa'
@@ -6378,7 +6566,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holdAnimal.htm'
     id: 'imobilizar_animal'
     nome_ingles: 'hold animal'
     nome: 'imobilizar animal'
@@ -6689,7 +6876,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/silence.htm'
     id: 'silencio'
     nome_ingles: 'silence'
     nome: 'silêncio'
@@ -6712,6 +6898,36 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'torcer_madeira'
+    nome_ingles: 'warp wood'
+    nome: 'torcer madeira'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'transe_animal'
+    nome_ingles: 'animal trance'
+    nome: 'transe animal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    escola: 'transmutacao'
+  }
+
+
+  armas {
     link: 'https://www.d20srd.org/srd/spells/augury.htm'
     id: 'augurio'
     nome_ingles: 'augury'
@@ -6727,7 +6943,30 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/hideFromUndead.htm'
+    id: 'invisibilidade_contra_animais'
+    nome_ingles: 'hide from animals'
+    nome: 'invisibilidade contra animais'
+    info_classes {
+      id: 'druida'
+      nivel: 1
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      ignora_resistencia_magia: true
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_INVISIBILIDADE_CONTRA_ANIMAIS
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
+  armas {
     id: 'invisibilidade_contra_mortos_vivos'
     nome_ingles: 'hide from undead'
     nome: 'invisibilidade contra mortos-vivos'
@@ -8248,6 +8487,63 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'mensageiro_animal'
+    nome_ingles: 'animal messenger'
+    nome: 'mensageiro animal'
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'moldar_madeira'
+    nome_ingles: 'wood shape'
+    nome: 'moldar madeira'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque'
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'nevoa'
+    nome_ingles: 'fog cloud'
+    nome: 'névoa'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Névoa'
+    }
+    escola: 'conjuracao'
+  }
+
+  armas {
     id: 'enviar_mensagem'
     nome_ingles: 'sending'
     nome: 'enviar mensagem'
@@ -8298,6 +8594,44 @@ tabela_feiticos {
     # TODO eliminar fadiga, exausto para fadiga, cura 1d4 pontos de dano de habilidade. Dissipa qq efeito magico que reduza habilidades.
     escola: 'conjuracao'
   }
+
+  armas {
+    id: 'retardar_envenenamento'
+    nome_ingles: 'delay poison'
+    nome: 'retardar envenenamento'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_RETARDAR_ENVENENAMENTO
+        modificador_rodadas: MR_RODADAS_NIVEL 
+      }
+    }
+    escola: 'conjuracao'
+  }
+
 
   armas {
     id: 'cativar'
@@ -8576,6 +8910,56 @@ tabela_feiticos {
     }
     escola: 'abjuracao'
   }
+  armas {
+    id: 'reduzir_animal'
+    nome_ingles: 'reduce animal'
+    nome: 'reduzir animal'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_FEITICO_TOQUE
+      icone: 'icon_touch.png'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      efeitos_adicionais {
+        efeito: EFEITO_REDUZIR_ANIMAL
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
+    id: 'ampliar_plantas'
+    nome_ingles: 'plant growth'
+    nome: 'ampliar plantas'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    info_classes {
+      id: 'planta'
+      nivel: 3
+      dominio: true
+    }
+    escola: 'transmutacao'
+  }
+
+
   armas {
     id: 'aumentar_pessoa'
     nome_ingles: 'enlarge person'
@@ -10429,6 +10813,29 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
+    id: 'amolecer_terra_e_pedra'
+    nome_ingles: 'soften earth and stone'
+    nome: 'amolecer terra e pedra'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Terra Mole'
+      elemento: DESC_TERRA
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
     id: 'esplendor_aguia'
     nome_ingles: 'eagle\'s splendor'
     nome: 'esplendor da águia'
@@ -10461,6 +10868,62 @@ tabela_feiticos {
       }
     }
     escola: 'transmutacao'
+  }
+  armas {
+    id: 'armadilha'
+    nome_ingles: 'snare'
+    nome: 'armadilha'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Armadilha'
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'convocar_relampagos'
+    nome_ingles: 'call lightning'
+    nome: 'convocar relâmpagos'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_CONVOCAR_RELAMPAGOS
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'evocacao'
+  }
+
+  armas {
+    id: 'armadilha_de_fogo'
+    nome_ingles: 'fire trap'
+    nome: 'armadilha de fogo'
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      elemento: DESC_FOGO
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Armadilha de Fogo'
+    }
+    escola: 'abjuracao'
   }
   armas {
     id: 'vigor_urso'
@@ -12334,8 +12797,8 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/flamingSphere.htm'
     id: 'esfera_flamejante'
+    nome_ingles: 'flaming sphere'
     nome: 'esfera flamejante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -12354,6 +12817,55 @@ tabela_feiticos {
     escola: 'evocacao'
   }
 
+  armas {
+    id: 'esfriar metal'
+    nome: 'esfriar metal'
+    nome_ingles: 'chill metal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      elemento: DESC_FRIO
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_ESFRIAR_METAL
+        rodadas: 7
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'esquentar_metal'
+    nome: 'esquentar metal'
+    nome_ingles: 'heat metal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'sol'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      elemento: DESC_FOGO
+      tipo_salvacao: TS_VONTADE
+      resultado_ao_salvar: RS_ANULOU
+      efeitos_adicionais {
+        efeito: EFEITO_ESQUENTAR_METAL
+        rodadas: 7
+      }
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'sono'
     nome: 'sono'

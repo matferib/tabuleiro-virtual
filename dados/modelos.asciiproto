@@ -1944,6 +1944,74 @@ modelo {
 }
 
 modelo {
+  id: 'Terra Mole'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_CUBO
+    escala { x: 3 y: 3  z: 3 }
+    cor { r: 0.3 g: 0.3 b: 0.3 a: 0.8 }
+  }
+}
+
+modelo {
+  id: 'Armadilha'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 0.7 y: 0.7  z: 0.7 }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    info_textura { id: 'tile_grass.png' }
+    gerar_agarrar: false
+  }
+  parametros {
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+
+modelo {
+  id: 'Armadilha de Fogo'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 0.7 y: 0.7  z: 0.7 }
+    cor { r: 1 g: 1 b: 0 a: 0.9 }
+    gerar_agarrar: false
+    dados_ataque {
+      rotulo: 'explosao'
+      tipo_ataque: 'Feitiço de Toque' dano_basico: '1d4'
+      dificuldade_salvacao: 12  # template vai adicionar os modificadores de atributo.
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_ESFERA
+        efeito_area: true
+        icone: 'icon_fireball.png'
+        raio_quadrados: 1
+        info_textura { id: 'fire.png' }
+        ignora_reducao_dano_barbaro: true
+        cor { r: 1.0 g: 1.0  b: 0.0 }
+        permite_ataque_vs_defesa: false
+        tipo_salvacao: TS_REFLEXO
+        permite_salvacao: true
+        resultado_ao_salvar: RS_MEIO
+        consequencia: TC_INFLAMA_ALVO
+        elemento: DESC_FOGO
+        dificuldade_salvacao_por_nivel: false  # ja vai vir pronto do template.
+      }
+    }
+    ignora_luz: true
+  }
+  parametros {
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Muralha de Fogo'
   entidade {
     modelo_3d { id: 'builtin:cubo' translacao { z: 0.75 } }
@@ -1959,6 +2027,43 @@ modelo {
   }
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+modelo {
+  id: 'Névoa'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 12 y: 12  z: 12 }
+    cor { r: 0 g: 0 b: 0 a: 0.5 }
+    evento {
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+  }
+}
+
+
+modelo {
+  id: 'Névoa Obscurescente'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 12 y: 12  z: 12 }
+    cor { r: 0 g: 0 b: 0 a: 0.5 }
+    evento {
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
   }
 }
 
@@ -3074,6 +3179,7 @@ modelo {
 modelo {
   id: 'Leão Atroz'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '8d8+24'
     rotulo_especial: 'bote ao investir'
     tamanho: TM_GRANDE
@@ -3260,6 +3366,7 @@ modelo {
 modelo {
   id: 'Lobo Atroz'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     tendencia { simples: TD_NEUTRO }
     dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'dire_wolf' }
     info_classes {
@@ -3329,6 +3436,7 @@ modelo {
 modelo {
   id: 'Texugo Atroz'  # dire badger
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     tendencia { simples: TD_NEUTRO }
     dados_vida: '3d8+15' tamanho: TM_MEDIO
     info_textura { id: 'badger.png' altura: 0.6 translacao_y: 0.4 }
@@ -4182,7 +4290,7 @@ modelo {
       pergaminhos_divinos { id: 'constricao' }
       pergaminhos_divinos { id: 'pedra_encantada' }
       pergaminhos_divinos { id: 'falar_com_animais' }
-      pergaminhos_divinos { id: 'criar_chama' }
+      pergaminhos_divinos { id: 'criar_chamas' }
       pergaminhos_divinos { id: 'fogo_das_fadas' }
       pergaminhos_divinos { id: 'passos_longos' }
 
@@ -4214,7 +4322,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'auto' }
-        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'criar_chamas' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
       }
@@ -4285,7 +4393,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'auto' }
-        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'criar_chamas' }
         conhecidos { id: 'pedra_encantada' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
@@ -4363,7 +4471,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'auto' }
-        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'criar_chamas' }
         conhecidos { id: 'pedra_encantada' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
@@ -4486,7 +4594,7 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'criar_chama' }
+        conhecidos { id: 'criar_chamas' }
         conhecidos { id: 'pedra_encantada' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -6633,6 +6741,7 @@ modelo {
 modelo {
   id: 'Rato Atroz'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
     rotulo_especial: 'dano da doenca fort 11 febre esgoto'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
@@ -6643,6 +6752,7 @@ modelo {
 modelo {
   id: 'Rinoceronte'
   entidade {
+    tipo_dnd: TIPO_ANIMAL
     dados_vida: '8d8+40' tamanho: TM_GRANDE info_textura { id: 'rhinoceros.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
     rotulo_especial: 'ini: 0\nat: +13 2d6+12\nca: 16'
   }
