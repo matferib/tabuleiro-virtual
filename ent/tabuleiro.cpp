@@ -7311,31 +7311,47 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
     *proto_antes->add_evento() = *evento;
     auto* evento_depois = proto_depois->add_evento();
     *evento_depois = *evento;
-    evento_depois->set_rodadas(evento_depois->rodadas() - 1);
-    if (evento->rodadas() == 1 && evento->id_efeito() == EFEITO_VENENO) {
-      // Aplica dano secundario do veneno.
-      for (const auto& veneno_proto_str : evento->complementos_str()) {
-        // Parse do efeito.
-        VenenoProto veneno;
-        if (!google::protobuf::TextFormat::ParseFromString(veneno_proto_str, &veneno)) {
-          continue;
-        }
-        std::string veneno_str;
-        auto* n_veneno = grupo->add_notificacao();
-        int d20 = RolaDado(20);
-        int bonus = entidade.SalvacaoVeneno();
-        int total = d20 + bonus;
-        if (total < veneno.cd()) {
-          // nao salvou: criar o efeito do dano.
+    if (evento->id_efeito() != EFEITO_VENENO || !PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade.Proto())) {
+      evento_depois->set_rodadas(evento_depois->rodadas() - 1);
+    }
+    if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_VENENO) {
+      // Aplica veneno.
+      if (evento->complementos_str().empty()) {
+        continue;
+      }
+      // Parse do efeito.
+      VenenoProto veneno;
+      if (!google::protobuf::TextFormat::ParseFromString(evento->complementos_str(0), &veneno)) {
+        continue;
+      }
+      std::string veneno_str;
+      auto* n_veneno = grupo->add_notificacao();
+      int d20 = RolaDado(20);
+      int bonus = entidade.SalvacaoVeneno();
+      int total = d20 + bonus;
+      if (total < veneno.cd()) {
+        // nao salvou: criar o efeito do dano.
+        if (!veneno.primario_aplicado()) {
+          veneno_str = google::protobuf::StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
+          PreencheNotificacaoEventoParaVenenoPrimario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
+        } else {
           veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
           PreencheNotificacaoEventoParaVenenoSecundario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
-        } else {
-          // salvou.
-          veneno_str = google::protobuf::StringPrintf("salvou veneno secundario (%d + %d >= %d)", d20, bonus, veneno.cd());
         }
-        AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
-        atraso_s += 0.5f;
+      } else {
+        // salvou.
+        veneno_str = google::protobuf::StringPrintf("salvou veneno %s (%d + %d >= %d)", veneno.primario_aplicado() ? "secundário" : "primário", d20, bonus, veneno.cd());
       }
+      if (!veneno.primario_aplicado()) {
+        // Aplicou primario, renova pra secundario.
+        evento_depois->set_rodadas(10);
+        veneno.set_primario_aplicado(true);
+        std::string veneno_proto_str;
+        google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
+        *evento_depois->mutable_complementos_str(0) = veneno_proto_str;
+      }
+      AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
+      atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_FLECHA_ACIDA) {
       int dano = -RolaValor("2d4");
       auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);

@@ -550,7 +550,21 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         }
       }
     break;
-    case EFEITO_BOM_FRUTO: 
+    case EFEITO_CONVOCAR_RELAMPAGOS: {
+      auto* relampagos = DadosAtaquePorIdUnico(evento->id_unico(), proto);
+      if (relampagos == nullptr) {
+        evento->set_rodadas(-1);
+        break;
+      } else {
+        if (!evento->processado()) {
+          // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
+          int nivel_conjurador = evento->rodadas() / 10;
+          relampagos->set_limite_vezes(std::min(nivel_conjurador, 10));
+        }
+      }
+    }
+    break;
+    case EFEITO_BOM_FRUTO:
       if (!evento->processado()) {
         for (auto& da : *proto->mutable_dados_ataque()) {
           if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;

@@ -1700,22 +1700,29 @@ float Tabuleiro::TrataAcaoIndividual(
         int d20 = RolaDado(20);
         int bonus = entidade_destino->SalvacaoVeneno();
         int total = d20 + bonus;
+        bool primario_aplicado = false;
         if (total < veneno.cd()) {
           // nao salvou: criar o efeito do dano.
           veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoPrimario(
-              entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+          if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
+            primario_aplicado = true;
+            PreencheNotificacaoEventoParaVenenoPrimario(
+                entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+          }
         } else {
           veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+          primario_aplicado = true;
         }
         // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
         // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
         {
           std::string veneno_proto_str;
-          google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
+          auto copia_veneno = veneno;
+          copia_veneno.set_primario_aplicado(primario_aplicado);
+          google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
           std::string origem = StringPrintf("%d", AchaIdUnicoEvento(ids_unicos_entidade_destino));
           PreencheNotificacaoEventoComComplementoStr(
-              entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/10,
+              entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
               &ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
         }
         central_->AdicionaNotificacao(n_veneno.release());
