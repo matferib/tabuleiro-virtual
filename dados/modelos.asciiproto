@@ -1953,7 +1953,22 @@ modelo {
     cor { r: 0.3 g: 0.3 b: 0.3 a: 0.8 }
   }
 }
-
+modelo {
+  id: 'Crescer Espinhos'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.75 }
+    escala { x: 6 y: 6  z: 0.2 }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    info_textura { id: 'tile_grass.png' }
+    gerar_agarrar: false
+  }
+  parametros {
+    tipo_duracao: TD_HORAS_NIVEL
+  }
+}
 modelo {
   id: 'Armadilha'
   entidade {
@@ -1970,8 +1985,21 @@ modelo {
     tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
   }
 }
-
-
+modelo {
+  id: 'Muralha de Vento'
+  entidade {
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_CUBO
+    pos { z: 0.75 }
+    escala { x: 9 y: 0.5  z: 4.5 }
+    cor { r: 0.5 g: 0.5 b: 1 a: 0.5 }
+    gerar_agarrar: false
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
 modelo {
   id: 'Armadilha de Fogo'
   entidade {
@@ -4227,7 +4255,7 @@ modelo {
         nivel: 7
         conhecidos { id: 'destruicao' }
         conhecidos { id: 'palavra_sagrada' }
-        conhecidos { id: 'restauracao' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
@@ -4235,7 +4263,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 8
         conhecidos { id: 'aliado_extra_planar_maior' }
-        conhecidos { id: 'imunidade_magia_maior' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
       }
@@ -4621,8 +4649,8 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'curar_ferimentos_moderados' }
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
+        conhecidos { id: 'convocar_relampagos' }
+        conhecidos { id: 'envenenamento' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
@@ -6792,6 +6820,20 @@ modelo {
     multiplicador_nivel_dano: 1
     dado_dano_por_nivel: 6
     maximo_modificador_dano: 20
+  }
+}
+
+modelo {
+  id: 'Nevasca'
+  entidade {
+    modelo_3d { id: 'builtin:cilindro' escala { x: 16 y: 16 z: 4 } } # sao 8 quadrados de raio.
+    cor { r: 1 g: 1 b: 1 a: 0.5 }
+    info_textura { id: 'ice.png' }
+    faz_sombra: false
+    dois_lados: true
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
   }
 }
 

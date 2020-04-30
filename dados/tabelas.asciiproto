@@ -1053,20 +1053,17 @@ tabela_efeitos {
     id: EFEITO_ESFRIAR_METAL
     nome: 'esfriar metal'
   }
- 
   efeitos {
     id: EFEITO_ESQUENTAR_METAL
     nome: 'esquentar metal'
   }
- 
   efeitos {
     id: EFEITO_RETARDAR_ENVENENAMENTO
     nome: 'retardar envenenamento'
   }
- 
   efeitos {
     id: EFEITO_CONVOCAR_RELAMPAGOS
-    nome: 'relâmpago invocado'
+    nome: 'relâmpagos invocados'
     consequencia {
       dados_ataque {
         grupo: 'relampago' rotulo: 'invocacao'
@@ -1087,7 +1084,6 @@ tabela_efeitos {
       }
     }
   }
- 
   efeitos {
     id: EFEITO_ARMA_ABENCOADA
     nome: 'arma abençoada (shillelagh)'
@@ -5420,6 +5416,134 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'mesclarse_as_rochas'
+    nome: 'mesclar-se às rochas'
+    nome_ingles: 'meld into stone'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'mesclar-se às rochas'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'moldar_rochas'
+    nome: 'moldar rochas'
+    nome_ingles: 'stone shape'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 3
+      dominio: true
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'muralha_de_vento'
+    nome: 'muralha de vento'
+    nome_ingles: 'wind wall'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ar'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Muralha de Vento'
+      elemento: DESC_AR
+    }
+    escola: 'evocacao'
+  }
+
+
+  armas {
+    id: 'crescer_espinhos'
+    nome: 'crescer espinhos'
+    nome_ingles: 'spike growth'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Crescer Espinhos'
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'dominar_animal'
+    nome: 'dominar animal'
+    nome_ingles: 'dominate animal'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'animal'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      elemento: DESC_MENTAL
+      afeta_apenas: TIPO_ANIMAL
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'dominado'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+
+  armas {
     id: 'patas_de_aranha'
     nome: 'patas de aranha'
     nome_ingles: 'spider climb'
@@ -6688,7 +6812,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/neutralizePoison.htm'
     id: 'neutralizar_venenos'
     nome_ingles: 'neutralize poison'
     nome: 'neutralizar venenos'
@@ -6724,7 +6847,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/createFoodAndWater.htm'
     id: 'criar_alimentos'
     nome_ingles: 'create food and water'
     nome: 'criar alimentos'
@@ -6736,7 +6858,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/continualFlame.htm'
     id: 'chama_continua'
     nome_ingles: 'continual flame'
     nome: 'chama contínua'
@@ -6752,10 +6873,9 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/contagion.htm'
     id: 'praga'
-    nome_ingles: 'contagion'
     nome: 'praga'
+    nome_ingles: 'contagion'
     info_classes {
       id: 'mago'
       nivel: 4
@@ -6787,7 +6907,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/destruction.htm'
     id: 'destruicao'
     nome_ingles: 'destruction'
     nome: 'destruição'
@@ -7780,7 +7899,7 @@ tabela_feiticos {
   armas {
     id: 'remover_doencas'
     nome_ingles: 'remove disease'
-    nome: 'remover_maldicao'
+    nome: 'remover doenças'
     info_classes {
       id: 'druida'
       nivel: 3
@@ -7799,7 +7918,7 @@ tabela_feiticos {
   armas {
     id: 'remover_maldicao'
     nome_ingles: 'remove curse'
-    nome: 'remover_maldicao'
+    nome: 'remover maldicao'
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -7817,6 +7936,40 @@ tabela_feiticos {
       nivel: 4
     }
     escola: 'abjuracao'
+  }
+  armas {
+    id: 'respirar_na_agua'
+    nome_ingles: 'water breathing'
+    nome: 'respirar na água'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'respirar na água'
+        modificador_rodadas: MR_2_HORAS_NIVEL  # na verdade tem que dividir pelo numero de criaturas tocadas.
+      }
+    }
+    escola: 'transmutacao'
   }
   armas {
     id: 'falar_com_animais'
@@ -7948,10 +8101,9 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
-
   armas {
     id: 'presa_magica'
-    nome_ingles: 'magic fang.'
+    nome_ingles: 'magic fang'
     nome: 'presa mágica'
     info_classes {
       id: 'druida'
@@ -7975,6 +8127,33 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
+  armas {
+    id: 'presa_magica_maior'
+    nome_ingles: 'magic fang, greater'
+    nome: 'presa mágica maior'
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      ignora_resistencia_magia: true
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'presa magica maior'
+        modificador_rodadas: MR_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+
   armas {
     id: 'malogro'
     nome_ingles: 'blight'
@@ -8958,8 +9137,22 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
-
-
+  armas {
+    id: 'enfraquecer_plantas'
+    nome_ingles: 'diminish plants'
+    nome: 'enfraquecer plantas'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'ranger'
+      nivel: 3
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'aumentar_pessoa'
     nome_ingles: 'enlarge person'
@@ -8988,7 +9181,21 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
-
+  armas {
+    id: 'extinguir_fogo'
+    nome_ingles: 'quench'
+    nome: 'extinguir fogo'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    acao {
+      id: 'Feitiço a Distância'
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'prestigidacao'
     nome_ingles: 'prestigidation'
@@ -12969,6 +13176,27 @@ tabela_feiticos {
       id_modelo_entidade: 'Tempestade Glacial'
     }
     escola: 'evocacao'
+  }
+  armas {
+    id: 'nevasca'
+    nome: 'nevasca'
+    nome_ingles: 'sleet storm'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Nevasca'
+      elemento: DESC_FRIO
+    }
+    escola: 'conjuracao'
   }
 }
 
