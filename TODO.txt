@@ -1,3 +1,15 @@
+Colocar doenca nos ataques, igual veneno.
+Sair de modo corpo a corpo se adversario cair.
+Nao desenhar duas vezes arma dupla.
+Presa mágica e presa mágica maior.
+Dominar animais.
+Crescer espinhos: modelar o ataque (1d4 de dano e reduz movimento).
+Colocar nivel de conjurador tb em RecomputaDependenciasVenenoParaAtaque. Criar algum campo no veneno que diga isso.
+Esquentar metal e esfriar metal. Criar efeito de tremer para frio.
+Feitiços de 4o, 5o de druida.
+Lufada de vento.
+Forma de arvore.
+Armadilha de fogo: dano variavel.
 Fazer mais um bicho do summon nature ally iv.
 Agarrar aprimorado: urso marrom.
 Botao de aplicar efeitos na UI.
