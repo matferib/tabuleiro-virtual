@@ -497,6 +497,27 @@ modelo {
     tipo_duracao: TD_RODADAS_NIVEL
   }
 }
+modelo {
+  id: 'Leão Atroz IANV'
+  id_entidade_base: 'Leão Atroz'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Grifo IANV'
+  id_entidade_base: 'Grifo'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Megaraptor IANVI'
+  id_entidade_base: 'Megaraptor'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
 
 modelo {
   id: 'Hipogrifo IANII'
@@ -2936,6 +2957,7 @@ modelo {
 modelo {
   id: 'Grifo'
   entidade {
+    tipo_dnd: TIPO_BESTA_MAGICA
     dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' altura: 0.6 translacao_y: 0.2 } cor { r: 0.6 g: 0.45 b: 0.2 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'bote: carga e ataque total incluindo rasgar'
@@ -2961,7 +2983,6 @@ modelo {
       gerais { id: 'foco_em_arma' complemento: 'mordida' }
       gerais { id: 'vontade_ferro' }
     }
-
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }

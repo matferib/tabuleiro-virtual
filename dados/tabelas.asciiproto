@@ -5862,6 +5862,109 @@ tabela_feiticos {
     }
     escola: 'conjuracao'
   }
+  armas {
+    id: 'invocar_aliado_natureza_v'
+    nome: 'invocar aliado da natureza V'
+    nome_ingles: "summon nature's ally V"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Grifo'
+          id_modelo_entidade: 'Grifo IANV'
+        }
+        parametros {
+          texto: 'Leão Atroz'
+          id_modelo_entidade: 'Leão Atroz IANV'
+        }
+        parametros {
+          texto: 'Urso Marrom (1d3)'
+          id_modelo_entidade: 'Urso Marrom IANIV'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Lobo Atroz (1d4+1)'
+          id_modelo_entidade: 'Lobo Atroz IANIII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Leão (1d4+1)'
+          id_modelo_entidade: 'Leão IANIII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Gorila (1d4+1)'
+          id_modelo_entidade: 'Gorila IANIII'
+          quantidade: '1d4+1'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_vi'
+    nome: 'invocar aliado da natureza VI'
+    nome_ingles: "summon nature's ally VI"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 6
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Megaraptor'
+          id_modelo_entidade: 'Megaraptor IANVI'
+        }
+        parametros {
+          texto: 'Grifo (1d3)'
+          id_modelo_entidade: 'Grifo IANV'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Leão Atroz (1d3)'
+          id_modelo_entidade: 'Leão Atroz IANV'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Urso Marrom (1d4+1)'
+          id_modelo_entidade: 'Urso Marrom IANIV'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Lobo Atroz (1d4+1)'
+          id_modelo_entidade: 'Lobo Atroz IANIII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Leão (1d4+1)'
+          id_modelo_entidade: 'Leão IANIII'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Gorila (1d4+1)'
+          id_modelo_entidade: 'Gorila IANIII'
+          quantidade: '1d4+1'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+
+
+
 
   armas {
     id: 'roupa_encantada'
