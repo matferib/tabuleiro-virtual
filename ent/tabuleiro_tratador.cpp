@@ -1689,6 +1689,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     std::string veneno_str;
+    LOG(INFO) << "veneno: " << (da.has_veneno() ? da.veneno().DebugString().c_str() : "sem veneno");
     if (resultado.Sucesso() && da.has_veneno()) {
       if (entidade_destino->ImuneVeneno()) {
         veneno_str = "Imune a veneno";

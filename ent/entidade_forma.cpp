@@ -376,6 +376,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   }
 
   gl::Desabilita(GL_TEXTURE_2D);
+  gl::TexturaBump(false);
 #endif
 }
 

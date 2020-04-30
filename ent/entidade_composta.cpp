@@ -100,6 +100,7 @@ void Entidade::DesenhaObjetoCompostoProto(
     gl::TexturaBump(proto.info_textura().textura_bump());
   }
   vd.vbos_gravados.Desenha();
+  gl::TexturaBump(false);
   gl::Desabilita(GL_TEXTURE_2D);
 #if 0 && DEBUG
       // Debug de normais escala deve estar em 1.0.

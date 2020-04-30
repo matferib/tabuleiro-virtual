@@ -272,7 +272,7 @@ message AcaoProto {
   optional string quantidade_entidades = 80;
   optional ModificadorQuantidade modificador_quantidade = 81;
   // O veneno da acao.
-  optional VenenoProto veneno = 64;
+  optional VenenoProto veneno_deprecated = 64 [deprecated=true];
   optional TipoMagia tipo_pergaminho = 65;
   // Algumas acoes precisam de mais detalhes para serem executadas, e isso deve ser passado pelo usuário.
   // Por exemplo, feiticos que tem varias formas possiveis, ou a arma que sera alvo de uma magia.

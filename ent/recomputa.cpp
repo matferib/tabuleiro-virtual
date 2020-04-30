@@ -2052,7 +2052,8 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   }
 
   if (arma.has_veneno()) {
-    *da->mutable_acao()->mutable_veneno() = arma.veneno();
+    //*da->mutable_acao()->mutable_veneno() = arma.veneno();
+    *da->mutable_veneno() = arma.veneno();
   }
   if (arma.has_dano_ignora_salvacao()) {
     da->set_dano_ignora_salvacao(arma.dano_ignora_salvacao());
@@ -2064,8 +2065,8 @@ void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaq
     return;
   }
   const int nivel = Nivel(proto);
-  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, proto);
-  da->mutable_veneno()->set_cd(10 + mod_con + nivel / 2);
+  const int mod = ModificadorAtributo(da->veneno().atributo_para_cd(), proto);
+  da->mutable_veneno()->set_cd(10 + mod + nivel / 2);
 }
 
 void RecomputaDependenciasBesta(const DadosAtaque& da, Bonus* bonus_ataque) {

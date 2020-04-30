@@ -1031,6 +1031,8 @@ message VenenoProto {
   optional bool nao_usar_cd_dinamico = 12;
   // Se verdadeiro, efeito primario ja foi aplicado.
   optional bool primario_aplicado = 13;
+  // O atributo usado para calcular a CD.
+  optional TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
 }
 
 // Os templates de D&D.
