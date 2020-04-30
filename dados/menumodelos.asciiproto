@@ -153,6 +153,11 @@ modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
   id: 'Gnomos'
+  modelo {
+    id: 'Gnoma Druida 1 + Víbora Pequena'
+    modelos { id: 'Gnoma Druida 1' }
+    modelos { id: 'Cobra, Víbora Pequena' }
+  }
   modelo { id: 'Gnomo Ilusionista 3' }
   modelo { id: 'Gnomo Ilusionista 4' }
 }

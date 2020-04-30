@@ -244,6 +244,7 @@ tabela_armas {
   }
   armas {
     id: 'bordao'
+    modelo_3d: 'quarterstaff'
     categoria: CAT_CAC
     categoria: CAT_ARMA_DUPLA
     nome: 'bordão'

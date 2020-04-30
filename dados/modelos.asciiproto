@@ -4291,13 +4291,81 @@ modelo {
 }
 
 modelo {
+  id: 'Gnoma Druida 1'
+  id_entidade_base: 'Druida Base'
+  entidade {
+    raca: 'gnomo'
+    rotulo: 'Druida 1'
+    info_classes { id: 'druida' nivel: 1 }
+    dados_vida: '10'
+    info_textura { id: 'gnome_female.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.7 b: 0.3 }
+    dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
+    dados_ataque { id_arma: 'bordao' empunhadura: EA_MAO_BOA obra_prima: 1 }
+    dados_ataque { id_arma: 'bordao' empunhadura: EA_MAO_RUIM obra_prima: 1 }
+    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: 1 municao: 20 }
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 1 }
+    tesouro {
+      # inicio 230 PO.
+      pocoes { id: 'escudo_fe_2' }  # 50
+      pocoes { id: 'curar_ferimentos_leves' }  # 50
+      # sobram 150 PO.
+      # Pergaminhos saem por 70% do preco (dmg 110, handcrafted npc).
+      # 0: 8.75 PO (3), 1: 17.5 (7)
+      pergaminhos_divinos { id: 'luz' }
+      pergaminhos_divinos { id: 'virtude' }
+      pergaminhos_divinos { id: 'resistencia' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' }
+      pergaminhos_divinos { id: 'constricao' }
+      pergaminhos_divinos { id: 'pedra_encantada' }
+      pergaminhos_divinos { id: 'arma_abencoada' }
+      pergaminhos_divinos { id: 'criar_chamas' }
+      pergaminhos_divinos { id: 'fogo_das_fadas' }
+      pergaminhos_divinos { id: 'passos_longos' }
+
+      moedas { po: 5 }
+    }
+    info_talentos {
+      gerais { id: 'escrever_pergaminho' }
+    }
+    info_pericias { id: 'adestrar_animais' pontos: 4 }
+    info_pericias { id: 'concentracao' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 4 }
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'identificar_magia' pontos: 1 }
+    info_pericias { id: 'cura' pontos: 1 }
+    feiticos_classes {
+      id_classe: 'druida'
+      feiticos_por_nivel {
+        nivel: 0
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'orientacao' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'criar_chamas' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+      }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Druida 1'
   id_entidade_base: 'Druida Base'
   entidade {
     raca: 'humano'
     rotulo: 'Druida 1'
     info_classes { id: 'druida' nivel: 1 }
-    dados_vida: '9'
+    dados_vida: '9+3'
     info_textura { id: 'druid.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.7 b: 0.3 }
     dados_defesa { id_armadura: 'gibao_peles' id_escudo: 'pesado_madeira' }
@@ -6770,11 +6838,41 @@ modelo {
   id: 'Rato Atroz'
   entidade {
     tipo_dnd: TIPO_ANIMAL
-    dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
-    rotulo_especial: 'dano da doenca fort 11 febre esgoto'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
-    modificador_iniciativa: 3
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '1d8+1'
+    tamanho: TM_PEQUENO
+    modelo_3d { id: 'rat' }
+    rotulo_especial: 'dano da doenca fort 11 febre esgoto\nfaro'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 1
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'natacao'
+    }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+      }
+    }
     mais_de_duas_pernas: true
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+    # TODO conferir pericias.
+    info_pericias { id: 'natacao' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
 modelo {
