@@ -520,7 +520,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         arma_abencoada_secundaria->set_id_arma(da_secundario->id_arma());
         arma_abencoada_secundaria->set_empunhadura(EA_MAO_RUIM);
         arma_abencoada_secundaria->set_tamanho(tamanho);
-      } else if (arma_abencoada_secundaria != nullptr) { 
+      } else if (arma_abencoada_secundaria != nullptr) {
         // Remove o segundo ataque criado.
         RemoveSe<DadosAtaque>([arma_abencoada_secundaria](const DadosAtaque& da) {
           return &da == arma_abencoada_secundaria;
@@ -539,14 +539,20 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento->processado()) {
         const auto* funda = DadosAtaquePorIdArma("funda", *proto);
+        auto* pedra_encantada = DadosAtaquePorIdUnico(evento->id_unico(), proto);
+        if (pedra_encantada == nullptr) {
+          LOG(ERROR) << "Não encontrei o ataque da pedra encantada.";
+          break;
+        }
         if (funda != nullptr) {
-          for (auto& da : *proto->mutable_dados_ataque()) {
-            if (!da.has_id_unico_efeito() || da.id_unico_efeito() != evento->id_unico()) continue;
-            da.set_id_arma("funda");
-            da.set_empunhadura(funda->empunhadura());
-            da.set_rotulo("pedra encantada com funda");
-            break;
-          }
+          VLOG(1) << "encontrei a funda para pedra encantada.";
+          pedra_encantada->set_id_arma("funda");
+          pedra_encantada->set_empunhadura(funda->empunhadura());
+          pedra_encantada->set_rotulo("pedra encantada com funda");
+        } else {
+          VLOG(1) << "nao encontrei a funda para pedra encantada.";
+          pedra_encantada->set_tipo_ataque("Ataque a Distância");
+          pedra_encantada->set_ataque_arremesso(true);
         }
       }
     break;

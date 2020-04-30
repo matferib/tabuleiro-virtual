@@ -1166,17 +1166,16 @@ tabela_efeitos {
     nome: 'pedra encantada'
     consequencia {
       dados_ataque {
-        # TODO: empunhadura.
-        # TODO: se tiver funda, usa a funda.
-        bonus_magico: 1;
+        bonus_magico: 1
         dano_basico_fixo: "1d6"
         dano_por_tipo {
           dano: '2d6+2'
           tipo: TIPO_MORTO_VIVO
         }
         rotulo: "pedra encantada"
-        tipo_ataque: "Ataque a Distância"
         municao: 3
+        alcance_q: 4
+        incrementos: 5
       }
     }
   }
