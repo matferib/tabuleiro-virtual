@@ -340,7 +340,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 84.
+// Proximo id: 85.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -423,6 +423,8 @@ message DadosAtaque {
   optional uint32 municao = 38;
   // Para ataques com veneno.
   optional VenenoProto veneno = 42;
+  // Para ataques com doença.
+  optional DoencaProto doenca = 84;
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
   optional int32 limite_vezes = 43;

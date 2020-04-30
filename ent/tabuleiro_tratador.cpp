@@ -1688,9 +1688,8 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
-    std::string veneno_str;
-    LOG(INFO) << "veneno: " << (da.has_veneno() ? da.veneno().DebugString().c_str() : "sem veneno");
     if (resultado.Sucesso() && da.has_veneno()) {
+      std::string veneno_str;
       if (entidade_destino->ImuneVeneno()) {
         veneno_str = "Imune a veneno";
       } else {
@@ -1730,6 +1729,46 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       atraso_s += 2.0f;
       ConcatenaString(veneno_str, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), veneno_str);
+    }
+    // Doença.
+    if (resultado.Sucesso() && da.has_doenca()) {
+      std::string doenca_str;
+      if (entidade_destino->ImuneDoenca()) {
+        doenca_str = "Imune a doença";
+      } else {
+        std::unique_ptr<ntf::Notificacao> n_doenca(new ntf::Notificacao);
+        // TODO permitir salvacao pre definida?
+        const auto& doenca = da.doenca();
+        int d20 = RolaDado(20);
+        int bonus = entidade_destino->Salvacao(*entidade_origem, TS_FORTITUDE);
+        int total = d20 + bonus;
+        if (total < doenca.cd()) {
+          doenca_str = StringPrintf("salvou doenca (%d + %d >= %d)", d20, bonus, doenca.cd());
+        } else {
+          doenca_str = StringPrintf("não salvou doenca (%d + %d < %d)", d20, bonus, doenca.cd());
+          // Aplica efeito de doenca: independente de salvacao. Apenas para marcar a entidade como doente.
+          // O doenca vai serializado para quando acabar periodo de incubacao, aplicar o efeito.
+          auto copia_doenca = doenca;
+          copia_doenca.set_passou_incubacao(false);
+          std::string doenca_proto_str;
+          google::protobuf::TextFormat::PrintToString(copia_doenca, &doenca_proto_str);
+          std::string origem = StringPrintf("%d", AchaIdUnicoEvento(ids_unicos_entidade_destino));
+          int rodadas = -1;
+          try {
+            rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
+            PreencheNotificacaoEventoComComplementoStr(
+                entidade_destino->Id(), origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
+                &ids_unicos_entidade_destino, n_doenca.get(), grupo_desfazer->add_notificacao());
+            central_->AdicionaNotificacao(n_doenca.release());
+          } catch (...) {
+            LOG(ERROR) << "incubação mal formada: " << doenca.incubacao_dias();
+          }
+        }
+      }
+      atraso_s += 2.0f;
+      ConcatenaString(doenca_str, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), doenca_str);
     }
 
     if (resultado.Sucesso() && !acao_proto->ignora_resistencia_magia() &&

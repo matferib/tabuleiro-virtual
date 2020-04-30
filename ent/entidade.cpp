@@ -2318,6 +2318,13 @@ bool Entidade::ImuneVeneno() const {
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
 }
 
+bool Entidade::ImuneDoenca() const {
+  if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_CONSTRUCTO) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
+    return true;
+  }
+  return false;
+}
+
 bool Entidade::TemLuz() const {
   return proto_.has_luz() || vd_.luz_acao.inicio.has_raio_m();
 }

@@ -325,6 +325,7 @@ class Entidade {
   int SalvacaoVeneno() const { return SalvacaoSemAtacante(TS_FORTITUDE); }
 
   bool ImuneVeneno() const;
+  bool ImuneDoenca() const;
 
   /** Por padrao, apenas entidades podem ser afetadas por acao. */
   inline bool PodeSerAfetadoPorAcoes() const {

@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 136.
+// Proximo id: 137.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -185,6 +185,7 @@ enum TipoEfeito {
   EFEITO_RETARDAR_ENVENENAMENTO = 132;
   EFEITO_REDUZIR_ANIMAL = 133;
   EFEITO_ESQUENTAR_METAL = 134;
+  EFEITO_DOENCA = 135;
 }
 
 enum TipoEfeitoModelo {
@@ -1033,6 +1034,22 @@ message VenenoProto {
   optional bool primario_aplicado = 13;
   // O atributo usado para calcular a CD.
   optional TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
+}
+
+message DoencaProto {
+  optional string id = 1;
+  optional string nome = 2;
+  optional TipoVeneno tipo = 3;
+  optional string incubacao_dias = 4;
+  repeated string dano = 5;
+  repeated TipoDanoVeneno tipo_dano = 6;
+  optional bool dano_permanente = 7;
+  // Classe de dificuldade.
+  optional int32 cd = 8;
+  optional bool primario_aplicado = 9;
+  optional bool nao_recupera_com_duas_salvacoes = 10;  // mummy rot
+  optional bool passou_incubacao = 11;
+  optional int32 proximo_teste_rodadas = 12;
 }
 
 // Os templates de D&D.
