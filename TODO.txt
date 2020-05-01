@@ -1,4 +1,4 @@
-Colocar doenca nos ataques, igual veneno.
+Colocar doenca nos ataques, igual veneno. Implementar efeitos.
 Sair de modo corpo a corpo se adversario cair.
 Nao desenhar duas vezes arma dupla.
 Presa mágica e presa mágica maior.

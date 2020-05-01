@@ -1049,7 +1049,6 @@ message DoencaProto {
   optional bool primario_aplicado = 9;
   optional bool nao_recupera_com_duas_salvacoes = 10;  // mummy rot
   optional bool passou_incubacao = 11;
-  optional int32 proximo_teste_rodadas = 12;
 }
 
 // Os templates de D&D.

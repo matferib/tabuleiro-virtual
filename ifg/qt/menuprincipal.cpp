@@ -586,7 +586,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 4.3.0\n"
+        tr("Tabuleiro virtual versão 4.4.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"
