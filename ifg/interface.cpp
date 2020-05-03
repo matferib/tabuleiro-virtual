@@ -517,6 +517,18 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
+std::string StringAlcance(const ent::ArmaProto& feitico) {
+  if (feitico.alcance_quadrados() > 0) {
+    return StringPrintf("alcance %d q%s", feitico.alcance_quadrados(), feitico.ataque_toque() ? " [toque]" : "");
+  } else if (feitico.acao().tipo() == ent::ACAO_FEITICO_PESSOAL) {
+    return "feitiço pessoal";
+  } else if (!feitico.has_acao()) {
+    return "";
+  } else {
+    return StringPrintf("corpo a corpo%s", feitico.ataque_toque() ? " [toque]" : "");
+  }
+}
+
 std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
   if (!c.id().empty()) {
     const auto& feitico = tabelas.Feitico(c.id());
@@ -533,9 +545,9 @@ std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::T
               : "";
         }
       }
-      return StringPrintf("%s, alcance: %d (q)%s%s",
+      return StringPrintf("%s, %s%s%s",
           feitico.nome().c_str(),
-          feitico.alcance_quadrados(),
+          StringAlcance(feitico).c_str(),
           str_area.c_str(),
           str_duracao.c_str()
       );
