@@ -525,7 +525,7 @@ std::string StringAlcance(const ent::ArmaProto& feitico) {
   } else if (!feitico.has_acao()) {
     return "";
   } else {
-    return StringPrintf("corpo a corpo%s", feitico.ataque_toque() ? " [toque]" : "");
+    return "toque";
   }
 }
 
