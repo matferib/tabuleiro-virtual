@@ -41,6 +41,11 @@ sub_menu {
     }
   }
   modelo { id: 'Águia' }
+  sub_menu {
+    id: 'Dinossauros'
+    modelo { id: 'Megaraptor' }
+    modelo { id: 'Tiranossauro' }
+  }
   modelo { id: 'Falcão' }
   modelo { id: 'Falcão Abissal' }
   modelo { id: 'Gorila' }

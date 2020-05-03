@@ -518,7 +518,13 @@ modelo {
     tipo_duracao: TD_RODADAS_NIVEL
   }
 }
-
+modelo {
+  id: 'Tiranossauro IANVII'
+  id_entidade_base: 'Tiranossauro'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
 modelo {
   id: 'Hipogrifo IANII'
   id_entidade_base: 'Hipogrifo'
@@ -3346,9 +3352,62 @@ modelo {
   }
 }
 modelo {
+  id: 'Tiranossauro'
+  entidade {
+    rotulo_especial: 'faro\nagarrar aprimorado tamanho menor e engolir 2 tamanhos menores'
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '18d8+99' tamanho: TM_ENORME
+    info_textura { id: 'trex.png' altura: 0.9 translacao_y: 0.05 }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    info_classes {
+      id: 'animal' nivel: 18
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+      pericias_monstro: 'saltar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    # normal.
+    dados_ataque {
+      grupo: 'ataque' rotulo: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '3d6' empunhadura: EA_2_MAOS alcance_q: 2
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 5 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 8 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'observar' pontos: 8 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'esconderse' pontos: 5 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'arma_natural_aprimorada' complemento: 'mordida' }  # ja aplicado o tamanho, nao esta implementado.
+      gerais { id: 'corrida' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'rastrear' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 28 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Megaraptor'
   entidade {
-    rotulo_especial: 'faro\nbota na investida'
+    rotulo_especial: 'faro\nbote na investida'
     tendencia { simples: TD_NEUTRO }
     dados_vida: '8d8+43' tamanho: TM_GRANDE
     info_textura { id: 'megaraptor.png' altura: 0.6 translacao_y: 0.3 }
@@ -4539,7 +4598,7 @@ modelo {
     dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 1 }
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'magia_natural' }
+      gerais { id: 'tiro_certeiro' }
     }
     info_pericias { id: 'adestrar_animais' pontos: 5 }
     info_pericias { id: 'concentracao' pontos: 8 }
@@ -4666,10 +4725,10 @@ modelo {
     dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 5 }
     dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 5 }
     info_talentos {
-      gerais { id: 'escrever_pergaminho' }
-      gerais { id: 'magia_natural' }
-      gerais { id: 'ataques_multiplos' }
-      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'escrever_pergaminho' }  # 1
+      gerais { id: 'tiro_certeiro' }        # 3
+      gerais { id: 'magia_natural' }        # 6
+      gerais { id: 'ataques_multiplos' }    # 9
     }
     info_pericias { id: 'adestrar_animais' pontos: 10 }
     info_pericias { id: 'concentracao' pontos: 13 }

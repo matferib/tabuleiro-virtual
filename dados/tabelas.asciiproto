@@ -3835,7 +3835,7 @@ tabela_talentos {
   talentos {
     # Seria melhor: tiro_queima_roupa.
     id: 'tiro_certeiro'
-    nome: 'Tiro Certeiro'
+    nome: 'Tiro Certeiro (queima roupa)'
     # guerreiro: true
     descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros (6 quadrados).'
   }
@@ -4103,6 +4103,11 @@ tabela_talentos {
     nome: 'Pairar'
     descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
     # Pre requisito: voar.
+  }
+  talentos {
+    id: 'arma_natural_aprimorada'  # improved natural attack
+    nome: 'Arma Natural Aprimorada'
+    descricao: 'O ataque natural escolhido da dano uma categoria de tamanho acima.'
   }
 }
 
@@ -5962,10 +5967,44 @@ tabela_feiticos {
     }
     escola: 'conjuracao'
   }
-
-
-
-
+  armas {
+    id: 'invocar_aliado_natureza_vii'
+    nome: 'invocar aliado da natureza VII'
+    nome_ingles: "summon nature's ally VII"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 7
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Tiranossauro'
+          id_modelo_entidade: 'Tiranossauro IANVII'
+        }
+        parametros {
+          texto: 'Megaraptor (1d3)'
+          id_modelo_entidade: 'Megaraptor IANVI'
+          quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Grifo (1d4+1)'
+          id_modelo_entidade: 'Grifo IANV'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Leão Atroz (1d4+1)'
+          id_modelo_entidade: 'Leão Atroz IANV'
+          quantidade: '1d4+1'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
   armas {
     id: 'roupa_encantada'
     nome: 'roupa encantada'
