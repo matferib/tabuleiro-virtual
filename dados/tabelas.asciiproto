@@ -7360,7 +7360,7 @@ tabela_feiticos {
 
   armas {
     id: 'muralha_prismatica'
-    nome_ingles: 'prismatic wall.'
+    nome_ingles: 'prismatic wall'
     nome: 'muralha prismática'
     info_classes {
       id: 'mago'
@@ -7370,7 +7370,7 @@ tabela_feiticos {
   }
   armas {
     id: 'telecinesia'
-    nome_ingles: 'telekinesis.'
+    nome_ingles: 'telekinesis'
     nome: 'telecinésia'
     info_classes {
       id: 'mago'
@@ -7380,7 +7380,7 @@ tabela_feiticos {
   }
   armas {
     id: 'metamorfose_torrida'
-    nome_ingles: 'baleful polymorph.'
+    nome_ingles: 'baleful polymorph'
     nome: 'metamorfose tórrida'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
@@ -7408,7 +7408,7 @@ tabela_feiticos {
 
   armas {
     id: 'desejo_restrito'
-    nome_ingles: 'limited wish.'
+    nome_ingles: 'limited wish'
     nome: 'desejo restrito'
     info_classes {
       id: 'mago'
@@ -7419,7 +7419,7 @@ tabela_feiticos {
 
   armas {
     id: 'desejo'
-    nome_ingles: 'wish.'
+    nome_ingles: 'wish'
     nome: 'desejo'
     info_classes {
       id: 'mago'
@@ -7429,7 +7429,7 @@ tabela_feiticos {
   }
   armas {
     id: 'circulo_teletransporte'
-    nome_ingles: 'teleportation circle.'
+    nome_ingles: 'teleportation circle'
     nome: 'círculo de teletransporte'
     info_classes {
       id: 'mago'
@@ -7440,7 +7440,7 @@ tabela_feiticos {
 
   armas {
     id: 'parar_tempo'
-    nome_ingles: 'time stop.'
+    nome_ingles: 'time stop'
     nome: 'parar o tempo'
     info_classes {
       id: 'mago'
@@ -7456,7 +7456,7 @@ tabela_feiticos {
 
   armas {
     id: 'aliado_extra_planar_menor'
-    nome_ingles: 'planar ally.'
+    nome_ingles: 'planar ally'
     nome: 'aliado extra-planar menor'
     info_classes {
       id: 'clerigo'
@@ -7466,7 +7466,7 @@ tabela_feiticos {
   }
   armas {
     id: 'aliado_extra_planar_menor'
-    nome_ingles: 'planar ally, greater.'
+    nome_ingles: 'planar ally, greater'
     nome: 'aliado extra-planar maior'
     info_classes {
       id: 'clerigo'
@@ -7477,7 +7477,7 @@ tabela_feiticos {
 
   armas {
     id: 'controlar_agua'
-    nome_ingles: 'control water.'
+    nome_ingles: 'control water'
     nome: 'controlar a água'
     info_classes {
       id: 'clerigo'
@@ -7727,7 +7727,7 @@ tabela_feiticos {
 
   armas {
     id: 'adivinhacao'
-    nome_ingles: 'divination.'
+    nome_ingles: 'divination'
     nome: 'adivinhação'
     info_classes {
       id: 'clerigo'
@@ -7743,7 +7743,7 @@ tabela_feiticos {
 
   armas {
     id: 'assassino_fantasmagorico'
-    nome_ingles: 'phantasmal killer.'
+    nome_ingles: 'phantasmal killer'
     nome: 'assassino fantasmagórico'
     dano { invariavel: '3d6' }
     alcance_quadrados: 20
@@ -7766,7 +7766,7 @@ tabela_feiticos {
 
   armas {
     id: 'muralha_gelo'
-    nome_ingles: 'wall of ice.'
+    nome_ingles: 'wall of ice'
     nome: 'muralha de gelo'
     info_classes {
       id: 'mago'
@@ -7781,7 +7781,7 @@ tabela_feiticos {
 
   armas {
     id: 'muralha_fogo'
-    nome_ingles: 'wall of fire.'
+    nome_ingles: 'wall of fire'
     nome: 'muralha de fogo'
     info_classes {
       id: 'mago'
@@ -8394,8 +8394,8 @@ tabela_feiticos {
     veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
     ataque_toque: true
     acao {
-      id: 'Raio'
-      tipo: ACAO_RAIO
+      id: 'Ataque de Toque'
+      permite_salvacao: true
       ignora_resistencia_magia: false
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
     }
@@ -8427,7 +8427,7 @@ tabela_feiticos {
   }
   armas {
     id: 'luz_cegante'
-    nome_ingles: 'searing light.'
+    nome_ingles: 'searing light'
     nome: 'luz cegante'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
@@ -12676,7 +12676,7 @@ tabela_feiticos {
     }
     ataque_toque: true
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       duracao_s: 0.5
       permite_salvacao: false

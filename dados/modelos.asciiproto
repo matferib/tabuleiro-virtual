@@ -229,7 +229,7 @@ modelo {
         tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
         derrubar_automatico: true
         alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
-      } 
+      }
       dados_defesa {
         ca {
           bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 3 } }

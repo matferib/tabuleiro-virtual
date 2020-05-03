@@ -43,6 +43,7 @@ sub_menu {
   modelo { id: 'Águia' }
   modelo { id: 'Falcão' }
   modelo { id: 'Falcão Abissal' }
+  modelo { id: 'Gorila' }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Celestial' }

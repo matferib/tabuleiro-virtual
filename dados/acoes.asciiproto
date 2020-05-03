@@ -118,6 +118,23 @@ acao {
   ignora_resistencia_magia: false
 }
 acao {
+  id: 'Feitiço de Toque Aliado'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 1.0 g: 1.0  b: 1.0 }
+  permite_ataque_vs_defesa: false
+  icone: 'icon_touch.png'
+  ataque_toque: true
+  ataque_corpo_a_corpo: true
+  ignora_reducao_dano_barbaro: true
+  dificuldade_salvacao_por_nivel: true
+  permite_salvacao: false
+  ignora_resistencia_magia: true
+}
+
+acao {
   id: 'Feitiço Pessoal'
   tipo: ACAO_FEITICO_PESSOAL
   geometria: ACAO_GEO_ESFERA
