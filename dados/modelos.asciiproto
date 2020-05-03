@@ -3375,6 +3375,7 @@ modelo {
     dados_ataque {
       grupo: 'ataque' rotulo: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '3d6' empunhadura: EA_2_MAOS alcance_q: 2
+      agarrar_aprimorado: true
     }
     dados_defesa {
       ca {

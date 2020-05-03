@@ -1946,6 +1946,22 @@ TEST(TesteDependencias, TesteAgarrar) {
   EXPECT_EQ(13, proto.bba().agarrar());
 }
 
+TEST(TesteDependencias, TesteAgarrar2) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  const auto& modelo_trex = g_tabelas.ModeloEntidade("Tiranossauro");
+  auto trex = NovaEntidadeParaTestes(modelo_trex.entidade(), g_tabelas);
+  const auto& modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  g_dados_teste.push(10);
+  g_dados_teste.push(10);
+  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaAgarrar(*trex, *druida);
+  EXPECT_TRUE(resultado.Sucesso());
+  // Trex: 13 + 8 tamanho + 9 força.
+  // Halfing: 7 - 4 tamanho - 1 força.
+  EXPECT_EQ(resultado.texto.find("agarrar sucesso: 10+30 >= 10+2"), 0) << resultado.texto;
+}
+
 TEST(TesteDependencias, TesteVirtude) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;

@@ -1848,7 +1848,9 @@ float Tabuleiro::TrataAcaoIndividual(
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
 
-    if (resultado.Sucesso() && (da.derrubar_automatico() || da.derruba_sem_teste()) && !entidade_destino->Proto().caida()) {
+    if (resultado.Sucesso() &&
+        (da.derrubar_automatico() || da.derruba_sem_teste()) &&
+        !entidade_destino->Proto().caida()) {
       ResultadoAtaqueVsDefesa resultado_derrubar;
       if (da.derruba_sem_teste()) {
         if (!salvou) {
@@ -1869,6 +1871,23 @@ float Tabuleiro::TrataAcaoIndividual(
         PreencheNotificacaoDerrubar(*entidade_destino, nd, nd);
       }
       ConcatenaString(resultado_derrubar.texto, por_entidade->mutable_texto());
+    }
+    if (resultado.Sucesso() &&
+        da.agarrar_aprimorado() &&
+        entidade_origem != nullptr &&
+        entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho()) {
+      // agarrar
+      ResultadoAtaqueVsDefesa resultado_agarrar = AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
+      if (resultado_agarrar.Sucesso()) {
+        por_entidade->set_forca_consequencia(true);
+        acao_proto->set_consequencia(TC_AGARRA_ALVO);
+        // Apenas para desfazer.
+        auto* no = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
+        auto* nd = grupo_desfazer->add_notificacao();
+        PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
+      }
+      ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
     }
 
     // Resistencias e imunidades.
@@ -2833,7 +2852,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   VLOG(2) << "Iniciando: " << forma_proto_.ShortDebugString();
 }
 
-void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
+void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y, bool forcar) {
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
@@ -2849,6 +2868,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     if (id != Entidade::IdInvalido) {
       notificacao.set_id_referencia(id);
     }
+    notificacao.set_forcado(forcar);
     TrataNotificacao(notificacao);
   } else if (pos_pilha == OBJ_ENTIDADE || pos_pilha == OBJ_ENTIDADE_LISTA) {
     // Entidade.

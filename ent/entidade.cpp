@@ -1855,7 +1855,7 @@ const DadosAtaque* Entidade::DadoCorrenteSecundario() const {
 
 const DadosAtaque* Entidade::DadoAgarrar() const {
   for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == "Agarrar") {
+    if (da.tipo_ataque() == "Agarrar" || da.ataque_agarrar()) {
       return &da;
     }
   }

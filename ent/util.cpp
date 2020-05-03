@@ -1444,6 +1444,36 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   return resultado;
 }
 
+ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade& ed) {
+  ResultadoAtaqueVsDefesa resultado;
+  const auto* da_ataque = ea.DadoAgarrar();
+  if (da_ataque == nullptr) {
+    resultado.texto = "atacante sem acao agarrar"; 
+    resultado.resultado = RA_SEM_ACAO;
+    return resultado;
+  }
+
+  const auto* da_defesa = ed.DadoAgarrar();
+  if (da_defesa == nullptr) {
+    resultado.texto = "agarrar bem sucedido, defensor sem acao agarrar";
+    resultado.resultado = RA_SUCESSO;
+    return resultado;
+  }
+  int d20_ataque = RolaDado(20);
+  int total_ataque = d20_ataque + da_ataque->bonus_ataque_final();
+  int d20_defesa = RolaDado(20);
+  int total_defesa = d20_defesa + da_defesa->bonus_ataque_final();
+  resultado.resultado =
+      total_ataque >= total_defesa
+      ? RA_SUCESSO : RA_FALHA_NORMAL;
+  resultado.texto = StringPrintf("agarrar %s: %d%+d %s %d%+d",
+      resultado.Sucesso() ? "sucesso" : "falhou",
+      d20_ataque, da_ataque->bonus_ataque_final(),
+      resultado.Sucesso() ? ">=" : "<",
+      d20_defesa, da_defesa->bonus_ataque_final());
+  return resultado;
+}
+
 ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed) {
   TamanhoEntidade tamanho_atacante = ea.Proto().tamanho();
   TamanhoEntidade tamanho_defensor = ed.Proto().tamanho();

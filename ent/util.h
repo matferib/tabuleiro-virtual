@@ -327,6 +327,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
 
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
 ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
+// Rola o teste de agarrar, ja considerando que tudo antes (ataque de toque), funcionou.
+ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade& ed);
 
 // Retorna true se o personagem puder lancar o tipo de pergaminho do ataque.
 std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);

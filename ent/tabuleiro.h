@@ -332,7 +332,7 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaLutaDefensiva();
 
   /** Trata o clique duplo do botao esquerdo. */
-  void TrataDuploCliqueEsquerdo(int x, int y);
+  void TrataDuploCliqueEsquerdo(int x, int y, bool forcar = false);
 
   /** Trata o duplo clique com botao direito. */
   void TrataDuploCliqueDireito(int x, int y);
