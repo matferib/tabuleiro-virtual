@@ -2757,7 +2757,7 @@ void Tabuleiro::ProximaIniciativa() {
     // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
     const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa_antes != nullptr) {
-      AtualizaAtaquesAoPassarRodada(*entidade_iniciativa_antes, &grupo);
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), &grupo);
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
     }
 
@@ -7427,37 +7427,6 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 
-void Tabuleiro::AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
-  *proto_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
-  for (auto& da : *proto_depois->mutable_dados_ataque()) {
-    if (da.has_taxa_refrescamento() && da.usado_rodada() &&
-        (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
-      // Trata o caso de ataques consumidos so ao fim da rodada.
-      int valor = 0;
-      auto* da_depois = EncontraAtaque(da, proto_depois);
-      try {
-        valor = RolaValor(da_depois->taxa_refrescamento());
-      } catch (const std::exception& e) {
-        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
-        valor = 0;
-      }
-      da_depois->set_disponivel_em(valor);
-      da_depois->clear_usado_rodada();
-    }
-    // Decrementa numero de rodadas que faltam para disponibilizar ataque.
-    if (da.disponivel_em() > 0) {
-      da.set_disponivel_em(std::max<int>(0, da.disponivel_em() - 1));
-      if (da.disponivel_em() == 0 && da.has_limite_vezes_original()) {
-        da.set_limite_vezes(da.limite_vezes_original());
-      }
-    }
-  }
-}
-
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
   auto* n = grupo->add_notificacao();
   EntidadeProto *proto_antes, *proto_depois;
@@ -7484,7 +7453,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool
       AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
       AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
       AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
-      AtualizaAtaquesAoPassarRodada(entidade, &grupo_notificacoes);
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), &grupo_notificacoes);
       ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
     }
   }
