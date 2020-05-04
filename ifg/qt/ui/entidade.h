@@ -875,6 +875,7 @@ public:
         combo_salvacao->addItem(QString());
         combo_salvacao->addItem(QString());
         combo_salvacao->addItem(QString());
+        combo_salvacao->addItem(QString());
         combo_salvacao->setObjectName(QStringLiteral("combo_salvacao"));
 
         horizontalLayout_16->addWidget(combo_salvacao);
@@ -3449,6 +3450,7 @@ public:
         combo_salvacao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Meio Dano", nullptr));
         combo_salvacao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Um Quarto de Dano", nullptr));
         combo_salvacao->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Dano Anulado", nullptr));
+        combo_salvacao->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Efeito Anulado", nullptr));
 
 #ifndef QT_NO_TOOLTIP
         combo_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano que a entidade receber\303\241 na pr\303\263xima a\303\247\303\243o de \303\241rea.", nullptr));

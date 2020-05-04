@@ -647,6 +647,11 @@ QGroupBox::title {
                <string>Dano Anulado</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Efeito Anulado</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
