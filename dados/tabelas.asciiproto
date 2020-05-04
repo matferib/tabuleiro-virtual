@@ -7078,7 +7078,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holyWord.htm'
     id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'

@@ -1528,6 +1528,9 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
       delta_pontos_vida = 0;
       descricao_resultado = "salvacao manual anulou";
       salvou = true;
+    } else if (ed.ProximaSalvacao() == RS_ANULOU_EFEITO_APENAS) {
+      descricao_resultado = "salvacao manual anulou efeito apenas";
+      salvou = true;
     } else {
       descricao_resultado = "salvacao manual falhou";
     }
@@ -1549,6 +1552,8 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
         }
       } else if (da->resultado_ao_salvar() == RS_QUARTO) {
         delta_pontos_vida /= 4;
+      } else if (da->resultado_ao_salvar() == RS_ANULOU_EFEITO_APENAS) {
+        ;  // nao altera o delta.
       } else {
         delta_pontos_vida = 0;
       }
@@ -1878,7 +1883,7 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_descarregada(true);
     }
     if (da_depois->has_limite_vezes()) {
-      da_depois->set_limite_vezes(da_depois->limite_vezes() - 1);
+      da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
     }
     if (da_depois->has_municao()) {
       da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
@@ -1888,7 +1893,7 @@ void PreencheNotificacaoConsumoAtaque(
         // Marca como usado para refrescar apos rodada.
         da_depois->set_usado_rodada(true);
         VLOG(1) << "refrescar apos rodada";
-      } else {
+      } else if (!da_depois->has_limite_vezes() || da_depois->limite_vezes() == 0) {
         // Ja atualiza.
         int valor = 0;
         try {

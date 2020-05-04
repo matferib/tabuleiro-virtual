@@ -2471,16 +2471,21 @@ modelo {
   entidade {
     dados_vida: '2d8' modelo_3d { id: 'giant_ant'} cor { r: 0.6 g: 0.4 b: 0.4 }
     info_classes { id: 'verme' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
-    rotulo_especial: 'agarrar aprimorado pequenos, faro\nmovimento 10 quadrados, escalar 4 quadrados'
+    rotulo_especial: 'faro\nmovimento 10 quadrados, escalar 4 quadrados'
     dados_ataque {
       rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true
     }
+    # ferroada tem +2 de bonus, terminando em +3.
     dados_ataque {
-      rotulo: 'mordida agarrando' tipo_ataque: 'Agarrar' dano_basico: '1d6'
+      rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferrao' dano_basico: '1d4'
+      dano_adicional: '1d4+1'
+      elemento_dano_adicional: DESC_ACIDO
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural' valor: 2 } } }
     }
+
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
     }
@@ -2500,12 +2505,15 @@ modelo {
   entidade {
     dados_vida: '2d8+2' modelo_3d { id: 'giant_ant'} cor { r: 0.4 g: 0.2 b: 0.2 }
     info_classes { id: 'verme' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
-    rotulo_especial: 'agarrar aprimorado pequenos, faro\nferrao dano 2d4+1\nmovimento 10 quadrados, escalar 4'
+    rotulo_especial: 'faro\nferrao dano 2d4+1\nmovimento 10 quadrados, escalar 4'
     dados_ataque {
       rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
-    dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico_fixo: '2d4+1' }
+    dados_ataque {
+      rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico_fixo: '2d4+1'
+      agarrar_aprimorado: true
+    }
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
     }
@@ -3275,39 +3283,48 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 4 } }
       }
     }
+    # Apesar do tamanho, o alcance é de 1 quadrado.
     # Normal.
     dados_ataque {
       grupo: 'ataque'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
     }
-    # bota cargando.
+    # bote investindo.
     dados_ataque {
       grupo: 'bote'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
     }
   }
 }
@@ -6153,6 +6170,27 @@ modelo {
     raca: 'humano'
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'monge' nivel: 5 }
+    # Os ataques desarmados nao tem id_arma para poderem ter dano proprio.
+    # Normal, atordoante.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado atordoante' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      limite_vezes: 5
+      taxa_refrescamento: '14400' # dia
+      mantem_com_limite_zerado: true
+      acao_fixa {
+        permite_salvacao: true
+        dificuldade_salvacao_base: 12
+        atributo_dificuldade_salvacao: TA_SABEDORIA
+        tipo_salvacao: TS_FORTITUDE
+        resultado_ao_salvar: RS_ANULOU_EFEITO_APENAS
+        efeitos_adicionais {
+          efeito: EFEITO_ATORDOADO
+          rodadas: 1
+        }
+      }
+    }
+    # Rajada com kama.
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
@@ -6161,20 +6199,27 @@ modelo {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
     }
+    # Desarmado rajada.
     dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
       grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
     }
     dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
       grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
     }
+    # Kama normal.
     dados_ataque {
       grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
     }
+    # Desarmado normal.
     dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
       grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
     }
+    # Funda.
     dados_ataque {
       tipo_ataque: 'Ataque a Distância' id_arma: 'funda' obra_prima: true municao: 20
     }

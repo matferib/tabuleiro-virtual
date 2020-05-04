@@ -340,7 +340,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 86.
+// Proximo id: 88.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -458,6 +458,7 @@ message DadosAtaque {
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;
   optional DescritorAtaque elemento = 58;
+  optional DescritorAtaque elemento_dano_adicional = 86;
   optional int32 dificuldade_salvacao = 59;
   optional string icone = 60;
   optional TipoSalvacao tipo_salvacao = 61;
@@ -478,6 +479,8 @@ message DadosAtaque {
   optional bool refresca_apos_rodada = 81;
   // indica que o ataque foi usado na rodada.
   optional bool usado_rodada = 83;
+  // Ao refrescar,refresca para esse valor.
+  optional int32 limite_vezes_original = 87;
   optional int32 disponivel_em = 76;
   // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
   optional bool ignora_origem = 78;

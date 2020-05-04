@@ -222,6 +222,7 @@ enum ResultadoSalvacao {
   RS_MEIO = 1;
   RS_QUARTO = 2;
   RS_ANULOU = 3;
+  RS_ANULOU_EFEITO_APENAS = 4;  // para ataques que continuam dando dano mas nao aplicam o efeito.
 }
 
 enum TipoDnD {

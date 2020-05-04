@@ -7434,7 +7434,8 @@ void Tabuleiro::AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Not
   *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   *proto_depois->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   for (auto& da : *proto_depois->mutable_dados_ataque()) {
-    if (da.has_taxa_refrescamento() && da.usado_rodada()) {
+    if (da.has_taxa_refrescamento() && da.usado_rodada() &&
+        (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
       // Trata o caso de ataques consumidos so ao fim da rodada.
       int valor = 0;
       auto* da_depois = EncontraAtaque(da, proto_depois);
@@ -7449,7 +7450,10 @@ void Tabuleiro::AtualizaAtaquesAoPassarRodada(const Entidade& entidade, ntf::Not
     }
     // Decrementa numero de rodadas que faltam para disponibilizar ataque.
     if (da.disponivel_em() > 0) {
-      da.set_disponivel_em(da.disponivel_em() - 1);
+      da.set_disponivel_em(std::max<int>(0, da.disponivel_em() - 1));
+      if (da.disponivel_em() == 0 && da.has_limite_vezes_original()) {
+        da.set_limite_vezes(da.limite_vezes_original());
+      }
     }
   }
 }
