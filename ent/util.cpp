@@ -1664,6 +1664,38 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo) {
+  auto* n = grupo->add_notificacao();
+  EntidadeProto *proto_antes, *proto_depois;
+  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidadeProto(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+  *proto_antes->mutable_dados_ataque() = proto.dados_ataque();
+  *proto_depois->mutable_dados_ataque() = proto.dados_ataque();
+  for (auto& da : *proto_depois->mutable_dados_ataque()) {
+    if (da.has_taxa_refrescamento() && da.usado_rodada() &&
+        (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
+      // Trata o caso de ataques consumidos so ao fim da rodada.
+      int valor = 0;
+      auto* da_depois = EncontraAtaque(da, proto_depois);
+      try {
+        valor = RolaValor(da_depois->taxa_refrescamento());
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+        valor = 0;
+      }
+      da_depois->set_disponivel_em(valor);
+      da_depois->clear_usado_rodada();
+    }
+    // Decrementa numero de rodadas que faltam para disponibilizar ataque.
+    if (da.disponivel_em() > 0) {
+      da.set_disponivel_em(std::max<int>(0, da.disponivel_em() - 1));
+      if (da.disponivel_em() == 0 && da.has_limite_vezes_original()) {
+        da.set_limite_vezes(da.limite_vezes_original());
+      }
+    }
+  }
+}
+
 void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   if (proto.formas_alternativas_size() < 2) {
     LOG(INFO) << "Nao foi possivel alterar forma, entidade " << RotuloEntidade(proto) << "nao possui formas alternativas.";

@@ -455,6 +455,9 @@ ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entid
 // Caso nao haja eventos assim, retorna uma notificacao defaul (vazia).
 ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade);
 
+// Adiciona ao grupo uma notificacao de atualizacao dos ataques da entidade.
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo);
+
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
 std::string NomeTipoBonus(TipoBonus tipo);

@@ -1405,6 +1405,53 @@ TEST(TesteVezes, TesteVezes) {
   EXPECT_EQ(proto.dados_ataque(0).id_arma(), "espada_curta");
 }
 
+TEST(TesteVezes, TesteVezes2) {
+  EntidadeProto proto;
+  {
+    proto.set_gerar_agarrar(false);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_limite_vezes(0);
+    da->set_mantem_com_limite_zerado(true);
+    da->set_taxa_refrescamento("1");
+    da->set_limite_vezes_original(3);
+    da->set_usado_rodada(true);
+  }
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
+  ntf::Notificacao grupo;
+  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), &grupo);
+  ASSERT_EQ(grupo.notificacao().size(), 1);
+  e->AtualizaParcial(grupo.notificacao(0).entidade());
+  ASSERT_EQ(e->Proto().dados_ataque_size(), 1) << grupo.notificacao(0).entidade().DebugString();
+  EXPECT_EQ(e->Proto().dados_ataque(0).limite_vezes(), 3) << e->Proto().dados_ataque(0).DebugString();
+}
+
+TEST(TesteVezes, TesteVezes3) {
+  EntidadeProto proto;
+  {
+    proto.set_gerar_agarrar(false);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("espada_longa");
+    da->set_limite_vezes(0);
+    da->set_mantem_com_limite_zerado(true);
+    da->set_taxa_refrescamento("2");
+    da->set_limite_vezes_original(3);
+    da->set_usado_rodada(true);
+  }
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
+  ntf::Notificacao grupo;
+  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), &grupo);
+  ASSERT_EQ(grupo.notificacao().size(), 1);
+  e->AtualizaParcial(grupo.notificacao(0).entidade());
+  ASSERT_EQ(e->Proto().dados_ataque_size(), 1) << grupo.notificacao(0).entidade().DebugString();
+  EXPECT_EQ(e->Proto().dados_ataque(0).limite_vezes(), 0) << e->Proto().dados_ataque(0).DebugString();
+  EXPECT_EQ(e->Proto().dados_ataque(0).disponivel_em(), 1) << e->Proto().dados_ataque(0).DebugString();
+}
+
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
