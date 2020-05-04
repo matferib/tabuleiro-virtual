@@ -6176,6 +6176,7 @@ modelo {
       tipo_ataque: 'Ataque Corpo a Corpo'
       grupo: 'desarmado atordoante' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
       limite_vezes: 5
+      limite_vezes_original: 5
       taxa_refrescamento: '14400' # dia
       mantem_com_limite_zerado: true
       acao_fixa {
