@@ -2375,7 +2375,8 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
   // Remove ataques cujo numero de vezes exista e seja zero.
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return da.has_limite_vezes() && da.limite_vezes() <= 0 && !da.mantem_com_limite_zerado();
+    return da.has_limite_vezes() && da.limite_vezes() <= 0 &&
+        !da.mantem_com_limite_zerado() && !da.has_taxa_refrescamento();
   }, proto->mutable_dados_ataque());
 
   // Se nao tiver agarrar, cria um.
