@@ -2312,7 +2312,7 @@ bool Entidade::ImuneVeneno() const {
       PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
     return true;
   }
-  if (Nivel("druida", proto_) >= 9) {
+  if (Nivel("druida", proto_) >= 9 || Nivel("monge", proto_) >= 11) {
     return true;
   }
   return std::any_of(proto_.dados_defesa().imunidades().begin(), proto_.dados_defesa().imunidades().end(), [](int desc) { return desc == DESC_VENENO; });
