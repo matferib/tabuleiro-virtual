@@ -3224,7 +3224,7 @@ void Tabuleiro::DescansaPersonagemNotificando() {
       }
       if (da.has_disponivel_em() && da.disponivel_em() > 0) {
         // passaram-se 8 horas.
-        int novo_de = std::max(da.disponivel_em() - kNumRodadas, 0);
+        int novo_de = std::max<int>(da.disponivel_em() - kNumRodadas, 0);
         da.set_disponivel_em(novo_de);
         if (novo_de == 0 && da.has_limite_vezes_original()) {
           // Zerou o contador, volta pro limite original.
