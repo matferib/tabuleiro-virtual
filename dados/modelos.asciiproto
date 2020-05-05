@@ -505,6 +505,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Tigre Atroz IANVII'
+  id_entidade_base: 'Leão Atroz'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+modelo {
   id: 'Grifo IANV'
   id_entidade_base: 'Grifo'
   parametros {
@@ -7144,6 +7152,103 @@ modelo {
     mais_de_duas_pernas: true
   }
 }
+modelo {
+  id: 'Tigre Atroz'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '16d8+48'
+    rotulo_especial: 'bote ao investir'
+    tamanho: TM_GRANDE
+    info_textura { id: 'diretiger.png' largura: 0.6 translacao_x: 0.2 altura: 0.7 translacao_y: 0.25 } cor { r: 0.4 g: 0.2 b: 0.2 }
+    info_classes {
+      id: 'animal_atroz' nivel: 16
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 27 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'arma_natural_aprimorada' complemento: 'garra' }
+      gerais { id: 'arma_natural_aprimorada' complemento: 'mordida' }
+      gerais { id: 'corrida' }
+      gerais { id: 'sorrateiro' }
+      gerais { id: 'foco_em_arma' complemento: 'garra' }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'furtividade' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'natacao' pontos: 4 }
+
+    mais_de_duas_pernas: true
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 8
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 6 } }
+      }
+    }
+    # Apesar do tamanho, o alcance é de 1 quadrado.
+    # Normal.
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
+      agarrar_aprimorado: true
+    }
+    # bote investindo.
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'bote'  # no livro diz que o bonus é 18, mas num faz sentido, sendo um ataque secundario.
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'bote'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      alcance_q: 1
+      agarrar_aprimorado: true
+    }
+  }
+}
+
 modelo {
   id: 'Troll'
   entidade {
