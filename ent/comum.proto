@@ -222,7 +222,6 @@ enum ResultadoSalvacao {
   RS_MEIO = 1;
   RS_QUARTO = 2;
   RS_ANULOU = 3;
-  RS_ANULOU_EFEITO_APENAS = 4;  // para ataques que continuam dando dano mas nao aplicam o efeito.
 }
 
 enum TipoDnD {
@@ -470,7 +469,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 29.
+// Proximo id: 31.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -480,6 +479,10 @@ message DadosDefesa {
   optional Bonus salvacao_fortitude = 5;
   optional Bonus salvacao_reflexo = 6;
   optional Bonus salvacao_vontade = 7;
+  // Bonus de salvacoes especificas.
+  optional Bonus bonus_salvacao_veneno = 29;
+  optional Bonus bonus_salvacao_feitico = 30;
+
   // TODO outras salvacoes.
   // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.
   optional string id_armadura = 8;
@@ -773,7 +776,7 @@ message TalentoProto {
   // Indica talento regional (FR).
   optional bool regional = 11;
 
-  // De onde veio o talento.  
+  // De onde veio o talento.
   optional string livro = 12;
 
   // Indica de onde veio o talento (ranger, monge, guerreiro, humano etc).

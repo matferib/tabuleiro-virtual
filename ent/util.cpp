@@ -1528,9 +1528,6 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
       delta_pontos_vida = 0;
       descricao_resultado = "salvacao manual anulou";
       salvou = true;
-    } else if (ed.ProximaSalvacao() == RS_ANULOU_EFEITO_APENAS) {
-      descricao_resultado = "salvacao manual anulou efeito apenas";
-      salvou = true;
     } else {
       descricao_resultado = "salvacao manual falhou";
     }
@@ -1552,8 +1549,6 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
         }
       } else if (da->resultado_ao_salvar() == RS_QUARTO) {
         delta_pontos_vida /= 4;
-      } else if (da->resultado_ao_salvar() == RS_ANULOU_EFEITO_APENAS) {
-        ;  // nao altera o delta.
       } else {
         delta_pontos_vida = 0;
       }
@@ -5642,6 +5637,13 @@ ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& e
   ntf::Notificacao n;
   PreencheNotificacaoRemocaoEvento(entidade.Proto(), EFEITO_DOMINIO_PROTECAO, &n);
   return n.entidade().evento().empty() ? ntf::Notificacao::default_instance() : n;
+}
+
+int SalvacaoVeneno(const EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  Bonus bonus_veneno = dd.bonus_salvacao_veneno();
+  CombinaBonus(dd.salvacao_fortitude(), &bonus_veneno);
+  return BonusTotal(bonus_veneno); 
 }
 
 }  // namespace ent

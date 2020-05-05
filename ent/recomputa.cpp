@@ -1219,6 +1219,8 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   AplicaBonusPenalidadeOuRemove(atributos_raca.sabedoria(), atributos->mutable_sabedoria());
   AplicaBonusPenalidadeOuRemove(atributos_raca.carisma(), atributos->mutable_carisma());
   AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_veneno(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_veneno());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_feitico(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_feitico());
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
@@ -2464,10 +2466,10 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
         da.set_limite_vezes(limite_vezes);
         da.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
         da.set_mantem_com_limite_zerado(true);
+        da.set_dano_ignora_salvacao(true);
         auto* acao = da.mutable_acao_fixa();
         acao->set_permite_salvacao(true);
         acao->set_tipo_salvacao(TS_FORTITUDE);
-        acao->set_resultado_ao_salvar(RS_ANULOU_EFEITO_APENAS);
         auto* ed = acao->add_efeitos_adicionais();
         ed->set_efeito(EFEITO_ATORDOADO);
         ed->set_rodadas(1);

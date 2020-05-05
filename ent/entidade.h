@@ -321,8 +321,7 @@ class Entidade {
   /** Retorna o bonus de salvacao de um tipo para entidade. */
   int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
   int SalvacaoSemAtacante(TipoSalvacao tipo) const;
-  // TODO colocar bonus raciais de veneno.
-  int SalvacaoVeneno() const { return SalvacaoSemAtacante(TS_FORTITUDE); }
+  int SalvacaoVeneno() const;
 
   bool ImuneVeneno() const;
   bool ImuneDoenca() const;

@@ -1009,6 +1009,9 @@ float AplicaEfeitosAdicionais(
 // Encontra um ataque no proto igual a da. Compara rotulo, tipo e grupo.
 DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto);
 
+// Retorna o bonus de salvacao contra veneno.
+int SalvacaoVeneno(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

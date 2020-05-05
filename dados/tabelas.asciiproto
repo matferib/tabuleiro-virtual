@@ -13441,15 +13441,18 @@ tabela_racas {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    dados_defesa {
+      bonus_salvacao_veneno { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      bonus_salvacao_feitico { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+    }
+    movimento { terrestre_basico_q: 4 }
     tamanho: TM_MEDIO
-    # +2 em salvacao de veneno.
-    # +2 em salvacao vs feitico.
     # +1 ataque contra orc e goblin
     # +4 CA contra gigantes.
     # +2 avaliacao
     # +2 craft stone metal
     # +4 contra empurrao ou trip.
-    # Pericias em algumas armas. 
+    # Pericias em algumas armas.
     # +2 procurar stone work.
   }
   racas {

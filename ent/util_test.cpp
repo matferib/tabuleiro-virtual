@@ -4017,6 +4017,23 @@ TEST(TestFeiticos, RodadasBaseAnterior) {
   }
 }
 
+TEST(TesteRacas, TesteAnao) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(15, TA_CONSTITUICAO, &proto);  // com bonus de anao, vai para 17.
+  AtribuiBaseAtributo(10, TA_CARISMA, &proto);  // com penalidade de anao, vai para 8.
+  proto.set_raca("anao");
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  auto* ea = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, ea->Proto())), 17);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, ea->Proto())), 8);
+  EXPECT_EQ(ea->Salvacao(*ea, TS_FORTITUDE), 5);  // 2 + 3.
+  EXPECT_EQ(ea->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
+}
+
 TEST(TesteRacas, TesteAasimar) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);  // com bonus de aasimar fica 14, +2 de bonus.

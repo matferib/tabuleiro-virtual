@@ -1534,6 +1534,87 @@ void AtualizaAtaquesAposAtaqueIndividual(
   }
 }
 
+std::string TrataVeneno(
+    const DadosAtaque& da,
+    Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
+    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
+  if (entidade_destino->ImuneVeneno()) {
+    return "Imune a veneno";
+  }
+  std::string veneno_str;
+  // A mesma notificacao pode gerar mais de um efeito, com ids unicos separados.
+  std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
+  const auto& veneno = da.veneno();
+  // TODO permitir salvacao pre definida?
+  int d20 = RolaDado(20);
+  int bonus = entidade_destino->SalvacaoVeneno();
+  int total = d20 + bonus;
+  bool primario_aplicado = false;
+  if (total < veneno.cd()) {
+    // nao salvou: criar o efeito do dano.
+    veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+    if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
+      primario_aplicado = true;
+      PreencheNotificacaoEventoParaVenenoPrimario(
+          entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+    }
+  } else {
+    veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+    primario_aplicado = true;
+  }
+  // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
+  // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
+  {
+    std::string veneno_proto_str;
+    auto copia_veneno = veneno;
+    copia_veneno.set_primario_aplicado(primario_aplicado);
+    google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
+    std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
+    PreencheNotificacaoEventoComComplementoStr(
+        entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
+        ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
+  }
+  central->AdicionaNotificacao(n_veneno.release());
+  return veneno_str;
+}
+
+std::string TrataDoenca(
+    const DadosAtaque& da,
+    const Entidade& entidade_origem, Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
+    ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
+  if (entidade_destino->ImuneDoenca()) {
+    return "Imune a doença";
+  }
+  std::unique_ptr<ntf::Notificacao> n_doenca(new ntf::Notificacao);
+  // TODO permitir salvacao pre definida?
+  const auto& doenca = da.doenca();
+  int d20 = RolaDado(20);
+  int bonus = entidade_destino->Salvacao(entidade_origem, TS_FORTITUDE);
+  int total = d20 + bonus;
+  if (total < doenca.cd()) {
+    return StringPrintf("salvou doenca (%d + %d >= %d)", d20, bonus, doenca.cd());
+  }
+  std::string doenca_str = StringPrintf("não salvou doenca (%d + %d < %d)", d20, bonus, doenca.cd());
+  // Aplica efeito de doenca: independente de salvacao. Apenas para marcar a entidade como doente.
+  // O doenca vai serializado para quando acabar periodo de incubacao, aplicar o efeito.
+  auto copia_doenca = doenca;
+  copia_doenca.set_passou_incubacao(false);
+  std::string doenca_proto_str;
+  google::protobuf::TextFormat::PrintToString(copia_doenca, &doenca_proto_str);
+  std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
+  int rodadas = -1;
+  try {
+    rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
+    PreencheNotificacaoEventoComComplementoStr(
+        entidade_destino->Id(), origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
+        ids_unicos_entidade_destino, n_doenca.get(), grupo_desfazer->add_notificacao());
+    central->AdicionaNotificacao(n_doenca.release());
+  } catch (...) {
+    LOG(ERROR) << "incubação mal formada: " << doenca.incubacao_dias();
+  }
+  return doenca_str;
+}
+
 }  // namespace
 
 float Tabuleiro::TrataAcaoIndividual(
@@ -1545,7 +1626,7 @@ float Tabuleiro::TrataAcaoIndividual(
   // Indica que a acao devera ser adicionada a notificacao no final (e fara o efeito grafico).
   acao_proto->set_bem_sucedida(true);
   std::vector<int> ids_unicos_entidade_destino = entidade_destino == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_destino);
-  std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
+  std::vector<int> ids_unicos_entidade_origem = IdsUnicosEntidade(*entidade_origem);
   if (entidade_destino == nullptr) {
     // Pode ser um projetil de area. Então retorna a acao como veio.
     *n->mutable_acao() = *acao_proto;
@@ -1569,7 +1650,7 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     // Verifica carregamento.
     const auto& da = DadoCorrenteOuPadrao(entidade_origem);
-    if (!da.grupo().empty() && entidade_origem != nullptr) {
+    if (!da.grupo().empty()) {
       acao_proto->set_grupo_ataque(da.grupo());
       acao_proto->set_indice_ataque(entidade_origem->IndiceAtaque());
     }
@@ -1689,83 +1770,14 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     if (resultado.Sucesso() && da.has_veneno()) {
-      std::string veneno_str;
-      if (entidade_destino->ImuneVeneno()) {
-        veneno_str = "Imune a veneno";
-      } else {
-        // A mesma notificacao pode gerar mais de um efeito, com ids unicos separados.
-        std::unique_ptr<ntf::Notificacao> n_veneno(new ntf::Notificacao);
-        const auto& veneno = da.veneno();
-        // TODO permitir salvacao pre definida?
-        int d20 = RolaDado(20);
-        int bonus = entidade_destino->SalvacaoVeneno();
-        int total = d20 + bonus;
-        bool primario_aplicado = false;
-        if (total < veneno.cd()) {
-          // nao salvou: criar o efeito do dano.
-          veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
-          if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
-            primario_aplicado = true;
-            PreencheNotificacaoEventoParaVenenoPrimario(
-                entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, &ids_unicos_entidade_destino, n_veneno.get(), nullptr);
-          }
-        } else {
-          veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
-          primario_aplicado = true;
-        }
-        // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
-        // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
-        {
-          std::string veneno_proto_str;
-          auto copia_veneno = veneno;
-          copia_veneno.set_primario_aplicado(primario_aplicado);
-          google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
-          std::string origem = StringPrintf("%d", AchaIdUnicoEvento(ids_unicos_entidade_destino));
-          PreencheNotificacaoEventoComComplementoStr(
-              entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
-              &ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
-        }
-        central_->AdicionaNotificacao(n_veneno.release());
-      }
+      std::string veneno_str = TrataVeneno(da, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(veneno_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), veneno_str);
     }
     // Doença.
     if (resultado.Sucesso() && da.has_doenca()) {
-      std::string doenca_str;
-      if (entidade_destino->ImuneDoenca()) {
-        doenca_str = "Imune a doença";
-      } else {
-        std::unique_ptr<ntf::Notificacao> n_doenca(new ntf::Notificacao);
-        // TODO permitir salvacao pre definida?
-        const auto& doenca = da.doenca();
-        int d20 = RolaDado(20);
-        int bonus = entidade_destino->Salvacao(*entidade_origem, TS_FORTITUDE);
-        int total = d20 + bonus;
-        if (total < doenca.cd()) {
-          doenca_str = StringPrintf("salvou doenca (%d + %d >= %d)", d20, bonus, doenca.cd());
-        } else {
-          doenca_str = StringPrintf("não salvou doenca (%d + %d < %d)", d20, bonus, doenca.cd());
-          // Aplica efeito de doenca: independente de salvacao. Apenas para marcar a entidade como doente.
-          // O doenca vai serializado para quando acabar periodo de incubacao, aplicar o efeito.
-          auto copia_doenca = doenca;
-          copia_doenca.set_passou_incubacao(false);
-          std::string doenca_proto_str;
-          google::protobuf::TextFormat::PrintToString(copia_doenca, &doenca_proto_str);
-          std::string origem = StringPrintf("%d", AchaIdUnicoEvento(ids_unicos_entidade_destino));
-          int rodadas = -1;
-          try {
-            rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
-            PreencheNotificacaoEventoComComplementoStr(
-                entidade_destino->Id(), origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
-                &ids_unicos_entidade_destino, n_doenca.get(), grupo_desfazer->add_notificacao());
-            central_->AdicionaNotificacao(n_doenca.release());
-          } catch (...) {
-            LOG(ERROR) << "incubação mal formada: " << doenca.incubacao_dias();
-          }
-        }
-      }
+      std::string doenca_str = TrataDoenca(da, *entidade_origem, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(doenca_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), doenca_str);
@@ -1874,7 +1886,6 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     if (resultado.Sucesso() &&
         da.agarrar_aprimorado() &&
-        entidade_origem != nullptr &&
         entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho()) {
       // agarrar
       ResultadoAtaqueVsDefesa resultado_agarrar = AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
@@ -1930,8 +1941,7 @@ float Tabuleiro::TrataAcaoIndividual(
       PreencheNotificacaoAtualizacaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
     }
-    if (entidade_origem != nullptr &&
-        delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
+    if (delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
       atraso_s += 1.0f;
       AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);
@@ -2072,11 +2082,11 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
       atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
     } else if (acao_proto.efeito_projetil_area()) {
-      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
     } else if (EfeitoArea(acao_proto)) {
-      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
     } else {
-      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
     }
     if (n.has_acao()) {
       TrataNotificacao(n);

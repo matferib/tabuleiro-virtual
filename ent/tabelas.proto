@@ -27,6 +27,7 @@ message RacaProto {
   optional TipoDnD tipo = 7;
   optional SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
+  optional Movimento movimento = 11;
 }
 
 message ArmaduraOuEscudoProto {
