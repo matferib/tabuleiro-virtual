@@ -3404,6 +3404,8 @@ tabela_talentos {
     id: 'sorrateiro'
     nome: 'Sorrateiro'
     descricao: '+2 nos testes de Esconder-se e Furtividade.'
+    bonus_pericias { id: 'esconderse' valor: 2 }
+    bonus_pericias { id: 'furtividade' valor: 2 }
   }
   talentos {
     id: 'tiro_longo'
@@ -5985,6 +5987,10 @@ tabela_feiticos {
         parametros {
           texto: 'Tiranossauro'
           id_modelo_entidade: 'Tiranossauro IANVII'
+        }
+        parametros {
+          texto: 'Tigre Atroz'
+          id_modelo_entidade: 'Tigre Atroz IANVII'
         }
         parametros {
           texto: 'Megaraptor (1d3)'
@@ -13436,6 +13442,15 @@ tabela_racas {
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
     tamanho: TM_MEDIO
+    # +2 em salvacao de veneno.
+    # +2 em salvacao vs feitico.
+    # +1 ataque contra orc e goblin
+    # +4 CA contra gigantes.
+    # +2 avaliacao
+    # +2 craft stone metal
+    # +4 contra empurrao ou trip.
+    # Pericias em algumas armas. 
+    # +2 procurar stone work.
   }
   racas {
     tipo: TIPO_HUMANOIDE
