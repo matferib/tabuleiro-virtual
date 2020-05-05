@@ -875,7 +875,6 @@ public:
         combo_salvacao->addItem(QString());
         combo_salvacao->addItem(QString());
         combo_salvacao->addItem(QString());
-        combo_salvacao->addItem(QString());
         combo_salvacao->setObjectName(QStringLiteral("combo_salvacao"));
 
         horizontalLayout_16->addWidget(combo_salvacao);
@@ -2435,6 +2434,7 @@ public:
         combo_empunhadura->addItem(QString());
         combo_empunhadura->addItem(QString());
         combo_empunhadura->addItem(QString());
+        combo_empunhadura->addItem(QString());
         combo_empunhadura->setObjectName(QStringLiteral("combo_empunhadura"));
         sizePolicy2.setHeightForWidth(combo_empunhadura->sizePolicy().hasHeightForWidth());
         combo_empunhadura->setSizePolicy(sizePolicy2);
@@ -3450,7 +3450,6 @@ public:
         combo_salvacao->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Meio Dano", nullptr));
         combo_salvacao->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Um Quarto de Dano", nullptr));
         combo_salvacao->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Dano Anulado", nullptr));
-        combo_salvacao->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Efeito Anulado", nullptr));
 
 #ifndef QT_NO_TOOLTIP
         combo_salvacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano que a entidade receber\303\241 na pr\303\263xima a\303\247\303\243o de \303\241rea.", nullptr));
@@ -3778,6 +3777,7 @@ public:
         combo_empunhadura->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", nullptr));
         combo_empunhadura->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Principal", nullptr));
         combo_empunhadura->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Monstro: Ataque Secund\303\241rio", nullptr));
+        combo_empunhadura->setItemText(7, QApplication::translate("ifg::qt::DialogoEntidade", "Rajada de Monge", nullptr));
 
 #ifndef QT_NO_TOOLTIP
         checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", nullptr));

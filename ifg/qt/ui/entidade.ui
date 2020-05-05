@@ -647,11 +647,6 @@ QGroupBox::title {
                <string>Dano Anulado</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>Efeito Anulado</string>
-              </property>
-             </item>
             </widget>
            </item>
           </layout>
@@ -3240,6 +3235,11 @@ QGroupBox::title {
          <item>
           <property name="text">
            <string>Monstro: Ataque Secundário</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Rajada de Monge</string>
           </property>
          </item>
         </widget>
