@@ -808,6 +808,15 @@ enum TipoComplementoItemMagico {
   TCIM_ENERGIA = 1;  // resistencia a elementos.
 }
 
+// Ao criar entidade, se estiver desgastada, aqui indica a chance de ter usado um item.
+enum NivelUso {
+  NU_NENHUM = 0;
+  NU_BASICO = 1;  // normalmente usa bem antes da batalha, horas/nivel.
+  NU_BATALHA = 2; // normalmente usa logo antes da batalha, rodadas/nivel.
+  NU_USAR_SE_FERIDO = 3;  // Usa se pontos de vida estiver baixo (75-50%).
+  NU_USAR_SE_MUITO_FERIDO = 4; // Usa se estiver abaixo de 50%.
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
@@ -858,12 +867,7 @@ message ItemMagicoProto {
   // Para itens com nivel e modificador.
   optional int32 nivel_conjurador = 21;
   optional int32 modificador_atributo = 22;
-}
-
-message AnelProto {
-}
-
-message MantoProto {
+  optional NivelUso nivel_uso = 23;
 }
 
 // Alguns estados são mantidos nesta variável.
