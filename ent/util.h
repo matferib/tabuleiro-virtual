@@ -510,6 +510,7 @@ int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
 int ModificadorTamanhoEsconderse(TamanhoEntidade tamanho);
 // Dano da entidade por tamanho.
 std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho);
+std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_medio, TamanhoEntidade tamanho);
 
 // Retorna o alcance de acordo com tamanho.
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);

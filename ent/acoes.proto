@@ -331,6 +331,8 @@ enum EmpunhaduraArma {
   // Monstros.
   EA_MONSTRO_ATAQUE_PRIMARIO = 5;
   EA_MONSTRO_ATAQUE_SECUNDARIO = 6;
+  // Monge.
+  EA_RAJADA = 7;
 }
 
 message DanoPorTipoDnD {
@@ -340,7 +342,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 88.
+// Proximo id: 90.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -388,6 +390,10 @@ message DadosAtaque {
   optional string dano_basico = 23;
   // Gera o dano basico independente de tamanho ou qualquer outra coisa.
   optional string dano_basico_fixo = 37;
+  // Gera o dano basico para ser modificador por tamanho. Util para ataques naturais (dano nao vem da arma).
+  // Esse valor pode ser alterado pelo tamanho.
+  // Atencao: este valor é para tamanho medio e sera convertido para o tamanho da criatura.
+  optional string dano_basico_medio_natural = 89;
   // Para ataques que curam.
   optional bool cura = 54;
   // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
@@ -416,9 +422,10 @@ message DadosAtaque {
   optional bool nao_letal = 34;
   // Para efeitos que criam dados ataque.
   optional int32 id_unico_efeito  = 36;
-  // Se o dado de ataque tiver origem racial.
+  // Se o dado de ataque tiver origem racial, dominio ou talento.
   optional string id_raca = 80;
   optional string dominio = 82;
+  optional string id_talento = 88;
   // Municao para a arma.
   optional uint32 municao = 38;
   // Para ataques com veneno.

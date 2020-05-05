@@ -163,6 +163,15 @@ DadosAtaque* DadosAtaquePorIdUnico(int id_unico, EntidadeProto* proto, bool mao_
   return nullptr;
 }
 
+DadosAtaque* DadosAtaquePorTalento(const std::string& id_talento, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.id_talento() == id_talento) {
+      return &da;
+    }
+  }
+  return nullptr;
+}
+
 // Retorna os dado de ataque com o mesmo rotulo.
 std::vector<DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, EntidadeProto* proto) {
   std::vector<DadosAtaque*> das;
@@ -2048,13 +2057,11 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   }
 
   if (arma.has_modelo_dano()) {
-    if (da->has_nivel_conjurador_pergaminho()) {
-      // Para pergaminhos computarem os efeitos.
-      ComputaDano(arma.modelo_dano(), da->nivel_conjurador_pergaminho(), da);
-    } else {
-      const int nivel = NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
-      ComputaDano(arma.modelo_dano(), nivel, da);
-    }
+    // Computa o dano basico fixo (independente de tamanho).
+    int nivel = da->has_nivel_conjurador_pergaminho()
+        ?  da->nivel_conjurador_pergaminho()
+        : NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto);
+    ComputaDano(arma.modelo_dano(), nivel, da);
   }
 
   if (arma.has_veneno()) {
@@ -2107,10 +2114,45 @@ void ResetDadosAtaque(DadosAtaque* da) {
   da->clear_requer_carregamento();
 }
 
+int LimiteOriginalAtaqueAtordoante(const EntidadeProto& proto) {
+  int nivel_monge = Nivel("monge", proto);
+  int nivel_personagem = NivelPersonagem(proto);
+  int nivel_outros = nivel_personagem - nivel_monge;
+  int limite_vezes = nivel_monge + (nivel_outros / 4);
+  if (limite_vezes <= 0) {
+    LOG(ERROR) << "erro gerando ataque atordoante, nivel de monge: " << nivel_monge << ", nivel outros: " << nivel_outros;
+    return 0;
+  }
+  return limite_vezes;
+}
+
+std::string DanoBasicoMonge(int nivel) {
+  if (nivel <= 0) return "1d3";
+  // Aqui a gente seta o dano basico, porque queremos modificar por tamanho ainda.
+  int mult = 1;
+  int dado = 6;
+  if (nivel > 3 && nivel <= 7) {
+    mult = 1;
+    dado = 8;
+  } else if (nivel <= 11) {
+    mult = 1;
+    dado = 10;
+  } else if (nivel <= 15) {
+    mult = 2;
+    dado = 6;
+  } else if (nivel <= 19) {
+    mult = 2;
+    dado = 8;
+  } else {
+    mult = 2;
+    dado = 10;
+  }
+  return StringPrintf("%dd%d", mult, dado);
+}
+
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
-
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
@@ -2128,8 +2170,22 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
   }
+  // Aplica diferenca de tamanho de arma.
+  TamanhoEntidade tamanho = proto.tamanho();
+  if (da->has_tamanho()) {
+    tamanho = static_cast<TamanhoEntidade>(tamanho + (da->tamanho() - proto.tamanho()));
+  }
+  if (tamanho < 0) {
+    tamanho = TM_MINUSCULO;
+  }
+  if (tamanho > TM_COLOSSAL) {
+    tamanho = TM_COLOSSAL;
+  }
+
   if (arma.has_id()) {
-    if (da->rotulo().empty()) da->set_rotulo(arma.nome());
+    if (da->rotulo().empty()) {
+      da->set_rotulo(arma.nome());
+    }
     da->set_acuidade(false);
     da->set_nao_letal(arma.nao_letal());
     if (PossuiTalento("acuidade_arma", proto) &&
@@ -2147,19 +2203,17 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       da->clear_descarregada();
     }
 
-    // Aplica diferenca de tamanho de arma.
-    int tamanho = proto.tamanho();
-    if (da->has_tamanho()) {
-      tamanho += (da->tamanho() - proto.tamanho());
-    }
-    if (tamanho < 0) tamanho = 0;
-    if (tamanho > TM_COLOSSAL) tamanho = TM_COLOSSAL;
-    if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(static_cast<TamanhoEntidade>(tamanho), arma.dano_secundario()));
+    int nivel_monge = Nivel("monge", proto);
+    if (arma.id() == "desarmado" && nivel_monge > 0) {
+      da->set_dano_basico(ConverteDanoBasicoMedioParaTamanho(DanoBasicoMonge(nivel_monge), tamanho));
+      da->set_margem_critico(arma.margem_critico());
+      da->set_multiplicador_critico(arma.multiplicador_critico());
+    } else if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
+      da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico_secundario());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
     } else if (arma.has_dano()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(static_cast<TamanhoEntidade>(tamanho), arma.dano()));
+      da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
@@ -2175,9 +2229,12 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       da->set_incrementos(10);
     }
     *da->mutable_tipo_ataque_fisico() = TiposDanoParaAtaqueFisico(arma.tipo_dano());
-  } else if (da->ataque_agarrar()) {
-    if (!da->has_dano_basico()) {
-      da->set_dano_basico(DanoDesarmadoPorTamanho(proto.tamanho()));
+  } else if (da->ataque_agarrar() && !da->has_dano_basico_medio_natural()) {
+    int nivel_monge = Nivel("monge", proto);
+    if (nivel_monge > 0) {
+      da->set_dano_basico(ConverteDanoBasicoMedioParaTamanho(DanoBasicoMonge(nivel_monge), tamanho));
+    } else {
+      da->set_dano_basico(DanoDesarmadoPorTamanho(tamanho));
     }
     if (PossuiTalento("agarrar_aprimorado", proto) || da->acao().ignora_ataque_toque()) {
       da->set_ignora_ataque_toque(true);
@@ -2187,7 +2244,15 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   }
   if (da->has_dano_basico_fixo()) {
     da->set_dano_basico(da->dano_basico_fixo());
+  } else if (da->has_dano_basico_medio_natural()) {
+    da->set_dano_basico(ConverteDanoBasicoMedioParaTamanho(da->dano_basico_medio_natural(), tamanho));
   }
+
+  if (da->id_talento() == "ataque_atordoante") {
+    da->set_limite_vezes_original(LimiteOriginalAtaqueAtordoante(proto));
+    da->set_dificuldade_salvacao(10 + NivelPersonagem(proto) / 2 + ModificadorAtributo(TA_SABEDORIA, proto));
+  }
+
   // Tenta achar o primeiro da lista com mesmo rotulo para obter coisas derivadas do primeiro (municao, descritores).
   const DadosAtaque* primeiro = nullptr;
   for (const auto& dda : proto.dados_ataque()) {
@@ -2380,11 +2445,36 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
   }, proto->mutable_dados_ataque());
 
   // Se nao tiver agarrar, cria um.
-  if (proto->gerar_agarrar() && std::none_of(proto->dados_ataque().begin(), proto->dados_ataque().end(),
+  if (proto->gerar_agarrar() && c_none_of(proto->dados_ataque(),
         [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_ataque("Agarrar");
     da->set_rotulo("agarrar");
+  }
+  // Se nao tiver ataque atordoante, gera um.
+  if (PossuiTalento("ataque_atordoante", *proto)) {
+    auto* dat = DadosAtaquePorTalento("ataque_atordoante", proto);
+    if (dat == nullptr) {
+      int limite_vezes = LimiteOriginalAtaqueAtordoante(*proto);
+      if (limite_vezes > 0) {
+        DadosAtaque da;
+        da.set_id_talento("ataque_atordoante");
+        da.set_rotulo("ataque atordoante");
+        da.set_id_arma("desarmado");
+        da.set_limite_vezes(limite_vezes);
+        da.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        da.set_mantem_com_limite_zerado(true);
+        auto* acao = da.mutable_acao_fixa();
+        acao->set_permite_salvacao(true);
+        acao->set_tipo_salvacao(TS_FORTITUDE);
+        acao->set_resultado_ao_salvar(RS_ANULOU_EFEITO_APENAS);
+        auto* ed = acao->add_efeitos_adicionais();
+        ed->set_efeito(EFEITO_ATORDOADO);
+        ed->set_rodadas(1);
+        InsereInicio(&da, proto->mutable_dados_ataque());
+        dat = proto->mutable_dados_ataque(0);
+      }
+    }
   }
 
   for (auto& da : *proto->mutable_dados_ataque()) {

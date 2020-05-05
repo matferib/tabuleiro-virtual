@@ -867,7 +867,7 @@ message ItemMagicoProto {
   // Para itens com nivel e modificador.
   optional int32 nivel_conjurador = 21;
   optional int32 modificador_atributo = 22;
-  optional NivelUso nivel_uso = 23;
+  optional NivelUso nivel_uso = 25;
 }
 
 // Alguns estados são mantidos nesta variável.

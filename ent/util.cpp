@@ -2490,6 +2490,70 @@ std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho) {
   }
 }
 
+std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_medio, TamanhoEntidade tamanho) {
+  // Chaveado por dano medio.
+  const static std::unordered_map<std::string, std::unordered_map<int, std::string>> mapa_danos {
+    { "1d2", {
+      { TM_PEQUENO, "1" }, { TM_GRANDE, "1d3" }, { TM_ENORME, "1d4" }, { TM_IMENSO, "1d6" }, { TM_COLOSSAL, "1d8" }
+    } },
+    { "1d3", {
+      { TM_MIUDO, "1" }, { TM_PEQUENO, "1d2" }, { TM_GRANDE, "1d4" }, { TM_ENORME, "1d6" }, { TM_IMENSO, "1d8" }, { TM_COLOSSAL, "2d6" }
+    } },
+    { "1d4", {
+      { TM_DIMINUTO, "1" }, { TM_MIUDO, "1d2" }, { TM_PEQUENO, "1d3" }, { TM_GRANDE, "1d6" }, { TM_ENORME, "1d8" }, { TM_IMENSO, "2d6" },
+      { TM_COLOSSAL, "3d6" }
+    } },
+    { "1d6", {
+      { TM_MINUSCULO, "1" }, { TM_DIMINUTO, "1d2" },  { TM_MIUDO, "1d3" }, { TM_PEQUENO, "1d4" }, { TM_GRANDE, "1d8" }, { TM_ENORME, "2d6" },
+      { TM_IMENSO, "3d6" }, { TM_COLOSSAL, "4d6" }
+    } },
+    { "1d8", {
+      { TM_MINUSCULO, "1d2" }, { TM_DIMINUTO, "1d3" },  { TM_MIUDO, "1d4" }, { TM_PEQUENO, "1d6" },
+      { TM_GRANDE, "2d6" }, { TM_ENORME, "3d6" }, { TM_IMENSO, "4d6" }, { TM_COLOSSAL, "6d6" }
+    } },
+    { "1d10", {
+      { TM_MINUSCULO, "1d3" }, { TM_DIMINUTO, "1d4" },  { TM_MIUDO, "1d6" }, { TM_PEQUENO, "1d8" },
+      { TM_GRANDE, "2d8" }, { TM_ENORME, "3d8" }, { TM_IMENSO, "4d8" }, { TM_COLOSSAL, "6d8" }
+    } },
+    { "1d12", {
+      { TM_MINUSCULO, "1d4" }, { TM_DIMINUTO, "1d6" },  { TM_MIUDO, "1d8" }, { TM_PEQUENO, "1d10" },
+      { TM_GRANDE, "3d6" }, { TM_ENORME, "4d6" }, { TM_IMENSO, "6d6" }, { TM_COLOSSAL, "8d6" }
+    } },
+    { "2d4", {
+      { TM_MINUSCULO, "1d2" }, { TM_DIMINUTO, "1d3" },  { TM_MIUDO, "1d4" }, { TM_PEQUENO, "1d6" },
+      { TM_GRANDE, "2d6" }, { TM_ENORME, "3d6" }, { TM_IMENSO, "4d6" }, { TM_COLOSSAL, "6d6" }
+    } },
+    { "2d6", {
+      { TM_MINUSCULO, "1d4" }, { TM_DIMINUTO, "1d6" },  { TM_MIUDO, "1d8" }, { TM_PEQUENO, "1d10" },
+      { TM_GRANDE, "3d6" }, { TM_ENORME, "4d6" }, { TM_IMENSO, "6d6" }, { TM_COLOSSAL, "8d6" }
+    } },
+    { "2d8", {
+      { TM_MINUSCULO, "1d6" }, { TM_DIMINUTO, "1d8" },  { TM_MIUDO, "1d10" }, { TM_PEQUENO, "2d6" },
+      { TM_GRANDE, "3d8" }, { TM_ENORME, "4d8" }, { TM_IMENSO, "6d8" }, { TM_COLOSSAL, "8d8" }
+    } },
+    { "2d10", {
+      { TM_MINUSCULO, "1d8" }, { TM_DIMINUTO, "1d10" },  { TM_MIUDO, "2d6" }, { TM_PEQUENO, "2d8" },
+      { TM_GRANDE, "4d8" }, { TM_ENORME, "6d8" }, { TM_IMENSO, "8d8" }, { TM_COLOSSAL, "12d8" }
+    } }
+  };
+  if (tamanho == TM_MEDIO) {
+    return dano_basico_medio;
+  }
+  auto it = mapa_danos.find(dano_basico_medio);
+  if (it == mapa_danos.end()) {
+    if (!dano_basico_medio.empty()) {
+      LOG(ERROR) << StringPrintf("Dano basico medio nao tabelado: %s", dano_basico_medio.c_str());
+    }
+    return "";
+  }
+  auto it2 = it->second.find(tamanho);
+  if (it2 == it->second.end()) {
+    LOG(ERROR) << "Tamanho invalido (" << tamanho << ") para dano medio " << dano_basico_medio.c_str();
+    return "";
+  }
+  return it2->second;
+}
+
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case TM_MINUSCULO:

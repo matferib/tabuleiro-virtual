@@ -6154,12 +6154,80 @@ modelo {
   }
 }
 
-
 modelo {
-  id: 'Humano Monge'
-  entidade { dados_vida: '1d8'
+  id: 'Monge Base'
+  entidade {
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+modelo {
+  id: 'Humano Monge 1'
+  id_entidade_base: 'Monge Base'
+  entidade {
+    dados_vida: '9'
+    info_classes { id: 'monge' nivel: 1 }
     cor { r: 0.3 g: 0.1 b: 0.1 }
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
+    # Rajada com kama.
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    # Desarmado rajada.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    # Kama normal.
+    dados_ataque {
+      grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+    }
+    # Desarmado normal.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+    }
+    # Funda.
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância' id_arma: 'funda' obra_prima: true municao: 20
+    }
+    dados_defesa { }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      outros { id: 'ataque_atordoante' origem: 'monge' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 2 }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'acrobacias' pontos: 2 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' nivel_uso: NU_USAR_SE_FERIDO }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'escudo_fe_2' nivel_uso: NU_BATALHA }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'armadura_arcana' nivel_uso: NU_BASICO }
+    }
   }
 }
 modelo {
@@ -6171,26 +6239,6 @@ modelo {
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'monge' nivel: 5 }
     # Os ataques desarmados nao tem id_arma para poderem ter dano proprio.
-    # Normal, atordoante.
-    dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'desarmado atordoante' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
-      limite_vezes: 5
-      limite_vezes_original: 5
-      taxa_refrescamento: '14400' # dia
-      mantem_com_limite_zerado: true
-      acao_fixa {
-        permite_salvacao: true
-        dificuldade_salvacao_base: 12
-        atributo_dificuldade_salvacao: TA_SABEDORIA
-        tipo_salvacao: TS_FORTITUDE
-        resultado_ao_salvar: RS_ANULOU_EFEITO_APENAS
-        efeitos_adicionais {
-          efeito: EFEITO_ATORDOADO
-          rodadas: 1
-        }
-      }
-    }
     # Rajada com kama.
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
@@ -6202,13 +6250,11 @@ modelo {
     }
     # Desarmado rajada.
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
     }
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
     }
     # Kama normal.
@@ -6217,8 +6263,7 @@ modelo {
     }
     # Desarmado normal.
     dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d8'
+      grupo: 'desarmado normal' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
     }
     # Funda.
     dados_ataque {
@@ -6242,6 +6287,7 @@ modelo {
       mantos { id: 'manto_resistencia_1' em_uso: true }
       pocoes { id: 'agilidade_gato' }
       pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'armadura_arcana' }
       tesouro: 'kama +1, funda op'
     }
 

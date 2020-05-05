@@ -3190,6 +3190,16 @@ TEST(TesteModelo, CamposResetadosNaoSetados) {
   }
 }
 
+TEST(TesteModelo, TodasAcoesTemTipo) {
+  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    const auto& proto = modelo.entidade();
+    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    for (const auto& da : e->Proto().dados_ataque()) {
+      EXPECT_TRUE(da.acao().has_tipo()) << " modelo: " << modelo.id() << ", da: " << da.grupo();
+    }
+  }
+}
+
 TEST(TesteModelo, TesteVrock) {
   const auto& modelo = g_tabelas.ModeloEntidade("Demônio Vrock");
   EntidadeProto proto = modelo.entidade();
@@ -3373,6 +3383,38 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
   // Funda OP: +3 ataque, +1 destreza, +1 OP. Dano: +2 de força.
   EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 5);
   EXPECT_EQ(proto.dados_ataque(7).dano(), "1d4+2");
+}
+
+TEST(TesteComposicaoEntidade, TesteMonge5Grande) {
+  const auto& modelo_m5 = g_tabelas.ModeloEntidade("Humano Monge 5");
+  EntidadeProto proto = modelo_m5.entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
+  evento->set_rodadas(1);
+  RecomputaDependencias(g_tabelas, &proto);
+
+  // 10 + 3 sab + 0 des + 1 de monge - 1 de tamanho.
+  EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 13) << proto.dados_defesa().DebugString();
+  ASSERT_GE(proto.dados_ataque().size(), 8);
+  // Desarmado atordoante. 
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 5) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d6+3");
+  EXPECT_EQ(proto.dados_ataque(0).dificuldade_salvacao(), 15);
+  // Kama +1: +3 ataque, +3 força, +1 arma, +1 foco em arma, -1 rajada, -1 tamanho. Dano: +3 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 6) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "1d8+4");
+  // Desarmado: +3 ataque, +3 força, -1 rajada, -1 tamanho. Dano: +2 de força.
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 4) << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "2d6+3") << proto.dados_ataque(2).DebugString();
+  // Kama normal: +3 ataque, +2 força, +1 foco em arma. Dano: +2 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 7);
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "1d8+4");
+  // Desarmado normal: +3 ataque, +3 força, -1 tamanho. Dano +3 de força.
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 5);
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "2d6+3");
+  // Funda OP: +3 ataque, +0 destreza, +1 OP, -1 tamanho. Dano: +3 de força.
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 3);
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "1d6+3");
 }
 
 TEST(TesteConsequenciaPontosVida, Normal) {

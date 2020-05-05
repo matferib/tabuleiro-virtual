@@ -22,85 +22,25 @@ void ConverteDano(ArmaProto* arma) {
     return;
   }
 
-  // Chaveado por dano medio.
-  const static std::unordered_map<std::string, std::unordered_map<int, std::string>> mapa_danos {
-    { "1d2", {
-      { TM_PEQUENO, "1" }, { TM_GRANDE, "1d3" }, { TM_ENORME, "1d4" }, { TM_IMENSO, "1d6" }, { TM_COLOSSAL, "1d8" }
-    } },
-    { "1d3", {
-      { TM_MIUDO, "1" }, { TM_PEQUENO, "1d2" }, { TM_GRANDE, "1d4" }, { TM_ENORME, "1d6" }, { TM_IMENSO, "1d8" }, { TM_COLOSSAL, "2d6" }
-    } },
-    { "1d4", {
-      { TM_DIMINUTO, "1" }, { TM_MIUDO, "1d2" }, { TM_PEQUENO, "1d3" }, { TM_GRANDE, "1d6" }, { TM_ENORME, "1d8" }, { TM_IMENSO, "2d6" },
-      { TM_COLOSSAL, "3d6" }
-    } },
-    { "1d6", {
-      { TM_MINUSCULO, "1" }, { TM_DIMINUTO, "1d2" },  { TM_MIUDO, "1d3" }, { TM_PEQUENO, "1d4" }, { TM_GRANDE, "1d8" }, { TM_ENORME, "2d6" },
-      { TM_IMENSO, "3d6" }, { TM_COLOSSAL, "4d6" }
-    } },
-    { "1d8", {
-      { TM_MINUSCULO, "1d2" }, { TM_DIMINUTO, "1d3" },  { TM_MIUDO, "1d4" }, { TM_PEQUENO, "1d6" },
-      { TM_GRANDE, "2d6" }, { TM_ENORME, "3d6" }, { TM_IMENSO, "4d6" }, { TM_COLOSSAL, "6d6" }
-    } },
-    { "1d10", {
-      { TM_MINUSCULO, "1d3" }, { TM_DIMINUTO, "1d4" },  { TM_MIUDO, "1d6" }, { TM_PEQUENO, "1d8" },
-      { TM_GRANDE, "2d8" }, { TM_ENORME, "3d8" }, { TM_IMENSO, "4d8" }, { TM_COLOSSAL, "6d8" }
-    } },
-    { "1d12", {
-      { TM_MINUSCULO, "1d4" }, { TM_DIMINUTO, "1d6" },  { TM_MIUDO, "1d8" }, { TM_PEQUENO, "1d10" },
-      { TM_GRANDE, "3d6" }, { TM_ENORME, "4d6" }, { TM_IMENSO, "6d6" }, { TM_COLOSSAL, "8d6" }
-    } },
-    { "2d4", {
-      { TM_MINUSCULO, "1d2" }, { TM_DIMINUTO, "1d3" },  { TM_MIUDO, "1d4" }, { TM_PEQUENO, "1d6" },
-      { TM_GRANDE, "2d6" }, { TM_ENORME, "3d6" }, { TM_IMENSO, "4d6" }, { TM_COLOSSAL, "6d6" }
-    } },
-    { "2d6", {
-      { TM_MINUSCULO, "1d4" }, { TM_DIMINUTO, "1d6" },  { TM_MIUDO, "1d8" }, { TM_PEQUENO, "1d10" },
-      { TM_GRANDE, "3d6" }, { TM_ENORME, "4d6" }, { TM_IMENSO, "6d6" }, { TM_COLOSSAL, "8d6" }
-    } },
-    { "2d8", {
-      { TM_MINUSCULO, "1d6" }, { TM_DIMINUTO, "1d8" },  { TM_MIUDO, "1d10" }, { TM_PEQUENO, "2d6" },
-      { TM_GRANDE, "3d8" }, { TM_ENORME, "4d8" }, { TM_IMENSO, "6d8" }, { TM_COLOSSAL, "8d8" }
-    } },
-    { "2d10", {
-      { TM_MINUSCULO, "1d8" }, { TM_DIMINUTO, "1d10" },  { TM_MIUDO, "2d6" }, { TM_PEQUENO, "2d8" },
-      { TM_GRANDE, "4d8" }, { TM_ENORME, "6d8" }, { TM_IMENSO, "8d8" }, { TM_COLOSSAL, "12d8" }
-    } }
-  };
   {
-    auto it = mapa_danos.find(arma->dano().medio());
-    if (it == mapa_danos.end()) {
-      if (!arma->dano().medio().empty()) {
-        LOG(ERROR) << StringPrintf("Dano nao encontrado: %s", arma->dano().medio().c_str());
-      }
-      return;
-    }
-    if (it->second.find(TM_MINUSCULO) != it->second.end()) arma->mutable_dano()->set_minusculo(it->second.find(TM_MINUSCULO)->second);
-    if (it->second.find(TM_DIMINUTO) != it->second.end()) arma->mutable_dano()->set_diminuto(it->second.find(TM_DIMINUTO)->second);
-    if (it->second.find(TM_MIUDO) != it->second.end()) arma->mutable_dano()->set_miudo(it->second.find(TM_MIUDO)->second);
-    if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano()->set_pequeno(it->second.find(TM_PEQUENO)->second);
-    if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano()->set_grande(it->second.find(TM_GRANDE)->second);
-    if (it->second.find(TM_ENORME) != it->second.end()) arma->mutable_dano()->set_enorme(it->second.find(TM_ENORME)->second);
-    if (it->second.find(TM_IMENSO) != it->second.end()) arma->mutable_dano()->set_imenso(it->second.find(TM_IMENSO)->second);
-    if (it->second.find(TM_COLOSSAL) != it->second.end()) arma->mutable_dano()->set_colossal(it->second.find(TM_COLOSSAL)->second);
+    arma->mutable_dano()->set_minusculo(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_MINUSCULO));
+    arma->mutable_dano()->set_diminuto(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_DIMINUTO));
+    arma->mutable_dano()->set_miudo(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_MIUDO));
+    arma->mutable_dano()->set_pequeno(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_PEQUENO));
+    arma->mutable_dano()->set_grande(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_GRANDE));
+    arma->mutable_dano()->set_enorme(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_ENORME));
+    arma->mutable_dano()->set_imenso(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_IMENSO));
+    arma->mutable_dano()->set_colossal(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_COLOSSAL));
   }
-  {
-    // dano secundario.
-    auto it = mapa_danos.find(arma->dano_secundario().medio());
-    if (it == mapa_danos.end()) {
-      if (!arma->dano_secundario().medio().empty()) {
-        LOG(ERROR) << StringPrintf("Dano nao encontrado: %s", arma->dano_secundario().medio().c_str());
-      }
-      return;
-    }
-    if (it->second.find(TM_MINUSCULO) != it->second.end()) arma->mutable_dano_secundario()->set_minusculo(it->second.find(TM_MINUSCULO)->second);
-    if (it->second.find(TM_DIMINUTO) != it->second.end()) arma->mutable_dano_secundario()->set_diminuto(it->second.find(TM_DIMINUTO)->second);
-    if (it->second.find(TM_MIUDO) != it->second.end()) arma->mutable_dano_secundario()->set_miudo(it->second.find(TM_MIUDO)->second);
-    if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano_secundario()->set_pequeno(it->second.find(TM_PEQUENO)->second);
-    if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano_secundario()->set_grande(it->second.find(TM_GRANDE)->second);
-    if (it->second.find(TM_ENORME) != it->second.end()) arma->mutable_dano_secundario()->set_enorme(it->second.find(TM_ENORME)->second);
-    if (it->second.find(TM_IMENSO) != it->second.end()) arma->mutable_dano_secundario()->set_imenso(it->second.find(TM_IMENSO)->second);
-    if (it->second.find(TM_COLOSSAL) != it->second.end()) arma->mutable_dano_secundario()->set_colossal(it->second.find(TM_COLOSSAL)->second);
+  if (!arma->dano_secundario().medio().empty()) {
+    arma->mutable_dano_secundario()->set_minusculo(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_MINUSCULO));
+    arma->mutable_dano_secundario()->set_diminuto(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_DIMINUTO));
+    arma->mutable_dano_secundario()->set_miudo(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_MIUDO));
+    arma->mutable_dano_secundario()->set_pequeno(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_PEQUENO));
+    arma->mutable_dano_secundario()->set_grande(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_GRANDE));
+    arma->mutable_dano_secundario()->set_enorme(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_ENORME));
+    arma->mutable_dano_secundario()->set_imenso(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_IMENSO));
+    arma->mutable_dano_secundario()->set_colossal(ConverteDanoBasicoMedioParaTamanho(arma->dano_secundario().medio(), TM_COLOSSAL));
   }
 }
 
