@@ -90,7 +90,7 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
 
-/** Altera a cor correnta para cor. Nao considera alpha. */
+/** Altera a cor corrente para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
 void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
 
@@ -127,6 +127,8 @@ Cor CorRealcada(const Cor& cor);
 
 /** Combina as duas cores, maximo 1 em cada componente. Nao usa alfa. */
 void CombinaCor(const Cor& cor_origem, Cor* cor_destino);
+/** Peso indica quanto cada cor contribui. */
+void CombinaCorComPeso(float peso_origem, const Cor& cor_origem, Cor* cor_destino);
 
 // retorna true se o tipo da forma for 2d: circulo, retangulo, triangulo, livre.
 bool EhForma2d(int tipo_forma);

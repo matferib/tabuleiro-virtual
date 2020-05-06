@@ -266,12 +266,22 @@ namespace {
 float CombinaComponenteCor(float c1, float c2) {
   return std::min(1.0f, c1 + c2);
 }
+float CombinaComponenteCorComPeso(float peso_c1, float c1, float c2) {
+  return std::min(1.0f, peso_c1 * c1 + (1 - peso_c1) * c2);
+}
+
 }  // namespace
 
 void CombinaCor(const Cor& cor_origem, Cor* cor_destino) {
   cor_destino->set_r(CombinaComponenteCor(cor_origem.r(), cor_destino->r()));
   cor_destino->set_g(CombinaComponenteCor(cor_origem.g(), cor_destino->g()));
   cor_destino->set_b(CombinaComponenteCor(cor_origem.b(), cor_destino->b()));
+}
+
+void CombinaCorComPeso(float peso_origem, const Cor& cor_origem, Cor* cor_destino) {
+  cor_destino->set_r(CombinaComponenteCorComPeso(peso_origem, cor_origem.r(), cor_destino->r()));
+  cor_destino->set_g(CombinaComponenteCorComPeso(peso_origem, cor_origem.g(), cor_destino->g()));
+  cor_destino->set_b(CombinaComponenteCorComPeso(peso_origem, cor_origem.b(), cor_destino->b()));
 }
 
 float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho) {

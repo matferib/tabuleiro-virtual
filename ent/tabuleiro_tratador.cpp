@@ -1477,6 +1477,15 @@ float Tabuleiro::TrataAcaoCriacao(
                                                 : tabelas_.Feitico(da->id_arma()),
                                   modelo_com_parametros.parametros(), *referencia, modelo_entidade);
     }
+    if (entidade->TemIniciativa()) {
+      modelo_entidade->set_iniciativa(entidade->Iniciativa());
+    }
+    modelo_entidade->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo_entidade->rotulo().c_str(), RotuloEntidade(entidade).c_str()));
+    if (entidade->Proto().has_cor()) {
+      Cor cor_destino = modelo_entidade->has_cor() ? CorParaProto(COR_BRANCA) : modelo_entidade->cor();
+      CombinaCorComPeso(0.3, entidade->Proto().cor(), &cor_destino);
+      *modelo_entidade->mutable_cor() = cor_destino;
+    }
     Vector2 offset;
     if (i > 0) {
       offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
