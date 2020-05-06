@@ -5691,4 +5691,8 @@ int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_ataca
   return Salvacao(proto, proto.dados_defesa().bonus_salvacao_feitico(), proto_atacante, tipo);
 }
 
+bool ArmaNatural(const ArmaProto& arma) {
+  return c_any(arma.categoria(), CAT_ARMA_NATURAL);
+}
+
 }  // namespace ent

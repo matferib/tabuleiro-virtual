@@ -2032,6 +2032,34 @@ float Tabuleiro::TrataPreAcaoComum(
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
+  if (entidade_origem.Proto().conjurada() && ArmaNatural(tabelas_.Arma(da.id_arma()))) {
+    const auto* ed = BuscaEntidade(id_entidade_destino);
+    if (ed != nullptr) {
+      bool barrado = false;
+      std::string razao;
+      if (ed->PossuiEfeito(EFEITO_PROTECAO_CONTRA_MAL) && !ed->Boa()) {
+        barrado = true;
+        razao = "contra o mal";
+      }
+      if (ed->PossuiEfeito(EFEITO_PROTECAO_CONTRA_BEM) && !ed->Ma()) {
+        barrado = true;
+        razao = "contra o bem";
+      }
+      if (ed->PossuiEfeito(EFEITO_PROTECAO_CONTRA_CAOS) && !ed->Ordeira()) {
+        barrado = true;
+        razao = "contra o caos";
+      }
+      if (ed->PossuiEfeito(EFEITO_PROTECAO_CONTRA_ORDEM) && !ed->Caotica()) {
+        barrado = true;
+        razao = "contra a ordem";
+      }
+      if (barrado) {
+        AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação barrada por %s", razao.c_str()), atraso_s);
+        acao_proto->set_bem_sucedida(false);
+        return atraso_s;
+      }
+    }
+  }
 
   if (id_entidade_destino != Entidade::IdInvalido) {
     AtualizaEsquivaAoAtacar(entidade_origem, id_entidade_destino, grupo_desfazer);

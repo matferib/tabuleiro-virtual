@@ -72,6 +72,8 @@ enum CategoriaArma {
   CAT_PROJETIL_AREA = 9;
   // O proto representa uma arma (e não um feitiço, por exemplo).
   CAT_ARMA = 10;
+  // O proto representa uma arma natural.
+  CAT_ARMA_NATURAL = 11;
 }
 
 enum TipoDano {

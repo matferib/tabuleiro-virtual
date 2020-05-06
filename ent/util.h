@@ -1016,6 +1016,9 @@ int Salvacao(const EntidadeProto& proto, const Bonus& outros_bonus, const Entida
 int SalvacaoVeneno(const EntidadeProto& proto);
 int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo);
 
+// Retorna true se ataque for uma arma natural.
+bool ArmaNatural(const ArmaProto& arma);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

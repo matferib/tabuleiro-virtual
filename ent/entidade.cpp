@@ -2389,4 +2389,28 @@ void Entidade::AtualizaMatrizAcaoSecundaria(const Matrix4& matriz) {
   vd_.matriz_acao_secundaria = matriz;
 }
 
+bool Entidade::PossuiEfeito(TipoEfeito id_efeito) const {
+  return ent::PossuiEvento(id_efeito, proto_);
+}
+
+bool Entidade::Boa() const {
+  auto ts = proto_.tendencia().simples();
+  return ts == TD_CAOTICO_BOM || ts == TD_NEUTRO_BOM || ts == TD_LEAL_BOM;
+}
+
+bool Entidade::Ma() const {
+  auto ts = proto_.tendencia().simples();
+  return ts == TD_CAOTICO_MAU || ts == TD_NEUTRO_MAU || ts == TD_LEAL_MAU;
+}
+
+bool Entidade::Caotica() const {
+  auto ts = proto_.tendencia().simples();
+  return ts == TD_CAOTICO_MAU || ts == TD_CAOTICO_NEUTRO || ts == TD_CAOTICO_BOM;
+}
+
+bool Entidade::Ordeira() const {
+  auto ts = proto_.tendencia().simples();
+  return ts == TD_LEAL_BOM || ts == TD_LEAL_NEUTRO || ts == TD_LEAL_MAU;
+}
+
 }  // namespace ent

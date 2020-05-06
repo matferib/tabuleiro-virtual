@@ -252,6 +252,15 @@ class Entidade {
   int Iniciativa() const { return proto_.iniciativa(); }
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
+  /** @return true se a entidade tiver o efeito. */
+  bool PossuiEfeito(TipoEfeito efeito) const;
+
+  // Acesso simplificado a alinhamento parcial.
+  bool Boa() const;
+  bool Ma() const;
+  bool Caotica() const;
+  bool Ordeira() const;
+
   // Retorna nullptr caso nao haja.
   const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
   // Retorna o dado corrente com a mao secundaria, se houver. Implica ataque de duas armas.
