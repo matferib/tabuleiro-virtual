@@ -1533,7 +1533,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     }
   } else if (da != nullptr && da->has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
-    int bonus = ed.Salvacao(ea, da->tipo_salvacao());
+    int bonus = da->eh_feitico() ? ed.SalvacaoFeitico(ea, da->tipo_salvacao()) : ed.Salvacao(ea, da->tipo_salvacao());
     int total = d20 + bonus;
     std::string str_evasao;
     if (total >= da->dificuldade_salvacao()) {
@@ -1571,7 +1571,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
   // A gente ainda precisa de fazer tudo acima por causa dos efeitos. Mas o dano pode ser aplicado normalmente.
   if (da != nullptr && da->dano_ignora_salvacao()) {
     delta_pontos_vida = delta_pontos_vida_entrada;
-    descricao_resultado = StringPrintf("dano ignora salvacao: %d; %s", delta_pontos_vida, descricao_resultado.c_str());
+    descricao_resultado = StringPrintf("%s; dano ignora salvacao: %d", descricao_resultado.c_str(), delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
@@ -5639,11 +5639,26 @@ ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& e
   return n.entidade().evento().empty() ? ntf::Notificacao::default_instance() : n;
 }
 
-int SalvacaoVeneno(const EntidadeProto& proto) {
+int Salvacao(const EntidadeProto& proto, const Bonus& outros_bonus, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
+  Bonus b(BonusContraTendenciaNaSalvacao(proto_atacante, proto));
+  CombinaBonus(outros_bonus, &b);
   const auto& dd = proto.dados_defesa();
-  Bonus bonus_veneno = dd.bonus_salvacao_veneno();
-  CombinaBonus(dd.salvacao_fortitude(), &bonus_veneno);
-  return BonusTotal(bonus_veneno); 
+  switch (tipo) {
+    case TS_FORTITUDE: CombinaBonus(dd.salvacao_fortitude(), &b); break;
+    case TS_REFLEXO: CombinaBonus(dd.salvacao_reflexo(), &b); break;
+    case TS_VONTADE: CombinaBonus(dd.salvacao_vontade(), &b); break;
+    default:
+      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
+  }
+  return BonusTotal(b);
+}
+
+int SalvacaoVeneno(const EntidadeProto& proto) {
+  return Salvacao(proto, proto.dados_defesa().bonus_salvacao_veneno(), EntidadeProto::default_instance(), TS_FORTITUDE);
+}
+
+int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
+  return Salvacao(proto, proto.dados_defesa().bonus_salvacao_feitico(), proto_atacante, tipo);
 }
 
 }  // namespace ent

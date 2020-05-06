@@ -4032,6 +4032,16 @@ TEST(TesteRacas, TesteAnao) {
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, ea->Proto())), 8);
   EXPECT_EQ(ea->Salvacao(*ea, TS_FORTITUDE), 5);  // 2 + 3.
   EXPECT_EQ(ea->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
+  EXPECT_EQ(ea->SalvacaoFeitico(*ea, TS_REFLEXO), 2);  // 0 + 0 + 2.
+
+  DadosAtaque da;
+  da.set_dificuldade_salvacao(16);
+  da.set_tipo_salvacao(TS_FORTITUDE);
+  g_dados_teste.push(10);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &da, *ea, *ea)), false);
+  g_dados_teste.push(10);
+  da.set_eh_feitico(true);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &da, *ea, *ea)), true);
 }
 
 TEST(TesteRacas, TesteAasimar) {

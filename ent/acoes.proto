@@ -342,7 +342,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 90.
+// Proximo id: 91.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -492,6 +492,8 @@ message DadosAtaque {
   // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
   optional bool ignora_origem = 78;
   optional bool agarrar_aprimorado = 85;
+  // Se verdadeiro, ataque é oriundo de feitiço.
+  optional bool eh_feitico = 90;
 }
 
 message ConsequenciaEvento {

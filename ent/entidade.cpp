@@ -1695,16 +1695,7 @@ Matrix4 Entidade::MontaMatrizModelagem(
 }
 
 int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
-  Bonus b(BonusContraTendenciaNaSalvacao(atacante.Proto(), proto_));
-  const auto& dd = proto_.dados_defesa();
-  switch (tipo) {
-    case TS_FORTITUDE: CombinaBonus(dd.salvacao_fortitude(), &b); break;
-    case TS_REFLEXO: CombinaBonus(dd.salvacao_reflexo(), &b); break;
-    case TS_VONTADE: CombinaBonus(dd.salvacao_vontade(), &b); break;
-    default:
-      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
-  }
-  return BonusTotal(b);
+  return ent::Salvacao(proto_, Bonus::default_instance(), atacante.Proto(), tipo);
 }
 
 int Entidade::SalvacaoVeneno() const {
@@ -1712,15 +1703,11 @@ int Entidade::SalvacaoVeneno() const {
 }
 
 int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
-  const auto& dd = proto_.dados_defesa();
-  switch (tipo) {
-    case TS_FORTITUDE: return BonusTotal(dd.salvacao_fortitude());
-    case TS_REFLEXO: return BonusTotal(dd.salvacao_reflexo());
-    case TS_VONTADE: return BonusTotal(dd.salvacao_vontade());
-    default:
-      LOG(ERROR) << "Tipo de salvacao invalido: " << (int)tipo;
-  }
-  return 0;
+  return ent::Salvacao(proto_, Bonus::default_instance(), EntidadeProto::default_instance(), tipo);
+}
+
+int Entidade::SalvacaoFeitico(const Entidade& atacante, TipoSalvacao tipo) const {
+  return ent::SalvacaoFeitico(proto_, atacante.Proto(), tipo);
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
