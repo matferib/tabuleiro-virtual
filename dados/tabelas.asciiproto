@@ -1360,6 +1360,7 @@ tabela_efeitos {
     consequencia {
       atributos { forca { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 6 origem: 'poder_divino' } } } }
       # 1 PV/nivel conjurador
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'poder_divino' } } }
       # bonus base de ataque igual ao do personagem: feito hardcoded.
     }
   }
@@ -8291,7 +8292,7 @@ tabela_feiticos {
       ataque_toque: true
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
+        efeito: EFEITO_PRESA_MAGICA
         descricao: 'presa magica'
         modificador_rodadas: MR_MINUTOS_NIVEL
       }

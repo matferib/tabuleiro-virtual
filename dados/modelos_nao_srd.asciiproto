@@ -473,11 +473,11 @@ modelo {
     }
     # Mordida tem alcance menor.
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1' alcance_m: 3 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6' alcance_m: 1.5 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' alcance_m: 3 }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6' alcance_m: 1.5 }
     # Ferrao nao tem modificador de forca.
     dados_ataque { rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano: '1d8' }
     dados_defesa {
@@ -1047,45 +1047,60 @@ modelo {
   entidade {
     raca: 'humano'
     dados_vida: '4d8+1d4+20'
-    # Nao tem como carregar texturas locais. Tem que carregar na UI.
     info_textura { id: '0:shar_cleric.png'  largura: 0.6 translacao_x: 0.2 }
     info_classes { id: 'clerigo' nivel: 5 }
     info_classes { id: 'adepto_sombras' nivel: 1 }
     tendencia { simples: TD_LEAL_MAU }
     cor { r: 0.150 g: 0.150 b: 0.150 }
     modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 17 }
-    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' bonus_magico_escudo: 1 }
+    dados_defesa {
+      id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' bonus_magico_escudo: 1
+    }
     dados_ataque {
       id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
     }
     dados_ataque {
       id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
-      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
-      municao: 10
+      municao: 20
     }
+    dados_ataque {
+      id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 2
+    }
+    dados_ataque {
+      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 2
+    }
+    tesouro {
+      tesouro: 'simbolo profano\n6tochas'
+      moedas { po: 10 }
+      # total:
+      # pergaminhos: .
+      pergaminhos_divinos { id: 'curar_ferimentos_moderados' }  # 150
+      pergaminhos_divinos { id: 'curar_ferimentos_serios' }  # 375
+      pergaminhos_divinos { id: 'dissipar_magia' }  # 375
+      pergaminhos_divinos { id: 'purgar_invisibilidade' } #375
+      pergaminhos_divinos { id: 'invocar_criaturas_iii' } #375
+      pergaminhos_divinos { id: 'andar_ar' } # 700
+
+      # poções: 
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'arma_magica' } # 50
+      pocoes { id: 'protecao_contra_mal' } # 50
+    }
+
     info_talentos {
-      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
       gerais { id: 'magia_trama_sombras' }
       gerais { id: 'reflexos_rapidos' }
-      outros { id: 'magia_perniciosa' }
-      outros { id: 'magia_traicoeira' }
-      outros { id: 'magia_tenaz' }
+      outros { id: 'foco_em_arma' complemento: 'maca_estrela' origem: 'humano' }
+      outros { id: 'magia_perniciosa' origem: 'adepto das sombras' }
+      outros { id: 'magia_traicoeira' origem: 'adepto das sombras' }
+      outros { id: 'magia_tenaz' origem: 'adepto das sombras' }
     }
     info_pericias { id: 'concentracao' pontos: 8 }
-    info_pericias { id: 'ouvir' pontos: 8 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 8 }
     info_pericias { id: 'identificar_magia' pontos: 8 }
-    tesouro {
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_serios' }
-      pocoes { id: 'protecao_contra_bem' }
-      aneis { id: 'protecao_1' em_uso: true }
-      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
-      moedas { po: 10 }
-      tesouro: 'simbolo sagrado\n6tochas'
-    }
     feiticos_classes {
       id_classe: 'clerigo'
-      #operacao: OC_SOBRESCREVE
       dominios: 'morte'
       dominios: 'enganacao'
       feiticos_por_nivel {
@@ -1257,15 +1272,15 @@ modelo {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
 
@@ -1297,23 +1312,23 @@ modelo {
 
     # Bote.
     dados_ataque {
-      grupo: 'ataque total bote x1' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque total bote x1' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote x1' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote x1' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'pata traseira' id_arma: 'garra_traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote x1' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote x1' rotulo: 'pata traseira' id_arma: 'garra_traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     # apesar de ser grande, alcance 1.
@@ -1364,15 +1379,15 @@ modelo {
     }
 
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
 
@@ -1400,23 +1415,23 @@ modelo {
 
     # Bote.
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote' rotulo: 'pata traseira' id_arma: 'garra_traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque total bote' rotulo: 'pata traseira' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total bote' rotulo: 'pata traseira' id_arma: 'garra_traseira' tipo_ataque: 'Ataque Corpo a Corpo'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
     # apesar de ser grande, alcance 1.

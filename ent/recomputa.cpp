@@ -537,14 +537,6 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       }
     }
     break;
-    case EFEITO_PODER_DIVINO:
-      if (!evento->processado()) {
-        // Gera os pontos de vida temporarios.
-        int complemento = evento->complementos().empty() ? 7 : evento->complementos(0);
-        auto* po = AtribuiBonusPenalidadeSeMaior(complemento, TB_SEM_NOME, "poder_divino", proto->mutable_pontos_vida_temporarios_por_fonte());
-        if (evento->has_id_unico()) po->set_id_unico(evento->id_unico());
-      }
-    break;
     case EFEITO_PEDRA_ENCANTADA:
       if (!evento->processado()) {
         const auto* funda = DadosAtaquePorIdArma("funda", *proto);
@@ -634,7 +626,22 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       }
     }
     break;
-    case EFEITO_PRESA_MAGICA:
+    case EFEITO_PRESA_MAGICA: {
+      // TODO
+      if (evento->complementos_str().empty()) {
+        // TODO encontrar o ataque primario.
+        return false;
+      }
+      int valor = 1;
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
+      // TODO
+      // Pegar apenas um ataque de cada grupo que case com o id_arma passado.
+      for (auto* da : das) {
+        AtribuiBonusPenalidadeSeMaior(
+            valor, TB_MELHORIA, evento->id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+      }
+    }
+    break;
     case EFEITO_ARMA_MAGICA: {
       if (evento->complementos_str().empty()) return false;
       int valor = 1;
@@ -832,25 +839,6 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
     }
     break;
-    case EFEITO_PODER_DIVINO: {
-      auto* bi = BonusIndividualSePresente(TB_SEM_NOME, proto->mutable_pontos_vida_temporarios_por_fonte());
-      auto* po = OrigemSePresente("poder_divino", bi);
-      if (po == nullptr) {
-        break;
-      }
-      if (evento.has_id_unico()) {
-        // Se tiver id unico, respeita o id.
-        RemoveSe<BonusIndividual::PorOrigem>([&evento] (const BonusIndividual::PorOrigem& ipo) {
-          return ipo.id_unico() == evento.id_unico();
-        }, bi->mutable_por_origem());
-      } else {
-        // Nao tem id, remove a ajuda por completo. Pode dar merda.
-        LOG(WARNING) << "Removendo poder_divino sem id unico.";
-        RemoveBonus(TB_SEM_NOME, "poder_divino", proto->mutable_pontos_vida_temporarios_por_fonte());
-      }
-    }
-    break;
-
     case EFEITO_FURIA_BARBARO:
       AplicaFimFuriaBarbaro(proto);
     break;

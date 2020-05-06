@@ -181,7 +181,7 @@ sub_menu {
     id: 'Clérigos'
     modelo { id: 'Humano Clérigo' }
     modelo { id: 'Humano Clérigo 4' }
-    modelo { id: 'Humano Clérigo 5' }
+    modelo { id: 'Humano Clérigo 5 (Leal Bom)' }
     modelo { id: 'Humano Clérigo 16' }
   }
   sub_menu {

@@ -4142,23 +4142,28 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Clérigo 5'
+  id: 'Humano Clérigo 5 (Leal Bom)'
   id_entidade_base: 'Humano Clérigo Base'
   entidade {
+    tendencia { simples: TD_LEAL_BOM }
     dados_vida: '4d8+18' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
     info_classes { id: 'clerigo' nivel: 5 }
     cor { r: 0.898 g: 0.663 b: 0.475 }
-    dados_defesa { id_armadura: 'armadura_batalha' bonus_magico_armadura: 1 id_escudo: 'pesado_aco' bonus_magico_escudo: 1 }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' bonus_magico_escudo: 1 }
     dados_ataque {
       id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
     }
     dados_ataque {
-      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
-      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
-      municao: 10
+      id_arma: 'besta_leve' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+      municao: 20
+    }
+    dados_ataque {
+      id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 2
+    }
+    dados_ataque {
+      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 1
     }
     info_talentos {
-      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
       gerais { id: 'preparar_pocao' }
       gerais { id: 'reflexos_rapidos' }
     }
@@ -4166,12 +4171,18 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 8 }
     info_pericias { id: 'identificar_magia' pontos: 8 }
     tesouro {
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      aneis { id: 'protecao_1' em_uso: true }
-      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
       tesouro: 'simbolo sagrado\n6tochas'
       moedas { po: 10 }
+      # total: 1000
+      # pergaminhos: 850.
+      pergaminhos_divinos { id: 'arma_espiritual' }  #150
+      pergaminhos_divinos { id: 'dissipar_magia' }  #375
+      pergaminhos_divinos { id: 'invocar_criaturas_iii' } #375
+      # (cada uma por 0.7).
+      pocoes { id: 'curar_ferimentos_leves' } # 35
+      pocoes { id: 'curar_ferimentos_leves' } # 35
+      pocoes { id: 'arma_magica' } # 35
+      pocoes { id: 'protecao_contra_mal' } # 35
     }
     feiticos_classes {
       id_classe: 'clerigo'
@@ -4181,11 +4192,12 @@ modelo {
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'luz' }
         conhecidos { id: 'resistencia' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 1
@@ -4193,18 +4205,19 @@ modelo {
         conhecidos { id: 'bencao' }
         conhecidos { id: 'santuario' }
         conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
-        conhecidos { id: 'curar_ferimentos_moderados' }
         conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
@@ -4214,13 +4227,12 @@ modelo {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'circulo_magico_contra_mal' }
-        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
     }
-
     atributos {
       sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
