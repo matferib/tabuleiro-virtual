@@ -55,7 +55,8 @@ const char* g_menu_strs[] = { QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Jogo
 const char* g_menuitem_strs[] = {
   // jogo
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Iniciar jogo mestre"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Proxy"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Conectar no jogo mestre"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sair"), g_fim,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sair"),
+    g_fim,
   // Tabuleiro.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"),
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
@@ -70,7 +71,8 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Remover Versões"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"),
+    g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Selecionar modelo para &feitiço"),
@@ -80,6 +82,7 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Remover"),
     nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionados"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar como não selecionáveis"),
     nullptr,
@@ -92,9 +95,11 @@ const char* g_menuitem_strs[] = {
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Cilindro"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Cí&rculo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&one"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&ubo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Esfera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Livre"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Pirâmide"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Retângulo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Triângulo"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar Cor"), g_fim,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar Cor"),
+    g_fim,
   // Sobre
-  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Tabuleiro virtual"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Tabuleiro virtual"),
+    g_fim,
 };
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
@@ -485,7 +490,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
-  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_ENTIDADES]) {
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_ENTIDADES_SELECIONAVEIS]) {
     // Abre dialogo de arquivo.
     QString file_str = QFileDialog::getSaveFileName(
         qobject_cast<QWidget*>(parent()),
@@ -496,6 +501,18 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
       return;
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toUtf8().constData());
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_ENTIDADES_SELECIONADAS]) {
+    // Abre dialogo de arquivo.
+    QString file_str = QFileDialog::getSaveFileName(
+        qobject_cast<QWidget*>(parent()),
+        tr("Salvar entidades selecionadas"),
+        tr(arq::Diretorio(arq::TIPO_ENTIDADES).c_str()));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de salvar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS_JOGADOR);
     notificacao->set_endereco(file_str.toUtf8().constData());
   } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),

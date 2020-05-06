@@ -1140,7 +1140,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       ntf::Notificacao grupo_desfazer;
       grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);;
       if (notificacao.has_entidade()) {
-        LOG(INFO) << "gerando entidade ja pronta";
+        VLOG(1) << "gerando entidade ja pronta";
         Modelo nao_usado;
         AdicionaUmaEntidadeNotificando(notificacao, referencia, nao_usado, x, y, z + 0, grupo_desfazer.add_notificacao());
       } else {
@@ -5327,6 +5327,14 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveisJogador() const {
       *n->mutable_tabuleiro()->add_entidade() = e->Proto();
     }
   }
+  if (n->tabuleiro().entidade().empty()) {
+    // Tenta a selecionada.
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      const auto* e = BuscaEntidade(id);
+      if (e == nullptr) continue;
+      *n->mutable_tabuleiro()->add_entidade() = e->Proto();
+    }
+  }
   return n.release();
 }
 
@@ -5337,14 +5345,12 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
   float media_y = 0.0f;
   int num = 0;
   for (const auto& e : n.tabuleiro().entidade()) {
-    if (e.selecionavel_para_jogador()) {
-      ++num;
-      ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
-      n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-      n_adicao->mutable_entidade()->CopyFrom(e);
-      media_x += e.pos().x();
-      media_y += e.pos().y();
-    }
+    ++num;
+    ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
+    n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    n_adicao->mutable_entidade()->CopyFrom(e);
+    media_x += e.pos().x();
+    media_y += e.pos().y();
   }
   if (num == 0) {
     return;
