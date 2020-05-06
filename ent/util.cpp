@@ -4690,11 +4690,31 @@ int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitic
   return -1;
 }
 
+namespace {
+
+void PassaAtributosReferencia(const ArmaProto& feitico, const EntidadeProto& referencia, EntidadeProto* modelo) {
+  if (referencia.has_iniciativa()) {
+    modelo->set_iniciativa(referencia.iniciativa());
+  }
+  modelo->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
+  if (referencia.has_cor()) {
+    Cor cor_destino = modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
+    CombinaCorComPeso(0.3, referencia.cor(), &cor_destino);
+    *modelo->mutable_cor() = cor_destino;
+  }
+  if (feitico.escola() == "conjuracao") {
+    modelo->set_conjurada(true);
+  }
+}
+
+}  // namespace
+
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
   const auto& classe_feitico_ativa = referencia.Proto().classe_feitico_ativa();
   const int nivel = referencia.NivelConjurador(classe_feitico_ativa);
   const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
   VLOG(1) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
+  PassaAtributosReferencia(feitico, referencia.Proto(), modelo);
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {
