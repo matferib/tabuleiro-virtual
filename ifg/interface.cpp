@@ -732,7 +732,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   };
 
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista("Escolha o Feitiço", lista, funcao_final);
+  EscolheItemLista(conversao_espontanea ? "Converter qual feitiço" : "Escolha o Feitiço", lista, funcao_final);
 }
 
 void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
