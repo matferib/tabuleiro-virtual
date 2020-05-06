@@ -3044,7 +3044,11 @@ modelo {
 modelo {
   id: 'Hipogrifo'
   entidade {
-    dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '3d10+9'
+    tamanho: TM_GRANDE
+    info_textura { id: 'hippogriff.png' largura: 0.8 translacao_x: 0.1 altura: 0.6 translacao_y: 0.2 }
+    cor { r: 0.6 g: 0.45 b: 0.2 }
     info_classes {
       id: 'besta_magica' nivel: 3 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
       pericias_monstro: 'ouvir'
