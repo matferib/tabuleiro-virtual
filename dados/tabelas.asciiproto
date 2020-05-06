@@ -29,6 +29,30 @@ tabela_escudos {
 tabela_armas {
   # Projeteis de area.
   armas {
+    id: 'mordida'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'garra'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'garra_traseira'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'pancada'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'ferroada'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'chifrada'
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
     id: 'agua_benta'
     nome: 'água benta'
     categoria: CAT_PROJETIL_AREA

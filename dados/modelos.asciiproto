@@ -46,7 +46,7 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } }
       }
     }
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS dano_basico: '2d6+1d4' }
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' dano_basico: '2d6+1d4' }
     dados_ataque {
       rotulo: 'jato (1 vez so)' tipo_ataque: 'Raio' dano_basico: '4d4'
@@ -110,7 +110,8 @@ modelo {
         valor: 10
       }
     }
-    # Tipo que era pra ser ataque mao boa, mas o livro dos monstros calcula como se fosse um ataque primario (sem aplicar penalidade de duas armas).
+    # Segundo livro dos monstros (pg 300 em portugues), armas naturais e manufaturadas:
+    # A arma se torna primaria com ataques multiplos e a arma natural vira secundaria.
     dados_ataque {
       grupo: 'ataque_total_espada' rotulo: 'espada_larga' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO id_arma: 'espada_larga' ordem_ataque: 0
       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
@@ -120,16 +121,16 @@ modelo {
       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     dados_ataque {
-      grupo: 'ataque_total_espada' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+      grupo: 'ataque_total_espada' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     # Esse é o ataque preferido dele, mas nao faz sentido dado os modificadores melhores da espada.
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
       alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
     }
     # Similares a magia.
@@ -185,16 +186,16 @@ modelo {
        alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
      }
      dados_ataque {
-       grupo: 'ataque_total_espada' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+       grupo: 'ataque_total_espada' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
        alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
      }
      # Esse é o ataque preferido dele, mas nao faz sentido dado os modificadores melhores da espada.
      dados_ataque {
-       grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+       grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
        alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
      }
      dados_ataque {
-       grupo: 'ataque_total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
+       grupo: 'ataque_total' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d4'
        alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
      }
      # Similares a magia.
@@ -225,7 +226,7 @@ modelo {
       # Os atributos se mantem, porque é change shape e não alternate form.
       dados_ataque {
         grupo: 'ataque'
-        rotulo: 'mordida'
+        rotulo: 'mordida' id_arma: 'mordida'
         tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
         derrubar_automatico: true
         alinhamento_bem_mal: DESC_BEM alinhamento_ordem_caos: DESC_LEAL
@@ -265,13 +266,13 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
 
     info_talentos {
@@ -309,7 +310,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     info_talentos {
       outros { id: 'acuidade_arma' }
@@ -346,7 +347,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     info_talentos {
       gerais { id: 'prontidao' }
@@ -410,7 +411,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     info_talentos {
       gerais { id: 'prontidao' }
@@ -620,7 +621,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1'
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1'
       veneno {
         tipo: TV_FERIMENTO cd: 10
         dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
@@ -666,7 +667,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2'
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2'
       veneno {
         tipo: TV_FERIMENTO cd: 10
         dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
@@ -696,7 +697,7 @@ modelo {
     }
     tipo_dnd: TIPO_BESTA_MAGICA
     dados_ataque {
-      grupo: 'destruir o bem' rotulo: 'mordida'
+      grupo: 'destruir o bem' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2+1'
       veneno {
         tipo: TV_FERIMENTO cd: 10
@@ -929,7 +930,7 @@ modelo {
     aura_mestre_apenas: true
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'pancada' dano_basico: '1d8' id_arma: 'pancada' # para talento funcionar.
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'pancada' id_arma: 'pancada' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
@@ -996,11 +997,11 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '2d6' alcance_m: 3
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d6' alcance_m: 3
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '2d6' alcance_m: 3
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '2d6' alcance_m: 3
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     # Ataque total saltando: +5 de bonus, sem mordida.
@@ -1133,9 +1134,9 @@ modelo {
     cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 2
     rotulo_especial: 'paralisia CD 12 for (exceto elfo), mordida febre, 1 dia, CD 12 for 1d3 con, 1d3 dex\nfor 0 ref 2 von 5'
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
-    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
@@ -1404,17 +1405,17 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '2d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '2d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
@@ -1579,20 +1580,20 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '2d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_m: 3
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '2d6' tipo_dano_secundario: TDV_CONSTITUICAO cd: 24 }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '2d4'
       alcance_m: 3
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '2d4'
       alcance_m: 3
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
@@ -1683,17 +1684,17 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
@@ -1779,17 +1780,17 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo'
       dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
@@ -2274,7 +2275,7 @@ modelo {
       aereo_basico_q: 20
     }
     dados_ataque {
-      grupo: 'pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
       grupo: 'encontrão' rotulo: 'encontrão' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
@@ -2314,7 +2315,7 @@ modelo {
       aereo_basico_q: 20
     }
     dados_ataque {
-      grupo: 'pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
       grupo: 'redemoinho' rotulo: 'redemoinho (ler descrição)' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
@@ -2487,7 +2488,7 @@ modelo {
     }
     # ferroada tem +2 de bonus, terminando em +3.
     dados_ataque {
-      rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferrao' dano_basico: '1d4'
+      rotulo: 'ferrao' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada' dano_basico: '1d4'
       dano_adicional: '1d4+1'
       elemento_dano_adicional: DESC_ACIDO
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
@@ -2515,7 +2516,7 @@ modelo {
     info_classes { id: 'verme' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
     rotulo_especial: 'faro\nferrao dano 2d4+1\nmovimento 10 quadrados, escalar 4'
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '2d4'
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
@@ -2542,7 +2543,7 @@ modelo {
     info_classes { id: 'verme' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE }
     rotulo_especial: 'agarrar aprimorado medios, faro\nmovimento 8 quadrados\nalalcance 1 quadrado'
     dados_ataque {
-      rotulo: 'mordida' alcance_m: 1.5 tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6'
+      rotulo: 'mordida' id_arma: 'mordida' alcance_m: 1.5 tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
@@ -2618,7 +2619,7 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'mordida' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_defesa {
@@ -2690,10 +2691,10 @@ modelo {
       grupo: 'ataque total' rotulo: 'clava' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'clava_grande' empunhadura: EA_2_MAOS ordem_ataque: 1
     }
     dados_ataque {
-      grupo: 'ataque total pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'ataque total pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total pancada' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'ataque total pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
       grupo: 'pedrada' rotulo: 'pedrada' tipo_ataque: 'Pedrada (gigante)' dano_basico: '2d8' alcance_m: 54 incrementos: 5 empunhadura: EA_2_MAOS ordem_ataque: 0
@@ -3021,7 +3022,7 @@ modelo {
     dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'derrubar ação livre ao morder'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' empunhadura: EA_2_MAOS }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' empunhadura: EA_2_MAOS }
     info_classes { id: 'hiena' nivel: 2 bba: 1 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
     dados_defesa {
       ca {
@@ -3078,17 +3079,17 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
+      grupo: 'Ataque Total' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
+      grupo: 'Ataque Total' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'mordida'
+      grupo: 'Ataque Total' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
@@ -3176,42 +3177,42 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
+      grupo: 'Ataque Total' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'garra'
+      grupo: 'Ataque Total' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Ataque Total' rotulo: 'mordida'
+      grupo: 'Ataque Total' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'Bote' rotulo: 'garra'
+      grupo: 'Bote' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Bote' rotulo: 'garra'
+      grupo: 'Bote' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'Bote' rotulo: 'garra traseira'
+      grupo: 'Bote' rotulo: 'garra traseira' id_arma: 'garra_traseira'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'Bote' rotulo: 'garra traseira'
+      grupo: 'Bote' rotulo: 'garra traseira' id_arma: 'garra_traseira'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'Bote' rotulo: 'mordida'
+      grupo: 'Bote' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
@@ -3299,43 +3300,43 @@ modelo {
     # Normal.
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     # bote investindo.
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
   }
@@ -3354,7 +3355,7 @@ modelo {
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       derrubar_automatico: true
     }
     dados_defesa {
@@ -3402,7 +3403,7 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     # normal.
     dados_ataque {
-      grupo: 'ataque' rotulo: 'mordida'
+      grupo: 'ataque' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '3d6' empunhadura: EA_2_MAOS alcance_q: 2
       agarrar_aprimorado: true
     }
@@ -3456,23 +3457,23 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     # normal.
     dados_ataque {
-      grupo: 'ataque' rotulo: 'garra traseira'
+      grupo: 'ataque' rotulo: 'garra traseira' id_arma: 'garra_traseira'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque' rotulo: 'garra traseira'
+      grupo: 'ataque' rotulo: 'garra traseira' id_arma: 'garra_traseira'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque' rotulo: 'mordida'
+      grupo: 'ataque' rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque' rotulo: 'garra'
+      grupo: 'ataque' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque' rotulo: 'garra'
+      grupo: 'ataque' rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_defesa {
@@ -3521,7 +3522,7 @@ modelo {
     mais_de_duas_pernas: true
     dados_ataque {
       grupo: 'ataque'
-      rotulo: 'mordida'
+      rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_2_MAOS
       derrubar_automatico: true
     }
@@ -3565,7 +3566,7 @@ modelo {
     tipo_dnd: TIPO_BESTA_MAGICA
     dados_ataque {
       grupo: 'destruir o bem'
-      rotulo: 'mordida'
+      rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8+6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       derrubar_automatico: true
     }
@@ -3595,17 +3596,17 @@ modelo {
     mais_de_duas_pernas: true
     dados_ataque {
       grupo: 'ataque'
-      rotulo: 'garra'
+      rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
       grupo: 'ataque'
-      rotulo: 'garra'
+      rotulo: 'garra' id_arma: 'garra'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
       grupo: 'ataque'
-      rotulo: 'mordida'
+      rotulo: 'mordida' id_arma: 'mordida'
       tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_defesa {
@@ -6406,7 +6407,7 @@ modelo {
     rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12'
     modificador_iniciativa: 3
     dados_ataque { rotulo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
-    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     dados_ataque { rotulo: 'besta leve' tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 4 dano: '1d8' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     formas_alternativas {
       # Humano.
@@ -6759,11 +6760,11 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 26 } } }
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
@@ -6885,15 +6886,15 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      grupo: 'ataque total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
-      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
@@ -7219,7 +7220,7 @@ modelo {
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
       agarrar_aprimorado: true
     }
@@ -7236,17 +7237,17 @@ modelo {
     }
     dados_ataque {
       grupo: 'bote'  # no livro diz que o bonus é 18, mas num faz sentido, sendo um ataque secundario.
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '2d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
       agarrar_aprimorado: true
     }
@@ -7264,13 +7265,13 @@ modelo {
     info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     dados_ataque {
-      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     dados_ataque {
       rotulo: 'dilacerar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_2_MAOS
@@ -7355,7 +7356,7 @@ modelo {
     }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' dano_basico: '2d8'
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '2d8'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     # TODO a cada rodada, apenas 1d4 podem ser usados.
@@ -7452,13 +7453,13 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '2d6'
     }
   }
 }
@@ -7499,13 +7500,13 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
   }
 }
@@ -7545,13 +7546,13 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
   }
 }
@@ -7591,13 +7592,13 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     dados_ataque {
-      grupo: 'ataque_total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
   }
 }
@@ -7641,7 +7642,7 @@ modelo {
     }
     rotulo_especial: 'derrubar como ação livre se acertar mordida +3 mod'
     dados_ataque {
-      rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     info_pericias { id: 'esconderse' pontos: 2 }
