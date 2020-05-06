@@ -2073,6 +2073,9 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   if (arma.has_dano_ignora_salvacao()) {
     da->set_dano_ignora_salvacao(arma.dano_ignora_salvacao());
   }
+  if (!arma.info_classes().empty()) {
+    da->set_eh_feitico(true);
+  }
 }
 
 void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaque* da) {

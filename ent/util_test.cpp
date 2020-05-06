@@ -4027,21 +4027,69 @@ TEST(TesteRacas, TesteAnao) {
     ic->set_nivel(1);
     ic->set_id("guerreiro");
   }
-  auto* ea = NovaEntidadeParaTestes(proto, g_tabelas);
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, ea->Proto())), 17);
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, ea->Proto())), 8);
-  EXPECT_EQ(ea->Salvacao(*ea, TS_FORTITUDE), 5);  // 2 + 3.
-  EXPECT_EQ(ea->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
-  EXPECT_EQ(ea->SalvacaoFeitico(*ea, TS_REFLEXO), 2);  // 0 + 0 + 2.
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
 
-  DadosAtaque da;
-  da.set_dificuldade_salvacao(16);
-  da.set_tipo_salvacao(TS_FORTITUDE);
+  std::unique_ptr<Entidade> ea;
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
+    {
+      // 16 de CD, mas nao é feitico.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_dificuldade_salvacao(16);
+      da->set_tipo_salvacao(TS_FORTITUDE);
+    }
+    {
+      // 16 de CD reflexo, feitico.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_tipo_ataque("Feitiço de Mago");
+      da->set_id_arma("maos_flamejantes");
+    }
+    {
+      // 13 de CD reflexo, feitico.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_nivel_conjurador_pergaminho(1);
+      da->set_modificador_atributo_pergaminho(2);
+      da->set_id_arma("maos_flamejantes");
+    }
+
+    ea.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
+  }
+
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, ed->Proto())), 17);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, ed->Proto())), 8);
+  EXPECT_EQ(ed->Salvacao(*ea, TS_FORTITUDE), 5);  // 2 + 3.
+  EXPECT_EQ(ed->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
+  EXPECT_EQ(ed->SalvacaoFeitico(*ea, TS_REFLEXO), 2);  // 0 + 0 + 2.
+
+  // Testa o ataque nao feitico, bonus 5 vs CD 16.
   g_dados_teste.push(10);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &da, *ea, *ea)), false);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(0), *ea, *ed)), false) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  g_dados_teste.push(11);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(0), *ea, *ed)), true) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  // Testa o ataque feitico, bonus 2 vs CD 16.
+  g_dados_teste.push(13);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(1), *ea, *ed)), false)
+      << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
+      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  g_dados_teste.push(14);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(1), *ea, *ed)), true)
+      << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
+      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  // Testa o pergaminho feitico, bonus 2 vs CD 13.
   g_dados_teste.push(10);
-  da.set_eh_feitico(true);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &da, *ea, *ea)), true);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(2), *ea, *ed)), false)
+      << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
+      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
+  g_dados_teste.push(11);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(2), *ea, *ed)), true)
+      << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
+      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
 }
 
 TEST(TesteRacas, TesteAasimar) {
