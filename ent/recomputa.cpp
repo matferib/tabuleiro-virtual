@@ -1109,7 +1109,9 @@ void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* 
 struct RestricaoFeitico {
   bool ha_restricao = false;
   bool dominio = false;
-  std::vector<std::string> dominios_ou_escolas;
+  std::vector<std::string> dominios;
+  std::string especializacao;
+  std::vector<std::string> escolas_proibidas;
 };
 
 void RecomputaDependenciasDominios(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1203,9 +1205,9 @@ void CorrigeSlotsRestritos(
   bool ok = false;
   if (restricao.dominio) {
     ok = c_any_of(feitico_tabelado.info_classes(), [&restricao](const ArmaProto::InfoClasseParaFeitico& classe) {
-        return classe.dominio() && c_any(restricao.dominios_ou_escolas, classe.id()); });
+        return classe.dominio() && c_any(restricao.dominios, classe.id()); });
   } else {
-    ok = c_any(restricao.dominios_ou_escolas, feitico_tabelado.escola());
+    ok = c_none(restricao.escolas_proibidas, feitico_tabelado.escola());
   }
   if (!ok) {
     VLOG(1) << "corrigindo slot restrito nivel " << il->nivel_conhecido() << ", indice: " << il->indice_conhecido();
@@ -1224,19 +1226,107 @@ void ConfiguraSlotsRestritosCorrigindo(
   }
 }
 
-void ComputaFeiticosAleatoriosParaLancarDoNivel(
-    const Tabelas& tabelas, int nivel_magia, EntidadeProto::InfoFeiticosClasse* fc) {
-  for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
-    // Escolhe aleatorio.
-    if (!pl.has_nivel_conhecido()) {
-      pl.set_nivel_conhecido(nivel_magia);
+// Retorna true se o feitico for da escola proibida segundo a restricao.
+bool FeiticoEscolaProibida(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
+  return c_any(rf.escolas_proibidas, feitico_tabelado.escola());
+}
+
+// Retorna true se o feitico for de clerigo. 
+bool FeiticoClerigo(const ArmaProto& feitico_tabelado) {
+  return c_any_of(feitico_tabelado.info_classes(), [](const ArmaProto::InfoClasseParaFeitico& classe) {
+    return classe.id() == "clerigo";
+  });
+}
+
+// Retorna true se o feitico for de dominio de acordo com a restricao.
+bool FeiticoDominio(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
+  return c_any_of(feitico_tabelado.info_classes(), [&rf](const ArmaProto::InfoClasseParaFeitico& classe) {
+    return classe.dominio() && c_any(rf.dominios, classe.id()); 
+  });
+}
+
+// Retorna true se o feitico for da escola especializada, segundo restricao.
+bool FeiticoEscolaEspecializada(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
+  return feitico_tabelado.escola() == rf.especializacao;
+}
+
+void ComputaFeiticoAleatorioComum(
+    int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
+    EntidadeProto::InfoLancar* il) {
+  if (nivel_magia < 0 || nivel_magia >= fc.feiticos_por_nivel_size()) {
+    LOG(ERROR) << "nivel magia invalido: " << nivel_magia;
+    return;
+  }
+
+  if (!il->has_nivel_conhecido()) {
+    il->set_nivel_conhecido(nivel_magia);
+  }
+}
+
+void SorteiaIndice(const std::vector<int>& indices_validos, EntidadeProto::InfoLancar* il) {
+  if (indices_validos.empty()) {
+    VLOG(1) << "nao ha feiticos conhecidos para sorteio";
+    return;
+  }
+
+  const int num_opcoes = indices_validos.size();
+  const int sorteio = RolaDado(num_opcoes) - 1;
+  VLOG(2) << "rolando d" << num_opcoes << ": resultado -1 = " << sorteio << ", mapeado para " << indices_validos[sorteio];
+  il->set_indice_conhecido(indices_validos[sorteio]);
+}
+
+// Computa feiticos nao especializados (da classe certa ou de escola nao proibida).
+void ComputaFeiticoAleatorioGeral(
+    const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
+    EntidadeProto::InfoLancar* il) {
+  ComputaFeiticoAleatorioComum(nivel_magia, fc, il);
+  if (il->has_indice_conhecido()) {
+    return;
+  }
+  // Essa linha permitira aleatoriedade para qq nivel.
+  nivel_magia = il->nivel_conhecido();
+  std::vector<int> indices_validos;
+  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) {
+    const auto& ic = fc.feiticos_por_nivel(nivel_magia).conhecidos(i);
+    const auto& feitico_tabelado = tabelas.Feitico(ic.id());
+    if ((rf.dominio && FeiticoClerigo(feitico_tabelado)) ||
+        (!FeiticoEscolaProibida(rf, feitico_tabelado))) {
+      indices_validos.push_back(i);
     }
-    if (!pl.has_indice_conhecido()) {
-      int dado = fc->feiticos_por_nivel(nivel_magia).conhecidos().size();
-      int indice = RolaDado(dado) - 1;
-      VLOG(2) << "rolando d" << dado << ": resultado -1 = " << indice;
-      pl.set_nivel_conhecido(nivel_magia);
-      pl.set_indice_conhecido(indice);
+  }
+  SorteiaIndice(indices_validos, il);
+}
+
+// Computa o feitico especializado (de dominio ou da escola especializada).
+void ComputaFeiticoAleatorioEspecializado(
+    const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
+    EntidadeProto::InfoLancar* il) {
+  ComputaFeiticoAleatorioComum(nivel_magia, fc, il);
+  if (il->has_indice_conhecido()) {
+    return;
+  }
+  // Essa linha permitira aleatoriedade para qq nivel.
+  nivel_magia = il->nivel_conhecido();
+  std::vector<int> indices_validos;
+  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) { 
+    const auto& ic = fc.feiticos_por_nivel(nivel_magia).conhecidos(i);
+    const auto& feitico_tabelado = tabelas.Feitico(ic.id());
+    if ((rf.dominio && FeiticoDominio(rf, feitico_tabelado)) ||
+        (FeiticoEscolaEspecializada(rf, feitico_tabelado))) {
+      indices_validos.push_back(i);
+    }
+  }
+  SorteiaIndice(indices_validos, il);
+}
+
+// Computa os feiticos aleatorios por slot, respeitando as restricoes, assumindo que elas estao certas.
+void ComputaFeiticosAleatoriosParaLancarDoNivel(
+    const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, EntidadeProto::InfoFeiticosClasse* fc) {
+  for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
+    if (pl.restrito()) {
+      ComputaFeiticoAleatorioEspecializado(tabelas, rf, nivel_magia, *fc, &pl);
+    } else {
+      ComputaFeiticoAleatorioGeral(tabelas, rf, nivel_magia, *fc, &pl);
     }
   }
 }
@@ -1273,13 +1363,14 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     if (classe_possui_dominio) {
       rf.dominio = true;
       for (int i = 0; i < 2; ++i) {
-        rf.dominios_ou_escolas.push_back(i < fc->dominios_size() ? fc->dominios(i) : "");
+        rf.dominios.push_back(i < fc->dominios_size() ? fc->dominios(i) : "");
       }
     } else if (classe_possui_especializacao) {
       rf.dominio = false;
       const int num_escolas_proibidas = fc->especializacao() == "adivinhacao" ? 1 : 2;
+      rf.especializacao = fc->especializacao();
       for (int i = 0; i < num_escolas_proibidas; ++i) {
-        rf.dominios_ou_escolas.push_back(i < fc->escolas_proibidas().size() ? fc->escolas_proibidas(i) : "");
+        rf.escolas_proibidas.push_back(i < fc->escolas_proibidas().size() ? fc->escolas_proibidas(i) : "");
       }
     }
     for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
@@ -1298,7 +1389,7 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
       ConfiguraSlotsRestritosCorrigindo(
           tabelas, rf, *fc,
           fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
-      ComputaFeiticosAleatoriosParaLancarDoNivel(tabelas, nivel_magia, fc);
+      ComputaFeiticosAleatoriosParaLancarDoNivel(tabelas, rf, nivel_magia, fc);
     }
   }
 }
