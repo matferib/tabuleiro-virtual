@@ -9,12 +9,19 @@
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "log/log.h"
+#include "ntf/notificacao.h"
 
 namespace ent {
 
 extern std::queue<int> g_dados_teste;
 namespace {
 Tabelas g_tabelas(nullptr);
+
+class CentralColetora : public ntf::CentralNotificacoes {
+ public:
+  std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
+};
+
 }  // namespace
 
 TEST(TesteBonus, TesteBonusCumulativo) {
@@ -2035,14 +2042,35 @@ TEST(TesteDependencias, TesteVirtude) {
 
 TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   EntidadeProto proto;
-  std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_VITALIDADE_ILUSORIA, 10, false, &ids_unicos, &proto);
-  ev->add_complementos(5);
-  RecomputaDependencias(g_tabelas, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("vitalidade_ilusoria");
+  }
+  CentralColetora central;
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::vector<int> ids_unicos = IdsUnicosProto(e->Proto());
+  auto* da = e->DadoCorrente();
+  if (da == nullptr) {
+    da = &DadosAtaque::default_instance();
+  }
+  AcaoProto acao = e->Acao();
+  ASSERT_NE(da, nullptr);
+  ntf::Notificacao grupo_desfazer;
+  g_dados_teste.push(5);  // 5 no d10.
+  AplicaEfeitosAdicionais(0.0f, /*salvou=*/false, *e, *e, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
+  auto& ns = central.Notificacoes();
+  ASSERT_EQ(ns.size(), 1U) << ", acao: " << acao.DebugString();
+  e->AtualizaParcial(ns[0]->entidade());
+
+  proto = e->Proto();
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "vitalidade ilusoria".
   auto* po = OrigemSePresente(TB_SEM_NOME, "vitalidade ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
-  EXPECT_EQ(proto.pontos_vida_temporarios(), 5);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 8);
   const int valor = po->valor();
 
   // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
@@ -2054,9 +2082,16 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   EXPECT_EQ(proto.pontos_vida_temporarios(), valor);
 
   // Termina o efeito.
-  ev->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
+  {
+    ntf::Notificacao n;
+    EntidadeProto *proto_antes, *proto_depois;
+    std::tie(proto_antes, proto_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
+    *proto_depois->mutable_evento() = e->Proto().evento();;
+    ASSERT_EQ(proto_depois->evento().size(), 1);
+    proto_depois->mutable_evento(0)->set_rodadas(-1);
+    e->AtualizaParcial(*proto_depois);
+  }
+  EXPECT_EQ(e->PontosVidaTemporarios(), 0);
 }
 
 TEST(TesteDependencias, TesteAjuda) {
@@ -4240,7 +4275,6 @@ TEST(TesteDominios, TesteProtecao) {
     ASSERT_EQ(fn2.para_lancar_size(), 3);
     EXPECT_TRUE(c_any_of(fn2.conhecidos(), [](const EntidadeProto::InfoConhecido& ic) { return ic.id() == "proteger_outro"; }))
         << "nao encontrei proteger_outro, todos: " << fn2.DebugString();
-    LOG(INFO) << fn2.DebugString();
   }
 }
 
