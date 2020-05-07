@@ -1544,14 +1544,24 @@ void RecomputaClasseFeiticoAtiva(const Tabelas& tabelas, EntidadeProto* proto) {
   }
 }
 
-void PreencheFeiticoConhecidoAleatorio(
-    const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, EntidadeProto::InfoConhecido* fc) {
-  if (fc->id() == "auto") {
-    fc->set_id(tabelas.FeiticoAleatorio(id_para_magia, nivel_magia));
-    fc->clear_nome();
+std::vector<std::string> FeiticosJaConhecidos(const RepeatedPtrField<EntidadeProto::InfoConhecido>& conhecidos) {
+  std::vector<std::string> ret;
+  ret.reserve(conhecidos.size());
+  for (const auto& c : conhecidos) {
+    ret.push_back(c.id());
   }
-  if (!fc->has_nome()) {
-    fc->set_nome(tabelas.Feitico(fc->id()).nome());
+  return ret;
+}
+
+void PreencheFeiticoConhecidoAleatorio(
+    const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, const RepeatedPtrField<EntidadeProto::InfoConhecido>& conhecidos,
+    EntidadeProto::InfoConhecido* ic) {
+  if (ic->id() == "auto") {
+    ic->set_id(tabelas.FeiticoAleatorio(id_para_magia, nivel_magia, FeiticosJaConhecidos(conhecidos)));
+    ic->clear_nome();
+  }
+  if (!ic->has_nome()) {
+    ic->set_nome(tabelas.Feitico(ic->id()).nome());
   }
 }
 
@@ -1615,9 +1625,10 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
   if (magias_conhecidas.empty()) {
     // Seta os feiticos que sao auto.
     for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
-      for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+      auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
+      for (auto& conhecido : *fn->mutable_conhecidos()) {
         PreencheFeiticoConhecidoAleatorio(
-            tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+            tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(), &conhecido);
       }
     }
     return;
@@ -1635,9 +1646,10 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
     const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
     const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
     Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
-    for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+    auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
+    for (auto& conhecido : *fn->mutable_conhecidos()) {
       PreencheFeiticoConhecidoAleatorio(
-          tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+          tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(), &conhecido);
     }
   }
   // TODO invalida feiticos que nao puderem ser usados.

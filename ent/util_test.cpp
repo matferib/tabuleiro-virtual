@@ -3261,6 +3261,24 @@ TEST(TesteModelo, TodasAcoesTemTipo) {
   }
 }
 
+TEST(TesteModelo, TesteLeaoAtroz) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Leão Atroz");
+  EntidadeProto proto = modelo.entidade();
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 8);
+  // Normal;
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+7") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "1d6+7") << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "1d8+3") << proto.dados_ataque(2).DebugString();
+  // Bote.
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "1d6+7") << proto.dados_ataque(3).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "1d6+7") << proto.dados_ataque(4).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "1d6+3") << proto.dados_ataque(5).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "1d6+3") << proto.dados_ataque(6).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "1d8+3") << proto.dados_ataque(7).DebugString();
+}
+
 TEST(TesteModelo, TesteVrock) {
   const auto& modelo = g_tabelas.ModeloEntidade("Demônio Vrock");
   EntidadeProto proto = modelo.entidade();

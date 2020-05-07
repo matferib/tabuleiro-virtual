@@ -22,6 +22,7 @@ void ConverteDano(ArmaProto* arma) {
     return;
   }
 
+  if (!arma->has_dano()) return;
   {
     arma->mutable_dano()->set_minusculo(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_MINUSCULO));
     arma->mutable_dano()->set_diminuto(ConverteDanoBasicoMedioParaTamanho(arma->dano().medio(), TM_DIMINUTO));
@@ -658,16 +659,22 @@ const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_clas
   return feiticos;
 }
 
-const std::string& Tabelas::FeiticoAleatorio(const std::string& id_classe, int nivel) const {
+const std::string& Tabelas::FeiticoAleatorio(const std::string& id_classe, int nivel, const std::vector<std::string>& excluindo) const {
   auto it_classe = feiticos_por_classe_por_nivel_.find(id_classe);
   if (it_classe == feiticos_por_classe_por_nivel_.end()) return ArmaProto::default_instance().id();
   auto it_nivel = it_classe->second.find(nivel);
   if (it_nivel == it_classe->second.end()) return ArmaProto::default_instance().id();
-  const auto& feiticos = it_nivel->second;
-  if (feiticos.empty()) return ArmaProto::default_instance().id();
-  int indice = RolaDado(feiticos.size()) - 1;
-  VLOG(1) << "retornando aleatoriamente " << feiticos[indice]->id() << " para classe " << id_classe << ", nivel " << nivel;
-  return feiticos[indice]->id();
+  const std::vector<const ArmaProto*>& feiticos = it_nivel->second;
+  std::vector<const std::string*> ids_validos;
+  for (const auto& feitico : feiticos) {
+    if (c_none(excluindo, feitico->id())) {
+      ids_validos.emplace_back(&feitico->id());
+    }
+  }
+  if (ids_validos.empty()) return ArmaProto::default_instance().id();
+  int indice = RolaDado(ids_validos.size()) - 1;
+  VLOG(1) << "retornando aleatoriamente " << ids_validos[indice] << " para classe " << id_classe << ", nivel " << nivel;
+  return *ids_validos[indice];
 }
 
 }  // namespace

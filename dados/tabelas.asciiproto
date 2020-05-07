@@ -30,10 +30,12 @@ tabela_armas {
   # Projeteis de area.
   armas {
     id: 'mordida'
+    #dano { medio: '1d6' }
     categoria: CAT_ARMA_NATURAL
   }
   armas {
     id: 'garra'
+    #dano { medio: '1d4' }
     categoria: CAT_ARMA_NATURAL
   }
   armas {
