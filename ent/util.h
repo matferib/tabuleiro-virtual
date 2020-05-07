@@ -1019,6 +1019,12 @@ int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_ataca
 // Retorna true se ataque for uma arma natural.
 bool ArmaNatural(const ArmaProto& arma);
 
+// Retorna true se o feitico for de um dos dominios passados.
+bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& feitico_tabelado);
+
+// Retorna true se o feitico for de uma escola proibida.
+bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

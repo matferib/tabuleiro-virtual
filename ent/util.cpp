@@ -5695,4 +5695,14 @@ bool ArmaNatural(const ArmaProto& arma) {
   return c_any(arma.categoria(), CAT_ARMA_NATURAL);
 }
 
+bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& feitico_tabelado) {
+  return c_any_of(feitico_tabelado.info_classes(), [&dominios](const ArmaProto::InfoClasseParaFeitico& classe) {
+    return classe.dominio() && c_any(dominios, classe.id());
+  });
+}
+
+bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado) {
+  return c_any(escolas_proibidas, feitico_tabelado.escola());
+}
+
 }  // namespace ent

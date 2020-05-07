@@ -4155,6 +4155,14 @@ TEST(TesteDominios, TesteNobrezaMorte) {
   }
 }
 
+// Retorna true se o feitico for do dominio para o nivel passado.
+bool FeiticoDominio(const ArmaProto& feitico_tabelado, int nivel, const std::string& dominio) {
+  for (const auto& ic : feitico_tabelado.info_classes()) {
+    if (ic.id() == dominio && ic.nivel() == nivel) return true;
+  }
+  return false;
+}
+
 TEST(TesteDominios, TesteProtecao) {
   EntidadeProto proto;
   {
@@ -4162,6 +4170,7 @@ TEST(TesteDominios, TesteProtecao) {
     evento->set_id_efeito(EFEITO_DOMINIO_PROTECAO);
   }
   std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);  // +2
   AtribuiBaseAtributo(14, TA_CARISMA, &proto);  // +2
   {
     auto* ic = proto.add_info_classes();
@@ -4188,6 +4197,25 @@ TEST(TesteDominios, TesteProtecao) {
   EXPECT_EQ(alvo->Proto().evento(0).id_efeito(), EFEITO_DOMINIO_PROTECAO);
   alvo->AtualizaParcial(n.entidade());
   ASSERT_TRUE(alvo->Proto().evento().empty());
+
+  // Nivel 3 tem progressao: 4, 2+1+1, 1+1+1
+  {
+    const auto& fn0 = FeiticosNivel("clerigo", 0, proto);
+    ASSERT_EQ(fn0.para_lancar_size(), 4);
+  }
+  {
+    const auto& fn1 = FeiticosNivel("clerigo", 1, proto);
+    ASSERT_EQ(fn1.para_lancar_size(), 4);
+    EXPECT_TRUE(c_any_of(fn1.conhecidos(), [](const EntidadeProto::InfoConhecido& ic) { return ic.id() == "santuario"; }))
+        << "nao encontrei santuario, todos: " << fn1.DebugString();
+  }
+  {
+    const auto& fn2 = FeiticosNivel("clerigo", 2, proto);
+    ASSERT_EQ(fn2.para_lancar_size(), 3);
+    EXPECT_TRUE(c_any_of(fn2.conhecidos(), [](const EntidadeProto::InfoConhecido& ic) { return ic.id() == "proteger_outro"; }))
+        << "nao encontrei proteger_outro, todos: " << fn2.DebugString();
+    LOG(INFO) << fn2.DebugString();
+  }
 }
 
 }  // namespace ent.

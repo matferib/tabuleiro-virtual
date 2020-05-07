@@ -1228,10 +1228,10 @@ void ConfiguraSlotsRestritosCorrigindo(
 
 // Retorna true se o feitico for da escola proibida segundo a restricao.
 bool FeiticoEscolaProibida(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
-  return c_any(rf.escolas_proibidas, feitico_tabelado.escola());
+  return ent::FeiticoEscolaProibida(rf.escolas_proibidas, feitico_tabelado); 
 }
 
-// Retorna true se o feitico for de clerigo. 
+// Retorna true se o feitico for de clerigo.
 bool FeiticoClerigo(const ArmaProto& feitico_tabelado) {
   return c_any_of(feitico_tabelado.info_classes(), [](const ArmaProto::InfoClasseParaFeitico& classe) {
     return classe.id() == "clerigo";
@@ -1240,9 +1240,7 @@ bool FeiticoClerigo(const ArmaProto& feitico_tabelado) {
 
 // Retorna true se o feitico for de dominio de acordo com a restricao.
 bool FeiticoDominio(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
-  return c_any_of(feitico_tabelado.info_classes(), [&rf](const ArmaProto::InfoClasseParaFeitico& classe) {
-    return classe.dominio() && c_any(rf.dominios, classe.id()); 
-  });
+  return ent::FeiticoDominio(rf.dominios, feitico_tabelado);
 }
 
 // Retorna true se o feitico for da escola especializada, segundo restricao.
@@ -1308,7 +1306,7 @@ void ComputaFeiticoAleatorioEspecializado(
   // Essa linha permitira aleatoriedade para qq nivel.
   nivel_magia = il->nivel_conhecido();
   std::vector<int> indices_validos;
-  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) { 
+  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) {
     const auto& ic = fc.feiticos_por_nivel(nivel_magia).conhecidos(i);
     const auto& feitico_tabelado = tabelas.Feitico(ic.id());
     if ((rf.dominio && FeiticoDominio(rf, feitico_tabelado)) ||
@@ -1331,7 +1329,7 @@ void ComputaFeiticosAleatoriosParaLancarDoNivel(
   }
 }
 
-void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
+void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
   CombinaFeiticosClasse(proto->mutable_feiticos_classes());
   for (auto& ic : *proto->mutable_info_classes()) {
     if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
@@ -1546,7 +1544,8 @@ void RecomputaClasseFeiticoAtiva(const Tabelas& tabelas, EntidadeProto* proto) {
   }
 }
 
-void PreencheFeiticoAleatorio(const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, EntidadeProto::InfoConhecido* fc) {
+void PreencheFeiticoConhecidoAleatorio(
+    const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, EntidadeProto::InfoConhecido* fc) {
   if (fc->id() == "auto") {
     fc->set_id(tabelas.FeiticoAleatorio(id_para_magia, nivel_magia));
     fc->clear_nome();
@@ -1556,44 +1555,97 @@ void PreencheFeiticoAleatorio(const Tabelas& tabelas, const std::string& id_para
   }
 }
 
-void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
-  for (auto& ic : *proto->mutable_info_classes()) {
-    if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) continue;
-    // Encontra a entrada da classe, ou cria se nao houver.
-    auto* fc = FeiticosClasse(ic.id(), proto);
-    // Le a progressao.
-    const int nivel = std::min(NivelConjurador(ic.id(), *proto), 20);
-    const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
-    // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
-    if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) continue;
-    const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
-    // Classe nao tem magias conhecidas.
-    if (magias_conhecidas.empty()) {
-      // Seta os feiticos que sao auto.
-      for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
-        for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
-          PreencheFeiticoAleatorio(tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
-        }
-      }
+void AdicionaFeiticosDominioSeAusentes(
+    const Tabelas& tabelas, int nivel, const std::vector<std::string>& dominios,
+    EntidadeProto::InfoFeiticosClasse* fc) {
+  std::vector<std::string> ids_feiticos_dominio;
+  for (const std::string& dominio : dominios) {
+    std::vector<const ArmaProto*> feiticos_dominio = tabelas.Feiticos(dominio, nivel);
+    if (feiticos_dominio.empty()) {
+      LOG(INFO) << "Faltando feitico de dominio " << dominio << " nivel " << nivel;
       continue;
     }
-    const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
-
-    // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
-    // Como na tabela nao ha nivel zero, tem que compensar aqui.
-    Redimensiona(nao_possui_nivel_zero ? magias_conhecidas.size() + 1 : magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
-
-    if (nao_possui_nivel_zero) {
-      Redimensiona(0, fc->mutable_feiticos_por_nivel(0)->mutable_conhecidos());
+    if (feiticos_dominio.size() > 1) {
+      LOG(ERROR) << "Mais de um feitico de dominio " << dominio << " nivel " << nivel << ", usando primeiro.";
     }
-    for (unsigned int indice = 0; indice < magias_conhecidas.size(); ++indice) {
-      const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
-      const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
-      Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
-      for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
-        PreencheFeiticoAleatorio(tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+    ids_feiticos_dominio.push_back(feiticos_dominio[0]->id());
+  }
+  std::vector<bool> added(ids_feiticos_dominio.size());
+  for (const auto& c : fc->feiticos_por_nivel(nivel).conhecidos()) {
+    for (unsigned int i = 0; i < ids_feiticos_dominio.size(); ++i) {
+      if (ids_feiticos_dominio[i] == c.id()) {
+        added[i] = true;
       }
     }
+  }
+  for (unsigned int i = 0; i < added.size(); ++i) {
+    if (added[i]) continue;
+    auto* c = fc->mutable_feiticos_por_nivel(nivel)->add_conhecidos();
+    c->set_id(ids_feiticos_dominio[i]);
+  }
+}
+
+std::vector<std::string> DominiosClasse(const EntidadeProto::InfoFeiticosClasse& fc) {
+  std::vector<std::string> ret;
+  for (int i = 0; i < 2; ++i) {
+    ret.push_back(i < fc.dominios_size() ? fc.dominios(i) : "");
+  }
+  return ret;
+}
+
+void RecomputaDependenciasMagiasConhecidasParaClasse(
+    const Tabelas& tabelas, const InfoClasse& ic, EntidadeProto* proto) {
+  if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) return;
+  auto* fc = FeiticosClasse(ic.id(), proto);
+  // Le a progressao.
+  const int nivel = std::min(NivelConjurador(ic.id(), *proto), 20);
+  const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
+  // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
+  if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) return;
+  const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
+  if (ic.possui_dominio()) {
+    std::vector<std::string> dominios = DominiosClasse(*fc);
+    // Adiciona os feiticos de dominio se nao estiverem presentes.
+    // Seta os feiticos que sao auto.
+    for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
+      AdicionaFeiticosDominioSeAusentes(tabelas, nivel_magia, dominios, fc);
+    }
+  }
+  // Classe nao tem magias conhecidas.
+  if (magias_conhecidas.empty()) {
+    // Seta os feiticos que sao auto.
+    for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
+      for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+        PreencheFeiticoConhecidoAleatorio(
+            tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+      }
+    }
+    return;
+  }
+  const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
+
+  // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
+  // Como na tabela nao ha nivel zero, tem que compensar aqui.
+  Redimensiona(nao_possui_nivel_zero ? magias_conhecidas.size() + 1 : magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
+
+  if (nao_possui_nivel_zero) {
+    Redimensiona(0, fc->mutable_feiticos_por_nivel(0)->mutable_conhecidos());
+  }
+  for (unsigned int indice = 0; indice < magias_conhecidas.size(); ++indice) {
+    const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
+    const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
+    Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
+    for (auto& fc : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos()) {
+      PreencheFeiticoConhecidoAleatorio(
+          tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, &fc);
+    }
+  }
+  // TODO invalida feiticos que nao puderem ser usados.
+}
+
+void RecomputaDependenciasMagiasConhecidas(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& ic : *proto->mutable_info_classes()) {
+    RecomputaDependenciasMagiasConhecidasParaClasse(tabelas, ic, proto);
   }
 }
 
@@ -2780,7 +2832,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
 
   RecomputaClasseFeiticoAtiva(tabelas, proto);
   RecomputaDependenciasMagiasConhecidas(tabelas, proto);
-  RecomputaDependenciasMagiasPorDia(tabelas, proto);
+  RecomputaDependenciasMagiasParaLancarPorDia(tabelas, proto);
   RecomputaDependenciasMovimento(tabelas, proto);
 
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();

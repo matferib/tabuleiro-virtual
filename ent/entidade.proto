@@ -375,7 +375,7 @@ message EntidadeProto {
     optional string id = 1;  // use auto para gerar aleatoriamente.
     optional string nome = 2;
     // Indica feitico de domino.
-    optional bool dominio = 3;
+    //optional bool dominio = 3;
   }
   // As magias prontas para lancamento.
   message InfoLancar {
