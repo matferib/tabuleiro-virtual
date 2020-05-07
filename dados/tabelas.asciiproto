@@ -6539,7 +6539,6 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/hypnoticPattern.htm'
     id: 'padrao_hipnotico'
     nome_ingles: 'hypnotic pattern'
     nome: 'padrão hipnótico'
@@ -6562,6 +6561,8 @@ tabela_feiticos {
       resultado_ao_salvar: RS_ANULOU
       total_dv: 5  # sera recomputado.
       mais_fracos_primeiro: true
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
+      info_textura { id: 'rainbow.png' }
       efeitos_adicionais {
         efeito: EFEITO_FASCINADO
         rodadas: 3  # concentracao + 2
