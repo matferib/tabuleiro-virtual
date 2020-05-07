@@ -94,6 +94,7 @@ enum ModificadorComplementos {
   MC_NIVEL_CLERIGO = 10;  // dominio: proteção
   MC_PELE_ARVORE = 11;  // 2 + 1 / cada 3 apos 3o, max 5 no 12o.
   MC_1D8_MAIS_1_POR_NIVEL_MAX_10 = 12;  // ajuda: 1d8 + min(10, 1/nivel).
+  MC_1D10_MAIS_1_POR_NIVEL_MAX_10 = 13;  // vitalidade ilusoria: 1d10 + min(10, 1/nivel).
 }
 
 enum ModificadorQuantidade {

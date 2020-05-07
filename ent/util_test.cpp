@@ -1314,7 +1314,7 @@ TEST(TesteTalentoPericias, AumentaNivelDeRanger) {
   EXPECT_EQ(NivelMaximoFeitico(g_tabelas, "ranger", 9), 2);
 }
 
-TEST(TesteTalentoPericias, AumentaNivelConjuradorVitalidadeIlusoria) {
+TEST(TesteTalentoPericias, AumentaNivelConjuradorDrenarForcaVital) {
   EntidadeProto proto;
   {
     auto* ic = proto.add_info_classes();
@@ -1328,7 +1328,7 @@ TEST(TesteTalentoPericias, AumentaNivelConjuradorVitalidadeIlusoria) {
   }
   {
     auto* evento = proto.add_evento();
-    evento->set_id_efeito(EFEITO_VITALIDADE_ILUSORIA);
+    evento->set_id_efeito(EFEITO_DRENAR_FORCA_VITAL);
     evento->set_rodadas(100);
   }
   AtribuiBaseAtributo(12, TA_FORCA, &proto);
@@ -2031,6 +2031,32 @@ TEST(TesteDependencias, TesteVirtude) {
   ev->set_rodadas(-1);
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 0) << proto.pontos_vida_temporarios_por_fonte().DebugString();
+}
+
+TEST(TesteDependencias, TesteVitalidadeIlusoria) {
+  EntidadeProto proto;
+  std::vector<int> ids_unicos;
+  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_VITALIDADE_ILUSORIA, 10, false, &ids_unicos, &proto);
+  ev->add_complementos(5);
+  RecomputaDependencias(g_tabelas, &proto);
+  // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "vitalidade ilusoria".
+  auto* po = OrigemSePresente(TB_SEM_NOME, "vitalidade ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 5);
+  const int valor = po->valor();
+
+  // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
+  ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
+  po = OrigemSePresente(TB_SEM_NOME, "vitalidade ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), valor);
+
+  // Termina o efeito.
+  ev->set_rodadas(-1);
+  RecomputaDependencias(g_tabelas, &proto);
+  EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
 }
 
 TEST(TesteDependencias, TesteAjuda) {

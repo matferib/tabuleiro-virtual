@@ -426,11 +426,11 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
         }
       }
       break;
-    case EFEITO_VITALIDADE_ILUSORIA:
+    case EFEITO_DRENAR_FORCA_VITAL:
       if (!evento->processado()) {
         // Gera os pontos de vida temporarios.
         const int tmp = RolaDado(8);
-        AtribuiBonus(tmp, TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
+        AtribuiBonus(tmp, TB_SEM_NOME, "drenar forca vital", proto->mutable_pontos_vida_temporarios_por_fonte());
         // Nivel conjurador: hard coded.
         // Forca: pelo comum.
       }
@@ -783,8 +783,8 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       AtribuiBonus(BonusIndividualPorOrigem(TB_BASE, "base", proto_salvo.bonus_tamanho()), TB_BASE, "base", proto->mutable_bonus_tamanho());
     }
     break;
-    case EFEITO_VITALIDADE_ILUSORIA:
-      LimpaBonus(TB_SEM_NOME, "vitalidade ilusória", proto->mutable_pontos_vida_temporarios_por_fonte());
+    case EFEITO_DRENAR_FORCA_VITAL:
+      LimpaBonus(TB_SEM_NOME, "drenar forca vital", proto->mutable_pontos_vida_temporarios_por_fonte());
       break;
     case EFEITO_FORMA_GASOSA:
       for (int i = 0; i < proto->dados_defesa().reducao_dano().size(); ++i) {
@@ -1708,7 +1708,7 @@ void RecomputaDependenciasResistenciaMagia(EntidadeProto* proto) {
 }
 
 int OutrosModificadoresNivelConjuracao(const EntidadeProto& proto) {
-  return PossuiEvento(EFEITO_VITALIDADE_ILUSORIA, proto) ? 1 : 0;
+  return PossuiEvento(EFEITO_DRENAR_FORCA_VITAL, proto) ? 1 : 0;
 }
 
 void RecomputaNivelConjuracao(const Tabelas& tabelas, const EntidadeProto& proto, InfoClasse* ic) {

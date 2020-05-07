@@ -3468,6 +3468,11 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
       evento->add_complementos(RolaValor("1d8") + std::min(10, nivel_conjurador));
       break;
     }
+    case MC_1D10_MAIS_1_POR_NIVEL_MAX_10: {
+      evento->add_complementos(RolaValor("1d10") + std::min(10, nivel_conjurador));
+      break;
+    }
+
     case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
       int adicionais = std::min(4, nivel_conjurador / 3);
       evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
