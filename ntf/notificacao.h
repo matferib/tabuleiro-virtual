@@ -30,7 +30,7 @@ class EmissorRemoto {
 class CentralNotificacoes {
  public:
   CentralNotificacoes();
-  ~CentralNotificacoes();
+  virtual ~CentralNotificacoes();
 
   /** Adiciona uma notificacao a central, que sera a dona dela. */
   void AdicionaNotificacao(Notificacao* notificacao);
@@ -38,7 +38,7 @@ class CentralNotificacoes {
 
   /** Adiciona uma notificacao a ser processada apenas pelos emissores remotos.
   * A central possuirá a notificação. */
-  void AdicionaNotificacaoRemota(Notificacao* notificacao);
+  virtual void AdicionaNotificacaoRemota(Notificacao* notificacao);
   void AdicionaNotificacaoRemota(std::unique_ptr<Notificacao> notificacao) {
     AdicionaNotificacaoRemota(notificacao.release());
   }
@@ -61,9 +61,11 @@ class CentralNotificacoes {
   /** Notifica todos os receptores registrados das notificacoes adicionadas. */
   void Notifica();
 
- private:
+ protected:
   std::vector<std::unique_ptr<Notificacao>> notificacoes_;
   std::vector<std::unique_ptr<Notificacao>> notificacoes_remotas_;
+
+ private:
   std::vector<Receptor*> receptores_;
   std::vector<EmissorRemoto*> emissores_remotos_;
 };
