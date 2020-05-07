@@ -4974,23 +4974,23 @@ modelo {
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'pasmar' }
-        conhecidos { id: 'auto' }
         conhecidos { id: 'ler_magias' }
         conhecidos { id: 'toque_fadiga' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'raio_gelo' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'causar_medo' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
-        conhecidos { id: 'sono' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'nublar' }
         conhecidos { id: 'esfera_flamejante' }
+        conhecidos { id: 'auto' }
       }
     }
   }
@@ -5551,11 +5551,11 @@ modelo {
         conhecidos { id: 'toque_fadiga' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 0 restrito: true }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
       }
       feiticos_por_nivel {
         # 3+1
@@ -5565,18 +5565,19 @@ modelo {
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
         conhecidos { id: 'causar_medo' }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 restrito: true }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
       }
       feiticos_por_nivel {
         # 1+1
         nivel: 2
         conhecidos { id: 'aterrorizar' }
         conhecidos { id: 'padrao_hipnotico' }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 restrito: true }
+        para_lancar { nivel_conhecido: 2 }
       }
     }
   }
@@ -5671,25 +5672,25 @@ modelo {
         conhecidos { id: 'mensagem' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+        para_lancar { nivel_conhecido: 0 restrito: true }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 }
       }
       feiticos_por_nivel {
         # 4+1
         nivel: 1
-        conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
         conhecidos { id: 'causar_medo' }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 restrito: true }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
       }
       feiticos_por_nivel {
         # 3+1
@@ -5697,11 +5698,11 @@ modelo {
         conhecidos { id: 'reflexos' }
         conhecidos { id: 'invisibilidade' }
         conhecidos { id: 'aterrorizar' }
-        conhecidos { id: 'padrao_hipnotico' }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 restrito: true }
+        para_lancar { nivel_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 }
       }
     }
   }
@@ -5804,7 +5805,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 }
       }
       feiticos_por_nivel {
         nivel: 1
@@ -5814,21 +5815,21 @@ modelo {
         conhecidos { id: 'escudo_arcano' }
         conhecidos { id: 'nublar' }
         conhecidos { id: 'ataque_certeiro' }
-        conhecidos { id: 'sono' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
       }
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'flecha_acida' }
+        conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'vigor_urso' }
-        conhecidos { id: 'poeira_ofuscante' }
-        conhecidos { id: 'nublar' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 }
       }
     }
   }
@@ -5930,7 +5931,6 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        #para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 1
@@ -5945,26 +5945,23 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        #para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'flecha_acida' }
-        conhecidos { id: 'vigor_urso' }
-        conhecidos { id: 'poeira_ofuscante' }
+        conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'nublar' }
+        conhecidos { id: 'vigor_urso' }
+        conhecidos { id: 'auto' }
 
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
-        #para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
       }
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'bola_fogo' }
-        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'auto' }
 
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
-        #para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
       }
     }
   }
@@ -6059,33 +6056,25 @@ modelo {
         conhecidos { id: 'identificacao' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
-        conhecidos { id: 'arma_magica' }
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'ataque_certeiro' }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 2
+        conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'nublar' }
         conhecidos { id: 'vigor_urso' }
         conhecidos { id: 'poeira_ofuscante' }
         conhecidos { id: 'arrombar' }
         conhecidos { id: 'flecha_acida' }
-        conhecidos { id: 'resistencia_elementos' }
         conhecidos { id: 'invisibilidade' }
         conhecidos { id: 'ver_invisivel' }
-        conhecidos { id: 'agilidade_gato' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 6 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 8 }
       }
       feiticos_por_nivel {
         nivel: 3
@@ -6093,41 +6082,35 @@ modelo {
         conhecidos { id: 'bola_fogo' }
         conhecidos { id: 'relampago' }
         conhecidos { id: 'velocidade' }
-        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
       }
       feiticos_por_nivel {
         nivel: 4
         conhecidos { id: 'tempestade_glacial' }
         conhecidos { id: 'invisibilidade_maior' }
-        conhecidos { id: 'ancora_dimensional' }
         conhecidos { id: 'escudo_fogo' }
         conhecidos { id: 'metamorfose' }
         conhecidos { id: 'tentaculos_negros' }
-        conhecidos { id: 'drenar_temporario' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 5 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 5
         conhecidos { id: 'expulsao' }
-        conhecidos { id: 'malogro' }
         conhecidos { id: 'metamorfose_torrida' }
-        conhecidos { id: 'telecinesia' }
         conhecidos { id: 'cone_glacial' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 5 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 6
@@ -6135,45 +6118,39 @@ modelo {
         conhecidos { id: 'dissipar_magia_maior' }
         conhecidos { id: 'circulo_morte' }
         conhecidos { id: 'elucubracao' }
-        conhecidos { id: 'transformacao' }
-        conhecidos { id: 'proteger_fortalezas' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 6 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 6 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 7
+        conhecidos { id: 'desejo_restrito' }
         conhecidos { id: 'palavra_poder_cegar' }
         conhecidos { id: 'inverter_gravidade' }
-        conhecidos { id: 'banimento' }
-        conhecidos { id: 'desejo_restrito' }
-        conhecidos { id: 'ondas_exaustao' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 7 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 8
         conhecidos { id: 'muralha_prismatica' }
-        conhecidos { id: 'invocar_criaturas_viii' }
         conhecidos { id: 'explosao_solar' }
         conhecidos { id: 'palavra_poder_atordoar' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 8 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 8 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 9
         conhecidos { id: 'desejo' }
         conhecidos { id: 'palavra_poder_matar' }
-        conhecidos { id: 'parar_tempo' }
-        conhecidos { id: 'circulo_teletransporte' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 9 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 9 indice_conhecido: 1 }
       }
     }
   }

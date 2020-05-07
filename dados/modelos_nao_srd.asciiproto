@@ -1075,7 +1075,7 @@ modelo {
       # total:
       # pergaminhos: .
       pergaminhos_divinos { id: 'arma_espiritual' }  # 150
-      pergaminhos_divinos { id: 'curar_ferimentos_serios' }  # 375
+      pergaminhos_divinos { id: 'curar_ferimentos_graves' }  # 375
       pergaminhos_divinos { id: 'poder_divino' } # 700
 
       # poções:
@@ -1118,7 +1118,7 @@ modelo {
         conhecidos { id: 'bencao' }
         conhecidos { id: 'escudo_fe' }
         conhecidos { id: 'auto' }
-        conhecidos { id: 'causar_medo' dominio: true }
+        conhecidos { id: 'causar_medo' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
@@ -1132,7 +1132,7 @@ modelo {
         conhecidos { id: 'explosao_sonora' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
-        conhecidos { id: 'vitalidade_ilusoria' dominio: true }
+        conhecidos { id: 'vitalidade_ilusoria' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
@@ -1143,7 +1143,7 @@ modelo {
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
-        conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
+        conhecidos { id: 'criar_mortos_vivos_menor' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }

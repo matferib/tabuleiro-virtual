@@ -1410,6 +1410,14 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_VITALIDADE_ILUSORIA
     nome: 'vitalidade ilusória'
+    # 1d10 PV temporarios + 1/nivel max 10.'
+    consequencia {
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'vitalidade ilusoria' } } }
+    }
+  }
+  efeitos {
+    id: EFEITO_DRENAR_FORCA_VITAL
+    nome: 'vitalidade ilusória'
     # 1d8 PV temporarios, +2 força, nivel conjurador +1, dura 10 m por HD do alvo.'
     consequencia {
       atributos {
@@ -9785,31 +9793,19 @@ tabela_feiticos {
 
   armas {
     id: 'vitalidade_ilusoria'
-    nome_ingles: ' death knell'
+    nome_ingles: 'false life'
     nome: 'vitalidade ilusória'
     info_classes {
-      id: 'clerigo'
+      id: 'mago'
       nivel: 2
-    }
-    info_classes {
-      id: 'morte'
-      nivel: 2
-      dominio: true
     }
     acao {
-      id: 'Feitiço de Toque'
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: false
-      permite_salvacao: true
-      tipo_salvacao: TS_VONTADE
-      resultado_ao_salvar: RS_ANULOU
       efeitos_adicionais_conjurador {
         efeito: EFEITO_VITALIDADE_ILUSORIA
-        # TODO 10 minutos por DV do alvo.
-        rodadas: 100
+        modificador_rodadas: MR_HORAS_NIVEL
+        modificador_complementos: MC_1D10_MAIS_1_POR_NIVEL_MAX_10
       }
     }
     escola: 'necromancia'
