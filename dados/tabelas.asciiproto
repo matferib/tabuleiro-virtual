@@ -11915,6 +11915,7 @@ tabela_feiticos {
     nome: 'coluna de chamas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_15D6
     info_classes {
       id: 'clerigo'
       nivel: 5
