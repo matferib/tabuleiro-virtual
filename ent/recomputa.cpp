@@ -1105,6 +1105,13 @@ void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* 
   }
 }
 
+// Indica a restricao do slot e os dados da restricao.
+struct RestricaoFeitico {
+  bool ha_restricao = false;
+  bool dominio = false;
+  std::vector<std::string> dominios_ou_escolas;
+};
+
 void RecomputaDependenciasDominios(const Tabelas& tabelas, EntidadeProto* proto) {
   auto* ifc_ptr = FeiticosClasseOuNullptr("clerigo", proto);
   const auto& ifc = ifc_ptr == nullptr ? EntidadeProto::InfoFeiticosClasse::default_instance() : *ifc_ptr;
@@ -1120,6 +1127,118 @@ void RecomputaDependenciasDominios(const Tabelas& tabelas, EntidadeProto* proto)
   RemoveSe<DadosAtaque>([&ifc](const DadosAtaque& da) {
       return da.has_dominio() && c_none(ifc.dominios(), da.dominio());
   }, proto->mutable_dados_ataque());
+}
+
+void ConfiguraSlotsRestritos(bool ha_restricao, RepeatedPtrField<EntidadeProto::InfoLancar>* para_lancar) {
+  if (!ha_restricao) {
+    VLOG(1) << "Nao ha slots restritos, limpando restricoes";
+    for (auto& il : *para_lancar) {
+      il.clear_restrito();
+    }
+    return;
+  }
+  if (para_lancar->empty()) return;
+  int num_restritos = std::count_if(para_lancar->begin(), para_lancar->end(), [](const EntidadeProto::InfoLancar& il) {
+    return il.restrito();
+  });
+  if (num_restritos == 1) {
+    VLOG(1) << "slots restritos corretos";
+    return;
+  }
+  if (num_restritos > 1) {
+    LOG(INFO) << "Mais de um slot restritos encontrado, corrigindo para apenas 1.";
+    bool found = false;
+    for (auto& il : *para_lancar) {
+      if (!found && il.restrito()) {
+        found = true;
+      } else {
+        il.clear_restrito();
+      }
+    }
+    return;
+  }
+  if (num_restritos == 0) {
+    LOG(INFO) << "Nenhum slot restrito encontrado, setando o primeiro.";
+    // Marca o primeiro como restrito.
+    para_lancar->Mutable(0)->set_restrito(true);
+  }
+}
+
+EntidadeProto::InfoLancar* SlotRestrito(RepeatedPtrField<EntidadeProto::InfoLancar>* para_lancar) {
+  for (auto& il : *para_lancar) {
+    if (il.restrito()) return &il;
+  }
+  return nullptr;
+}
+
+// Limpa os feiticos que nao corresponderem as restricoes.
+void CorrigeSlotsRestritos(
+    const Tabelas& tabelas, const RestricaoFeitico& restricao, const EntidadeProto::InfoFeiticosClasse& fc,
+    RepeatedPtrField<EntidadeProto::InfoLancar>* para_lancar) {
+  auto* il = SlotRestrito(para_lancar);
+  if (il == nullptr) {
+    LOG(ERROR) << "Nao achei slot restrito! Nivel" << il->nivel_conhecido() << ", indice: " << il->indice_conhecido();
+    return;
+  }
+  if (il->nivel_conhecido() < 0 || il->nivel_conhecido() >= fc.feiticos_por_nivel_size()) {
+    VLOG(1) << "nivel conhecido invalido: " << il->nivel_conhecido() << ", size: " << fc.feiticos_por_nivel_size();
+    il->clear_nivel_conhecido();
+    il->clear_indice_conhecido();
+    return;
+  }
+  if (il->indice_conhecido() < 0 || il->indice_conhecido() >= fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos_size()) {
+    VLOG(1) << "indice conhecido invalido: " << il->indice_conhecido()
+      << ", size: " << fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos_size();
+    il->clear_indice_conhecido();
+    return;
+  }
+  // Slot restrito: aqui so pode usar feiticos de dominio ou especifico de escola.
+  const auto& feitico_conhecido = fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos(il->indice_conhecido());
+  const auto& feitico_tabelado = tabelas.Feitico(feitico_conhecido.id());
+  // Nao limpa feiticos nao tabelados.
+  if (!feitico_tabelado.has_id()) {
+    VLOG(1) << "nao vou corrigir slot nao tabelado. Nivel " << il->nivel_conhecido() << ", indice: " << il->indice_conhecido();
+    return;
+  }
+  bool ok = false;
+  if (restricao.dominio) {
+    ok = c_any_of(feitico_tabelado.info_classes(), [&restricao](const ArmaProto::InfoClasseParaFeitico& classe) {
+        return classe.dominio() && c_any(restricao.dominios_ou_escolas, classe.id()); });
+  } else {
+    ok = c_any(restricao.dominios_ou_escolas, feitico_tabelado.escola());
+  }
+  if (!ok) {
+    VLOG(1) << "corrigindo slot restrito nivel " << il->nivel_conhecido() << ", indice: " << il->indice_conhecido();
+    il->clear_nivel_conhecido();
+    il->clear_indice_conhecido();
+  }
+}
+
+// restricoes: vetor com as escolas ou com "dominio"
+void ConfiguraSlotsRestritosCorrigindo(
+    const Tabelas& tabelas, const RestricaoFeitico& restricao, const EntidadeProto::InfoFeiticosClasse& fc,
+    RepeatedPtrField<EntidadeProto::InfoLancar>* para_lancar) {
+  ConfiguraSlotsRestritos(restricao.ha_restricao, para_lancar);
+  if (restricao.ha_restricao) {
+    CorrigeSlotsRestritos(tabelas, restricao, fc, para_lancar);
+  }
+}
+
+void ComputaFeiticosAleatoriosParaLancarDoNivel(
+    const Tabelas& tabelas, int nivel_magia, EntidadeProto::InfoFeiticosClasse* fc) {
+  for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
+    // Escolhe aleatorio.
+    if (!pl.has_nivel_conhecido()) {
+      pl.set_nivel_conhecido(nivel_magia);
+    }
+    if (!pl.has_indice_conhecido()) {
+      int dado = fc->feiticos_por_nivel(nivel_magia).conhecidos().size();
+      int indice = RolaDado(dado) - 1;
+      VLOG(2) << "rolando d" << dado << ": resultado -1 = " << indice;
+      pl.set_nivel_conhecido(nivel_magia);
+      pl.set_indice_conhecido(indice);
+    }
+  }
 }
 
 void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1148,14 +1267,26 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
     if (nao_possui_nivel_zero) {
       fc->mutable_feiticos_por_nivel(0)->Clear();
     }
+    RestricaoFeitico rf;
     const bool classe_possui_dominio = classe_tabelada.possui_dominio();
     const bool classe_possui_especializacao = !fc->especializacao().empty();
+    if (classe_possui_dominio) {
+      rf.dominio = true;
+      for (int i = 0; i < 2; ++i) {
+        rf.dominios_ou_escolas.push_back(i < fc->dominios_size() ? fc->dominios(i) : "");
+      }
+    } else if (classe_possui_especializacao) {
+      rf.dominio = false;
+      const int num_escolas_proibidas = fc->especializacao() == "adivinhacao" ? 1 : 2;
+      for (int i = 0; i < num_escolas_proibidas; ++i) {
+        rf.dominios_ou_escolas.push_back(i < fc->escolas_proibidas().size() ? fc->escolas_proibidas(i) : "");
+      }
+    }
     for (unsigned int indice = 0; indice < magias_por_dia.size(); ++indice) {
       int nivel_magia = nao_possui_nivel_zero ? indice + 1 : indice;
       const bool feitico_extra =
           (classe_possui_dominio && nivel_magia > 0 && nivel_magia <= 9) ||
           (classe_possui_especializacao && nivel_magia >= 0 && nivel_magia <= 9);
-
       int magias_do_nivel =
           (magias_por_dia[indice] - '0') +
           FeiticosBonusPorAtributoPorNivel(
@@ -1163,19 +1294,11 @@ void RecomputaDependenciasMagiasPorDia(const Tabelas& tabelas, EntidadeProto* pr
               BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
           (feitico_extra ? 1 : 0);
       Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
-      for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
-        // Escolhe aleatorio.
-        if (!pl.has_nivel_conhecido()) {
-          pl.set_nivel_conhecido(nivel_magia);
-        }
-        if (!pl.has_indice_conhecido()) {
-          int dado = fc->feiticos_por_nivel(nivel_magia).conhecidos().size();
-          int indice = RolaDado(dado) - 1;
-          VLOG(2) << "rolando d" << dado << ": resultado -1 = " << indice;
-          pl.set_nivel_conhecido(nivel_magia);
-          pl.set_indice_conhecido(indice);
-        }
-      }
+      rf.ha_restricao = feitico_extra;
+      ConfiguraSlotsRestritosCorrigindo(
+          tabelas, rf, *fc,
+          fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+      ComputaFeiticosAleatoriosParaLancarDoNivel(tabelas, nivel_magia, fc);
     }
   }
 }

@@ -384,7 +384,10 @@ message EntidadeProto {
     optional int32 indice_conhecido = 2;
     // Indica slot usado.
     optional bool usado = 3;
+    // Usado para notificacoes que alteram o slot.
     optional int32 indice = 4;
+    // Se verdadeiro, slot devera ser usado para feitico restrito (dominio ou escola especializada).
+    optional bool restrito = 5;
   }
   message FeiticosPorNivel {
     // Nivel dos feiticos. Preenchido apenas em notificacoes de alteracao de feitico.

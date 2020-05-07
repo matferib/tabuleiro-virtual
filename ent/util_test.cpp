@@ -3347,9 +3347,9 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
     EXPECT_FLOAT_EQ(acao.reducao_luz(), 0.4f);
   }
   {
-    // Ataque de morte.
-    ASSERT_GT(proto.dados_ataque().size(), 5);
-    const auto& da = proto.dados_ataque(5);
+    // Ataque de morte, penultimo antes do agarrar.
+    ASSERT_GE(proto.dados_ataque().size(), 2);
+    const auto& da = proto.dados_ataque(proto.dados_ataque().size() - 2);
     EXPECT_TRUE(da.ataque_toque()) << da.DebugString();
     EXPECT_FALSE(da.acao().efeitos_adicionais().empty());
     EXPECT_EQ(da.acao().efeitos_adicionais(0).efeito(), EFEITO_MORTE);
@@ -3364,7 +3364,7 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
   // 10 + 3 sab + 1 des + 1 de monge.
   EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 15) << proto.dados_defesa().DebugString();
   ASSERT_GE(proto.dados_ataque().size(), 8);
-  // Desarmado atordoante. 
+  // Desarmado atordoante.
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 5) << proto.dados_ataque(0).DebugString();
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8+2");
   EXPECT_EQ(proto.dados_ataque(0).dificuldade_salvacao(), 15);

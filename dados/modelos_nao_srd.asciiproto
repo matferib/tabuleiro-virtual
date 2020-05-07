@@ -1071,21 +1071,17 @@ modelo {
     }
     tesouro {
       tesouro: 'simbolo profano\n6tochas'
-      moedas { po: 10 }
+      moedas { po: 15 }
       # total:
       # pergaminhos: .
-      pergaminhos_divinos { id: 'curar_ferimentos_moderados' }  # 150
+      pergaminhos_divinos { id: 'arma_espiritual' }  # 150
       pergaminhos_divinos { id: 'curar_ferimentos_serios' }  # 375
-      pergaminhos_divinos { id: 'dissipar_magia' }  # 375
-      pergaminhos_divinos { id: 'purgar_invisibilidade' } #375
-      pergaminhos_divinos { id: 'invocar_criaturas_iii' } #375
-      pergaminhos_divinos { id: 'andar_ar' } # 700
+      pergaminhos_divinos { id: 'poder_divino' } # 700
 
-      # poções: 
-      pocoes { id: 'curar_ferimentos_leves' } # 50
-      pocoes { id: 'curar_ferimentos_leves' } # 50
-      pocoes { id: 'arma_magica' } # 50
-      pocoes { id: 'protecao_contra_mal' } # 50
+      # poções:
+      pocoes { id: 'aumentar_pessoa' } # 250
+      pocoes { id: 'pele_arvore_2' } # 300
+      pocoes { id: 'nublar' } # 300
     }
 
     info_talentos {
@@ -1107,46 +1103,46 @@ modelo {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'orientacao' }
-        conhecidos { id: 'luz' }
+        conhecidos { id: 'virtude' }
         conhecidos { id: 'resistencia' }
+        conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
-        #para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 1
         conhecidos { id: 'maldicao_menor' }
         conhecidos { id: 'bencao' }
-        conhecidos { id: 'santuario' }
         conhecidos { id: 'escudo_fe' }
-        conhecidos { id: 'causar_medo' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'causar_medo' dominio: true }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        #para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
       }
       feiticos_por_nivel {
         nivel: 2
         conhecidos { id: 'arma_espiritual' }
-        conhecidos { id: 'escuridao' }
-        conhecidos { id: 'curar_ferimentos_moderados' }
+        conhecidos { id: 'arma_espiritual' }
         conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'vitalidade_ilusoria' dominio: true }
-        conhecidos { id: 'forca_touro' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        #para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_bem' }
-        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'criar_mortos_vivos_menor' dominio: true }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
