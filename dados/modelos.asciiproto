@@ -6030,10 +6030,10 @@ modelo {
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'brilho' }
         conhecidos { id: 'raio_gelo' }
-        conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
         conhecidos { id: 'detectar_magia' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
 
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -6041,13 +6041,12 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'escudo_arcano' }
+        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'ataque_certeiro' }
-        conhecidos { id: 'sono' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
 
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
@@ -6057,7 +6056,7 @@ modelo {
         nivel: 2
         conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'nublar' }
-        conhecidos { id: 'vigor_urso' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
 
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
@@ -7224,6 +7223,7 @@ modelo {
     cor { r: 1 g: 1 b: 1 a: 0.5 }
     dados_ataque {
       grupo: 'ataque' tipo_ataque: 'Pedrada (gigante)' rotulo: 'gelo' dano_basico: '2d6'
+      alcance_q: 4
       acao_fixa {
         icone: 'icon_ice.png'
         permite_ataque_vs_defesa: false
@@ -7234,6 +7234,7 @@ modelo {
     }
     dados_ataque {
       grupo: 'ataque' tipo_ataque: 'Pedrada (gigante)' rotulo: 'fisico' dano_basico: '3d6'
+      alcance_q: 4
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: false
