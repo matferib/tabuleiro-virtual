@@ -1093,7 +1093,8 @@ tabela_efeitos {
     nome: 'relâmpagos invocados'
     consequencia {
       dados_ataque {
-        grupo: 'relampago' rotulo: 'invocacao'
+        grupo: 'relampago'
+        rotulo: 'invocacao'
         tipo_ataque: 'Feitiço de Druida'
         dano_basico_fixo: '3d6'
         alcance_q: 20
@@ -1107,7 +1108,7 @@ tabela_efeitos {
           resultado_ao_salvar: RS_MEIO
           dificuldade_salvacao_base: 13
         }
-        limite_vezes: 5  # 1 por nivel max 10.
+        # limite vezes: 1 por nivel max 10 computado no codigo.
       }
     }
   }
