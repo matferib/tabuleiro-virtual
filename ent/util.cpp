@@ -1059,12 +1059,15 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   return modificador;
 }
 
-int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
+int ModificadorDano(
+    const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed) {
+  TipoAtaque tipo_ataque = DaParaTipoAtaque(da);
   int modificador = 0;
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
     // Se houver alvo, verifica possibilidade de queima roupa.
     // nome melhor seria: tiro_queima_roupa.
-    if (PossuiTalento("tiro_certeiro", ea) && ed.has_id() && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
+    if (da.eh_arma() && PossuiTalento("tiro_certeiro", ea) &&
+        ed.has_id() && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
       modificador += 1;
     }
   }
@@ -2838,7 +2841,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da)
 }
 
 std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
-  int modificador_dano = ModificadorDano(DaParaTipoAtaque(da), proto, alvo);
+  int modificador_dano = ModificadorDano(da, proto, alvo);
   const std::string* dano = &da.dano();
   if (!da.dano_por_tipo().empty()) {
     for (const auto& dt : da.dano_por_tipo()) {

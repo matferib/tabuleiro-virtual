@@ -297,7 +297,7 @@ TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Alguns modificadores que seriam de CA tb vem para ca.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
-int ModificadorDano(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorDano(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed);
 
 enum resultado_ataque_e {
   RA_SEM_ACAO = 0,            // acao nao realizada por algum problema com ataque.

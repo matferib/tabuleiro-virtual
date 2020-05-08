@@ -338,7 +338,10 @@ void AplicaInicioAtaqueIdUnico(int id_unico, const RepeatedPtrField<DadosAtaque>
 
 void AplicaFimAtaquePorIdUnico(int id_unico, EntidadeProto* proto) {
   RemoveSe<DadosAtaque>([id_unico](const DadosAtaque& da) {
-    return da.id_unico_efeito() == id_unico;
+    if (da.id_unico_efeito() == id_unico) {
+      return true;
+    }
+    return false;
   }, proto->mutable_dados_ataque());
 }
 
