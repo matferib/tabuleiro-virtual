@@ -249,6 +249,9 @@ void Tabelas::RecarregaMapas() {
       else if (arma.id().find("clava") != std::string::npos) arma.set_modelo_3d("club");
       else if (arma.id().find("mangual") != std::string::npos) arma.set_modelo_3d("flail");
     }
+    if (!arma.has_info_modelo_3d() && !arma.modelo_3d().empty()) {
+      arma.mutable_info_modelo_3d()->set_id(arma.modelo_3d());
+    }
     armas_[arma.id()] = &arma;
   }
   const std::vector<std::string> classes_arcanas = {"mago", "bardo"};
