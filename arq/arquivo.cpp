@@ -170,7 +170,14 @@ void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados)
 }
 
 void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
-  throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
+  if (level >= google::protobuf::LOGLEVEL_ERROR) {
+    LOG(ERROR) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
+    throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
+  } else if (level == google::protobuf::LOGLEVEL_WARNING) {
+    LOG(WARNING) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
+  } else if (level == google::protobuf::LOGLEVEL_INFO) {
+    LOG(INFO) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
+  }
 }
 
 struct ScopedLogHandler {
