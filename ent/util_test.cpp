@@ -3237,6 +3237,15 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteEsqueletoLobo) {
+  auto modelo = g_tabelas.ModeloEntidade("Esqueleto (Lobo 2)");
+  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  const auto* da = lobo->DadoCorrente();
+  ASSERT_NE(da, nullptr);
+  EXPECT_EQ(da->bonus_ataque_final(), 2);
+  EXPECT_EQ(da->dano(), "1d6+1");
+}
+
 TEST(TesteModelo, TesteHalflingDruida10) {
   auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
   auto* ev = modelo_druida.mutable_entidade()->add_evento();
