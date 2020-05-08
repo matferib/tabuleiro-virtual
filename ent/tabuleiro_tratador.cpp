@@ -1377,7 +1377,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     atraso_s = AplicaEfeitosAdicionais(
-        atraso_s, salvou, *entidade_origem, *entidade_destino, da,
+        tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, da,
         por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
 
     if (da.derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
@@ -1856,7 +1856,7 @@ float Tabuleiro::TrataAcaoIndividual(
     // Efeitos adicionais.
     if (resultado.Sucesso()) {
       atraso_s = AplicaEfeitosAdicionais(
-          atraso_s, salvou, *entidade_origem, *entidade_destino, da,
+          tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, da,
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
 

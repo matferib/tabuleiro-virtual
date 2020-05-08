@@ -1833,7 +1833,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
   return ids_afetados;
 }
 
-bool EntidadeAfetadaPorEfeito(const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
+bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
   int nivel = NivelPersonagem(alvo);
   if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
     return nivel == efeito.afeta_apenas_dados_vida_igual_a();
@@ -1851,6 +1851,16 @@ bool EntidadeAfetadaPorEfeito(const AcaoProto::EfeitoAdicional& efeito, const En
       c_none_of(efeito.afeta_apenas(), [&alvo](int tipo) { return TemTipoDnD(static_cast<TipoDnD>(tipo), alvo); })) {
     return false;
   }
+  if (!efeito.nao_afeta_tipo().empty() &&
+      c_any_of(efeito.nao_afeta_tipo(), [&alvo](int tipo) { return TemTipoDnD(static_cast<TipoDnD>(tipo), alvo); })) {
+    return false;
+  }
+  const auto& efeito_tabelado = tabelas.Efeito(efeito.efeito());
+  if (!efeito_tabelado.nao_afeta().empty() &&
+      c_any_of(efeito_tabelado.nao_afeta(), [&alvo](int tipo) { return TemTipoDnD(static_cast<TipoDnD>(tipo), alvo); })) {
+    return false;
+  }
+
   return true;
 }
 

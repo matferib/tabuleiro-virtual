@@ -233,6 +233,7 @@ message AcaoProto {
     // Para efeitos que afetam apenas um tipo de alinhamento.
     optional TendenciaSimplificada afeta_apenas_tendencia = 11;
     repeated TipoDnD afeta_apenas = 22;
+    repeated TipoDnD nao_afeta_tipo = 23;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
     optional int32 rodadas = 2;
     repeated int32 complementos = 3;
@@ -535,6 +536,10 @@ message EfeitoProto {
   optional ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
   optional ConsequenciaEvento consequencia_fim = 3;
+  // Afeta apenas os tipos passados.
+  repeated TipoDnD afeta_apenas = 7;
+  // Nao afeta nenhum dos tipos.
+  repeated TipoDnD nao_afeta = 8;
 }
 
 message EfeitoModeloProto {

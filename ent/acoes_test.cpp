@@ -267,7 +267,23 @@ TEST(TesteAcoes, TesteEfeitoAfetaApenas) {
   for (int nivel = 3; nivel <= 6; ++nivel) {
     EntidadeProto proto;
     proto.add_info_classes()->set_nivel(nivel);
-    EXPECT_EQ(EntidadeAfetadaPorEfeito(*efeito, proto), esperado[nivel]) << "nivel: " << nivel;
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, *efeito, proto), esperado[nivel]) << "nivel: " << nivel;
+  }
+}
+
+TEST(TesteAcoes, TesteEfeitoNaoAfeta) {
+  AcaoProto acao;
+  auto* efeito = acao.add_efeitos_adicionais();
+  efeito->set_efeito(EFEITO_ATORDOADO);
+  {
+    EntidadeProto proto;
+    proto.add_tipo_dnd(TIPO_HUMANOIDE);
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, *efeito, proto), true);
+  }
+  {
+    EntidadeProto proto;
+    proto.add_tipo_dnd(TIPO_MORTO_VIVO);
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, *efeito, proto), false);
   }
 }
 

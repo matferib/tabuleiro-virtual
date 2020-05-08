@@ -1578,6 +1578,11 @@ tabela_efeitos {
         ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'atordoado' } } }
       }
     }
+    nao_afeta: TIPO_CONSTRUCTO
+    nao_afeta: TIPO_ELEMENTAL
+    nao_afeta: TIPO_LIMO
+    nao_afeta: TIPO_PLANTA
+    nao_afeta: TIPO_MORTO_VIVO
   }
 
   efeitos {

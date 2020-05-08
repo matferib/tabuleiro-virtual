@@ -5560,6 +5560,7 @@ void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto
 }
 
 float AplicaEfeitosAdicionais(
+    const Tabelas& tabelas,
     float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
@@ -5567,7 +5568,7 @@ float AplicaEfeitosAdicionais(
       da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
   ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
-    if (!EntidadeAfetadaPorEfeito(efeito_adicional, entidade_destino.Proto())) {
+    if (!EntidadeAfetadaPorEfeito(tabelas, efeito_adicional, entidade_destino.Proto())) {
       continue;
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);

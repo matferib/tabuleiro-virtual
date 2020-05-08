@@ -1004,6 +1004,7 @@ bool NaoEnxerga(const EntidadeProto& proto);
 void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, AcaoProto* acao_proto);
 
 float AplicaEfeitosAdicionais(
+    const Tabelas& tabelas,
     float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central);

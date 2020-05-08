@@ -2061,7 +2061,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   ASSERT_NE(da, nullptr);
   ntf::Notificacao grupo_desfazer;
   g_dados_teste.push(5);  // 5 no d10.
-  AplicaEfeitosAdicionais(0.0f, /*salvou=*/false, *e, *e, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
+  AplicaEfeitosAdicionais(g_tabelas, 0.0f, /*salvou=*/false, *e, *e, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
   auto& ns = central.Notificacoes();
   ASSERT_EQ(ns.size(), 1U) << ", acao: " << acao.DebugString();
   e->AtualizaParcial(ns[0]->entidade());

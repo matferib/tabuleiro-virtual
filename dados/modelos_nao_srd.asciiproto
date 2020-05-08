@@ -1073,7 +1073,7 @@ modelo {
       tesouro: 'simbolo profano\n6tochas'
       moedas { po: 15 }
       # total:
-      # pergaminhos: .
+      # pergaminhos:
       pergaminhos_divinos { id: 'arma_espiritual' }  # 150
       pergaminhos_divinos { id: 'curar_ferimentos_graves' }  # 375
       pergaminhos_divinos { id: 'poder_divino' } # 700
