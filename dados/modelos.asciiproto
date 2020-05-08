@@ -2446,27 +2446,134 @@ modelo {
   }
 }
 modelo {
-  id: 'Esqueleto (Humano Combatente)'
+  id: 'Esqueleto Base'
   entidade {
     tipo_dnd: TIPO_MORTO_VIVO
-    dados_vida: '1d12' info_textura { id: 'skeleton.png' translacao_x: 0.25 largura: 0.5 }
-    cor { r: 0.1 g: 0.1 b: 0.1}
-    modificador_iniciativa: 5
-    rotulo_especial: 'reducao 5/estourante'
-    dados_ataque {
-      rotulo: 'cimitarra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d6+1 (18-20)' ca_normal: 15 ca_toque: 11 ca_surpreso: 14 }
+    tendencia { simples: TD_NEUTRO_MAU }
+    tipo_dnd: TIPO_MORTO_VIVO
+    cor { r: 0.1 g: 0.1 b: 0.1 }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
+    dados_defesa {
+      reducao_dano {
+        descritores: DESC_ESTOURANTE
+        valor: 5
+      }
+      imunidades: DESC_FRIO
+    }
+    info_talentos { gerais { id: 'iniciativa_aprimorada' } }
   }
 }
 modelo {
-  id: 'Esqueleto (Lobo)'
+  id: 'Esqueleto (Humano Combatente)'
+  id_entidade_base: 'Esqueleto Base'
   entidade {
-    tipo_dnd: TIPO_MORTO_VIVO
-    dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    modificador_iniciativa: 7
-    rotulo_especial: 'mordida +2 1d6+1\nca 15/13/12\nreducao 5/estourante'
-    mais_de_duas_pernas: true
+    dados_vida: '1d12' info_textura { id: 'skeleton.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'morto_vivo' nivel: 1 }
+    dados_ataque {
+      id_arma: 'cimitarra' grupo: 'arma' empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_defesa {
+      id_escudo: 'pesado_aco'
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+    }
   }
 }
+# Esqueletos lobos.
+modelo {
+  id: 'Esqueleto Lobo Base'
+  id_entidade_base: 'Esqueleto Base'
+  entidade {
+    info_textura { id: 'skeleton_wolf.png' altura: 0.5 translacao_y: 0.25 }
+    mais_de_duas_pernas: true
+    dados_ataque {
+      id_arma: 'mordida_padrao' grupo: 'mordida' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+    }
+  }
+}
+modelo {
+  id: 'Esqueleto (Lobo 2)'
+  id_entidade_base: 'Esqueleto Lobo Base'
+  entidade {
+    dados_vida: '2d12'
+    info_classes { id: 'morto_vivo' nivel: 2 }
+  }
+}
+modelo {
+  id: 'Esqueleto (Lobo 3)'
+  id_entidade_base: 'Esqueleto Lobo Base'
+  entidade {
+    dados_vida: '3d12'
+    info_classes { id: 'morto_vivo' nivel: 3 }
+  }
+}
+modelo {
+  id: 'Esqueleto Lobo Grande Base'
+  id_entidade_base: 'Esqueleto Lobo Base'
+  entidade {
+    tamanho: TM_GRANDE
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    atributos {
+      forca {
+        # +8 de tamanho.
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tamanho' valor: 8 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      destreza {
+        # -2 de tamanho.
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'tamanho' valor: -2 } }
+      }
+    }
+  }
+}
+modelo {
+  id: 'Esqueleto (Lobo 4)'
+  id_entidade_base: 'Esqueleto Lobo Grande Base'
+  entidade {
+    dados_vida: '4d12'
+    info_classes { id: 'morto_vivo' nivel: 4 }
+  }
+}
+modelo {
+  id: 'Esqueleto (Lobo 5)'
+  id_entidade_base: 'Esqueleto Lobo Grande Base'
+  entidade {
+    dados_vida: '5d12'
+    info_classes { id: 'morto_vivo' nivel: 5 }
+  }
+}
+modelo {
+  id: 'Esqueleto (Lobo 6)'
+  id_entidade_base: 'Esqueleto Lobo Grande Base'
+  entidade {
+    dados_vida: '6d12'
+    info_classes { id: 'morto_vivo' nivel: 6 }
+  }
+}
+# Fim esqueletos lobos.
 modelo {
   id: 'Esqueleto (Troll)'
   entidade {

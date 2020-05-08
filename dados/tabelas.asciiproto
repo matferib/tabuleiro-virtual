@@ -30,7 +30,13 @@ tabela_armas {
   # Projeteis de area.
   armas {
     id: 'mordida'
+    # falha pra ankheg, grande com 2d6 ao inves de 1d8.
     #dano { medio: '1d6' }
+    categoria: CAT_ARMA_NATURAL
+  }
+  armas {
+    id: 'mordida_padrao'
+    dano { medio: '1d6' }
     categoria: CAT_ARMA_NATURAL
   }
   armas {
@@ -5070,6 +5076,20 @@ tabela_classes {
     # sem mente: imune a efeitos mentais.
     # visao escuro 12q
   }
+  info_classes {
+    id: 'morto_vivo' nome: 'Morto-Vivo'
+    tipo_classe: TC_MONSTRO
+    progressao_bba: PBBA_MEIO
+    salvacoes_fortes: TS_VONTADE
+    pericias_por_nivel: 4
+    # d12
+    # sem mente: imune a efeitos mentais.
+    # visao escuro 12q
+    # sem constituicao
+    # Usa carisma para testes de concentracao.
+    # imune a critico.
+  }
+
 }
 
 tabela_pericias {
@@ -6845,7 +6865,6 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/haltUndead.htm'
     id: 'imobilizar_mortos_vivos'
     nome_ingles: 'halt undead'
     nome: 'imobilizar mortos-vivos'

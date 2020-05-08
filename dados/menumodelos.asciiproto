@@ -10,7 +10,11 @@ sub_menu {
   sub_menu {
     id: 'Esqueletos'
     modelo { id: 'Esqueleto (Humano Combatente)' }
-    modelo { id: 'Esqueleto (Lobo)' }
+    modelo { id: 'Esqueleto (Lobo 2)' }
+    modelo { id: 'Esqueleto (Lobo 3)' }
+    modelo { id: 'Esqueleto (Lobo 4)' }
+    modelo { id: 'Esqueleto (Lobo 5)' }
+    modelo { id: 'Esqueleto (Lobo 6)' }
     modelo { id: 'Esqueleto (Troll)' }
   }
   sub_menu {
