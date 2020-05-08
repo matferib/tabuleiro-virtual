@@ -1,21 +1,23 @@
-Fazer o ataque de atordoar do monge 5 renovar.
-Imunidade a ATORDOADO
+Pegar os itens mágicos dos mortos.
+
+Rafazer a tabela de encontro.
+Terminar Presa mágica e fazer presa mágica maior.
 Fazer o trip de kama.
 Modelo3d de kama foice e adaga.
-Salvar selecionados.
-dano_adicional e elemento_dano_adicional. Testar formiga.
-Stunning fist de monge.
-Fazer tigre atroz e colocar no invocar aliado da natureza vii.
-Fazer a arma espiritual da cor de quem lançou. E faze-la com a iniciativa. Mesma coisa os conjurados.
-Fazer o clerigo de shar com pergaminhos.
 Colocar no grupo o druida de 10 e o clérigo de 6o de Chauntea, 3, 2 e 1.
 Pergaminhos pro grupo.
-Pegar os itens mágicos dos mortos.
+Ideia: coroinhas podem ir e voltar com itens e poções.
+Fazer empunhadura de rajada.
+
+Criar ataques naturais com dano basico. Ja fiz mordida.
+Drenar forca vital: terminar.
+Testar se outras classes tb funcionam a aleatoriedade.
+atualizar tabuleiro prontos com entidades atualizadas.
+dano_adicional e elemento_dano_adicional. Testar formiga.
 
 Colocar doenca nos ataques, igual veneno. Implementar efeitos.
 Sair de modo corpo a corpo se adversario cair.
 Nao desenhar duas vezes arma dupla.
-Presa mágica e presa mágica maior.
 Dominar animais.
 Crescer espinhos: modelar o ataque (1d4 de dano e reduz movimento).
 Colocar nivel de conjurador tb em RecomputaDependenciasVenenoParaAtaque. Criar algum campo no veneno que diga isso.
