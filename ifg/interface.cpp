@@ -191,6 +191,29 @@ void InterfaceGrafica::VoltaEscolherPericia(
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
+std::string StringDuracao(const ent::Tabelas& tabelas, const ent::ArmaProto& feitico) {
+  const auto& acao = feitico.acao();
+  const auto& acao_tabelada = tabelas.Acao(acao.id());
+  if (acao.tipo() == ent::ACAO_CRIACAO_ENTIDADE || acao_tabelada.tipo() == ent::ACAO_CRIACAO_ENTIDADE) {
+    // Busca a entidade criada.
+    std::string id_modelo;
+    if (acao.has_id_modelo_entidade()) {
+      id_modelo = acao.id_modelo_entidade();
+    } else if (acao.parametros_lancamento().consequencia() == ent::AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE &&
+               !acao.parametros_lancamento().parametros().empty()) {
+      id_modelo = acao.parametros_lancamento().parametros(0).id_modelo_entidade();
+    }
+    const auto& modelo = tabelas.ModeloEntidade(id_modelo);
+    return StringDuracao(modelo.parametros().tipo_duracao());
+  } else if (acao.efeitos_adicionais().size() == 1) {
+    return  acao.efeitos_adicionais(0).has_modificador_rodadas()
+        ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
+        : "-";
+  } else {
+    return "-";
+  }
+}
+
 struct IndiceQuantidadeNivel {
   int indice = 0;
   int quantidade = 0;
@@ -204,26 +227,7 @@ struct IndiceQuantidadeNivel {
     ++quantidade;
     nivel = ic.has_id() ? ent::NivelMagia(feitico, ic) :  ent::NivelMaisAltoMagia(feitico);
     link = feitico.link();
-    const auto& acao = feitico.acao();
-    if (acao.tipo() == ent::ACAO_CRIACAO_ENTIDADE) {
-      duracao = "-";
-      // Busca a entidade criada.
-      std::string id_modelo;
-      if (acao.has_id_modelo_entidade()) {
-        id_modelo = acao.id_modelo_entidade();
-      } else if (acao.parametros_lancamento().consequencia() == ent::AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE &&
-                 !acao.parametros_lancamento().parametros().empty()) {
-        id_modelo = acao.parametros_lancamento().parametros(0).id_modelo_entidade();
-        const auto& modelo = tabelas.ModeloEntidade(id_modelo);
-        duracao = StringDuracao(modelo.parametros().tipo_duracao());
-      }
-    } else if (acao.efeitos_adicionais().size() == 1) {
-      duracao = acao.efeitos_adicionais(0).has_modificador_rodadas()
-          ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
-          : "-";
-    } else {
-      duracao = "-";
-    }
+    duracao = StringDuracao(tabelas, feitico);
   }
 };
 
@@ -692,11 +696,10 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& feitico = tabelas_.Feitico(c.id());
       std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
       lista.push_back(
-          StringPrintf("nivel %d[%d]: %s%s %s",
-            nivel_gasto,
-            indice,
-            NomeFeitico(c, tabelas_).c_str(),
-            pl.restrito() ? "" : "",
+          StringPrintf("nivel %d[%d]: %s%s, duração: %s, %s",
+            nivel_gasto, indice,
+            NomeFeitico(c, tabelas_).c_str(), pl.restrito() ? "" : "",
+            StringDuracao(tabelas_, feitico).c_str(),
             link.c_str()));
       items.emplace_back(c.id(), nivel_gasto, indice, indice);
     }
