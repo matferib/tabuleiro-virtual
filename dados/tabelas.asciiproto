@@ -208,11 +208,13 @@ tabela_armas {
     categoria: CAT_LEVE
     categoria: CAT_CAC
     nome: 'foice curta'
+    modelo_3d: 'kama'
     preco: '6 PO'
     dano { medio: '1d6' }
     multiplicador_critico: 2
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
+    pode_derrubar: true
   }
   # One-Handed Melee Weapons
   armas {
@@ -641,6 +643,7 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
+    pode_derrubar: true
   }
   armas {
     id: 'clava_grande'
@@ -684,6 +687,7 @@ tabela_armas {
   armas {
     id: 'foice_longa'
     nome: 'foice longa'
+    modelo_3d: 'kama'
     preco: '18 PO'
     dano { medio: '2d4' }
     categoria: CAT_CAC
@@ -693,6 +697,7 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
+    pode_derrubar: true
   }
   armas {
     id: 'glaive'
@@ -719,6 +724,7 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_COMUM
     haste: true
+    pode_derrubar: true
   }
   armas {
     id: 'lanca_montada'
@@ -760,6 +766,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
+    pode_derrubar: true
   }
   armas {
     id: 'ranseur'
@@ -835,6 +842,7 @@ tabela_armas {
   armas {
     id: 'kama'
     nome: 'kama'
+    modelo_3d: 'kama'
     preco: '2 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
@@ -843,6 +851,7 @@ tabela_armas {
     peso { medio: '1Kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
+    pode_derrubar: true
   }
   armas {
     id: 'nunchaku'
@@ -894,6 +903,7 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
     haste: true
+    pode_derrubar: true
   }
   armas {
     id: 'espada_bastarda'
@@ -931,6 +941,7 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
     haste: true
+    pode_derrubar: true
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -973,6 +984,7 @@ tabela_armas {
     peso { medio: '10kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    pode_derrubar: true
   }
 
   armas {
@@ -989,6 +1001,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
+    pode_derrubar: true
   }
   armas {
     id: 'urgrosh_anao'
@@ -1063,6 +1076,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
     ataque_toque: true
+    pode_derrubar: true
   }
   armas {
     id: 'rede'
