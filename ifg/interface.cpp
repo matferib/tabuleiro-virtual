@@ -246,7 +246,7 @@ PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& ma
         quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : "",
         nivel,
         it.second.duracao.c_str(),
-        link.empty() ? "" : StringPrintf("<a href='%s'>link</a>", link.c_str()).c_str());
+        link.empty() ? "" : StringPrintf(", <a href='%s'>link</a>", link.c_str()).c_str());
     nomes.push_back(texto);
     int indice = it.second.indice;
     mapa_indices.push_back(indice);
