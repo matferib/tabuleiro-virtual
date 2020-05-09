@@ -2135,7 +2135,12 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_PRESA_MAGICA
     nome: 'presa mágica'
-    formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra)'
+    formato_complementos: 'nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra). Caso vazio, usará o primeiro ataque natural que encontrar.'
+  }
+  efeitos {
+    id: EFEITO_PRESA_MAGICA_MAIOR
+    nome: 'presa mágica'
+    formato_complementos: 'numero: valor do complemento. texto: nome da presa que foi encantada, igual ao que está nos dados de ataque (exemplo: garra). Caso vazio, aplicará em todos.'
   }
   efeitos {
     id: EFEITO_IMUNIDADE_ELEMENTO
@@ -8371,7 +8376,6 @@ tabela_feiticos {
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_PRESA_MAGICA
-        descricao: 'presa magica'
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
@@ -8396,8 +8400,7 @@ tabela_feiticos {
       permite_salvacao: false
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'presa magica maior'
+        efeito: EFEITO_PRESA_MAGICA_MAIOR
         modificador_rodadas: MR_HORAS_NIVEL
       }
     }
