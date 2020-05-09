@@ -2415,6 +2415,129 @@ TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
   }
 }
 
+TEST(TesteEfeitos, TesteTigreAtrozPresaMagica) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  EntidadeProto proto = modelo.entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PRESA_MAGICA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(2);
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 8);
+  // Normal;
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+9") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 21) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "2d4+8") << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "2d6+4") << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  // Bote.
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "2d4+9") << proto.dados_ataque(3).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 21) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "2d4+8") << proto.dados_ataque(4).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "2d4+4") << proto.dados_ataque(5).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "2d4+4") << proto.dados_ataque(6).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "2d6+4") << proto.dados_ataque(7).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+}
+
+TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMordida) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  EntidadeProto proto = modelo.entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PRESA_MAGICA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(2);
+  evento->add_complementos_str("mordida");
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 8);
+  // Normal;
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+8") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "2d4+8") << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "2d6+5") << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).bonus_ataque_final(), 15) << proto.dados_ataque(0).DebugString();
+  // Bote.
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "2d4+8") << proto.dados_ataque(3).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "2d4+8") << proto.dados_ataque(4).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "2d4+4") << proto.dados_ataque(5).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "2d4+4") << proto.dados_ataque(6).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "2d6+5") << proto.dados_ataque(7).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 15) << proto.dados_ataque(0).DebugString();
+}
+
+TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarra) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  EntidadeProto proto = modelo.entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PRESA_MAGICA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(2);
+  evento->add_complementos_str("garra");
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 8);
+  // Normal;
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+9") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 21) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "2d4+8") << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "2d6+4") << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  // Bote.
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "2d4+9") << proto.dados_ataque(3).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 21) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "2d4+8") << proto.dados_ataque(4).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "2d4+4") << proto.dados_ataque(5).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "2d4+4") << proto.dados_ataque(6).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "2d6+4") << proto.dados_ataque(7).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+}
+
+TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarraTraseira) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  EntidadeProto proto = modelo.entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_PRESA_MAGICA);
+  evento->set_rodadas(1);
+  evento->set_id_unico(2);
+  evento->add_complementos_str("garra traseira");
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  ASSERT_EQ(proto.dados_ataque().size(), 8);
+  // Normal;
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+8") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).dano(), "2d4+8") << proto.dados_ataque(1).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).dano(), "2d6+4") << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(2).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  // Bote.
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "2d4+8") << proto.dados_ataque(3).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).dano(), "2d4+8") << proto.dados_ataque(4).DebugString();
+  EXPECT_EQ(proto.dados_ataque(4).bonus_ataque_final(), 20) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).dano(), "2d4+5") << proto.dados_ataque(5).DebugString();
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 15) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "2d4+4") << proto.dados_ataque(6).DebugString();
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "2d6+4") << proto.dados_ataque(7).DebugString();
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
+}
+
 TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
   {
     EntidadeProto proto;

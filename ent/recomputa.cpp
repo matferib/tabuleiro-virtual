@@ -185,30 +185,30 @@ std::vector<DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, Entida
   return das;
 }
 
-std::vector<DadosAtaque*> DadosAtaqueNaturais(EntidadeProto* proto) {
+bool AtaqueNatural(const Tabelas& tabelas, const DadosAtaque& da) {
+  return PossuiCategoria(CAT_ARMA_NATURAL, tabelas.Arma(da.id_arma()));
+}
+
+std::vector<DadosAtaque*> DadosAtaqueNaturais(const Tabelas& tabelas, EntidadeProto* proto) {
   std::vector<DadosAtaque*> das;
   for (auto& da : *proto->mutable_dados_ataque()) {
-    if (da.ataque_natural()) das.push_back(&da);
+    if (AtaqueNatural(tabelas, da)) {
+      das.push_back(&da);
+    }
   }
   return das;
 }
 
-std::vector<DadosAtaque*> DadosAtaqueNaturaisPorRotulo(const std::string& rotulo, EntidadeProto* proto) {
+std::vector<DadosAtaque*> DadosAtaqueNaturaisPorRotulo(const Tabelas& tabelas, const std::string& rotulo, EntidadeProto* proto) {
   auto das = DadosAtaquePorRotulo(rotulo, proto);
-  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return !da.ataque_natural();
-  }, proto->mutable_dados_ataque());
-  return das;
+  std::vector<DadosAtaque*> das_ret;
+  for (auto* da : das) {
+    if (AtaqueNatural(tabelas, *da)) {
+      das_ret.push_back(da);
+    }
+  }
+  return das_ret;
 }
-
-#if 0
-bool PossuiArma(const std::string& id_arma, const EntidadeProto& proto) {
-  return std::any_of(proto.dados_ataque().begin(), proto.dados_ataque().end(), [&id_arma] (
-        const DadosAtaque& da) {
-      return da.id_arma() == id_arma;
-  });
-}
-#endif
 
 // Retorna a penalidade do escudo de acordo com seu material. A penalidade é positiva (ou seja, penalidade 1 da -1).
 int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
@@ -387,7 +387,7 @@ void AplicaEfeitoComumNaoProcessado(EntidadeProto::Evento* evento, const Consequ
 }
 
 // Entidade pode ser nullptr em testes.
-bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
+bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
   AplicaEfeitoComum(consequencia, proto);
   if (!evento->processado()) {
     AplicaEfeitoComumNaoProcessado(evento, consequencia, proto);
@@ -650,15 +650,17 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
     }
     break;
     case EFEITO_PRESA_MAGICA: {
-      if (evento->processado()) break;
-      std::string rotulo;
-      std::vector<DadosAtaque*> das = DadosAtaqueNaturais(proto);
       if (evento->complementos_str().empty()) {
-        rotulo = das[0]->rotulo();
-      } else {
-        rotulo = das[0]->rotulo();
+        std::vector<DadosAtaque*> das = DadosAtaqueNaturais(tabelas, proto);
+        if (!das.empty()) {
+          evento->add_complementos_str(das[0]->rotulo());
+        } else {
+          LOG(INFO) << "entidade sem ataques naturais";
+          break;
+        }
       }
-      das = DadosAtaqueNaturaisPorRotulo(rotulo, proto);
+      const std::string& rotulo = evento->complementos_str(0);
+      std::vector<DadosAtaque*> das = DadosAtaqueNaturaisPorRotulo(tabelas, rotulo, proto);
       if (das.empty()) {
         LOG(INFO) << "entidade sem ataques naturais com rotulo: " << rotulo;
         break;
@@ -666,7 +668,9 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       std::unordered_set<std::string> grupos;
       for (auto* da : das) {
         // so um por grupo.
-        if (grupos.find(da->rotulo()) != grupos.end()) continue;
+        if (grupos.find(da->grupo()) != grupos.end()) {
+          continue;
+        }
         grupos.insert(da->grupo());
         da->set_id_unico_efeito(evento->id_unico());
         AtribuiBonusPenalidadeSeMaior(1, TB_MELHORIA, Origem("presa_magica", evento->id_unico()), da->mutable_bonus_ataque());
@@ -2186,7 +2190,7 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
       continue;
     }
     VLOG(1) << "aplicando efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << ") ";
-    if (AplicaEfeito(&evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto, entidade)) {
+    if (AplicaEfeito(tabelas, &evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia()), proto, entidade)) {
       evento.set_processado(true);
     }
   }
@@ -2393,10 +2397,6 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       da->clear_derrubar_automatico();
       da->clear_dano_basico_fixo();
     }
-  }
-  // Verificar se tem id para nao sobrescrever se algum da tiver o bit setado. Mas nao deveria acontecer.
-  if (arma.has_id()) {
-    da->set_ataque_natural(PossuiCategoria(CAT_ARMA_NATURAL, arma));
   }
 }
 

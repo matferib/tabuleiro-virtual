@@ -498,8 +498,6 @@ message DadosAtaque {
   optional bool eh_feitico = 90;
   // Se verdadeiro, ataque sera para derrubar.
   optional bool ataque_derrubar = 91;
-  // Retorna true se o ataque for natural.
-  optional bool ataque_natural = 92;
 }
 
 message ConsequenciaEvento {
