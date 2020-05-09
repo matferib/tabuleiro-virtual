@@ -241,7 +241,7 @@ PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& ma
     int quantidade =  it.second.quantidade;
     int nivel = it.second.nivel;
     std::string texto = StringPrintf(
-        "%s%s, nivel: %d, duração: %s %s",
+        "%s%s, nivel: %d, duração: %s%s",
         nome.c_str(),
         quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : "",
         nivel,
