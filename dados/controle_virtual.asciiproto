@@ -1146,6 +1146,19 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 3
+    coluna: 9
+    rotulo: "D"
+    cor_rotulo {}
+    textura: "icon_trip_attack.png"
+    id: CONTROLE_DERRUBAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Derrubar."
+    visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
     coluna: 10
     rotulo: "S"
     cor_rotulo {}
@@ -1896,7 +1909,28 @@ pagina {
     textura: "icon_bardic_music.png"
     id: CONTROLE_NOP
     forma: FORMA_RETANGULO
-    dica: "Modo de rotação."
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_bite.png"
+    id: CONTROLE_NOP
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_claw.png"
+    id: CONTROLE_NOP
+    forma: FORMA_RETANGULO
     visibilidade { referencia { tipo: VIS_INVISIVEL } }
   }
 }

@@ -621,6 +621,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Descansa o personagem: cura 1 PV por nivel e restaura feiticos. */
   void DescansaPersonagemNotificando();
 
+  /** Alterna o modo de ataque de derrubar da entidade selecionada. */
+  void AlternaAtaqueDerrubar();
+
   /** Desliga a esquiva da primeira pessoa ou selecionado, notificando clientes. */
   void DesligaEsquivaNotificando();
 

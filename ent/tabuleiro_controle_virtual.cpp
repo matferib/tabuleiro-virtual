@@ -204,6 +204,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DESCANSAR_PERSONAGEM:
       DescansaPersonagemNotificando();
       break;
+    case CONTROLE_DERRUBAR:
+      AlternaAtaqueDerrubar();
+      break;
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
@@ -1102,6 +1105,13 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           const auto& id_classe = ClasseFeiticoAtiva(e->Proto());
           return !id_classe.empty();
         }
+        case VIS_ATAQUE_DERRUBAR: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto* da = e->DadoCorrente();
+          if (da == nullptr) return false;
+          return tabelas_.Arma(da->id_arma()).pode_derrubar();
+        }
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
@@ -1347,6 +1357,12 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Mapeia id do botao para a funcao de estado. A entidade recebida vem da funcao EntidadePrimeiraPessoaOuSelecionada.
   static const std::unordered_map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
+    { CONTROLE_DERRUBAR,          [this] (const Entidade* entidade) {
+       if (entidade == nullptr) return false;
+       const auto* da = entidade->DadoCorrente();
+       if (da == nullptr) return false;
+       return da->ataque_derrubar();
+    } },
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },

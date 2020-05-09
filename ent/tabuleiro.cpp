@@ -2057,7 +2057,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadesNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_, central_));
+      std::unique_ptr<Acao> acao(NovaAcao(tabelas_, notificacao.acao(), this, texturas_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.

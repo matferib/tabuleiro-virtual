@@ -3,7 +3,7 @@ package ent;
 
 import "ent/comum.proto";
 
-// Proximo id: 153, mas conferir pq ha gaps.
+// Proximo id: 154, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -163,6 +163,7 @@ enum IdBotao {
   CONTROLE_MODO_MONTAR = 140;
   CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE = 143;
   CONTROLE_ALTERNAR_EM_CORPO_A_CORPO = 144;
+  CONTROLE_DERRUBAR = 153;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -221,6 +222,7 @@ enum TipoVisibilidade {
   VIS_FEITICO_8 = 19;
   VIS_FEITICO_9 = 20;
   VIS_CLASSE_FEITICO_ATIVA = 21;
+  VIS_ATAQUE_DERRUBAR = 25;
   // Usado para botoes que apenas carregam texturas.
   VIS_INVISIVEL = 22;
 }

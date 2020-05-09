@@ -3217,6 +3217,37 @@ void Tabuleiro::DesligaEsquivaNotificando() {
   AdicionaNotificacaoListaEventos(n);
 }
 
+void Tabuleiro::AlternaAtaqueDerrubar() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade selecionada para alternar ataque de derrubar";
+    return;
+  }
+  const auto* da = e->DadoCorrente();
+  if (da == nullptr || !tabelas_.Arma(da->id_arma()).pode_derrubar()) {
+    LOG(INFO) << "Ataque nao pode derrubar.";
+    return;
+  }
+  ntf::Notificacao n;
+  EntidadeProto *proto = nullptr, *proto_antes = nullptr;
+  std::tie(proto_antes, proto) =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
+  *proto_antes->mutable_dados_ataque() = e->Proto().dados_ataque();
+  *proto->mutable_dados_ataque() = e->Proto().dados_ataque();
+  auto* da_depois = EncontraAtaque(*da, proto);
+  if (da_depois == nullptr) {
+    return;
+  }
+  auto* da_antes = EncontraAtaque(*da, proto_antes);
+  if (da_antes == nullptr) {
+    return;
+  }
+  da_depois->set_ataque_derrubar(!da_depois->ataque_derrubar());
+  da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
+  TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
+}
+
 void Tabuleiro::DescansaPersonagemNotificando() {
   auto* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
