@@ -215,6 +215,8 @@ message ArmaProto {
   // Caso a arma tenha modelo 3d.
   optional string modelo_3d = 31 [deprecated=true];
   optional Modelo3d info_modelo_3d = 34;
+  // Se verdadeiro, arma pode ser usada para derrubar.
+  optional bool pode_derrubar = 35;
 }
 
 message TabelaArmaduraOuEscudo {

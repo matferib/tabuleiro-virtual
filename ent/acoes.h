@@ -21,7 +21,7 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
+  Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
   virtual ~Acao();
 
   void Atualiza(int intervalo_ms);
@@ -89,6 +89,7 @@ class Acao {
   Entidade* EntidadeDestino();
 
  protected:
+  const Tabelas& tabelas_;
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_ = nullptr;
   tex::Texturas* texturas_ = nullptr;
@@ -111,7 +112,7 @@ class Acao {
 };
 
 // Cria uma nova acao no tabuleiro.
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
+Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
 
 // Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
 const std::string& TextoAcao(const AcaoProto& acao_proto);

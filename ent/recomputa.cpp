@@ -2345,6 +2345,20 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
   if (!arma.info_classes().empty()) {
     da->set_eh_feitico(true);
   }
+  if (!arma.pode_derrubar() && da->ataque_derrubar()) {
+    da->clear_ataque_derrubar();
+  }
+  if (arma.pode_derrubar()) {
+    if (da->ataque_derrubar()) {
+      // override do toque acima.
+      da->set_ataque_toque(true);
+      da->set_derrubar_automatico(true);
+      da->set_dano_basico_fixo("");
+    } else {
+      da->clear_derrubar_automatico();
+      da->clear_dano_basico_fixo();
+    }
+  }
 }
 
 void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaque* da) {
