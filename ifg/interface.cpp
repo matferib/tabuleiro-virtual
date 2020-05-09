@@ -22,6 +22,20 @@ namespace ifg {
 
 namespace {
 
+std::string StringDuracao(ent::TipoDuracao td) {
+  switch (td) {
+    case ent::TD_RODADAS_NIVEL: return "rodadas/nível";
+    case ent::TD_MINUTOS_NIVEL: return "minutos/nível";
+    case ent::TD_HORAS_NIVEL: return "horas/nível";
+    case ent::TD_2_HORAS_NIVEL: return "2 horas/nível";
+    case ent::TD_10_MINUTOS_NIVEL: return "10 minutos/nível";
+    default: ;
+  }
+  // Nao deveria chegar aqui.
+  return "-";
+}
+
+
 std::string StringDuracao(ent::ModificadorRodadas mr) {
   switch (mr) {
     case ent::MR_NENHUM: return "nenhum";
@@ -184,13 +198,27 @@ struct IndiceQuantidadeNivel {
   std::string link;
   std::string duracao;
 
-  void PreencheIncrementando(int indice, const ent::ArmaProto& feitico, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+  void PreencheIncrementando(
+      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
     this->indice = indice;
     ++quantidade;
     nivel = ic.has_id() ? ent::NivelMagia(feitico, ic) :  ent::NivelMaisAltoMagia(feitico);
     link = feitico.link();
-    if (feitico.acao().efeitos_adicionais().size() == 1) {
-      duracao = feitico.acao().efeitos_adicionais(0).has_modificador_rodadas()
+    const auto& acao = feitico.acao();
+    if (acao.tipo() == ent::ACAO_CRIACAO_ENTIDADE) {
+      duracao = "-";
+      // Busca a entidade criada.
+      std::string id_modelo;
+      if (acao.has_id_modelo_entidade()) {
+        id_modelo = acao.id_modelo_entidade();
+      } else if (acao.parametros_lancamento().consequencia() == ent::AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE &&
+                 !acao.parametros_lancamento().parametros().empty()) {
+        id_modelo = acao.parametros_lancamento().parametros(0).id_modelo_entidade();
+        const auto& modelo = tabelas.ModeloEntidade(id_modelo);
+        duracao = StringDuracao(modelo.parametros().tipo_duracao());
+      }
+    } else if (acao.efeitos_adicionais().size() == 1) {
+      duracao = acao.efeitos_adicionais(0).has_modificador_rodadas()
           ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
           : "-";
     } else {
@@ -246,7 +274,7 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
     if (ic.id().empty()) {
       LOG(WARNING) << "Nao achei classe de conjuracao para pergaminho: " << pergaminho.id();
     }
-    mapa_nomes_para_indices[nome].PreencheIncrementando(i++, tabelas_.Feitico(pergaminho.id()), ic);
+    mapa_nomes_para_indices[nome].PreencheIncrementando(tabelas_, i++, tabelas_.Feitico(pergaminho.id()), ic);
   }
 
   std::vector<int> mapa_indices;
@@ -301,7 +329,7 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
     const auto& pocao_tabelada = tabelas_.Pocao(pocao.id());
     const std::string& nome = pocao.nome().empty() ? pocao_tabelada.nome() : pocao.nome();
     mapa_nomes_para_indices[nome].PreencheIncrementando(
-        i++, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
+        tabelas_, i++, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
   }
 
   std::vector<std::string> nomes;
@@ -653,6 +681,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   std::vector<NivelIndiceIndiceGasto> items;
   int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
   if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
+    std::string str_restricao = id_classe == "clerigo" ? " (dominio) " : " (especista) ";
     // Monta lista de feiticos para lancar do nivel.
     const auto& fn = fc.feiticos_por_nivel(nivel_gasto);
     for (int indice = 0; indice < fn.para_lancar().size(); ++indice) {
@@ -662,7 +691,13 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
       const auto& feitico = tabelas_.Feitico(c.id());
       std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
-      lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel_gasto, indice, NomeFeitico(c, tabelas_).c_str(), link.c_str()));
+      lista.push_back(
+          StringPrintf("nivel %d[%d]: %s%s %s",
+            nivel_gasto,
+            indice,
+            NomeFeitico(c, tabelas_).c_str(),
+            pl.restrito() ? "" : "",
+            link.c_str()));
       items.emplace_back(c.id(), nivel_gasto, indice, indice);
     }
     if (lista.empty()) {
