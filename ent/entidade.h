@@ -300,7 +300,7 @@ class Entidade {
   // A chance de falha ao atacar.
   int ChanceFalhaAtaque() const;
   // A chance de um inimigo falhar um ataque contra esta entidade.
-  int ChanceFalhaDefesa() const;
+  int ChanceFalhaDefesa(const DadosAtaque& da = DadosAtaque::default_instance()) const;
   // Retorna se a entidade, ao atacar, ignora a chance de falha do oponente.
   bool IgnoraChanceFalha() const;
 

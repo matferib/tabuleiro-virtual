@@ -1196,7 +1196,7 @@ std::tuple<std::string, bool> AtaqueVsChanceFalha(const DadosAtaque& da, const E
   }
   VLOG(1) << "chance falha ataque: " << ea.ChanceFalhaAtaque();
   VLOG(1) << "chance falha defesa: " << ea.ChanceFalhaDefesa();
-  const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa());
+  const int chance_falha = std::max(ea.ChanceFalhaAtaque(), ed.ChanceFalhaDefesa(da));
   if (chance_falha > 0) {
     const int d100 = RolaDado(100);
     VLOG(1) << "Chance de falha: " << chance_falha << ", tirou: " << d100;

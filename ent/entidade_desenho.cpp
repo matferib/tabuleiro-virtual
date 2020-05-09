@@ -465,6 +465,21 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     return;
   }
   switch (efeito) {
+    case EFEITO_ESCUDO_ENTROPICO: {
+      if (pd->has_alfa_translucidos()) return;
+      const auto* modelo = vd_.m3d->Modelo("shield");
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("rainbow.png"));
+      const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
+      gl::MatrizEscopo salva_matriz;
+      ParametrosDesenho pd_sem_texturas_de_frente;
+      pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
+      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
+      gl::Translada(posicao.x(), posicao.y(), posicao.z());
+      modelo->vbos_gravados.Desenha();
+      gl::Desabilita(GL_TEXTURE_2D);
+    }
+    break;
     case EFEITO_FORMA_GASOSA: {
       if (!pd->has_alfa_translucidos()) return;
       // Este evento ocupa boa parte do personagem, fazer nao clicavel.

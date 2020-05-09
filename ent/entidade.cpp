@@ -2226,6 +2226,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
     auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     n_tex->add_info_textura()->set_id("smoke.png");
     n_tex->add_info_textura()->set_id("wood.png");
+    n_tex->add_info_textura()->set_id("rainbow.png");
     central->AdicionaNotificacao(n_tex.release());
   }
 }
@@ -2260,8 +2261,9 @@ std::string Entidade::ResumoEventos() const {
   return resumo_eventos;
 }
 
-int Entidade::ChanceFalhaDefesa() const {
+int Entidade::ChanceFalhaDefesa(const DadosAtaque& da) const {
   int chance = 0;
+  if (PossuiEvento(EFEITO_ESCUDO_ENTROPICO, proto_) && da.ataque_distancia()) chance = 20;
   if (PossuiEventoNaoPossuiOutro(EFEITO_NUBLAR, EFEITO_FOGO_DAS_FADAS, proto_)) chance = 20;
   if (PossuiEventoNaoPossuiOutro(EFEITO_DESLOCAMENTO, EFEITO_FOGO_DAS_FADAS, proto_)) chance = 50;
   // TODO
