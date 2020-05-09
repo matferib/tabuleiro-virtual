@@ -3407,43 +3407,43 @@ modelo {
     # Normal.
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'ataque'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     # bote investindo.
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira_padrao' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra traseira' id_arma: 'garra_traseira_padrao' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
     dados_ataque {
       grupo: 'bote'
-      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
   }

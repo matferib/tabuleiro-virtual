@@ -344,7 +344,7 @@ message DanoPorTipoDnD {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 92.
+// Proximo id: 93.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -498,6 +498,8 @@ message DadosAtaque {
   optional bool eh_feitico = 90;
   // Se verdadeiro, ataque sera para derrubar.
   optional bool ataque_derrubar = 91;
+  // Retorna true se o ataque for natural.
+  optional bool ataque_natural = 92;
 }
 
 message ConsequenciaEvento {

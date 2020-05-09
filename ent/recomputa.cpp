@@ -13,6 +13,10 @@ namespace {
 using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 
+std::string Origem(const std::string& origem, int id_unico) {
+  return StringPrintf("%s (id: %d)", origem.c_str(), id_unico);
+}
+
 // Redimensiona o container.
 template <class T>
 void Redimensiona(int tam, RepeatedPtrField<T>* c) {
@@ -178,6 +182,22 @@ std::vector<DadosAtaque*> DadosAtaquePorRotulo(const std::string& rotulo, Entida
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (da.rotulo() == rotulo) das.push_back(&da);
   }
+  return das;
+}
+
+std::vector<DadosAtaque*> DadosAtaqueNaturais(EntidadeProto* proto) {
+  std::vector<DadosAtaque*> das;
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.ataque_natural()) das.push_back(&da);
+  }
+  return das;
+}
+
+std::vector<DadosAtaque*> DadosAtaqueNaturaisPorRotulo(const std::string& rotulo, EntidadeProto* proto) {
+  auto das = DadosAtaquePorRotulo(rotulo, proto);
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return !da.ataque_natural();
+  }, proto->mutable_dados_ataque());
   return das;
 }
 
@@ -467,7 +487,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       if (!evento->processado()) {
         if (evento->complementos().empty() || evento->complementos(0) <= 0) return false;
         AtribuiBonus(
-            evento->complementos(0), TB_SEM_NOME, StringPrintf("drenar temporario %d", evento->id_unico()), proto->mutable_niveis_negativos_dinamicos());
+            evento->complementos(0), TB_SEM_NOME, Origem("drenar temporario", evento->id_unico()), proto->mutable_niveis_negativos_dinamicos());
       }
       break;
     case EFEITO_VENENO:
@@ -490,7 +510,7 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
       bi->set_tipo(TB_COMPETENCIA);
       auto* po = bi->add_por_origem();
       po->set_valor(evento->complementos(0));
-      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento->id_unico()));
+      po->set_origem(Origem("competencia",  evento->id_unico()));
       AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
@@ -630,18 +650,27 @@ bool AplicaEfeito(EntidadeProto::Evento* evento, const ConsequenciaEvento& conse
     }
     break;
     case EFEITO_PRESA_MAGICA: {
-      // TODO
+      if (evento->processado()) break;
+      std::string rotulo;
+      std::vector<DadosAtaque*> das = DadosAtaqueNaturais(proto);
       if (evento->complementos_str().empty()) {
-        // TODO encontrar o ataque primario.
-        return false;
+        rotulo = das[0]->rotulo();
+      } else {
+        rotulo = das[0]->rotulo();
       }
-      int valor = 1;
-      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
-      // TODO
-      // Pegar apenas um ataque de cada grupo que case com o id_arma passado.
+      das = DadosAtaqueNaturaisPorRotulo(rotulo, proto);
+      if (das.empty()) {
+        LOG(INFO) << "entidade sem ataques naturais com rotulo: " << rotulo;
+        break;
+      }
+      std::unordered_set<std::string> grupos;
       for (auto* da : das) {
-        AtribuiBonusPenalidadeSeMaior(
-            valor, TB_MELHORIA, evento->id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+        // so um por grupo.
+        if (grupos.find(da->rotulo()) != grupos.end()) continue;
+        grupos.insert(da->grupo());
+        da->set_id_unico_efeito(evento->id_unico());
+        AtribuiBonusPenalidadeSeMaior(1, TB_MELHORIA, Origem("presa_magica", evento->id_unico()), da->mutable_bonus_ataque());
+        AtribuiBonusPenalidadeSeMaior(1, TB_MELHORIA, Origem("presa_magica", evento->id_unico()), da->mutable_bonus_dano());
       }
     }
     break;
@@ -805,7 +834,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
       break;
     case EFEITO_DRENAR_TEMPORARIO:
-      RemoveBonus(TB_SEM_NOME, StringPrintf("drenar temporario %d", evento.id_unico()), proto->mutable_niveis_negativos_dinamicos());
+      RemoveBonus(TB_SEM_NOME, Origem("drenar temporario", evento.id_unico()), proto->mutable_niveis_negativos_dinamicos());
       break;
     case EFEITO_VENENO:
     break;
@@ -824,7 +853,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       bi->set_tipo(TB_COMPETENCIA);
       auto* po = bi->add_por_origem();
       po->set_valor(0);
-      po->set_origem(google::protobuf::StringPrintf("competencia (id: %d)", evento.id_unico()));
+      po->set_origem(Origem("competencia", evento.id_unico()));
       AplicaBonusPenalidadeOuRemove(bonus, pericia_proto->mutable_bonus());
     }
     break;
@@ -852,7 +881,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
     }
     break;
-    case EFEITO_PRESA_MAGICA:
+    case EFEITO_PRESA_MAGICA: {
+      for (auto& da : *proto->mutable_dados_ataque()) {
+        LimpaBonus(TB_MELHORIA, Origem("presa_magica", evento.id_unico()), da.mutable_bonus_ataque());
+        LimpaBonus(TB_MELHORIA, Origem("presa_magica", evento.id_unico()), da.mutable_bonus_dano());
+      }
+    }
+    break;
     case EFEITO_ARMA_MAGICA: {
       if (evento.complementos_str().empty()) return;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento.complementos_str(0), proto);
@@ -2359,6 +2394,10 @@ void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const En
       da->clear_dano_basico_fixo();
     }
   }
+  // Verificar se tem id para nao sobrescrever se algum da tiver o bit setado. Mas nao deveria acontecer.
+  if (arma.has_id()) {
+    da->set_ataque_natural(PossuiCategoria(CAT_ARMA_NATURAL, arma));
+  }
 }
 
 void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaque* da) {
@@ -2711,7 +2750,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que valem.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
-  if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+  if (da->ataque_derrubar()) da->clear_dano();
+  else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+
   if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.

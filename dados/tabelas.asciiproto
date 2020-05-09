@@ -53,11 +53,26 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
   }
   armas {
+    id: 'garra_padrao'
+    dano { medio: '1d4' }
+    categoria: CAT_ARMA_NATURAL
+    tipo_dano: TD_CORTANTE
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
     id: 'garra_traseira'
     categoria: CAT_ARMA_NATURAL
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
+  armas {
+    id: 'garra_traseira_padrao'
+    dano { medio: '1d4' }
+    categoria: CAT_ARMA_NATURAL
+    tipo_dano: TD_CORTANTE
+    tipo_dano: TD_PERFURANTE
+  }
+
   armas {
     id: 'pancada'
     categoria: CAT_ARMA_NATURAL
