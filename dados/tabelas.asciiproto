@@ -1125,6 +1125,10 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ESCUDO_ENTROPICO
+    nome: 'escudo entrópico'
+  }
+  efeitos {
     id: EFEITO_ESFRIAR_METAL
     nome: 'esfriar metal'
   }
@@ -5531,6 +5535,27 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'escudo_entropico'
+    nome: 'escudo entrópico'
+    nome_ingles: 'entropic shield'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'sorte'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_ESCUDO_ENTROPICO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
+  armas {
     id: 'mesclarse_as_rochas'
     nome: 'mesclar-se às rochas'
     nome_ingles: 'meld into stone'
@@ -6703,7 +6728,6 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/charmPerson.htm'
     id: 'enfeiticar_pessoa'
     nome_ingles: 'charm person'
     nome: 'enfeitiçar pessoa'
@@ -6716,6 +6740,11 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 1
+    }
+    info_classes {
+      id: 'renovacao'
+      nivel: 1
+      dominio: true
     }
     acao {
       id: 'Feitiço de Toque a Distância'
@@ -7389,7 +7418,41 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/comprehendLanguages.htm'
+    id: 'reencarnação'
+    nome_ingles: 'reeincarnate'
+    nome: 'reencarnação'
+    info_classes {
+      id: 'druida'
+      nivel: 4
+    }
+    info_classes {
+      id: 'renovacao'
+      nivel: 4
+      dominio: true
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'penitencia'
+    nome_ingles: 'atonement'
+    nome: 'penitência'
+    info_classes {
+      id: 'druida'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'renovacao'
+      nivel: 5
+      dominio: true
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
     id: 'compreender_idiomas'
     nome_ingles: 'comprehend languages'
     nome: 'compreender idiomas'
@@ -8156,6 +8219,10 @@ tabela_feiticos {
     nome_ingles: 'remove disease'
     nome: 'remover doenças'
     info_classes {
+      id: 'renovacao'
+      nivel: 3
+    }
+    info_classes {
       id: 'druida'
       nivel: 3
     }
@@ -8609,7 +8676,6 @@ tabela_feiticos {
     id: 'oracao'
     nome_ingles: 'prayer'
     nome: 'oração'
-    alcance_quadrados: 8
     info_classes {
       id: 'clerigo'
       nivel: 3
@@ -8619,10 +8685,16 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
+      id: 'Feitiço Pessoal'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       permite_salvacao: false
       ignora_resistencia_magia: false
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Oração (selecionar manualmente o efeito se é aliado ou não)'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
     }
     escola: 'encantamento'
     # TODO aliados ganham +1 sorte em ataque, dano com armas, salvacoes e pericias.
@@ -9014,6 +9086,11 @@ tabela_feiticos {
     info_classes {
       id: 'clerigo'
       nivel: 2
+    }
+    info_classes {
+      id: 'renovacao'
+      nivel: 2
+      dominio: true
     }
     info_classes {
       id: 'druida'
