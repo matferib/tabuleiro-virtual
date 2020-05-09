@@ -6289,10 +6289,12 @@ modelo {
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+      ataque_derrubar: true
     }
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+      ataque_derrubar: true
     }
     # Desarmado rajada.
     dados_ataque {
@@ -6308,6 +6310,7 @@ modelo {
     # Kama normal.
     dados_ataque {
       grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+      ataque_derrubar: true
     }
     # Desarmado normal.
     dados_ataque {
@@ -6351,10 +6354,12 @@ modelo {
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+      ataque_derrubar: true
     }
     dados_ataque {
       grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+      ataque_derrubar: true
     }
     # Desarmado rajada.
     dados_ataque {
@@ -6368,6 +6373,7 @@ modelo {
     # Kama normal.
     dados_ataque {
       grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS bonus_magico: 1
+      ataque_derrubar: true
     }
     # Desarmado normal.
     dados_ataque {
