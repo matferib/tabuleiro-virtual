@@ -19,6 +19,8 @@ bool ComplementoEventoEspecial(const ent::EntidadeProto::Evento& evento) {
   switch (evento.id_efeito()) {
     case ent::EFEITO_ARMA_MAGICA:
       return true;
+    case ent::EFEITO_PRESA_MAGICA_MAIOR:
+      return true;
     default: return false;
   }
 }
@@ -39,6 +41,17 @@ bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
 QString ComplementosEspecialParaString(const ent::EntidadeProto::Evento& evento) {
   switch (evento.id_efeito()) {
     case ent::EFEITO_ARMA_MAGICA: {
+      QString s;
+      if (!evento.complementos_str().empty()) {
+        s.append(evento.complementos_str(0).c_str());
+      }
+      s.append(";");
+      if (!evento.complementos().empty()) {
+        s.append(QString::number(evento.complementos(0)));
+      }
+      return s;
+    }
+    case ent::EFEITO_PRESA_MAGICA_MAIOR: {
       QString s;
       if (!evento.complementos_str().empty()) {
         s.append(evento.complementos_str(0).c_str());
@@ -111,6 +124,23 @@ const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(
 void StringEspecialParaComplementos(const QString& complementos, ent::EntidadeProto::Evento* evento) {
   switch (evento->id_efeito()) {
     case ent::EFEITO_ARMA_MAGICA: {
+      QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+      evento->clear_complementos_str();
+      evento->add_complementos_str("");
+      evento->clear_complementos();
+      evento->add_complementos(1);
+      if (lista.empty()) return;
+      if (lista.size() >= 1) {
+        evento->set_complementos_str(0, lista[0].toStdString());
+      }
+      if (lista.size() >= 2) {
+        bool ok;
+        int valor = lista[1].toInt(&ok);
+        if (!ok) valor = 1;
+        evento->set_complementos(0, valor);
+      }
+    }
+    case ent::EFEITO_PRESA_MAGICA_MAIOR: {
       QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
       evento->clear_complementos_str();
       evento->add_complementos_str("");

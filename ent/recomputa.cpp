@@ -678,6 +678,47 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       }
     }
     break;
+    case EFEITO_PRESA_MAGICA_MAIOR: {
+      if (evento->complementos().empty()) {
+        int nivel = evento->rodadas() / HORAS_EM_RODADAS;
+        evento->add_complementos(std::min<int>(5, 1 + nivel / 4));
+      }
+      if (evento->complementos_str().empty()) {
+        // Aplicar +1 em todos.
+        std::vector<DadosAtaque*> das = DadosAtaqueNaturais(tabelas, proto);
+        for (auto* da : das) {
+          da->set_id_unico_efeito(evento->id_unico());
+          AtribuiBonusPenalidadeSeMaior(1, TB_MELHORIA, Origem("presa_magica_maior", evento->id_unico()), da->mutable_bonus_ataque());
+          AtribuiBonusPenalidadeSeMaior(1, TB_MELHORIA, Origem("presa_magica_maior", evento->id_unico()), da->mutable_bonus_dano());
+        }
+      } else {
+        int bonus = evento->complementos(0);
+        if (bonus <= 0 || bonus > 5) {
+          LOG(ERROR) << "bonus invalido para presa magica maior: " << bonus;
+          break;
+        }
+        LOG(INFO) << "bonus: " << bonus;
+        // Aplicar apenas no passado.
+        const std::string& rotulo = evento->complementos_str(0);
+        std::vector<DadosAtaque*> das = DadosAtaqueNaturaisPorRotulo(tabelas, rotulo, proto);
+        if (das.empty()) {
+          LOG(INFO) << "entidade sem ataques naturais com rotulo: " << rotulo;
+          break;
+        }
+        std::unordered_set<std::string> grupos;
+        for (auto* da : das) {
+          // so um por grupo.
+          if (grupos.find(da->grupo()) != grupos.end()) {
+            continue;
+          }
+          grupos.insert(da->grupo());
+          da->set_id_unico_efeito(evento->id_unico());
+          AtribuiBonusPenalidadeSeMaior(bonus, TB_MELHORIA, Origem("presa_magica_maior", evento->id_unico()), da->mutable_bonus_ataque());
+          AtribuiBonusPenalidadeSeMaior(bonus, TB_MELHORIA, Origem("presa_magica_maior", evento->id_unico()), da->mutable_bonus_dano());
+        }
+      }
+    }
+    break;
     case EFEITO_ARMA_MAGICA: {
       if (evento->complementos_str().empty()) return false;
       int valor = 1;
@@ -889,6 +930,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       for (auto& da : *proto->mutable_dados_ataque()) {
         LimpaBonus(TB_MELHORIA, Origem("presa_magica", evento.id_unico()), da.mutable_bonus_ataque());
         LimpaBonus(TB_MELHORIA, Origem("presa_magica", evento.id_unico()), da.mutable_bonus_dano());
+      }
+    }
+    break;
+    case EFEITO_PRESA_MAGICA_MAIOR: {
+      for (auto& da : *proto->mutable_dados_ataque()) {
+        LimpaBonus(TB_MELHORIA, Origem("presa_magica_maior", evento.id_unico()), da.mutable_bonus_ataque());
+        LimpaBonus(TB_MELHORIA, Origem("presa_magica_maior", evento.id_unico()), da.mutable_bonus_dano());
       }
     }
     break;
