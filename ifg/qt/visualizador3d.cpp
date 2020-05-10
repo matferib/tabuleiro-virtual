@@ -2667,6 +2667,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_mapeamento_oclusao->setCheckState(opcoes_proto.mapeamento_oclusao() ? Qt::Checked : Qt::Unchecked);
   // Ataque vs defesa posicao real.
   gerador.checkbox_ataque_vs_defesa_posicao_real->setCheckState(opcoes_proto.ataque_vs_defesa_posicao_real() ? Qt::Checked : Qt::Unchecked);
+  // Tab ativa acao de ataque.
+  gerador.checkbox_tab_ativa_ataque->setCheckState(opcoes_proto.tab_ativa_ataque() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -2690,6 +2692,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_mapeamento_oclusao->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_ataque_vs_defesa_posicao_real(
         gerador.checkbox_ataque_vs_defesa_posicao_real->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_tab_ativa_ataque(
+        gerador.checkbox_tab_ativa_ataque->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

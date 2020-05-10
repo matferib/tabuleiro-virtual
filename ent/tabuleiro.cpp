@@ -3005,7 +3005,9 @@ void Tabuleiro::ProximaAcao() {
     }
     entidade->AtualizaAcao(*it);
   }
-  modo_clique_ = MODO_ACAO;
+  if (opcoes_.tab_ativa_ataque()) {
+    modo_clique_ = MODO_ACAO;
+  }
   if (grupo->notificacao().size()) {
     AdicionaNotificacaoListaEventos(*grupo);
     central_->AdicionaNotificacaoRemota(grupo.release());
@@ -3046,7 +3048,9 @@ void Tabuleiro::AcaoAnterior() {
     }
     entidade->AtualizaAcao(*it);
   }
-  modo_clique_ = MODO_ACAO;
+  if (opcoes_.tab_ativa_ataque()) {
+    modo_clique_ = MODO_ACAO;
+  }
   if (grupo->notificacao().size()) {
     AdicionaNotificacaoListaEventos(*grupo);
     central_->AdicionaNotificacaoRemota(grupo.release());
