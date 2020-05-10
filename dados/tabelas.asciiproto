@@ -6186,7 +6186,7 @@ tabela_feiticos {
   armas {
     id: 'roupa_encantada'
     nome: 'roupa encantada'
-    nome_ingles: 'magic vestiment'
+    nome_ingles: 'magic vestment'
     info_classes {
       id: 'clerigo'
       nivel: 3
