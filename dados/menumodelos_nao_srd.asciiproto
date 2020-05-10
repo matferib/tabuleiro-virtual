@@ -95,20 +95,21 @@ sub_menu {
     texto: 'Tilverton, Cidade Nova Ida'
     quantidade: '1d8'
     aleatorio: true
-    modelos { id: 'NADA' peso: 5 }
-    # Peso total: 20
-    modelos { id: 'Vulto Guerreiro 5' peso: 4 }
-    modelos { id: 'Vulto Ladino 5' peso: 4 }
-    modelos { id: 'Vulto Monge 5' peso: 4 }
+    # 30% de nao dar nada.
+    modelos { id: 'NADA' peso: 17 }
+    # Peso total: 24
+    modelos { id: 'Vulto Guerreiro 5' peso: 5 }
+    modelos { id: 'Vulto Ladino 5' peso: 5 }
+    modelos { id: 'Vulto Monge 5' peso: 5 }
     modelos { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' peso: 1 }
-    modelos { id: 'Vulto Bardo 5' peso: 2 }
-    modelos { id: 'Vulto Feiticeiro 5' peso: 1 }
-    modelos { id: 'Veserab' peso: 4 }
-    # Peso total: 5
-    modelos { id: 'Humano Dragão Púrpura: Combatente Arqueiro 2' peso: 1 }
-    modelos { id: 'Humano Dragão Púrpura: Combatente Soldado 2' peso: 1 }
-    modelos { id: 'Humano Dragão Púrpura: Tenente 5' peso: 1 }
-    modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' peso: 1 }
+    modelos { id: 'Vulto Bardo 5' peso: 3 }
+    modelos { id: 'Vulto Feiticeiro 5' peso: 2 }
+    modelos { id: 'Veserab' peso: 3 }
+    # Peso total: 15
+    modelos { id: 'Humano Dragão Púrpura: Combatente Arqueiro 2' peso: 5 }
+    modelos { id: 'Humano Dragão Púrpura: Combatente Soldado 2' peso: 5 }
+    modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' peso: 2 }
+    modelos { id: 'Humano Dragão Púrpura: Tenente 5' peso: 2 }
     modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' peso: 1 }
   }
 }

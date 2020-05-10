@@ -5535,6 +5535,45 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'terremoto'
+    nome: 'terremoto'
+    nome_ingles: 'earthquake'
+    alcance_quadrados: 80
+    modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 8
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 8
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      cor { r: 0.25 g: 0.15 b: 0.05 a: 0.7 }
+      raio_quadrados: 14  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      ignora_resistencia_magia: true
+      elemento: DESC_TERRA
+    }
+    escola: 'evocacao'
+  }
+  armas {
     id: 'escudo_entropico'
     nome: 'escudo entrópico'
     nome_ingles: 'entropic shield'
@@ -7884,7 +7923,7 @@ tabela_feiticos {
   }
   armas {
     id: 'cancelar_encantamento'
-    nome_ingles: 'break enchantment '
+    nome_ingles: 'break enchantment'
     nome: 'Cancelar Encantamento'
     info_classes {
       id: 'clerigo'
@@ -8864,38 +8903,6 @@ tabela_feiticos {
     escola: 'evocacao'
   }
 
-  armas {
-    id: 'quebrar_encantamento'
-    nome_ingles: 'break enchantment'
-    nome: 'quebrar encantamento'
-    info_classes {
-      id: 'bardo'
-      nivel: 4
-    }
-    info_classes {
-      id: 'paladino'
-      nivel: 4
-    }
-    info_classes {
-      id: 'sorte'
-      nivel: 5
-      dominio: true
-    }
-    info_classes {
-      id: 'clerigo'
-      nivel: 5
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 5
-    }
-    acao {
-      id: 'Feitiço de Toque a Distância'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-    }
-    escola: 'abjuracao'
-  }
   armas {
     id: 'comando_maior'
     nome_ingles: 'command, greater'

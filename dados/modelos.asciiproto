@@ -4672,24 +4672,75 @@ modelo {
       id_arma: 'maca_estrela' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO
     }
     dados_ataque {
-      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO bonus_magico: 1
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 20
+    }
+    dados_ataque {
+      id_arma: 'agua_benta' empunhadura: EA_ARMA_ESCUDO
+      municao: 4
+    }
+    dados_ataque {
+      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO
       municao: 10
     }
-    info_talentos {
-      gerais { id: 'foco_em_arma' complemento: 'maca_estrela' }
-      gerais { id: 'preparar_pocao' }
-      gerais { id: 'reflexos_rapidos' }
+    dados_ataque {
+      id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO
+      municao: 5
     }
-    info_pericias { id: 'concentracao' pontos: 8 }
-    info_pericias { id: 'ouvir' pontos: 8 }
-    info_pericias { id: 'identificar_magia' pontos: 8 }
+
+    info_talentos {
+      gerais { id: 'preparar_pocao' } # 1
+      gerais { id: 'reflexos_rapidos' } # 3
+      gerais { id: 'escrever_pergaminho' } # 6
+      gerais { id: 'magia_combate' } # 9
+      gerais { id: 'tiro_certeiro' } # 12
+      gerais { id: 'tiro_preciso' } # 15
+    }
+    info_pericias { id: 'concentracao' pontos: 19 }
+    info_pericias { id: 'diplomacia' pontos: 10}
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'identificar_magia' pontos: 11 }
+    info_pericias { id: 'arte_da_fuga' pontos: 8 }
     tesouro {
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
       aneis { id: 'protecao_1' em_uso: true }
       amuletos { id: 'periapto_sabedoria_4' em_uso: true }
-      tesouro: ''
+      luvas { id: 'luvas_destreza_2' em_uso: true }
+      mantos { id: 'manto_carisma_2' em_uso: true }
+      bracadeiras { id: 'bracadeira_arqueiro_menor' em_uso: true }
+      botas { id: 'botas_velocidade' }
+
+      pocoes { id: 'voo' }
+      pocoes { id: 'escudo_fe_4' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'heroismo' }
+      pocoes { id: 'velocidade' }
+
+      pergaminhos_divinos { id: 'escudo_entropico' } # 25
+      pergaminhos_divinos { id: 'escudo_entropico' } # 25
+      pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # de graca
+      pergaminhos_divinos { id: 'arma_espiritual' } # 150
+
+      pergaminhos_divinos { id: 'imunidade_magia_maior' } # 3000
+      pergaminhos_divinos { id: 'tempestade_fogo' } # 3000
+      pergaminhos_divinos { id: 'invocar_criaturas_viii' } # 3000
+      pergaminhos_divinos { id: 'terremoto' } # de graca talento.
+      pergaminhos_divinos { id: 'destruicao' } # 2275.
+      pergaminhos_divinos { id: 'destruicao' } # 2275.
+      pergaminhos_divinos { id: 'palavra_sagrada' } # 2275.
+      pergaminhos_divinos { id: 'invocar_criaturas_vii' } # de graca.
+      pergaminhos_divinos { id: 'banimento' } # 1650.
+      pergaminhos_divinos { id: 'dissipar_magia_maior' } # 1650.
+      pergaminhos_divinos { id: 'doenca_plena' } # 1650.
+      pergaminhos_divinos { id: 'cura_completa' } # de graca.
+      pergaminhos_divinos { id: 'invocar_criaturas_v' } # 1125.
+      pergaminhos_divinos { id: 'comando_maior' } # 1125.
+      pergaminhos_divinos { id: 'cancelar_encantamento' } # 1125.
+      pergaminhos_divinos { id: 'arma_rompimento' } # de graca.
+
+      moedas { po: 100 }
     }
     feiticos_classes {
       id_classe: 'clerigo'
@@ -4707,8 +4758,6 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
       }
       feiticos_por_nivel {
         nivel: 1
@@ -4723,9 +4772,6 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 5 }
-        para_lancar { nivel_conhecido: 1 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 2
@@ -4740,9 +4786,6 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 5 }
-        para_lancar { nivel_conhecido: 2 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 3
@@ -4757,9 +4800,6 @@ modelo {
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 4 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 5 }
-        para_lancar { nivel_conhecido: 3 indice_conhecido: 6 }
       }
       feiticos_por_nivel {
         nivel: 4
@@ -4770,9 +4810,6 @@ modelo {
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 4 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 5
@@ -4784,8 +4821,6 @@ modelo {
         para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 5 indice_conhecido: 3 }
-        para_lancar { nivel_conhecido: 5 indice_conhecido: 4 }
       }
       feiticos_por_nivel {
         nivel: 6
@@ -4795,8 +4830,6 @@ modelo {
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
-        para_lancar { nivel_conhecido: 6 indice_conhecido: 3 }
       }
       feiticos_por_nivel {
         nivel: 7
@@ -4805,20 +4838,17 @@ modelo {
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
-        para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
       }
       feiticos_por_nivel {
         nivel: 8
         conhecidos { id: 'aliado_extra_planar_maior' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
-        para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
       }
-
     }
-
     atributos {
-      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+      forca { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 3 } } }
     }
   }
 }
@@ -5216,7 +5246,14 @@ modelo {
       pocoes { id: 'velocidade' }
       pocoes { id: 'invisibilidade' }
 
-      moedas { po: 8000 }
+      # 75%
+      pergaminhos_divinos { id: 'curar_ferimentos_criticos' } # 700
+      pergaminhos_divinos { id: 'convocar_relampagos' } # 350
+      pergaminhos_divinos { id: 'esfera_flamejante' } # 150
+      pergaminhos_divinos { id: 'vigor_urso' } # 150
+      pergaminhos_divinos { id: 'agilidade_gato' } # 150
+
+      moedas { po: 20 }
     }
     feiticos_classes {
       id_classe: 'druida'

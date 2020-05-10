@@ -1242,6 +1242,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
+    // TODO Renovacao.
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1400,6 +1401,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
+    // TODO renovacao.
   }
   VLOG(2) << "Acao de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1940,6 +1942,7 @@ float Tabuleiro::TrataAcaoIndividual(
       auto* nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAtualizacaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+      // TODO renovacao.
     }
     if (delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
         PossuiTalento("trespassar", entidade_origem->Proto())) {
