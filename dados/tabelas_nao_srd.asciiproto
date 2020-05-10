@@ -476,6 +476,7 @@ tabela_dominios {
     id: 'renovacao'
     nome: 'renovação'
     descricao: 'Cura 1d8+modificador carisma caso caia para 0 ou menos PV, uma vez por dia (não impede morte direta).'
+    # FR campaign setting pg 65
   }
   dominios {
     id: 'retribuicao'
