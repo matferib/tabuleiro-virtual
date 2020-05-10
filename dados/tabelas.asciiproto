@@ -10093,7 +10093,7 @@ tabela_feiticos {
 
   armas {
     id: 'teia'
-    nome_ingles: ' web'
+    nome_ingles: 'web'
     nome: 'teia'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
