@@ -1816,7 +1816,7 @@ void PreencheNotificacaoAtualizacaoPontosVida(
   }
   // Agora os pontos de vida. Se o dano foi nao letal, nada a fazer (foi feito acima).
   // Caso contrario, aplica aqui.
-  int pv = proto.pontos_vida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida);
+  const int pv = proto.pontos_vida() + (td == TD_NAO_LETAL ? 0 : delta_pontos_vida);
   e_depois->set_pontos_vida(std::min(pv, proto.max_pontos_vida()));
   e_depois->set_dano_nao_letal(dano_nao_letal);
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
@@ -3691,6 +3691,29 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
   return c_any(proto.agarrado_a(), id);
 }
 
+//----------
+// Dominios.
+//----------
+const EntidadeProto::PoderesDominio& PoderesDoDominio(const std::string& id_dominio, const EntidadeProto& proto) {
+  const auto& ifc = FeiticosClasse("clerigo", proto);
+  const auto& pd = ifc.poderes_dominio();
+  if (auto it = pd.find(id_dominio); it == pd.end()) {
+    return EntidadeProto::PoderesDominio::default_instance();
+  } else {
+    return it->second;
+  }
+}
+
+EntidadeProto::PoderesDominio* PoderesDoDominio(const std::string& id_dominio, EntidadeProto* proto) {
+  auto* ifc = FeiticosClasse("clerigo", proto);
+  auto& pd = *ifc->mutable_poderes_dominio();
+  if (auto it = pd.find(id_dominio); it == pd.end()) {
+    return &pd.insert({id_dominio, EntidadeProto::PoderesDominio::default_instance()}).first->second;
+  } else {
+    return &it->second;
+  }
+}
+
 // ---------
 // Feiticos.
 // ---------
@@ -5010,6 +5033,51 @@ int DesviaObjetoSeAplicavel(
   PreencheNotificacaoObjetoDesviado(true, alvo, &n, grupo_desfazer->add_notificacao());
   tabuleiro->TrataNotificacao(n);
   return 0;
+}
+
+std::pair<int, std::string> RenovaSeTiverDominioRenovar(const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  if (delta_pontos_vida >= 0) {
+    return std::make_pair(delta_pontos_vida, "");
+  }
+  const EntidadeProto::InfoFeiticosClasse& ic = FeiticosClasse("clerigo", proto);
+  if (c_none(ic.dominios(), "renovacao")) {
+    return std::make_pair(delta_pontos_vida, "");
+  }
+  auto it = ic.poderes_dominio().find("renovacao");
+  if (it != ic.poderes_dominio().end() && it->second.usado()) {
+    return std::make_pair(delta_pontos_vida, "");
+  }
+  const EntidadeProto::PoderesDominio pd = it == ic.poderes_dominio().end() ? EntidadeProto::PoderesDominio::default_instance() : it->second;
+  ntf::Notificacao nfake;
+  PreencheNotificacaoConsequenciaAlteracaoPontosVida(delta_pontos_vida, /*dano_nao_letal=*/0, proto, &nfake);
+  const auto& e_antes = nfake.entidade_antes();
+  const auto& e_depois = nfake.entidade();
+  if (!e_depois.morta() && !e_antes.inconsciente() && e_depois.inconsciente()) {
+    const int d8 = RolaDado(8);
+    const int mod_carisma = ModificadorAtributo(BonusAtributo(TA_CARISMA, proto));
+    const int total = std::max(0, d8 + mod_carisma);
+    auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+    auto* ic_antes = FeiticosClasse("clerigo", e_antes);
+    (*ic_antes->mutable_poderes_dominio())["renovacao"].set_usado(false);
+    auto* ic_depois = FeiticosClasse("clerigo", e_depois);
+    (*ic_depois->mutable_poderes_dominio())["renovacao"].set_usado(true);
+    int disponivel_em = DIA_EM_RODADAS;
+    if (!pd.taxa_refrescamento().empty()) {
+      try {
+        RolaValor(pd.taxa_refrescamento());
+      } catch (...) {
+        disponivel_em = DIA_EM_RODADAS;
+      }
+    }
+    (*ic_depois->mutable_poderes_dominio())["renovacao"].set_disponivel_em(disponivel_em);
+    if (grupo_desfazer != nullptr) {
+      *grupo_desfazer->add_notificacao() = *n;
+    }
+    return std::make_pair(
+        delta_pontos_vida + total,
+        StringPrintf("dominio renovação %d = 1d8 + mod carisma = %d %+d", total, d8, mod_carisma));
+  }
+  return std::make_pair(delta_pontos_vida, "");
 }
 
 int CompartilhaDanoSeAplicavel(

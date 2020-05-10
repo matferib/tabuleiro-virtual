@@ -23,6 +23,7 @@ bool ImprimeSeErro();
 
 namespace ent {
 namespace {
+using google::protobuf::RepeatedPtrField;
 using google::protobuf::StringPrintf;
 }  // namespace
 
@@ -1061,6 +1062,7 @@ void Entidade::MataEntidade() {
   proto_.set_aura_m(0.0f);
 }
 
+namespace {
 template <typename T>
 void LimpaSeParcialNaoVazio(const T& proto_parcial, T* proto_final) {
   if (!proto_parcial.empty()) {
@@ -1092,6 +1094,28 @@ void LimpaSeTemSoUmVazio(T* proto_final) {
   }
 }
 
+// Atualiza apenas alguns campos.
+void AtualizaParcialInfoFeiticosClasse(const EntidadeProto::InfoFeiticosClasse& ic, EntidadeProto::InfoFeiticosClasse* pic) {
+  EntidadeProto::InfoFeiticosClasse pic_backup = *pic;
+  pic->MergeFrom(ic);
+  // Campos excluidos, exceto alteracoes pontuais.
+  *pic->mutable_dominios() = pic_backup.dominios();
+  *pic->mutable_escolas_proibidas() = pic_backup.escolas_proibidas();
+  *pic->mutable_feiticos_por_nivel() = pic_backup.feiticos_por_nivel();
+  *pic->mutable_poderes_dominio() = pic_backup.poderes_dominio();
+  // Alteracoes pontuais.
+  for (const auto& [chave, valor] : ic.poderes_dominio()) {
+    auto it = pic->mutable_poderes_dominio()->find(chave);
+    if (it == pic->mutable_poderes_dominio()->end()) {
+      pic->mutable_poderes_dominio()->insert({chave, valor});
+    } else {
+      it->second.MergeFrom(valor);
+    }
+  }
+}
+
+}  // namespace
+
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
@@ -1103,8 +1127,14 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
 
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
 
+  // InfoClasses
+  RepeatedPtrField<EntidadeProto::InfoFeiticosClasse> ic_backup;
+  if (!proto_parcial_orig.feiticos_classes().empty()) {
+    ic_backup.Swap(proto_.mutable_feiticos_classes());
+  }
+
   // Copia quaisquer modelos.
-  google::protobuf::RepeatedPtrField<ModeloDnD> modelos_dnd;
+  RepeatedPtrField<ModeloDnD> modelos_dnd;
   if (!proto_parcial.modelos().empty()) {
     modelos_dnd.Swap(proto_.mutable_modelos());
   }
@@ -1221,6 +1251,15 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (!ic_backup.empty()) {
+    ic_backup.Swap(proto_.mutable_feiticos_classes());
+    // Neste ponto, ic_backup esta com o valor que veio da atualizacao parcial e proto esta com valor antes da atualizacao.
+    for (const auto& ic : ic_backup) {
+      auto* pic = FeiticosClasse(ic.id_classe(), &proto_);
+      AtualizaParcialInfoFeiticosClasse(ic, pic);
+    }
+  }
 
   for (auto it = eventos_a_remover.rbegin(); it != eventos_a_remover.rend(); ++it) {
     proto_.mutable_evento()->DeleteSubrange(*it, 1);

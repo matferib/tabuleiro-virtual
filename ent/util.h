@@ -765,6 +765,11 @@ int ValorFinalPericia(const std::string& id, const EntidadeProto& proto);
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);
 
+// Acesso aos poderes de dominios de clerigo.
+const EntidadeProto::PoderesDominio& PoderesDoDominio(
+    const std::string& id_dominio, const EntidadeProto& proto);
+EntidadeProto::PoderesDominio* PoderesDoDominio(
+    const std::string& id_dominio, EntidadeProto* proto);
 // Retorna os feiticos da classe. Para as versoes mutaveis, uma cria e a outra retorna nullptr.
 const EntidadeProto::InfoFeiticosClasse& FeiticosClasse(
     const std::string& id_classe, const EntidadeProto& proto);
@@ -964,6 +969,10 @@ void ConcatenaString(const std::string& s, std::string* alvo);
 int CompartilhaDanoSeAplicavel(
     int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao, ntf::Notificacao* grupo_desfazer);
+
+// Caso a entidade tenha dominio renovar, ativa caso fique negativo.
+// Caso haja uso do poder, adiciona ao grupo a notificacao.
+std::pair<int, std::string> RenovaSeTiverDominioRenovar(const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
 
 // Se alvo possuir desviar objetos e puder usar, anula o ataque.
 int DesviaObjetoSeAplicavel(

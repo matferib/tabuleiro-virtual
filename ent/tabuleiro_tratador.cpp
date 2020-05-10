@@ -1398,6 +1398,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     acao_proto->set_bem_sucedida(true);
     por_entidade->set_id(id);
     por_entidade->set_delta(delta_pv_pos_salvacao);
+
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, TD_LETAL, nd, nd);
@@ -1924,30 +1925,41 @@ float Tabuleiro::TrataAcaoIndividual(
     delta_pontos_vida = CompartilhaDanoSeAplicavel(
         delta_pontos_vida, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
         por_entidade, acao_proto, grupo_desfazer);
-
-    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
-    acao_proto->set_nao_letal(nao_letal);
-
-    AdicionaLogEvento(google::protobuf::StringPrintf(
+    AdicionaLogEvento(StringPrintf(
           "entidade %s %s %d em entidade %s. Texto: '%s'",
           RotuloEntidade(entidade_origem).c_str(),
           delta_pontos_vida <= 0 ? "causou dano" : "curou",
           std::abs(delta_pontos_vida),
           RotuloEntidade(entidade_destino).c_str(),
           acao_proto->texto().c_str()));
+    {
+      std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
+      auto [dr, tr] = RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
+      delta_pontos_vida = dr;
+      if (!tr.empty()) {
+        ConcatenaString(tr, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), tr.c_str()));
+        central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+
+    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
+    acao_proto->set_nao_letal(nao_letal);
+
     if (delta_pontos_vida != 0) {
       por_entidade->set_delta(delta_pontos_vida);
       acao_proto->set_afeta_pontos_vida(true);
+
       // Apenas para desfazer.
       auto* nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAtualizacaoPontosVida(
           *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
-      // TODO renovacao.
     }
-    if (delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida() &&
-        PossuiTalento("trespassar", entidade_origem->Proto())) {
-      atraso_s += 1.0f;
-      AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);
+    if (delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida()) {
+      if (PossuiTalento("trespassar", entidade_origem->Proto())) {
+        atraso_s += 1.0f;
+        AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);
+      }
     }
   }
 

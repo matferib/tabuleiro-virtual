@@ -399,6 +399,11 @@ message EntidadeProto {
     // Para combinacao modelos.
     optional OperacaoCombinacao operacao = 7;
   }
+  message PoderesDominio {
+    optional bool usado = 1;
+    optional int32 disponivel_em = 2;
+    optional string taxa_refrescamento = 3;
+  }
   message InfoFeiticosClasse {
     optional string id_classe = 1;
     repeated string dominios = 6;
@@ -409,6 +414,7 @@ message EntidadeProto {
     // Indica operacao de conversao espontanea.
     optional bool conversao_espontanea = 8;
     optional OperacaoCombinacao operacao = 7;
+    map<string, PoderesDominio> poderes_dominio = 11;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;
   // Indica a classe de feitico ativa.
