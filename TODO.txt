@@ -1,14 +1,13 @@
+Prayer (oração).
 Pegar os itens mágicos dos mortos.
 
-Rafazer a tabela de encontro.
-Terminar Presa mágica e fazer presa mágica maior.
-Fazer o trip de kama.
-Modelo3d de kama foice e adaga.
-Colocar no grupo o druida de 10 e o clérigo de 6o de Chauntea, 3, 2 e 1.
+Dominio renovacao.
+
 Pergaminhos pro grupo.
 Ideia: coroinhas podem ir e voltar com itens e poções.
-Fazer empunhadura de rajada.
 
+Fazer empunhadura de rajada.
+Modelo3d adaga.
 Criar ataques naturais com dano basico. Ja fiz mordida.
 Drenar forca vital: terminar.
 Testar se outras classes tb funcionam a aleatoriedade.
