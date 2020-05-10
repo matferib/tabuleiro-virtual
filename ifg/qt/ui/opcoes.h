@@ -33,13 +33,14 @@ public:
     QCheckBox *checkbox_mapeamento_oclusao;
     QCheckBox *checkbox_mapeamento_de_sombras;
     QCheckBox *checkbox_ataque_vs_defesa_posicao_real;
+    QCheckBox *checkbox_tab_ativa_ataque;
     QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
         if (ifg__qt__DialogoOpcoes->objectName().isEmpty())
             ifg__qt__DialogoOpcoes->setObjectName(QStringLiteral("ifg__qt__DialogoOpcoes"));
-        ifg__qt__DialogoOpcoes->resize(438, 408);
+        ifg__qt__DialogoOpcoes->resize(452, 496);
         verticalLayout = new QVBoxLayout(ifg__qt__DialogoOpcoes);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
@@ -92,6 +93,11 @@ public:
 
         verticalLayout->addWidget(checkbox_ataque_vs_defesa_posicao_real);
 
+        checkbox_tab_ativa_ataque = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_tab_ativa_ataque->setObjectName(QStringLiteral("checkbox_tab_ativa_ataque"));
+
+        verticalLayout->addWidget(checkbox_tab_ativa_ataque);
+
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QStringLiteral("buttonBox"));
         buttonBox->setOrientation(Qt::Horizontal);
@@ -120,6 +126,7 @@ public:
         checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", nullptr));
         checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", nullptr));
         checkbox_ataque_vs_defesa_posicao_real->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ataque vs Defesa posi\303\247\303\243o Real", nullptr));
+        checkbox_tab_ativa_ataque->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Tab ativa ataque", nullptr));
     } // retranslateUi
 
 };

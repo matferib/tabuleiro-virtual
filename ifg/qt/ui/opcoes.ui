@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>438</width>
-    <height>408</height>
+    <width>452</width>
+    <height>496</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,6 +81,13 @@
     <widget class="QCheckBox" name="checkbox_ataque_vs_defesa_posicao_real">
      <property name="text">
       <string>Ataque vs Defesa posição Real</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkbox_tab_ativa_ataque">
+     <property name="text">
+      <string>Tab ativa ataque</string>
      </property>
     </widget>
    </item>
