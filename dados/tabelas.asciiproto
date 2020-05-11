@@ -8053,10 +8053,17 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: false
       permite_salvacao: true
-      tipo_salvacao: TS_VONTADE
+      tipo_salvacao: TS_FORTITUDE
       dificuldade_salvacao_por_nivel: true
       permite_desacreditar: true
       elemento: DESC_MEDO
+      geometria: ACAO_GEO_MODELO_3D
+      modelo_3d { id: 'skull' }
+      velocidade {
+        inicial_m_s: 3
+        tipo_aceleracao: ACAO_ACEL_ZERO
+      }
+      escala { x: 1.0 y: 1.0 z: 1.0 }
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }

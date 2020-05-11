@@ -1818,8 +1818,10 @@ float Tabuleiro::TrataAcaoIndividual(
       // Corrige o valor.
       por_entidade->set_delta(delta_pontos_vida);
       ConcatenaString(StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()), por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
-      resultado.resultado = RA_FALHA_NORMAL;
+      AdicionaLogEvento(entidade_destino->Id(), StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()));
+      if (salvou) {
+        resultado.resultado = RA_FALHA_NORMAL;
+      }
     }
 
     if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
