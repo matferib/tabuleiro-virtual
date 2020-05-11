@@ -5681,7 +5681,7 @@ tabela_feiticos {
     nome: 'crescer espinhos'
     nome_ingles: 'spike growth'
     alcance_quadrados: 20
-    modificador_alcance: MOD_2_QUAD_NIVEL 
+    modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'druida'
       nivel: 3
@@ -5698,6 +5698,33 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
+  armas {
+    id: 'dominar_pessoal'
+    nome: 'dominar pessoa'
+    nome_ingles: 'dominate person'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      elemento: DESC_MENTAL
+      afeta_apenas: TIPO_HUMANOIDE
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_DOMINAR_PESSOA
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+
   armas {
     id: 'dominar_animal'
     nome: 'dominar animal'
@@ -5717,10 +5744,10 @@ tabela_feiticos {
       id: 'Feitiço a Distância'
       elemento: DESC_MENTAL
       afeta_apenas: TIPO_ANIMAL
+      tipo_salvacao: TS_VONTADE
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'dominado'
-        modificador_rodadas: MR_RODADAS_NIVEL
+        efeito: EFEITO_DOMINAR_PESSOA
+        modificador_rodadas: MR_DIAS_POR_NIVEL
       }
     }
     escola: 'encantamento'
@@ -6383,8 +6410,19 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço a Distância'
+      id: 'Raio'
+      cor { r: 0.8 g: 0.8 b: 1 a: 0.9 }
+      duracao_s: 0.5
+      efeito_area: true
+      distancia_quadrados: 12  # quadrados
+      permite_salvacao: true
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_FORTITUDE
       elemento: DESC_AR
+      efeitos_adicionais {
+        efeito: EFEITO_LUFADA_DE_VENTO
+        rodadas: 1
+      }
     }
     escola: 'evocacao'
   }
@@ -6569,7 +6607,6 @@ tabela_feiticos {
     escola: 'transmutacao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/rayOfExhaustion.htm'
     id: 'raio_exaustao'
     nome_ingles: 'ray of exhaustion'
     nome: 'raio da exaustão'
@@ -6584,6 +6621,8 @@ tabela_feiticos {
       tipo: ACAO_RAIO
       ignora_resistencia_magia: false
       permite_salvacao: true
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_FORTITUDE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_EXAUSTO
@@ -6852,11 +6891,12 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      id: 'Feitiço de Toque a Distância'
+      id: 'Feitiço a Distância'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       raio_quadrados: 6
       afeta_apenas: TIPO_ANIMAL
+      tipo_salvacao: TS_VONTADE
       # TODO maximo DV 2d4 + nivel conjurador.
       # TODO animais atrozes tem salvacao.
       efeitos_adicionais {
@@ -6865,6 +6905,7 @@ tabela_feiticos {
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
     }
+    modelo_total_dv: TDV_2D4_MAIS_NIVEL
     escola: 'encantamento'
   }
   armas {
@@ -7164,10 +7205,9 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      id: 'Feitiço de Toque'
+      id: 'Feitiço de Toque Aliado'
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'neutralizar venenos.'
+        efeito: EFEITO_NEUTRALIZAR_VENENO
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
@@ -7535,9 +7575,6 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 0
     }
-    acao {
-      id: 'Feitiço à Distância'
-    }
     escola: 'transmutacao'
   }
 
@@ -7783,7 +7820,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      id: 'Feitiço de Toque'
+      id: 'Feitiço de Toque Aliado'
       efeitos_adicionais {
         efeito: EFEITO_MOVIMENTACAO_LIVRE
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -8004,6 +8041,7 @@ tabela_feiticos {
     nome_ingles: 'phantasmal killer'
     nome: 'assassino fantasmagórico'
     dano { invariavel: '3d6' }
+    dano_ignora_salvacao: true
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -8011,13 +8049,17 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_PROJETIL
+      id: 'Ataque a Distância'
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: false
       permite_salvacao: true
-      resultado_ao_salvar: RS_ANULOU
-      tipo_salvacao: TS_VONTADE  # ilusao, depois tem um de fortitude contra o efeito de morte por medo.
-      # TODO efeito de morte por medo.
+      tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
+      permite_desacreditar: true
+      elemento: DESC_MEDO
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
+      }
     }
     escola: 'ilusao'
   }
@@ -8031,7 +8073,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_CRIACAO_ENTIDADE
+      id: 'Criação de Entidade'
       id_modelo_entidade: 'Muralha de Gelo'
     }
     escola: 'evocacao'
@@ -8166,7 +8208,7 @@ tabela_feiticos {
       }
       # TODO: limite de dados de vida do feitico: 1d4 por nivel conjurador, max 20d4.
     }
-    modelo_total_dv: TDV_1D4_POR_NIVEL_MAX_20D4
+    modelo_total_dv: TDV_2D4_MAIS_NIVEL
     escola: 'necromancia'
   }
   armas {
@@ -8531,8 +8573,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      permite_salvacao: true
+      id: 'Feitiço de Toque'
       tipo_salvacao: TS_FORTITUDE
       resultado_ao_salvar: RS_MEIO
       afeta_apenas: TIPO_PLANTA
@@ -8654,9 +8695,14 @@ tabela_feiticos {
     veneno { tipo: TV_CONTATO dano_inicial: '1d10' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d10' tipo_dano_secundario: TDV_CONSTITUICAO cd: 14 }
     ataque_toque: true
     acao {
-      id: 'Ataque de Toque'
+      id: 'Feitiço de Toque'
       permite_salvacao: true
       ignora_resistencia_magia: false
+      tipo_salvacao: TS_FORTITUDE
+      # Aqui é diferente: usa a CD do veneno eh 10 + 1/2 caster + vontade.
+      dificuldade_salvacao_por_meio_nivel: true
+      dificuldade_salvacao_por_nivel: false
+      atributo_dificuldade_salvacao: TA_SABEDORIA
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
     }
     escola: 'necromancia'
@@ -8788,6 +8834,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_VONTADE
       efeitos_adicionais_conjurador {
         efeito: EFEITO_DRENAR_FORCA_VITAL
         rodadas: 100  # na verdade, é variavel pelo numero de HD do alvo. Mas aqui ta de bom tamanho.
@@ -8991,7 +9038,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      id: 'Feitiço de Toque'
+      id: 'Feitiço de Toque Aliado'
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       efeitos_adicionais {
@@ -12967,7 +13014,6 @@ tabela_feiticos {
     }
     acao {
       id: 'Raio'
-      tipo: ACAO_RAIO
       cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
       duracao_s: 0.5
       efeito_area: true

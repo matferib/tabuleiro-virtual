@@ -1523,7 +1523,7 @@ const char* NomeSalvacao(TipoSalvacao ts) {
 // Retorna o delta pontos de vida e a string do resultado.
 // A fracao eh para baixo mas com minimo de 1, segundo regra de rounding fractions, exception.
 std::tuple<int, bool, std::string> AtaqueVsSalvacao(
-    int delta_pontos_vida_entrada, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    int delta_pontos_vida_entrada, const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
   int delta_pontos_vida = delta_pontos_vida_entrada;
   std::string descricao_resultado;
   bool salvou = false;
@@ -1544,37 +1544,37 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     } else {
       descricao_resultado = "salvacao manual falhou";
     }
-  } else if (da != nullptr && da->has_dificuldade_salvacao()) {
+  } else if (da.has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
-    int bonus = da->eh_feitico() ? ed.SalvacaoFeitico(ea, da->tipo_salvacao()) : ed.Salvacao(ea, da->tipo_salvacao());
+    int bonus = da.eh_feitico() ? ed.SalvacaoFeitico(ea, da.tipo_salvacao()) : ed.Salvacao(ea, da.tipo_salvacao());
     int total = d20 + bonus;
     std::string str_evasao;
-    if (total >= da->dificuldade_salvacao()) {
+    if (total >= da.dificuldade_salvacao()) {
       // Aqui salvou.
       salvou = true;
-      if (da->resultado_ao_salvar() == RS_MEIO) {
+      if (da.resultado_ao_salvar() == RS_MEIO) {
         auto tipo_evasao = TipoEvasaoPersonagem(ed.Proto());
-        if (da->tipo_salvacao() == TS_REFLEXO && (tipo_evasao == TE_EVASAO || tipo_evasao == TE_EVASAO_APRIMORADA)) {
+        if (da.tipo_salvacao() == TS_REFLEXO && (tipo_evasao == TE_EVASAO || tipo_evasao == TE_EVASAO_APRIMORADA)) {
           delta_pontos_vida = 0;
           str_evasao = " (evasão)";
         } else {
           delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
         }
-      } else if (da->resultado_ao_salvar() == RS_QUARTO) {
+      } else if (da.resultado_ao_salvar() == RS_QUARTO) {
         delta_pontos_vida /= 4;
       } else {
         delta_pontos_vida = 0;
       }
       descricao_resultado = StringPrintf(
-          "salvacao %s sucesso: %d%+d >= %d, dano: %d%s", NomeSalvacao(da->tipo_salvacao()), d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao %s sucesso: %d%+d >= %d, dano: %d%s", NomeSalvacao(da.tipo_salvacao()), d20, bonus, da.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
       // Nao salvou.
-      if (da->resultado_ao_salvar() == RS_MEIO && da->tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
+      if (da.resultado_ao_salvar() == RS_MEIO && da.tipo_salvacao() == TS_REFLEXO && TipoEvasaoPersonagem(ed.Proto()) == TE_EVASAO_APRIMORADA) {
         delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
       descricao_resultado = StringPrintf(
-          "salvacao %s falhou: %d%+d < %d, dano: %d%s", NomeSalvacao(da->tipo_salvacao()), d20, bonus, da->dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
+          "salvacao %s falhou: %d%+d < %d, dano: %d%s", NomeSalvacao(da.tipo_salvacao()), d20, bonus, da.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     salvou = true;
@@ -1582,7 +1582,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
   }
 
   // A gente ainda precisa de fazer tudo acima por causa dos efeitos. Mas o dano pode ser aplicado normalmente.
-  if (da != nullptr && da->dano_ignora_salvacao()) {
+  if (da.dano_ignora_salvacao()) {
     delta_pontos_vida = delta_pontos_vida_entrada;
     descricao_resultado = StringPrintf("%s; dano ignora salvacao: %d", descricao_resultado.c_str(), delta_pontos_vida);
   }

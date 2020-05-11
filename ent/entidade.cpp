@@ -2347,7 +2347,7 @@ void Entidade::AlteraFeitico(const std::string& id_classe, int nivel, int indice
 
 bool Entidade::ImuneVeneno() const {
   if (TemTipoDnD(TIPO_MORTO_VIVO) || TemTipoDnD(TIPO_ELEMENTAL) || TemTipoDnD(TIPO_LIMO) || TemTipoDnD(TIPO_PLANTA) || TemTipoDnD(TIPO_CONSTRUCTO) ||
-      PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
+      PossuiUmDosEventos({EFEITO_FORMA_GASOSA, EFEITO_NEUTRALIZAR_VENENO}, proto_)) {
     return true;
   }
   if (Nivel("druida", proto_) >= 9 || Nivel("monge", proto_) >= 11) {

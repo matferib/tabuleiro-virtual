@@ -12,6 +12,9 @@ class CentralNotificacoes;
 namespace tex {
 class Texturas;
 }  // namespace tex
+namespace m3d {
+class Modelos3d;
+}  // namespace m3d
 
 namespace ent {
 
@@ -21,7 +24,7 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
+  Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central);
   virtual ~Acao();
 
   void Atualiza(int intervalo_ms);
@@ -60,6 +63,7 @@ class Acao {
       const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
+  void DesenhaGeometriaAcao() const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
   // Funcao auxiliar para atualizar alvo. Deve ser chamada manualmente por cada subclasse.
@@ -93,6 +97,7 @@ class Acao {
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_ = nullptr;
   tex::Texturas* texturas_ = nullptr;
+  const m3d::Modelos3d* m3d_ = nullptr;
   ntf::CentralNotificacoes* central_ = nullptr;
   float atraso_s_ = 0;
   // Por atualizacao.
@@ -112,7 +117,7 @@ class Acao {
 };
 
 // Cria uma nova acao no tabuleiro.
-Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central);
+Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central);
 
 // Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
 const std::string& TextoAcao(const AcaoProto& acao_proto);

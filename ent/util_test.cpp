@@ -4395,25 +4395,25 @@ TEST(TesteRacas, TesteAnao) {
 
   // Testa o ataque nao feitico, bonus 5 vs CD 16.
   g_dados_teste.push(10);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(0), *ea, *ed)), false) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *ed)), false) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
   g_dados_teste.push(11);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(0), *ea, *ed)), true) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *ed)), true) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
   // Testa o ataque feitico, bonus 2 vs CD 16.
   g_dados_teste.push(13);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(1), *ea, *ed)), false)
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *ed)), false)
       << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
       << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
   g_dados_teste.push(14);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(1), *ea, *ed)), true)
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *ed)), true)
       << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
       << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
   // Testa o pergaminho feitico, bonus 2 vs CD 13.
   g_dados_teste.push(10);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(2), *ea, *ed)), false)
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *ed)), false)
       << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
       << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
   g_dados_teste.push(11);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, &ea->Proto().dados_ataque(2), *ea, *ed)), true)
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *ed)), true)
       << "bonus: " << ed->SalvacaoFeitico(*ea, TS_REFLEXO)
       << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
 }

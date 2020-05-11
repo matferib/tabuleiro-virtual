@@ -39,6 +39,7 @@ enum GeometriaAcao {
   ACAO_GEO_CUBO = 2;
   ACAO_GEO_CONE = 3;
   ACAO_GEO_CILINDRO = 4;
+  ACAO_GEO_MODELO_3D = 5;
 }
 
 enum TipoAceleracao {
@@ -102,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 85.
+// Proximo id: 88.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -134,6 +135,7 @@ message AcaoProto {
   optional bool gera_outras_acoes = 43;  // Se verdadeiro, gerara outras acoes, como de texto ao termino.
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;
+  optional Modelo3d modelo_3d = 86;
   optional Velocidade velocidade = 19;
   // Duracao em s.
   optional float duracao_s = 20;
@@ -152,6 +154,8 @@ message AcaoProto {
   optional TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
   optional bool dificuldade_salvacao_por_nivel = 50;
+  // Se presente, usara 10 + meio nivel de conjurador como base.
+  optional bool dificuldade_salvacao_por_meio_nivel = 85;
   optional int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
   optional TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
@@ -315,6 +319,8 @@ message AcaoProto {
   optional string modelo_acao = 82;
   optional string grupo_ataque = 83;
   optional int32 indice_ataque = 84;
+  // Para ilusoes.
+  optional bool permite_desacreditar = 87;
 }
 
 // Como uma arma esta empunhada.

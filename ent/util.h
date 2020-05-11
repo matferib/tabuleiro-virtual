@@ -346,7 +346,7 @@ struct ResultadoPergaminho {
 ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
 
 // Rola o dado de ataque contra a resistencia a magia e salvacao, retornando o dano, se salvou ou nao e o texto do resultado.
-std::tuple<int, bool, std::string> AtaqueVsSalvacao(int delta_pv, const DadosAtaque* da, const Entidade& ea, const Entidade& ed);
+std::tuple<int, bool, std::string> AtaqueVsSalvacao(int delta_pv, const DadosAtaque& da, const Entidade& ea, const Entidade& ed);
 // Caso a criatura possua RM, rola o dado e retorna true se passar na RM. Caso nao possua RM, retorna true e vazio.
 std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
     const Tabelas& tabelas, const DadosAtaque& da, const Entidade& ea, const Entidade& ed);

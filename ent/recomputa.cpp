@@ -2336,7 +2336,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     da->set_tipo_salvacao(acao.tipo_salvacao());
   }
 
-  if (da->acao().has_dificuldade_salvacao_base() || da->acao().dificuldade_salvacao_por_nivel()) {
+  if (da->acao().has_dificuldade_salvacao_base() || da->acao().dificuldade_salvacao_por_nivel() || da->acao().dificuldade_salvacao_por_meio_nivel()) {
     // Essa parte eh tricky. Algumas coisas tem que ser a classe mesmo: tipo atributo (feiticeiro usa carisma).
     // Outras tem que ser a classe de feitico, por exemplo, nivel de coluna de chama para mago.
     // A chamada InfoClasseParaFeitico busca a classe do personagem (feiticeiro)
@@ -2349,9 +2349,13 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     if (da->acao().has_dificuldade_salvacao_base()) {
       base = da->acao().dificuldade_salvacao_base() + mod_especializacao + mod_trama_sombras;
     } else {
-      base += da->has_nivel_conjurador_pergaminho()
-        ? NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico)
-        : NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao;
+      if (da->has_nivel_conjurador_pergaminho()) {
+        base += NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico);
+      } else {
+        base += da->acao().dificuldade_salvacao_por_nivel()
+          ? NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao
+          : NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto) / 2;
+      }
     }
     const int mod_atributo = da->has_modificador_atributo_pergaminho()
       ? da->modificador_atributo_pergaminho()

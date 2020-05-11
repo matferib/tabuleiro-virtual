@@ -1351,7 +1351,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     if (acao_proto->permite_salvacao()) {
       std::string texto_salvacao;
       // pega o dano da acao.
-      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(acao_proto->delta_pontos_vida(), &da, *entidade_origem, *entidade_destino);
+      std::tie(delta_pv_pos_salvacao, salvou, texto_salvacao) = AtaqueVsSalvacao(acao_proto->delta_pontos_vida(), da, *entidade_origem, *entidade_destino);
       std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
       if (n->has_tipo()) {
         *grupo_desfazer->add_notificacao() = *n;
@@ -1801,13 +1801,33 @@ float Tabuleiro::TrataAcaoIndividual(
       AdicionaLogEvento(entidade_destino->Id(), resultado_rm);
     }
 
-    std::string resultado_salvacao;
     bool salvou = false;
+    bool usou_efeito = false;
+    if (resultado.Sucesso() && acao_proto->permite_desacreditar()) {
+      std::string resultado_salvacao;
+      auto da_desacreditar = da;
+      da_desacreditar.set_tipo_salvacao(TS_VONTADE);
+      da_desacreditar.set_resultado_ao_salvar(RS_ANULOU);
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, da_desacreditar, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      if (n->has_tipo()) {
+        usou_efeito = true;
+        *grupo_desfazer->add_notificacao() = *n;
+        central_->AdicionaNotificacao(n.release());
+      }
+      // Corrige o valor.
+      por_entidade->set_delta(delta_pontos_vida);
+      ConcatenaString(StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()), por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
+      resultado.resultado = RA_FALHA_NORMAL;
+    }
+
     if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
         (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
          ((da.derrubar_automatico() || da.derruba_sem_teste())))) {
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, &da, *entidade_origem, *entidade_destino);
-      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      std::string resultado_salvacao;
+      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, da, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(usou_efeito ? ntf::Notificacao::default_instance() : PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
       if (n->has_tipo()) {
         *grupo_desfazer->add_notificacao() = *n;
         central_->AdicionaNotificacao(n.release());

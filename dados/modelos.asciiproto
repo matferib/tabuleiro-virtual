@@ -1990,6 +1990,24 @@ modelo {
   }
 }
 modelo {
+  id: 'Lufada de Vento'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 18 y: 1.5 z: 1.5 } } # 12 quadrados
+    faz_sombra: false
+    pos { z: 0.75 }
+    cor { r: 0.7 g: 0.7 b: 1 a: 0.8 }
+    gerar_agarrar: false
+    # TODO: ataques.
+    evento {
+      rodadas: 1
+      descricao: 'duração'
+    }
+  }
+  parametros {
+  }
+}
+
+modelo {
   id: 'Crescer Espinhos'
   entidade {
     modelo_3d { id: 'builtin:cubo' translacao { z: 0.75 } escala { x: 3 y: 3 z: 0.2 } }

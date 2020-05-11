@@ -2057,7 +2057,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadesNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(tabelas_, notificacao.acao(), this, texturas_, central_));
+      std::unique_ptr<Acao> acao(NovaAcao(tabelas_, notificacao.acao(), this, texturas_, m3d_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
@@ -7339,7 +7339,8 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
       int d20 = RolaDado(20);
       int bonus = entidade.SalvacaoVeneno();
       int total = d20 + bonus;
-      if (total < veneno.cd()) {
+      // É possivel que ela esteja imune devido a neutralizar veneno.
+      if (!entidade.ImuneVeneno() && total < veneno.cd()) {
         // nao salvou: criar o efeito do dano.
         if (!veneno.primario_aplicado()) {
           veneno_str = google::protobuf::StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
@@ -7395,8 +7396,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
       da.set_tipo_salvacao(evento->tipo_salvacao());
       da.set_dificuldade_salvacao(evento->dificuldade_salvacao());
       auto dummy = NovaEntidadeFalsa(tabelas_);
-      std::tie(nao_usado, salvou, texto) =
-          AtaqueVsSalvacao(0, &da, *dummy, entidade);
+      std::tie(nao_usado, salvou, texto) = AtaqueVsSalvacao(0, da, *dummy, entidade);
       if (salvou) {
         AdicionaAcaoTextoLogado(
             entidade.Id(), StringPrintf("paralisia quebrada: %s", texto.c_str()),

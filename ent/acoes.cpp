@@ -12,6 +12,7 @@
 #include "gltab/gl_vbo.h"
 #include "goog/stringprintf.h"
 #include "matrix/vectors.h"
+#include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
@@ -63,26 +64,6 @@ bool TemDeltaAcao(const AcaoProto& acao_proto) {
   return acao_proto.has_delta_pontos_vida();
 }
 
-// Geometria deve ser do tipo GeometriaAcao. O tamanho sera unitario na unidade da geometria (ou seja, raio para esfera,
-// lado para cubo).
-void DesenhaGeometriaAcao(int geometria) {
-  switch (geometria) {
-    case ACAO_GEO_CUBO:
-      gl::CuboSolido(1.0f);
-      return;
-    case ACAO_GEO_CONE:
-      gl::ConeSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
-      return;
-    case ACAO_GEO_CILINDRO:
-      gl::CilindroSolido(1.0f  /*raio*/, 2.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
-      return;
-    case ACAO_GEO_ESFERA:
-    default:
-      gl::EsferaSolida(1.0f  /*raio*/, 10  /*fatias*/, 10  /*tocos*/);
-      return;
-  }
-}
-
 // Verifica se a coordenada passou do ponto de destino.
 bool Passou(float antes, float depois, float destino) {
   return (antes < destino) ? depois > destino : depois < destino;
@@ -97,8 +78,8 @@ float ArrumaSePassou(float antes, float depois, float destino) {
 class AcaoSinalizacao : public Acao {
  public:
   constexpr static float TAMANHO_MAXIMO = TAMANHO_LADO_QUADRADO * 2.0f;
-  AcaoSinalizacao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
-      Acao(tabelas, acao_proto, tabuleiro, texturas, central), estado_(TAMANHO_MAXIMO) {
+  AcaoSinalizacao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central) :
+      Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central), estado_(TAMANHO_MAXIMO) {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
@@ -161,8 +142,8 @@ gl::VboGravado AcaoSinalizacao::vbo_;
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoPocao: public Acao {
  public:
-  AcaoPocao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
-      Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoPocao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central) :
+      Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     bolhas_.emplace_back(gl::VboEsferaSolida(0.15f, 6, 6));
     bolhas_.emplace_back(gl::VboEsferaSolida(0.1f, 6, 6));
     bolhas_.emplace_back(gl::VboEsferaSolida(0.2f, 6, 6));
@@ -211,8 +192,8 @@ class AcaoPocao: public Acao {
 
 class AcaoAgarrar : public Acao {
  public:
-  AcaoAgarrar(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
-      Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoAgarrar(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central) :
+      Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     Entidade* entidade_destino = EntidadeDestino();
     Entidade* entidade_origem = EntidadeOrigem();
     if (entidade_origem == nullptr || entidade_destino == nullptr || entidade_destino->Proto().fixa())  {
@@ -250,8 +231,8 @@ class AcaoAgarrar : public Acao {
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
-  AcaoDeltaPontosVida(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoDeltaPontosVida(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto, tabuleiro);
     if (!acao_proto_.has_pos_entidade()) {
       if (entidade_destino == nullptr) {
@@ -422,8 +403,8 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoDispersao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
         acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
@@ -469,7 +450,7 @@ class AcaoDispersao : public Acao {
       gl::Escala(efeito_, efeito_, efeito_);
     }
     gl::DesabilitaEscopo luz(GL_LIGHTING);
-    DesenhaGeometriaAcao(acao_proto_.geometria());
+    DesenhaGeometriaAcao();
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
@@ -529,8 +510,8 @@ class AcaoDispersao : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoProjetilArea: public Acao {
  public:
-  AcaoProjetilArea(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoProjetilArea(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
       VLOG(1) << "Finalizando projetil area, precisa de entidade origem.";
@@ -560,7 +541,7 @@ class AcaoProjetilArea: public Acao {
         MudaCorProto(acao_proto_.cor());
         gl::Translada(pos_.x(), pos_.y(), pos_.z());
         gl::Escala(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
-        DesenhaGeometriaAcao(ACAO_GEO_ESFERA);
+        DesenhaGeometriaAcao();
       }
       break;
       case ATINGIU_ALVO: {
@@ -569,7 +550,7 @@ class AcaoProjetilArea: public Acao {
         gl::Translada(pos.x(), pos.y(), pos.z());
         gl::Escala(efeito_q_, efeito_q_, efeito_q_);
         gl::DesabilitaEscopo luz(GL_LIGHTING);
-        DesenhaGeometriaAcao(ACAO_GEO_ESFERA);
+        DesenhaGeometriaAcao();
       }
       break;
       default: ;
@@ -693,8 +674,8 @@ class AcaoProjetilArea: public Acao {
 // Uma acao de projetil, tipo flecha ou missil magico.
 class AcaoProjetil : public Acao {
  public:
-  AcaoProjetil(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoProjetil(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
@@ -743,7 +724,7 @@ class AcaoProjetil : public Acao {
     // Roda pro vetor de direcao.
     gl::Roda(VetorParaRotacaoGraus(dx_, dy_), 0, 0, 1.0f);
     gl::Escala(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
-    DesenhaGeometriaAcao(acao_proto_.has_geometria() ? acao_proto_.geometria() : ACAO_GEO_ESFERA);
+    DesenhaGeometriaAcao();
   }
 
   bool Finalizada() const override {
@@ -802,8 +783,8 @@ class AcaoProjetil : public Acao {
 // Acao de raio.
 class AcaoRaio : public Acao {
  public:
-  AcaoRaio(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoRaio(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     duracao_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.5f;
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0.0f;
@@ -907,8 +888,8 @@ class AcaoRaio : public Acao {
 // Acao ACAO_CORPO_A_CORPO.
 class AcaoCorpoCorpo : public Acao {
  public:
-  AcaoCorpoCorpo(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoCorpoCorpo(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     rotacao_graus_ = 0.0f;
     if (!acao_proto_.has_id_entidade_origem()) {
       VLOG(1) << "Acao corpo a corpo requer id origem.";
@@ -1041,8 +1022,8 @@ class AcaoCorpoCorpo : public Acao {
 // Acao de feitico.
 class AcaoFeitico : public Acao {
  public:
-  AcaoFeitico(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoFeitico(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.por_entidade().empty()) {
       LOG(ERROR) << "Acao de feitico de toque requer origem e destino, tem origem? "
         << acao_proto_.has_id_entidade_origem() << ", destino vazio? " << acao_proto_.por_entidade().empty();
@@ -1070,7 +1051,7 @@ class AcaoFeitico : public Acao {
                   pos.y() + acao_proto_.translacao().y(),
                   pos.z() + acao_proto_.translacao().z());
     gl::Escala(acao_proto_.escala().x() * raio_, acao_proto_.escala().y() * raio_, acao_proto_.escala().z() * raio_);
-    DesenhaGeometriaAcao(acao_proto_.geometria());
+    DesenhaGeometriaAcao();
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
@@ -1110,8 +1091,8 @@ class AcaoFeitico : public Acao {
 // Nao faz nada.
 class AcaoCriacaoEntidade : public Acao {
  public:
-  AcaoCriacaoEntidade(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-      : Acao(tabelas, acao_proto, tabuleiro, texturas, central) {
+  AcaoCriacaoEntidade(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+      : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -1130,8 +1111,8 @@ class AcaoCriacaoEntidade : public Acao {
 }  // namespace
 
 // Acao.
-Acao::Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central)
-    : tabelas_(tabelas), acao_proto_(acao_proto), tabuleiro_(tabuleiro), texturas_(texturas), central_(central) {
+Acao::Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+    : tabelas_(tabelas), acao_proto_(acao_proto), tabuleiro_(tabuleiro), texturas_(texturas), m3d_(modelos3d), central_(central) {
   velocidade_m_ms_ = acao_proto.velocidade().inicial_m_s() / 1000.0f;
   aceleracao_m_ms_2_ = acao_proto.velocidade().aceleracao_m_s_2() / 1000.0f;
   dx_ = dy_ = dz_ = 0;
@@ -1143,9 +1124,19 @@ Acao::Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabul
     n->add_info_textura()->set_id(acao_proto_.info_textura().id());
     central_->AdicionaNotificacao(n.release());
   }
+  if (central_ != nullptr && !acao_proto_.modelo_3d().id().empty()) {
+    auto nl = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    nl->mutable_entidade()->mutable_modelo_3d()->set_id(acao_proto_.modelo_3d().id());
+    central_->AdicionaNotificacao(nl.release());
+  }
 }
 
 Acao::~Acao() {
+  if (central_ != nullptr && !acao_proto_.modelo_3d().id().empty()) {
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    nl->mutable_entidade()->mutable_modelo_3d()->set_id(acao_proto_.modelo_3d().id());
+    central_->AdicionaNotificacao(nl.release());
+  }
   if (central_ != nullptr && !acao_proto_.info_textura().id().empty()) {
     auto n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     n->add_info_textura()->set_id(acao_proto_.info_textura().id());
@@ -1605,6 +1596,31 @@ Entidade* Acao::EntidadeDestino() {
   return BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
 }
 
+// O tamanho sera unitario na unidade da geometria (ou seja, raio para esfera, lado para cubo).
+void Acao::DesenhaGeometriaAcao() const {
+  switch (acao_proto_.geometria()) {
+    case ACAO_GEO_CUBO:
+      gl::CuboSolido(1.0f);
+      return;
+    case ACAO_GEO_CONE:
+      gl::ConeSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
+      return;
+    case ACAO_GEO_CILINDRO:
+      gl::CilindroSolido(1.0f  /*raio*/, 2.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
+      return;
+    case ACAO_GEO_MODELO_3D: {
+      const auto* modelo = m3d_->Modelo(acao_proto_.modelo_3d().id());
+      if (modelo != nullptr) {
+        modelo->vbos_gravados.Desenha();
+      }
+      return;
+    }
+    case ACAO_GEO_ESFERA:
+    default:
+      gl::EsferaSolida(1.0f  /*raio*/, 10  /*fatias*/, 10  /*tocos*/);
+      return;
+  }
+}
 
 // static
 bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto, bool ponto_eh_origem) {
@@ -1719,33 +1735,33 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
   return false;
 }
 
-Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, ntf::CentralNotificacoes* central) {
+Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central) {
   VLOG(1) << "NovaAcao: " << acao_proto.DebugString();
   switch (acao_proto.tipo()) {
     case ACAO_SINALIZACAO:
-      return new AcaoSinalizacao(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoSinalizacao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_PROJETIL:
-      return new AcaoProjetil(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoProjetil(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS:
     case ACAO_DISPERSAO:
-      return new AcaoDispersao(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoDispersao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_DELTA_PONTOS_VIDA:
-      return new AcaoDeltaPontosVida(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoDeltaPontosVida(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_RAIO:
-      return new AcaoRaio(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoRaio(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_CORPO_A_CORPO:
-      return new AcaoCorpoCorpo(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoCorpoCorpo(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_FEITICO_TOQUE:
     case ACAO_FEITICO_PESSOAL:
-      return new AcaoFeitico(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoFeitico(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_AGARRAR:
-      return new AcaoAgarrar(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoAgarrar(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_POCAO:
-      return new AcaoPocao(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoPocao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_PROJETIL_AREA:
-      return new AcaoProjetilArea(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoProjetilArea(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     case ACAO_CRIACAO_ENTIDADE:
-      return new AcaoCriacaoEntidade(tabelas, acao_proto, tabuleiro, texturas, central);
+      return new AcaoCriacaoEntidade(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;

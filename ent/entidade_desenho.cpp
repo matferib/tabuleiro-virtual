@@ -522,7 +522,10 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     }
     break;
     case EFEITO_ENFEITICADO:
+    case EFEITO_DOMINAR_PESSOA:
+    case EFEITO_DOMINAR_ANIMAL:
     case EFEITO_CONFUSAO: {
+      if (PossuiUmDosEventos({EFEITO_PROTECAO_CONTRA_MAL, EFEITO_PROTECAO_CONTRA_BEM, EFEITO_PROTECAO_CONTRA_CAOS, EFEITO_PROTECAO_CONTRA_ORDEM}, proto_)) return;
       if (pd->has_alfa_translucidos()) return;
       const auto* coracao = vd_.m3d->Modelo("heart");
       if (coracao == nullptr) return;

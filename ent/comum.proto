@@ -34,7 +34,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 140.
+// Proximo id: 144.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -190,6 +190,10 @@ enum TipoEfeito {
   EFEITO_DESARMADO = 137;
   EFEITO_PRESA_MAGICA_MAIOR = 138;
   EFEITO_ESCUDO_ENTROPICO = 139;
+  EFEITO_NEUTRALIZAR_VENENO = 140;
+  EFEITO_LUFADA_DE_VENTO = 141;
+  EFEITO_DOMINAR_ANIMAL = 142;
+  EFEITO_DOMINAR_PESSOA = 143;
 }
 
 enum TipoEfeitoModelo {
@@ -473,7 +477,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 31.
+// Proximo id: 32.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -486,6 +490,7 @@ message DadosDefesa {
   // Bonus de salvacoes especificas.
   optional Bonus bonus_salvacao_veneno = 29;
   optional Bonus bonus_salvacao_feitico = 30;
+  optional Bonus bonus_salvacao_medo = 31;
 
   // TODO outras salvacoes.
   // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.
