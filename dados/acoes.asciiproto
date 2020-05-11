@@ -159,6 +159,7 @@ acao {
   ataque_toque: true
   ataque_distancia: true
   ignora_reducao_dano_barbaro: true
+  permite_salvacao: true
   dificuldade_salvacao_por_nivel: true
 }
 acao {
