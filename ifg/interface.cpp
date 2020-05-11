@@ -73,6 +73,8 @@ std::string StringArea(const ent::AcaoProto& acao) {
     case ent::ACAO_GEO_CUBO:
       // Isso é mais para modelar objetos geometricos, como flecha acida.
       break;
+    default:
+      ;
   }
   return str_geo;
 }
