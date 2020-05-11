@@ -1358,10 +1358,13 @@ tabela_efeitos {
     nome: 'inspirar coragem'
     formato_complementos: 'Bônus de moral em ataque e dano.'
     consequencia {
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
-      jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'inspirar coragem' } } }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 } } }
+      jogada_dano { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 } } }
       restricao_arma { apenas_armas: true }  # nao afeta feiticos, por exemplo.
-      # TODO bonus em salvacao contra encantamento e medo.
+      dados_defesa {
+        bonus_salvacao_medo { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 } } }
+        bonus_salvacao_encantamento{ bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 } } }
+      }
     }
   }
 
@@ -1593,9 +1596,9 @@ tabela_efeitos {
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } }
       dados_defesa {
-        salvacao_fortitude { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
-        salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
-        salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
+        salvacao_fortitude { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 } } }
+        salvacao_vontade { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 } } }
+        salvacao_reflexo { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 } } }
       }
     }
     # TODO -2 em pericias e testes de habilidade.
@@ -1671,16 +1674,20 @@ tabela_efeitos {
     id: EFEITO_BENCAO
     nome: 'benção'
     consequencia {
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'benção' } } }
-      # +1 em salvacoes vs medo.
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 } } }
+      dados_defesa {
+        bonus_salvacao_medo { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 } } }
+      }
     }
   }
   efeitos {
     id: EFEITO_MALDICAO_MENOR
     nome: 'maldição menor'
     consequencia {
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: -1 origem: 'maldicao_menor' } } }
-      # -1 em salvacoes vs medo.
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: -1 } } }
+      dados_defesa {
+        bonus_salvacao_medo { bonus_individual { tipo: TB_MORAL por_origem { valor: -1 } } }
+      }
     }
   }
   efeitos {
@@ -1721,7 +1728,9 @@ tabela_efeitos {
     consequencia {
       jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 } } }
       pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 } } }
-      # TODO +1 moral contra salvacao de medo.
+      dados_defesa {
+        bonus_salvacao_medo { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 } } }
+      }
       # TODO: faltando skills.
     }
   }
@@ -6686,7 +6695,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/scare.htm'
     id: 'aterrorizar'
     nome_ingles: 'scare'
     nome: 'aterrorizar'
@@ -6705,7 +6713,8 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
-      dv_mais_alto: 6
+      dv_mais_alto: 5
+      elemento: DESC_MEDO
       efeitos_adicionais {
         efeito: EFEITO_AMEDRONTADO
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -6942,7 +6951,6 @@ tabela_feiticos {
   }
 
   armas {
-    link: 'https://www.d20srd.org/srd/spells/openClose.htm'
     id: 'abrir_fechar'
     nome_ingles: 'open/close'
     nome: 'abrir/fechar'
@@ -10056,7 +10064,6 @@ tabela_feiticos {
       id: 'mago'
       nivel: 1
     }
-
     acao {
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
@@ -10067,6 +10074,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       dificuldade_salvacao_por_nivel: true
       dv_mais_alto: 5
+      elemento: DESC_MEDO
       efeitos_adicionais {
         efeito: EFEITO_AMEDRONTADO
         dado_modificador_rodadas: '1d4'
@@ -13714,6 +13722,9 @@ tabela_racas {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    movimento {
+      terrestre_basico_q: 6
+    }
     tamanho: TM_MEDIO
   }
   racas {
@@ -13726,6 +13737,19 @@ tabela_racas {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    dados_defesa {
+      bonus_salvacao_medo { bonus_individual { tipo: TB_MORAL por_origem { valor: 2 origem: 'racial' } } }
+      salvacao_fortitude { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+      salvacao_reflexo { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+      salvacao_vontade { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+    }
+    bonus_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'saltar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    movimento {
+      terrestre_basico_q: 4
+    }
     tamanho: TM_PEQUENO
   }
   racas {
@@ -13735,6 +13759,9 @@ tabela_racas {
     nome: 'Humano'
     descricao: 'Humanos são versáteis.'
     tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
   racas {
     tipo: TIPO_HUMANOIDE
@@ -13746,6 +13773,9 @@ tabela_racas {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    movimento {
+      terrestre_basico_q: 4
+    }
     tamanho: TM_PEQUENO
   }
   racas {
@@ -13755,6 +13785,9 @@ tabela_racas {
     nome: 'Meio-Elfo'
     descricao: 'Mistura entre elfos e humanos.'
     tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
   racas {
     tipo: TIPO_HUMANOIDE

@@ -477,7 +477,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 32.
+// Proximo id: 34.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -491,6 +491,8 @@ message DadosDefesa {
   optional Bonus bonus_salvacao_veneno = 29;
   optional Bonus bonus_salvacao_feitico = 30;
   optional Bonus bonus_salvacao_medo = 31;
+  optional Bonus bonus_salvacao_encantamento = 32;
+  optional Bonus bonus_salvacao_ilusao = 33;
 
   // TODO outras salvacoes.
   // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.

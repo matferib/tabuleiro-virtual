@@ -1511,6 +1511,12 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().ca(), proto->mutable_dados_defesa()->mutable_ca());
   AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_veneno(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_veneno());
   AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_feitico(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_feitico());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_medo(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_medo());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().bonus_salvacao_encantamento(), proto->mutable_dados_defesa()->mutable_bonus_salvacao_encantamento());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().salvacao_fortitude(), proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  AplicaBonusPenalidadeOuRemove(raca_tabelada.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
+
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
@@ -2008,9 +2014,9 @@ void RecomputaDependenciasSalvacoes(
   }
 
   const int mod_nivel_negativo = -proto_retornado->niveis_negativos();
-  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
-  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_reflexo());
-  AtribuiBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
+  AtribuiOuRemoveBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_fortitude());
+  AtribuiOuRemoveBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_reflexo());
+  AtribuiOuRemoveBonus(mod_nivel_negativo, TB_SEM_NOME, "niveis_negativos", dd->mutable_salvacao_vontade());
 }
 
 void RecomputaDependenciasEvasao(const Tabelas& tabelas, EntidadeProto* proto_retornado) {

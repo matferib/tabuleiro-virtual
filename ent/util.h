@@ -1024,7 +1024,7 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto);
 // Retorna o bonus de salvacao contra veneno.
 int Salvacao(const EntidadeProto& proto, const Bonus& outros_bonus, const EntidadeProto& proto_atacante, TipoSalvacao tipo);
 int SalvacaoVeneno(const EntidadeProto& proto);
-int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo);
+int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo);
 
 // Retorna true se ataque for uma arma natural.
 bool ArmaNatural(const ArmaProto& arma);

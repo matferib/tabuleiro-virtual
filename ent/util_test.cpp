@@ -3439,6 +3439,17 @@ TEST(TesteModelo, TesteHalflingDruida10) {
   ev->set_id_unico(666);  // para o teste considerar a entidade no alcance do tiro certeiro.
   modelo_druida.mutable_entidade()->set_id(666);
   auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+
+  // Base 7 3 7
+  // Atributos: for 10-2 (-1), des 14+2+2 (4), con 13+1 (2), int 12 (1), sab 15+1 (3), car 8 (-1)
+  // Manto de resistencia +1;
+  // Halfling +1.
+  EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_fortitude()), 7 + 2 + 1 + 1) << druida->Proto().dados_defesa().salvacao_fortitude().DebugString();
+  EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_reflexo()), 3 + 4 + 1 + 1) << druida->Proto().dados_defesa().salvacao_reflexo().DebugString();
+  EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_vontade()), 7 + 3 + 1 + 1) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
+  EXPECT_EQ(SalvacaoFeitico(g_tabelas.Feitico("aterrorizar"), druida->Proto(), EntidadeProto::default_instance(), TS_VONTADE), 7 + 3 + 1 + 1 + 2) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
+
+
   const auto* da = druida->DadoAtaque("relampago", 0);
   ASSERT_NE(da, nullptr);
   // Nao pode aplicar modificador de tiro certeiro.

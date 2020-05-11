@@ -5767,8 +5767,17 @@ int SalvacaoVeneno(const EntidadeProto& proto) {
   return Salvacao(proto, proto.dados_defesa().bonus_salvacao_veneno(), EntidadeProto::default_instance(), TS_FORTITUDE);
 }
 
-int SalvacaoFeitico(const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
-  return Salvacao(proto, proto.dados_defesa().bonus_salvacao_feitico(), proto_atacante, tipo);
+int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
+  Bonus outros_bonus = proto.dados_defesa().bonus_salvacao_feitico();
+  if (feitico_tabelado.escola() == "encantamento") {
+    CombinaBonus(proto.dados_defesa().bonus_salvacao_encantamento(), &outros_bonus);
+  } else if (feitico_tabelado.escola() == "ilusao") {
+    CombinaBonus(proto.dados_defesa().bonus_salvacao_ilusao(), &outros_bonus);
+  }
+  if (feitico_tabelado.acao().elemento() == DESC_MEDO) {
+    CombinaBonus(proto.dados_defesa().bonus_salvacao_medo(), &outros_bonus);
+  }
+  return Salvacao(proto, outros_bonus, proto_atacante, tipo);
 }
 
 bool ArmaNatural(const ArmaProto& arma) {
