@@ -13773,8 +13773,13 @@ tabela_racas {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'oficios_alquimia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     movimento {
       terrestre_basico_q: 4
+    }
+    dados_defesa {
+      bonus_salvacao_ilusao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
     }
     tamanho: TM_PEQUENO
   }
