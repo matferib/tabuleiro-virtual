@@ -2068,8 +2068,8 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
 
   proto = e->Proto();
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "vitalidade ilusoria".
-  auto* po = OrigemSePresente(TB_SEM_NOME, "vitalidade ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
-  ASSERT_NE(po, nullptr);
+  auto* po = OrigemSePresente(TB_SEM_NOME, "vitalidade_ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr) << "pvt: " << proto.pontos_vida_temporarios_por_fonte().DebugString();
   EXPECT_EQ(proto.pontos_vida_temporarios(), 8);
   const int valor = po->valor();
 
@@ -2077,8 +2077,8 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   RecomputaDependencias(g_tabelas, &proto);
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
-  po = OrigemSePresente(TB_SEM_NOME, "vitalidade ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
-  ASSERT_NE(po, nullptr);
+  po = OrigemSePresente(TB_SEM_NOME, "vitalidade_ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
+  ASSERT_NE(po, nullptr) << "pvt: " << proto.pontos_vida_temporarios_por_fonte().DebugString();
   EXPECT_EQ(proto.pontos_vida_temporarios(), valor);
 
   // Termina o efeito.
@@ -2090,8 +2090,9 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
     ASSERT_EQ(proto_depois->evento().size(), 1);
     proto_depois->mutable_evento(0)->set_rodadas(-1);
     e->AtualizaParcial(*proto_depois);
+    proto = e->Proto();
   }
-  EXPECT_EQ(e->PontosVidaTemporarios(), 0);
+  EXPECT_EQ(e->PontosVidaTemporarios(), 0) << proto.pontos_vida_temporarios_por_fonte().DebugString();
 }
 
 TEST(TesteDependencias, TesteAjuda) {
@@ -4311,6 +4312,23 @@ TEST(TestFeiticos, TesteFeiticosLink) {
     EXPECT_FALSE(feitico.link().empty()) << "feitico: " << feitico.id();
   }
 }
+
+TEST(TestFeiticos, TesteFeiticosComSalvacaoTemSalvacao) {
+  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+    if (!feitico.has_acao()) continue;
+    auto acao = g_tabelas.Acao(feitico.acao().id());
+    bool ou_nao_tem_id_ou_tem_id_valido = !feitico.acao().has_id() || acao.has_id();
+    EXPECT_TRUE(ou_nao_tem_id_ou_tem_id_valido) 
+        << "Feitiço tem id de acao invalido: " << feitico.nome();
+    if (!ou_nao_tem_id_ou_tem_id_valido) continue;
+    acao.MergeFrom(feitico.acao());
+    if (acao.permite_salvacao()) {
+      EXPECT_TRUE(acao.has_tipo_salvacao()) << "feitico sem tipo de salvacao: " << feitico.nome();
+      EXPECT_TRUE(acao.has_dificuldade_salvacao_base() || acao.has_dificuldade_salvacao_por_nivel()) << "feitico sem CD de salvacao: " << feitico.nome();
+    }
+  }
+}
+
 
 TEST(TestFeiticos, RodadasBaseAnterior) {
   for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
