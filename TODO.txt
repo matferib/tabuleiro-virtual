@@ -1,8 +1,20 @@
+scare: arrumar: fazer ser em area e com limite de entidades.
+Feiticos de area em aliados, como bencao e maldicao menor.
+Fazer lufada de vento.
+Teste da CD de envenenamento.
+Dominio renovacao: aplicar em outros lugares, decrementar com rodadas.
+Pedra encantada: acertando automatico.
+
+Barra de vida: desenhar PV temporarios.
+Colocar quando feitico nao estiver implementado (sem ação).
+Entender a desconexao: dar mensagem pro cliente, tentar reconectar.
+Imobilizar pessoa nao funcionou contra feiticeiro.
+Scrollbar na janela de feiticos.
+
 Prayer (oração).
-Pegar os itens mágicos dos mortos.
 
-Dominio renovacao.
-
+Implementar casting time.
+Modificador de raio_quadrados para acao (ver feitico cativar).
 Pergaminhos pro grupo.
 Ideia: coroinhas podem ir e voltar com itens e poções.
 
@@ -22,7 +34,6 @@ Crescer espinhos: modelar o ataque (1d4 de dano e reduz movimento).
 Colocar nivel de conjurador tb em RecomputaDependenciasVenenoParaAtaque. Criar algum campo no veneno que diga isso.
 Esquentar metal e esfriar metal. Criar efeito de tremer para frio.
 Feitiços de 4o, 5o de druida.
-Lufada de vento.
 Forma de arvore.
 Armadilha de fogo: dano variavel.
 Fazer mais um bicho do summon nature ally iv.
