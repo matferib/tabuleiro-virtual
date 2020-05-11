@@ -3696,6 +3696,9 @@ bool AgarradoA(unsigned int id, const EntidadeProto& proto) {
 //----------
 const EntidadeProto::PoderesDominio& PoderesDoDominio(const std::string& id_dominio, const EntidadeProto& proto) {
   const auto& ifc = FeiticosClasse("clerigo", proto);
+  if (c_none(ifc.dominios(), id_dominio)) {
+    return EntidadeProto::PoderesDominio::default_instance();
+  }
   const auto& pd = ifc.poderes_dominio();
   if (auto it = pd.find(id_dominio); it == pd.end()) {
     return EntidadeProto::PoderesDominio::default_instance();
