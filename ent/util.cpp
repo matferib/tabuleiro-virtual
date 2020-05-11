@@ -4090,6 +4090,9 @@ bool NotificacaoConsequenciaFeitico(
       if (feitico_tabelado.has_modelo_dano()) {
         ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto), da);
       }
+      if (feitico_tabelado.has_modelo_maximo_criaturas_afetadas()) {
+        da->mutable_acao()->set_maximo_criaturas_afetadas(ComputaLimiteVezes(feitico_tabelado.modelo_maximo_criaturas_afetadas(), nivel_conjurador));
+      }
     }
     {
       e_antes->set_ultima_acao(proto.ultima_acao());

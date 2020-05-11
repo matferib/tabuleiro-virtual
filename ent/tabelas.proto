@@ -105,6 +105,7 @@ enum TipoCarregamento {
   TC_RODADA_COMPLETA = 2;
 }
 
+// Proximo id: 37.
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -158,6 +159,7 @@ message ArmaProto {
   }
   // Se a arma for criada por um feitico.
   optional ModeloLimiteVezes modelo_limite_vezes = 23;
+  optional ModeloLimiteVezes modelo_maximo_criaturas_afetadas = 36;
 
   enum ModeloDano {
     DANO_1D6_POR_NIVEL_MAX_10D6 = 0;
