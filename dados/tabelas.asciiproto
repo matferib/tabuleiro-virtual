@@ -6724,7 +6724,7 @@ tabela_feiticos {
         rodadas: 1
       }
     }
-    modelo_limite_vezes: LIMITE_UM_CADA_3_NIVEIS
+    modelo_maximo_criaturas_afetadas: LIMITE_UM_CADA_3_NIVEIS
     escola: 'necromancia'
   }
   armas {

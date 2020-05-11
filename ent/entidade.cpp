@@ -1104,7 +1104,10 @@ void AtualizaParcialInfoFeiticosClasse(const EntidadeProto::InfoFeiticosClasse& 
   *pic->mutable_feiticos_por_nivel() = pic_backup.feiticos_por_nivel();
   *pic->mutable_poderes_dominio() = pic_backup.poderes_dominio();
   // Alteracoes pontuais.
-  for (const auto& [chave, valor] : ic.poderes_dominio()) {
+  // Por algum motivo bizarro, isso da segfault no clang no mac!
+  //for (const auto& [chave,valor] : ic.poderes_dominio()) {
+  for (auto chave_poder_it : ic.poderes_dominio()) {
+    const auto& [chave, valor] = chave_poder_it;
     auto it = pic->mutable_poderes_dominio()->find(chave);
     if (it == pic->mutable_poderes_dominio()->end()) {
       pic->mutable_poderes_dominio()->insert({chave, valor});
