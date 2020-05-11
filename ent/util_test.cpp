@@ -2019,7 +2019,7 @@ TEST(TesteDependencias, TesteAgarrar2) {
 TEST(TesteDependencias, TesteVirtude) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"virtude", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -2098,7 +2098,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
 TEST(TesteDependencias, TesteAjuda) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(5);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -2124,9 +2124,9 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(5);
-  ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(6);
   int id_segundo_evento = ev->id_unico();
   RecomputaDependencias(g_tabelas, &proto);
@@ -2149,7 +2149,7 @@ TEST(TesteDependencias, TesteAjuda3) {
   g_dados_teste.push(4);
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(7);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".

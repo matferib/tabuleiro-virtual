@@ -971,9 +971,9 @@ void PreencheOrigemValor(
     const std::string& origem, const google::protobuf::RepeatedField<int>& complementos, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      if (origem.empty()) {
-        po.set_origem(po.origem());
-      } else {
+      if (po.origem().empty() && !origem.empty()) {
+        po.set_origem(origem);
+      } else if (!po.origem().empty() && !origem.empty()) {
         po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
       }
       if (po.has_indice_complemento() && po.indice_complemento() >= 0 && po.indice_complemento() < complementos.size()) {
@@ -987,9 +987,9 @@ void PreencheOrigemValor(
 void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
   for (auto& bi : *bonus->mutable_bonus_individual()) {
     for (auto& po : *bi.mutable_por_origem()) {
-      if (origem.empty()) {
-        po.set_origem(po.origem());
-      } else {
+      if (po.origem().empty() && !origem.empty()) {
+        po.set_origem(origem);
+      } else if (!po.origem().empty() && !origem.empty()) {
         po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
       }
       po.set_valor(0);

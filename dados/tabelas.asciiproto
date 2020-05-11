@@ -1467,16 +1467,16 @@ tabela_efeitos {
     nome: 'vitalidade ilusória'
     # 1d10 PV temporarios + 1/nivel max 10.'
     consequencia {
-      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'vitalidade ilusoria' } } }
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 } } }
     }
   }
   efeitos {
     id: EFEITO_DRENAR_FORCA_VITAL
-    nome: 'vitalidade ilusória'
+    nome: 'drenar força vital'
     # 1d8 PV temporarios, +2 força, nivel conjurador +1, dura 10 m por HD do alvo.'
     consequencia {
       atributos {
-        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vitalidade ilusória' } } }
+        forca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 } } }
       }
     }
   }
@@ -1703,14 +1703,14 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_AGILIDADE_GATO
     nome: 'agilidade do gato'
-    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 origem: 'agilidade_gato' } } } } }
+    consequencia { atributos { destreza { bonus_individual { tipo: TB_MELHORIA por_origem { valor: 4 } } } } }
   }
   efeitos {
     id: EFEITO_VIRTUDE
     nome: 'virtude'
     # 1 PV temporario.
     consequencia {
-      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 origem: 'virtude' } } }
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 1 } } }
     }
   }
 
@@ -1719,8 +1719,8 @@ tabela_efeitos {
     nome: 'ajuda'
     formato_complementos: 'Pontos de vida temporários'
     consequencia {
-      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 origem: 'ajuda' } } }
-      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'ajuda' } } }
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: 1 } } }
+      pontos_vida_temporarios { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 } } }
       # TODO +1 moral contra salvacao de medo.
       # TODO: faltando skills.
     }
@@ -5565,6 +5565,7 @@ tabela_feiticos {
       geometria: ACAO_GEO_ESFERA
       efeito_area: true
       permite_salvacao: true
+      tipo_salvacao: TS_REFLEXO
       icone: 'icon_fireball.png'
       info_textura { id: 'fire.png' }
       duracao_s: 0.350
@@ -5679,6 +5680,8 @@ tabela_feiticos {
     id: 'crescer_espinhos'
     nome: 'crescer espinhos'
     nome_ingles: 'spike growth'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL 
     info_classes {
       id: 'druida'
       nivel: 3
@@ -5688,9 +5691,10 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço a Distância'
-      tipo: ACAO_CRIACAO_ENTIDADE
+      id: 'Criação de Entidade'
       id_modelo_entidade: 'Crescer Espinhos'
+      quantidade_entidades: '1'
+      modificador_quantidade: MQ_POR_NIVEL
     }
     escola: 'transmutacao'
   }
@@ -8782,10 +8786,12 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      ignora_resistencia_magia: false
-      permite_salvacao: true
+      id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: false
+      efeitos_adicionais_conjurador {
+        efeito: EFEITO_DRENAR_FORCA_VITAL
+        rodadas: 100  # na verdade, é variavel pelo numero de HD do alvo. Mas aqui ta de bom tamanho.
+      }
     }
     # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
     # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
@@ -9025,6 +9031,7 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço de Toque'
+      permite_salvacao: false
     }
     escola: 'transmutacao'
   }
@@ -9142,7 +9149,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       efeitos_adicionais {
         efeito: EFEITO_RETARDAR_ENVENENAMENTO
-        modificador_rodadas: MR_RODADAS_NIVEL 
+        modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
     escola: 'conjuracao'
@@ -9154,6 +9161,7 @@ tabela_feiticos {
     nome_ingles: 'enthrall'
     nome: 'cativar'
     alcance_quadrados: 1
+    # casting time: 1
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -9179,6 +9187,7 @@ tabela_feiticos {
       permite_salvacao: true
       resultado_ao_salvar: RS_ANULOU
       tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: 'cativado, ver feitiço.'
@@ -9508,7 +9517,7 @@ tabela_feiticos {
     acao {
       tipo: ACAO_FEITICO_TOQUE
       icone: 'icon_touch.png'
-      permite_salvacao: true
+      permite_salvacao: false
       ignora_resistencia_magia: false
       permite_ataque_vs_defesa: false
       efeitos_adicionais {
@@ -9530,6 +9539,7 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço a Distância'
+      permite_salvacao: false
     }
     escola: 'transmutacao'
   }
@@ -9624,6 +9634,8 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço a Distância'
+      permite_salvacao: false
+      ignora_resistencia_magia: true
       efeitos_adicionais {
         efeito: EFEITO_BOA_ESPERANCA
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9959,7 +9971,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      efeitos_adicionais_conjurador {
+      efeitos_adicionais {
         efeito: EFEITO_VITALIDADE_ILUSORIA
         modificador_rodadas: MR_HORAS_NIVEL
         modificador_complementos: MC_1D10_MAIS_1_POR_NIVEL_MAX_10
@@ -10102,6 +10114,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Feitiço a Distância'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       raio_quadrados: 4
@@ -10113,6 +10126,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       permite_salvacao: true
       resultado_ao_salvar: RS_ANULOU
+      tipo_salvacao: TS_REFLEXO
       # Nao salvou, efeito completo.
       efeitos_adicionais {
         efeito: EFEITO_ENREDADO
@@ -10546,6 +10560,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11416,6 +11431,7 @@ tabela_feiticos {
     acao {
       id: 'Feitiço de Toque'
       tipo: ACAO_CRIACAO_ENTIDADE
+      permite_salvacao: false
       id_modelo_entidade: 'Armadilha'
     }
     escola: 'transmutacao'
@@ -12149,6 +12165,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço a Distância'
       tipo: ACAO_DISPERSAO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
@@ -13306,7 +13323,7 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço de Toque'
-      permite_salvacao: true
+      tipo_salvacao: TS_FORTITUDE
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }
