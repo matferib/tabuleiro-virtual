@@ -3863,21 +3863,21 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
   return n;
 }
 
-int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes,
-                       int nivel_conjurador) {
-  switch (modelo_limite_vezes) {
-    case ArmaProto::LIMITE_UM_CADA_3_NIVEIS: {
+int ComputaLimiteVezes(ModeloGenerico modelo, int nivel_conjurador) {
+  switch (modelo) {
+    case MG_UM_CADA_3_NIVEIS: {
       return nivel_conjurador / 3;
     }
     break;
-    case ArmaProto::LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5: {
+    case MG_UM_CADA_NIVEL_IMPAR_MAX_5: {
       return std::min(5, (nivel_conjurador + 1) / 2);
     }
     break;
-    case ArmaProto::LIMITE_UM_POR_NIVEL: {
+    case MG_UM_POR_NIVEL: {
       return nivel_conjurador;
     }
     break;
+    case MG_UM: ;
     default:
       return 1;
   }
@@ -4089,9 +4089,6 @@ bool NotificacaoConsequenciaFeitico(
       }
       if (feitico_tabelado.has_modelo_dano()) {
         ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto), da);
-      }
-      if (feitico_tabelado.has_modelo_maximo_criaturas_afetadas()) {
-        da->mutable_acao()->set_maximo_criaturas_afetadas(ComputaLimiteVezes(feitico_tabelado.modelo_maximo_criaturas_afetadas(), nivel_conjurador));
       }
     }
     {

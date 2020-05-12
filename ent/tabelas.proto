@@ -105,7 +105,7 @@ enum TipoCarregamento {
   TC_RODADA_COMPLETA = 2;
 }
 
-// Proximo id: 37.
+// Proximo id: 36.
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -150,16 +150,9 @@ message ArmaProto {
   }
   repeated InfoClasseParaFeitico info_classes = 21;
 
-  // Quantas vezes o feitico pode ser usado.
-  enum ModeloLimiteVezes {
-    LIMITE_UM = 0;
-    LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
-    LIMITE_UM_POR_NIVEL = 2;  // velocidade
-    LIMITE_UM_CADA_3_NIVEIS = 3;  // aterrorizar
-  }
-  // Se a arma for criada por um feitico.
-  optional ModeloLimiteVezes modelo_limite_vezes = 23;
-  optional ModeloLimiteVezes modelo_maximo_criaturas_afetadas = 36;
+  // Se a arma for criada por um feitico. Esses modelos devem ser usados apenas para
+  // criar coisas nos DadosAtaque, ja que as ações serão sobrescritas no recomputa.
+  optional ModeloGenerico modelo_limite_vezes = 23;
 
   enum ModeloDano {
     DANO_1D6_POR_NIVEL_MAX_10D6 = 0;

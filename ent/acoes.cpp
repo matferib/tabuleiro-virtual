@@ -1845,7 +1845,9 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     total_dv += dv;
     if (acao.has_total_dv() && total_dv == acao.total_dv()) break;
     ++total_afetados;
-    if (acao.has_maximo_criaturas_afetadas() && total_afetados >= acao.maximo_criaturas_afetadas()) break;
+    if (acao.has_maximo_criaturas_afetadas() && total_afetados >= acao.maximo_criaturas_afetadas()) {
+      break;
+    }
   }
   return ids_afetados;
 }

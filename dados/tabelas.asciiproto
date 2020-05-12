@@ -6663,7 +6663,6 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/undetectableAlignment.htm'
     id: 'dissimular_tendencia'
     nome_ingles: 'undetectable alignment'
     nome: 'dissimular tendencia'
@@ -6713,6 +6712,7 @@ tabela_feiticos {
       raio_quadrados: 3  # quadrados.
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
+      modelo_maximo_criaturas_afetadas: MG_UM_CADA_3_NIVEIS
       dv_mais_alto: 5
       elemento: DESC_MEDO
       efeitos_adicionais {
@@ -6724,7 +6724,6 @@ tabela_feiticos {
         rodadas: 1
       }
     }
-    modelo_maximo_criaturas_afetadas: LIMITE_UM_CADA_3_NIVEIS
     escola: 'necromancia'
   }
   armas {
@@ -9689,7 +9688,7 @@ tabela_feiticos {
     nome: 'boa esperanca'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
-    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    modelo_limite_vezes: MG_UM_POR_NIVEL
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -10673,7 +10672,7 @@ tabela_feiticos {
     id: 'velocidade'
     nome_ingles: 'haste'
     nome: 'velocidade'
-    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    modelo_limite_vezes: MG_UM_POR_NIVEL
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -12874,7 +12873,7 @@ tabela_feiticos {
       consequencia: TC_DESLOCA_ALVO
       elemento: DESC_FORCA
     }
-    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+    modelo_limite_vezes: MG_UM_CADA_NIVEL_IMPAR_MAX_5
     escola: 'evocacao'
   }
   armas {

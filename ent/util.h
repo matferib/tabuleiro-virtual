@@ -983,7 +983,7 @@ bool EscolaBoaTramaDasSombras(const ArmaProto& feitico);
 bool EscolaRuimTramaDasSombras(const ArmaProto& feitico);
 
 // Computa o limite de vezes de um ataque gerado por feitico ou pergaminho.
-int ComputaLimiteVezes(ArmaProto::ModeloLimiteVezes modelo_limite_vezes, int nivel_conjurador);
+int ComputaLimiteVezes(ModeloGenerico modelo_limite_vezes, int nivel_conjurador);
 
 // Mexe nos bits da entidade depois de uma alteracao de pontos de vida.
 // Parametros 'pontos_vida' deve incluir temporarios.

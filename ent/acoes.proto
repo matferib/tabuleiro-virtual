@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 88.
+// Proximo id: 89.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -215,6 +215,7 @@ message AcaoProto {
   optional string dado_pv_mais_alto = 76;
   // Se presente, a acao afeta no maximo esse numero de criaturas.
   optional int32 maximo_criaturas_afetadas = 77;
+  optional ModeloGenerico modelo_maximo_criaturas_afetadas = 88;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
   optional bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
