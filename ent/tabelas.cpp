@@ -241,16 +241,13 @@ void Tabelas::RecarregaMapas() {
     }
     arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
-    if (arma.modelo_3d().empty()) {
-      if (arma.id().find("espada") != std::string::npos) arma.set_modelo_3d("sword");
-      else if (arma.id().find("besta") != std::string::npos) arma.set_modelo_3d("crossbow");
-      else if (arma.id().find("machado") != std::string::npos) arma.set_modelo_3d("axe");
-      else if (arma.id().find("arco") != std::string::npos) arma.set_modelo_3d("bow");
-      else if (arma.id().find("clava") != std::string::npos) arma.set_modelo_3d("club");
-      else if (arma.id().find("mangual") != std::string::npos) arma.set_modelo_3d("flail");
-    }
-    if (!arma.has_info_modelo_3d() && !arma.modelo_3d().empty()) {
-      arma.mutable_info_modelo_3d()->set_id(arma.modelo_3d());
+    if (arma.info_modelo_3d().id().empty()) {
+      if (arma.id().find("espada") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("sword");
+      else if (arma.id().find("besta") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("crossbow");
+      else if (arma.id().find("machado") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("axe");
+      else if (arma.id().find("arco") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("bow");
+      else if (arma.id().find("clava") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("club");
+      else if (arma.id().find("mangual") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("flail");
     }
     armas_[arma.id()] = &arma;
   }
