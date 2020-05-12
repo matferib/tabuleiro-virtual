@@ -103,6 +103,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS:
+      TrataEscolherAliados(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO:
       TrataEscolherDecisaoLancamento(notificacao);
       return true;
@@ -551,10 +554,12 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 // Escolher feitico
 //-----------------
-std::string StringAlcance(const ent::ArmaProto& feitico) {
+std::string StringAlcance(const ent::Tabelas& tabelas, const ent::ArmaProto& feitico) {
   if (feitico.alcance_quadrados() > 0) {
     return StringPrintf("alcance %d q%s", feitico.alcance_quadrados(), feitico.ataque_toque() ? " [toque]" : "");
-  } else if (feitico.acao().tipo() == ent::ACAO_FEITICO_PESSOAL) {
+  } else if (FeiticoPessoalDispersao(tabelas, feitico)) {
+    return "feitiço pessoal dispersão";
+  } else if (FeiticoPessoal(tabelas, feitico)) {
     return "feitiço pessoal";
   } else if (!feitico.has_acao()) {
     return "";
@@ -563,7 +568,7 @@ std::string StringAlcance(const ent::ArmaProto& feitico) {
   }
 }
 
-std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::Tabelas& tabelas) {
+std::string NomeFeitico(const ent::Tabelas& tabelas, const ent::EntidadeProto::InfoConhecido& c) {
   if (!c.id().empty()) {
     const auto& feitico = tabelas.Feitico(c.id());
     if (!feitico.nome().empty()) {
@@ -581,7 +586,7 @@ std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::T
       }
       return StringPrintf("%s, %s%s%s",
           feitico.nome().c_str(),
-          StringAlcance(feitico).c_str(),
+          StringAlcance(tabelas, feitico).c_str(),
           str_area.c_str(),
           str_duracao.c_str()
       );
@@ -590,6 +595,51 @@ std::string NomeFeitico(const ent::EntidadeProto::InfoConhecido& c, const ent::T
   if (!c.nome().empty()) return c.nome();
   return c.id();
 }
+
+void InterfaceGrafica::TrataEscolherAliados(const ntf::Notificacao& notificacao) {
+  if (notificacao.acao().ids_afetados().empty()) {
+    LOG(INFO) << "acao com ids afetados vazio";
+    return;
+  }
+
+  std::unordered_map<int, unsigned int> mapa_indice_id;
+  std::vector<std::string> rotulos_entidades;
+  int indice = 0;
+  for (const auto id : notificacao.acao().ids_afetados()) {
+    const auto* entidade = tabuleiro_->BuscaEntidade(id);
+    if (entidade == nullptr) continue;
+    rotulos_entidades.emplace_back(RotuloEntidade(entidade));
+    mapa_indice_id[indice++] = entidade->Id();
+  }
+  if (rotulos_entidades.empty()) {
+    LOG(INFO) << "rotulos de entidade vazio";
+    return;
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemsLista("Escolha entidades afetadas", rotulos_entidades,
+      [this, notificacao, mapa_indice_id] (bool ok_decisao, const std::vector<int>& indices) {
+    ent::RodaNoRetorno([this]() {
+      this->tabuleiro_->ReativaWatchdogSeMestre();
+    });
+    ent::AcaoProto acao = notificacao.acao();
+    acao.clear_ids_afetados();
+    for (int indice : indices) {
+      auto it = mapa_indice_id.find(indice);
+      if (it == mapa_indice_id.end()) continue;
+      acao.add_ids_afetados(it->second);
+    }
+    if (acao.ids_afetados().empty()) {
+      LOG(INFO) << "ids afetados vazio";
+      return;
+    }
+    tabuleiro_->TrataAcaoUmaEntidade(
+        acao.has_id_entidade_origem() ? tabuleiro_->BuscaEntidade(acao.id_entidade_origem()) : nullptr,
+        acao.pos_entidade(), acao.pos_tabuleiro(),
+        acao.has_id_entidade_destino() ? acao.id_entidade_destino() : ent::Entidade::IdInvalido,
+        /*atraso_s=*/0.0f, &acao);
+  });
+}
+
 
 void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& notificacao) {
   std::vector<std::string> lista_parametros;
@@ -700,7 +750,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       lista.push_back(
           StringPrintf("nivel %d[%d]: %s%s, duração: %s, %s",
             nivel_gasto, indice,
-            NomeFeitico(c, tabelas_).c_str(), pl.restrito() ? "" : "",
+            NomeFeitico(tabelas_, c).c_str(), pl.restrito() ? "" : "",
             StringDuracao(tabelas_, feitico).c_str(),
             link.c_str()));
       items.emplace_back(c.id(), nivel_gasto, indice, indice);
@@ -729,7 +779,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
         const auto& c = fn.conhecidos(indice);
         const auto& feitico = tabelas_.Feitico(c.id());
         std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
-        lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel, indice, NomeFeitico(c, tabelas_).c_str(), link.c_str()));
+        lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel, indice, NomeFeitico(tabelas_, c).c_str(), link.c_str()));
         // Gasta do nivel certo.
         items.emplace_back(c.id(), nivel, indice, indice_gasto);
       }

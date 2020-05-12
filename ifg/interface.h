@@ -88,6 +88,7 @@ class InterfaceGrafica : public ntf::Receptor {
   ntf::CentralNotificacoes* central_ = nullptr;
 
  private:
+  void TrataEscolherAliados(const ntf::Notificacao& notificacao);
   void TrataEscolherDecisaoLancamento(const ntf::Notificacao& notificacao);
 
   void TrataEscolherPericia(const ntf::Notificacao& notificacao);
