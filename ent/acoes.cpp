@@ -290,7 +290,9 @@ class AcaoDeltaPontosVida : public Acao {
         VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
         return;
       }
-      string_delta_ = delta_abs == 0 ? "X" : StringPrintf("%d", delta_abs);
+      string_delta_ = delta_abs != 0
+        ? StringPrintf("%d", delta_abs)
+        : (string_texto_.empty() ? "X" : "");
     } else if (TemTextoAcao(acao_proto_)) {
       string_texto_ = TextoAcao(acao_proto_);
     } else {
