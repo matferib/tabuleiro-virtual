@@ -431,7 +431,6 @@ class AcaoDispersao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    LOG(INFO) << "desenhando";
     MudaCorProtoAlfa(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
