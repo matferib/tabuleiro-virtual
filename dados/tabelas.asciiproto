@@ -223,7 +223,7 @@ tabela_armas {
     categoria: CAT_LEVE
     categoria: CAT_CAC
     nome: 'foice curta'
-    modelo_3d: 'kama'
+    info_modelo_3d { id: 'kama' }
     preco: '6 PO'
     dano { medio: '1d6' }
     multiplicador_critico: 2
@@ -234,7 +234,7 @@ tabela_armas {
   # One-Handed Melee Weapons
   armas {
     id: 'clava'
-    modelo_3d: 'club'
+    info_modelo_3d { id: 'club' }
     categoria: CAT_CAC
     categoria: CAT_ARREMESSO
     preco: '0 PO'
@@ -258,7 +258,7 @@ tabela_armas {
     id: 'maca_estrela'
     categoria: CAT_CAC
     nome: 'maça estrela'
-    modelo_3d: 'morning_star'
+    info_modelo_3d { id: 'morning_star' }
     preco: '8 PO'
     dano { medio: '1d8' }
     multiplicador_critico: 2
@@ -306,7 +306,7 @@ tabela_armas {
   }
   armas {
     id: 'bordao'
-    modelo_3d: 'quarterstaff'
+    info_modelo_3d { id: 'quarterstaff' }
     categoria: CAT_CAC
     categoria: CAT_ARMA_DUPLA
     nome: 'bordão'
@@ -438,7 +438,7 @@ tabela_armas {
   armas {
     id: 'espada_curta'
     nome: 'espada curta'
-    modelo_3d: 'short_sword'
+    info_modelo_3d { id: 'short_sword' }
     preco: '10 PO'
     dano { medio: '1d6' }
     categoria: CAT_LEVE
@@ -515,7 +515,7 @@ tabela_armas {
   armas {
     id: 'porrete'
     nome: 'porrete'
-    modelo_3d: 'club'
+    info_modelo_3d { id: 'club' }
     preco: '1 PO'
     dano { medio: '1d6' }
     categoria: CAT_LEVE
@@ -530,7 +530,7 @@ tabela_armas {
   armas {
     id: 'cimitarra'
     nome: 'cimitarra'
-    modelo_3d: 'sword'
+    info_modelo_3d { id: 'sword' }
     preco: '15 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
@@ -588,7 +588,7 @@ tabela_armas {
   armas {
     id: 'mangual'
     nome: 'mangual'
-    modelo_3d: 'flail'
+    info_modelo_3d { id: 'flail' }
     preco: '8 PO'
     dano { medio: '1d8' }
     categoria: CAT_CAC
@@ -622,7 +622,7 @@ tabela_armas {
   armas {
     id: 'sabre'
     nome: 'sabre'
-    modelo_3d: 'short_sword'
+    info_modelo_3d { id: 'short_sword' }
     preco: '20 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
@@ -688,7 +688,7 @@ tabela_armas {
   armas {
     id: 'falcione'
     nome: 'falcione'
-    modelo_3d: 'sword'
+    info_modelo_3d { id: 'sword' }
     preco: '75 PO'
     dano { medio: '2d4' }
     categoria: CAT_CAC
@@ -702,7 +702,7 @@ tabela_armas {
   armas {
     id: 'foice_longa'
     nome: 'foice longa'
-    modelo_3d: 'kama'
+    info_modelo_3d { id: 'kama' }
     preco: '18 PO'
     dano { medio: '2d4' }
     categoria: CAT_CAC
@@ -771,7 +771,7 @@ tabela_armas {
   armas {
     id: 'mangual_pesado'
     nome: 'mangual pesado'
-    modelo_3d: 'flail'
+    info_modelo_3d { id: 'flail' }
     preco: '15 PO'
     dano { medio: '1d10' }
     categoria: CAT_CAC
@@ -857,7 +857,7 @@ tabela_armas {
   armas {
     id: 'kama'
     nome: 'kama'
-    modelo_3d: 'kama'
+    info_modelo_3d { id: 'kama' }
     preco: '2 PO'
     dano { medio: '1d6' }
     categoria: CAT_CAC
@@ -989,7 +989,7 @@ tabela_armas {
   armas {
     id: 'mangual_atroz'
     nome: 'mangual atroz'
-    modelo_3d: 'flail'
+    info_modelo_3d { id: 'flail' }
     preco: '90 PO'
     dano { medio: '1d8' }
     dano_secundario { medio: '1d8'}
