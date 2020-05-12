@@ -6709,8 +6709,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço de Toque a Distância'
-      permite_ataque_vs_defesa: false
+      id: 'Feitiço Dispersão Esfera'
+      raio_quadrados: 3  # quadrados.
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
       dv_mais_alto: 5

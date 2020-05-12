@@ -257,6 +257,11 @@ void Tabelas::RecarregaMapas() {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
     }
+    if (feitico.has_acao() && feitico.acao().icone().empty()) {
+      if (feitico.acao().elemento() == DESC_MEDO) {
+        feitico.mutable_acao()->set_icone("icon_fear.png");
+      }
+    }
     if (feitico.link().empty() && !feitico.nome_ingles().empty()) {
       std::vector<std::string> res;
       SplitStringUsing(feitico.nome_ingles(), " ,-'/", &res);
@@ -492,7 +497,7 @@ const std::string Tabelas::FeiticoConversaoEspontanea(
     switch (nivel) {
       case 1: return "invocar_aliado_natureza_i";
       case 2: return "invocar_aliado_natureza_ii";
-      case 3: return "invocar_aliado_natureza_iii"; 
+      case 3: return "invocar_aliado_natureza_iii";
       case 4: return "invocar_aliado_natureza_iv";
       case 5: return "invocar_aliado_natureza_v";
       case 6: return "invocar_aliado_natureza_vi";

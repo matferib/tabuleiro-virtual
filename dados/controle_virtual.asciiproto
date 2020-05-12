@@ -1933,4 +1933,15 @@ pagina {
     forma: FORMA_RETANGULO
     visibilidade { referencia { tipo: VIS_INVISIVEL } }
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_fear.png"
+    id: CONTROLE_NOP
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
+  }
 }
