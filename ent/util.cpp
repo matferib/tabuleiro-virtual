@@ -1646,11 +1646,11 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
   if (!proto.rotulo().empty()) {
     return proto.rotulo();
   }
-  return StringPrintf("%s%s, id: %d, %s",
+  return StringPrintf("%s%s, id: %d%s",
       !proto.modelo_3d().id().empty() ? proto.modelo_3d().id().c_str() : "",
       proto.modelo_3d().id().empty() && !proto.info_textura().id().empty() ? proto.info_textura().id().c_str() : "",
       proto.id(),
-      proto.selecionavel_para_jogador() ? "[selecionável]" : "");
+      proto.selecionavel_para_jogador() ? ", [selecionável]" : "");
 }
 
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
@@ -5072,7 +5072,8 @@ int DesviaObjetoSeAplicavel(
   return 0;
 }
 
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+    const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (delta_pontos_vida >= 0) {
     return std::make_pair(delta_pontos_vida, "");
   }
