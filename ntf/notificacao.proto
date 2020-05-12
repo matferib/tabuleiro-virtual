@@ -9,7 +9,7 @@ import "ent/tabuleiro.proto";
 package ntf;
 option java_package = "com.matferib.Tabuleiro.ntf";
 
-// Proximo: 77.
+// Proximo: 78.
 enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
@@ -83,6 +83,7 @@ enum Tipo {
   TN_REINICIAR_GRAFICO = 74;  // para centralizar as funcoes que mexem diretamente com grafico em um lugar que tenha contexto correto.
   TN_TEMPORIZADOR_MOUSE = 75;  // Relacionado a mouse. Se tiver posicao, eh que parou ali. Caso contrario, mouse moveu.
   TN_ENTRAR_MODO_DOACAO = 76;
+  TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS = 77;  // para feiticos que afetam apenas inimigos/aliados na área. 
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
