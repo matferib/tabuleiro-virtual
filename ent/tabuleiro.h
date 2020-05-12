@@ -1072,7 +1072,12 @@ class Tabuleiro : public ntf::Receptor {
   void AlterarModoMestre(bool modo);
 
   /** Retorna quais unidades sao afetadas por determinada acao. */
-  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
+  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao) const;
+  /** Caso a acao deva ser preenchida, preenche e retorna a notificacao. Caso contrario, retorna a notificacao sem tipo. */
+  std::unique_ptr<ntf::Notificacao> TalvezPreenchaAcaoNaoPreenchida(
+      const Entidade& entidade_origem, const Entidade& entidade_destino,
+      const AcaoProto& acao_proto, const Posicao& pos_tabuleiro, const Posicao& pos_entidade_destino) const;
+
 
   /** Salva a camera inicial. */
   void SalvaCameraInicial();

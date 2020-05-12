@@ -2380,7 +2380,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
+void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
   // Aplica acao da arma.
   if (arma.has_acao()) {
     if (arma.acao().has_id()) {
@@ -2541,7 +2541,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
-  ArmaParaDadosAtaque(tabelas, arma, proto, da);
+  ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
   const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.

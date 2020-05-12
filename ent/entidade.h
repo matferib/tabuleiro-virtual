@@ -77,7 +77,7 @@ class Entidade {
   ~Entidade();
 
   /** @return o identificador da entidade que deve ser unico globalmente. */
-  unsigned int Id() const { return proto_.id(); }
+  unsigned int Id() const { return proto_.has_id() ? proto_.id() : IdInvalido; }
 
   /** Retorna a cor da entidade. */
   const Cor& CorDesenho() const { return proto_.cor(); }

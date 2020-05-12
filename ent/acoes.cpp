@@ -402,11 +402,13 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+  AcaoDispersao(
+      const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d,
+      ntf::CentralNotificacoes* central)
       : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     efeito_ = 0;
-    efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
-        acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    efeito_maximo_ = TAMANHO_LADO_QUADRADO *
+        (acao_proto.geometria() == ACAO_GEO_CONE ? acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
     duracao_s_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.35f;
   }
 
@@ -429,6 +431,7 @@ class AcaoDispersao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+    LOG(INFO) << "desenhando";
     MudaCorProtoAlfa(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
@@ -1819,6 +1822,7 @@ bool EfeitoArea(const AcaoProto& acao_proto) {
 
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario) {
+  LOG(INFO) << "entidades_cenario: " << entidades_cenario.size();
   std::vector<const Entidade*> entidades_ordenadas;
   if (acao.mais_fracos_primeiro()) {
     entidades_ordenadas = entidades_cenario;
@@ -1828,6 +1832,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
         return lhs->Id() < rhs->Id();
     });
   }
+  LOG(INFO) << "entidades_ordenadas: " << entidades_ordenadas.size();
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
     pos_origem = entidade_origem->PosicaoAcao();
@@ -1840,7 +1845,9 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const int dv = entidade->NivelPersonagem();
     if (acao.has_total_dv() && (total_dv + dv) > acao.total_dv()) continue;
     Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
-    if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) continue;
+    if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) {
+      continue;
+    }
     ids_afetados.push_back(entidade->Id());
     total_dv += dv;
     if (acao.has_total_dv() && total_dv == acao.total_dv()) break;

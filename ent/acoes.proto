@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 89.
+// Proximo id: 92.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -322,6 +322,12 @@ message AcaoProto {
   optional int32 indice_ataque = 84;
   // Para ilusoes.
   optional bool permite_desacreditar = 87;
+  // Se verdadeiro, feitico afeta apenas aliados. A ação abrira uma janela para se selecionarem os alvos.
+  optional bool aliados_ou_inimigos_apenas = 89;
+  // Apos a janela ser aberta, preenche estes dados.
+  repeated uint32 ids_afetados = 90;
+  // Indica acao pessoal (ja se sabe o id destino).
+  optional bool pessoal = 91;
 }
 
 // Como uma arma esta empunhada.

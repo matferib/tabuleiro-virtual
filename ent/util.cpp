@@ -1646,7 +1646,11 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
   if (!proto.rotulo().empty()) {
     return proto.rotulo();
   }
-  return StringPrintf("%d", proto.id());
+  return StringPrintf("%s%s, id: %d, %s",
+      !proto.modelo_3d().id().empty() ? proto.modelo_3d().id().c_str() : "",
+      proto.modelo_3d().id().empty() && !proto.info_textura().id().empty() ? proto.info_textura().id().c_str() : "",
+      proto.id(),
+      proto.selecionavel_para_jogador() ? "[selecionável]" : "");
 }
 
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
@@ -4011,18 +4015,75 @@ bool FeiticoGeraAcao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) 
   }
 }
 
+void CriaNovoAtaqueComFeitico(
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, const EntidadeProto& proto,
+    ntf::Notificacao* n) {
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+  {
+    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+    //std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe));
+    std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, id_classe);
+    std::string grupo_str = feitico_tabelado.nome();
+    e_depois->set_ultima_acao(acao_str);
+    e_depois->set_ultimo_grupo_acao(grupo_str);
+    auto* da = e_depois->add_dados_ataque();
+    da->set_tipo_ataque(acao_str);
+    da->set_grupo(grupo_str);
+    const int nivel_conjurador = NivelConjurador(id_classe, proto);
+    int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
+    da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
+    da->set_id_arma(feitico_tabelado.id());
+    da->set_limite_vezes(limite_vezes);
+    if (feitico_tabelado.has_modelo_total_dv()) {
+      da->mutable_acao()->set_total_dv(ComputaTotalDadosVida(feitico_tabelado.modelo_total_dv(), nivel_conjurador));
+    }
+    if (feitico_tabelado.has_modelo_dano()) {
+      ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto), da);
+    }
+  }
+  {
+    e_antes->set_ultima_acao(proto.ultima_acao());
+    e_antes->set_ultimo_grupo_acao(proto.ultimo_grupo_acao());
+    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+    if (e_antes->dados_ataque().empty()) {
+      e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
+    }
+  }
+}
+
 void PreencheNotificacaoAcaoFeiticoPessoal(
     unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n) {
   n->set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_id_entidade_origem(id);
   a->set_tipo(ACAO_FEITICO_PESSOAL);
+  a->set_pessoal(true);
   auto* por_entidade = a->add_por_entidade();
   por_entidade->set_id(id);
   por_entidade->set_texto(string_efeitos);
   a->set_afeta_pontos_vida(false);
   a->set_gera_outras_acoes(true);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
+}
+
+void PreencheNotificacaoAcaoFeiticoPessoalDispersao(
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, const EntidadeProto& proto,
+    ntf::Notificacao* n) {
+  // Gera a acao na entidade.
+  AcaoProto acao = feitico_tabelado.acao().id().empty() ? AcaoProto::default_instance() : tabelas.Acao(feitico_tabelado.acao().id());
+  acao.MergeFrom(feitico_tabelado.acao());
+  n->set_tipo(ntf::TN_ADICIONAR_ACAO);
+  *n->mutable_acao() = acao;
+  n->mutable_acao()->set_id_entidade_origem(proto.id());
+  n->mutable_acao()->set_id_entidade_destino(proto.id());
+  *n->mutable_acao()->mutable_pos_tabuleiro() = proto.pos();
+  *n->mutable_acao()->mutable_pos_entidade() = proto.pos();
+}
+
+bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) {
+  AcaoProto acao = feitico_tabelado.acao().id().empty() ? AcaoProto::default_instance() : tabelas.Acao(feitico_tabelado.acao().id());
+  acao.MergeFrom(feitico_tabelado.acao());
+  return acao.pessoal() && acao.tipo() == ACAO_DISPERSAO;
 }
 
 bool NotificacaoConsequenciaFeitico(
@@ -4049,7 +4110,13 @@ bool NotificacaoConsequenciaFeitico(
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
     return false;
   }
-  if (FeiticoPessoal(tabelas, feitico_tabelado)) {
+  // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
+  // e isso depende do tabuleiro. Deixar desligado por agora.
+  //if (FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
+  //PreencheNotificacaoAcaoFeiticoPessoalDispersao(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
+  //  return false;
+  //} else if (FeiticoPessoal(tabelas, feitico_tabelado)) {
+  if (FeiticoPessoal(tabelas, feitico_tabelado) && !FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
     // Aplica o efeito do feitico no personagem diretamente.
     std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
     std::string string_efeitos;
@@ -4066,39 +4133,7 @@ bool NotificacaoConsequenciaFeitico(
     PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
     return false;
   } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
-    ntf::Notificacao* n;
-    ent::EntidadeProto *e_antes, *e_depois;
-    std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
-    {
-      *e_depois->mutable_dados_ataque() = proto.dados_ataque();
-      //std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, IdParaMagia(tabelas, id_classe));
-      std::string acao_str = ClasseParaTipoAtaqueFeitico(tabelas, id_classe);
-      std::string grupo_str = feitico_tabelado.nome();
-      e_depois->set_ultima_acao(acao_str);
-      e_depois->set_ultimo_grupo_acao(grupo_str);
-      auto* da = e_depois->add_dados_ataque();
-      da->set_tipo_ataque(acao_str);
-      da->set_grupo(grupo_str);
-      const int nivel_conjurador = NivelConjurador(id_classe, proto);
-      int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
-      da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
-      da->set_id_arma(feitico_tabelado.id());
-      da->set_limite_vezes(limite_vezes);
-      if (feitico_tabelado.has_modelo_total_dv()) {
-        da->mutable_acao()->set_total_dv(ComputaTotalDadosVida(feitico_tabelado.modelo_total_dv(), nivel_conjurador));
-      }
-      if (feitico_tabelado.has_modelo_dano()) {
-        ComputaDano(feitico_tabelado.modelo_dano(), NivelConjurador(id_classe, proto), da);
-      }
-    }
-    {
-      e_antes->set_ultima_acao(proto.ultima_acao());
-      e_antes->set_ultimo_grupo_acao(proto.ultimo_grupo_acao());
-      *e_antes->mutable_dados_ataque() = proto.dados_ataque();
-      if (e_antes->dados_ataque().empty()) {
-        e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
-      }
-    }
+    CriaNovoAtaqueComFeitico(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
     return true;
   }
   return false;
@@ -4607,10 +4642,9 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 }
 
 bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) {
-  if (feitico_tabelado.acao().has_tipo()) {
-    return feitico_tabelado.acao().tipo() == ACAO_FEITICO_PESSOAL;
-  }
-  return feitico_tabelado.acao().has_id() && tabelas.Acao(feitico_tabelado.acao().id()).tipo() == ACAO_FEITICO_PESSOAL;
+  AcaoProto acao = feitico_tabelado.acao().id().empty() ? AcaoProto::default_instance() : tabelas.Acao(feitico_tabelado.acao().id());
+  acao.MergeFrom(feitico_tabelado.acao());
+  return acao.pessoal(); 
 }
 
 int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_para_conjuracao) {

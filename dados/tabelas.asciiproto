@@ -1425,6 +1425,12 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_LUZ
     nome: 'luz'
+    consequencia {
+      luz {
+        raio_m: 6 
+        cor { r: 1 g: 1 b: 1 a: 1.0 }
+      }
+    }
   }
   efeitos {
     id: EFEITO_PASMAR
@@ -6356,7 +6362,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO 
+        efeito: EFEITO_OUTRO
         descricao: 'passos sem pegadas'
         modificador_rodadas: MR_HORAS_NIVEL
       }
@@ -12189,7 +12195,6 @@ tabela_feiticos {
     id: 'bencao'
     nome: 'benção'
     nome_ingles: 'bless'
-    alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -12199,7 +12204,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_DISPERSAO
+      id: 'Feitiço Pessoal Dispersão Esfera'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
       geometria: ACAO_GEO_ESFERA
@@ -12213,6 +12218,7 @@ tabela_feiticos {
         rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+      aliados_ou_inimigos_apenas: true
     }
     escola: 'encantamento'
   }
@@ -12220,13 +12226,12 @@ tabela_feiticos {
     id: 'maldicao_menor'
     nome_ingles: 'bane'
     nome: 'maldição menor'
-    alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
       nivel: 1
     }
     acao {
-      id: 'Feitiço a Distância'
+      id: 'Feitiço Pessoal Dispersão Esfera'
       tipo: ACAO_DISPERSAO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
@@ -12237,15 +12242,15 @@ tabela_feiticos {
       resultado_ao_salvar: RS_ANULOU
       icone: 'icon_bane.png'
       duracao_s: 0.350
+      elemento: DESC_MEDO
       efeitos_adicionais {
         efeito: EFEITO_MALDICAO_MENOR
-        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+      aliados_ou_inimigos_apenas: true
     }
-    escola: ''
+    escola: 'encantamento'
   }
-
   armas {
     id: 'criar_agua'
     nome_ingles: 'create water'

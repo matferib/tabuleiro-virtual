@@ -7136,8 +7136,12 @@ void Tabuleiro::AlterarModoMestre(bool modo) {
 #endif
 }
 
-const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
+const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) const {
   std::vector<unsigned int> ids_afetados;
+  if (acao.aliados_ou_inimigos_apenas() && !acao.ids_afetados().empty()) {
+    return std::vector<unsigned int>(acao.ids_afetados().begin(), acao.ids_afetados().end());
+  }
+
   //const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
   //const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
