@@ -1,17 +1,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TabuleiroVirtual", "TabuleiroVirtual\Project1.vcxproj", "{5F7B8616-7D8D-41E0-B7B9-910BFB1F589E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{772C2111-BBBF-49E6-B912-198A7F7A88E5} = {772C2111-BBBF-49E6-B912-198A7F7A88E5}
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30} = {3E283F37-A4ED-41B7-A3E6-A2D89D131A30}
 		{AD26517C-9128-442F-99AC-A84FB2E212A3} = {AD26517C-9128-442F-99AC-A84FB2E212A3}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Boost", "Boost\Boost.vcxproj", "{AD26517C-9128-442F-99AC-A84FB2E212A3}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libprotobuf", "protobuf-2.6.1\vsprojects\libprotobuf.vcxproj", "{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libglog_static", "glog-0.3.4\vsprojects\libglog_static\libglog_static.vcxproj", "{772C2111-BBBF-49E6-B912-198A7F7A88E5}"
 EndProject
@@ -56,22 +53,6 @@ Global
 		{AD26517C-9128-442F-99AC-A84FB2E212A3}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 		{AD26517C-9128-442F-99AC-A84FB2E212A3}.RelWithDebInfo|x64.ActiveCfg = Release|x64
 		{AD26517C-9128-442F-99AC-A84FB2E212A3}.RelWithDebInfo|x64.Build.0 = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Debug|Win32.Build.0 = Debug|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Debug|x64.ActiveCfg = Debug|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Debug|x64.Build.0 = Debug|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.MinSizeRel|Win32.ActiveCfg = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.MinSizeRel|Win32.Build.0 = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.MinSizeRel|x64.ActiveCfg = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.MinSizeRel|x64.Build.0 = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|Win32.ActiveCfg = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|Win32.Build.0 = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|x64.ActiveCfg = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|x64.Build.0 = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.RelWithDebInfo|Win32.Build.0 = Release|Win32
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.RelWithDebInfo|x64.ActiveCfg = Release|x64
-		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.RelWithDebInfo|x64.Build.0 = Release|x64
 		{772C2111-BBBF-49E6-B912-198A7F7A88E5}.Debug|Win32.ActiveCfg = Debug|Win32
 		{772C2111-BBBF-49E6-B912-198A7F7A88E5}.Debug|Win32.Build.0 = Debug|Win32
 		{772C2111-BBBF-49E6-B912-198A7F7A88E5}.Debug|x64.ActiveCfg = Debug|x64
@@ -91,5 +72,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42A7EA71-6EAA-412D-97C5-74BC4E0F7057}
 	EndGlobalSection
 EndGlobal

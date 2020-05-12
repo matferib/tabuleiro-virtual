@@ -18,7 +18,6 @@
 #include "log/log.h"
 #include "tex/texturas.h"
 
-
 namespace ent {
 
 namespace {
