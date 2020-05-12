@@ -12210,7 +12210,6 @@ tabela_feiticos {
       geometria: ACAO_GEO_ESFERA
       efeito_area: true
       permite_salvacao: false
-      icone: 'icon_bless.png'
       duracao_s: 0.350
       ignora_luz: true
       efeitos_adicionais {
@@ -12240,7 +12239,6 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
-      icone: 'icon_bane.png'
       duracao_s: 0.350
       elemento: DESC_MEDO
       efeitos_adicionais {

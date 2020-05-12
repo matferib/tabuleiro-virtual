@@ -144,6 +144,7 @@ acao {
   ignora_resistencia_magia: false
   ignora_reducao_dano_barbaro: true
   pessoal: true
+  icone: 'icon_personal.png'
 }
 
 acao {
