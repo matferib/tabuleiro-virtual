@@ -1305,8 +1305,11 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   const int delta_pontos_vida = delta_pontos_vida_inicial;
   acao_proto->clear_por_entidade();
   if (acao_proto->has_modelo_maximo_criaturas_afetadas()) {
-    acao_proto->set_maximo_criaturas_afetadas(
-        ComputaLimiteVezes(acao_proto->modelo_maximo_criaturas_afetadas(),NivelConjuradorParaAcao(*acao_proto, *entidade_origem)));
+    acao_proto->set_maximo_criaturas_afetadas(ComputaLimiteVezes(
+        acao_proto->modelo_maximo_criaturas_afetadas(),
+        da.has_nivel_conjurador_pergaminho()
+            ? da.nivel_conjurador_pergaminho()
+            : NivelConjuradorParaAcao(*acao_proto, *entidade_origem)));
   }
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
