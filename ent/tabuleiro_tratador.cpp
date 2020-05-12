@@ -1401,6 +1401,17 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     delta_pv_pos_salvacao = CompartilhaDanoSeAplicavel(
         delta_pv_pos_salvacao, entidade_destino->Proto(), *this, TD_LETAL, por_entidade, acao_proto, grupo_desfazer);
+    {
+      auto n_uso_poder = std::make_unique<ntf::Notificacao>();
+      auto [delta_pos_renovacao, texto_renovacao] =
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, n_uso_poder.get(), grupo_desfazer);
+      delta_pv_pos_salvacao = delta_pos_renovacao;
+      if (!texto_renovacao.empty()) {
+        ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
 
     acao_proto->set_bem_sucedida(true);
     por_entidade->set_id(id);
@@ -1963,11 +1974,12 @@ float Tabuleiro::TrataAcaoIndividual(
           acao_proto->texto().c_str()));
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
-      auto [dr, tr] = RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
-      delta_pontos_vida = dr;
-      if (!tr.empty()) {
-        ConcatenaString(tr, por_entidade->mutable_texto());
-        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), tr.c_str()));
+      auto [delta_pos_renovacao, texto_renovacao] =
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
+      delta_pontos_vida = delta_pos_renovacao;
+      if (!texto_renovacao.empty()) {
+        ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
