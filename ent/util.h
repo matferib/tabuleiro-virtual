@@ -668,6 +668,7 @@ bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo, const std::
 
 // Retorna true se o feitico for pessoal.
 bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado);
+bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado);
 
 // Renova todos os feiticos do proto (ficam prontos para serem usados).
 void RenovaFeiticos(EntidadeProto* proto);

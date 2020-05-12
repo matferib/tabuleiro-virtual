@@ -2174,21 +2174,24 @@ float Tabuleiro::TrataAcaoUmaEntidade(
       atraso_s, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
     if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
-      atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
-      atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (acao_proto.efeito_projetil_area()) {
-      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (EfeitoArea(acao_proto)) {
-      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else {
-      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     }
-    if (n.has_acao()) {
-      TrataNotificacao(n);
+    if (n->has_acao()) {
+      // Aqui é importante tratar pela central porque se abriu a UI para preencher alguma coisa,
+      // o timer vai estar alto. Se tratar direto, vai pular o timer. Entao ao mandar para a central,
+      // o timer sera atualizado e so depois o tabuleiro tratara a acao, com timer zerado.
+      // Para ver isso, basta testar benção (ou qualquer outro feitiço que tenha escolha do usuario).
+      central_->AdicionaNotificacao(std::move(n));
     }
   }
   // TODO fazer um TrataPosAcaoComum, para consumir municao, atualizar ataques etc.
