@@ -7290,9 +7290,11 @@ tabela_feiticos {
   armas {
     id: 'destruicao'
     nome_ingles: 'destruction'
+    dano { invariavel: '10d6' }
     nome: 'destruição'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano_ignora_salvacao: true
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -7304,14 +7306,19 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço de Toque a Distância'
+      cor: { r: 0 b: 0 g: 0 a: 1.0 }
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
+      elemento: DESC_MORTE
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }
-      efeitos_adicionais_se_salvou {
-        delta_pontos_vida: '10d6'
-      }
+    }
+    componente {
+      tipo: COMP_FOCO
+      custo { po: 500 }
+      #descricao: 'A special holy (or unholy) symbol of silver marked with verses of anathema (cost 500 gp).'
+      descricao: 'Um símbolo sagrado (ou profano) de prata especial, com versos de um anatema.'
     }
     escola: 'necromancia'
   }
@@ -7320,7 +7327,6 @@ tabela_feiticos {
     id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'
-    alcance_quadrados: 0
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -7331,8 +7337,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_DISPERSAO
-      geometria: ACAO_GEO_ESFERA
+      id: 'Feitiço Pessoal Dispersão Esfera'
       cor: { r: 1.0 b: 1.0 g: 1.0 }
       raio_quadrados: 6
       efeito_area: true
@@ -7349,7 +7354,6 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/bestowCurse.htm'
     id: 'rogar_maldicao'
     nome_ingles: 'bestow curse'
     nome: 'rogar maldição'
@@ -12207,7 +12211,6 @@ tabela_feiticos {
       id: 'Feitiço Pessoal Dispersão Esfera'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
-      geometria: ACAO_GEO_ESFERA
       efeito_area: true
       permite_salvacao: false
       duracao_s: 0.350
