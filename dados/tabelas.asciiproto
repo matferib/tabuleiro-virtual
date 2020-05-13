@@ -7873,7 +7873,7 @@ tabela_feiticos {
   armas {
     id: 'imunidade_magia'
     nome_ingles: 'spell immunity '
-    nome: 'Imunidade à Magia'
+    nome: 'imunidade à magia'
     info_classes {
       id: 'clerigo'
       nivel: 4
@@ -7911,7 +7911,7 @@ tabela_feiticos {
   armas {
     id: 'imunidade_magia_maior'
     nome_ingles: 'greater spell immunity'
-    nome: 'Imunidade à Magia Maior'
+    nome: 'imunidade à magia maior'
     info_classes {
       id: 'clerigo'
       nivel: 8
@@ -7933,7 +7933,7 @@ tabela_feiticos {
   armas {
     id: 'tempestade_fogo'
     nome_ingles: 'fire storm'
-    nome: 'Tempestade de Fogo'
+    nome: 'tempestade de fogo'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -7961,7 +7961,7 @@ tabela_feiticos {
   armas {
     id: 'arma_rompimento'
     nome_ingles: 'disruping weapon'
-    nome: 'Arma do Rompimento'
+    nome: 'arma do rompimento'
     info_classes {
       id: 'clerigo'
       nivel: 5
@@ -7982,7 +7982,7 @@ tabela_feiticos {
   armas {
     id: 'cancelar_encantamento'
     nome_ingles: 'break enchantment'
-    nome: 'Cancelar Encantamento'
+    nome: 'cancelar encantamento'
     info_classes {
       id: 'clerigo'
       nivel: 5
@@ -9010,7 +9010,7 @@ tabela_feiticos {
   armas {
     id: 'barreira_laminas'
     nome_ingles: 'blade barrier '
-    nome: 'Barreira de Lâminas'
+    nome: 'barreira de lâminas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {

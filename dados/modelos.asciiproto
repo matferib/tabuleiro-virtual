@@ -763,10 +763,15 @@ modelo {
 modelo {
   id: 'Muralha de Lâminas'
   entidade {
-    modelo_3d { id: 'builtin:retangulo' escala { x: 1.5 y: 66 z: 6 } }
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 66 z: 6 } }
+    info_textura { id: 'metal' }
+    especular: true
     cor { r: 0.5 g: 0.5 b: 0.5 }
+    gerar_agarrar: false
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'lâminas'
+      tipo_ataque: 'Feitiço de Toque'
+      ignora_origem: true
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -780,7 +785,6 @@ modelo {
     multiplicador_nivel_dano: 1
     dado_dano_por_nivel: 6
     maximo_modificador_dano: 15
-    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
   }
 }
 modelo {
@@ -788,8 +792,14 @@ modelo {
   entidade {
     modelo_3d { id: 'builtin:cilindro' escala { x: 1.5 y: 1.5 z: 6 } }
     cor { r: 0.5 g: 0.5 b: 0.5 }
+    info_textura { id: 'metal' }
+    especular: true
+    dois_lados: true
+    gerar_agarrar: false
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'lâminas'
+      tipo_ataque: 'Feitiço de Toque'
+      ignora_origem: true
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -803,7 +813,6 @@ modelo {
     multiplicador_nivel_dano: 1
     dado_dano_por_nivel: 6
     maximo_modificador_dano: 15
-    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
   }
 }
 
