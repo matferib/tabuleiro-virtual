@@ -2245,9 +2245,7 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
   central_->AdicionaNotificacao(n.release());
   AdicionaAcaoTexto(
       entidade_defensora->Id(),
-      google::protobuf::StringPrintf("esquivando de %s", entidade_atacante->Proto().rotulo().empty()
-                                                         ? net::to_string(id).c_str()
-                                                         : entidade_atacante->Proto().rotulo().c_str()));
+      StringPrintf("esquivando de %s", RotuloEntidade(entidade_atacante).c_str()));
 }
 
 void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro) {
