@@ -12214,7 +12214,6 @@ tabela_feiticos {
       ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_BENCAO
-        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
       aliados_ou_inimigos_apenas: true
