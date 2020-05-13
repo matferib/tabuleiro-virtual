@@ -4769,7 +4769,7 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const EntidadeProto& ref
   }
   modelo->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
   if (referencia.has_cor()) {
-    Cor cor_destino = modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
+    Cor cor_destino = !modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
     CombinaCorComPeso(0.3, referencia.cor(), &cor_destino);
     *modelo->mutable_cor() = cor_destino;
   }
