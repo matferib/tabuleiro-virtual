@@ -42,7 +42,7 @@ cp -f tabuleiros_salvos/*.binproto ${RESOURCESDIR}/tabuleiros_salvos && \
 chmod -R a+r ${BUNDLEDIR}/ &&  \
 for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost_filesystem.dylib libgflags.2.dylib libglog.0.dylib; do
   set -x
-  install_name_tool -change /usr/local/lib/${i} @executable_path/../Frameworks/${i} ${XDIR}/tabvirt;
+  echo nop; #install_name_tool -change /usr/local/lib/${i} @executable_path/../Frameworks/${i} ${XDIR}/tabvirt;
   set +x
 done && \
 ${MACDEPLOYQT} macqt5bundle && \

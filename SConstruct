@@ -60,9 +60,9 @@ if sistema == 'win32':
   env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
   env['CPPPATH'] += ['./', '/usr/local/include'],
-  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0 }
+  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
   #env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-mmacosx-version-min=10.10.5']
-  env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
+  env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   env['LIBPATH'] += [ '/usr/local/lib' ]
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
 else:
