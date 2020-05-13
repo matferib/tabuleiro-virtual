@@ -4,12 +4,11 @@ Dominio renovacao: aplicar em outros lugares, decrementar com rodadas. Fix de se
 Menu para recarregar tabelas.
 Botao de flanquear.
 Lista de entidades afetadas ordenada.
-Casting time de summon monster.
-Nao consigo desagarrar.
+Casting time de magias (summon monster, nature ally etc).
+Nao consigo desagarrar sem acao.
 Tab igual shift tab, zera ataques.
 Feedback de ctrl z.
-Apagar iniciativa so para mestre.
-Proxima iniciativa so para mestre.
+
 Fogo alquimico verde.
 Fazer: Dundar: expert 6.
 Circulo magico contra mal: implementar aura.
