@@ -165,11 +165,17 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
   tabuleiro_->DesativaWatchdogSeMestre();
   std::map<std::string, std::string> mapa_nomes;
   for (const auto& pericia : tabelas_.todas().tabela_pericias().pericias()) {
-    mapa_nomes.insert(std::make_pair(pericia.nome(), pericia.id()));
+    if (notificacao.notificacao().size() == 1) {
+      const auto& p = Pericia(pericia.id(), notificacao.notificacao(0).entidade());
+      mapa_nomes.insert(std::make_pair(StringPrintf("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
+    } else {
+      mapa_nomes.insert(std::make_pair(pericia.nome(), pericia.id()));
+    }
   }
   std::vector<std::string> nomes_pericias;
   std::vector<std::string> mapa_indice_id;
   for (auto& it : mapa_nomes) {
+
     nomes_pericias.push_back(it.first);
     mapa_indice_id.push_back(it.second);
   }

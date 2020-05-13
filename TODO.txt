@@ -1,8 +1,21 @@
-scare: arrumar: fazer ser em area e com limite de entidades.
-Feiticos de area em aliados, como bencao e maldicao menor.
+Entidades criadas nao vem selecionadas (ver tempestade de fogo).
+Barreira de laminas nao ta aparecendo nada: ataque nao ta fazendo nada.
+Dominio renovacao: aplicar em outros lugares, decrementar com rodadas. Fix de sempre estar ativando, independente de morte.
+Menu para recarregar tabelas.
+Botao de flanquear.
+Lista de entidades afetadas ordenada.
+Casting time de summon monster.
+Nao consigo desagarrar.
+Tab igual shift tab, zera ataques.
+Feedback de ctrl z.
+Apagar iniciativa so para mestre.
+Proxima iniciativa so para mestre.
+Fogo alquimico verde.
+Fazer: Dundar: expert 6.
+Circulo magico contra mal: implementar aura.
+
 Fazer lufada de vento.
 Teste da CD de envenenamento.
-Dominio renovacao: aplicar em outros lugares, decrementar com rodadas.
 Pedra encantada: acertando automatico.
 
 Barra de vida: desenhar PV temporarios.
