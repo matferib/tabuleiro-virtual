@@ -1,4 +1,3 @@
-Entidades criadas nao vem selecionadas (ver tempestade de fogo).
 Barreira de laminas nao ta aparecendo nada: ataque nao ta fazendo nada.
 Dominio renovacao: aplicar em outros lugares, decrementar com rodadas. Fix de sempre estar ativando, independente de morte.
 Menu para recarregar tabelas.
