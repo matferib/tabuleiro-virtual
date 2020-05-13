@@ -1461,7 +1461,7 @@ pagina {
     id: CONTROLE_APAGAR_INICIATIVAS
     rotulo: ""
     dica: "Apaga iniciativas."
-    mestre_apenas: false
+    mestre_apenas: true
     textura: "icon_erase_initiatives.png"
     forma: FORMA_RETANGULO
     #translacao_x: -0.53
@@ -1486,6 +1486,7 @@ pagina {
     textura: "icon_initiative.png"
     rotacao_graus: -90.0
     dica: "Proxima iniciativa."
+    mestre_apenas: true
     translacao_x: -0.3
   }
   dados_botoes {
