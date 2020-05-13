@@ -1253,7 +1253,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
 }
 
 float Tabuleiro::TrataAcaoEfeitoArea(
-    float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   const Posicao* pos_destino = &acao_proto->pos_tabuleiro();
   if (pos_entidade_destino.has_x()) {
@@ -1263,7 +1263,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     pos_destino = &acao_proto->pos_entidade();
   }
   // Verifica alcance.
-  if (acao_proto->ids_afetados().empty()) {
+  if (acao_proto->ids_afetados().empty() &&
+      (id_entidade_destino == Entidade::IdInvalido || id_entidade_destino != entidade_origem->Id())) {
     const float alcance_m = entidade_origem->AlcanceAtaqueMetros();
     const Posicao& pos_origem = entidade_origem->PosicaoAcao();
     Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
@@ -2194,7 +2195,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     } else if (acao_proto.efeito_projetil_area()) {
       atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (EfeitoArea(acao_proto)) {
-      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
+      atraso_s = TrataAcaoEfeitoArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else {
       atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     }

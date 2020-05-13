@@ -105,7 +105,19 @@ enum TipoCarregamento {
   TC_RODADA_COMPLETA = 2;
 }
 
-// Proximo id: 36.
+enum TipoComponente {
+  COMP_NENHUM = 0;
+  COMP_FOCO = 1;
+  COMP_MATERIAL = 2;
+}
+
+message InfoComponente {
+  optional TipoComponente tipo = 1; 
+  optional Moedas custo = 2;
+  optional string descricao = 3;
+}
+
+// Proximo id: 37.
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -212,6 +224,7 @@ message ArmaProto {
   optional Modelo3d info_modelo_3d = 34;
   // Se verdadeiro, arma pode ser usada para derrubar.
   optional bool pode_derrubar = 35;
+  optional InfoComponente componente = 36;
 }
 
 message TabelaArmaduraOuEscudo {

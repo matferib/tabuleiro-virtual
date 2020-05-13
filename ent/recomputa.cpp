@@ -1668,7 +1668,7 @@ void AdicionaFeiticosDominioSeAusentes(
   for (const std::string& dominio : dominios) {
     std::vector<const ArmaProto*> feiticos_dominio = tabelas.Feiticos(dominio, nivel);
     if (feiticos_dominio.empty()) {
-      LOG(INFO) << "Faltando feitico de dominio " << dominio << " nivel " << nivel;
+      VLOG(1) << "Faltando feitico de dominio " << dominio << " nivel " << nivel;
       continue;
     }
     if (feiticos_dominio.size() > 1) {

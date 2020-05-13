@@ -1139,6 +1139,9 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
     VLOG(1) << "Nao ha municao para ataque: " << da->DebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
+  if (ea.Id() == ed.Id()) {
+    return std::make_tuple("", true, 0.0f);
+  }
 
   const float alcance_m = ea.AlcanceAtaqueMetros();
   float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
@@ -5087,6 +5090,7 @@ std::pair<int, std::string> RenovaSeTiverDominioRenovar(
   }
   const EntidadeProto::PoderesDominio pd = it == ic.poderes_dominio().end() ? EntidadeProto::PoderesDominio::default_instance() : it->second;
   ntf::Notificacao nfake;
+  // TODO arrumar aqui: pontos de vida sao os PV da entidade e dano nao letal idem.
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(delta_pontos_vida, /*dano_nao_letal=*/0, proto, &nfake);
   const auto& e_antes = nfake.entidade_antes();
   const auto& e_depois = nfake.entidade();
@@ -5252,6 +5256,7 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
   }
   // Se contar o nao letal, passa do limiar, quase morto.
   if (pontos_vida - dano_nao_letal <= limiar_morte) {
+    LOG(INFO) << "aqui: pv: " << pontos_vida << ", dano nl: " << dano_nao_letal << ", limiar: " << limiar_morte;
     // A regra nao eh clara aqui, entao extrapolei. Se contando com o dano nao letal passar do limiar, fica inconsciente.
     e_depois->set_morta(false);
     e_depois->set_caida(true);
@@ -5263,6 +5268,7 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
     return;
   }
 
+    LOG(INFO) << "ali: pv: " << pontos_vida << ", dano nl: " << dano_nao_letal << ", limiar: " << limiar_morte;
   // Aqui é inconsciente, mas depende de talento.
   const bool duro_de_matar = PossuiTalento("duro_de_matar", proto);
   e_depois->set_nocauteada(true);
@@ -5290,7 +5296,7 @@ void AtribuiTesouroOuCriaVazio(const T& tesouro_receber, T* tesouro_final) {
   }
 }
 
-void AtribuiMoedasOuZeraSeVazio(const EntidadeProto::Moedas& moedas_receber, EntidadeProto::Moedas* moedas_final) {
+void AtribuiMoedasOuZeraSeVazio(const Moedas& moedas_receber, Moedas* moedas_final) {
   moedas_final->set_po(moedas_receber.po());
   moedas_final->set_pp(moedas_receber.pp());
   moedas_final->set_pc(moedas_receber.pc());
@@ -5328,7 +5334,7 @@ void MergeTesouro(const T& tesouro_atual, const T& tesouro_receber, T* tesouro_f
   }
 }
 
-void MergeMoedas(const EntidadeProto::Moedas& atual, const EntidadeProto::Moedas& receber, EntidadeProto::Moedas* moedas_final) {
+void MergeMoedas(const Moedas& atual, const Moedas& receber, Moedas* moedas_final) {
   moedas_final->set_po(atual.po() + receber.po());
   moedas_final->set_pp(atual.pp() + receber.pp());
   moedas_final->set_pc(atual.pc() + receber.pc());
@@ -5392,7 +5398,7 @@ void RemoveTesouroDoado(const RepeatedPtrField<T>& tesouro_doado,
   }
 }
 
-void RemoveMoedasDoadas(const EntidadeProto::Moedas& moedas_doadas, EntidadeProto::Moedas* moedas_final) {
+void RemoveMoedasDoadas(const Moedas& moedas_doadas, Moedas* moedas_final) {
   if (moedas_doadas.has_po()) moedas_final->set_po(0);
   if (moedas_doadas.has_pp()) moedas_final->set_pp(0);
   if (moedas_doadas.has_pc()) moedas_final->set_pc(0);
@@ -5444,7 +5450,7 @@ void MergeMensagemArmaduraEscudo(
   }
 }
 
-void MergeMensagemMoedas(const EntidadeProto::Moedas& moedas, std::string* texto) {
+void MergeMensagemMoedas(const Moedas& moedas, std::string* texto) {
   if (moedas.po() <= 0 && moedas.pp() <= 0 && moedas.pc() <= 0 && moedas.pe() <= 0 && moedas.pl() <= 0) return;
   texto->append("\n");
   if (moedas.po() > 0) { texto->append(StringPrintf("%d PO, ", moedas.pl())); }
@@ -5473,7 +5479,7 @@ void MergeMensagensTesouro(const EntidadeProto::DadosTesouro& tesouro, const Tab
   MergeMensagemMoedas(tesouro.moedas(), texto);
 }
 
-void LimpaMoedas(EntidadeProto::Moedas* moedas) {
+void LimpaMoedas(Moedas* moedas) {
   moedas->set_po(0);
   moedas->set_pp(0);
   moedas->set_pc(0);
