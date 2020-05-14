@@ -1468,6 +1468,11 @@ tabela_efeitos {
     nome: 'morte'
   }
   efeitos {
+    # palavra sagrada. Mortos vivos são imunes a morte.
+    id: EFEITO_DESTRUICAO_MORTO_VIVO
+    nome: 'destruição de morto vivo'
+  }
+  efeitos {
     id: EFEITO_INCONSCIENTE
     nome: 'inconsciente'
   }
@@ -7388,6 +7393,17 @@ tabela_feiticos {
         referencia_dados_vida_nivel_conjurador: true
         afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
         efeito: EFEITO_MORTE
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas: TIPO_MORTO_VIVO
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_DESTRUICAO_MORTO_VIVO
       }
       # Tb bane extra planares se falhar salvacao -4 vontade.
     }

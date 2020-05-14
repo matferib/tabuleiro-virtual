@@ -435,6 +435,20 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
         }
       }
       break;
+    case EFEITO_DESTRUICAO_MORTO_VIVO:
+      if (!evento->processado()) {
+        if (!TemTipoDnD(TIPO_MORTO_VIVO, *proto)) {
+          EntidadeProto proto_salvo;
+          proto_salvo.set_morta(proto->morta());
+          proto_salvo.set_caida(proto->caida());
+          proto_salvo.set_pontos_vida(proto->pontos_vida());
+          evento->set_estado_anterior(proto_salvo.SerializeAsString());
+          proto->set_morta(true);
+          proto->set_caida(true);
+          proto->set_pontos_vida(-100);
+        }
+      }
+      break;
     case EFEITO_MORTE:
       if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
@@ -833,6 +847,15 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
       proto->set_inconsciente(proto_salvo.inconsciente());
+    }
+    break;
+    case EFEITO_DESTRUICAO_MORTO_VIVO: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      proto->set_morta(proto_salvo.morta());
+      proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
     case EFEITO_MORTE: {

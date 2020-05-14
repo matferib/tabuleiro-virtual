@@ -1872,12 +1872,8 @@ bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, cons
   if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel_alvo < (nivel_base + efeito.afeta_apenas_dados_vida_maior_igual_a())) {
     return false;
   }
-  if (!efeito.afeta_apenas_tendencias().empty()) {
-    for (const auto tendencia : efeito.afeta_apenas_tendencias()) {
-      if (MesmaTendencia(static_cast<TendenciaSimplificada>(tendencia), alvo)) {
-        return true;
-      }
-    }
+  if (!efeito.afeta_apenas_tendencias().empty() &&
+      c_none_of(efeito.afeta_apenas_tendencias(), [&alvo](int tendencia) { return MesmaTendencia(static_cast<TendenciaSimplificada>(tendencia), alvo); })) {
     return false;
   }
   if (!efeito.afeta_apenas().empty() &&
