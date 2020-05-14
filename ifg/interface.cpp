@@ -62,7 +62,7 @@ std::string StringArea(const ent::AcaoProto& acao) {
   std::string str_geo;
   switch (acao.geometria()) {
     case ent::ACAO_GEO_CONE:
-      str_geo = StringPrintf("cone %f (q)", acao.distancia_quadrados());
+      str_geo = StringPrintf("cone %.1f (q)", acao.distancia_quadrados());
       break;
     case ent::ACAO_GEO_CILINDRO:
       str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
@@ -202,8 +202,11 @@ void InterfaceGrafica::VoltaEscolherPericia(
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
-std::string StringDuracao(const ent::Tabelas& tabelas, const ent::ArmaProto& feitico) {
-  const auto& acao = feitico.acao();
+std::string StringDuracao(const ent::Tabelas& tabelas, const ent::ArmaProto& feitico_tabelado) {
+  if (!feitico_tabelado.has_acao()) {
+    return "não implementado";
+  }
+  const auto& acao = feitico_tabelado.acao();
   const auto& acao_tabelada = tabelas.Acao(acao.id());
   if (acao.tipo() == ent::ACAO_CRIACAO_ENTIDADE || acao_tabelada.tipo() == ent::ACAO_CRIACAO_ENTIDADE) {
     // Busca a entidade criada.
@@ -218,7 +221,7 @@ std::string StringDuracao(const ent::Tabelas& tabelas, const ent::ArmaProto& fei
     return StringDuracao(modelo.parametros().tipo_duracao());
   } else if (acao.efeitos_adicionais().size() == 1) {
     return  acao.efeitos_adicionais(0).has_modificador_rodadas()
-        ? StringDuracao(feitico.acao().efeitos_adicionais(0).modificador_rodadas())
+        ? StringDuracao(feitico_tabelado.acao().efeitos_adicionais(0).modificador_rodadas())
         : "-";
   } else {
     return "-";
@@ -233,12 +236,12 @@ struct IndiceQuantidadeNivel {
   std::string duracao;
 
   void PreencheIncrementando(
-      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico_tabelado, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
     this->indice = indice;
     ++quantidade;
-    nivel = ic.has_id() ? ent::NivelMagia(feitico, ic) :  ent::NivelMaisAltoMagia(feitico);
-    link = feitico.link();
-    duracao = StringDuracao(tabelas, feitico);
+    nivel = ic.has_id() ? ent::NivelMagia(feitico_tabelado, ic) :  ent::NivelMaisAltoMagia(feitico_tabelado);
+    link = feitico_tabelado.link();
+    duracao = StringDuracao(tabelas, feitico_tabelado);
   }
 };
 
