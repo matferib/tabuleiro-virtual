@@ -5555,6 +5555,28 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'voo'
+    nome: 'vôo'
+    nome_ingles: 'fly'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_VOO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
     id: 'terremoto'
     nome: 'terremoto'
     nome_ingles: 'earthquake'
@@ -5567,6 +5589,7 @@ tabela_feiticos {
     info_classes {
       id: 'destruicao'
       nivel: 8
+      dominio: true
     }
     info_classes {
       id: 'druida'
@@ -5605,6 +5628,7 @@ tabela_feiticos {
     info_classes {
       id: 'sorte'
       nivel: 1
+      dominio: true
     }
     acao {
       id: 'Feitiço Pessoal'
