@@ -4881,6 +4881,7 @@ modelo {
 modelo {
   id: 'Druida Base'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }

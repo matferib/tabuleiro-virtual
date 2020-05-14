@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 92.
+// Proximo id: 94.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -236,7 +236,7 @@ message AcaoProto {
     // Para efeitos de cura ou dano.
     optional string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
-    optional TendenciaSimplificada afeta_apenas_tendencia = 11;
+    repeated TendenciaSimplificada afeta_apenas_tendencias = 11;
     repeated TipoDnD afeta_apenas = 22;
     repeated TipoDnD nao_afeta_tipo = 23;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
@@ -268,6 +268,10 @@ message AcaoProto {
     optional int32 afeta_apenas_dados_vida_menor_igual_a = 18;
     optional int32 afeta_apenas_dados_vida_maior_igual_a = 19;
     optional int32 afeta_apenas_dados_vida_igual_a = 20;
+    // Se verdadeiro, os valores acima serao relativos ao nivel do conjurador.
+    // Por exemplo, se nivel de conjurador for 4 e afeta_apenas_dados_vida_menor_igual_a -1,
+    // afetara nivel 3, 2 e 1.
+    optional bool referencia_dados_vida_nivel_conjurador = 24;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.
@@ -328,6 +332,9 @@ message AcaoProto {
   repeated uint32 ids_afetados = 90;
   // Indica acao pessoal (ja se sabe o id destino).
   optional bool pessoal = 91;
+  // Bem, mal, caos, leal.
+  optional DescritorAtaque alinhamento_bem_mal = 92;
+  optional DescritorAtaque alinhamento_ordem_caos = 93;
 }
 
 // Como uma arma esta empunhada.

@@ -7342,13 +7342,53 @@ tabela_feiticos {
       raio_quadrados: 6
       efeito_area: true
       duracao_s: 0.350
-      # TODO: complexo
-      # afeta apenas nao bons.
-      # acima nivel caster, nada.
-      # nivel caster: surdo 1d4r
-      # nivel caster -1: cego 2d4r, surdo 1d4r.
-      # nivel caster -5: paralizado 1d10m, cego 2d4r, surdo 1d4r.
-      # nivel caster -10: morto, paralizado 1d10m, cego 1d4r, surdo 1d4r.
+      permite_salvacao: false
+      elemento: DESC_SONICO
+      alinhamento_bem_mal: DESC_BEM
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: 0  # nivel de conjurador ou menor.
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '1d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -1  # nivel de conjurador -1.
+        efeito: EFEITO_CEGO
+        dado_modificador_rodadas: '2d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -5  # nivel de conjurador -5.
+        efeito: EFEITO_PARALISIA
+        # 1d10 minutos.
+        dado_modificador_rodadas: '1d100'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_MORTE
+      }
       # Tb bane extra planares se falhar salvacao -4 vontade.
     }
     escola: 'evocacao'
@@ -8419,7 +8459,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8447,7 +8487,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8614,7 +8654,7 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8878,7 +8918,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       ignora_resistencia_magia: false
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -9319,7 +9359,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: 'Detectar portas secretas'
@@ -9346,7 +9386,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_AUXILIO_DIVINO
         rodadas: 10  # fixo.
@@ -10584,7 +10624,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -10715,7 +10755,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -10760,7 +10800,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
     }
     escola: 'transmutacao'
   }
@@ -10893,7 +10933,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_ESCUDO_ARCANO
         rodadas: 10
@@ -11927,7 +11967,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_VER_INVISIVEL
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12005,7 +12045,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -12645,7 +12685,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO

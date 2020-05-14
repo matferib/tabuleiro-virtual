@@ -134,7 +134,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario);
 
 // Retorna true se a entidade puder ser afetada pelo efeito.
-bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo);
+bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo);
 
 }  // namespace ent
 

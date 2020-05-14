@@ -1787,7 +1787,7 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     return std::make_tuple(0, "ação não encontrada");
   }
   try {
-    // Nao deixa valor negativo para evitar danos que curam.
+    // Valor minimo de dano é 1, caso haja algum dano.
     int valor;
     std::vector<std::pair<int, int>> dados;
     std::tie(valor, dados) = GeraPontosVida(s);
@@ -1795,8 +1795,8 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
     }
-    if (valor < 0) {
-      valor = 0;
+    if (valor <= 0) {
+      valor = 1;
     }
     return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
   } catch (const std::exception& e) {

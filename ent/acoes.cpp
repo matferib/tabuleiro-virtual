@@ -1860,18 +1860,24 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
   return ids_afetados;
 }
 
-bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
-  int nivel = NivelPersonagem(alvo);
+bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
+  int nivel_alvo = NivelPersonagem(alvo);
+  int nivel_base = efeito.referencia_dados_vida_nivel_conjurador() ? nivel_conjurador : 0;
   if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
-    return nivel == efeito.afeta_apenas_dados_vida_igual_a();
+    return nivel_alvo == (nivel_base + efeito.afeta_apenas_dados_vida_igual_a());
   }
-  if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel > efeito.afeta_apenas_dados_vida_menor_igual_a()) {
+  if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel_alvo > (nivel_base + efeito.afeta_apenas_dados_vida_menor_igual_a())) {
     return false;
   }
-  if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel < efeito.afeta_apenas_dados_vida_maior_igual_a()) {
+  if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel_alvo < (nivel_base + efeito.afeta_apenas_dados_vida_maior_igual_a())) {
     return false;
   }
-  if (efeito.has_afeta_apenas_tendencia() && !MesmaTendencia(efeito.afeta_apenas_tendencia(), alvo)) {
+  if (!efeito.afeta_apenas_tendencias().empty()) {
+    for (const auto tendencia : efeito.afeta_apenas_tendencias()) {
+      if (MesmaTendencia(static_cast<TendenciaSimplificada>(tendencia), alvo)) {
+        return true;
+      }
+    }
     return false;
   }
   if (!efeito.afeta_apenas().empty() &&

@@ -5680,7 +5680,7 @@ float AplicaEfeitosAdicionais(
       da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
   ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
-    if (!EntidadeAfetadaPorEfeito(tabelas, efeito_adicional, entidade_destino.Proto())) {
+    if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
       continue;
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);

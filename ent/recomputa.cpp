@@ -2377,6 +2377,12 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
   }
+  if (da->acao().has_alinhamento_bem_mal()) {
+    da->set_alinhamento_bem_mal(da->acao().alinhamento_bem_mal());
+  }
+  if (da->acao().has_alinhamento_ordem_caos()) {
+    da->set_alinhamento_ordem_caos(da->acao().alinhamento_ordem_caos());
+  }
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
