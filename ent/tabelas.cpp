@@ -244,31 +244,32 @@ void Tabelas::RecarregaMapas() {
     if (arma.info_modelo_3d().id().empty()) {
       if (arma.id().find("espada") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("sword");
-        arma.mutable_acao()->set_som_sucesso("steel.wav");
-        arma.mutable_acao()->set_som_fracasso("miss.wav");
-      }
-      else if (arma.id().find("besta") != std::string::npos) {
+      } else if (arma.id().find("besta") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("crossbow");
-        arma.mutable_acao()->set_som_inicial("miss.wav");
-      }
-      else if (arma.id().find("machado") != std::string::npos) {
+      } else if (arma.id().find("machado") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("axe");
-        arma.mutable_acao()->set_som_sucesso("steel.wav");
-        arma.mutable_acao()->set_som_fracasso("miss.wav");
-      }
-      else if (arma.id().find("arco") != std::string::npos) {
+      } else if (arma.id().find("arco") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("bow");
-        arma.mutable_acao()->set_som_inicial("miss.wav");
-      }
-      else if (arma.id().find("clava") != std::string::npos) {
+      } else if (arma.id().find("clava") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("club");
-      }
-      else if (arma.id().find("mangual") != std::string::npos) {
+      } else if (arma.id().find("mangual") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("flail");
-      }
-      else if (arma.id().find("lanca") != std::string::npos) {
+      } else if (arma.id().find("lanca") != std::string::npos) {
         arma.mutable_info_modelo_3d()->set_id("spear");
       }
+    }
+    if (!arma.acao().has_som_inicial()) {
+      arma.mutable_acao()->set_som_inicial("miss.wav");
+    }
+    if (!arma.tipo_dano().empty() && !arma.acao().has_som_sucesso()) {
+      if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE) {
+        arma.mutable_acao()->set_som_sucesso("steel.wav");
+      } else {
+        arma.mutable_acao()->set_som_sucesso("punch.wav");
+      }
+    }
+    if (arma.id() == "espada_longa") {
+      LOG(INFO) << "arma: " << arma.DebugString();
     }
     armas_[arma.id()] = &arma;
   }
