@@ -139,7 +139,7 @@ tabela_armas {
       efeitos_adicionais {
         efeito: EFEITO_ENREDADO
         dado_modificador_rodadas: '2d4'
-        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE 
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
       }
     }
   }
@@ -152,19 +152,20 @@ tabela_armas {
     alcance_quadrados: 4
     tipo_dano: TD_OUTRO
     acao {
-      cor { r: 1.0 g: 1.0 b: 0 }
+      cor { r: 1.0 g: 1.0 b: 1.0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
-      icone: 'icon_tanglefoot_bag.png'
+      icone: 'icon_thunderstone.png'
+      som_sucesso: 'thunderstone.wav'
       efeito_area: true
       elemento: DESC_SONICO
+      dificuldade_salvacao_base: 15
+      tipo_salvacao: TS_FORTITUDE
       efeitos_adicionais {
         efeito: EFEITO_ENSURDECIDO
-        rodadas: 600 
+        rodadas: 600
       }
     }
   }
-
-
   armas {
     id: 'fogo_alquimico'
     nome: 'fogo alquímico'
