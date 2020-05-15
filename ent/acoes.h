@@ -63,6 +63,8 @@ class Acao {
       const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
+  void TocaSomInicial() const;
+  void TocaSucessoOuFracasso() const;
   void DesenhaGeometriaAcao() const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
@@ -110,6 +112,7 @@ class Acao {
   // Para controle de quanto o alvo se moveu.
   float dx_total_ = 0, dy_total_ = 0, dz_total_ = 0;
   estado_alvo_e estado_alvo_ = ALVO_NAO_ATINGIDO;
+  bool tocou_som_inicial_ = false;
 
  private:
   // Desenho comum.

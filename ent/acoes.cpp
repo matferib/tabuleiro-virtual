@@ -16,6 +16,7 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
+#include "som/som.h"
 #include "tex/texturas.h"
 
 namespace ent {
@@ -655,6 +656,7 @@ class AcaoProjetilArea: public Acao {
         pos_.z() == pos_impacto_.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
+      TocaSucessoOuFracasso();
       return;
     }
   }
@@ -1152,7 +1154,29 @@ void Acao::Atualiza(int intervalo_ms) {
     atraso_s_ -= (intervalo_ms / 1000.0f);
     return;
   }
+  if (!tocou_som_inicial_) {
+    TocaSomInicial();
+    tocou_som_inicial_ = true;
+  }
   AtualizaAposAtraso(intervalo_ms);
+}
+
+void Acao::TocaSomInicial() const {
+  if (acao_proto_.has_som_inicial()) {
+    som::Toca(acao_proto_.som_inicial());
+  }
+}
+
+void Acao::TocaSucessoOuFracasso() const {
+  if (acao_proto_.bem_sucedida()) {
+    if (acao_proto_.has_som_sucesso()) {
+      som::Toca(acao_proto_.som_sucesso());
+    }
+  } else {
+    if (acao_proto_.has_som_fracasso()) {
+      som::Toca(acao_proto_.som_fracasso());
+    }
+  }
 }
 
 int Acao::IdCenario() const {
@@ -1350,6 +1374,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
       AtualizaDirecaoQuedaAlvo(entidade_destino);
       estado_alvo_ = ALVO_A_SER_ATINGIDO;
+      TocaSucessoOuFracasso();
     }
     disco_alvo_rad_ += dt * M_PI / 2.0f;
     // Nao terminou de atualizar.

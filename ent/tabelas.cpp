@@ -242,13 +242,33 @@ void Tabelas::RecarregaMapas() {
     arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
     if (arma.info_modelo_3d().id().empty()) {
-      if (arma.id().find("espada") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("sword");
-      else if (arma.id().find("besta") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("crossbow");
-      else if (arma.id().find("machado") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("axe");
-      else if (arma.id().find("arco") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("bow");
-      else if (arma.id().find("clava") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("club");
-      else if (arma.id().find("mangual") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("flail");
-      else if (arma.id().find("lanca") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("spear");
+      if (arma.id().find("espada") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("sword");
+        arma.mutable_acao()->set_som_sucesso("steel.wav");
+        arma.mutable_acao()->set_som_fracasso("miss.wav");
+      }
+      else if (arma.id().find("besta") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("crossbow");
+        arma.mutable_acao()->set_som_inicial("miss.wav");
+      }
+      else if (arma.id().find("machado") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("axe");
+        arma.mutable_acao()->set_som_sucesso("steel.wav");
+        arma.mutable_acao()->set_som_fracasso("miss.wav");
+      }
+      else if (arma.id().find("arco") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("bow");
+        arma.mutable_acao()->set_som_inicial("miss.wav");
+      }
+      else if (arma.id().find("clava") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("club");
+      }
+      else if (arma.id().find("mangual") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("flail");
+      }
+      else if (arma.id().find("lanca") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("spear");
+      }
     }
     armas_[arma.id()] = &arma;
   }

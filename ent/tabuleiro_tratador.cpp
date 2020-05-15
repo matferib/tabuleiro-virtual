@@ -1218,7 +1218,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     acao_proto->set_afeta_pontos_vida(true);
     por_entidade->set_id(id);
 
-    int delta_pv = -1;
+    int delta_pv = da.dano().empty() ? 0 : -1;
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
