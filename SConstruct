@@ -22,12 +22,12 @@ if sistema == 'win32':
 	  env['QTDIR'] = 'd:/Qt/'
   #env['QT_LIBPATH'] = 'win32/lib'
   env['QT_LIBPATH'] = 'd:/Qt/lib'
-  env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore']
+  env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore', 'QtMultimedia']
 elif sistema == 'apple':
   if 'QTDIR' not in env:
     env['QTDIR'] = '/usr/local/Cellar/qt5/5.14.0/'
   env['FRAMEWORKPATH'] = [env['QTDIR'] + 'lib']
-  frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'OpenGL']
+  frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'QtMultimedia', 'OpenGL']
   env['FRAMEWORKS'] = frameworks
   env['QT_CPPPATH'] = (map(lambda x: env['QTDIR'] + 'lib/' + x + '.framework/Headers/', frameworks) +
                        map(lambda x: env['QTDIR'] + 'include/' + x + '/', frameworks) +
@@ -37,9 +37,9 @@ elif sistema == 'apple':
 else:
   if 'QTDIR' not in env:
     env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
-  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
+  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedia', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
-  env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets']
+  env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets', 'Qt5Multimedia']
   env['RPATH'] = [env['QT_LIBPATH']]
 qt = Tool('qt')
 qt(env)
@@ -177,6 +177,9 @@ cNetCliente = env.Object('net/cliente.cpp')
 cNetUtil = env.Object('net/util.cpp')
 cNetSocket = env.Object('net/socket.cpp')
 
+# som.
+cSom = env.Object('som/som_qt.cpp')
+
 # Notificacoes.
 cNtf = env.Object('ntf/notificacao.cpp')
 ntf_proto = env.Protoc(
@@ -195,6 +198,8 @@ cGlues = env.Object('gltab/glues.cpp')
 cMatrix = env.Object('matrix/matrices.cpp')
 
 objetos = [
+    # som.
+    cSom,
     # net.
     cNetServidor, cNetCliente, cNetUtil, cNetSocket,
     # notificacoes.
