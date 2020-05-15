@@ -25,10 +25,11 @@ Name: {app}\tabuleiros_salvos
 Name: {localappdata}\TabuleiroVirtual
 
 [Files]
-Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion; 
+Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion;
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
 Source: ..\win32\libqt5\*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
+Source: ..\sons\*.png; Destdir: {app}\sons; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
 Source: ..\shaders\*.c; Destdir: {app}\shaders; Flags: ignoreversion;
 Source: ..\modelos3d\*.binproto; Destdir: {app}\modelos3d; Flags: ignoreversion;
