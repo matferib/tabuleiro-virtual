@@ -763,15 +763,18 @@ modelo {
 modelo {
   id: 'Muralha de Lâminas'
   entidade {
+    rotulo: 'Muralha de Lâminas'
     modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 66 z: 6 } }
     info_textura { id: 'metal' }
     especular: true
     cor { r: 0.5 g: 0.5 b: 0.5 }
     gerar_agarrar: false
+    posicao_acao { x: 0 y: 0 z: 0 }
     dados_ataque {
       rotulo: 'lâminas'
       tipo_ataque: 'Feitiço de Toque'
       ignora_origem: true
+      incrementa_proximo_ataque: false
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -790,16 +793,19 @@ modelo {
 modelo {
   id: 'Coluna de Lâminas'
   entidade {
+    rotulo: 'Coluna de Lâminas'
     modelo_3d { id: 'builtin:cilindro' escala { x: 1.5 y: 1.5 z: 6 } }
     cor { r: 0.5 g: 0.5 b: 0.5 }
     info_textura { id: 'metal' }
     especular: true
     dois_lados: true
     gerar_agarrar: false
+    posicao_acao { x: 0 y: 0 z: 0 }
     dados_ataque {
       rotulo: 'lâminas'
       tipo_ataque: 'Feitiço de Toque'
       ignora_origem: true
+      incrementa_proximo_ataque: false
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -5925,7 +5931,8 @@ modelo {
 modelo {
   id: 'Humano Bardo 5'
   entidade {
-    dados_vida: '4d6+10' raca: 'humano'
+    dados_vida: '4d6+10'
+    raca: 'humano'
     info_textura { id: 'human_bard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'bardo' nivel: 5 }
     atributos {
@@ -6721,6 +6728,7 @@ modelo {
   id: 'Humano Monge 1'
   id_entidade_base: 'Monge Base'
   entidade {
+    raca: 'humano'
     dados_vida: '9'
     info_classes { id: 'monge' nivel: 1 }
     cor { r: 0.3 g: 0.1 b: 0.1 }

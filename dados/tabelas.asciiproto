@@ -5655,6 +5655,11 @@ tabela_feiticos {
       duracao_s: 0.350
       ignora_resistencia_magia: true
       elemento: DESC_TERRA
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'terremoto'
+        rodadas: 1
+      }
     }
     escola: 'evocacao'
   }
