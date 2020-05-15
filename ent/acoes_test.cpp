@@ -340,6 +340,20 @@ TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeito) {
   }
 }
 
+TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoBolsaCola) {
+  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  auto alvo_pequeno = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  auto modelo_aranha = g_tabelas.ModeloEntidade("Aranha Gigante Enorme");
+  auto alvo_enorme = NovaEntidadeParaTestes(modelo_aranha.entidade(), g_tabelas);
+  const auto& bolsa_cola = g_tabelas.Arma("bolsa_cola");
+  ASSERT_EQ(bolsa_cola.acao().efeitos_adicionais_size(), 1);
+  {
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_pequeno->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_enorme->Proto()));
+  }
+}
+
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

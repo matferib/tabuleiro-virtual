@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 94.
+// Proximo id: 95.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -272,6 +272,7 @@ message AcaoProto {
     // Por exemplo, se nivel de conjurador for 4 e afeta_apenas_dados_vida_menor_igual_a -1,
     // afetara nivel 3, 2 e 1.
     optional bool referencia_dados_vida_nivel_conjurador = 24;
+    optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.

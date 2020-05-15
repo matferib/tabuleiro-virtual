@@ -126,6 +126,46 @@ tabela_armas {
     }
   }
   armas {
+    id: 'bolsa_cola'
+    nome: 'bolsa de cola'
+    categoria: CAT_DISTANCIA
+    preco: '50 PO'
+    alcance_quadrados: 2
+    tipo_dano: TD_OUTRO
+    acao {
+      cor { r: 1.0 g: 1.0 b: 1.0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_web.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        dado_modificador_rodadas: '2d4'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE 
+      }
+    }
+  }
+  armas {
+    id: 'pedra_trovao'
+    nome: 'pedra trovão'
+    categoria: CAT_DISTANCIA
+    categoria: CAT_PROJETIL_AREA
+    preco: '30 PO'
+    alcance_quadrados: 4
+    tipo_dano: TD_OUTRO
+    acao {
+      cor { r: 1.0 g: 1.0 b: 0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_tanglefoot_bag.png'
+      efeito_area: true
+      elemento: DESC_SONICO
+      efeitos_adicionais {
+        efeito: EFEITO_ENSURDECIDO
+        rodadas: 600 
+      }
+    }
+  }
+
+
+  armas {
     id: 'fogo_alquimico'
     nome: 'fogo alquímico'
     categoria: CAT_PROJETIL_AREA

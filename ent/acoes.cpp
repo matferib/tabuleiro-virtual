@@ -1823,7 +1823,7 @@ bool EfeitoArea(const AcaoProto& acao_proto) {
 
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario) {
-  LOG(INFO) << "entidades_cenario: " << entidades_cenario.size();
+  VLOG(1) << "entidades_cenario: " << entidades_cenario.size();
   std::vector<const Entidade*> entidades_ordenadas;
   if (acao.mais_fracos_primeiro()) {
     entidades_ordenadas = entidades_cenario;
@@ -1833,7 +1833,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
         return lhs->Id() < rhs->Id();
     });
   }
-  LOG(INFO) << "entidades_ordenadas: " << entidades_ordenadas.size();
+  VLOG(1) << "entidades_ordenadas: " << entidades_ordenadas.size();
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
     pos_origem = entidade_origem->PosicaoAcao();
@@ -1865,6 +1865,9 @@ bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, cons
   int nivel_base = efeito.referencia_dados_vida_nivel_conjurador() ? nivel_conjurador : 0;
   if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
     return nivel_alvo == (nivel_base + efeito.afeta_apenas_dados_vida_igual_a());
+  }
+  if (efeito.has_afeta_apenas_tamanhos_menores_ou_igual_a() && alvo.tamanho() > efeito.afeta_apenas_tamanhos_menores_ou_igual_a()) {
+    return false;
   }
   if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel_alvo > (nivel_base + efeito.afeta_apenas_dados_vida_menor_igual_a())) {
     return false;
