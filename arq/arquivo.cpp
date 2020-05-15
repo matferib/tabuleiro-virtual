@@ -56,6 +56,7 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
     case TIPO_SHADER: return "shaders";
     case TIPO_ENTIDADES: return "entidades_salvas";
     case TIPO_FONTES: return "fontes";
+    case TIPO_SOM: return "sons";
     case TIPO_TESTE: return "teste";
     default:
       throw std::logic_error("Tipo de arquivo invalido.");
@@ -68,6 +69,7 @@ bool EhAsset(tipo_e tipo) {
          tipo == TIPO_DADOS ||
          tipo == TIPO_SHADER ||
          tipo == TIPO_FONTES ||
+         tipo == TIPO_SOM ||
          tipo == TIPO_MODELOS_3D;
 }
 
