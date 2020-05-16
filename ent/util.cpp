@@ -1152,13 +1152,13 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
       int total_incrementos = distancia_m / alcance_m;
       if (total_incrementos > ea.IncrementosAtaque()) {
         return std::make_tuple(
-            google::protobuf::StringPrintf(
+            StringPrintf(
                 "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque()),
             false, distancia_m);
       }
     } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
       std::string texto =
-          google::protobuf::StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f",
+          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f",
                                          alcance_minimo_m, distancia_m);
       return std::make_tuple(texto, false, distancia_m);
     }
