@@ -283,14 +283,6 @@ message EntidadeProto {
     repeated uint32 ids_efeitos = 8;
   }
 
-  message Moedas {
-    optional int32 po = 1;
-    optional int32 pp = 2;
-    optional int32 pc = 3;
-    optional int32 pl = 4;
-    optional int32 pe = 5;
-  }
-
   // Geracao de tesouro automatica?
   // Atencao: ao adicionar campos aqui, alterar tb em tabuleiro_tratador:
   // TrataBotaoTransicaoPressionadoPosPicking.

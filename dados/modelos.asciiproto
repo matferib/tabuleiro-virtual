@@ -763,10 +763,18 @@ modelo {
 modelo {
   id: 'Muralha de Lâminas'
   entidade {
-    modelo_3d { id: 'builtin:retangulo' escala { x: 1.5 y: 66 z: 6 } }
+    rotulo: 'Muralha de Lâminas'
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 66 z: 6 } }
+    info_textura { id: 'metal' }
+    especular: true
     cor { r: 0.5 g: 0.5 b: 0.5 }
+    gerar_agarrar: false
+    posicao_acao { x: 0 y: 0 z: 0 }
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'lâminas'
+      tipo_ataque: 'Feitiço de Toque'
+      ignora_origem: true
+      incrementa_proximo_ataque: false
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -780,16 +788,24 @@ modelo {
     multiplicador_nivel_dano: 1
     dado_dano_por_nivel: 6
     maximo_modificador_dano: 15
-    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
   }
 }
 modelo {
   id: 'Coluna de Lâminas'
   entidade {
+    rotulo: 'Coluna de Lâminas'
     modelo_3d { id: 'builtin:cilindro' escala { x: 1.5 y: 1.5 z: 6 } }
     cor { r: 0.5 g: 0.5 b: 0.5 }
+    info_textura { id: 'metal' }
+    especular: true
+    dois_lados: true
+    gerar_agarrar: false
+    posicao_acao { x: 0 y: 0 z: 0 }
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'lâminas'
+      tipo_ataque: 'Feitiço de Toque'
+      ignora_origem: true
+      incrementa_proximo_ataque: false
       acao_fixa {
         permite_ataque_vs_defesa: false
         permite_salvacao: true
@@ -803,7 +819,6 @@ modelo {
     multiplicador_nivel_dano: 1
     dado_dano_por_nivel: 6
     maximo_modificador_dano: 15
-    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
   }
 }
 
@@ -4870,8 +4885,69 @@ modelo {
 }
 
 modelo {
+  id: 'Humano Especialista Base'
+  entidade {
+    raca: 'humano'
+    info_textura { id: 'blacksmith.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    atributos {
+      # Usa array padrao.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+modelo {
+  id: 'Humano Especialista 6'
+  id_entidade_base: 'Humano Especialista Base'
+  entidade {
+    rotulo: 'Especialista 6'
+    info_classes { id: 'especialista' nivel: 6 }
+    dados_vida: '6d6+3'
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+    atributos {
+      inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+    dados_defesa { id_armadura: 'camisao' bonus_magico_armadura: 1 }
+    dados_ataque { id_arma: 'lanca_longa' empunhadura: EA_MAO_BOA bonus_magico: 1 }
+    # Metade do preco.
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 7 }
+    dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 8 }
+    dados_ataque { id_arma: 'bolsa_cola' empunhadura: EA_ARMA_ESCUDO municao: 2 }
+    dados_ataque { id_arma: 'pedra_trovao' empunhadura: EA_ARMA_ESCUDO municao: 4 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'ajuda' }
+      moedas { po: 5 }
+    }
+    info_talentos {
+      gerais { id: 'especializacao_em_combate' }  # 1
+      gerais { id: 'desarme_aprimorado' }  # 3
+      gerais { id: 'esquiva' }  # 6
+    }
+    info_pericias { id: 'oficios_armeiro' pontos: 9 }
+    info_pericias { id: 'oficios_armoraria' pontos: 9 }
+    info_pericias { id: 'oficios_armoraria' pontos: 9 }
+    info_pericias { id: 'oficios_alquimia' pontos: 9 }
+    info_pericias { id: 'oficios_armadilharia' pontos: 9 }
+    info_pericias { id: 'observar' pontos: 9 }
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'sentir_motivacao' pontos: 9 }
+    info_pericias { id: 'avaliacao' pontos: 9 }
+  }
+}
+modelo {
   id: 'Druida Base'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
@@ -5855,7 +5931,8 @@ modelo {
 modelo {
   id: 'Humano Bardo 5'
   entidade {
-    dados_vida: '4d6+10' raca: 'humano'
+    dados_vida: '4d6+10'
+    raca: 'humano'
     info_textura { id: 'human_bard.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'bardo' nivel: 5 }
     atributos {
@@ -6651,6 +6728,7 @@ modelo {
   id: 'Humano Monge 1'
   id_entidade_base: 'Monge Base'
   entidade {
+    raca: 'humano'
     dados_vida: '9'
     info_classes { id: 'monge' nivel: 1 }
     cor { r: 0.3 g: 0.1 b: 0.1 }

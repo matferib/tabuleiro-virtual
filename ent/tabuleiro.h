@@ -758,7 +758,7 @@ class Tabuleiro : public ntf::Receptor {
       float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
       ntf::Notificacao* grupo_desfazer);
   float TrataAcaoEfeitoArea(
-      float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
+      unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
   float TrataAcaoExpulsarFascinarMortosVivos(
       float atraso_s, const Entidade* entidade, AcaoProto* acao_proto,
@@ -1072,7 +1072,12 @@ class Tabuleiro : public ntf::Receptor {
   void AlterarModoMestre(bool modo);
 
   /** Retorna quais unidades sao afetadas por determinada acao. */
-  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
+  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao) const;
+  /** Caso a acao deva ser preenchida, preenche e retorna a notificacao. Caso contrario, retorna a notificacao sem tipo. */
+  std::unique_ptr<ntf::Notificacao> TalvezPreenchaAcaoNaoPreenchida(
+      const Entidade& entidade_origem, const Entidade& entidade_destino,
+      const AcaoProto& acao_proto, const Posicao& pos_tabuleiro, const Posicao& pos_entidade_destino) const;
+
 
   /** Salva a camera inicial. */
   void SalvaCameraInicial();

@@ -311,21 +311,43 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
+    // Total.
     {
       gl::MatrizEscopo salva_matriz;
       gl::Escala(0.2f, 0.2f, 1.0f);
       MudaCor(COR_VERMELHA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
-    if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
-      float porcentagem = static_cast<float>(PontosVida()) / MaximoPontosVida();
-      float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
-      float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
+    const int pontos_vida_corrente = PontosVida();
+    const int pontos_vida_temporarios = PontosVidaTemporarios();
+    const int pontos_vida_sem_temporarios = pontos_vida_corrente - pontos_vida_temporarios;
+    // Corrente.
+    float tamanho_barra_sem_temporarios = 0.0;
+    if (pontos_vida_sem_temporarios > 0) {
+      gl::MatrizEscopo salva_matriz;
+      const float porcentagem = static_cast<float>(pontos_vida_sem_temporarios) / MaximoPontosVida();
+      tamanho_barra_sem_temporarios = TAMANHO_BARRA_VIDA * porcentagem;
+      const float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra_sem_temporarios / 2.0f);
       gl::Translada(0, 0, delta);
       gl::Escala(0.3f, 0.3f, porcentagem);
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
+      gl::CuboSolido(TAMANHO_BARRA_VIDA);
+    }
+    // Temporarios.
+    const int pontos_vida_temporarios_para_display = std::max(0, std::min(pontos_vida_corrente, pontos_vida_temporarios));
+    if (pontos_vida_temporarios_para_display > 0) {
+      gl::MatrizEscopo salva_matriz;
+      // Se a entidade estiver negativa, os pontos temporarios nao podem ser maior que o corrente.
+      float porcentagem = static_cast<float>(pontos_vida_temporarios_para_display) / MaximoPontosVida();
+      float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
+      float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f) + tamanho_barra_sem_temporarios;
+      gl::Translada(0, 0, delta);
+      gl::Escala(0.3f, 0.3f, porcentagem);
+      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
+      gl::DesvioProfundidade(0, -25.0);
+      MudaCor(COR_BRANCA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
   }

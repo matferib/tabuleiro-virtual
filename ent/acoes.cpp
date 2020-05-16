@@ -16,6 +16,7 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
+#include "som/som.h"
 #include "tex/texturas.h"
 
 namespace ent {
@@ -290,7 +291,9 @@ class AcaoDeltaPontosVida : public Acao {
         VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
         return;
       }
-      string_delta_ = delta_abs == 0 ? "X" : StringPrintf("%d", delta_abs);
+      string_delta_ = delta_abs != 0
+        ? StringPrintf("%d", delta_abs)
+        : (string_texto_.empty() ? "X" : "");
     } else if (TemTextoAcao(acao_proto_)) {
       string_texto_ = TextoAcao(acao_proto_);
     } else {
@@ -402,11 +405,13 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+  AcaoDispersao(
+      const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d,
+      ntf::CentralNotificacoes* central)
       : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     efeito_ = 0;
-    efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
-        acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+    efeito_maximo_ = TAMANHO_LADO_QUADRADO *
+        (acao_proto.geometria() == ACAO_GEO_CONE ? acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
     duracao_s_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() : 0.35f;
   }
 
@@ -651,6 +656,7 @@ class AcaoProjetilArea: public Acao {
         pos_.z() == pos_impacto_.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
+      TocaSucessoOuFracasso();
       return;
     }
   }
@@ -1148,7 +1154,29 @@ void Acao::Atualiza(int intervalo_ms) {
     atraso_s_ -= (intervalo_ms / 1000.0f);
     return;
   }
+  if (!tocou_som_inicial_) {
+    TocaSomInicial();
+    tocou_som_inicial_ = true;
+  }
   AtualizaAposAtraso(intervalo_ms);
+}
+
+void Acao::TocaSomInicial() const {
+  if (acao_proto_.has_som_inicial()) {
+    som::Toca(acao_proto_.som_inicial());
+  }
+}
+
+void Acao::TocaSucessoOuFracasso() const {
+  if (acao_proto_.bem_sucedida()) {
+    if (acao_proto_.has_som_sucesso()) {
+      som::Toca(acao_proto_.som_sucesso());
+    }
+  } else {
+    if (acao_proto_.has_som_fracasso()) {
+      som::Toca(acao_proto_.som_fracasso());
+    }
+  }
 }
 
 int Acao::IdCenario() const {
@@ -1346,6 +1374,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
       AtualizaDirecaoQuedaAlvo(entidade_destino);
       estado_alvo_ = ALVO_A_SER_ATINGIDO;
+      TocaSucessoOuFracasso();
     }
     disco_alvo_rad_ += dt * M_PI / 2.0f;
     // Nao terminou de atualizar.
@@ -1819,6 +1848,7 @@ bool EfeitoArea(const AcaoProto& acao_proto) {
 
 const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const AcaoProto& acao, const Entidade* entidade_origem, const std::vector<const Entidade*>& entidades_cenario) {
+  VLOG(1) << "entidades_cenario: " << entidades_cenario.size();
   std::vector<const Entidade*> entidades_ordenadas;
   if (acao.mais_fracos_primeiro()) {
     entidades_ordenadas = entidades_cenario;
@@ -1828,6 +1858,7 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
         return lhs->Id() < rhs->Id();
     });
   }
+  VLOG(1) << "entidades_ordenadas: " << entidades_ordenadas.size();
   Posicao pos_origem;
   if (entidade_origem != nullptr) {
     pos_origem = entidade_origem->PosicaoAcao();
@@ -1840,28 +1871,37 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
     const int dv = entidade->NivelPersonagem();
     if (acao.has_total_dv() && (total_dv + dv) > acao.total_dv()) continue;
     Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
-    if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) continue;
+    if (!Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, /*ponto eh origem=*/entidade_origem != nullptr && entidade->Id() == entidade_origem->Id())) {
+      continue;
+    }
     ids_afetados.push_back(entidade->Id());
     total_dv += dv;
     if (acao.has_total_dv() && total_dv == acao.total_dv()) break;
     ++total_afetados;
-    if (acao.has_maximo_criaturas_afetadas() && total_afetados >= acao.maximo_criaturas_afetadas()) break;
+    if (acao.has_maximo_criaturas_afetadas() && total_afetados >= acao.maximo_criaturas_afetadas()) {
+      break;
+    }
   }
   return ids_afetados;
 }
 
-bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
-  int nivel = NivelPersonagem(alvo);
+bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
+  int nivel_alvo = NivelPersonagem(alvo);
+  int nivel_base = efeito.referencia_dados_vida_nivel_conjurador() ? nivel_conjurador : 0;
   if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
-    return nivel == efeito.afeta_apenas_dados_vida_igual_a();
+    return nivel_alvo == (nivel_base + efeito.afeta_apenas_dados_vida_igual_a());
   }
-  if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel > efeito.afeta_apenas_dados_vida_menor_igual_a()) {
+  if (efeito.has_afeta_apenas_tamanhos_menores_ou_igual_a() && alvo.tamanho() > efeito.afeta_apenas_tamanhos_menores_ou_igual_a()) {
     return false;
   }
-  if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel < efeito.afeta_apenas_dados_vida_maior_igual_a()) {
+  if (efeito.has_afeta_apenas_dados_vida_menor_igual_a() && nivel_alvo > (nivel_base + efeito.afeta_apenas_dados_vida_menor_igual_a())) {
     return false;
   }
-  if (efeito.has_afeta_apenas_tendencia() && !MesmaTendencia(efeito.afeta_apenas_tendencia(), alvo)) {
+  if (efeito.has_afeta_apenas_dados_vida_maior_igual_a() && nivel_alvo < (nivel_base + efeito.afeta_apenas_dados_vida_maior_igual_a())) {
+    return false;
+  }
+  if (!efeito.afeta_apenas_tendencias().empty() &&
+      c_none_of(efeito.afeta_apenas_tendencias(), [&alvo](int tendencia) { return MesmaTendencia(static_cast<TendenciaSimplificada>(tendencia), alvo); })) {
     return false;
   }
   if (!efeito.afeta_apenas().empty() &&

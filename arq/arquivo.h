@@ -45,6 +45,7 @@ enum tipo_e {
   TIPO_ENTIDADES,
   TIPO_SHADER,
   TIPO_FONTES,
+  TIPO_SOM,
   TIPO_TESTE
 };
 

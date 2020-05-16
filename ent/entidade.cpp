@@ -1787,7 +1787,7 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     return std::make_tuple(0, "ação não encontrada");
   }
   try {
-    // Nao deixa valor negativo para evitar danos que curam.
+    // Valor minimo de dano é 1, caso haja algum dano.
     int valor;
     std::vector<std::pair<int, int>> dados;
     std::tie(valor, dados) = GeraPontosVida(s);
@@ -1795,8 +1795,8 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
     }
-    if (valor < 0) {
-      valor = 0;
+    if (valor <= 0) {
+      valor = 1;
     }
     return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
   } catch (const std::exception& e) {
@@ -2071,7 +2071,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   }
   // Vbos de armas.
   std::vector<std::string> dados_vbo = {
-    "kama", "quarterstaff", "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe", "shield", "mace", "morning_star"
+    "kama", "quarterstaff", "sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe", "shield", "mace", "morning_star", "spear"
   };
   for (const auto& id : dados_vbo) {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));

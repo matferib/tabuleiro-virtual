@@ -435,6 +435,20 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
         }
       }
       break;
+    case EFEITO_DESTRUICAO_MORTO_VIVO:
+      if (!evento->processado()) {
+        if (!TemTipoDnD(TIPO_MORTO_VIVO, *proto)) {
+          EntidadeProto proto_salvo;
+          proto_salvo.set_morta(proto->morta());
+          proto_salvo.set_caida(proto->caida());
+          proto_salvo.set_pontos_vida(proto->pontos_vida());
+          evento->set_estado_anterior(proto_salvo.SerializeAsString());
+          proto->set_morta(true);
+          proto->set_caida(true);
+          proto->set_pontos_vida(-100);
+        }
+      }
+      break;
     case EFEITO_MORTE:
       if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
@@ -833,6 +847,15 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
       proto->set_inconsciente(proto_salvo.inconsciente());
+    }
+    break;
+    case EFEITO_DESTRUICAO_MORTO_VIVO: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      proto->set_morta(proto_salvo.morta());
+      proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
     case EFEITO_MORTE: {
@@ -1668,7 +1691,7 @@ void AdicionaFeiticosDominioSeAusentes(
   for (const std::string& dominio : dominios) {
     std::vector<const ArmaProto*> feiticos_dominio = tabelas.Feiticos(dominio, nivel);
     if (feiticos_dominio.empty()) {
-      LOG(INFO) << "Faltando feitico de dominio " << dominio << " nivel " << nivel;
+      VLOG(1) << "Faltando feitico de dominio " << dominio << " nivel " << nivel;
       continue;
     }
     if (feiticos_dominio.size() > 1) {
@@ -2377,10 +2400,16 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
   }
+  if (da->acao().has_alinhamento_bem_mal()) {
+    da->set_alinhamento_bem_mal(da->acao().alinhamento_bem_mal());
+  }
+  if (da->acao().has_alinhamento_ordem_caos()) {
+    da->set_alinhamento_ordem_caos(da->acao().alinhamento_ordem_caos());
+  }
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
+void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
   // Aplica acao da arma.
   if (arma.has_acao()) {
     if (arma.acao().has_id()) {
@@ -2541,7 +2570,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
-  ArmaParaDadosAtaque(tabelas, arma, proto, da);
+  ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
   const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
   // TODO verificar pericias nas armaduras e escudos.

@@ -7,3 +7,6 @@ bump maps: https://3dtextures.me/
 icon_sling: Imagem de <a href="https://delapouite.com/">Delapouite</a>, inverted colors.
 icon roll skill: https://imgur.com/a/KBQkz
 megaraptor: <a href='https://en.wikipedia.org/wiki/Megaraptor#/media/File:Megaraptor_namunhuaiquii.jpg'>Alexander Thomas Lovrgrove as per CC BY SA 4.0</a>
+som steel:<a href='https://freesound.org/people/Erdie/sounds/27858/'>https://freesound.org/people/Erdie/sounds/27858/</a>
+som miss: https://freesound.org/people/CGEffex/sounds/93081/
+som punch: https://freesound.org/people/ztrees1/sounds/134934/

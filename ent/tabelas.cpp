@@ -242,12 +242,34 @@ void Tabelas::RecarregaMapas() {
     arma.add_categoria(CAT_ARMA);
     ConverteDano(&arma);
     if (arma.info_modelo_3d().id().empty()) {
-      if (arma.id().find("espada") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("sword");
-      else if (arma.id().find("besta") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("crossbow");
-      else if (arma.id().find("machado") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("axe");
-      else if (arma.id().find("arco") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("bow");
-      else if (arma.id().find("clava") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("club");
-      else if (arma.id().find("mangual") != std::string::npos) arma.mutable_info_modelo_3d()->set_id("flail");
+      if (arma.id().find("espada") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("sword");
+      } else if (arma.id().find("besta") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("crossbow");
+      } else if (arma.id().find("machado") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("axe");
+      } else if (arma.id().find("arco") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("bow");
+      } else if (arma.id().find("clava") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("club");
+      } else if (arma.id().find("mangual") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("flail");
+      } else if (arma.id().find("lanca") != std::string::npos) {
+        arma.mutable_info_modelo_3d()->set_id("spear");
+      }
+    }
+    if (!arma.acao().has_som_inicial()) {
+      arma.mutable_acao()->set_som_inicial("miss.wav");
+    }
+    if (!arma.tipo_dano().empty() && !arma.acao().has_som_sucesso()) {
+      if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE) {
+        arma.mutable_acao()->set_som_sucesso("steel.wav");
+      } else {
+        arma.mutable_acao()->set_som_sucesso("punch.wav");
+      }
+    }
+    if (arma.id() == "espada_longa") {
+      LOG(INFO) << "arma: " << arma.DebugString();
     }
     armas_[arma.id()] = &arma;
   }
@@ -256,6 +278,11 @@ void Tabelas::RecarregaMapas() {
   for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
     if (feitico.nome().empty()) {
       feitico.set_nome(feitico.id());
+    }
+    if (feitico.has_acao() && feitico.acao().icone().empty()) {
+      if (feitico.acao().elemento() == DESC_MEDO) {
+        feitico.mutable_acao()->set_icone("icon_fear.png");
+      }
     }
     if (feitico.link().empty() && !feitico.nome_ingles().empty()) {
       std::vector<std::string> res;
@@ -492,7 +519,7 @@ const std::string Tabelas::FeiticoConversaoEspontanea(
     switch (nivel) {
       case 1: return "invocar_aliado_natureza_i";
       case 2: return "invocar_aliado_natureza_ii";
-      case 3: return "invocar_aliado_natureza_iii"; 
+      case 3: return "invocar_aliado_natureza_iii";
       case 4: return "invocar_aliado_natureza_iv";
       case 5: return "invocar_aliado_natureza_v";
       case 6: return "invocar_aliado_natureza_vi";

@@ -126,6 +126,47 @@ tabela_armas {
     }
   }
   armas {
+    id: 'bolsa_cola'
+    nome: 'bolsa de cola'
+    categoria: CAT_DISTANCIA
+    preco: '50 PO'
+    alcance_quadrados: 2
+    tipo_dano: TD_OUTRO
+    acao {
+      cor { r: 1.0 g: 1.0 b: 1.0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_web.png'
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        dado_modificador_rodadas: '2d4'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
+      }
+    }
+  }
+  armas {
+    id: 'pedra_trovao'
+    nome: 'pedra trovão'
+    categoria: CAT_DISTANCIA
+    categoria: CAT_PROJETIL_AREA
+    preco: '30 PO'
+    alcance_quadrados: 4
+    tipo_dano: TD_OUTRO
+    acao {
+      cor { r: 1.0 g: 1.0 b: 1.0 }
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      icone: 'icon_thunderstone.png'
+      som_sucesso: 'thunderstone.wav'
+      efeito_area: true
+      elemento: DESC_SONICO
+      dificuldade_salvacao_base: 15
+      tipo_salvacao: TS_FORTITUDE
+      efeitos_adicionais {
+        efeito: EFEITO_ENSURDECIDO
+        rodadas: 600
+      }
+    }
+  }
+  armas {
     id: 'fogo_alquimico'
     nome: 'fogo alquímico'
     categoria: CAT_PROJETIL_AREA
@@ -1425,6 +1466,12 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_LUZ
     nome: 'luz'
+    consequencia {
+      luz {
+        raio_m: 6 
+        cor { r: 1 g: 1 b: 1 a: 1.0 }
+      }
+    }
   }
   efeitos {
     id: EFEITO_PASMAR
@@ -1460,6 +1507,11 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_MORTE
     nome: 'morte'
+  }
+  efeitos {
+    # palavra sagrada. Mortos vivos são imunes a morte.
+    id: EFEITO_DESTRUICAO_MORTO_VIVO
+    nome: 'destruição de morto vivo'
   }
   efeitos {
     id: EFEITO_INCONSCIENTE
@@ -5544,6 +5596,28 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'voo'
+    nome: 'vôo'
+    nome_ingles: 'fly'
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_VOO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
     id: 'terremoto'
     nome: 'terremoto'
     nome_ingles: 'earthquake'
@@ -5556,6 +5630,7 @@ tabela_feiticos {
     info_classes {
       id: 'destruicao'
       nivel: 8
+      dominio: true
     }
     info_classes {
       id: 'druida'
@@ -5580,6 +5655,11 @@ tabela_feiticos {
       duracao_s: 0.350
       ignora_resistencia_magia: true
       elemento: DESC_TERRA
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'terremoto'
+        rodadas: 1
+      }
     }
     escola: 'evocacao'
   }
@@ -5594,6 +5674,7 @@ tabela_feiticos {
     info_classes {
       id: 'sorte'
       nivel: 1
+      dominio: true
     }
     acao {
       id: 'Feitiço Pessoal'
@@ -6356,7 +6437,7 @@ tabela_feiticos {
       ignora_resistencia_magia: true
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO 
+        efeito: EFEITO_OUTRO
         descricao: 'passos sem pegadas'
         modificador_rodadas: MR_HORAS_NIVEL
       }
@@ -6663,7 +6744,6 @@ tabela_feiticos {
     escola: 'ilusao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/undetectableAlignment.htm'
     id: 'dissimular_tendencia'
     nome_ingles: 'undetectable alignment'
     nome: 'dissimular tendencia'
@@ -6709,10 +6789,11 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço de Toque a Distância'
-      permite_ataque_vs_defesa: false
+      id: 'Feitiço Dispersão Esfera'
+      raio_quadrados: 3  # quadrados.
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
+      modelo_maximo_criaturas_afetadas: MG_UM_CADA_3_NIVEIS
       dv_mais_alto: 5
       elemento: DESC_MEDO
       efeitos_adicionais {
@@ -6724,7 +6805,6 @@ tabela_feiticos {
         rodadas: 1
       }
     }
-    modelo_maximo_criaturas_afetadas: LIMITE_UM_CADA_3_NIVEIS
     escola: 'necromancia'
   }
   armas {
@@ -7285,9 +7365,11 @@ tabela_feiticos {
   armas {
     id: 'destruicao'
     nome_ingles: 'destruction'
+    dano { invariavel: '10d6' }
     nome: 'destruição'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    dano_ignora_salvacao: true
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -7299,14 +7381,19 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço de Toque a Distância'
+      cor: { r: 0 b: 0 g: 0 a: 1.0 }
       permite_salvacao: true
       tipo_salvacao: TS_FORTITUDE
+      elemento: DESC_MORTE
       efeitos_adicionais {
         efeito: EFEITO_MORTE
       }
-      efeitos_adicionais_se_salvou {
-        delta_pontos_vida: '10d6'
-      }
+    }
+    componente {
+      tipo: COMP_FOCO
+      custo { po: 500 }
+      #descricao: 'A special holy (or unholy) symbol of silver marked with verses of anathema (cost 500 gp).'
+      descricao: 'Um símbolo sagrado (ou profano) de prata especial, com versos de um anatema.'
     }
     escola: 'necromancia'
   }
@@ -7315,7 +7402,6 @@ tabela_feiticos {
     id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'
-    alcance_quadrados: 0
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -7326,25 +7412,74 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_DISPERSAO
-      geometria: ACAO_GEO_ESFERA
+      id: 'Feitiço Pessoal Dispersão Esfera'
       cor: { r: 1.0 b: 1.0 g: 1.0 }
       raio_quadrados: 6
       efeito_area: true
       duracao_s: 0.350
-      # TODO: complexo
-      # afeta apenas nao bons.
-      # acima nivel caster, nada.
-      # nivel caster: surdo 1d4r
-      # nivel caster -1: cego 2d4r, surdo 1d4r.
-      # nivel caster -5: paralizado 1d10m, cego 2d4r, surdo 1d4r.
-      # nivel caster -10: morto, paralizado 1d10m, cego 1d4r, surdo 1d4r.
+      permite_salvacao: false
+      elemento: DESC_SONICO
+      alinhamento_bem_mal: DESC_BEM
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: 0  # nivel de conjurador ou menor.
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '1d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -1  # nivel de conjurador -1.
+        efeito: EFEITO_CEGO
+        dado_modificador_rodadas: '2d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -5  # nivel de conjurador -5.
+        efeito: EFEITO_PARALISIA
+        # 1d10 minutos.
+        dado_modificador_rodadas: '1d100'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_MORTE
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_CAOTICO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas: TIPO_MORTO_VIVO
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_DESTRUICAO_MORTO_VIVO
+      }
       # Tb bane extra planares se falhar salvacao -4 vontade.
     }
     escola: 'evocacao'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/bestowCurse.htm'
     id: 'rogar_maldicao'
     nome_ingles: 'bestow curse'
     nome: 'rogar maldição'
@@ -7864,7 +7999,7 @@ tabela_feiticos {
   armas {
     id: 'imunidade_magia'
     nome_ingles: 'spell immunity '
-    nome: 'Imunidade à Magia'
+    nome: 'imunidade à magia'
     info_classes {
       id: 'clerigo'
       nivel: 4
@@ -7902,7 +8037,7 @@ tabela_feiticos {
   armas {
     id: 'imunidade_magia_maior'
     nome_ingles: 'greater spell immunity'
-    nome: 'Imunidade à Magia Maior'
+    nome: 'imunidade à magia maior'
     info_classes {
       id: 'clerigo'
       nivel: 8
@@ -7924,7 +8059,7 @@ tabela_feiticos {
   armas {
     id: 'tempestade_fogo'
     nome_ingles: 'fire storm'
-    nome: 'Tempestade de Fogo'
+    nome: 'tempestade de fogo'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -7952,7 +8087,7 @@ tabela_feiticos {
   armas {
     id: 'arma_rompimento'
     nome_ingles: 'disruping weapon'
-    nome: 'Arma do Rompimento'
+    nome: 'arma do rompimento'
     info_classes {
       id: 'clerigo'
       nivel: 5
@@ -7973,7 +8108,7 @@ tabela_feiticos {
   armas {
     id: 'cancelar_encantamento'
     nome_ingles: 'break enchantment'
-    nome: 'Cancelar Encantamento'
+    nome: 'cancelar encantamento'
     info_classes {
       id: 'clerigo'
       nivel: 5
@@ -8410,7 +8545,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8438,7 +8573,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8605,7 +8740,7 @@ tabela_feiticos {
       nivel: 6
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -8789,14 +8924,14 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      id: 'Feitiço Pessoal'
+      id: 'Feitiço Pessoal Dispersão Esfera'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       permite_salvacao: false
       ignora_resistencia_magia: false
+      #aliados_ou_inimigos_apenas: true
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'Oração (selecionar manualmente o efeito se é aliado ou não)'
+        efeito: EFEITO_ORACAO_ALIADOS
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
@@ -8869,7 +9004,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       ignora_resistencia_magia: false
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -9001,7 +9136,7 @@ tabela_feiticos {
   armas {
     id: 'barreira_laminas'
     nome_ingles: 'blade barrier '
-    nome: 'Barreira de Lâminas'
+    nome: 'barreira de lâminas'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
@@ -9310,7 +9445,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         descricao: 'Detectar portas secretas'
@@ -9337,7 +9472,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_AUXILIO_DIVINO
         rodadas: 10  # fixo.
@@ -9689,7 +9824,7 @@ tabela_feiticos {
     nome: 'boa esperanca'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
-    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    modelo_limite_vezes: MG_UM_POR_NIVEL
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -10575,7 +10710,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -10673,7 +10808,7 @@ tabela_feiticos {
     id: 'velocidade'
     nome_ingles: 'haste'
     nome: 'velocidade'
-    modelo_limite_vezes: LIMITE_UM_POR_NIVEL
+    modelo_limite_vezes: MG_UM_POR_NIVEL
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -10706,7 +10841,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -10751,7 +10886,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
     }
     escola: 'transmutacao'
   }
@@ -10884,7 +11019,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_ESCUDO_ARCANO
         rodadas: 10
@@ -11918,7 +12053,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       efeitos_adicionais {
         efeito: EFEITO_VER_INVISIVEL
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -11996,7 +12131,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {
@@ -12190,7 +12325,6 @@ tabela_feiticos {
     id: 'bencao'
     nome: 'benção'
     nome_ingles: 'bless'
-    alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -12200,20 +12334,18 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_DISPERSAO
+      id: 'Feitiço Pessoal Dispersão Esfera'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
-      geometria: ACAO_GEO_ESFERA
       efeito_area: true
       permite_salvacao: false
-      icone: 'icon_bless.png'
       duracao_s: 0.350
       ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_BENCAO
-        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+      aliados_ou_inimigos_apenas: true
     }
     escola: 'encantamento'
   }
@@ -12221,13 +12353,12 @@ tabela_feiticos {
     id: 'maldicao_menor'
     nome_ingles: 'bane'
     nome: 'maldição menor'
-    alcance_quadrados: 1
     info_classes {
       id: 'clerigo'
       nivel: 1
     }
     acao {
-      id: 'Feitiço a Distância'
+      id: 'Feitiço Pessoal Dispersão Esfera'
       tipo: ACAO_DISPERSAO
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       raio_quadrados: 10  # quadrados.
@@ -12236,17 +12367,16 @@ tabela_feiticos {
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       resultado_ao_salvar: RS_ANULOU
-      icone: 'icon_bane.png'
       duracao_s: 0.350
+      elemento: DESC_MEDO
       efeitos_adicionais {
         efeito: EFEITO_MALDICAO_MENOR
-        rodadas: 10  # remover depois de fazer modificador_rodadas funcionar.
         modificador_rodadas: MR_MINUTOS_NIVEL
       }
+      aliados_ou_inimigos_apenas: true
     }
-    escola: ''
+    escola: 'encantamento'
   }
-
   armas {
     id: 'criar_agua'
     nome_ingles: 'create water'
@@ -12641,7 +12771,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_PESSOAL
+      id: 'Feitiço Pessoal'
       cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
@@ -12874,7 +13004,7 @@ tabela_feiticos {
       consequencia: TC_DESLOCA_ALVO
       elemento: DESC_FORCA
     }
-    modelo_limite_vezes: LIMITE_UM_CADA_NIVEL_IMPAR_MAX_5
+    modelo_limite_vezes: MG_UM_CADA_NIVEL_IMPAR_MAX_5
     escola: 'evocacao'
   }
   armas {

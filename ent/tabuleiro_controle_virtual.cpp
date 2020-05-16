@@ -1662,14 +1662,30 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   float bottom_y = altura_botao * 4.0f;
   float altura_maxima = (altura_botao * 7.0f) - (altura_botao * 4.0f);
   float altura_pv_entidade = 0;
-  if (entidade->PontosVida() > 0) {
-    float fator = static_cast<float>(entidade->PontosVida()) / entidade->MaximoPontosVida();
-    altura_pv_entidade = std::min(altura_maxima, altura_maxima * fator);
+  float altura_pv_temporario = 0;
+  const int pontos_vida_corrente = entidade->PontosVida();
+  const int pontos_vida_temporarios = entidade->PontosVidaTemporarios();
+  const int pontos_vida_sem_temporarios = pontos_vida_corrente - pontos_vida_temporarios;
+  if (pontos_vida_sem_temporarios > 0) {
+    const float fator = static_cast<float>(pontos_vida_sem_temporarios) / entidade->MaximoPontosVida();
+    altura_pv_entidade = std::max(0.0f, std::min<float>(altura_maxima, altura_maxima * fator));
   }
+  if (pontos_vida_temporarios > 0) {
+    // Se a entidade estiver negativa, os pontos temporarios nao podem ser maior que o corrente.
+    const int pontos_vida_temporarios_para_display = std::min(pontos_vida_corrente, pontos_vida_temporarios);
+    float fator = static_cast<float>(pontos_vida_temporarios_para_display) / entidade->MaximoPontosVida();
+    altura_pv_temporario = std::max<float>(0.0f, std::min(altura_maxima, altura_maxima * fator));
+  }
+  // Pontos de vida total incluindo temporarios.
   gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
   gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, top_y);
+  // Pontos de vida correntei incluindo temporarios.
   gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
   gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
+  // Pontos de vida temporario.
+  gl::MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
+  gl::Retangulo(largura_botao, bottom_y + altura_pv_entidade, 2.0f * largura_botao, bottom_y + altura_pv_entidade + altura_pv_temporario);
+
   if (parametros_desenho_.has_picking_x()) {
     return;
   }

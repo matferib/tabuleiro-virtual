@@ -997,9 +997,10 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
     entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
   }
   unsigned int id_entidade = GeraIdEntidade(id_cliente_);
-  if (processando_grupo_) {
+  //if (processando_grupo_) {
+  // Nao sei porque tinha esse processando_grupo aqui, tirei e aparentemente funcionou.
     ids_adicionados_.push_back(id_entidade);
-  }
+  //}
   // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
   // se a entidade eh visivel e selecionavel para os jogadores.
   if (!Desfazendo()) {
@@ -1141,10 +1142,9 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);;
       if (notificacao.has_entidade()) {
         VLOG(1) << "gerando entidade ja pronta";
-        Modelo nao_usado;
-        AdicionaUmaEntidadeNotificando(notificacao, referencia, nao_usado, x, y, z + 0, grupo_desfazer.add_notificacao());
+        AdicionaUmaEntidadeNotificando(notificacao, referencia, Modelo(), x, y, z + 0, grupo_desfazer.add_notificacao());
       } else {
-        LOG(INFO) << "gerando " << quantidade << " entidades";
+        VLOG(1) << "gerando " << quantidade << " entidades";
         std::vector<std::string> ids = MontaVetorIdsAdicionar(modelos_selecionados_);
         for (int i = 0; i < quantidade; ++i) {
           const auto& modelo_com_parametros = SorteiaModelo(tabelas_, i, ids, modelos_selecionados_);
@@ -1152,9 +1152,12 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
             continue;
           }
           Vector2 offset = ComputaOffset(i);
-          AdicionaUmaEntidadeNotificando(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
+          AdicionaUmaEntidadeNotificando(
+              notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
         }
       }
+      LOG(INFO) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
+      SelecionaEntidadesAdicionadas();
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
       }
@@ -7136,8 +7139,12 @@ void Tabuleiro::AlterarModoMestre(bool modo) {
 #endif
 }
 
-const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
+const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) const {
   std::vector<unsigned int> ids_afetados;
+  if (acao.aliados_ou_inimigos_apenas() && !acao.ids_afetados().empty()) {
+    return std::vector<unsigned int>(acao.ids_afetados().begin(), acao.ids_afetados().end());
+  }
+
   //const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
   //const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());

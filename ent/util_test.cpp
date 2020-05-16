@@ -2646,6 +2646,35 @@ TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
   }
 }
 
+TEST(TesteFeiticos, TesteBencao) {
+  std::unique_ptr<Entidade> referencia;
+  {
+    EntidadeProto proto;
+    proto.set_gerar_agarrar(false);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Clérigo");
+    da->set_id_arma("bencao");
+    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+  CentralColetora central;
+  ntf::Notificacao grupo_desfazer;
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*referencia);
+  const auto* da = referencia->DadoCorrente();
+  ASSERT_NE(da, nullptr);
+  AcaoProto acao = da->acao();
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_FALSE(acao.efeitos_adicionais().empty());
+  EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 30);
+}
+
 TEST(TesteFeiticos, TesteFeiticos) {
   {
     EntidadeProto proto;

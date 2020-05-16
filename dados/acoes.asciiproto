@@ -133,6 +133,19 @@ acao {
   permite_salvacao: false
   ignora_resistencia_magia: true
 }
+acao {
+  id: 'Feitiço Pessoal Dispersão Esfera'
+  tipo: ACAO_DISPERSAO
+  geometria: ACAO_GEO_ESFERA
+  permite_ataque_vs_defesa: false
+  permite_salvacao: true
+  efeito_area: true
+  dificuldade_salvacao_por_nivel: true
+  ignora_resistencia_magia: false
+  ignora_reducao_dano_barbaro: true
+  pessoal: true
+  icone: 'icon_personal.png'
+}
 
 acao {
   id: 'Feitiço Pessoal'
@@ -146,6 +159,7 @@ acao {
   ignora_resistencia_magia: true
   ignora_reducao_dano_barbaro: true
   permite_salvacao: false
+  pessoal: true
 }
 acao {
   id: 'Feitiço de Toque a Distância'

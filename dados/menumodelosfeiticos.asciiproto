@@ -13,6 +13,8 @@ modelo { id: 'Esfera Flamejante' }
 modelo { id: 'Globo de Invulnerabilidade' }
 modelo { id: 'Gravidade Invertida' }
 modelo { id: 'Luz do Dia' }
+modelo { id: 'Coluna de Lâminas' }
+modelo { id: 'Muralha de Lâminas' }
 modelo { id: 'Muralha de Fogo' }
 modelo { id: 'Muralha de Gelo' }
 modelo { id: 'Névoa Mortal' }

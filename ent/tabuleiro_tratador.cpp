@@ -1218,7 +1218,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     acao_proto->set_afeta_pontos_vida(true);
     por_entidade->set_id(id);
 
-    int delta_pv = -1;
+    int delta_pv = da.dano().empty() ? 0 : -1;
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
@@ -1253,7 +1253,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
 }
 
 float Tabuleiro::TrataAcaoEfeitoArea(
-    float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
+    unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   const Posicao* pos_destino = &acao_proto->pos_tabuleiro();
   if (pos_entidade_destino.has_x()) {
@@ -1263,7 +1263,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     pos_destino = &acao_proto->pos_entidade();
   }
   // Verifica alcance.
-  {
+  if (acao_proto->ids_afetados().empty() &&
+      (id_entidade_destino == Entidade::IdInvalido || id_entidade_destino != entidade_origem->Id())) {
     const float alcance_m = entidade_origem->AlcanceAtaqueMetros();
     const Posicao& pos_origem = entidade_origem->PosicaoAcao();
     Vector3 va(pos_origem.x(), pos_origem.y(), pos_origem.z());
@@ -1304,6 +1305,13 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   // Este valor deve ser inalterado.
   const int delta_pontos_vida = delta_pontos_vida_inicial;
   acao_proto->clear_por_entidade();
+  if (acao_proto->has_modelo_maximo_criaturas_afetadas()) {
+    acao_proto->set_maximo_criaturas_afetadas(ComputaLimiteVezes(
+        acao_proto->modelo_maximo_criaturas_afetadas(),
+        da.has_nivel_conjurador_pergaminho()
+            ? da.nivel_conjurador_pergaminho()
+            : NivelConjuradorParaAcao(*acao_proto, *entidade_origem)));
+  }
   std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
 
@@ -1394,6 +1402,17 @@ float Tabuleiro::TrataAcaoEfeitoArea(
 
     delta_pv_pos_salvacao = CompartilhaDanoSeAplicavel(
         delta_pv_pos_salvacao, entidade_destino->Proto(), *this, TD_LETAL, por_entidade, acao_proto, grupo_desfazer);
+    {
+      auto n_uso_poder = std::make_unique<ntf::Notificacao>();
+      auto [delta_pos_renovacao, texto_renovacao] =
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, n_uso_poder.get(), grupo_desfazer);
+      delta_pv_pos_salvacao = delta_pos_renovacao;
+      if (!texto_renovacao.empty()) {
+        ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
 
     acao_proto->set_bem_sucedida(true);
     por_entidade->set_id(id);
@@ -1956,11 +1975,12 @@ float Tabuleiro::TrataAcaoIndividual(
           acao_proto->texto().c_str()));
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
-      auto [dr, tr] = RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
-      delta_pontos_vida = dr;
-      if (!tr.empty()) {
-        ConcatenaString(tr, por_entidade->mutable_texto());
-        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), tr.c_str()));
+      auto [delta_pos_renovacao, texto_renovacao] =
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
+      delta_pontos_vida = delta_pos_renovacao;
+      if (!texto_renovacao.empty()) {
+        ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
@@ -2109,52 +2129,82 @@ float Tabuleiro::TrataPreAcaoComum(
   return atraso_s;
 }
 
+namespace {
+void PreencheCamposAcaoComum(
+    const AcaoProto& acao_proto,
+    const Entidade& entidade_origem, const Entidade& entidade_destino, const Posicao& pos_tabuleiro, const Posicao& pos_entidade_destino,
+    ntf::Notificacao* n) {
+  *n->mutable_acao() = acao_proto;
+  *n->mutable_acao()->mutable_pos_tabuleiro() = pos_tabuleiro;
+  *n->mutable_acao()->mutable_pos_entidade() = pos_entidade_destino;
+  if (entidade_origem.Id() != Entidade::IdInvalido) {
+    n->mutable_acao()->set_id_entidade_origem(entidade_origem.Id());
+  }
+  if (entidade_destino.Id() != Entidade::IdInvalido) {
+    n->mutable_acao()->set_id_entidade_destino(entidade_destino.Id());
+  }
+}
+}  // namespace
+
+std::unique_ptr<ntf::Notificacao> Tabuleiro::TalvezPreenchaAcaoNaoPreenchida(
+    const Entidade& entidade_origem, const Entidade& entidade_destino,
+    const AcaoProto& acao_proto, const Posicao& pos_tabuleiro, const Posicao& pos_entidade_destino) const {
+  std::unique_ptr<ntf::Notificacao> n;
+  if (acao_proto.parametros_lancamento().parametros().size() >= 1) {
+    n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO);
+    PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
+  } else if (acao_proto.aliados_ou_inimigos_apenas() && acao_proto.ids_afetados().empty()) {
+    n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS);
+    // Tem que preencher antes de chamar EntidadesAfetadasPorAcao, porque a funcao depende do id_entidade_origem.
+    PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
+    for (unsigned int id : EntidadesAfetadasPorAcao(n->acao())) {
+      n->mutable_acao()->add_ids_afetados(id);
+    }
+  }
+  return n;
+}
+
 float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, const AcaoProto* acao_preenchida) {
 
   std::unique_ptr<Entidade> e_falsa(NovaEntidadeFalsa(tabelas_));
-  Entidade* entidade_origem_nao_null = entidade_origem == nullptr ? e_falsa.get() : entidade_origem;
+  const Entidade& entidade_origem_nao_null = entidade_origem == nullptr ? *e_falsa.get() : *entidade_origem;
+  const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
+  const Entidade& entidade_destino_nao_null = entidade_destino == nullptr ? *e_falsa.get() : *entidade_destino;
 
-  AcaoProto acao_proto = acao_preenchida == nullptr ? entidade_origem_nao_null->Acao() : *acao_preenchida;
-  if (acao_proto.parametros_lancamento().parametros().size() >= 1) {
-    // Escolhe o tipo de acao antes de agir.
-    std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao);
-    n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO);
-    *n->mutable_acao() = acao_proto;
-    *n->mutable_acao()->mutable_pos_tabuleiro() = pos_tabuleiro;
-    *n->mutable_acao()->mutable_pos_entidade() = pos_entidade_destino;
-    if (entidade_origem != nullptr) {
-      n->mutable_acao()->set_id_entidade_origem(entidade_origem->Id());
-    }
-    if (id_entidade_destino != Entidade::IdInvalido) {
-      n->mutable_acao()->set_id_entidade_destino(id_entidade_destino);
-    }
-    central_->AdicionaNotificacao(n.release());
+  AcaoProto acao_proto = acao_preenchida == nullptr ? entidade_origem_nao_null.Acao() : *acao_preenchida;
+  std::unique_ptr<ntf::Notificacao> notificacao_preenchimento_acao = TalvezPreenchaAcaoNaoPreenchida(
+      entidade_origem_nao_null, entidade_destino_nao_null, acao_proto, pos_tabuleiro, pos_entidade_destino);
+  if (notificacao_preenchimento_acao.get() != nullptr) {
+    central_->AdicionaNotificacao(notificacao_preenchimento_acao.release());
     return atraso_s;
   }
 
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   atraso_s = TrataPreAcaoComum(
-      atraso_s, pos_tabuleiro, *entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
+      atraso_s, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
     if (acao_proto.tipo() == ACAO_EXPULSAR_FASCINAR_MORTOS_VIVOS) {
-      atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoExpulsarFascinarMortosVivos(atraso_s, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (acao_proto.tipo() == ACAO_CRIACAO_ENTIDADE) {
-      atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoCriacao(atraso_s, pos_tabuleiro, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (acao_proto.efeito_projetil_area()) {
-      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoProjetilArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else if (EfeitoArea(acao_proto)) {
-      atraso_s = TrataAcaoEfeitoArea(atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoEfeitoArea(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     } else {
-      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem_nao_null, &acao_proto, &n, &grupo_desfazer);
+      atraso_s = TrataAcaoIndividual(id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, &acao_proto, n.get(), &grupo_desfazer);
     }
-    if (n.has_acao()) {
-      TrataNotificacao(n);
+    if (n->has_acao()) {
+      // Aqui é importante tratar pela central porque se abriu a UI para preencher alguma coisa,
+      // o timer vai estar alto. Se tratar direto, vai pular o timer. Entao ao mandar para a central,
+      // o timer sera atualizado e so depois o tabuleiro tratara a acao, com timer zerado.
+      // Para ver isso, basta testar benção (ou qualquer outro feitiço que tenha escolha do usuario).
+      central_->AdicionaNotificacao(std::move(n));
     }
   }
   // TODO fazer um TrataPosAcaoComum, para consumir municao, atualizar ataques etc.
@@ -2195,9 +2245,7 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
   central_->AdicionaNotificacao(n.release());
   AdicionaAcaoTexto(
       entidade_defensora->Id(),
-      google::protobuf::StringPrintf("esquivando de %s", entidade_atacante->Proto().rotulo().empty()
-                                                         ? net::to_string(id).c_str()
-                                                         : entidade_atacante->Proto().rotulo().c_str()));
+      StringPrintf("esquivando de %s", RotuloEntidade(entidade_atacante).c_str()));
 }
 
 void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro) {

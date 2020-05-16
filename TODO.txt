@@ -1,14 +1,24 @@
-scare: arrumar: fazer ser em area e com limite de entidades.
-Feiticos de area em aliados, como bencao e maldicao menor.
+Terminar oração
+Concentracao em criaturas enredadas.
+Movimento reduzido ou anulado em criaturas enredadas.
+Comando de dano por teclado nao gera desfazer??
+Dominio renovacao: aplicar em outros lugares, decrementar com rodadas. Fix de sempre estar ativando, independente de morte.
+Casting time de magias (summon monster, nature ally etc).
+Menu para recarregar tabelas.
+Botao de flanquear.
+Lista de entidades afetadas ordenada.
+Nao consigo desagarrar sem acao.
+Tab igual shift tab, zera ataques.
+Feedback de ctrl z.
+
+Fogo alquimico verde.
+Circulo magico contra mal: implementar aura.
+
 Fazer lufada de vento.
-Teste da CD de envenenamento.
-Dominio renovacao: aplicar em outros lugares, decrementar com rodadas.
+Teste da CD de envenenamento (nao eh por nivel).
 Pedra encantada: acertando automatico.
 
-Barra de vida: desenhar PV temporarios.
-Colocar quando feitico nao estiver implementado (sem ação).
 Entender a desconexao: dar mensagem pro cliente, tentar reconectar.
-Imobilizar pessoa nao funcionou contra feiticeiro.
 Scrollbar na janela de feiticos.
 
 Prayer (oração).
@@ -266,6 +276,5 @@ Algumas ideias loucas.
 - Botao de aplicar mudancas nos dialogos.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
-- Sons.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.

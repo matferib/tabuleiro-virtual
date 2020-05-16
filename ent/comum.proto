@@ -2,6 +2,22 @@ syntax = "proto2";
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+message Moedas {
+  optional int32 po = 1;
+  optional int32 pp = 2;
+  optional int32 pc = 3;
+  optional int32 pl = 4;
+  optional int32 pe = 5;
+}
+
+// Um modelo generico baseado em nivel. 
+enum ModeloGenerico {
+  MG_UM = 0;
+  MG_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
+  MG_UM_POR_NIVEL = 2;  // velocidade
+  MG_UM_CADA_3_NIVEIS = 3;  // aterrorizar
+}
+
 enum TipoMagia {
   TM_NENHUMA = 0;
   TM_ARCANA = 1;
@@ -34,7 +50,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 144.
+// Proximo id: 146.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -194,6 +210,7 @@ enum TipoEfeito {
   EFEITO_LUFADA_DE_VENTO = 141;
   EFEITO_DOMINAR_ANIMAL = 142;
   EFEITO_DOMINAR_PESSOA = 143;
+  EFEITO_DESTRUICAO_MORTO_VIVO = 144;
 }
 
 enum TipoEfeitoModelo {

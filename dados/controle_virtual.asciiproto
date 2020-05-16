@@ -1461,7 +1461,7 @@ pagina {
     id: CONTROLE_APAGAR_INICIATIVAS
     rotulo: ""
     dica: "Apaga iniciativas."
-    mestre_apenas: false
+    mestre_apenas: true
     textura: "icon_erase_initiatives.png"
     forma: FORMA_RETANGULO
     #translacao_x: -0.53
@@ -1486,6 +1486,7 @@ pagina {
     textura: "icon_initiative.png"
     rotacao_graus: -90.0
     dica: "Proxima iniciativa."
+    mestre_apenas: true
     translacao_x: -0.3
   }
   dados_botoes {
@@ -1929,6 +1930,17 @@ pagina {
     rotulo: ""
     cor_rotulo {}
     textura: "icon_claw.png"
+    id: CONTROLE_NOP
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_fear.png"
     id: CONTROLE_NOP
     forma: FORMA_RETANGULO
     visibilidade { referencia { tipo: VIS_INVISIVEL } }
