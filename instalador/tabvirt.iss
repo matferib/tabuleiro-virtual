@@ -31,7 +31,7 @@ Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf.dll; Destdir: {app}
 Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\win32\libqt5\*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
-Source: ..\sons\*.png; Destdir: {app}\sons; Flags: ignoreversion;
+Source: ..\sons\*.wav; Destdir: {app}\sons; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
 Source: ..\shaders\*.c; Destdir: {app}\shaders; Flags: ignoreversion;
 Source: ..\modelos3d\*.binproto; Destdir: {app}\modelos3d; Flags: ignoreversion;

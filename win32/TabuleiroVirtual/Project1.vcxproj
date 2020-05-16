@@ -372,7 +372,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(QTDIR)\msvc2015_64\include;$(QTDIR)\msvc2015_64\include\QtOpenGL;$(QTDIR)\msvc2015_64\include\QtCore;$(QTDIR)\msvc2015_64\include\QtWidgets;$(QTDIR)\msvc2015_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(QTDIR)\msvc2015_64\include;$(QTDIR)\msvc2015_64\include\QtOpenGL;$(QTDIR)\msvc2015_64\include\QtCore;$(QTDIR)\msvc2015_64\include\QtWidgets;$(QTDIR)\msvc2015_64\include\QtMultimedia;$(QTDIR)\msvc2015_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
