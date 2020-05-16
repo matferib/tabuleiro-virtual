@@ -8924,14 +8924,14 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      id: 'Feitiço Pessoal'
+      id: 'Feitiço Pessoal Dispersão Esfera'
       tipo: ACAO_DISPERSAO
       geometria: ACAO_GEO_ESFERA
       permite_salvacao: false
       ignora_resistencia_magia: false
+      #aliados_ou_inimigos_apenas: true
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'Oração (selecionar manualmente o efeito se é aliado ou não)'
+        efeito: EFEITO_ORACAO_ALIADOS
         modificador_rodadas: MR_RODADAS_NIVEL
       }
     }
