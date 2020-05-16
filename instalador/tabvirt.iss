@@ -27,6 +27,8 @@ Name: {localappdata}\TabuleiroVirtual
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion;
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
+Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\win32\libqt5\*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\sons\*.png; Destdir: {app}\sons; Flags: ignoreversion;
