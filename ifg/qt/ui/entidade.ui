@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1425</width>
-    <height>632</height>
+    <height>815</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -4089,120 +4089,6 @@ QGroupBox::title {
         </layout>
        </item>
        <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox_11">
-         <property name="title">
-          <string>Moedas</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_21">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_53">
-            <item>
-             <widget class="QLabel" name="label_107">
-              <property name="text">
-               <string>Ouro</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_po">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_54">
-            <item>
-             <widget class="QLabel" name="label_108">
-              <property name="text">
-               <string>Prata</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_pp">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_56">
-            <item>
-             <widget class="QLabel" name="label_109">
-              <property name="text">
-               <string>Cobre</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_pc">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_57">
-            <item>
-             <widget class="QLabel" name="label_110">
-              <property name="text">
-               <string>Platina</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_pl">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_55">
-            <item>
-             <widget class="QLabel" name="labelpe">
-              <property name="text">
-               <string>Electrum</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_pe">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="1">
         <widget class="QGroupBox" name="groupBox_12">
          <property name="title">
           <string>Botas</string>
@@ -4246,45 +4132,96 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QGroupBox" name="groupBox_22">
+         <property name="title">
+          <string>Braçadeiras</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_67">
+          <item>
+           <widget class="QListWidget" name="lista_bracadeiras"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QPushButton" name="botao_usar_bracadeiras">
+              <property name="toolTip">
+               <string>Usar/retirar anel</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_bracadeiras">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_bracadeiras">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_bracadeiras">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="2" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_42">
          <item>
-          <widget class="QGroupBox" name="groupBox_22">
+          <widget class="QGroupBox" name="groupBox_23">
            <property name="title">
-            <string>Braçadeiras</string>
+            <string>Items Mundanos</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_67">
+           <layout class="QHBoxLayout" name="horizontalLayout_68">
             <item>
-             <widget class="QListWidget" name="lista_bracadeiras"/>
+             <widget class="QListWidget" name="lista_itens_mundanos"/>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
+             <layout class="QVBoxLayout" name="verticalLayout_25">
               <item>
-               <widget class="QPushButton" name="botao_usar_bracadeiras">
-                <property name="toolTip">
-                 <string>Usar/retirar anel</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="botao_adicionar_bracadeiras">
+               <widget class="QPushButton" name="botao_adicionar_item_mundano">
                 <property name="text">
                  <string>+</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="botao_remover_bracadeiras">
+               <widget class="QPushButton" name="botao_duplicar_item_mundano">
+                <property name="text">
+                 <string>Duplicar</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_item_mundano">
                 <property name="text">
                  <string>-</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="botao_doar_bracadeiras">
+               <widget class="QPushButton" name="botao_ordenar_item_mundano">
+                <property name="text">
+                 <string>Ordenar</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_doar_item_mundano">
                 <property name="text">
                  <string>Doar</string>
                 </property>
@@ -4300,22 +4237,136 @@ QGroupBox::title {
        <item row="2" column="3">
         <layout class="QHBoxLayout" name="horizontalLayout_30">
          <item>
-          <widget class="QGroupBox" name="groupBox_21">
+          <widget class="QGroupBox" name="groupBox_11">
            <property name="title">
-            <string>Outros</string>
+            <string>Moedas</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_66">
+           <layout class="QVBoxLayout" name="verticalLayout_21">
             <item>
-             <widget class="QPlainTextEdit" name="lista_tesouro">
-              <property name="toolTip">
-               <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_53">
+              <item>
+               <widget class="QLabel" name="label_107">
+                <property name="text">
+                 <string>Ouro</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_po">
+                <property name="maximum">
+                 <number>10000000</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_54">
+              <item>
+               <widget class="QLabel" name="label_108">
+                <property name="text">
+                 <string>Prata</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_pp">
+                <property name="maximum">
+                 <number>10000000</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_56">
+              <item>
+               <widget class="QLabel" name="label_109">
+                <property name="text">
+                 <string>Cobre</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_pc">
+                <property name="maximum">
+                 <number>10000000</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_57">
+              <item>
+               <widget class="QLabel" name="label_110">
+                <property name="text">
+                 <string>Platina</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_pl">
+                <property name="maximum">
+                 <number>10000000</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_55">
+              <item>
+               <widget class="QLabel" name="labelpe">
+                <property name="text">
+                 <string>Electrum</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_pe">
+                <property name="maximum">
+                 <number>10000000</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="3" column="0" colspan="4">
+        <widget class="QGroupBox" name="groupBox_21">
+         <property name="title">
+          <string>Outros</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_66">
+          <item>
+           <widget class="QPlainTextEdit" name="lista_tesouro">
+            <property name="toolTip">
+             <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

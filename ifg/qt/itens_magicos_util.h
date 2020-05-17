@@ -167,6 +167,7 @@ class ItemMagicoDelegate : public QItemDelegate {
 inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo) {
   switch (tipo) {
+    case ent::TipoItem::TIPO_ITEM_MUNDANO: return tabelas.todas().tabela_itens_mundanos().itens();
     case ent::TipoItem::TIPO_ANEL: return tabelas.todas().tabela_aneis().aneis();
     case ent::TipoItem::TIPO_MANTO: return tabelas.todas().tabela_mantos().mantos();
     case ent::TipoItem::TIPO_LUVAS: return tabelas.todas().tabela_luvas().luvas();

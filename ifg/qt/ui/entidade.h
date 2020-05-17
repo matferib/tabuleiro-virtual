@@ -459,6 +459,33 @@ public:
     QPushButton *botao_adicionar_chapeu;
     QPushButton *botao_remover_chapeu;
     QPushButton *botao_doar_chapeu;
+    QGroupBox *groupBox_12;
+    QHBoxLayout *horizontalLayout_44;
+    QListWidget *lista_botas;
+    QVBoxLayout *verticalLayout_22;
+    QPushButton *botao_usar_botas;
+    QPushButton *botao_adicionar_botas;
+    QPushButton *botao_remover_botas;
+    QPushButton *botao_doar_botas;
+    QGroupBox *groupBox_22;
+    QHBoxLayout *horizontalLayout_67;
+    QListWidget *lista_bracadeiras;
+    QVBoxLayout *verticalLayout_7;
+    QPushButton *botao_usar_bracadeiras;
+    QPushButton *botao_adicionar_bracadeiras;
+    QPushButton *botao_remover_bracadeiras;
+    QPushButton *botao_doar_bracadeiras;
+    QHBoxLayout *horizontalLayout_42;
+    QGroupBox *groupBox_23;
+    QHBoxLayout *horizontalLayout_68;
+    QListWidget *lista_itens_mundanos;
+    QVBoxLayout *verticalLayout_25;
+    QPushButton *botao_adicionar_item_mundano;
+    QPushButton *botao_duplicar_item_mundano;
+    QPushButton *botao_remover_item_mundano;
+    QPushButton *botao_ordenar_item_mundano;
+    QPushButton *botao_doar_item_mundano;
+    QHBoxLayout *horizontalLayout_30;
     QGroupBox *groupBox_11;
     QVBoxLayout *verticalLayout_21;
     QHBoxLayout *horizontalLayout_53;
@@ -476,24 +503,6 @@ public:
     QHBoxLayout *horizontalLayout_55;
     QLabel *labelpe;
     QSpinBox *spin_pe;
-    QGroupBox *groupBox_12;
-    QHBoxLayout *horizontalLayout_44;
-    QListWidget *lista_botas;
-    QVBoxLayout *verticalLayout_22;
-    QPushButton *botao_usar_botas;
-    QPushButton *botao_adicionar_botas;
-    QPushButton *botao_remover_botas;
-    QPushButton *botao_doar_botas;
-    QHBoxLayout *horizontalLayout_42;
-    QGroupBox *groupBox_22;
-    QHBoxLayout *horizontalLayout_67;
-    QListWidget *lista_bracadeiras;
-    QVBoxLayout *verticalLayout_7;
-    QPushButton *botao_usar_bracadeiras;
-    QPushButton *botao_adicionar_bracadeiras;
-    QPushButton *botao_remover_bracadeiras;
-    QPushButton *botao_doar_bracadeiras;
-    QHBoxLayout *horizontalLayout_30;
     QGroupBox *groupBox_21;
     QHBoxLayout *horizontalLayout_66;
     QPlainTextEdit *lista_tesouro;
@@ -512,7 +521,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QStringLiteral("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(1425, 632);
+        ifg__qt__DialogoEntidade->resize(1425, 815);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -3002,6 +3011,129 @@ public:
 
         gridLayout_7->addLayout(horizontalLayout_45, 1, 3, 1, 1);
 
+        groupBox_12 = new QGroupBox(tab);
+        groupBox_12->setObjectName(QStringLiteral("groupBox_12"));
+        horizontalLayout_44 = new QHBoxLayout(groupBox_12);
+        horizontalLayout_44->setObjectName(QStringLiteral("horizontalLayout_44"));
+        lista_botas = new QListWidget(groupBox_12);
+        lista_botas->setObjectName(QStringLiteral("lista_botas"));
+
+        horizontalLayout_44->addWidget(lista_botas);
+
+        verticalLayout_22 = new QVBoxLayout();
+        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
+        botao_usar_botas = new QPushButton(groupBox_12);
+        botao_usar_botas->setObjectName(QStringLiteral("botao_usar_botas"));
+
+        verticalLayout_22->addWidget(botao_usar_botas);
+
+        botao_adicionar_botas = new QPushButton(groupBox_12);
+        botao_adicionar_botas->setObjectName(QStringLiteral("botao_adicionar_botas"));
+
+        verticalLayout_22->addWidget(botao_adicionar_botas);
+
+        botao_remover_botas = new QPushButton(groupBox_12);
+        botao_remover_botas->setObjectName(QStringLiteral("botao_remover_botas"));
+
+        verticalLayout_22->addWidget(botao_remover_botas);
+
+        botao_doar_botas = new QPushButton(groupBox_12);
+        botao_doar_botas->setObjectName(QStringLiteral("botao_doar_botas"));
+
+        verticalLayout_22->addWidget(botao_doar_botas);
+
+
+        horizontalLayout_44->addLayout(verticalLayout_22);
+
+
+        gridLayout_7->addWidget(groupBox_12, 2, 0, 1, 1);
+
+        groupBox_22 = new QGroupBox(tab);
+        groupBox_22->setObjectName(QStringLiteral("groupBox_22"));
+        horizontalLayout_67 = new QHBoxLayout(groupBox_22);
+        horizontalLayout_67->setObjectName(QStringLiteral("horizontalLayout_67"));
+        lista_bracadeiras = new QListWidget(groupBox_22);
+        lista_bracadeiras->setObjectName(QStringLiteral("lista_bracadeiras"));
+
+        horizontalLayout_67->addWidget(lista_bracadeiras);
+
+        verticalLayout_7 = new QVBoxLayout();
+        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
+        botao_usar_bracadeiras = new QPushButton(groupBox_22);
+        botao_usar_bracadeiras->setObjectName(QStringLiteral("botao_usar_bracadeiras"));
+
+        verticalLayout_7->addWidget(botao_usar_bracadeiras);
+
+        botao_adicionar_bracadeiras = new QPushButton(groupBox_22);
+        botao_adicionar_bracadeiras->setObjectName(QStringLiteral("botao_adicionar_bracadeiras"));
+
+        verticalLayout_7->addWidget(botao_adicionar_bracadeiras);
+
+        botao_remover_bracadeiras = new QPushButton(groupBox_22);
+        botao_remover_bracadeiras->setObjectName(QStringLiteral("botao_remover_bracadeiras"));
+
+        verticalLayout_7->addWidget(botao_remover_bracadeiras);
+
+        botao_doar_bracadeiras = new QPushButton(groupBox_22);
+        botao_doar_bracadeiras->setObjectName(QStringLiteral("botao_doar_bracadeiras"));
+
+        verticalLayout_7->addWidget(botao_doar_bracadeiras);
+
+
+        horizontalLayout_67->addLayout(verticalLayout_7);
+
+
+        gridLayout_7->addWidget(groupBox_22, 2, 1, 1, 1);
+
+        horizontalLayout_42 = new QHBoxLayout();
+        horizontalLayout_42->setObjectName(QStringLiteral("horizontalLayout_42"));
+        groupBox_23 = new QGroupBox(tab);
+        groupBox_23->setObjectName(QStringLiteral("groupBox_23"));
+        horizontalLayout_68 = new QHBoxLayout(groupBox_23);
+        horizontalLayout_68->setObjectName(QStringLiteral("horizontalLayout_68"));
+        lista_itens_mundanos = new QListWidget(groupBox_23);
+        lista_itens_mundanos->setObjectName(QStringLiteral("lista_itens_mundanos"));
+
+        horizontalLayout_68->addWidget(lista_itens_mundanos);
+
+        verticalLayout_25 = new QVBoxLayout();
+        verticalLayout_25->setObjectName(QStringLiteral("verticalLayout_25"));
+        botao_adicionar_item_mundano = new QPushButton(groupBox_23);
+        botao_adicionar_item_mundano->setObjectName(QStringLiteral("botao_adicionar_item_mundano"));
+
+        verticalLayout_25->addWidget(botao_adicionar_item_mundano);
+
+        botao_duplicar_item_mundano = new QPushButton(groupBox_23);
+        botao_duplicar_item_mundano->setObjectName(QStringLiteral("botao_duplicar_item_mundano"));
+
+        verticalLayout_25->addWidget(botao_duplicar_item_mundano);
+
+        botao_remover_item_mundano = new QPushButton(groupBox_23);
+        botao_remover_item_mundano->setObjectName(QStringLiteral("botao_remover_item_mundano"));
+
+        verticalLayout_25->addWidget(botao_remover_item_mundano);
+
+        botao_ordenar_item_mundano = new QPushButton(groupBox_23);
+        botao_ordenar_item_mundano->setObjectName(QStringLiteral("botao_ordenar_item_mundano"));
+
+        verticalLayout_25->addWidget(botao_ordenar_item_mundano);
+
+        botao_doar_item_mundano = new QPushButton(groupBox_23);
+        botao_doar_item_mundano->setObjectName(QStringLiteral("botao_doar_item_mundano"));
+
+        verticalLayout_25->addWidget(botao_doar_item_mundano);
+
+
+        horizontalLayout_68->addLayout(verticalLayout_25);
+
+
+        horizontalLayout_42->addWidget(groupBox_23);
+
+
+        gridLayout_7->addLayout(horizontalLayout_42, 2, 2, 1, 1);
+
+        horizontalLayout_30 = new QHBoxLayout();
+        horizontalLayout_30->setObjectName(QStringLiteral("horizontalLayout_30"));
         groupBox_11 = new QGroupBox(tab);
         groupBox_11->setObjectName(QStringLiteral("groupBox_11"));
         verticalLayout_21 = new QVBoxLayout(groupBox_11);
@@ -3092,89 +3224,11 @@ public:
         verticalLayout_21->addLayout(horizontalLayout_55);
 
 
-        gridLayout_7->addWidget(groupBox_11, 2, 0, 1, 1);
-
-        groupBox_12 = new QGroupBox(tab);
-        groupBox_12->setObjectName(QStringLiteral("groupBox_12"));
-        horizontalLayout_44 = new QHBoxLayout(groupBox_12);
-        horizontalLayout_44->setObjectName(QStringLiteral("horizontalLayout_44"));
-        lista_botas = new QListWidget(groupBox_12);
-        lista_botas->setObjectName(QStringLiteral("lista_botas"));
-
-        horizontalLayout_44->addWidget(lista_botas);
-
-        verticalLayout_22 = new QVBoxLayout();
-        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
-        botao_usar_botas = new QPushButton(groupBox_12);
-        botao_usar_botas->setObjectName(QStringLiteral("botao_usar_botas"));
-
-        verticalLayout_22->addWidget(botao_usar_botas);
-
-        botao_adicionar_botas = new QPushButton(groupBox_12);
-        botao_adicionar_botas->setObjectName(QStringLiteral("botao_adicionar_botas"));
-
-        verticalLayout_22->addWidget(botao_adicionar_botas);
-
-        botao_remover_botas = new QPushButton(groupBox_12);
-        botao_remover_botas->setObjectName(QStringLiteral("botao_remover_botas"));
-
-        verticalLayout_22->addWidget(botao_remover_botas);
-
-        botao_doar_botas = new QPushButton(groupBox_12);
-        botao_doar_botas->setObjectName(QStringLiteral("botao_doar_botas"));
-
-        verticalLayout_22->addWidget(botao_doar_botas);
+        horizontalLayout_30->addWidget(groupBox_11);
 
 
-        horizontalLayout_44->addLayout(verticalLayout_22);
+        gridLayout_7->addLayout(horizontalLayout_30, 2, 3, 1, 1);
 
-
-        gridLayout_7->addWidget(groupBox_12, 2, 1, 1, 1);
-
-        horizontalLayout_42 = new QHBoxLayout();
-        horizontalLayout_42->setObjectName(QStringLiteral("horizontalLayout_42"));
-        groupBox_22 = new QGroupBox(tab);
-        groupBox_22->setObjectName(QStringLiteral("groupBox_22"));
-        horizontalLayout_67 = new QHBoxLayout(groupBox_22);
-        horizontalLayout_67->setObjectName(QStringLiteral("horizontalLayout_67"));
-        lista_bracadeiras = new QListWidget(groupBox_22);
-        lista_bracadeiras->setObjectName(QStringLiteral("lista_bracadeiras"));
-
-        horizontalLayout_67->addWidget(lista_bracadeiras);
-
-        verticalLayout_7 = new QVBoxLayout();
-        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
-        botao_usar_bracadeiras = new QPushButton(groupBox_22);
-        botao_usar_bracadeiras->setObjectName(QStringLiteral("botao_usar_bracadeiras"));
-
-        verticalLayout_7->addWidget(botao_usar_bracadeiras);
-
-        botao_adicionar_bracadeiras = new QPushButton(groupBox_22);
-        botao_adicionar_bracadeiras->setObjectName(QStringLiteral("botao_adicionar_bracadeiras"));
-
-        verticalLayout_7->addWidget(botao_adicionar_bracadeiras);
-
-        botao_remover_bracadeiras = new QPushButton(groupBox_22);
-        botao_remover_bracadeiras->setObjectName(QStringLiteral("botao_remover_bracadeiras"));
-
-        verticalLayout_7->addWidget(botao_remover_bracadeiras);
-
-        botao_doar_bracadeiras = new QPushButton(groupBox_22);
-        botao_doar_bracadeiras->setObjectName(QStringLiteral("botao_doar_bracadeiras"));
-
-        verticalLayout_7->addWidget(botao_doar_bracadeiras);
-
-
-        horizontalLayout_67->addLayout(verticalLayout_7);
-
-
-        horizontalLayout_42->addWidget(groupBox_22);
-
-
-        gridLayout_7->addLayout(horizontalLayout_42, 2, 2, 1, 1);
-
-        horizontalLayout_30 = new QHBoxLayout();
-        horizontalLayout_30->setObjectName(QStringLiteral("horizontalLayout_30"));
         groupBox_21 = new QGroupBox(tab);
         groupBox_21->setObjectName(QStringLiteral("groupBox_21"));
         horizontalLayout_66 = new QHBoxLayout(groupBox_21);
@@ -3185,10 +3239,7 @@ public:
         horizontalLayout_66->addWidget(lista_tesouro);
 
 
-        horizontalLayout_30->addWidget(groupBox_21);
-
-
-        gridLayout_7->addLayout(horizontalLayout_30, 2, 3, 1, 1);
+        gridLayout_7->addWidget(groupBox_21, 3, 0, 1, 4);
 
         tabs->addTab(tab, QString());
         tab_4 = new QWidget();
@@ -3887,12 +3938,6 @@ public:
         botao_adicionar_chapeu->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_chapeu->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         botao_doar_chapeu->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Doar", nullptr));
-        groupBox_11->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Moedas", nullptr));
-        label_107->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ouro", nullptr));
-        label_108->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Prata", nullptr));
-        label_109->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cobre", nullptr));
-        label_110->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Platina", nullptr));
-        labelpe->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Electrum", nullptr));
         groupBox_12->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Botas", nullptr));
         botao_usar_botas->setText(QString());
         botao_adicionar_botas->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
@@ -3906,6 +3951,18 @@ public:
         botao_adicionar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
         botao_remover_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
         botao_doar_bracadeiras->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Doar", nullptr));
+        groupBox_23->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Items Mundanos", nullptr));
+        botao_adicionar_item_mundano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", nullptr));
+        botao_duplicar_item_mundano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Duplicar", nullptr));
+        botao_remover_item_mundano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", nullptr));
+        botao_ordenar_item_mundano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ordenar", nullptr));
+        botao_doar_item_mundano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Doar", nullptr));
+        groupBox_11->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Moedas", nullptr));
+        label_107->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ouro", nullptr));
+        label_108->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Prata", nullptr));
+        label_109->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cobre", nullptr));
+        label_110->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Platina", nullptr));
+        labelpe->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Electrum", nullptr));
         groupBox_21->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Outros", nullptr));
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", nullptr));

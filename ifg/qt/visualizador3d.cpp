@@ -1262,7 +1262,7 @@ void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
 }
 
 template <class Dialogo, class Gerador>
-void ConfiguraListaPergaminhosOuPocoes(
+void ConfiguraListaPergaminhosMundanosOuPocoes(
     Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     ent::TipoItem tipo, QListWidget* lista,
     QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
@@ -1332,7 +1332,7 @@ void PreencheConfiguraTesouro(
 #endif
 
   // Pocoes.
-  ConfiguraListaPergaminhosOuPocoes(
+  ConfiguraListaPergaminhosMundanosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_POCAO,
       gerador.lista_pocoes, /*usar=*/nullptr,
       gerador.botao_adicionar_pocao, gerador.botao_duplicar_pocao,
@@ -1340,19 +1340,27 @@ void PreencheConfiguraTesouro(
       gerador.botao_doar_pocao,
       proto, proto_retornado, central);
   // Pergaminhos.
-  ConfiguraListaPergaminhosOuPocoes(
+  ConfiguraListaPergaminhosMundanosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
       gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_arcano, gerador.botao_duplicar_pergaminho_arcano,
       gerador.botao_remover_pergaminho_arcano, gerador.botao_ordenar_pergaminhos_arcanos,
       gerador.botao_doar_pergaminho_arcano,
       proto, proto_retornado, central);
-  ConfiguraListaPergaminhosOuPocoes(
+  ConfiguraListaPergaminhosMundanosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
       gerador.lista_pergaminhos_divinos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_divino, gerador.botao_duplicar_pergaminho_divino,
       gerador.botao_remover_pergaminho_divino, gerador.botao_ordenar_pergaminhos_divinos,
       gerador.botao_doar_pergaminho_divino,
+      proto, proto_retornado, central);
+  // Itens mundanos.
+  ConfiguraListaPergaminhosMundanosOuPocoes(
+      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ITEM_MUNDANO,
+      gerador.lista_itens_mundanos, /*usar=*/nullptr,
+      gerador.botao_adicionar_item_mundano, gerador.botao_duplicar_item_mundano,
+      gerador.botao_remover_item_mundano, gerador.botao_ordenar_item_mundano,
+      gerador.botao_doar_item_mundano,
       proto, proto_retornado, central);
   // Aneis.
   ConfiguraListaItensMagicos(
