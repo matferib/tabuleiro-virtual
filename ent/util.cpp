@@ -611,7 +611,7 @@ int RolaDado(unsigned int nfaces) {
 
 void ImprimeDadosRolados() {
   for (auto& [nfaces, valores] : g_dados_rolados) {
-    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces))
+    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) return;
     LOG(INFO) << "Imprimindo valores de d" << nfaces;
     for (auto& [valor, vezes] : valores) {
       LOG(INFO) << "  Valor '" << valor << "' rolado '" << vezes << "' vezes";
