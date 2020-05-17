@@ -113,6 +113,7 @@
     </ClCompile>
     <ClCompile Include="..\..\ntf\notificacao.cpp" />
     <ClCompile Include="..\..\ntf\notificacao.pb.cc" />
+    <ClCompile Include="..\..\som\som_qt.cpp" />
     <ClCompile Include="..\..\tex\lodepng.cpp" />
     <ClCompile Include="..\..\tex\picopng.cpp" />
     <ClCompile Include="..\..\tex\texturas.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="..\..\ifg\qt\util.h" />
     <ClInclude Include="..\..\ifg\qt\visualizador3d.h" />
     <ClInclude Include="..\..\log\log.h" />
+    <ClInclude Include="..\..\som\som.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5F7B8616-7D8D-41E0-B7B9-910BFB1F589E}</ProjectGuid>
@@ -224,7 +226,7 @@
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
@@ -370,7 +372,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(QTDIR)\msvc2015_64\include;$(QTDIR)\msvc2015_64\include\QtOpenGL;$(QTDIR)\msvc2015_64\include\QtCore;$(QTDIR)\msvc2015_64\include\QtWidgets;$(QTDIR)\msvc2015_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(QTDIR)\msvc2015_64\include;$(QTDIR)\msvc2015_64\include\QtOpenGL;$(QTDIR)\msvc2015_64\include\QtCore;$(QTDIR)\msvc2015_64\include\QtWidgets;$(QTDIR)\msvc2015_64\include\QtMultimedia;$(QTDIR)\msvc2015_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -380,13 +382,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Boost.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Multimedia.lib;Boost.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(QTDIR)\msvc2015_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
-      <Command>$(SolutionDir)..\bin\protoc.exe -proto_path=$(SolutionDir).. -I$(SolutionDir).. ent/acoes.proto ent/controle_virtual.proto ent/entidade.proto ent/tabuleiro.proto ifg/modelos.proto ntf/notificacao.proto --cpp_out=$(SolutionDir)..</Command>
+      <Command>"$(SolutionDir)..\bin\protoc3.exe"  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto</Command>
     </PreBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

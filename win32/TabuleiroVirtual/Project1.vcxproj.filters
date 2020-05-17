@@ -40,6 +40,12 @@
     <Filter Include="arq\arq_headers">
       <UniqueIdentifier>{e6dff8b7-3fea-4554-ac0b-662aeaaf8a0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="som">
+      <UniqueIdentifier>{cf0daddf-9006-4530-82ed-783e7c07e661}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="som\Headers">
+      <UniqueIdentifier>{030d42b9-6cd4-48be-9175-2beb7778f945}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -203,6 +209,9 @@
     <ClCompile Include="..\..\ent\recomputa.cpp">
       <Filter>ent</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\som\som_qt.cpp">
+      <Filter>som</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
@@ -273,6 +282,9 @@
     </ClInclude>
     <ClInclude Include="..\..\ent\recomputa.h">
       <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\som\som.h">
+      <Filter>som\Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
