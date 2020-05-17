@@ -1089,6 +1089,7 @@ void LimpaSeParcialNaoVazio(const T& proto_parcial, T* proto_final) {
   }
 }
 
+// Se uma atualizacao com tesouro_parcial contem um tipo de tesouro nao vazio, limpa este tipo de tesouro em tesouro_final.
 void LimpaTesourosNaoVazios(const EntidadeProto::DadosTesouro& tesouro_parcial, EntidadeProto::DadosTesouro* tesouro_final) {
   LimpaSeParcialNaoVazio(tesouro_parcial.pocoes(), tesouro_final->mutable_pocoes());
   LimpaSeParcialNaoVazio(tesouro_parcial.aneis(), tesouro_final->mutable_aneis());
@@ -1104,6 +1105,7 @@ void LimpaTesourosNaoVazios(const EntidadeProto::DadosTesouro& tesouro_parcial, 
   LimpaSeParcialNaoVazio(tesouro_parcial.municoes(), tesouro_final->mutable_municoes());
   LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
 }
 
 template <typename T>
@@ -1111,6 +1113,25 @@ void LimpaSeTemSoUmVazio(T* proto_final) {
   if (proto_final->size() == 1 && !proto_final->Get(0).has_id() && !proto_final->Get(0).has_nome()) {
     proto_final->Clear();
   }
+}
+
+void LimpaTesourosComSoUmVazio(EntidadeProto::DadosTesouro* tesouro) {
+  LimpaSeTemSoUmVazio(tesouro->mutable_pocoes());
+  LimpaSeTemSoUmVazio(tesouro->mutable_aneis());
+  LimpaSeTemSoUmVazio(tesouro->mutable_mantos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_mantos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_luvas());
+  LimpaSeTemSoUmVazio(tesouro->mutable_bracadeiras());
+  LimpaSeTemSoUmVazio(tesouro->mutable_amuletos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_botas());
+  LimpaSeTemSoUmVazio(tesouro->mutable_chapeus());
+  LimpaSeTemSoUmVazio(tesouro->mutable_pergaminhos_arcanos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_pergaminhos_divinos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_armas());
+  LimpaSeTemSoUmVazio(tesouro->mutable_armaduras());
+  LimpaSeTemSoUmVazio(tesouro->mutable_escudos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_municoes());
+  LimpaSeTemSoUmVazio(tesouro->mutable_itens_mundanos());
 }
 
 // Atualiza apenas alguns campos.
@@ -1209,7 +1230,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   }
 
   const auto& tesouro_parcial = proto_parcial.tesouro();
-  auto* tesouro_final= proto_.mutable_tesouro();
+  auto* tesouro_final = proto_.mutable_tesouro();
   LimpaTesourosNaoVazios(tesouro_parcial, tesouro_final);
 
   // Limpa itens que vierem no parcial, pois serao mergeados.
@@ -1327,22 +1348,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     CombinaBonus(proto_parcial.bonus_tamanho(), proto_.mutable_bonus_tamanho());
   }
 
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pocoes());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_aneis());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_mantos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_luvas());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_bracadeiras());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_amuletos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_botas());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_chapeus());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_arcanos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_pergaminhos_divinos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armas());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armaduras());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_escudos());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_municoes());
-  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_itens_mundanos());
+  LimpaTesourosComSoUmVazio(proto_.mutable_tesouro());
 
   if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();

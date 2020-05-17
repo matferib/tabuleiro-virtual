@@ -379,6 +379,10 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
+// Preenche o tesouro_final para enviar uma atualizacao parcial para a entidade. Tesouros vazios terão uma entrada fake para indicar que é vazio no merge.
+void AtribuiTesouroTodoOuCriaVazios(
+    const EntidadeProto::DadosTesouro& tesouro_receber, EntidadeProto::DadosTesouro* tesouro_final);
+ 
 // Preenche proto com todos os itens mundanos da entidade menos um com o id igual a id_item.
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 

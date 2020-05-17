@@ -1727,7 +1727,7 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
     e_antes->MergeFrom(ProtoFormaAlternativa(proto));
     e_antes->set_forma_alternativa_corrente(indice);
     *e_antes->mutable_formas_alternativas() = proto.formas_alternativas();
-    PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_antes);
+    //PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_antes);
   }
   {
     const auto& nova_forma = proto.formas_alternativas(proximo_indice);
@@ -1742,6 +1742,7 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
     // Salva os dados da forma corrente na forma alternativa.
     *e_depois->mutable_formas_alternativas(indice) = ProtoFormaAlternativa(proto);
 
+#if 0
     if (indice == 0) {
       // saindo da forma principal. Salva os tesouros em uso.
       PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_depois->mutable_formas_alternativas(0));
@@ -1755,6 +1756,7 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
       // Restaura tesouros em uso.
       PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, e_depois);
     }
+#endif
     VLOG(1) << "Alterando para forma " << proximo_indice
             << ", entidade " << RotuloEntidade(proto) << ", proto: " << e_depois->DebugString();
   }
@@ -2958,8 +2960,7 @@ EntidadeProto ProtoFormaAlternativa(const EntidadeProto& proto) {
   ret.mutable_dados_defesa()->set_bonus_magico_escudo(proto.dados_defesa().bonus_magico_escudo());
   ret.mutable_dados_defesa()->set_material_escudo(proto.dados_defesa().material_escudo());
 
-  // Itens magicos: isso eh bem mais complicado, porque depende da forma original (para desativar e ativar) da forma corrente (idem) e
-  // sao campos repeated (nao da pra simplesmente fazer merge). Deixar essa responsabilidade pro cliente.
+  AtribuiTesouroTodoOuCriaVazios(proto.tesouro(), ret.mutable_tesouro());
   return ret;
 }
 
@@ -4493,7 +4494,6 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
 const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     TipoItem tipo, const EntidadeProto& proto) {
   switch (tipo) {
-    case TipoItem::TIPO_ITEM_MUNDANO: return proto.tesouro().itens_mundanos();
     case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
     case TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
     case TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
@@ -4504,6 +4504,7 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     case TipoItem::TIPO_CHAPEU: return proto.tesouro().chapeus();
     case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto.tesouro().pergaminhos_arcanos();
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto.tesouro().pergaminhos_divinos();
+    case TipoItem::TIPO_ITEM_MUNDANO: return proto.tesouro().itens_mundanos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -4513,7 +4514,6 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
 RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     TipoItem tipo, EntidadeProto* proto) {
   switch (tipo) {
-    case TipoItem::TIPO_ITEM_MUNDANO: return proto->mutable_tesouro()->mutable_itens_mundanos();
     case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
     case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
@@ -4524,6 +4524,7 @@ RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     case TipoItem::TIPO_CHAPEU: return proto->mutable_tesouro()->mutable_chapeus();
     case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto->mutable_tesouro()->mutable_pergaminhos_arcanos();
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto->mutable_tesouro()->mutable_pergaminhos_divinos();
+    case TipoItem::TIPO_ITEM_MUNDANO: return proto->mutable_tesouro()->mutable_itens_mundanos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -5350,6 +5351,7 @@ void AtribuiTesouroTodoOuCriaVazios(
   AtribuiTesouroOuCriaVazio(tesouro_receber.municoes(), tesouro_final->mutable_municoes());
   AtribuiTesouroOuCriaVazio(tesouro_receber.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   AtribuiTesouroOuCriaVazio(tesouro_receber.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  AtribuiTesouroOuCriaVazio(tesouro_receber.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
   AtribuiMoedasOuZeraSeVazio(tesouro_receber.moedas(), tesouro_final->mutable_moedas());
 }
 
@@ -5383,6 +5385,7 @@ void MergeTesouroTodo(const EntidadeProto::DadosTesouro& tesouro_receptor, const
   MergeTesouro(tesouro_receptor.chapeus(), tesouro_receber.chapeus(), tesouro_final->mutable_chapeus());
   MergeTesouro(tesouro_receptor.pergaminhos_arcanos(), tesouro_receber.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   MergeTesouro(tesouro_receptor.pergaminhos_divinos(), tesouro_receber.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  MergeTesouro(tesouro_receptor.itens_mundanos(), tesouro_receber.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
   MergeTesouro(tesouro_receptor.armas(), tesouro_receber.armas(), tesouro_final->mutable_armas());
   MergeTesouro(tesouro_receptor.armaduras(), tesouro_receber.armaduras(), tesouro_final->mutable_armaduras());
   MergeTesouro(tesouro_receptor.escudos(), tesouro_receber.escudos(), tesouro_final->mutable_escudos());
@@ -5447,6 +5450,7 @@ void RemoveTesourosDoados(const EntidadeProto::DadosTesouro& tesouro_doado, Enti
   RemoveTesouroDoado(tesouro_doado.chapeus(), tesouro_final->mutable_chapeus());
   RemoveTesouroDoado(tesouro_doado.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   RemoveTesouroDoado(tesouro_doado.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
+  RemoveTesouroDoado(tesouro_doado.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
   RemoveTesouroDoado(tesouro_doado.armas(), tesouro_final->mutable_armas());
   RemoveTesouroDoado(tesouro_doado.armaduras(), tesouro_final->mutable_armaduras());
   RemoveTesouroDoado(tesouro_doado.escudos(), tesouro_final->mutable_escudos());
@@ -5503,6 +5507,7 @@ void MergeMensagensTesouro(const EntidadeProto::DadosTesouro& tesouro, const Tab
   MergeMensagemTesouro(tesouro.chapeus(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Chapeu(id); }, texto);
   MergeMensagemTesouro(tesouro.pergaminhos_arcanos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoArcano(id); }, texto);
   MergeMensagemTesouro(tesouro.pergaminhos_divinos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoDivino(id); }, texto);
+  MergeMensagemTesouro(tesouro.itens_mundanos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.ItemMundano(id); }, texto);
   MergeMensagemArma(tabelas, tesouro.armas(), texto);
   MergeMensagemArmaduraEscudo(tesouro.armaduras(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Armadura(id); }, texto);
   MergeMensagemArmaduraEscudo(tesouro.escudos(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Escudo(id); }, texto);
@@ -5533,6 +5538,7 @@ void CriaTesouroTodoVazio(EntidadeProto::DadosTesouro* tesouro) {
   tesouro->add_armaduras();
   tesouro->add_escudos();
   tesouro->add_municoes();
+  tesouro->add_itens_mundanos();
   LimpaMoedas(tesouro->mutable_moedas());
 }
 

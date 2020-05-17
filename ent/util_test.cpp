@@ -1509,7 +1509,6 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
 }
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
-  // TODO ignorar INT SAB CAR.
   EntidadeProto proto;
   AtribuiBaseAtributo(14, TA_FORCA, &proto);
   AtribuiBonus(2, TB_NIVEL, "nivel", BonusAtributo(TA_FORCA, &proto));
@@ -1574,6 +1573,9 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
   const auto& modelo = g_tabelas.ModeloEntidade("Humano Druida 5");
   EntidadeProto proto = modelo.entidade();
+  auto* anel = proto.mutable_tesouro()->add_aneis();
+  anel->set_em_uso(true);
+  anel->set_id("protecao_1");
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   const int max_pv = entidade->MaximoPontosVida();
   {
@@ -1594,6 +1596,8 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
     ASSERT_EQ(proto.dados_ataque().size(), 5);
     EXPECT_EQ(proto.dados_ataque(0).id_arma(), "cimitarra");
     EXPECT_EQ(entidade->PontosVida(), max_pv - 10);
+    // 2 destreza, 1 deflexao, 3 armadura, 2 escudo.
+    EXPECT_EQ(entidade->CA(*entidade, Entidade::CA_NORMAL), 18) << entidade->Proto().dados_defesa().ca().DebugString();
   }
 
   {
@@ -1602,7 +1606,11 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
     ASSERT_EQ(n.notificacao_size(), 2);
+    EntidadeProto teste;
+    *teste.mutable_tesouro()->mutable_itens_mundanos() = n.notificacao(0).entidade().tesouro().itens_mundanos();
+    *teste.mutable_tesouro()->mutable_itens_mundanos() = entidade->Proto().tesouro().itens_mundanos();
     entidade->AtualizaParcial(n.notificacao(0).entidade());
+    *teste.mutable_tesouro()->mutable_itens_mundanos() = entidade->Proto().tesouro().itens_mundanos();
     entidade->AtualizaParcial(n.notificacao(1).entidade());
     const EntidadeProto& proto = entidade->Proto();
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 20);
@@ -1611,6 +1619,8 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 12);
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, proto)), 16);
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, proto)), 8);
+    // +2 natural, +1 destreza.
+    EXPECT_EQ(entidade->CA(*entidade, Entidade::CA_NORMAL), 13) << entidade->Proto().dados_defesa().ca().DebugString();
     ASSERT_EQ(proto.dados_ataque().size(), 4);
     EXPECT_EQ(proto.dados_ataque(0).rotulo(), "garra");
     EXPECT_EQ(entidade->PontosVida(), max_pv - 5);
@@ -1633,6 +1643,8 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
     EXPECT_EQ(proto.dados_ataque(0).id_arma(), "cimitarra");
     // Nao cura.
     EXPECT_EQ(entidade->PontosVida(), max_pv - 5);
+    // 2 destreza, 1 deflexao, 3 armadura, 2 escudo.
+    EXPECT_EQ(entidade->CA(*entidade, Entidade::CA_NORMAL), 18) << entidade->Proto().dados_defesa().ca().DebugString();
   }
 }
 
