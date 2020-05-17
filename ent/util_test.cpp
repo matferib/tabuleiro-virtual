@@ -780,6 +780,8 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
   const auto& da = e->Proto().dados_ataque(0);
   EXPECT_TRUE(da.ataque_toque());
   EXPECT_TRUE(da.ataque_distancia());
+  EXPECT_EQ(da.alcance_q(), 2);
+  EXPECT_EQ(da.incrementos(), 5);
   EXPECT_TRUE(da.has_acao());
   EXPECT_EQ(da.dano(), "1d6");
   const AcaoProto& acao = da.acao();

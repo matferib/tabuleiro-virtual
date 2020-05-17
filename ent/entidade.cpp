@@ -1883,7 +1883,8 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao();
   std::string ultimo_grupo = proto_.ultimo_grupo_acao();
-  if (ultima_acao.empty()) {
+  if (ultima_acao.empty() && ultimo_grupo.empty()) {
+    VLOG(3) << "sobrescrevendo ultima acao e grupo";
     ultima_acao = proto_.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto_.dados_ataque(0).tipo_ataque();
     ultimo_grupo = proto_.dados_ataque().empty() ? "" : proto_.dados_ataque(0).grupo();
   }
@@ -1902,11 +1903,12 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
             << ", at: " << ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
+  const auto* da = ataques_casados[ataques_na_rodada];
   VLOG(3)
-      << "Retornando " << ataques_na_rodada << "o. ataque para " << ataques_casados[ataques_na_rodada]->tipo_ataque()
-      << ", grupo: " << ataques_casados[ataques_na_rodada]->grupo();
-  VLOG(4) << "Ataque retornado: " << ataques_casados[ataques_na_rodada]->DebugString();
-  return ataques_casados[ataques_na_rodada];
+      << "Retornando " << ataques_na_rodada << "o. ataque para " << da->tipo_ataque()
+      << ", grupo: " << da->grupo();
+  VLOG(4) << "Ataque retornado: " << da->DebugString();
+  return da;
 }
 
 const DadosAtaque* Entidade::DadoCorrenteSecundario() const {

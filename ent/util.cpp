@@ -611,6 +611,7 @@ int RolaDado(unsigned int nfaces) {
 
 void ImprimeDadosRolados() {
   for (auto& [nfaces, valores] : g_dados_rolados) {
+    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces))
     LOG(INFO) << "Imprimindo valores de d" << nfaces;
     for (auto& [valor, vezes] : valores) {
       LOG(INFO) << "  Valor '" << valor << "' rolado '" << vezes << "' vezes";
@@ -1148,10 +1149,10 @@ float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Po
 
 std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
     const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  const auto* da = ea.DadoCorrente();
+  const auto& da = ea.DadoCorrenteNaoNull();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
-      da!= nullptr && da->has_municao() && da->municao() == 0) {
-    VLOG(1) << "Nao ha municao para ataque: " << da->DebugString();
+      da.has_municao() && da.municao() == 0) {
+    VLOG(1) << "Nao ha municao para ataque: " << da.DebugString();
     return std::make_tuple("Sem munição", false, 0.0f);
   }
   if (ea.Id() == ed.Id()) {
@@ -1165,10 +1166,10 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
     distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
     if (distancia_m > alcance_m) {
       int total_incrementos = distancia_m / alcance_m;
-      if (total_incrementos > ea.IncrementosAtaque()) {
+      if (total_incrementos > da.incrementos()) {
         return std::make_tuple(
             StringPrintf(
-                "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque()),
+                "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()),
             false, distancia_m);
       }
     } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
@@ -1939,7 +1940,6 @@ void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& enti
 
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  LOG(INFO) << "aqui";
   EntidadeProto *proto = nullptr, *proto_antes = nullptr;
   std::tie(proto_antes, proto) =
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);

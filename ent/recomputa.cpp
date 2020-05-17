@@ -2725,6 +2725,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       default:
         ;
     }
+    da->set_alcance_q(arma.alcance_quadrados() + mod_distancia_quadrados);
     da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS);
     da->set_alcance_minimo_m(0);
   } else if (da->has_alcance_q()) {

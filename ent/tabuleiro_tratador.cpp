@@ -1001,16 +1001,9 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 
 namespace {
 
-const DadosAtaque& DadoCorrenteOuPadrao(const Entidade& entidade) {
-  auto* da = entidade.DadoCorrente();
-  if (da == nullptr) return DadosAtaque::default_instance();
-  return *da;
-}
 const DadosAtaque& DadoCorrenteOuPadrao(const Entidade* entidade) {
   if (entidade == nullptr) return DadosAtaque::default_instance();
-  auto* da = entidade->DadoCorrente();
-  if (da == nullptr) return DadosAtaque::default_instance();
-  return *da;
+  return entidade->DadoCorrenteNaoNull();
 }
 
 }  // namespace
@@ -2046,9 +2039,7 @@ float Tabuleiro::TrataPreAcaoComum(
   if (acao_proto->has_dado_pv_mais_alto()) {
     acao_proto->set_pv_mais_alto(RolaValor(acao_proto->dado_pv_mais_alto()));
   }
-  bool pode_agir;
-  std::string razao;
-  std::tie(pode_agir, razao) = PodeAgir(entidade_origem.Proto());
+  auto [pode_agir, razao] = PodeAgir(entidade_origem.Proto());
   if (!pode_agir) {
     AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Entidade nao pode agir: %s", razao.c_str()), atraso_s);
     acao_proto->set_bem_sucedida(false);
@@ -2060,7 +2051,7 @@ float Tabuleiro::TrataPreAcaoComum(
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
-  const auto& da = DadoCorrenteOuPadrao(entidade_origem);
+  const auto& da = entidade_origem.DadoCorrenteNaoNull();
   // Acao com cool down.
   if (da.disponivel_em() > 0) {
       AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação disponível em %d rodadas", da.disponivel_em()), atraso_s);
@@ -2118,9 +2109,11 @@ float Tabuleiro::TrataPreAcaoComum(
     }
   }
 
+  LOG(INFO) << "da: ultimo grupo: " << entidade_origem.Proto().ultimo_grupo_acao() << ", ultima_acao: " << entidade_origem.Proto().ultima_acao() << ", id_arma: " << entidade_origem.DadoCorrenteNaoNull().id_arma() ;
   if (id_entidade_destino != Entidade::IdInvalido) {
     AtualizaEsquivaAoAtacar(entidade_origem, id_entidade_destino, grupo_desfazer);
   }
+  LOG(INFO) << "da: ultimo_grupo: " << entidade_origem.Proto().ultimo_grupo_acao() << ", ultima_acao: " << entidade_origem.Proto().ultima_acao() << ", id_arma: " << entidade_origem.DadoCorrenteNaoNull().id_arma();
   acao_proto->set_bem_sucedida(true);
   acao_proto->set_atraso_s(atraso_s);
   *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
