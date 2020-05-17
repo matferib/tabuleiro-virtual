@@ -2917,6 +2917,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
       da->set_municao(mapa_tipo_quantidade[id]);;
       da->set_grupo(id);
+      da->set_rotulo(id);
       da->set_empunhadura(EA_ARMA_ESCUDO);
     }
   }
