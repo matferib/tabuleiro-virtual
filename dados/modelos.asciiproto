@@ -4916,7 +4916,7 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
     dados_defesa { id_armadura: 'camisao' bonus_magico_armadura: 1 }
-    dados_ataque { id_arma: 'lanca_longa' empunhadura: EA_MAO_BOA bonus_magico: 1 }
+    dados_ataque { id_arma: 'lanca_longa' empunhadura: EA_2_MAOS bonus_magico: 1 }
     # Metade do preco.
     dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 7 }
     dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 8 }

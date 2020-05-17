@@ -318,6 +318,9 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '15kg' }
     tipo_dano: TD_PERFURANTE
+    acao {
+      icone: 'icon_spear.png'
+    }
   }
   # Two-Handed Melee Weapons
   armas {
@@ -332,6 +335,9 @@ tabela_armas {
     alcance_quadrados: 4
     peso { medio: '3kg' }
     tipo_dano: TD_PERFURANTE
+    acao {
+      icone: 'icon_spear.png'
+    }
   }
   armas {
     id: 'lanca_longa'
@@ -344,6 +350,9 @@ tabela_armas {
     peso { medio: '45kg' }
     tipo_dano: TD_PERFURANTE
     haste: true
+    acao {
+      icone: 'icon_spear.png'
+    }
   }
   armas {
     id: 'bordao'
@@ -796,6 +805,9 @@ tabela_armas {
     alcance_quadrados: 2
     alcance_minimo_quadrados: 1
     haste: true
+    acao {
+      icone: 'icon_spear.png'
+    }
   }
   armas {
     id: 'machado_grande'
