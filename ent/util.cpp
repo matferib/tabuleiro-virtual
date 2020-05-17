@@ -1741,22 +1741,6 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
     *e_depois->mutable_formas_alternativas() = proto.formas_alternativas();
     // Salva os dados da forma corrente na forma alternativa.
     *e_depois->mutable_formas_alternativas(indice) = ProtoFormaAlternativa(proto);
-
-#if 0
-    if (indice == 0) {
-      // saindo da forma principal. Salva os tesouros em uso.
-      PreencheComTesourosEmUso(proto, /*manter_uso=*/true, e_depois->mutable_formas_alternativas(0));
-      // Como os itens serao desativados, limpa os ids para casar com MesmoItem na atualizacao parcial de volta.
-      for (auto* item : TodosItensExcetoPocoes(e_depois->mutable_formas_alternativas(0))) {
-        item->clear_ids_efeitos();
-      }
-      PreencheComTesourosEmUso(proto, /*manter_uso=*/false, e_depois);
-      // TODO: preservar armadura e escudo.
-    } else if (proximo_indice == 0) {
-      // Restaura tesouros em uso.
-      PreencheComTesourosEmUso(proto.formas_alternativas(0), /*manter_uso=*/true, e_depois);
-    }
-#endif
     VLOG(1) << "Alterando para forma " << proximo_indice
             << ", entidade " << RotuloEntidade(proto) << ", proto: " << e_depois->DebugString();
   }
@@ -1773,7 +1757,7 @@ void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   PreencheNotificacaoAtualizacaoPontosVida(entidade.Proto(), delta_pontos_vida, td, n, n_desfazer);
 }
- 
+
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoAtualizacaoPontosVida(
     const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
