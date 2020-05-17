@@ -189,8 +189,8 @@ inline std::string NomeParaLista(
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
   std::string nome = item_tabela.nome();
   if (nome.empty()) { nome = "---"; }
-  return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO
-      ? nome 
+  return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO
+      ? nome
       : google::protobuf::StringPrintf(
           "%s%s",
           nome.c_str(),
