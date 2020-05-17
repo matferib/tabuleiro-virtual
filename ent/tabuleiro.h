@@ -1071,8 +1071,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro no modo mestre se true, modo jogador se false. */
   void AlterarModoMestre(bool modo);
 
-  /** Retorna quais unidades sao afetadas por determinada acao. */
-  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao) const;
+  enum aliado_e {
+    TAL_DESCONHECIDO = 0,
+    TAL_ALIADO = 1,
+    TAL_INIMIGO = 2,
+  };
+  /** Retorna quais unidades sao afetadas por determinada acao e se são aliadas. */
+  const std::vector<std::pair<unsigned int, aliado_e>> EntidadesAfetadasPorAcao(const AcaoProto& acao) const;
   /** Caso a acao deva ser preenchida, preenche e retorna a notificacao. Caso contrario, retorna a notificacao sem tipo. */
   std::unique_ptr<ntf::Notificacao> TalvezPreenchaAcaoNaoPreenchida(
       const Entidade& entidade_origem, const Entidade& entidade_destino,

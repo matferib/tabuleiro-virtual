@@ -5709,13 +5709,17 @@ void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto
 
 float AplicaEfeitosAdicionais(
     const Tabelas& tabelas,
-    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
+    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, aliado_e tipo_aliado, const DadosAtaque& da,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   const int nivel_conjurador =
       da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
   ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
+    if ((efeito_adicional.afeta_aliados_apenas() && tipo_aliado != TAL_ALIADO) || (efeito_adicional.afeta_inimigos_apenas() && tipo_aliado != TAL_INIMIGO)) {
+      LOG(INFO) << "pulando efeito: " << efeito_adicional.DebugString();
+      continue;
+    }
     if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
       continue;
     }

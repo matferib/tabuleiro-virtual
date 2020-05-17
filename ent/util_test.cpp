@@ -2122,7 +2122,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   ASSERT_NE(da, nullptr);
   ntf::Notificacao grupo_desfazer;
   g_dados_teste.push(5);  // 5 no d10.
-  AplicaEfeitosAdicionais(g_tabelas, 0.0f, /*salvou=*/false, *e, *e, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
+  AplicaEfeitosAdicionais(g_tabelas, 0.0f, /*salvou=*/false, *e, *e, TAL_DESCONHECIDO, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
   auto& ns = central.Notificacoes();
   ASSERT_EQ(ns.size(), 1U) << ", acao: " << acao.DebugString();
   e->AtualizaParcial(ns[0]->entidade());
@@ -2729,12 +2729,106 @@ TEST(TesteFeiticos, TesteBencao) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, *da, acao.add_por_entidade(),
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_TRUE(central.Notificacoes().empty());
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_FALSE(central.Notificacoes().empty());
+  ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
+  const auto& evento = central.Notificacoes()[0]->entidade().evento(0);
+  EXPECT_EQ(evento.id_efeito(), EFEITO_BENCAO);
+  EXPECT_EQ(evento.rodadas(), 30);
+}
+
+TEST(TesteFeiticos, TesteMaldicaoMenor) {
+  std::unique_ptr<Entidade> referencia;
+  {
+    EntidadeProto proto;
+    proto.set_gerar_agarrar(false);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Clérigo");
+    da->set_id_arma("maldicao_menor");
+    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+  CentralColetora central;
+  ntf::Notificacao grupo_desfazer;
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*referencia);
+  const auto* da = referencia->DadoCorrente();
+  ASSERT_NE(da, nullptr);
+  AcaoProto acao = da->acao();
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_TRUE(central.Notificacoes().empty());
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
   EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 30);
+  ASSERT_FALSE(central.Notificacoes().empty());
+  ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
+  const auto& evento = central.Notificacoes()[0]->entidade().evento(0);
+  EXPECT_EQ(evento.id_efeito(), EFEITO_MALDICAO_MENOR);
+  EXPECT_EQ(evento.rodadas(), 30);
 }
+
+TEST(TesteFeiticos, TesteOracao) {
+  std::unique_ptr<Entidade> referencia;
+  {
+    EntidadeProto proto;
+    proto.set_gerar_agarrar(false);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Clérigo");
+    da->set_id_arma("oracao");
+    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+  CentralColetora central;
+  ntf::Notificacao grupo_desfazer;
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*referencia);
+  const auto* da = referencia->DadoCorrente();
+  ASSERT_NE(da, nullptr);
+  AcaoProto acao = da->acao();
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_EQ(central.Notificacoes().size(), 1U);
+  ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
+  {
+    const auto& evento = central.Notificacoes()[0]->entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_ORACAO_ALIADOS);
+    EXPECT_EQ(evento.rodadas(), 3);
+  }
+
+  AplicaEfeitosAdicionais(
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
+      &acao, &ids_unicos, &ids_unicos,
+      &grupo_desfazer, &central);
+  ASSERT_EQ(central.Notificacoes().size(), 2U);
+  ASSERT_FALSE(central.Notificacoes()[1]->entidade().evento().empty());
+  {
+    const auto& evento = central.Notificacoes()[1]->entidade().evento(0);
+    EXPECT_EQ(evento.id_efeito(), EFEITO_ORACAO_INIMIGOS);
+    EXPECT_EQ(evento.rodadas(), 3);
+  }
+}
+
 
 TEST(TesteFeiticos, TesteFeiticos) {
   {

@@ -1020,9 +1020,15 @@ bool NaoEnxerga(const EntidadeProto& proto);
 // Antes de aplicar os efeitos adicionais, resolve a parte variavel que for possivel. Exemplo: rodadas.
 void ResolveEfeitosAdicionaisVariaveis(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, AcaoProto* acao_proto);
 
+// Tem que casar com a do tabuleiro.
+enum aliado_e {
+  TAL_DESCONHECIDO = 0,
+  TAL_ALIADO = 1,
+  TAL_INIMIGO = 2,
+};
 float AplicaEfeitosAdicionais(
     const Tabelas& tabelas,
-    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, const DadosAtaque& da,
+    float atraso_s, bool salvou, const Entidade& entidade_origem, const Entidade& entidade_destino, aliado_e tipo_aliado, const DadosAtaque& da,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central);
 

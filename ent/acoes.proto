@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 97.
+// Proximo id: 98.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -230,6 +230,7 @@ message AcaoProto {
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
+  // Proximo id: 28.
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
     optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
@@ -273,6 +274,8 @@ message AcaoProto {
     // afetara nivel 3, 2 e 1.
     optional bool referencia_dados_vida_nivel_conjurador = 24;
     optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
+    optional bool afeta_aliados_apenas = 26;
+    optional bool afeta_inimigos_apenas = 27;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.
@@ -331,6 +334,7 @@ message AcaoProto {
   optional bool aliados_ou_inimigos_apenas = 89;
   // Apos a janela ser aberta, preenche estes dados.
   repeated uint32 ids_afetados = 90;
+  repeated uint32 ids_afetados_inimigos = 97;
   // Indica acao pessoal (ja se sabe o id destino).
   optional bool pessoal = 91;
   // Bem, mal, caos, leal.

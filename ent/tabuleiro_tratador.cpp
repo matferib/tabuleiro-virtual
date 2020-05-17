@@ -1043,10 +1043,10 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
 
   // Coleta todos os alvos que estao dentro do raio de alcance da entidade.
   *acao_proto->mutable_pos_tabuleiro() = entidade->PosicaoAcao();
-  std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
   std::vector<const Entidade*> entidades_por_distancia;
-  for (auto id : ids_afetados) {
+  for (auto [id, nao_usado] : afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
       // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
@@ -1179,8 +1179,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
     }
   }
 
-  std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
-  for (auto id : ids_afetados) {
+  auto afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  for (auto [id, nao_usado] : afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
       // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
@@ -1305,10 +1305,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
             ? da.nivel_conjurador_pergaminho()
             : NivelConjuradorParaAcao(*acao_proto, *entidade_origem)));
   }
-  std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(*acao_proto);
+  auto afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
-
-  for (auto id : ids_afetados) {
+  for (auto [id, tipo_aliado] : afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
       // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
@@ -1379,7 +1378,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
     atraso_s = AplicaEfeitosAdicionais(
-        tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, da,
+        tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, static_cast<ent::aliado_e>(tipo_aliado), da,
         por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
 
     if (da.derruba_sem_teste() && !salvou && !entidade_destino->Proto().caida()) {
@@ -1893,7 +1892,7 @@ float Tabuleiro::TrataAcaoIndividual(
     // Efeitos adicionais.
     if (resultado.Sucesso()) {
       atraso_s = AplicaEfeitosAdicionais(
-          tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, da,
+          tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, ent::TAL_DESCONHECIDO, da,
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
 
@@ -2146,11 +2145,11 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::TalvezPreenchaAcaoNaoPreenchida(
   if (acao_proto.parametros_lancamento().parametros().size() >= 1) {
     n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO);
     PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
-  } else if (acao_proto.aliados_ou_inimigos_apenas() && acao_proto.ids_afetados().empty()) {
+  } else if (acao_proto.aliados_ou_inimigos_apenas() && acao_proto.ids_afetados().empty() && acao_proto.ids_afetados_inimigos().empty()) {
     n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS);
     // Tem que preencher antes de chamar EntidadesAfetadasPorAcao, porque a funcao depende do id_entidade_origem.
     PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
-    for (unsigned int id : EntidadesAfetadasPorAcao(n->acao())) {
+    for (auto& [id, nao_usado] : EntidadesAfetadasPorAcao(n->acao())) {
       n->mutable_acao()->add_ids_afetados(id);
     }
   }

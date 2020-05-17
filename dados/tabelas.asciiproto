@@ -8953,8 +8953,8 @@ tabela_feiticos {
 
   armas {
     id: 'oracao'
-    nome_ingles: 'prayer'
     nome: 'oração'
+    nome_ingles: 'prayer'
     info_classes {
       id: 'clerigo'
       nivel: 3
@@ -8965,14 +8965,20 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal Dispersão Esfera'
-      tipo: ACAO_DISPERSAO
-      geometria: ACAO_GEO_ESFERA
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 8  # quadrados.
       permite_salvacao: false
       ignora_resistencia_magia: false
-      #aliados_ou_inimigos_apenas: true
+      aliados_ou_inimigos_apenas: true
       efeitos_adicionais {
         efeito: EFEITO_ORACAO_ALIADOS
         modificador_rodadas: MR_RODADAS_NIVEL
+        afeta_aliados_apenas: true
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_ORACAO_INIMIGOS
+        modificador_rodadas: MR_RODADAS_NIVEL
+        afeta_inimigos_apenas: true
       }
     }
     escola: 'encantamento'
@@ -12379,11 +12385,11 @@ tabela_feiticos {
       raio_quadrados: 10  # quadrados.
       efeito_area: true
       permite_salvacao: false
-      duracao_s: 0.350
       ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_BENCAO
         modificador_rodadas: MR_MINUTOS_NIVEL
+        afeta_aliados_apenas: true
       }
       aliados_ou_inimigos_apenas: true
     }
@@ -12412,6 +12418,7 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_MALDICAO_MENOR
         modificador_rodadas: MR_MINUTOS_NIVEL
+        afeta_inimigos_apenas: true
       }
       aliados_ou_inimigos_apenas: true
     }

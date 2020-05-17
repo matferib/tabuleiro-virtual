@@ -7139,10 +7139,17 @@ void Tabuleiro::AlterarModoMestre(bool modo) {
 #endif
 }
 
-const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) const {
+const std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) const {
   std::vector<unsigned int> ids_afetados;
   if (acao.aliados_ou_inimigos_apenas() && !acao.ids_afetados().empty()) {
-    return std::vector<unsigned int>(acao.ids_afetados().begin(), acao.ids_afetados().end());
+    std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> ret;
+    for (unsigned int id : acao.ids_afetados()) {
+      ret.push_back({id, Tabuleiro::TAL_ALIADO});
+    }
+    for (unsigned int id: acao.ids_afetados_inimigos()) {
+      ret.push_back({id, Tabuleiro::TAL_INIMIGO});
+    }
+    return ret;
   }
 
   //const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
@@ -7159,7 +7166,12 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
     if (entidade->IdCenario() != cenario_origem) continue;
     entidades_cenario.push_back(entidade);
   }
-  return ent::EntidadesAfetadasPorAcao(acao, entidade_origem, entidades_cenario);
+  auto ids = ent::EntidadesAfetadasPorAcao(acao, entidade_origem, entidades_cenario);
+  std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> ret;
+  for (unsigned int id : ids) {
+    ret.push_back({id, TAL_DESCONHECIDO});
+  }
+  return ret;
 }
 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() const {

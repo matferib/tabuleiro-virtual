@@ -270,9 +270,6 @@ void Tabelas::RecarregaMapas() {
         arma.mutable_acao()->set_som_sucesso("punch.wav");
       }
     }
-    if (arma.id() == "espada_longa") {
-      LOG(INFO) << "arma: " << arma.DebugString();
-    }
     armas_[arma.id()] = &arma;
   }
   const std::vector<std::string> classes_arcanas = {"mago", "bardo"};
