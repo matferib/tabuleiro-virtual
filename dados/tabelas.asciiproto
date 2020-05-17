@@ -2562,6 +2562,34 @@ tabela_aneis {
   }
 }
 
+tabela_itens_mundanos {
+  itens {
+    id: 'fogo_alquimico'
+    nome: 'fogo alquímico'
+    custo { po: 20 }
+  }
+  itens {
+    id: 'acido'
+    nome: 'ácido'
+    custo { po: 10 }
+  }
+  itens {
+    id: 'agua_benta'
+    nome: 'água benta'
+    custo { po: 25 }
+  }
+  itens {
+    id: 'pedra_trovao'
+    nome: 'pedra do trovão'
+    custo { po: 30 }
+  }
+  itens {
+    id: 'bolsa_cola'
+    nome: 'bolsa de cola'
+    custo { po: 50 }
+  }
+}
+
 tabela_botas {
   botas {
     id: 'botas_aladas'
