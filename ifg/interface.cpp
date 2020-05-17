@@ -632,12 +632,14 @@ void InterfaceGrafica::TrataEscolherAliados(const ntf::Notificacao& notificacao)
     });
     ent::AcaoProto acao = notificacao.acao();
     acao.clear_ids_afetados();
-    for (int indice : indices) {
-      auto it = mapa_indice_id.find(indice);
-      if (it == mapa_indice_id.end()) continue;
-      acao.add_ids_afetados(it->second);
+    for (auto& [indice, id] : mapa_indice_id) {
+      if (ent::c_any(indices, indice)) {
+        acao.add_ids_afetados(id);
+      } else {
+        acao.add_ids_afetados_inimigos(id);
+      }
     }
-    if (acao.ids_afetados().empty()) {
+    if (acao.ids_afetados().empty() && acao.ids_afetados_inimigos().empty()) {
       LOG(INFO) << "ids afetados vazio";
       return;
     }
