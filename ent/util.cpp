@@ -1917,6 +1917,25 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   return nullptr;
 }
 
+bool EhItemMundano(const DadosAtaque& da) {
+  return c_any<std::vector<std::string>>({"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }, da.id_arma());
+}
+
+void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
+  bool removeu = false;
+  for (auto& item : entidade.Proto().tesouro().itens_mundanos()) {
+    if (item.id() != id_item || removeu) {
+      *proto->mutable_tesouro()->mutable_itens_mundanos()->Add() = item;
+    } else if (item.id() == id_item) {
+      removeu = true;
+    }
+  }
+  if (proto->tesouro().itens_mundanos().empty()) {
+    // Cria vazio para remover.
+    proto->mutable_tesouro()->add_itens_mundanos();
+  }
+}
+
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *proto = nullptr, *proto_antes = nullptr;
@@ -1931,9 +1950,17 @@ void PreencheNotificacaoConsumoAtaque(
     }
     if (da_depois->has_limite_vezes()) {
       da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
+      da_depois->id_arma();
     }
     if (da_depois->has_municao()) {
-      da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
+      if (EhItemMundano(*da_depois)) {
+        const std::string id_arma = da_depois->id_arma();
+        PreencheConsumoItemMundano(da_depois->id_arma(), entidade, proto);
+        // Hack: aqui so para criar vazio se num tiver nada. Nao vai remover nada mesmo.
+        PreencheConsumoItemMundano("xxx_id_invalido_xxx", entidade, proto_antes);
+      } else {
+        da_depois->set_municao(std::max((int)(da_depois->municao() - 1), 0));
+      }
     }
     if (!da_depois->taxa_refrescamento().empty()) {
       if (da_depois->refresca_apos_rodada()) {
@@ -4423,6 +4450,7 @@ int NumeroReflexos(const EntidadeProto& proto) {
 const ItemMagicoProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id) {
   switch (tipo) {
+    case TipoItem::TIPO_ITEM_MUNDANO: return tabelas.ItemMundano(id);
     case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
     case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
     case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
@@ -4465,6 +4493,7 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
 const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     TipoItem tipo, const EntidadeProto& proto) {
   switch (tipo) {
+    case TipoItem::TIPO_ITEM_MUNDANO: return proto.tesouro().itens_mundanos();
     case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
     case TipoItem::TIPO_MANTO: return proto.tesouro().mantos();
     case TipoItem::TIPO_LUVAS: return proto.tesouro().luvas();
@@ -4484,6 +4513,7 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
 RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     TipoItem tipo, EntidadeProto* proto) {
   switch (tipo) {
+    case TipoItem::TIPO_ITEM_MUNDANO: return proto->mutable_tesouro()->mutable_itens_mundanos();
     case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
     case TipoItem::TIPO_MANTO: return proto->mutable_tesouro()->mutable_mantos();
     case TipoItem::TIPO_LUVAS: return proto->mutable_tesouro()->mutable_luvas();
@@ -4534,7 +4564,7 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
   const auto& tesouro = proto.tesouro();
   std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
-    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus()
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(),
   };
   std::vector<const ItemMagicoProto*> itens;
   for (const auto* itens_grupo : itens_agrupados) {
@@ -4547,7 +4577,7 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   auto* tesouro = proto->mutable_tesouro();
   std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
     tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
-    tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus()
+    tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus(), tesouro->mutable_itens_mundanos(),
   };
   std::vector<ItemMagicoProto*> itens;
   for (auto* itens_grupo : itens_agrupados) {

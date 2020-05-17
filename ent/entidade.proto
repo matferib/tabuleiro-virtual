@@ -249,23 +249,6 @@ message EntidadeProto {
 
   optional DadosDefesa dados_defesa = 45;
 
-  message MunicaoPersonagem {
-    optional string id = 1;
-    optional string nome = 7;
-    optional int32 quantidade = 2;
-    repeated DescritorAtaque descritores_basicos = 3;
-    // Final: todos descritores.
-    repeated DescritorAtaque descritores = 4;
-    // Para referencias cruzadas. Deve ser unico dentro de sua categoria para o
-    // personagem.
-    optional int32 id_unico = 5;
-    // Os bonus do item.
-    optional Bonus bonus = 6;
-    optional bool em_uso = 8;
-    // Ao usar, item gera este efeito. Util para finalizar o efeito.
-    repeated uint32 ids_efeitos = 9;
-  }
-
   message ArmaArmaduraOuEscudoPersonagem {
     optional string id = 1;
     optional string nome = 6;  // nome legivel.
@@ -301,7 +284,8 @@ message EntidadeProto {
     repeated ArmaArmaduraOuEscudoPersonagem armas = 20;
     repeated ArmaArmaduraOuEscudoPersonagem armaduras = 21;
     repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;
-    repeated MunicaoPersonagem municoes = 23;
+    repeated Municao municoes = 23;
+    repeated ItemMagicoProto itens_mundanos = 25;
     optional Moedas moedas = 24;
   }
   optional DadosTesouro tesouro = 46;

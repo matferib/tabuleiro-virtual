@@ -84,9 +84,28 @@ void CorrigeAuraDeprecated(EntidadeProto* proto) {
   }
 }
 
+void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
+  std::unordered_map<std::string, int> mapa_tipo_quantidade;
+  for (const auto& im : proto->tesouro().itens_mundanos()) {
+    ++mapa_tipo_quantidade[im.id()];
+  }
+ 
+  for (const auto& da : proto->dados_ataque()) {
+    if (EhItemMundano(da)) {
+      // Para protos antigos que nao tinham isso nos mundanos.
+      if (mapa_tipo_quantidade[da.id_arma()] == 0 && da.municao() > 0) {
+        for (unsigned int i = 0; i < da.municao(); ++i) {
+          proto->mutable_tesouro()->add_itens_mundanos()->set_id(da.id_arma());
+        }
+      }
+    }
+  }
+}
+
 void CorrigeCamposDeprecated(EntidadeProto* proto) {
   CorrigeAuraDeprecated(proto);
   CorrigeTranslacaoDeprecated(proto);
+  CorrigeDadosAtaqueDeprecated(proto);
 }
 
 }  // namespace
@@ -1323,6 +1342,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_armaduras());
   LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_escudos());
   LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_municoes());
+  LimpaSeTemSoUmVazio(proto_.mutable_tesouro()->mutable_itens_mundanos());
 
   if (proto_.info_textura().id().empty()) {
     proto_.clear_info_textura();

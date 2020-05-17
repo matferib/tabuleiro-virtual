@@ -10,7 +10,7 @@ message Moedas {
   optional int32 pe = 5;
 }
 
-// Um modelo generico baseado em nivel. 
+// Um modelo generico baseado em nivel.
 enum ModeloGenerico {
   MG_UM = 0;
   MG_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
@@ -832,6 +832,7 @@ enum TipoItem {
   TIPO_CHAPEU = 7;
   TIPO_PERGAMINHO_ARCANO = 8;
   TIPO_PERGAMINHO_DIVINO = 9;
+  TIPO_ITEM_MUNDANO = 10;
 }
 
 enum TipoComplementoItemMagico {
@@ -848,11 +849,21 @@ enum NivelUso {
   NU_USAR_SE_MUITO_FERIDO = 4; // Usa se estiver abaixo de 50%.
 }
 
+// Municoes em geral.
+message Municao {
+  optional string id = 1;
+  optional string nome = 2;
+  optional int32 quantidade = 3;
+  optional Moedas custo = 4;
+  repeated uint32 ids_efeitos = 5;
+  optional bool em_uso = 6;
+}
+
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
   optional string id = 1;
-  // Para gerar link da pocao.
+  // Para gerar link.
   optional string id_feitico = 23;
   // O tipo do item, para buscar na tabela (usando id tipo).
   optional TipoItem tipo = 17;
@@ -869,6 +880,8 @@ message ItemMagicoProto {
   optional int32 duracao_rodadas = 4;
   // Custo em PO.
   optional int32 custo_po = 5;
+  // custo generico.
+  optional Moedas custo = 26;
   // Para efeitos que usam complemento.
   repeated int32 complementos = 6;
   // Se presente, gerara complementos a partir de uma rolagem. Exemplo: 1d8+3.

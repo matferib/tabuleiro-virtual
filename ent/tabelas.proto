@@ -112,7 +112,7 @@ enum TipoComponente {
 }
 
 message InfoComponente {
-  optional TipoComponente tipo = 1; 
+  optional TipoComponente tipo = 1;
   optional Moedas custo = 2;
   optional string descricao = 3;
 }
@@ -281,6 +281,14 @@ message TabelaBotas {
   repeated ItemMagicoProto botas = 1;
 }
 
+message TabelaMunicoes {
+  repeated Municao municoes = 1;
+}
+
+message TabelaItensMundanos {
+  repeated ItemMagicoProto itens = 1;
+}
+
 message TabelaBracadeiras {
   repeated ItemMagicoProto bracadeiras = 1;
 }
@@ -339,4 +347,6 @@ message TodasTabelas {
   optional TabelaChapeus tabela_chapeus = 59;
   optional TabelaVenenos tabela_venenos = 57;
   optional TabelaDominios tabela_dominios = 60;
+  optional TabelaMunicoes tabela_municoes = 62;
+  optional TabelaItensMundanos tabela_itens_mundanos = 63;
 }

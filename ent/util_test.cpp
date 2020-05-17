@@ -766,17 +766,41 @@ TEST(TesteArmas, TesteArmaTemAcao) {
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL);
 }
 
+TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
+  EntidadeProto proto_ataque;
+  {
+    proto_ataque.set_gerar_agarrar(false);
+    proto_ataque.set_tamanho(TM_GRANDE);
+    auto* da = proto_ataque.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    da->set_municao(3);
+  }
+  auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
+  ASSERT_FALSE(e->Proto().dados_ataque().empty());
+  const auto& da = e->Proto().dados_ataque(0);
+  EXPECT_TRUE(da.ataque_toque());
+  EXPECT_TRUE(da.ataque_distancia());
+  EXPECT_TRUE(da.has_acao());
+  EXPECT_EQ(da.dano(), "1d6");
+  const AcaoProto& acao = da.acao();
+  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+  EXPECT_EQ(e->Proto().tesouro().itens_mundanos().size(), 3);
+  EXPECT_EQ(e->Proto().tesouro().itens_mundanos(0).id(), "fogo_alquimico");
+}
+
 TEST(TesteArmas, TesteProjetilArea) {
   EntidadeProto proto_ataque;
   proto_ataque.set_tamanho(TM_GRANDE);
-  auto* da = proto_ataque.add_dados_ataque();
-  da->set_id_arma("fogo_alquimico");
+  proto_ataque.set_gerar_agarrar(false);
+  proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
   RecomputaDependencias(g_tabelas, &proto_ataque);
-  EXPECT_TRUE(da->ataque_toque());
-  EXPECT_TRUE(da->ataque_distancia());
-  EXPECT_TRUE(da->has_acao());
-  EXPECT_EQ(da->dano(), "1d6");
-  const AcaoProto& acao = da->acao();
+  ASSERT_FALSE(proto_ataque.dados_ataque().empty());
+  const auto& da = proto_ataque.dados_ataque(0);
+  EXPECT_TRUE(da.ataque_toque());
+  EXPECT_TRUE(da.ataque_distancia());
+  EXPECT_TRUE(da.has_acao());
+  EXPECT_EQ(da.dano(), "1d6");
+  const AcaoProto& acao = da.acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
 }
 

@@ -2853,6 +2853,17 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   VLOG(1) << "Ataque recomputado: " << da->DebugString();
 }
 
+DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.id_arma() == id_arma) {
+      return &da;
+    }
+  }
+  auto* da = proto->add_dados_ataque();
+  da->set_id_arma(id_arma);
+  return da;
+}
+
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
   // Remove ataques cujo numero de vezes exista e seja zero.
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
@@ -2890,6 +2901,22 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
         InsereInicio(&da, proto->mutable_dados_ataque());
         dat = proto->mutable_dados_ataque(0);
       }
+    }
+  }
+  // Itens mundanos que geram ataques.
+  std::unordered_map<std::string, int> mapa_tipo_quantidade;
+  for (const auto& im : proto->tesouro().itens_mundanos()) {
+    ++mapa_tipo_quantidade[im.id()];
+  }
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return EhItemMundano(da);
+  }, proto->mutable_dados_ataque());
+  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }) {
+    if (mapa_tipo_quantidade[id] > 0) {
+      auto* da = DadosAtaquePorIdArmaCriando(id, proto);
+      da->set_municao(mapa_tipo_quantidade[id]);;
+      da->set_grupo(id);
+      da->set_empunhadura(EA_ARMA_ESCUDO);
     }
   }
 

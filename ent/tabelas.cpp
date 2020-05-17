@@ -181,6 +181,8 @@ void Tabelas::RecarregaMapas() {
   pergaminhos_arcanos_.clear();
   pergaminhos_divinos_.clear();
   aneis_.clear();
+  //municoes_.clear();
+  itens_mundanos_.clear();
   mantos_.clear();
   luvas_.clear();
   bracadeiras_.clear();
@@ -376,6 +378,14 @@ void Tabelas::RecarregaMapas() {
     anel.set_tipo(TIPO_ANEL);
     aneis_[anel.id()] = &anel;
   }
+
+  for (auto& item : *tabelas_.mutable_tabela_itens_mundanos()->mutable_itens()) {
+    itens_mundanos_[item.id()] = &item;
+  }
+
+  //for (auto& municao : *tabelas_.mutable_tabela_municoes()->mutable_municoes()) {
+  //  municoes_[municao.id()] = &municao;
+  //}
 
   for (auto& manto : *tabelas_.mutable_tabela_mantos()->mutable_mantos()) {
     manto.set_tipo(TIPO_MANTO);
@@ -576,6 +586,16 @@ const ItemMagicoProto& Tabelas::PergaminhoDivino(const std::string& id) const {
   auto it = pergaminhos_divinos_.find(id);
   return it == pergaminhos_divinos_.end() ? ItemMagicoProto::default_instance() : it->second;
 }
+
+const ItemMagicoProto& Tabelas::ItemMundano(const std::string& id) const {
+  auto it = itens_mundanos_.find(id);
+  return it == itens_mundanos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+//const Municao& Tabelas::Municao(const std::string& id) const {
+//  auto it = municoes_.find(id);
+//  return it == municoes_.end() ? MunicaoProto::default_instance() : *it->second;
+//}
 
 const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {
   auto it = aneis_.find(id);

@@ -379,6 +379,9 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
+// Preenche proto com todos os itens mundanos da entidade menos um com o id igual a id_item.
+void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+
 // Botao de doacao: apenas alguns tesouros.
 void PreencheNotificacoesDoacaoParcialTesouro(
     const Tabelas& tabelas, const ntf::Notificacao& notificacao_doacao, const EntidadeProto& proto_doador, const EntidadeProto& proto_receptor,
@@ -1035,6 +1038,9 @@ bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& f
 
 // Retorna true se o feitico for de uma escola proibida.
 bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado);
+
+// Retorna true se ataque vier de item mundano.
+bool EhItemMundano(const DadosAtaque& da);
 
 }  // namespace ent
 
