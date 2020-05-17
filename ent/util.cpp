@@ -587,6 +587,10 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
 
 // Apenas para testes.
 std::queue<int> g_dados_teste;
+// Primeira dimensao: numero de faces do dado.
+// Segunda: numero rolado.
+// Terceira: quantidade.
+std::unordered_map<int, std::map<int, int>> g_dados_rolados;
 
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
@@ -600,7 +604,18 @@ int RolaDado(unsigned int nfaces) {
   std::uniform_int_distribution<int> distribution(1, nfaces);
   //static int min = motor_aleatorio.min();
   //static int max = motor_aleatorio.max();
-  return distribution(motor);
+  int valor = distribution(motor);
+  g_dados_rolados[nfaces][valor]++;
+  return valor;
+}
+
+void ImprimeDadosRolados() {
+  for (auto& [nfaces, valores] : g_dados_rolados) {
+    LOG(INFO) << "Imprimindo valores de d" << nfaces;
+    for (auto& [valor, vezes] : valores) {
+      LOG(INFO) << "  Valor '" << valor << "' rolado '" << vezes << "' vezes";
+    }
+  }
 }
 
 float Aleatorio() {
@@ -1924,6 +1939,7 @@ void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& enti
 
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  LOG(INFO) << "aqui";
   EntidadeProto *proto = nullptr, *proto_antes = nullptr;
   std::tie(proto_antes, proto) =
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);

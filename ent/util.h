@@ -1046,6 +1046,8 @@ bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, co
 // Retorna true se ataque vier de item mundano.
 bool EhItemMundano(const DadosAtaque& da);
 
+void ImprimeDadosRolados();
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

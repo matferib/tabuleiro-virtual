@@ -263,6 +263,10 @@ class Entidade {
 
   // Retorna nullptr caso nao haja.
   const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
+  const DadosAtaque& DadoCorrenteNaoNull(bool ignora_ataques_na_rodada = false) const {
+    auto* da = DadoCorrente(ignora_ataques_na_rodada);
+    return da == nullptr ? DadosAtaque::default_instance() : *da;
+  }
   // Retorna o dado corrente com a mao secundaria, se houver. Implica ataque de duas armas.
   const DadosAtaque* DadoCorrenteSecundario() const;
   const DadosAtaque* DadoAtaque(const std::string& grupo, int indice_ataque) const;

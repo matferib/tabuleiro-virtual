@@ -21,6 +21,7 @@
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro_interface.h"
+#include "ent/util.h"
 #include "goog/stringprintf.h"
 //#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
@@ -179,6 +180,7 @@ int main(int argc, char** argv) {
 #if ANDROID
   return;
 #else
+  ent::ImprimeDadosRolados();
   return 0;
 #endif
 }

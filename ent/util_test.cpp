@@ -790,18 +790,41 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
 
 TEST(TesteArmas, TesteProjetilArea) {
   EntidadeProto proto_ataque;
-  proto_ataque.set_tamanho(TM_GRANDE);
-  proto_ataque.set_gerar_agarrar(false);
-  proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
-  ASSERT_FALSE(proto_ataque.dados_ataque().empty());
-  const auto& da = proto_ataque.dados_ataque(0);
-  EXPECT_TRUE(da.ataque_toque());
-  EXPECT_TRUE(da.ataque_distancia());
-  EXPECT_TRUE(da.has_acao());
-  EXPECT_EQ(da.dano(), "1d6");
-  const AcaoProto& acao = da.acao();
-  EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+  {
+    proto_ataque.set_tamanho(TM_GRANDE);
+    proto_ataque.set_gerar_agarrar(false);
+    proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
+    proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
+  }
+  auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
+  // Dois fogos.
+  {
+    ASSERT_FALSE(e->Proto().dados_ataque().empty());
+    const auto& da = e->Proto().dados_ataque(0);
+    EXPECT_TRUE(da.ataque_toque());
+    EXPECT_TRUE(da.ataque_distancia());
+    EXPECT_TRUE(da.has_acao());
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.municao(), 2U);
+    const AcaoProto& acao = da.acao();
+    EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+  }
+  // Consome 1.
+  {
+    ntf::Notificacao n;
+    PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
+    e->AtualizaParcial(n.entidade());
+    ASSERT_FALSE(e->Proto().dados_ataque().empty());
+    const auto& da = e->Proto().dados_ataque(0);
+    EXPECT_EQ(da.municao(), 1U);
+  }
+  // Consome o ultimo.
+  {
+    ntf::Notificacao n;
+    PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
+    e->AtualizaParcial(n.entidade());
+    ASSERT_TRUE(e->Proto().dados_ataque().empty());
+  }
 }
 
 TEST(TesteCA, TesteLutaDefensiva) {
