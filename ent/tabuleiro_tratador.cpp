@@ -1131,15 +1131,15 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
 
 float Tabuleiro::TrataAcaoProjetilArea(
     unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino,
-    Entidade* entidade, AcaoProto* acao_proto,
+    Entidade* entidade_origem, AcaoProto* acao_proto,
     ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   // Verifica antes se ha valor, para nao causar o efeito de area se nao houver.
   const bool ha_valor = HaValorListaPontosVida();
 
-  const auto& da = DadoCorrenteOuPadrao(entidade);
+  const auto& da = DadoCorrenteOuPadrao(entidade_origem);
   const bool incrementa_ataque = da.incrementa_proximo_ataque();
   atraso_s += TrataAcaoIndividual(
-      id_entidade_destino, atraso_s, pos_entidade_destino, entidade, acao_proto, n, grupo_desfazer);
+      id_entidade_destino, atraso_s, pos_entidade_destino, entidade_origem, acao_proto, n, grupo_desfazer);
   if (!n->has_acao()) {
     // Nao realizou a acao. Nem continuar.
     VLOG(2) << "Acao de projetil de area nao realizada";
@@ -1147,16 +1147,17 @@ float Tabuleiro::TrataAcaoProjetilArea(
   }
   if (!ha_valor) return atraso_s;
 
+  std::vector<int> ids_unicos_entidade_origem = entidade_origem == nullptr ? std::vector<int>() : IdsUnicosEntidade(*entidade_origem);
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
   const bool acertou_direto = acao_proto->bem_sucedida();
 
   // A acao individual incrementou o ataque.
-  if (incrementa_ataque) entidade->AtaqueAnterior();
+  if (incrementa_ataque) entidade_origem->AtaqueAnterior();
 
-  if (!acertou_direto && entidade_destino != nullptr && entidade != nullptr) {
+  if (!acertou_direto && entidade_destino != nullptr && entidade_origem != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
-    float alcance_m = entidade->AlcanceAtaqueMetros();
-    const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade, *entidade_destino, pos_entidade_destino);
+    float alcance_m = entidade_origem->AlcanceAtaqueMetros();
+    const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade_origem, *entidade_destino, pos_entidade_destino);
     const int total_incrementos = distancia_m / alcance_m;
     VLOG(1) << "nao acertou projetil de area direto, vendo posicao de impacto. total de incrementos: " << total_incrementos;
     if (total_incrementos > 0) {
@@ -1166,9 +1167,9 @@ float Tabuleiro::TrataAcaoProjetilArea(
       v_d_impacto = rm * v_d_impacto;
       Vector3 pos_impacto = v_d_impacto + PosParaVector3(pos_entidade_destino);
       pos_impacto.z = entidade_destino->Z();
-      Vector3 v_e = PosParaVector3(entidade->PosicaoAcao());
+      Vector3 v_e = PosParaVector3(entidade_origem->PosicaoAcao());
       Vector3 v_e_impacto = pos_impacto - v_e;
-      auto res = DetectaColisao(*entidade, v_e_impacto);
+      auto res = DetectaColisao(*entidade_origem, v_e_impacto);
       if (res.colisao) {
         v_e_impacto.normalize();
         v_e_impacto *= res.profundidade;
@@ -1195,11 +1196,14 @@ float Tabuleiro::TrataAcaoProjetilArea(
     AcaoProto::PorEntidade* por_entidade = nullptr;
     if (id == id_entidade_destino) {
       if (acertou_direto) {
+        // ja afetou na acao individual.
         continue;
       } else {
         auto find_result = std::find_if(acao_proto->mutable_por_entidade()->begin(), acao_proto->mutable_por_entidade()->end(),
             [id_entidade_destino](AcaoProto::PorEntidade& po) { return po.id() == id_entidade_destino; });
-        if (find_result == acao_proto->mutable_por_entidade()->end()) continue;
+        if (find_result == acao_proto->mutable_por_entidade()->end()) {
+          continue;
+        }
         por_entidade = &(*find_result);
       }
     } else {
@@ -1229,6 +1233,40 @@ float Tabuleiro::TrataAcaoProjetilArea(
         AdicionaLogEvento(id, resultado_elemento.texto);
       }
     }
+    if (acao_proto->respingo_causa_efeitos_adicionais()) {
+      bool salvou = false;
+      if (acao_proto->permite_salvacao()) {
+        // pega o dano da acao.
+        auto [delta_pv_pos_salvacao, entidade_salvou, texto_salvacao] =
+            AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
+        std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+        if (n->has_tipo()) {
+          *grupo_desfazer->add_notificacao() = *n;
+          central_->AdicionaNotificacao(n.release());
+        }
+        ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
+        delta_pv = delta_pv_pos_salvacao;
+        salvou = entidade_salvou;
+      }
+      // Imunidade ao tipo de ataque.
+      ResultadoImunidadeOuResistencia resultado_elemento =
+          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
+      if (resultado_elemento.causa != ALT_NENHUMA) {
+        delta_pv += resultado_elemento.resistido;
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_origem->Id(), resultado_elemento.texto);
+        if (resultado_elemento.causa == ALT_IMUNIDADE || (resultado_elemento.causa == ALT_RESISTENCIA && delta_pv == 0)) {
+          por_entidade->set_delta(0);
+          continue;
+        }
+      }
+      std::vector<int> ids_unicos_entidade_destino = IdsUnicosEntidade(*entidade_destino);
+      atraso_s = AplicaEfeitosAdicionais(
+          tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, ent::TAL_DESCONHECIDO, da,
+          por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+    }
+
     por_entidade->set_delta(delta_pv);
 
     // Para desfazer.
@@ -1240,7 +1278,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
   if (incrementa_ataque) {
-    entidade->ProximoAtaque();
+    entidade_origem->ProximoAtaque();
   }
   return atraso_s;
 }

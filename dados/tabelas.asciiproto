@@ -157,9 +157,12 @@ tabela_armas {
       icone: 'icon_thunderstone.png'
       som_sucesso: 'thunderstone.wav'
       efeito_area: true
+      efeito_projetil_area: true
+      respingo_causa_efeitos_adicionais: true
       elemento: DESC_SONICO
       dificuldade_salvacao_base: 15
       tipo_salvacao: TS_FORTITUDE
+      permite_salvacao: true
       efeitos_adicionais {
         efeito: EFEITO_ENSURDECIDO
         rodadas: 600
