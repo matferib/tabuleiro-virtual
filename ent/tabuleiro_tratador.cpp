@@ -1266,14 +1266,23 @@ float Tabuleiro::TrataAcaoProjetilArea(
           tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, ent::TAL_DESCONHECIDO, da,
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
     }
-
+    {
+      std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
+      auto [delta_pos_renovacao, texto_renovacao] =
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+      delta_pv = delta_pos_renovacao;
+      if (!texto_renovacao.empty()) {
+        ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
+        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
     por_entidade->set_delta(delta_pv);
 
     // Para desfazer.
     // Notificacao de desfazer.
     auto* nd = grupo_desfazer->add_notificacao();
     PreencheNotificacaoAtualizacaoPontosVida(*entidade_destino, delta_pv, TD_LETAL, nd, nd);
-    // TODO Renovacao.
   }
   VLOG(2) << "Acao de projetil de area: " << acao_proto->ShortDebugString();
   *n->mutable_acao() = *acao_proto;
@@ -1319,22 +1328,22 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     central_->AdicionaNotificacao(n_consumo.release());
   }
 
-  int delta_pontos_vida_inicial = 0;
+  int delta_pv_inicial = 0;
   if (HaValorListaPontosVida()) {
-    delta_pontos_vida_inicial =
+    delta_pv_inicial =
         LeValorListaPontosVida(entidade_origem, EntidadeProto(), acao_proto->id());
     if (da.cura()) {
-      delta_pontos_vida_inicial = -delta_pontos_vida_inicial;
+      delta_pv_inicial = -delta_pv_inicial;
     }
     if (da.incrementa_proximo_ataque()) {
       // TODO desfazer.
       entidade_origem->ProximoAtaque();
     }
-    acao_proto->set_delta_pontos_vida(delta_pontos_vida_inicial);
+    acao_proto->set_delta_pontos_vida(delta_pv_inicial);
     acao_proto->set_afeta_pontos_vida(true);
   }
   // Este valor deve ser inalterado.
-  const int delta_pontos_vida = delta_pontos_vida_inicial;
+  const int delta_pv = delta_pv_inicial;
   acao_proto->clear_por_entidade();
   if (acao_proto->has_modelo_maximo_criaturas_afetadas()) {
     acao_proto->set_maximo_criaturas_afetadas(ComputaLimiteVezes(
@@ -1361,7 +1370,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     acao_proto->set_gera_outras_acoes(true);  // mesmo que nao de dano, tem os textos.
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
-    por_entidade->set_delta(delta_pontos_vida);
+    por_entidade->set_delta(delta_pv);
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
@@ -1384,7 +1393,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         continue;
       }
     }
-    int delta_pv_pos_salvacao = delta_pontos_vida;
+    int delta_pv_pos_salvacao = delta_pv;
     bool salvou = false;
     if (acao_proto->permite_salvacao()) {
       std::string texto_salvacao;
@@ -1435,7 +1444,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     {
       auto n_uso_poder = std::make_unique<ntf::Notificacao>();
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv_pos_salvacao = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
@@ -1786,7 +1795,7 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Aplica dano e critico, furtivo.
-    int delta_pontos_vida = 0;
+    int delta_pv = 0;
     const bool acao_cura = da.cura();
     if (resultado.Sucesso()) {
       int max_predileto = 0;
@@ -1800,9 +1809,9 @@ float Tabuleiro::TrataAcaoIndividual(
         ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
         AdicionaLogEvento(entidade_origem->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
       }
-      delta_pontos_vida -= max_predileto;
+      delta_pv -= max_predileto;
       for (int i = 0; i < resultado.vezes; ++i) {
-        delta_pontos_vida += LeValorListaPontosVida(
+        delta_pv += LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
       if (!entidade_destino->ImuneFurtivo() && !acao_cura) {
@@ -1811,12 +1820,12 @@ float Tabuleiro::TrataAcaoIndividual(
           int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
           if (delta_furtivo < 0) {
             ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
-            delta_pontos_vida += delta_furtivo;
+            delta_pv += delta_furtivo;
           }
         }
       }
       if (acao_cura) {
-        delta_pontos_vida = -delta_pontos_vida;
+        delta_pv = -delta_pv;
       }
     }
 
@@ -1842,7 +1851,7 @@ float Tabuleiro::TrataAcaoIndividual(
       std::tie(sucesso, resultado_rm) = AtaqueVsResistenciaMagia(tabelas_, da, *entidade_origem, *entidade_destino);
       if (!sucesso) {
         atraso_s += 0.5f;
-        delta_pontos_vida = 0;
+        delta_pv = 0;
         por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_IMUNE;
       }
@@ -1857,7 +1866,7 @@ float Tabuleiro::TrataAcaoIndividual(
       auto da_desacreditar = da;
       da_desacreditar.set_tipo_salvacao(TS_VONTADE);
       da_desacreditar.set_resultado_ao_salvar(RS_ANULOU);
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, da_desacreditar, *entidade_origem, *entidade_destino);
+      std::tie(delta_pv, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pv, da_desacreditar, *entidade_origem, *entidade_destino);
       std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
       if (n->has_tipo()) {
         usou_efeito = true;
@@ -1865,7 +1874,7 @@ float Tabuleiro::TrataAcaoIndividual(
         central_->AdicionaNotificacao(n.release());
       }
       // Corrige o valor.
-      por_entidade->set_delta(delta_pontos_vida);
+      por_entidade->set_delta(delta_pv);
       ConcatenaString(StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()), por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()));
       if (salvou) {
@@ -1874,28 +1883,28 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     if (resultado.Sucesso() && acao_proto->permite_salvacao() &&
-        (delta_pontos_vida < 0 || !acao_proto->efeitos_adicionais().empty() ||
+        (delta_pv < 0 || !acao_proto->efeitos_adicionais().empty() ||
          ((da.derrubar_automatico() || da.derruba_sem_teste())))) {
       std::string resultado_salvacao;
-      std::tie(delta_pontos_vida, salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pontos_vida, da, *entidade_origem, *entidade_destino);
+      std::tie(delta_pv , salvou, resultado_salvacao) = AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
       std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(usou_efeito ? ntf::Notificacao::default_instance() : PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
       if (n->has_tipo()) {
         *grupo_desfazer->add_notificacao() = *n;
         central_->AdicionaNotificacao(n.release());
       }
       // Corrige o valor.
-      por_entidade->set_delta(delta_pontos_vida);
+      por_entidade->set_delta(delta_pv);
       ConcatenaString(resultado_salvacao, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), resultado_salvacao);
     }
 
     // Reducao de dano.
     std::string texto_reducao;
-    if (delta_pontos_vida < 0 && !IgnoraReducaoDano(&da, *acao_proto)) {
+    if (delta_pv < 0 && !IgnoraReducaoDano(&da, *acao_proto)) {
       google::protobuf::RepeatedField<int> descritores = da.descritores();
-      ResultadoReducaoDano rrd = AlteraDeltaPontosVidaPorMelhorReducao(delta_pontos_vida, entidade_destino->Proto(), descritores);
-      const int dano_absorvido = -(delta_pontos_vida - rrd.delta_pv);
-      delta_pontos_vida = rrd.delta_pv;
+      ResultadoReducaoDano rrd = AlteraDeltaPontosVidaPorMelhorReducao(delta_pv, entidade_destino->Proto(), descritores);
+      const int dano_absorvido = -(delta_pv - rrd.delta_pv);
+      delta_pv = rrd.delta_pv;
       texto_reducao = rrd.texto;
       // Aqui poderia se verificar se a reducao de dano tem id_unico (vem de algum efeito) para poder diminui-la.
       // Exemplo: pele rochosa tem limite de reducao que consegue absorver.
@@ -1920,7 +1929,7 @@ float Tabuleiro::TrataAcaoIndividual(
         atraso_s += 0.5f;
         ConcatenaString(texto_reducao, por_entidade->mutable_texto());
       }
-      if (delta_pontos_vida == 0) {
+      if (delta_pv == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
         por_entidade->set_delta(0);
         resultado.resultado = RA_FALHA_REDUCAO;  // dano reduzido para 0.
@@ -1977,11 +1986,11 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Resistencias e imunidades.
     ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pontos_vida, da, entidade_destino->Proto(), acao_proto->elemento());
+        ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
     if (resultado_elemento.causa != ALT_NENHUMA) {
-      delta_pontos_vida += resultado_elemento.resistido;
+      delta_pv += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      if (delta_pontos_vida == 0) {
+      if (delta_pv == 0) {
         // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
         por_entidade->set_delta(0);
       }
@@ -1989,25 +1998,25 @@ float Tabuleiro::TrataAcaoIndividual(
 
     bool nao_letal = da.nao_letal();
 
-    delta_pontos_vida = DesviaObjetoSeAplicavel(
-        tabelas_, delta_pontos_vida, *entidade_destino, da, this, por_entidade, grupo_desfazer);
+    delta_pv = DesviaObjetoSeAplicavel(
+        tabelas_, delta_pv, *entidade_destino, da, this, por_entidade, grupo_desfazer);
 
     // Compartilhamento de dano.
-    delta_pontos_vida = CompartilhaDanoSeAplicavel(
-        delta_pontos_vida, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
+    delta_pv = CompartilhaDanoSeAplicavel(
+        delta_pv, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
         por_entidade, acao_proto, grupo_desfazer);
     AdicionaLogEvento(StringPrintf(
           "entidade %s %s %d em entidade %s. Texto: '%s'",
           RotuloEntidade(entidade_origem).c_str(),
-          delta_pontos_vida <= 0 ? "causou dano" : "curou",
-          std::abs(delta_pontos_vida),
+          delta_pv <= 0 ? "causou dano" : "curou",
+          std::abs(delta_pv),
           RotuloEntidade(entidade_destino).c_str(),
           acao_proto->texto().c_str()));
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pontos_vida, n_uso_poder.get(), grupo_desfazer);
-      delta_pontos_vida = delta_pos_renovacao;
+          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+      delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
@@ -2015,19 +2024,19 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    VLOG(1) << "delta pontos vida: " << delta_pontos_vida;
+    VLOG(1) << "delta pontos vida: " << delta_pv;
     acao_proto->set_nao_letal(nao_letal);
 
-    if (delta_pontos_vida != 0) {
-      por_entidade->set_delta(delta_pontos_vida);
+    if (delta_pv != 0) {
+      por_entidade->set_delta(delta_pv);
       acao_proto->set_afeta_pontos_vida(true);
 
       // Apenas para desfazer.
       auto* nd = grupo_desfazer->add_notificacao();
       PreencheNotificacaoAtualizacaoPontosVida(
-          *entidade_destino, delta_pontos_vida, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
+          *entidade_destino, delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, nd, nd);
     }
-    if (delta_pontos_vida < 0 && std::abs(delta_pontos_vida) > entidade_destino->PontosVida()) {
+    if (delta_pv < 0 && std::abs(delta_pv) > entidade_destino->PontosVida()) {
       if (PossuiTalento("trespassar", entidade_origem->Proto())) {
         atraso_s += 1.0f;
         AdicionaAcaoTexto(entidade_origem->Id(), "trespassar", atraso_s);

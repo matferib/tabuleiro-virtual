@@ -980,7 +980,8 @@ int CompartilhaDanoSeAplicavel(
 
 // Caso a entidade tenha dominio renovar, ativa caso fique negativo.
 // Caso haja uso do poder, adiciona ao grupo a notificacao.
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
+std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+    const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
 
 // Se alvo possuir desviar objetos e puder usar, anula o ataque.
 int DesviaObjetoSeAplicavel(

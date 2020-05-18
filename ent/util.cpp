@@ -1789,7 +1789,7 @@ void PreencheNotificacaoAtualizacaoPontosVida(
       e_depois->set_dano_nao_letal(0);
       dano_nao_letal = 0;
     } else {
-      dano_nao_letal = proto.dano_nao_letal() - delta_pontos_vida; 
+      dano_nao_letal = proto.dano_nao_letal() - delta_pontos_vida;
       e_depois->set_dano_nao_letal(dano_nao_letal);
     }
   } else if (delta_pontos_vida < 0) {
@@ -5107,22 +5107,21 @@ int DesviaObjetoSeAplicavel(
 }
 
 std::pair<int, std::string> RenovaSeTiverDominioRenovar(
-    const EntidadeProto& proto, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
-  if (delta_pontos_vida >= 0) {
-    return std::make_pair(delta_pontos_vida, "");
+    const EntidadeProto& proto, int delta_pv, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
+  if (delta_pv >= 0) {
+    return std::make_pair(delta_pv, "");
   }
   const EntidadeProto::InfoFeiticosClasse& ic = FeiticosClasse("clerigo", proto);
   if (c_none(ic.dominios(), "renovacao")) {
-    return std::make_pair(delta_pontos_vida, "");
+    return std::make_pair(delta_pv, "");
   }
   auto it = ic.poderes_dominio().find("renovacao");
   if (it != ic.poderes_dominio().end() && it->second.usado()) {
-    return std::make_pair(delta_pontos_vida, "");
+    return std::make_pair(delta_pv, "");
   }
   const EntidadeProto::PoderesDominio pd = it == ic.poderes_dominio().end() ? EntidadeProto::PoderesDominio::default_instance() : it->second;
   ntf::Notificacao nfake;
-  // TODO arrumar aqui: pontos de vida sao os PV da entidade e dano nao letal idem.
-  PreencheNotificacaoConsequenciaAlteracaoPontosVida(delta_pontos_vida, /*dano_nao_letal=*/0, proto, &nfake);
+  PreencheNotificacaoAtualizacaoPontosVida(proto, delta_pv, tipo_dano, &nfake, nullptr /*desfazer*/);
   const auto& e_antes = nfake.entidade_antes();
   const auto& e_depois = nfake.entidade();
   if (!e_depois.morta() && !e_antes.inconsciente() && e_depois.inconsciente()) {
@@ -5147,27 +5146,27 @@ std::pair<int, std::string> RenovaSeTiverDominioRenovar(
       *grupo_desfazer->add_notificacao() = *n;
     }
     return std::make_pair(
-        delta_pontos_vida + total,
+        delta_pv + total,
         StringPrintf("dominio renovação %d = 1d8 + mod carisma = %d %+d", total, d8, mod_carisma));
   }
-  return std::make_pair(delta_pontos_vida, "");
+  return std::make_pair(delta_pv, "");
 }
 
 int CompartilhaDanoSeAplicavel(
-    int delta_pontos_vida, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
+    int delta_pv, const EntidadeProto& alvo, const Tabuleiro& tabuleiro, tipo_dano_e tipo_dano,
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
   std::vector<const EntidadeProto::Evento*> evento_divisao = EventosTipo(EFEITO_PROTEGER_OUTRO, alvo);
-  if (delta_pontos_vida >= 0 || evento_divisao.empty() || evento_divisao[0]->complementos().empty()) return delta_pontos_vida;
+  if (delta_pv >= 0 || evento_divisao.empty() || evento_divisao[0]->complementos().empty()) return delta_pv;
 
   const auto* entidade_solidaria = tabuleiro.BuscaEntidade(evento_divisao[0]->complementos(0));
   if (entidade_solidaria == nullptr) {
     ConcatenaString("dano não dividido, sem entidade", por_entidade->mutable_texto());
-    return delta_pontos_vida;
+    return delta_pv;
   }
 
   // Dano deve ser dividido.
-  int sobra = delta_pontos_vida - (delta_pontos_vida / 2);
-  delta_pontos_vida = delta_pontos_vida / 2;
+  int sobra = delta_pv - (delta_pv / 2);
+  delta_pv = delta_pv / 2;
   ConcatenaString("dano dividido por 2", por_entidade->mutable_texto());
 
   auto* por_entidade_compartilhada = acao_proto->add_por_entidade();
@@ -5178,7 +5177,7 @@ int CompartilhaDanoSeAplicavel(
   auto* nd = grupo_desfazer->add_notificacao();
   PreencheNotificacaoAtualizacaoPontosVida(*entidade_solidaria, sobra, tipo_dano, nd, nd);
 
-  return delta_pontos_vida;
+  return delta_pv;
 }
 
 void PreencheNotificacaoReducaoLuzComConsequencia(int nivel, const Entidade& entidade, AcaoProto* acao_proto, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {

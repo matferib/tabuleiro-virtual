@@ -4662,17 +4662,31 @@ TEST(TesteDominios, TesteRenovacao) {
     ifc->add_dominios("renovacao");
   }
   std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
-  g_dados_teste.push(5); // d8 + 2 = 7
-  ntf::Notificacao n;
-  auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -6, &n, nullptr);
-  EXPECT_EQ(delta, 1) << ", texto: " << texto;  // mudou de -6 para 1 por causa da renovacao.
-  EXPECT_FALSE(texto.empty());
-  e->AtualizaParcial(n.entidade());
-  std::tie(delta, texto) = RenovaSeTiverDominioRenovar(e->Proto(), -6, &n, nullptr);
-  EXPECT_EQ(delta, -6) << ", texto: " << texto;  // nao muda, ja usou.
-  EXPECT_TRUE(texto.empty());
-  EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).usado(), true);
-  EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).disponivel_em(), DIA_EM_RODADAS);
+  {
+    // Nada acontece.
+    ntf::Notificacao n;
+    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -5, TD_LETAL, &n, nullptr);
+    EXPECT_FALSE(n.has_tipo());
+  }
+  {
+    // Ativa renovacao.
+    g_dados_teste.push(5); // d8 + 2 = 7
+    ntf::Notificacao n;
+    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -6, TD_LETAL, &n, nullptr);
+    EXPECT_TRUE(n.has_tipo());
+    EXPECT_EQ(delta, 1) << ", texto: " << texto;  // mudou de -6 para 1 por causa da renovacao.
+    EXPECT_FALSE(texto.empty());
+    e->AtualizaParcial(n.entidade());
+    EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).usado(), true);
+    EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).disponivel_em(), DIA_EM_RODADAS);
+  }
+  {
+    ntf::Notificacao n;
+    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -6, TD_LETAL, &n, nullptr);
+    EXPECT_EQ(delta, -6) << ", texto: " << texto << ", delta: " << delta;  // nao muda, ja usou.
+    EXPECT_FALSE(n.has_tipo());
+    EXPECT_TRUE(texto.empty());
+  }
 }
 
 TEST(TesteDominios, TesteNobrezaMorte) {
