@@ -625,7 +625,7 @@ void InterfaceGrafica::TrataEscolherAliados(const ntf::Notificacao& notificacao)
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemsLista("Escolha entidades afetadas", rotulos_entidades,
+  EscolheItemsLista(notificacao.acao().aliados_e_inimigos_de_forma_diferente() ? "Escolha os aliados" : "Escolha entidades afetadas", rotulos_entidades,
       [this, notificacao, mapa_indice_id] (bool ok_decisao, const std::vector<int>& indices) {
     ent::RodaNoRetorno([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();

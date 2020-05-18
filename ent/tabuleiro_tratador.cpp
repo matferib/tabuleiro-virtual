@@ -2145,7 +2145,9 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::TalvezPreenchaAcaoNaoPreenchida(
   if (acao_proto.parametros_lancamento().parametros().size() >= 1) {
     n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_DECISAO_LANCAMENTO);
     PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
-  } else if (acao_proto.aliados_ou_inimigos_apenas() && acao_proto.ids_afetados().empty() && acao_proto.ids_afetados_inimigos().empty()) {
+  } else if (
+      (acao_proto.aliados_ou_inimigos_apenas() && acao_proto.ids_afetados().empty()) ||
+      (acao_proto.aliados_e_inimigos_de_forma_diferente() && acao_proto.ids_afetados().empty() && acao_proto.ids_afetados_inimigos().empty())) {
     n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS);
     // Tem que preencher antes de chamar EntidadesAfetadasPorAcao, porque a funcao depende do id_entidade_origem.
     PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());

@@ -2729,12 +2729,7 @@ TEST(TesteFeiticos, TesteBencao) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
-      &acao, &ids_unicos, &ids_unicos,
-      &grupo_desfazer, &central);
-  ASSERT_TRUE(central.Notificacoes().empty());
-  AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
+      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_DESCONHECIDO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   ASSERT_FALSE(central.Notificacoes().empty());
@@ -2766,16 +2761,9 @@ TEST(TesteFeiticos, TesteMaldicaoMenor) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
-      &acao, &ids_unicos, &ids_unicos,
-      &grupo_desfazer, &central);
-  ASSERT_TRUE(central.Notificacoes().empty());
-  AplicaEfeitosAdicionais(
       g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
-  ASSERT_FALSE(acao.efeitos_adicionais().empty());
-  EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 30);
   ASSERT_FALSE(central.Notificacoes().empty());
   ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
   const auto& evento = central.Notificacoes()[0]->entidade().evento(0);

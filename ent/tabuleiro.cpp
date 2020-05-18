@@ -7144,9 +7144,16 @@ const std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> Tabuleiro::Entid
   if (acao.aliados_ou_inimigos_apenas() && !acao.ids_afetados().empty()) {
     std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> ret;
     for (unsigned int id : acao.ids_afetados()) {
+      ret.push_back({id, Tabuleiro::TAL_DESCONHECIDO});
+    }
+    return ret;
+  }
+  if (acao.aliados_e_inimigos_de_forma_diferente() && (!acao.ids_afetados().empty() || !acao.ids_afetados_inimigos().empty())) {
+    std::vector<std::pair<unsigned int, Tabuleiro::aliado_e>> ret;
+    for (unsigned int id : acao.ids_afetados()) {
       ret.push_back({id, Tabuleiro::TAL_ALIADO});
     }
-    for (unsigned int id: acao.ids_afetados_inimigos()) {
+    for (unsigned int id : acao.ids_afetados_inimigos()) {
       ret.push_back({id, Tabuleiro::TAL_INIMIGO});
     }
     return ret;
