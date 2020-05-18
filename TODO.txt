@@ -1,9 +1,13 @@
-Terminar oração
+Nova tabela de encontro para batalha de Tilverton.
+Mudar cursor de acordo com a acao.
+Casting time de magias (summon monster, nature ally etc).
+Feiticos automaticos respeitar o descritor de bom mal caos ordem.
+
+Ao criar peao, esta desalgemando
+Teia tem que criar o objeto da area.
 Concentracao em criaturas enredadas.
 Movimento reduzido ou anulado em criaturas enredadas.
 Comando de dano por teclado nao gera desfazer??
-Dominio renovacao: aplicar em outros lugares, decrementar com rodadas. Fix de sempre estar ativando, independente de morte.
-Casting time de magias (summon monster, nature ally etc).
 Menu para recarregar tabelas.
 Botao de flanquear.
 Lista de entidades afetadas ordenada.
@@ -21,9 +25,6 @@ Pedra encantada: acertando automatico.
 Entender a desconexao: dar mensagem pro cliente, tentar reconectar.
 Scrollbar na janela de feiticos.
 
-Prayer (oração).
-
-Implementar casting time.
 Modificador de raio_quadrados para acao (ver feitico cativar).
 Pergaminhos pro grupo.
 Ideia: coroinhas podem ir e voltar com itens e poções.
@@ -276,5 +277,4 @@ Algumas ideias loucas.
 - Botao de aplicar mudancas nos dialogos.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
-- Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
