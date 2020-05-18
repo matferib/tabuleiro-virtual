@@ -2780,10 +2780,15 @@ TEST(TesteFeiticos, TesteOracao) {
     ic->set_id("clerigo");
     ic->set_nivel(3);
     AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(16, TA_DESTREZA, &proto);
     AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("oracao");
+    da = proto.add_dados_ataque();
+    da->set_id_arma("espada_curta");
+
+    proto.mutable_tesouro()->add_itens_mundanos()->set_id("pedra_trovao");
     referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
   }
   CentralColetora central;
@@ -2796,12 +2801,19 @@ TEST(TesteFeiticos, TesteOracao) {
       g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
-  ASSERT_EQ(central.Notificacoes().size(), 1U);
-  ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
   {
+    ASSERT_EQ(central.Notificacoes().size(), 1U);
+    ASSERT_FALSE(central.Notificacoes()[0]->entidade().evento().empty());
     const auto& evento = central.Notificacoes()[0]->entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_ORACAO_ALIADOS);
     EXPECT_EQ(evento.rodadas(), 3);
+    // Pedra do trovao nao pode ser afetada por oracao.
+    referencia->AtualizaParcial(central.Notificacoes()[0]->entidade());
+    ASSERT_EQ(referencia->Proto().dados_ataque().size(), 3);
+    EXPECT_EQ(referencia->Proto().dados_ataque(1).bonus_ataque_final(), 2 + 1 + 1) << referencia->Proto().dados_ataque(1).bonus_ataque().DebugString();
+    EXPECT_EQ(referencia->Proto().dados_ataque(1).dano(), "1d6+2");
+    EXPECT_EQ(referencia->Proto().dados_ataque(2).bonus_ataque_final(), 2 + 3 + 1) << referencia->Proto().dados_ataque(2).bonus_ataque().DebugString();
+    EXPECT_TRUE(referencia->Proto().dados_ataque(2).dano().empty());
   }
 
   AplicaEfeitosAdicionais(
@@ -3813,6 +3825,13 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   }
 }
 
+const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.grupo() == grupo) return da;
+  }
+  return DadosAtaque::default_instance();
+}
+
 TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Clérigo de Shar/Adepto das Sombras 5/1");
   EntidadeProto proto = modelo_vb5.entidade();
@@ -3836,8 +3855,7 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   }
   {
     // Ataque de morte, penultimo antes do agarrar.
-    ASSERT_GE(proto.dados_ataque().size(), 2);
-    const auto& da = proto.dados_ataque(proto.dados_ataque().size() - 2);
+    const auto& da = DadosAtaquePorGrupo("dominio morte", proto);
     EXPECT_TRUE(da.ataque_toque()) << da.DebugString();
     EXPECT_FALSE(da.acao().efeitos_adicionais().empty());
     EXPECT_EQ(da.acao().efeitos_adicionais(0).efeito(), EFEITO_MORTE);
@@ -4615,8 +4633,7 @@ TEST(TesteRacas, TesteAasimar) {
     }
   }
   ASSERT_EQ(c, 2);
-  ASSERT_EQ(proto.dados_ataque().size(), 2);
-  EXPECT_EQ(proto.dados_ataque(0).id_raca(), "aasimar") << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(DadosAtaquePorGrupo("aasimar", proto).id_raca(), "aasimar") << proto.dados_ataque(0).DebugString();
 }
 
 TEST(TesteRacas, TesteFalcao) {
@@ -4652,7 +4669,7 @@ TEST(TesteDominios, TesteRenovacao) {
   EXPECT_FALSE(texto.empty());
   e->AtualizaParcial(n.entidade());
   std::tie(delta, texto) = RenovaSeTiverDominioRenovar(e->Proto(), -6, &n, nullptr);
-  EXPECT_EQ(delta, -6) << ", texto: " << texto;  // nao muda, ja usou. 
+  EXPECT_EQ(delta, -6) << ", texto: " << texto;  // nao muda, ja usou.
   EXPECT_TRUE(texto.empty());
   EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).usado(), true);
   EXPECT_EQ(PoderesDoDominio("renovacao", e->Proto()).disponivel_em(), DIA_EM_RODADAS);
@@ -4676,15 +4693,16 @@ TEST(TesteDominios, TesteNobrezaMorte) {
 
   ASSERT_EQ(proto.dados_ataque().size(), 3);
   {
-    AcaoProto acao = proto.dados_ataque(0).acao();
+    AcaoProto acao = DadosAtaquePorGrupo("dominio nobreza", proto).acao();
     ResolveEfeitosAdicionaisVariaveis(/*nivel_conjurador=*/1, proto, *alvo, &acao);
-    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(1).DebugString();
+    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "acao: " << acao.DebugString();
     EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_INSPIRAR_CORAGEM);
     EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 2);
   }
   {
-    AcaoProto acao = proto.dados_ataque(1).acao();
+    AcaoProto acao = DadosAtaquePorGrupo("dominio morte", proto).acao();
     ResolveEfeitosAdicionaisVariaveis(/*nivel_conjurador=*/1, proto, *alvo, &acao);
+    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "acao: " << acao.DebugString();
     EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_MORTE);
   }
 }
@@ -4718,8 +4736,8 @@ TEST(TesteDominios, TesteProtecao) {
 
   ASSERT_EQ(proto.dados_ataque().size(), 2);
   {
-    AcaoProto acao = proto.dados_ataque(0).acao();
-    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << proto.dados_ataque(0).DebugString();
+    AcaoProto acao = DadosAtaquePorGrupo("dominio protecao", proto).acao();
+    ASSERT_FALSE(acao.efeitos_adicionais().empty()) << "da: " << acao.DebugString();
     EXPECT_EQ(acao.efeitos_adicionais(0).efeito(), EFEITO_DOMINIO_PROTECAO);
     EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 600);  // 1 hora
     EXPECT_FALSE(acao.permite_ataque_vs_defesa());

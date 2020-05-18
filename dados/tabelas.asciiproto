@@ -8969,7 +8969,7 @@ tabela_feiticos {
       raio_quadrados: 8  # quadrados.
       permite_salvacao: false
       ignora_resistencia_magia: false
-      aliados_ou_inimigos_apenas: true
+      aliados_e_inimigos_de_forma_diferente: true
       efeitos_adicionais {
         efeito: EFEITO_ORACAO_ALIADOS
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -12389,7 +12389,6 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_BENCAO
         modificador_rodadas: MR_MINUTOS_NIVEL
-        afeta_aliados_apenas: true
       }
       aliados_ou_inimigos_apenas: true
     }
@@ -12418,7 +12417,6 @@ tabela_feiticos {
       efeitos_adicionais {
         efeito: EFEITO_MALDICAO_MENOR
         modificador_rodadas: MR_MINUTOS_NIVEL
-        afeta_inimigos_apenas: true
       }
       aliados_ou_inimigos_apenas: true
     }
@@ -13857,9 +13855,11 @@ tabela_racas {
     tamanho: TM_MEDIO
     dados_ataque {
       rotulo: 'luz do dia'
+      grupo: 'aasimar'
       tipo_ataque: 'Feitiço de Toque'
       id_arma: 'luz_dia'
       limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
       mantem_com_limite_zerado: true
     }
     # visao no escuro 12 q

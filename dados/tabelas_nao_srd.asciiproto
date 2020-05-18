@@ -425,6 +425,7 @@ tabela_dominios {
     dados_ataque {
       tipo_ataque: 'Feitiço a Distância'
       rotulo: 'inspirar aliados'
+      grupo: 'dominio nobreza'
       ignora_reflexos: true
       incrementa_proximo_ataque: false
       alcance_q: 6

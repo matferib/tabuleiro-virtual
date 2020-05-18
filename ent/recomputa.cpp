@@ -69,8 +69,10 @@ int CalculaBonusBaseParaAtaque(const DadosAtaque& da, const EntidadeProto& proto
 
 // Retorna a string de dano para uma arma.
 std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
+  // Acoes sem dano nao podem causar dano nem com modificadores adicionais.
+  if (da.dano_basico().empty()) return "";
   const int mod_final = BonusTotal(da.bonus_dano());
-  return da.dano_basico().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
+  return da.dano_basico().c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
 }
 
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
@@ -132,11 +134,9 @@ void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
 bool ConsequenciaAfetaDadosAtaque(const ConsequenciaEvento& consequencia, const DadosAtaque& da) {
   if (!consequencia.has_restricao_arma()) return true;
   const auto& ra = consequencia.restricao_arma();
-  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0)
-    return true;
+  if (ra.has_prefixo_arma() && da.id_arma().find(ra.prefixo_arma()) == 0) return true;
   if (ra.apenas_armas() && da.eh_arma()) return true;
-  if (ra.apenas_armas_para_dano())
-    return true;  // a restricao se aplica apenas ao dano.
+  if (ra.apenas_armas_para_dano()) return true;  // a restricao se aplica apenas ao dano.
   return c_any(consequencia.restricao_arma().id_arma(), da.id_arma());
 }
 
@@ -302,8 +302,8 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.bonus_iniciativa(), proto->mutable_bonus_iniciativa());
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!ConsequenciaAfetaDadosAtaque(consequencia, da)) continue;
-    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(),
-                                  da.mutable_bonus_ataque());
+    VLOG(2) << "aplicando em : " << da.id_arma() << ": " << consequencia.jogada_ataque().ShortDebugString();
+    AplicaBonusPenalidadeOuRemove(consequencia.jogada_ataque(), da.mutable_bonus_ataque());
     if (!ConsequenciaAfetaDano(consequencia, da)) continue;
     AplicaBonusPenalidadeOuRemove(consequencia.jogada_dano(), da.mutable_bonus_dano());
   }
@@ -2564,6 +2564,78 @@ std::string DanoBasicoMonge(int nivel) {
   return StringPrintf("%dd%d", mult, dado);
 }
 
+DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.id_arma() == id_arma) {
+      return &da;
+    }
+  }
+  auto* da = proto->add_dados_ataque();
+  da->set_id_arma(id_arma);
+  return da;
+}
+
+// Cria e remove os dados de ataque que tem que ser criados/removidos.
+// Exemplos de ataques criados: itens mundanos como fogo_alquimico, ataque atordoante.
+// Exemplo de ataques removidos: ataques cujo limite tenha chegado em zero.
+void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Remove ataques cujo numero de vezes exista e seja zero.
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return da.has_limite_vezes() && da.limite_vezes() <= 0 &&
+        !da.mantem_com_limite_zerado() && !da.has_taxa_refrescamento();
+  }, proto->mutable_dados_ataque());
+
+  // Se nao tiver agarrar, cria um.
+  if (proto->gerar_agarrar() && c_none_of(proto->dados_ataque(),
+        [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
+    auto* da = proto->mutable_dados_ataque()->Add();
+    da->set_tipo_ataque("Agarrar");
+    da->set_rotulo("agarrar");
+  }
+  // Se nao tiver ataque atordoante, gera um.
+  if (PossuiTalento("ataque_atordoante", *proto)) {
+    auto* dat = DadosAtaquePorTalento("ataque_atordoante", proto);
+    if (dat == nullptr) {
+      int limite_vezes = LimiteOriginalAtaqueAtordoante(*proto);
+      if (limite_vezes > 0) {
+        DadosAtaque da;
+        da.set_id_talento("ataque_atordoante");
+        da.set_rotulo("ataque atordoante");
+        da.set_id_arma("desarmado");
+        da.set_limite_vezes(limite_vezes);
+        da.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        da.set_mantem_com_limite_zerado(true);
+        da.set_dano_ignora_salvacao(true);
+        auto* acao = da.mutable_acao_fixa();
+        acao->set_permite_salvacao(true);
+        acao->set_tipo_salvacao(TS_FORTITUDE);
+        auto* ed = acao->add_efeitos_adicionais();
+        ed->set_efeito(EFEITO_ATORDOADO);
+        ed->set_rodadas(1);
+        InsereInicio(&da, proto->mutable_dados_ataque());
+        dat = proto->mutable_dados_ataque(0);
+      }
+    }
+  }
+  // Itens mundanos que geram ataques.
+  std::unordered_map<std::string, int> mapa_tipo_quantidade;
+  for (const auto& im : proto->tesouro().itens_mundanos()) {
+    ++mapa_tipo_quantidade[im.id()];
+  }
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return EhItemMundano(da);
+  }, proto->mutable_dados_ataque());
+  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }) {
+    if (mapa_tipo_quantidade[id] > 0) {
+      auto* da = DadosAtaquePorIdArmaCriando(id, proto);
+      da->set_municao(mapa_tipo_quantidade[id]);;
+      da->set_grupo(id);
+      da->set_rotulo(id);
+      da->set_empunhadura(EA_ARMA_ESCUDO);
+    }
+  }
+}
+
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
@@ -2854,74 +2926,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   VLOG(1) << "Ataque recomputado: " << da->DebugString();
 }
 
-DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadeProto* proto) {
-  for (auto& da : *proto->mutable_dados_ataque()) {
-    if (da.id_arma() == id_arma) {
-      return &da;
-    }
-  }
-  auto* da = proto->add_dados_ataque();
-  da->set_id_arma(id_arma);
-  return da;
-}
-
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
-  // Remove ataques cujo numero de vezes exista e seja zero.
-  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return da.has_limite_vezes() && da.limite_vezes() <= 0 &&
-        !da.mantem_com_limite_zerado() && !da.has_taxa_refrescamento();
-  }, proto->mutable_dados_ataque());
-
-  // Se nao tiver agarrar, cria um.
-  if (proto->gerar_agarrar() && c_none_of(proto->dados_ataque(),
-        [] (const DadosAtaque& da) { return da.ataque_agarrar(); })) {
-    auto* da = proto->mutable_dados_ataque()->Add();
-    da->set_tipo_ataque("Agarrar");
-    da->set_rotulo("agarrar");
-  }
-  // Se nao tiver ataque atordoante, gera um.
-  if (PossuiTalento("ataque_atordoante", *proto)) {
-    auto* dat = DadosAtaquePorTalento("ataque_atordoante", proto);
-    if (dat == nullptr) {
-      int limite_vezes = LimiteOriginalAtaqueAtordoante(*proto);
-      if (limite_vezes > 0) {
-        DadosAtaque da;
-        da.set_id_talento("ataque_atordoante");
-        da.set_rotulo("ataque atordoante");
-        da.set_id_arma("desarmado");
-        da.set_limite_vezes(limite_vezes);
-        da.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
-        da.set_mantem_com_limite_zerado(true);
-        da.set_dano_ignora_salvacao(true);
-        auto* acao = da.mutable_acao_fixa();
-        acao->set_permite_salvacao(true);
-        acao->set_tipo_salvacao(TS_FORTITUDE);
-        auto* ed = acao->add_efeitos_adicionais();
-        ed->set_efeito(EFEITO_ATORDOADO);
-        ed->set_rodadas(1);
-        InsereInicio(&da, proto->mutable_dados_ataque());
-        dat = proto->mutable_dados_ataque(0);
-      }
-    }
-  }
-  // Itens mundanos que geram ataques.
-  std::unordered_map<std::string, int> mapa_tipo_quantidade;
-  for (const auto& im : proto->tesouro().itens_mundanos()) {
-    ++mapa_tipo_quantidade[im.id()];
-  }
-  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return EhItemMundano(da);
-  }, proto->mutable_dados_ataque());
-  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }) {
-    if (mapa_tipo_quantidade[id] > 0) {
-      auto* da = DadosAtaquePorIdArmaCriando(id, proto);
-      da->set_municao(mapa_tipo_quantidade[id]);;
-      da->set_grupo(id);
-      da->set_rotulo(id);
-      da->set_empunhadura(EA_ARMA_ESCUDO);
-    }
-  }
-
   for (auto& da : *proto->mutable_dados_ataque()) {
     RecomputaDependenciasUmDadoAtaque(tabelas, *proto, &da);
   }
@@ -2944,7 +2949,7 @@ void RecomputaDependenciasMovimento(const Tabelas& tabelas, EntidadeProto* proto
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
-
+  RecomputaCriaRemoveDadosAtaque(tabelas, proto);
   RecomputaDependenciasRaciais(tabelas, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);

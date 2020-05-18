@@ -5717,7 +5717,7 @@ float AplicaEfeitosAdicionais(
   ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
     if ((efeito_adicional.afeta_aliados_apenas() && tipo_aliado != TAL_ALIADO) || (efeito_adicional.afeta_inimigos_apenas() && tipo_aliado != TAL_INIMIGO)) {
-      LOG(INFO) << "pulando efeito: " << efeito_adicional.DebugString();
+      VLOG(1) << "pulando efeito: " << efeito_adicional.DebugString();
       continue;
     }
     if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
