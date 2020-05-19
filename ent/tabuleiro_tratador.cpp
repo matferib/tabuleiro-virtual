@@ -205,6 +205,10 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   if (faces_dado_ <= 0) {
     LOG(ERROR) << "Erro rolando dado: faces <= 0, " << faces_dado_ ;
     return;
@@ -420,6 +424,10 @@ void Tabuleiro::TrataMovimentoMouse() {
 }
 
 bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return false;
+  }
+ 
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
     // Aqui ainda retorna false, para nao voltar o cursor para a posicao anterior. A partir daqui,
@@ -886,7 +894,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       return;
     case ETAB_DESENHANDO: {
       estado_ = estado_anterior_;
-      modo_clique_ = MODO_NORMAL;  // garante que o modo clique sai depois de usar o ctrl+botao direito.
+      EntraModoClique(MODO_NORMAL);
       VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
       ntf::Notificacao n;
@@ -913,6 +921,10 @@ void Tabuleiro::FinalizaEstadoCorrente() {
 }
 
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -991,6 +1003,10 @@ void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo
 
 
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), MODO_ACAO, &parametros_desenho_);
   // Preenche os dados comuns.
   unsigned int id, tipo_objeto;
@@ -2259,7 +2275,11 @@ float Tabuleiro::TrataAcaoUmaEntidade(
 }
 
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
-  modo_clique_ = MODO_NORMAL;
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
+  EntraModoClique(MODO_NORMAL);
   if (tipo_objeto != OBJ_ENTIDADE) {
     LOG(INFO) << "Tipo invalido para esquiva";
     return;
@@ -2402,7 +2422,7 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
 }
 
 void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
-  modo_clique_ = MODO_NORMAL;
+  EntraModoClique(MODO_NORMAL);
   if (tipo_objeto != OBJ_ENTIDADE) {
     LOG(INFO) << "Remocao de entidade valida apenas para objetos compostos.";
     return;
@@ -2448,7 +2468,7 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
 }
 
 void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
-  modo_clique_ = MODO_NORMAL;
+  EntraModoClique(MODO_NORMAL);
   const auto ids = IdsEntidadesSelecionadasOuPrimeiraPessoa();
   if (ids.empty()) {
     LOG(ERROR) << "Nao ha entidades selecionadas.";
@@ -2732,6 +2752,9 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -2833,12 +2856,12 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_AJUDA:
         TrataMouseParadoEm(x, y);
         temporizador_detalhamento_ms_ = TEMPO_DETALHAMENTO_MS;
-        modo_clique_ = MODO_NORMAL;
+        EntraModoClique(MODO_NORMAL);
         break;
       default:
         ;
     }
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
     return;
   }
 
@@ -2918,6 +2941,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 }
 
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   float x3d, y3d, z3d;
   if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
     parametros_desenho_.set_offset_terreno(olho_.alvo().z());
@@ -2937,6 +2964,10 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   primeiro_x_ = x;
   primeiro_y_ = y;
   ultimo_x_ = x;
@@ -2970,6 +3001,10 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
 #if APENAS_MESTRE_CRIA_FORMAS
   if (!EmModoMestreIncluindoSecundario()) {
     VLOG(1) << "Apenas mestre pode desenhar.";
@@ -3448,6 +3483,10 @@ void Tabuleiro::DescansaPersonagemNotificando() {
 }
 
 void Tabuleiro::TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+ 
   auto* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao ha entidade para usar feitico";

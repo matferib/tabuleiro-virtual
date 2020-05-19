@@ -1828,14 +1828,14 @@ void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
   } else {
     lista_pontos_vida_.push_back({ -1  /*padrao: dano*/, net::to_string(delta)});
   }
-  modo_clique_ = MODO_ACAO;
+  EntraModoClique(MODO_ACAO);
 }
 
 void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
     lista_pontos_vida_.back().first *= -1;
   }
-  modo_clique_ = MODO_ACAO;
+  EntraModoClique(MODO_ACAO);
 }
 
 int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
@@ -2039,6 +2039,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_RESPOSTA_CONEXAO: {
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
+          EntraModoClique(MODO_AGUARDANDO);
           central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_INFO, "Conectado ao servidor"));
           // Aqui comeca o fluxo de envio de coisas de servidor para cliente. Nessa primeira mensagem
           // o cliente cria uma notificacao para cada componente que tratara essa mensagem mandar suas
@@ -2213,8 +2214,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
       } else {
         // Deserializar da rede.
+        EntraModoClique(MODO_SAIR_AGUARDANDO);
         DeserializaTabuleiro(notificacao);
         central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
+        EntraModoClique(MODO_NORMAL);
       }
       return true;
     }
@@ -2904,7 +2907,7 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
 void Tabuleiro::AlternaDanoAutomatico() {
   modo_dano_automatico_ = !modo_dano_automatico_;
   if (modo_dano_automatico_ && !IdsPrimeiraPessoaOuEntidadesSelecionadas().empty()) {
-    modo_clique_ = MODO_ACAO;
+    EntraModoClique(MODO_ACAO);
   }
 }
 
@@ -2920,7 +2923,7 @@ void Tabuleiro::SelecionaAcaoExecutada(int indice) {
     id_acao = AcaoPadrao(indice).id();
   }
   SelecionaAcao(id_acao, e);
-  modo_clique_ = MODO_ACAO;
+  EntraModoClique(MODO_ACAO);
 }
 
 const std::vector<std::string>& Tabuleiro::AcoesPadroes() const {
@@ -3009,7 +3012,7 @@ void Tabuleiro::ProximaAcao() {
     entidade->AtualizaAcao(*it);
   }
   if (opcoes_.tab_ativa_ataque()) {
-    modo_clique_ = MODO_ACAO;
+    EntraModoClique(MODO_ACAO);
   }
   if (grupo->notificacao().size()) {
     AdicionaNotificacaoListaEventos(*grupo);
@@ -3052,7 +3055,7 @@ void Tabuleiro::AcaoAnterior() {
     entidade->AtualizaAcao(*it);
   }
   if (opcoes_.tab_ativa_ataque()) {
-    modo_clique_ = MODO_ACAO;
+    EntraModoClique(MODO_ACAO);
   }
   if (grupo->notificacao().size()) {
     AdicionaNotificacaoListaEventos(*grupo);
@@ -7547,9 +7550,9 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
 
 void Tabuleiro::AlternaModoAcao() {
   if (modo_clique_ == MODO_ACAO) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_ACAO;
+    EntraModoClique(MODO_ACAO);
   }
 }
 
@@ -7609,7 +7612,16 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
 }
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
-  central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  if (modo_clique_ == MODO_AGUARDANDO && modo != MODO_SAIR_AGUARDANDO) {
+    LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo; 
+    return;
+  }
+  RodaNoRetorno roda_no_retorno([this]() {
+    auto n_cursor = ntf::NovaNotificacao(ntf::TN_MUDAR_CURSOR);
+    n_cursor->set_id_generico(modo_clique_);
+    central_->AdicionaNotificacao(n_cursor.release());
+    central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  });
   if (modo == MODO_ROTACAO) {
     // Salva o modo anterior para nao perder por causa de rotacao.
     modo_clique_anterior_ = modo_clique_;
@@ -7976,7 +7988,7 @@ void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tip
     e_antes->set_ultimo_grupo_acao(entidade->Proto().ultimo_grupo_acao());
   }
 
-  EntraModoClique(ent::Tabuleiro::MODO_ACAO);
+  EntraModoClique(MODO_ACAO);
 
   // Vai notificar remoto (atualizacao parcial).
   TrataNotificacao(*notificacao);

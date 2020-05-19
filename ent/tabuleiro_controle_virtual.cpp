@@ -854,6 +854,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
     case Tabuleiro::MODO_ESQUIVA:     return CONTROLE_MODO_ESQUIVA;
     case Tabuleiro::MODO_MONTAR:      return CONTROLE_MODO_MONTAR;
+    case Tabuleiro::MODO_AGUARDANDO:  return CONTROLE_MODO_AGUARDANDO;
     default:                          return CONTROLE_AJUDA;
   }
 }
@@ -872,11 +873,8 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
         if (entidade == nullptr) {
           return textura_espada;
         }
-        const auto* da = entidade->DadoCorrente();
-        if (da == nullptr) {
-          return textura_espada;
-        }
-        unsigned int textura = texturas_->Textura(da->icone());
+        const auto& da = entidade->DadoCorrenteNaoNull();
+        unsigned int textura = texturas_->Textura(da.icone());
         return textura == GL_INVALID_VALUE ? textura_espada : textura;
       } else {
         auto it = mapa_botoes_controle_virtual_.find(ModoCliqueParaId(modo_clique_, forma_selecionada_));

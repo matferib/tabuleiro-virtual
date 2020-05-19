@@ -506,6 +506,8 @@ class Tabuleiro : public ntf::Receptor {
     MODO_REMOCAO_DE_GRUPO,  // usado para remover entidades de grupos.
     MODO_MONTAR,            // usado para montar entidades em outras.
     MODO_DOACAO,            // usado para doar itens de um personagem para outro.
+    MODO_AGUARDANDO,        // Quando entra nesse modo, os cliques ficam invalidos. So sai quando receber MODO_SAIR_AGUARDANDO.
+    MODO_SAIR_AGUARDANDO,   // vide acima.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
