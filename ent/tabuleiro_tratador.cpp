@@ -2171,11 +2171,9 @@ float Tabuleiro::TrataPreAcaoComum(
     }
   }
 
-  LOG(INFO) << "da: ultimo grupo: " << entidade_origem.Proto().ultimo_grupo_acao() << ", ultima_acao: " << entidade_origem.Proto().ultima_acao() << ", id_arma: " << entidade_origem.DadoCorrenteNaoNull().id_arma() ;
   if (id_entidade_destino != Entidade::IdInvalido) {
     AtualizaEsquivaAoAtacar(entidade_origem, id_entidade_destino, grupo_desfazer);
   }
-  LOG(INFO) << "da: ultimo_grupo: " << entidade_origem.Proto().ultimo_grupo_acao() << ", ultima_acao: " << entidade_origem.Proto().ultima_acao() << ", id_arma: " << entidade_origem.DadoCorrenteNaoNull().id_arma();
   acao_proto->set_bem_sucedida(true);
   acao_proto->set_atraso_s(atraso_s);
   *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
