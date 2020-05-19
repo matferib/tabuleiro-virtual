@@ -1335,6 +1335,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     if (!acao_proto_.bem_sucedida()) {
       VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
       dx_total_ = dy_total_ = dz_total_ = 0;
+      TocaSucessoOuFracasso();
       return false;
     }
     if (entidade_destino->Proto().fixa()) {
