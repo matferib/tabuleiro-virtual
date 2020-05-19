@@ -264,11 +264,10 @@ void Tabelas::RecarregaMapas() {
       arma.mutable_acao()->set_som_inicial("miss.wav");
     }
     if (!arma.tipo_dano().empty() && !arma.acao().has_som_sucesso()) {
-      if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE) {
-        arma.mutable_acao()->set_som_sucesso("steel.wav");
-      } else {
-        arma.mutable_acao()->set_som_sucesso("punch.wav");
-      }
+      arma.mutable_acao()->set_som_sucesso("punch.wav");
+    }
+    if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE) {
+      arma.mutable_acao()->set_som_fracasso("steel.wav");
     }
     armas_[arma.id()] = &arma;
   }
