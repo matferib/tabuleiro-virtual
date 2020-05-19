@@ -405,6 +405,28 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_MUDAR_CURSOR:
+      switch (notificacao.id_generico()) {
+        case ent::Tabuleiro::MODO_ROTACAO:
+          setCursor(QCursor(Qt::SizeAllCursor));
+          break;
+        case ent::Tabuleiro::MODO_AGUARDANDO:
+          setCursor(QCursor(Qt::WaitCursor));
+          break;
+        case ent::Tabuleiro::MODO_SINALIZACAO:
+        case ent::Tabuleiro::MODO_ACAO:
+          setCursor(QCursor(Qt::CrossCursor));
+          break;
+        case ent::Tabuleiro::MODO_AJUDA:
+          setCursor(QCursor(Qt::WhatsThisCursor));
+          break;
+        case ent::Tabuleiro::MODO_REGUA:
+          setCursor(QCursor(Qt::SizeBDiagCursor));
+          break;
+        default:
+          setCursor(QCursor(Qt::ArrowCursor));
+      }
+      return true;
     case ntf::TN_CARREGAR_TEXTURA: {
       makeCurrent();
       texturas_->CarregaTexturas(notificacao);

@@ -2,6 +2,7 @@
 #define PRINCIPAL_H
 
 #include <QApplication>
+#include <QCursor>
 #include <QWidget>
 #include "ntf/notificacao.h"
 
