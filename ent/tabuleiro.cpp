@@ -7392,6 +7392,23 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
       }
       AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
       atraso_s += 0.5f;
+    } else if (evento->id_efeito() == EFEITO_QUEIMANDO_FOGO_ALQUIMICO) {
+      int dano = -RolaValor("1d6");
+      auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
+      if (resultado.causa == ALT_IMUNIDADE) {
+        AdicionaAcaoTextoLogado(entidade.Id(), "fogo alquimico: imune", atraso_s);
+        atraso_s += 0.5f;
+        continue;
+      }
+      if (resultado.causa == ALT_RESISTENCIA) {
+        dano += resultado.resistido;
+        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("fogo alquimico: resistido %d", resultado.resistido), atraso_s);
+        atraso_s += 0.5f;
+        if (dano == 0) continue;
+      }
+      PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
+      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("fogo alquimico: %d", dano), atraso_s);
+      atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_FLECHA_ACIDA) {
       int dano = -RolaValor("2d4");
       auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
