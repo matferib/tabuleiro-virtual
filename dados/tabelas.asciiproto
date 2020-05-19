@@ -10342,7 +10342,8 @@ tabela_feiticos {
       elemento: DESC_ACIDO
       efeitos_adicionais {
         efeito: EFEITO_FLECHA_ACIDA
-        rodadas_base: 1
+        # Se fizer igual ao efeito da regra, dara uma rodada a mais de dano.
+        #rodadas_base: 1
         modificador_rodadas: MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6
       }
     }
