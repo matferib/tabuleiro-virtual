@@ -770,6 +770,8 @@ enum TipoComplementoTalento {
   TCT_ESCOLA_MAGIA = 4;
   // Talento requer uma pericia.
   TCT_PERICIA = 5;
+  // Talento que requer uma arma simples (para plebeus).
+  TCT_ARMA_SIMPLES = 6;
 }
 
 message TalentoProto {

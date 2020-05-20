@@ -2406,6 +2406,18 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_alinhamento_ordem_caos()) {
     da->set_alinhamento_ordem_caos(da->acao().alinhamento_ordem_caos());
   }
+
+  // Aqui poderemos ter um conflito caso a arma possa ser distancia, arremesso etc.
+  // Tenta resolver pela acao tabelada.
+  if (da->ataque_corpo_a_corpo() && da->ataque_distancia()) {
+    const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
+    if (acao_tabelada.ataque_corpo_a_corpo()) {
+      da->clear_ataque_distancia();
+      da->clear_ataque_arremesso();
+    } else {
+      da->clear_ataque_corpo_a_corpo();
+    }
+  }
 }
 
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
@@ -2423,12 +2435,17 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
 
   // Toda acao valida deve ter um tipo. Se comecou sem, ja preenche com alguns automaticos.
   if (!da->acao().has_tipo()) {
+    // Padrao.
     if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
       da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
-    } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
+    } else if (PossuiCategoria(CAT_DISTANCIA, arma) && !PossuiCategoria(CAT_CAC, arma)) {
       da->mutable_acao()->set_tipo(ACAO_PROJETIL);
-    } else {
+    } else if (!PossuiCategoria(CAT_DISTANCIA, arma) && PossuiCategoria(CAT_CAC, arma)) {
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
+    } else if (!PossuiCategoria(CAT_DISTANCIA, arma) && !PossuiCategoria(CAT_CAC, arma)) {
+      da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
+    } else {
+      ; // Aqui ha um conflito: deixa aberto.
     }
   }
   if (PossuiCategoria(CAT_ARMA, arma)) {
@@ -2913,7 +2930,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (da->ataque_derrubar()) da->clear_dano();
   else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
 
-  if (da->grupo().empty()) da->set_grupo(google::protobuf::StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
+  if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
   da->set_ca_normal(CATotal(proto, usando_escudo));

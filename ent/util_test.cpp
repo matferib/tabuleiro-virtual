@@ -22,6 +22,22 @@ class CentralColetora : public ntf::CentralNotificacoes {
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
 };
 
+const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.grupo() == grupo) return da;
+  }
+  return DadosAtaque::default_instance();
+}
+
+DadosAtaque* DadosAtaquePorGrupoOuCria(const std::string& grupo, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.grupo() == grupo) return &da;
+  }
+  auto* da = proto->add_dados_ataque();
+  da->set_grupo(grupo);
+  return da;
+}
+
 }  // namespace
 
 TEST(TesteBonus, TesteBonusCumulativo) {
@@ -3606,6 +3622,44 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TestePlebeu1) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "1d6+1");
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), -4);
+    EXPECT_EQ(da.dano(), "1d4+1");
+  }
+}
+
+TEST(TesteModelo, TestePlebeu1Invertido) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  // Corpo a corpo.
+  DadosAtaquePorGrupoOuCria("clava", modelo.mutable_entidade())->set_tipo_ataque("Ataque a Distância");
+  // Distancia sem pericia.
+  DadosAtaquePorGrupoOuCria("adaga", modelo.mutable_entidade())->set_tipo_ataque("Ataque Corpo a Corpo");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 0);
+    EXPECT_EQ(da.dano(), "1d6+1");
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), -3);
+    EXPECT_EQ(da.dano(), "1d4+1");
+  }
+}
+
 TEST(TesteModelo, TesteEsqueletoLobo) {
   auto modelo = g_tabelas.ModeloEntidade("Esqueleto (Lobo 2)");
   auto lobo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
@@ -3659,7 +3713,8 @@ TEST(TesteModelo, TodasAcoesTemTipo) {
     const auto& proto = modelo.entidade();
     auto e = NovaEntidadeParaTestes(proto, g_tabelas);
     for (const auto& da : e->Proto().dados_ataque()) {
-      EXPECT_TRUE(da.acao().has_tipo()) << " modelo: " << modelo.id() << ", da: " << da.grupo();
+      EXPECT_TRUE(da.acao().has_tipo())
+        << " modelo: " << modelo.id() << ", da grupo: " << da.grupo() << ", rotulo: " << da.rotulo();
     }
   }
 }
@@ -3823,13 +3878,6 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
     EXPECT_EQ(acao.reducao_luz(), 0.5f);
   }
-}
-
-const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto) {
-  for (const auto& da : proto.dados_ataque()) {
-    if (da.grupo() == grupo) return da;
-  }
-  return DadosAtaque::default_instance();
 }
 
 TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {

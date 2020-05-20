@@ -1920,7 +1920,7 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
 }
 
 bool EhItemMundano(const DadosAtaque& da) {
-  return c_any<std::vector<std::string>>({"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }, da.id_arma());
+  return c_any<std::vector<std::string>>({"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }, da.id_arma());
 }
 
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
