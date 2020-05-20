@@ -427,7 +427,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return false;
   }
- 
+
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
     // Aqui ainda retorna false, para nao voltar o cursor para a posicao anterior. A partir daqui,
@@ -3238,19 +3238,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       continue;
     }
     VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-    auto* e = n->mutable_entidade();
-    auto* e_antes = n->mutable_entidade_antes();
-    e->set_id(id);
-    e_antes->set_id(id);
+
+    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_MOVER_ENTIDADE, entidade_selecionada->Proto(), &grupo_notificacoes);
     float nx = entidade_selecionada->X() + dx;
     float ny = entidade_selecionada->Y() + dy;
     float nz = entidade_selecionada->Z() + dz;
-    auto* p = e->mutable_destino();
+    auto* p = e_depois->mutable_destino();
     p->set_x(nx);
     p->set_y(ny);
     p->set_z(nz);
+    p->set_id_cenario(entidade_selecionada->IdCenario());
     if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
       float z_olho = entidade_selecionada->ZOlho();
       float altura_olho = entidade_selecionada->AlturaOlho();
@@ -3268,8 +3265,8 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
         if (z_apoio > entidade_selecionada->Z()) {
           VLOG(1) << "apoiando entidade nao apoiada";
           p->set_z(z_apoio);
-          e->set_apoiada(true);
-          n->mutable_entidade_antes()->set_apoiada(false);
+          e_depois->set_apoiada(true);
+          e_antes->set_apoiada(false);
         } else {
           VLOG(1) << "nao mantendo apoio";
           p->set_z(entidade_selecionada->Z());
@@ -3281,6 +3278,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     p->set_x(entidade_selecionada->X());
     p->set_y(entidade_selecionada->Y());
     p->set_z(entidade_selecionada->Z());
+    p->set_id_cenario(entidade_selecionada->IdCenario());
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
