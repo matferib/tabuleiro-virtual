@@ -7493,7 +7493,7 @@ void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
-  LOG(INFO) << "passando rodada";
+  VLOG(1) << "passando rodada";
   ntf::Notificacao alias_grupo;
   ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
