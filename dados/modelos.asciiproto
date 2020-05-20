@@ -3829,6 +3829,7 @@ modelo {
   id: 'Humanx Plebeu Base'
   id_entidade_base: 'Plebeu Base'
   entidade {
+    raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO_BOM }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
@@ -4294,6 +4295,7 @@ modelo {
   id: 'Aristocrata Humanx Base'
   id_entidade_base: 'Aristocrata Base'
   entidade {
+    raca: 'humano'
     posicao_acao { x: 0.25 y: 0 z: 1 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'Humano' }
