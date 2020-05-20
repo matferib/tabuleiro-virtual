@@ -4967,7 +4967,10 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
   }
   info_classes {
-    id: 'aristocrata' nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
+    id: 'aristocrata'
+    nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
+    talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_escudo_aprimorado'
     tipo_classe: TC_PDM
     pericias_por_nivel: 4
     pericias: 'avaliacao'

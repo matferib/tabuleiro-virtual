@@ -2075,6 +2075,72 @@ void RecomputaDependenciasIniciativa(int modificador_destreza, EntidadeProto* pr
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
 }
 
+// Retorna os valores de bem_mal e ordem_caos.
+std::pair<float, float> GeraTendenciaAleatoria(TendenciaSimplificada td) {
+  int peso_bem = 1;
+  int peso_neutro_bm = 2;
+  int peso_mal = 1;
+  int peso_ordem = 1;
+  int peso_neutro_oc = 2;
+  int peso_caos = 1;
+  switch (td) {
+    case TD_NORMALMENTE_LEAL_BOM: {
+      peso_bem = 3;
+      peso_ordem = 3;
+      break;
+    }
+    case TD_NORMALMENTE_LEAL_NEUTRO: {
+      peso_ordem = 3;
+      break;
+    }
+    case TD_NORMALMENTE_LEAL_MAU: {
+      peso_mal = 3;
+      peso_ordem = 3;
+      break;
+    }
+    case TD_NORMALMENTE_NEUTRO_BOM: {
+      peso_bem = 3;
+      break;
+    }
+    case TD_NORMALMENTE_NEUTRO: {
+      break;
+    }
+    case TD_NORMALMENTE_NEUTRO_MAU: {
+      peso_mal = 3;
+      break;
+    }
+    case TD_NORMALMENTE_CAOTICO_BOM: {
+      peso_caos = 3;
+      peso_bem = 3;
+      break;
+    }
+    case TD_NORMALMENTE_CAOTICO_NEUTRO: {
+      peso_caos = 3;
+      break;
+    }
+    case TD_NORMALMENTE_CAOTICO_MAU: {
+      peso_caos = 3;
+      peso_mal = 3;
+      break;
+    }
+    default: break;
+  }
+  std::vector<float> bem_mal;
+  for (int i = 0; i < peso_bem; ++i) { bem_mal.push_back(1.0f); }
+  for (int i = 0; i < peso_neutro_bm; ++i) { bem_mal.push_back(0.5f); }
+  for (int i = 0; i < peso_mal; ++i) { bem_mal.push_back(0.0f); }
+  int indice_bm = RolaDado(bem_mal.size()) - 1;
+  const float bm = bem_mal[indice_bm];
+  std::vector<float> ordem_caos;
+  for (int i = 0; i < peso_ordem; ++i) { ordem_caos.push_back(1.0f); }
+  for (int i = 0; i < peso_neutro_oc; ++i) { ordem_caos.push_back(0.5f); }
+  for (int i = 0; i < peso_caos; ++i) { ordem_caos.push_back(0.0f); }
+  int indice_oc = RolaDado(ordem_caos.size()) - 1;
+  const float oc = ordem_caos[indice_oc];
+  LOG(INFO) << "gerando tendencia aleatoria: bm: " << bm << ", oc: " << oc;
+  return {bm, oc};
+}
+
 void RecomputaDependenciasTendencia(EntidadeProto* proto) {
   if (!proto->tendencia().has_eixo_bem_mal() || !proto->tendencia().has_eixo_ordem_caos()) {
     // se nao tem dinamica, computa.
@@ -2090,6 +2156,7 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
       case TD_CAOTICO_BOM:    bem_mal = 1.0f; ordem_caos = 0.0f; break;
       case TD_CAOTICO_NEUTRO: bem_mal = 0.5f; ordem_caos = 0.0f; break;
       case TD_CAOTICO_MAU:    bem_mal = 0.0f; ordem_caos = 0.0f; break;
+      default: std::tie(bem_mal, ordem_caos) = GeraTendenciaAleatoria(proto->tendencia().simples());
     }
     // So pra escrever o valor se for o padrao do proto.
     proto->mutable_tendencia()->set_simples(proto->tendencia().simples());
@@ -2646,7 +2713,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
     return EhItemMundano(da);
   }, proto->mutable_dados_ataque());
-  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola" }) {
+  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
     if (mapa_tipo_quantidade[id] > 0) {
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
       da->set_municao(mapa_tipo_quantidade[id]);;
@@ -2723,7 +2790,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
   if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
-    AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+    AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
   }
   // Aplica diferenca de tamanho de arma.
   TamanhoEntidade tamanho = proto.tamanho();

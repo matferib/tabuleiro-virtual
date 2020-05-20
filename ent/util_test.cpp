@@ -3986,14 +3986,88 @@ TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
   EntidadeProto proto = modelo_ha6.entidade();
   RecomputaDependencias(g_tabelas, &proto);
 
-  // Aristocrata base.
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 9);
-  // Aristocrata mulher base.
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 11);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 8);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 12);
   EXPECT_TRUE(PossuiTalento("negociador", proto));
-  // Humana Aristocrata 6.
   EXPECT_TRUE(PossuiTalento("persuasivo", proto));
+  auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("fogo_alquimico", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 5);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(da.municao(), 1U);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("sabre", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 0);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+  {
+    // Besta.
+    const auto& da = DadosAtaquePorGrupo("besta", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 4) << da.bonus_ataque().DebugString();
+    EXPECT_EQ(da.dano(), "1d8");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 24.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 10);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+}
+
+TEST(TesteComposicaoEntidade, TesteHumanoAristocrata6) {
+  const auto& modelo_ha6 = g_tabelas.ModeloEntidade("Humano Aristocrata 6");
+  EntidadeProto proto = modelo_ha6.entidade();
+  RecomputaDependencias(g_tabelas, &proto);
+
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 11);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 12);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 8);
+  EXPECT_TRUE(PossuiTalento("negociador", proto));
+  EXPECT_TRUE(PossuiTalento("persuasivo", proto));
+  auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("gas_alquimico_sono", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(da.municao(), 1U);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("espada_longa", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 7) << da.bonus_ataque().DebugString();
+    EXPECT_EQ(da.dano(), "1d8+2");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 0);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+  {
+    // Besta.
+    const auto& da = DadosAtaquePorGrupo("besta", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2) << da.bonus_ataque().DebugString();
+    EXPECT_EQ(da.dano(), "1d8");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 24.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 10);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
 }
 
 TEST(TesteComposicaoEntidade, TesteBardoVulto5) {

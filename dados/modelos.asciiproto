@@ -3804,7 +3804,9 @@ modelo {
   entidade { dados_vida: '1d12' info_textura { id: 'barbarian.png'} cor { r: 0.898 g: 0.475 b: 0.475 } }
 }
 
-# Plebeus.
+#--------
+# Plebeus
+#--------
 modelo {
   id: 'Plebeu Base'
   entidade {
@@ -3827,7 +3829,7 @@ modelo {
   id: 'Humanx Plebeu Base'
   id_entidade_base: 'Plebeu Base'
   entidade {
-    tendencia { simples: TD_NEUTRO_BOM }
+    tendencia { simples: TD_NORMALMENTE_NEUTRO_BOM }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
@@ -4269,34 +4271,110 @@ modelo {
   }
 }
 
+#-------------
+# Aristocratas
+#-------------
 modelo {
   id: 'Aristocrata Base'
   entidade {
-    posicao_acao { x: 0.25 y: 0 z: 1 }
+    tendencia { simples: TD_NORMALMENTE_LEAL_NEUTRO }
     info_talentos {
-      gerais { id: 'vitalidade' }
+      gerais { id: 'negociador' } # 1 nivel.
     }
     atributos {
+      # Falta um 12 e um 8.
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
     }
   }
 }
 modelo {
-  id: 'Humano Aristocrata Base'
+  id: 'Aristocrata Humanx Base'
   id_entidade_base: 'Aristocrata Base'
   entidade {
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     info_talentos {
-      outros { id: 'negociador' }
+      outros { id: 'vitalidade' origem: 'Humano' }
     }
   }
 }
+# Homens.
+modelo {
+  id: 'Aristocrata Homem Base'
+  id_entidade_base: 'Aristocrata Humanx Base'
+  entidade {
+    modelo_3d { id: 'human_aristocrat_male' }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+modelo {
+  id: 'Humano Aristocrata 5'
+  id_entidade_base: 'Aristocrata Homem Base'
+  entidade {
+    info_classes { id: 'aristocrata' nivel: 5 }
+    cor { r: 1 g: 1 b: 1 }
+    dados_vida: '5d8+3'
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'espada_longa' } # 3
+    }
+    dados_ataque { grupo: 'espada_longa' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'besta' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
+    dados_defesa { id_armadura: 'peitoral_de_aco' armadura_obra_prima: true id_escudo: 'pesado_aco' escudo_obra_prima: true }
+    tesouro {
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'escudo_fe_2' }
+      itens_mundanos { id: 'gas_alquimico_sono' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'pedra_trovao' }
+      itens_mundanos { id: 'agua_benta' }
 
+      moedas { po: 20 }
+      tesouro: 'joia de 1d4 PO'
+    }
+    atributos {
+      carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+    # 32 pontos.
+    info_pericias { id: 'avaliacao' pontos: 4 }
+    info_pericias { id: 'blefar' pontos: 4 }
+    info_pericias { id: 'diplomacia' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'conhecimento_local' pontos: 3 }
+    info_pericias { id: 'cavalgar' pontos: 3 }
+    info_pericias { id: 'arte_da_fuga' pontos: 4 }
+  }
+}
+modelo {
+  id: 'Humano Aristocrata 6'
+  id_entidade_base: 'Humano Aristocrata 5'
+  entidade {
+    info_classes { id: 'aristocrata' nivel: 6 combinar_com: 0 }
+    cor { r: 0.9 g: 0.9 b: 0.8 }
+    dados_vida: '6d8+3'
+    info_talentos {
+      gerais { id: 'persuasivo' }
+    }
+    tesouro {
+      # 700 a mais que 5.
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'esplendor_aguia' }
+      pocoes { id: 'arma_magica' }
+      tesouro: 'joia de 1d4x5 PO'
+      moedas { po: 20 }
+    }
+  }
+}
+# Mulheres
 modelo {
   id: 'Aristocrata Mulher Base'
-  id_entidade_base: 'Humano Aristocrata Base'
+  id_entidade_base: 'Aristocrata Humanx Base'
   entidade {
     modelo_3d { id: 'human_aristocrat_female' }
     atributos {
@@ -4305,55 +4383,6 @@ modelo {
     }
   }
 }
-
-modelo {
-  id: 'Aristocrata Homem Base'
-  id_entidade_base: 'Humano Aristocrata Base'
-  entidade {
-    modelo_3d { id: 'human_aristocrat_male' }
-    cor { r: 0.9 g: 0.8 b: 0.8 }
-    atributos {
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-    }
-  }
-}
-
-modelo {
-  id: 'Humano Aristocrata 5'
-  id_entidade_base: 'Aristocrata Homem Base'
-  entidade {
-    info_classes { id: 'aristocrata' nivel: 5 }
-    cor { r: 0.9 g: 0.8 b: 0.8 }
-    dados_vida: '5d8+3'
-    info_talentos {
-      gerais { id: 'foco_em_arma' complemento: 'sabre' }
-    }
-    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
-    dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
-    tesouro {
-      pocoes { id: 'forca_touro' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'santuario' }
-      pocoes { id: 'escudo_fe_2' }
-      moedas { po: 30 }
-    }
-    atributos {
-      carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
-    }
-    # 24 pontos (4-1 int) * 8.
-    info_pericias { id: 'avaliacao' pontos: 4 }
-    info_pericias { id: 'blefar' pontos: 2 }
-    info_pericias { id: 'diplomacia' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'conhecimento_local' pontos: 4 }
-    info_pericias { id: 'cavalgar' pontos: 2 }
-  }
-}
-
 modelo {
   id: 'Humana Aristocrata 5'
   id_entidade_base: 'Aristocrata Mulher Base'
@@ -4362,18 +4391,21 @@ modelo {
     cor { r: 0.9 g: 0.8 b: 0.8 }
     dados_vida: '5d8+3'
     info_talentos {
-      gerais { id: 'acuidade_arma' }
+      gerais { id: 'acuidade_arma' } # 3
     }
-    dados_ataque { grupo: 'cac' id_arma: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
+    dados_ataque { grupo: 'sabre' id_arma: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'besta' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
     dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
       pocoes { id: 'agilidade_gato' }
       pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'santuario' }
       pocoes { id: 'escudo_fe_2' }
-      moedas { po: 30 }
+      itens_mundanos { id: 'gas_alquimico_sono' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'pedra_trovao' }
+      itens_mundanos { id: 'agua_benta' }
+      moedas { po: 20 }
+      tesouro: 'joia de 4d4 PO'
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
@@ -4389,58 +4421,30 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Aristocrata 6'
-  id_entidade_base: 'Aristocrata Homem Base'
-  entidade {
-    info_classes { id: 'aristocrata' nivel: 6 }
-    cor { r: 0.9 g: 0.9 b: 0.8 }
-    dados_vida: '6d8+3'
-    info_talentos {
-      gerais { id: 'persuasivo' }
-    }
-    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
-    dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
-    tesouro {
-      pocoes { id: 'forca_touro' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'santuario' }
-      pocoes { id: 'escudo_fe_2' }
-      moedas { po: 30 }
-    }
-    atributos {
-      carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
-    }
-  }
-}
-
-modelo {
   id: 'Humana Aristocrata 6'
-  id_entidade_base: 'Aristocrata Mulher Base'
+  id_entidade_base: 'Humana Aristocrata 5'
   entidade {
-    info_classes { id: 'aristocrata' nivel: 6 }
+    info_classes { id: 'aristocrata' nivel: 6 combinar_com: 0 }
     cor { r: 0.9 g: 0.9 b: 0.8 }
     dados_vida: '6d8+3'
     info_talentos {
       gerais { id: 'persuasivo' }
     }
-    dados_ataque { grupo: 'cac' id_arma: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_magico: 1 empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' obra_prima: true empunhadura: EA_ARMA_ESCUDO municao: 20 }
-    dados_defesa { id_armadura: 'camisao' armadura_obra_prima: true id_escudo: 'broquel' escudo_obra_prima: true }
     tesouro {
-      pocoes { id: 'agilidade_gato' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'santuario' }
-      pocoes { id: 'escudo_fe_2' }
-      moedas { po: 30 }
+      # 700 a mais que 5.
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'esplendor_aguia' }
+      pocoes { id: 'arma_magica' }
+
+      tesouro: 'joia de 2d4x10 PO'
+      moedas { po: 20 }
     }
     atributos {
       carisma { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
   }
 }
+# Fim aristocratas.
 
 modelo {
   id: 'Humano Clérigo Base'
