@@ -1,8 +1,15 @@
+Teste de esquiva sobrenatural aprimorada.
+Modelo 3d de adaga.
+Conjuracao aumentada: forca e destreza melhorados.
+Fazer proficiencia em arma.
+Bolar tendencias aleatorias (tipo TD_NORMALMENTE_NEUTRO_BOM).
+Desfazer de movimenta ta fazendo entidade sumir (finas laminas de dundar). Ta indo pro cenário principal.
+Modelo 3d de escudo muito grande
 Nova tabela de encontro para batalha de Tilverton.
-Mudar cursor de acordo com a acao.
 Casting time de magias (summon monster, nature ally etc).
 Feiticos automaticos respeitar o descritor de bom mal caos ordem.
 
+Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
 Teia tem que criar o objeto da area.
 Concentracao em criaturas enredadas.
