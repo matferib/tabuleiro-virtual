@@ -217,8 +217,12 @@ sub_menu {
     modelo { id: 'Humano Plebeu 4' texto: 'Plebeu 4' }
     modelo { id: 'Humano Plebeu 5' texto: 'Plebeu 5' }
     modelo { id: 'Humano Plebeu 6' texto: 'Plebeu 6' }
-    modelo { id: 'Humana Plebeia 1' }
-    modelo { id: 'Humana Plebeia 2' }
+    modelo { id: 'Humana Plebeia 1' texto: 'Plebeia 1' }
+    modelo { id: 'Humana Plebeia 2' texto: 'Plebeia 2' }
+    modelo { id: 'Humana Plebeia 3' texto: 'Plebeia 3' }
+    modelo { id: 'Humana Plebeia 4' texto: 'Plebeia 4' }
+    modelo { id: 'Humana Plebeia 5' texto: 'Plebeia 5' }
+    modelo { id: 'Humana Plebeia 6' texto: 'Plebeia 6' }
   }
   sub_menu {
     id: 'Druidas'

@@ -3630,12 +3630,14 @@ TEST(TesteModelo, TestePlebeu1) {
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 1);
     EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
   {
     // Distancia sem pericia.
     const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), -4);
     EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
 }
 
@@ -3651,12 +3653,71 @@ TEST(TesteModelo, TestePlebeu1Invertido) {
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 0);
     EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
   {
     // Distancia sem pericia.
     const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), -3);
     EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
+  }
+}
+
+TEST(TesteModelo, TestePlebeia1) {
+  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 1");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 0);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 11);
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga distancia", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 11);
+  }
+}
+
+TEST(TesteModelo, TestePlebeia3) {
+  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 3");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 12);
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga distancia", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 12);
+  }
+}
+
+TEST(TesteModelo, TestePlebeia6) {
+  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 6");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 17);
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga distancia", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 5);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 17);
   }
 }
 

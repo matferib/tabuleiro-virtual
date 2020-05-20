@@ -3814,11 +3814,11 @@ modelo {
       moedas { pp: 5 }  # 1d10 PP
     }
     atributos {
-      # Usa o array padrao. Faltou 13 e 8.
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      # Usa o array padrao. Faltou 13 e 10.
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
   }
 }
@@ -3830,7 +3830,6 @@ modelo {
     tendencia { simples: TD_NEUTRO_BOM }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
-      outros { id: 'usar_uma_arma_simples' origem: 'plebeu' complemento: 'clava' }
     }
   }
 }
@@ -3841,9 +3840,12 @@ modelo {
   id_entidade_base: 'Humanx Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_male' }
+    info_talentos {
+      outros { id: 'usar_uma_arma_simples' origem: 'plebeu' complemento: 'clava' }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
     }
   }
 }
@@ -3911,23 +3913,18 @@ modelo {
     cor { r: 0.85 g: 0.85 b: 0.85 }
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'clava' id_arma: 'clava' empunhadura: EA_2_MAOS
-    }
-    dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'adaga op' id_arma: 'adaga_de_soco' obra_prima: true empunhadura: EA_ARMA_APENAS
+      grupo: 'lanca_longa' obra_prima: true id_arma: 'lanca_longa' empunhadura: EA_2_MAOS
     }
     dados_ataque {
       tipo_ataque: 'Ataque a Distância'
-      grupo: 'adaga' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_APENAS
+      grupo: 'adaga' id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
       municao: 2
     }
-
     info_talentos {
       gerais { id: 'auto_suficiente' origem: 'humano' }
       gerais { id: 'usar_armas_simples' origem: 'humano' }
     }
-    # 150 PO em posses alem da adaga obra prima, mas carrega menos.
+    # 150 PO em posses alem da clava obra prima obra prima, mas carrega menos.
     tesouro {
       tesouro: 'joia de 2d20 PP'
       itens_mundanos { id: 'agua_benta' }  # 25
@@ -4012,54 +4009,182 @@ modelo {
 }
 
 # Plebeias.
+# base.
 modelo {
   id: 'Humana Plebeia Base'
-  id_entidade_base: 'Plebeu Base'
+  id_entidade_base: 'Humanx Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_female' }
-    posicao_acao { x: 0.25 y: 0 z: 1 }
     info_talentos {
-      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'usar_uma_arma_simples' origem: 'plebeu' complemento: 'adaga' }
     }
     atributos {
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
     }
   }
 }
-
-
-
 modelo {
   id: 'Humana Plebeia 1'
   id_entidade_base: 'Humana Plebeia Base'
   entidade {
     rotulo: 'humana plebeia 1'
     info_classes { id: 'plebeu' nivel: 1 }
-    cor { r: 0.9 g: 0.8 b: 0.8 }
-    dados_vida: '1d4+3'
-    # Pericias: 5
+    dados_vida: '1d4+4'
+    cor { r: 1 g: 1 b: 1 }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'adaga cac' id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância'
+      grupo: 'adaga distancia' id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+      municao: 1
+    }
+    info_talentos {
+      gerais { id: 'auto_suficiente' origem: 'humano' }
+    }
+    # 150 PO em pertences, mas carrega pouco consigo.
+    tesouro {
+      tesouro: 'joia de 2d20 PP'
+      itens_mundanos { id: 'agua_benta' }  # 25
+      moedas { pp: 10 }
+    }
+    # Pericias: 5 = 4+1 de humano.
     info_pericias { id: 'sobrevivencia' pontos: 2 }
     info_pericias { id: 'oficios' pontos: 1 }
     info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
-
 modelo {
   id: 'Humana Plebeia 2'
-  id_entidade_base: 'Humana Plebeia Base'
+  id_entidade_base: 'Humana Plebeia 1'
   entidade {
     rotulo: 'humana plebeia 2'
-    info_classes { id: 'plebeu' nivel: 2 }
-    cor { r: 0.9 g: 0.9 b: 0.8 }
-    dados_vida: '2d4+3'
-    tesouro { tesouro: '2d10 PP, joia de 2d20 PP' }
+    info_classes { id: 'plebeu' nivel: 2 combinar_com: 0 }
+    dados_vida: '2d4+2+3'
+    cor { r: 0.9 g: 0.9 b: 0.9 }
+    # 300 PO em posses, mas so carrega algumas coisas.
+    tesouro {
+      tesouro: 'joia de 2d20 PP'
+      itens_mundanos { id: 'agua_benta' }  # 25
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      moedas { po: 1 pp: 10 }
+    }
     # pericias: 6.
     info_pericias { id: 'sobrevivencia' pontos: 2 }
     info_pericias { id: 'oficios' pontos: 2 }
     info_pericias { id: 'cavalgar' pontos: 2 }
   }
 }
+modelo {
+  id: 'Humana Plebeia 3'
+  id_entidade_base: 'Humana Plebeia Base'  # Nao vou combinar porque o dado de ataque nao bate e nao pode ser combinado.
+  entidade {
+    rotulo: 'humana plebeia 3'
+    info_classes { id: 'plebeu' nivel: 3 }
+    dados_vida: '3d4+3+3'
+    cor { r: 0.85 g: 0.85 b: 0.85 }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'adaga cac' obra_prima: true id_arma: 'adaga' empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância'
+      grupo: 'adaga distancia' id_arma: 'adaga' empunhadura: EA_ARMA_ESCUDO
+      municao: 2
+    }
+    dados_defesa {
+      id_escudo: 'broquel'
+    }
+    info_talentos {
+      gerais { id: 'auto_suficiente' origem: 'humano' }
+      gerais { id: 'usar_escudo' origem: 'humano' }
+    }
+    # 150 PO em posses alem da clava obra prima obra prima, mas carrega menos.
+    tesouro {
+      tesouro: 'joia de 2d20 PP'
+      itens_mundanos { id: 'agua_benta' }  # 25
+      itens_mundanos { id: 'agua_benta' }  # 25
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      moedas { po: 2 pp: 20 }
+    }
+    # pericias: 7.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 3 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+  }
+}
+modelo {
+  id: 'Humana Plebeia 4'
+  id_entidade_base: 'Humana Plebeia 3'
+  entidade {
+    rotulo: 'humana plebeia 4'
+    info_classes { id: 'plebeu' nivel: 4 combinar_com: 0 }
+    dados_vida: '4d4+4+3'
+    atributos {
+      destreza { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+    cor { r: 0.8 g: 0.8 b: 0.8 }
+    # 300 PO em posses alem da adaga obra prima, mas carrega menos.
+    tesouro {
+      tesouro: 'joia de 3d20 PP'
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      moedas { po: 3 pp: 30 }
+    }
+    # pericias: 8.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'oficios' pontos: 3 }
+    info_pericias { id: 'cavalgar' pontos: 3 }
+  }
+}
+modelo {
+  id: 'Humana Plebeia 5'
+  id_entidade_base: 'Humana Plebeia 4'
+  entidade {
+    rotulo: 'humana plebeia 5'
+    info_classes { id: 'plebeu' nivel: 5 combinar_com: 0 }
+    dados_vida: '5d4+5+3'
+    cor { r: 0.7 g: 0.7 b: 0.7 }
+    # 500 PO em posses alem da adaga obra prima, mas carrega menos.
+    # tudo de 4o nivel + o que esta aqui.
+    tesouro {
+      tesouro: 'joia de 4d20 PP'
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      moedas { po: 4 pp: 40 }
+    }
+    info_pericias { id: 'sobrevivencia' pontos: 3 }
+    info_pericias { id: 'oficios' pontos: 3 }
+    info_pericias { id: 'cavalgar' pontos: 3 }
+  }
+}
+modelo {
+  id: 'Humana Plebeia 6'
+  id_entidade_base: 'Humana Plebeia 5'
+  entidade {
+    rotulo: 'humana plebeia 6'
+    info_classes { id: 'plebeu' nivel: 6 combinar_com: 0 }
+    dados_vida: '6d4+6+3'
+    cor { r: 0.7 g: 0.7 b: 0.7 }
+    dados_defesa { id_armadura: 'camisao' }
+    info_talentos {
+      gerais { id: 'usar_armadura_leve' }
+    }
+    # 600 PO em posses alem da adaga obra prima e do camisao, mas carrega menos.
+    # tudo de 5o nivel + o que esta aqui.
+    tesouro {
+      itens_mundanos { id: 'fogo_alquimico' }  # 20
+      itens_mundanos { id: 'fogo_alquimico' }  # 20
+      tesouro: 'joia de 5d20 PP'
+      moedas { po: 5 pp: 50 }
+    }
+    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'oficios' pontos: 3 }
+    info_pericias { id: 'cavalgar' pontos: 3 }
+  }
+}
+# fim plebeus e plebeias.
 
 modelo {
   id: 'Combatente Base'
