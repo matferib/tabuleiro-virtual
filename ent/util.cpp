@@ -2177,6 +2177,7 @@ int CAToqueSurpreso(const EntidadeProto& proto, const Bonus& outros_bonus) {
 }
 
 bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
+#if 0
 // TODO isso num ta muito certo. Tem armas que nao sao de distancia (lanca) que tem alcance > 0. Melhor deixar so as categorias.
 bool ArmaDistancia(const ArmaProto& arma) {
   const bool distancia =
@@ -2184,6 +2185,7 @@ bool ArmaDistancia(const ArmaProto& arma) {
       c_any_of(arma.categoria(), [](int cat) { return cat == CAT_ARREMESSO; });
   return distancia || arma.alcance_quadrados() > 0;
 }
+#endif
 
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
@@ -5094,7 +5096,7 @@ int DesviaObjetoSeAplicavel(
   if (delta_pontos_vida >= 0 || !da.eh_arma() || da.id_arma().empty()) return delta_pontos_vida;
   const auto& arma = tabelas.Arma(da.id_arma());
   //LOG(INFO) << "ali " << arma.DebugString();
-  if (!PossuiCategoria(CAT_DISTANCIA, arma)) return delta_pontos_vida;
+  if (!PossuiCategoria(CAT_DISTANCIA, arma) || !da.ataque_distancia()) return delta_pontos_vida;
   if (!DestrezaNaCA(alvo.Proto())) return delta_pontos_vida;
 
   const auto* talento = Talento("desviar_objetos", alvo.Proto());

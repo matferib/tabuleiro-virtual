@@ -2414,6 +2414,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     if (acao_tabelada.ataque_corpo_a_corpo()) {
       da->clear_ataque_distancia();
       da->clear_ataque_arremesso();
+      da->clear_incrementos();
     } else {
       da->clear_ataque_corpo_a_corpo();
     }
@@ -2653,6 +2654,54 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
   }
 }
 
+// Objetivo é recomputar alcance_m e alcance_minimo_m.
+void RecomputaAlcanceArma(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
+  if (da->has_alcance_q()) {
+    // Ataques de monstros com alcance.
+    da->set_alcance_m(da->alcance_q() * QUADRADOS_PARA_METROS);
+  } else if (arma.has_alcance_quadrados() && !da->ataque_corpo_a_corpo()) {
+    // Armas a distancia em modo distancia.
+    int mod_distancia_quadrados = 0;
+    const int nivel = NivelParaFeitico(tabelas, *da, proto);
+    switch (arma.modificador_alcance()) {
+      case ArmaProto::MOD_2_QUAD_NIVEL:
+        mod_distancia_quadrados = 2 * nivel;
+        break;
+      case ArmaProto::MOD_8_QUAD_NIVEL:
+        mod_distancia_quadrados = 8 * nivel;
+        break;
+      case ArmaProto::MOD_1_QUAD_CADA_2_NIVEIS:
+        mod_distancia_quadrados = nivel / 2;
+        break;
+      default:
+        ;
+    }
+    da->set_alcance_q(arma.alcance_quadrados() + mod_distancia_quadrados);
+    da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS);
+    da->set_alcance_minimo_m(0);
+    if (PossuiCategoria(CAT_ARREMESSO, arma) || PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
+      da->set_incrementos(5);
+    } else {
+      da->set_incrementos(10);
+    }
+  } else if (da->ataque_corpo_a_corpo()) {
+    // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
+    // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
+    float alcance_m = AlcanceTamanhoQuadrados(proto.tamanho()) * QUADRADOS_PARA_METROS;
+    float alcance_minimo_m = 0.0f;
+    if (arma.haste()) {
+      alcance_m *= arma.multiplicador_haste();
+      alcance_minimo_m = arma.atinge_adjacentes() ? 0 : alcance_m;
+    } else if (arma.has_alcance_quadrados() && !PossuiCategoria(CAT_DISTANCIA, arma)) {
+      // Por exemplo, adagas nao podem entrar aqui, senao vai usar a distancia do ataque a distancia.
+      alcance_m += arma.has_alcance_quadrados() * QUADRADOS_PARA_METROS;
+    }
+    da->set_alcance_m(alcance_m);
+    da->set_alcance_minimo_m(alcance_minimo_m);
+    da->set_incrementos(0);
+  }
+}
+
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
@@ -2723,13 +2772,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     // TODO o efeito de lamina afiada se aplica a uma arma. Aqui to robando, usando id arma. Se for uma arma diferente com o mesmo id
     // vai dar errado (por exemplo, duas espadas iguais).
     if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto) ||
-        (PossuiEvento(EFEITO_LAMINA_AFIADA, da->rotulo(), proto) && (c_any(da->descritores(), DESC_CORTANTE) || c_any(da->descritores(), DESC_PERFURANTE)))) {
+        (PossuiEvento(EFEITO_LAMINA_AFIADA, da->rotulo(), proto) &&
+         (c_any(da->descritores(), DESC_CORTANTE) || c_any(da->descritores(), DESC_PERFURANTE)))) {
       DobraMargemCritico(da);
-    }
-    if (PossuiCategoria(CAT_ARREMESSO, arma) || PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
-      da->set_incrementos(5);
-    } else if (PossuiCategoria(CAT_DISTANCIA, arma)) {
-      da->set_incrementos(10);
     }
     *da->mutable_tipo_ataque_fisico() = TiposDanoParaAtaqueFisico(arma.tipo_dano());
   } else if (da->ataque_agarrar() && !da->has_dano_basico_medio_natural()) {
@@ -2797,40 +2842,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
               da->tipo_ataque_fisico().end(),
               google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
   }
-  // Alcance do ataque. Se a arma tiver alcance, respeita o que esta nela (armas a distancia). Caso contrario, usa o tamanho.
-  if (arma.has_alcance_quadrados()) {
-    int mod_distancia_quadrados = 0;
-    const int nivel = NivelParaFeitico(tabelas, *da, proto);
-    switch (arma.modificador_alcance()) {
-      case ArmaProto::MOD_2_QUAD_NIVEL:
-        mod_distancia_quadrados = 2 * nivel;
-        break;
-      case ArmaProto::MOD_8_QUAD_NIVEL:
-        mod_distancia_quadrados = 8 * nivel;
-        break;
-      case ArmaProto::MOD_1_QUAD_CADA_2_NIVEIS:
-        mod_distancia_quadrados = nivel / 2;
-        break;
-      default:
-        ;
-    }
-    da->set_alcance_q(arma.alcance_quadrados() + mod_distancia_quadrados);
-    da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS);
-    da->set_alcance_minimo_m(0);
-  } else if (da->has_alcance_q()) {
-    da->set_alcance_m(da->alcance_q() * QUADRADOS_PARA_METROS);
-  } else if (da->ataque_corpo_a_corpo()) {
-    // Regra para alcance. Criaturas com alcance zero nao se beneficiam de armas de haste.
-    // https://rpg.stackexchange.com/questions/47227/do-creatures-with-inappropriately-sized-reach-weapons-threaten-different-areas/47338#47338
-    int alcance = AlcanceTamanhoQuadrados(proto.tamanho());
-    int alcance_minimo = 0;
-    if (arma.haste()) {
-      alcance_minimo = alcance;
-      alcance *= 2;
-    }
-    da->set_alcance_m(alcance * QUADRADOS_PARA_METROS);
-    da->set_alcance_minimo_m(alcance_minimo * QUADRADOS_PARA_METROS);
-  }
+  RecomputaAlcanceArma(tabelas, arma, proto, da);
 
   int bba = 0;
   bool usar_forca_dano = false;

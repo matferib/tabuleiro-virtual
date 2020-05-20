@@ -398,9 +398,11 @@ message DadosAtaque {
   optional int32 ca_normal = 4;
   optional int32 ca_surpreso = 5;
   optional int32 ca_toque = 8;
+  // Esses valores de alcance_*m devem ser computados dinamicamente.
   optional float alcance_m = 10;
-  optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario). TODO: deprecar alcance_m.
   optional float alcance_minimo_m = 33;
+  // Esse aqui deve ser usado para computar alcance para monstros.
+  optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario)..
   optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
   // A diferenca desses dois eh importante.
   // O campo acao eh o valor final, recomputado sempre a partir da acao da arma e da acao_fixa.

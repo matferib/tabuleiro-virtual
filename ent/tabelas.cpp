@@ -221,12 +221,10 @@ void Tabelas::RecarregaMapas() {
     if (arma.nome().empty()) {
       arma.set_nome(arma.id());
     }
-    if (std::any_of(arma.categoria().begin(), arma.categoria().end(),
-          [] (int c) { return c == CAT_ARCO || c == CAT_ARREMESSO; })) {
+    if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARCO || c == CAT_ARREMESSO; })) {
       arma.add_categoria(CAT_DISTANCIA);
     }
-    if (std::any_of(arma.categoria().begin(), arma.categoria().end(),
-          [] (int c) { return c == CAT_ARMA_DUPLA; })) {
+    if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARMA_DUPLA; })) {
       arma.add_categoria(CAT_DUAS_MAOS);
     }
     // seta os tipos de acoes.

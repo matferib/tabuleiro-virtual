@@ -288,7 +288,7 @@ tabela_armas {
     id: 'clava'
     info_modelo_3d { id: 'club' }
     categoria: CAT_CAC
-    categoria: CAT_ARREMESSO  # tirei por agora pra poder usar o modificador correto.
+    categoria: CAT_ARREMESSO
     preco: '0 PO'
     dano { medio: '1d6'  }
     multiplicador_critico: 2
@@ -815,7 +815,6 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
     alcance_quadrados: 2
-    alcance_minimo_quadrados: 1
     haste: true
     acao {
       icone: 'icon_spear.png'
@@ -982,8 +981,12 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
-    haste: true
+    alcance_quadrados: 3
+    atinge_adjacentes: true
+    multiplicador_haste: 3
     pode_derrubar: true
+    nao_letal: true
+    # TODO nao da dano se alvo tiver armadura.
   }
   armas {
     id: 'espada_bastarda'
@@ -1021,6 +1024,7 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_EXOTICA
     haste: true
+    atinge_adjacentes: true
     pode_derrubar: true
   }
   armas {

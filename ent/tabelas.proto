@@ -117,7 +117,7 @@ message InfoComponente {
   optional string descricao = 3;
 }
 
-// Proximo id: 37.
+// Proximo id: 38.
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -129,7 +129,9 @@ message ArmaProto {
   optional StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
   optional int32 alcance_quadrados = 10;
-  optional int32 alcance_minimo_quadrados = 17;
+  // Para armas como chicote e corrente com cravos.
+  optional bool atinge_adjacentes = 17;
+  optional int32 multiplicador_haste = 37 [default=2];
   enum ModificadorAlcance {
     MOD_NENHUM = 0;
     MOD_2_QUAD_NIVEL = 1;

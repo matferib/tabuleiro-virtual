@@ -277,8 +277,8 @@ sub_menu {
   }
   sub_menu {
     id: 'Monges'
-    modelo { id: 'Humano Monge' }
-    modelo { id: 'Humano Monge 5' }
+    modelo { id: 'Humano Monge 1' texto: 'Monge 1' }
+    modelo { id: 'Humano Monge 5' texto: 'Monge 5' }
   }
   sub_menu {
     id: 'Paladinos'

@@ -3630,6 +3630,8 @@ TEST(TesteModelo, TestePlebeu1) {
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 1);
     EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_EQ(da.incrementos(), 0);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
   {
@@ -3637,6 +3639,8 @@ TEST(TesteModelo, TestePlebeu1) {
     const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), -4);
     EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 5);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
 }
@@ -3653,6 +3657,8 @@ TEST(TesteModelo, TestePlebeu1Invertido) {
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 0);
     EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 5);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
   {
@@ -3660,6 +3666,8 @@ TEST(TesteModelo, TestePlebeu1Invertido) {
     const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), -3);
     EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_EQ(da.incrementos(), 0);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
 }
