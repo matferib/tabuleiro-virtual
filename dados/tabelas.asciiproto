@@ -12480,6 +12480,7 @@ tabela_feiticos {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
+      som_sucesso: 'fireball.wav'
     }
     escola: 'evocacao'
   }

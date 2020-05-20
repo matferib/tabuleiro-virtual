@@ -3836,6 +3836,7 @@ modelo {
   id_entidade_base: 'Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_male' }
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
@@ -3851,6 +3852,7 @@ modelo {
   id_entidade_base: 'Plebeu Base'
   entidade {
     modelo_3d { id: 'human_commoner_female' }
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
@@ -3993,6 +3995,7 @@ modelo {
 modelo {
   id: 'Aristocrata Base'
   entidade {
+    posicao_acao { x: 0.25 y: 0 z: 1 }
     info_talentos {
       gerais { id: 'vitalidade' }
     }
