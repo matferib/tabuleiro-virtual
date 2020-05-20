@@ -3631,6 +3631,7 @@ TEST(TesteModelo, TestePlebeu1) {
     EXPECT_EQ(da.bonus_ataque_final(), 1);
     EXPECT_EQ(da.dano(), "1d6+1");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     EXPECT_EQ(da.incrementos(), 0);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
@@ -3642,6 +3643,33 @@ TEST(TesteModelo, TestePlebeu1) {
     EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
     EXPECT_EQ(da.incrementos(), 5);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
+  }
+}
+
+TEST(TesteModelo, TestePlebeu1Grande) {
+  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 1").entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
+  evento->set_rodadas(1);
+  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "1d8+3");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 0);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 8);
+  }
+  {
+    // Distancia sem pericia.
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), -6);
+    EXPECT_EQ(da.dano(), "1d6+2");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 8);
   }
 }
 
