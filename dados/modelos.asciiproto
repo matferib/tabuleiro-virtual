@@ -3810,7 +3810,6 @@ modelo {
 modelo {
   id: 'Plebeu Base'
   entidade {
-    posicao_acao { x: 0.25 y: 0 z: 1 }
     tesouro {
       tesouro: 'joia de 1d20 PP'
       moedas { pp: 5 }  # 1d10 PP
@@ -3834,6 +3833,8 @@ modelo {
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
+    posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
+    posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
   }
 }
 # Plebeus homens.
@@ -4297,6 +4298,7 @@ modelo {
   entidade {
     raca: 'humano'
     posicao_acao { x: 0.25 y: 0 z: 1 }
+    posicao_acao_secundaria { x: 0.25 y: 0.25 z: 1 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'Humano' }
     }
