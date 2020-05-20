@@ -4839,7 +4839,6 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   }
   // Nao precisa mudar porque a funcao MudaEstadoAposSelecao fara isso.
   // estado_ = ETAB_ENTS_SELECIONADAS;
-  VLOG(1) << "Estado nao mudado (deve-se chamar MudaEstadoAposSelecao): " << id;
   return true;
 }
 
