@@ -273,9 +273,11 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
   } else if (dac->empunhadura() == EA_ARMA_ESCUDO && !proto_.dados_defesa().id_escudo().empty()) {
     const auto* modelo = vd_.m3d->Modelo("shield");
     if (modelo != nullptr) {
+      gl::Habilita(GL_TEXTURE_2D);
       if (proto_.dados_defesa().id_escudo().find("madeira") != std::string::npos) {
-        gl::Habilita(GL_TEXTURE_2D);
         gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("wood.png"));
+      } else {
+        gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("metal.png"));
       }
       const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
       gl::MatrizEscopo salva_matriz;

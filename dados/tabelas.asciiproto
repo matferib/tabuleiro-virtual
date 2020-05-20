@@ -225,6 +225,7 @@ tabela_armas {
   }
   armas {
     id: 'adaga'
+    info_modelo_3d { id: 'short_sword' }
     categoria: CAT_LEVE
     categoria: CAT_CAC
     categoria: CAT_ARREMESSO
@@ -240,6 +241,7 @@ tabela_armas {
   armas {
     id: 'adaga_de_soco'
     nome: 'adaga de soco'
+    info_modelo_3d { id: 'short_sword' }
     categoria: CAT_LEVE
     categoria: CAT_CAC
     preco: '2 PO'
