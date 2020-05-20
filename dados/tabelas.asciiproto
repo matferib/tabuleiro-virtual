@@ -27,12 +27,12 @@ tabela_escudos {
 }
 
 tabela_armas {
-  # Projeteis de area.
   armas {
     id: 'mordida'
     # falha pra ankheg, grande com 2d6 ao inves de 1d8.
     #dano { medio: '1d6' }
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
     tipo_dano: TD_CONCUSSAO
@@ -41,6 +41,7 @@ tabela_armas {
     id: 'mordida_padrao'
     dano { medio: '1d6' }
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
     tipo_dano: TD_CONCUSSAO
@@ -49,6 +50,7 @@ tabela_armas {
     id: 'garra'
     #dano { medio: '1d4' }
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
@@ -56,12 +58,14 @@ tabela_armas {
     id: 'garra_padrao'
     dano { medio: '1d4' }
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
   armas {
     id: 'garra_traseira'
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
@@ -69,6 +73,7 @@ tabela_armas {
     id: 'garra_traseira_padrao'
     dano { medio: '1d4' }
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
@@ -76,16 +81,19 @@ tabela_armas {
   armas {
     id: 'pancada'
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_CONCUSSAO
   }
   armas {
     id: 'ferroada'
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_PERFURANTE
   }
   armas {
     id: 'chifrada'
     categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
     tipo_dano: TD_PERFURANTE
   }
   armas {
@@ -280,7 +288,7 @@ tabela_armas {
     id: 'clava'
     info_modelo_3d { id: 'club' }
     categoria: CAT_CAC
-    categoria: CAT_ARREMESSO
+    categoria: CAT_ARREMESSO  # tirei por agora pra poder usar o modificador correto.
     preco: '0 PO'
     dano { medio: '1d6'  }
     multiplicador_critico: 2
@@ -566,6 +574,7 @@ tabela_armas {
     categoria_pericia: CATPER_COMUM
   }
   armas {
+    # sap.
     id: 'porrete'
     nome: 'porrete'
     info_modelo_3d { id: 'club' }
@@ -4092,6 +4101,12 @@ tabela_talentos {
     descricao: 'Não sofre penalidades nos ataques com armas simples.'
   }
   talentos {
+    id: 'usar_uma_armas_simples'
+    nome: 'Usar uma arma simples'
+    descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para plebeus.'
+    tipo_complemento: TCT_ARMA_SIMPLES
+  }
+  talentos {
     id: 'usar_arma_comum'
     nome: 'Usar arma comum'
     tipo_complemento: TCT_ARMA_COMUM
@@ -7369,6 +7384,16 @@ tabela_feiticos {
       nivel: 3
     }
     escola: 'evocacao'
+    acao {
+      id: 'Feitiço de Toque'
+      elemento: DESC_LUZ
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+      efeitos_adicionais {
+        efeito: EFEITO_LUZ
+        # permanente.
+      }
+    }
   }
 
   armas {
