@@ -894,9 +894,10 @@ class AcaoRaio : public Acao {
 // Acao ACAO_CORPO_A_CORPO.
 class AcaoCorpoCorpo : public Acao {
  public:
-  AcaoCorpoCorpo(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+  AcaoCorpoCorpo(
+      const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d,
+      ntf::CentralNotificacoes* central)
       : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
-    rotacao_graus_ = 0.0f;
     if (!acao_proto_.has_id_entidade_origem()) {
       VLOG(1) << "Acao corpo a corpo requer id origem.";
       finalizado_ = true;
@@ -919,6 +920,7 @@ class AcaoCorpoCorpo : public Acao {
     if (da != nullptr) {
       dados_ataque_ = *da;
     }
+    duracao_ms_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() * 1000 : DURACAO_MS;
 
     AtualizaDeltas();
     finalizado_ = false;
@@ -929,9 +931,11 @@ class AcaoCorpoCorpo : public Acao {
     if (eo == nullptr) {
       return;
     }
-    if (tabelas_.Arma(dados_ataque_.id_arma()).info_modelo_3d().has_id()) {
+    const auto& arma_tabelada = tabelas_.Arma(dados_ataque_.id_arma());
+    if (arma_tabelada.info_modelo_3d().has_id()) {
       Matrix4 matriz;
       matriz.rotateY(rotacao_graus_);
+      matriz.translate(translacao_m_, 0.0f, 0.0f);
       if (dados_ataque_.empunhadura() != EA_MAO_RUIM) {
         eo->AtualizaMatrizAcaoPrincipal(matriz);
       } else {
@@ -957,20 +961,39 @@ class AcaoCorpoCorpo : public Acao {
       finalizado_ = true;
       return;
     }
-    if (rotacao_graus_ == 0.0f) {
+    if (progresso_ == 0.0f) {
       AtualizaRotacaoZFonte(eo);
     }
+    bool tocou_som = (progresso_ >= 0.5f);
 
     // TODO desenhar o impacto.
     // Os parametros iniciais sao mantidos, so a rotacao do corte eh alterada.
-    if (rotacao_graus_ < 180.0f) {
-      rotacao_graus_ += intervalo_ms * 180.0f / DURACAO_MS;
+    if (progresso_ < 1.0f) {
+      float incremento = std::max(0.01f, static_cast<float>(intervalo_ms) / duracao_ms_);
+      progresso_ = std::min<float>(1.0f, progresso_ + incremento);
     }
+
+    const auto& arma_tabelada = tabelas_.Arma(dados_ataque_.id_arma());
+    if (arma_tabelada.tipo_dano().size() == 1 && arma_tabelada.tipo_dano(0) == TD_PERFURANTE) {
+      rotacao_graus_ = 90.0f;
+      if (progresso_ <= 0.5f) {
+        translacao_m_ = progresso_ * TAMANHO_LADO_QUADRADO;
+      } else {
+        translacao_m_ = (1.0f - progresso_) * TAMANHO_LADO_QUADRADO;
+      }
+    } else {
+      rotacao_graus_ = progresso_ * 180.0f;
+      translacao_m_ = 0.0f;
+    }
+
     bool terminou_alvo = false;
-    if (rotacao_graus_ >= 90.0f) {
+    if (progresso_ >= 0.5f) {
+      if (!tocou_som) {
+        TocaSucessoOuFracasso();
+      }
       terminou_alvo = !AtualizaAlvo(intervalo_ms);
     }
-    if (rotacao_graus_ >= 180.0f && terminou_alvo) {
+    if (progresso_ >= 1.0f && terminou_alvo) {
       VLOG(1) << "Finalizando corpo a corpo";
       finalizado_ = true;
       if (dados_ataque_.empunhadura() != EA_MAO_RUIM) {
@@ -1018,9 +1041,12 @@ class AcaoCorpoCorpo : public Acao {
 
   float distancia_;
   float direcao_graus_;
-  float rotacao_graus_;
+  float rotacao_graus_ = 0.0f;
+  float progresso_ = 0.0f;  // de 0.0 a 1.0.
+  float translacao_m_ = 0.0f;
   bool finalizado_;
   DadosAtaque dados_ataque_;
+  int duracao_ms_;
   constexpr static int DURACAO_MS = 180;
 };
 
@@ -1336,7 +1362,6 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     if (!acao_proto_.bem_sucedida()) {
       VLOG(1) << "Finalizando alvo, nao foi bem sucedida.";
       dx_total_ = dy_total_ = dz_total_ = 0;
-      TocaSucessoOuFracasso();
       return false;
     }
     if (entidade_destino->Proto().fixa()) {
@@ -1376,7 +1401,6 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
       AtualizaDirecaoQuedaAlvo(entidade_destino);
       estado_alvo_ = ALVO_A_SER_ATINGIDO;
-      TocaSucessoOuFracasso();
     }
     disco_alvo_rad_ += dt * M_PI / 2.0f;
     // Nao terminou de atualizar.
