@@ -1128,30 +1128,44 @@ int ModificadorDano(
   return modificador;
 }
 
-float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+float DistanciaAbsoluta(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   Posicao pos_acao_a = ea.PosicaoAcao();
   Posicao pos_acao_d = ed.PosicaoAcao();
+  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+  Vector3 vd;
+  if (pos_alvo.has_x()) {
+    vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
+    VLOG(1) << "Usando posicao real para distancia absoluta";
+  } else {
+    vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+    VLOG(1) << "Usando posicao fixa para distancia absoluta";
+  }
+  const float resultado = (va - vd).length();
+  VLOG(1) << "Distancia absoluta: " << resultado;
+  return resultado;
+}
+
+float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
   float mult_tamanho = ea.MultiplicadorTamanho();
   float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
   VLOG(1) << "raio_a: " << raio_a;
 
-  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-  Vector3 vd;
+  // Distancia entre pontos.
+  float distancia_absoluta = DistanciaAbsoluta(ea, ed, pos_alvo);
+
   float distancia_m = - raio_a;
   if (pos_alvo.has_x()) {
-    vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
     const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
     distancia_m -= MARGEM_ERRO;
-    VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
+    VLOG(1) << "Descontando margem fixa '" << MARGEM_ERRO << "' da distancia";
   } else {
-    vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
     distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+    VLOG(1) << "Descontando por tamanho '" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2) << "' da distancia";
   }
-  distancia_m += (va - vd).length();
-  VLOG(1) << "distancia_m: " << distancia_m;
-  return distancia_m;
+  distancia_m += distancia_absoluta;
+  VLOG(1) << "retornando distancia_m: " << distancia_m;
+  return std::max(0.0f, distancia_m);
 }
 
 std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
@@ -1179,13 +1193,13 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
                 "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()),
             false, distancia_m);
       }
-    } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
+    } else if (alcance_minimo_m > 0 && distancia_m + TAMANHO_LADO_QUADRADO_2 < alcance_minimo_m) {
+      // Adicionei uma margem de erro para o minimo tb, pq as entidades normalmente nao ocupam o quadrado todo.
       std::string texto =
-          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f",
-                                         alcance_minimo_m, distancia_m);
+          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância com margem: %0.1f", alcance_minimo_m, distancia_m + TAMANHO_LADO_QUADRADO_2);
       return std::make_tuple(texto, false, distancia_m);
     }
-    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
+    VLOG(1) << "Alcance ok alcance_m: " << alcance_m << ", alcance_minimo_m: " << alcance_minimo_m << ", distancia_m: " << distancia_m;
   }
   return std::make_tuple("", true, distancia_m);
 }
