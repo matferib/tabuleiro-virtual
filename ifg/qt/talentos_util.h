@@ -215,13 +215,15 @@ class ComplementoTalentoDelegate : public QItemDelegate {
     QVariant valor = modelo_->data(index.child(index.row(), 0), Qt::EditRole);
     const auto& talento = tabelas_.Talento(valor.toString().toStdString());
     switch (talento.tipo_complemento()) {
+      case ent::TCT_ARMA_SIMPLES:
       case ent::TCT_ARMA_COMUM:
       case ent::TCT_ARMA_EXOTICA:
       case ent::TCT_ARMA: {
         std::map<std::string, std::string> mapa;
         for (const auto& a : tabelas_.todas().tabela_armas().armas()) {
           if ((talento.tipo_complemento() == ent::TCT_ARMA_COMUM && a.categoria_pericia() != ent::CATPER_COMUM) ||
-              (talento.tipo_complemento() == ent::TCT_ARMA_EXOTICA && a.categoria_pericia() != ent::CATPER_EXOTICA)) {
+              (talento.tipo_complemento() == ent::TCT_ARMA_EXOTICA && a.categoria_pericia() != ent::CATPER_EXOTICA) ||
+              (talento.tipo_complemento() == ent::TCT_ARMA_SIMPLES && a.categoria_pericia() != ent::CATPER_SIMPLES)) {
             continue;
           }
           mapa.insert(std::make_pair(a.nome(), a.id()));
