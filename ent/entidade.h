@@ -139,6 +139,7 @@ class Entidade {
   int DanoNaoLetal() const { return proto_.dano_nao_letal(); }
 
   bool Morta() const { return proto_.morta(); }
+  bool Inconsciente() const { return proto_.inconsciente(); }
 
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
