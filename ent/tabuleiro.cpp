@@ -205,7 +205,7 @@ Tabuleiro::Tabuleiro(
 
   opcoes_ = opcoes;
 #if DEBUG
-  opcoes_.set_mostra_fps(true);
+  //opcoes_.set_mostra_fps(true);
   //opcoes_.set_desenha_olho(true);
 #endif
 
