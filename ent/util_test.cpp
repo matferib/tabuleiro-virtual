@@ -3673,6 +3673,57 @@ TEST(TesteModelo, TestePlebeu1Grande) {
   }
 }
 
+TEST(TesteModelo, TestePlebeu3) {
+  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 3").entidade();
+  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("lanca_longa", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "1d8+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 1.5f);
+    EXPECT_EQ(da.incrementos(), 0);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
+  }
+  {
+    // Distancia.
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
+  }
+}
+
+TEST(TesteModelo, TestePlebeu3Grande) {
+  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 3").entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
+  evento->set_rodadas(1);
+  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("lanca_longa", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "2d6+3");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 6.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 0);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 8);
+  }
+  {
+    // Distancia.
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), -1);
+    EXPECT_EQ(da.dano(), "1d6+2");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 8);
+  }
+}
+
 TEST(TesteModelo, TestePlebeu1Invertido) {
   auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
   // Corpo a corpo.

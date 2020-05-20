@@ -2690,8 +2690,8 @@ void RecomputaAlcanceArma(const Tabelas& tabelas, const ArmaProto& arma, const E
     float alcance_m = AlcanceTamanhoQuadrados(proto.tamanho()) * QUADRADOS_PARA_METROS;
     float alcance_minimo_m = 0.0f;
     if (arma.haste()) {
-      alcance_m *= arma.multiplicador_haste();
       alcance_minimo_m = arma.atinge_adjacentes() ? 0 : alcance_m;
+      alcance_m *= arma.multiplicador_haste();
     } else if (arma.has_alcance_quadrados() && !PossuiCategoria(CAT_DISTANCIA, arma)) {
       // Por exemplo, adagas nao podem entrar aqui, senao vai usar a distancia do ataque a distancia.
       alcance_m += arma.has_alcance_quadrados() * QUADRADOS_PARA_METROS;
