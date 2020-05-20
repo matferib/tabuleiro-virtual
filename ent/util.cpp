@@ -1014,6 +1014,10 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
       modificador += 1;
     }
   }
+  if (tipo_ataque == TipoAtaque::CORPO_A_CORPO && ea.dados_ataque_global().flanqueando() &&
+      !PossuiHabilidadeEspecial("esquiva_sobrenatural_aprimorada", ed)) {
+    modificador += 2;
+  }
   // Invisibilidade da +2 ataque desde que alvo nao esteja cego. Neste caso sera tratado
   // na parte de modificadores de CA no final da funcao.
   if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, ea) &&

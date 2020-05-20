@@ -244,6 +244,8 @@ message EntidadeProto {
     // Expulsar/fascinar mortos vivos.
     optional int32 maximo_expulsoes_por_dia = 29;
     optional int32 expulsoes_realizadas = 30;
+
+    optional bool flanqueando = 32;
   }
   optional DadosAtaqueGlobal dados_ataque_global = 73;
 

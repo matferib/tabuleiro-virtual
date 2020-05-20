@@ -3913,16 +3913,17 @@ modelo {
     cor { r: 0.85 g: 0.85 b: 0.85 }
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo'
-      grupo: 'lanca_longa' obra_prima: true id_arma: 'lanca_longa' empunhadura: EA_2_MAOS
+      grupo: 'clava' obra_prima: true id_arma: 'clava' empunhadura: EA_2_MAOS
     }
     dados_ataque {
       tipo_ataque: 'Ataque a Distância'
       grupo: 'adaga' id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
       municao: 2
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'nao_proficiente' valor: -4 } } }
     }
     info_talentos {
-      gerais { id: 'auto_suficiente' origem: 'humano' }
-      gerais { id: 'usar_armas_simples' origem: 'humano' }
+      gerais { id: 'auto_suficiente' }
+      gerais { id: 'foco_em_arma' complemento: 'clava' }
     }
     # 150 PO em posses alem da clava obra prima obra prima, mas carrega menos.
     tesouro {
@@ -3940,19 +3941,35 @@ modelo {
 }
 modelo {
   id: 'Humano Plebeu 4'
-  id_entidade_base: 'Humano Plebeu 3'
+  id_entidade_base: 'Humano Plebeu Base'
   entidade {
     rotulo: 'humano plebeu 4'
-    info_classes { id: 'plebeu' nivel: 4 combinar_com: 0 }
+    info_classes { id: 'plebeu' nivel: 4 }
     dados_vida: '4d4+4+3'
     atributos {
       forca { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
     }
     cor { r: 0.8 g: 0.8 b: 0.8 }
-    # 300 PO em posses alem da adaga obra prima, mas carrega menos.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'lanca_longa' obra_prima: true id_arma: 'lanca_longa' empunhadura: EA_2_MAOS
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância'
+      grupo: 'adaga' id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+      municao: 2
+    }
+    info_talentos {
+      gerais { id: 'auto_suficiente' }
+      gerais { id: 'usar_armas_simples' }
+    }
+    # 300 PO em posses alem da lanca longa obra prima, mas carrega menos.
     tesouro {
       tesouro: 'joia de 3d20 PP'
       pocoes { id: 'curar_ferimentos_leves' } # 50
+      itens_mundanos { id: 'agua_benta' }  # 25
+      itens_mundanos { id: 'agua_benta' }  # 25
+      itens_mundanos { id: 'bolsa_cola' }  # 50
       moedas { po: 3 pp: 30 }
     }
     # pericias: 8.

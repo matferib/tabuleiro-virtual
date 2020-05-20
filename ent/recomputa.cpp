@@ -1878,12 +1878,15 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i = 0; i < proto->info_classes_size(); ++i) {
     const auto& ic = proto->info_classes(i);
     if (ic.has_combinar_com()) {
-      a_remover.insert(i);
-      if (ic.combinar_com() >= 0 && ic.combinar_com() < proto->info_classes_size()) {
+      if (ic.combinar_com() >= 0 && ic.combinar_com() < proto->info_classes_size() && ic.combinar_com() != i) {
+        a_remover.insert(i);
         proto->mutable_info_classes(ic.combinar_com())->MergeFrom(ic);
         proto->mutable_info_classes(ic.combinar_com())->clear_combinar_com();
+      } else if (ic.combinar_com() == i) {
+        LOG(ERROR) << "Combinar com invalido (ele mesmo): " << ic.combinar_com() << ", indice: " << i << ", tamanho: " << proto->info_classes_size();
+        proto->mutable_info_classes(ic.combinar_com())->clear_combinar_com();
       } else {
-        LOG(ERROR) << "Combinar com invalido: " << ic.combinar_com() << ", tamanho: " << proto->info_classes_size();
+        LOG(ERROR) << "Combinar com invalido: " << ic.combinar_com() << ", indice: " << i << ", tamanho: " << proto->info_classes_size();
       }
     }
   }
