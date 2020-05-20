@@ -611,7 +611,10 @@ int RolaDado(unsigned int nfaces) {
 
 void ImprimeDadosRolados() {
   for (auto& [nfaces, valores] : g_dados_rolados) {
-    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) return;
+    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) {
+      LOG(INFO) << "ignorando d" << nfaces;
+      continue;
+    }
     LOG(INFO) << "Imprimindo valores de d" << nfaces;
     for (auto& [valor, vezes] : valores) {
       LOG(INFO) << "  Valor '" << valor << "' rolado '" << vezes << "' vezes";
@@ -1484,7 +1487,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade
   ResultadoAtaqueVsDefesa resultado;
   const auto* da_ataque = ea.DadoAgarrar();
   if (da_ataque == nullptr) {
-    resultado.texto = "atacante sem acao agarrar"; 
+    resultado.texto = "atacante sem acao agarrar";
     resultado.resultado = RA_SEM_ACAO;
     return resultado;
   }
@@ -5304,7 +5307,6 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
     return;
   }
 
-    LOG(INFO) << "ali: pv: " << pontos_vida << ", dano nl: " << dano_nao_letal << ", limiar: " << limiar_morte;
   // Aqui é inconsciente, mas depende de talento.
   const bool duro_de_matar = PossuiTalento("duro_de_matar", proto);
   e_depois->set_nocauteada(true);
