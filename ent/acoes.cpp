@@ -459,6 +459,7 @@ class AcaoDispersao : public Acao {
 
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (efeito_ == 0.0f) {
+      TocaSucessoOuFracasso();
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
       const auto& pos_origem = (entidade_origem != nullptr) && (acao_proto_.geometria() == ACAO_GEO_CONE)
           ? entidade_origem->Pos() : acao_proto_.pos_tabuleiro();
