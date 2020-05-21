@@ -148,6 +148,22 @@ TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
 
+TEST(TesteArmas, TesteChicote) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  // Corpo a corpo.
+  auto* da = DadosAtaquePorGrupoOuCria("chicote", modelo.mutable_entidade());
+  da->set_tipo_ataque("Ataque Corpo a Corpo");
+  da->set_id_arma("chicote");
+  // Distancia sem pericia.
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    // Corpo a corpo.
+    const auto& da = DadosAtaquePorGrupo("chicote", plebeu->Proto());
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+    EXPECT_EQ(da.incrementos(), 0);
+  }
+}
+
 TEST(TesteArmas, TestePedrada) {
   EntidadeProto proto;
   auto* da = proto.add_dados_ataque();

@@ -1176,7 +1176,7 @@ Acao::~Acao() {
   }
 }
 
-void Acao::Atualiza(int intervalo_ms) {
+void Acao::Atualiza(int intervalo_ms, const Olho& camera) {
   if (atraso_s_ > 0) {
     atraso_s_ -= (intervalo_ms / 1000.0f);
     return;
@@ -1189,18 +1189,18 @@ void Acao::Atualiza(int intervalo_ms) {
 }
 
 void Acao::TocaSomInicial() const {
-  if (acao_proto_.has_som_inicial()) {
+  if (!acao_proto_.som_inicial().empty()) {
     som::Toca(acao_proto_.som_inicial());
   }
 }
 
 void Acao::TocaSucessoOuFracasso() const {
   if (acao_proto_.bem_sucedida()) {
-    if (acao_proto_.has_som_sucesso()) {
+    if (!acao_proto_.som_sucesso().empty()) {
       som::Toca(acao_proto_.som_sucesso());
     }
   } else {
-    if (acao_proto_.has_som_fracasso()) {
+    if (!acao_proto_.som_fracasso().empty()) {
       som::Toca(acao_proto_.som_fracasso());
     }
   }

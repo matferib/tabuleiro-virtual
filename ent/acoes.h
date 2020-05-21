@@ -4,6 +4,7 @@
 #include <functional>
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
+#include "ent/tabuleiro.pb.h"
 
 namespace ntf {
 class CentralNotificacoes;
@@ -27,7 +28,7 @@ class Acao {
   Acao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central);
   virtual ~Acao();
 
-  void Atualiza(int intervalo_ms);
+  void Atualiza(int intervalo_ms, const Olho& camera);
 
   // Desenha a acao.
   void Desenha(ParametrosDesenho* pd) const;

@@ -983,11 +983,16 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
-    alcance_quadrados: 3
     atinge_adjacentes: true
+    haste: true
     multiplicador_haste: 3
     pode_derrubar: true
     nao_letal: true
+    acao {
+      som_inicial: 'whip.wav'
+      som_sucesso: 'whip_hit.wav'
+      som_fracasso: ''
+    }
     # TODO nao da dano se alvo tiver armadura.
   }
   armas {

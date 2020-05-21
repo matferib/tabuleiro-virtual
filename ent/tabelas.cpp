@@ -264,7 +264,7 @@ void Tabelas::RecarregaMapas() {
     if (!arma.tipo_dano().empty() && !arma.acao().has_som_sucesso()) {
       arma.mutable_acao()->set_som_sucesso("punch.wav");
     }
-    if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE) {
+    if (arma.tipo_dano().size() == 1 && arma.tipo_dano(0) == TD_CORTANTE && !arma.acao().has_som_fracasso()) {
       arma.mutable_acao()->set_som_fracasso("steel.wav");
     }
     armas_[arma.id()] = &arma;

@@ -4791,7 +4791,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
   copia_acoes.swap(acoes_);
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
-    acao->Atualiza(intervalo_ms);
+    acao->Atualiza(intervalo_ms, olho_);
     if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();

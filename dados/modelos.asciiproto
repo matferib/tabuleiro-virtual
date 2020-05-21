@@ -3828,6 +3828,9 @@ modelo {
   id: 'Humanx Plebeu Base'
   id_entidade_base: 'Plebeu Base'
   entidade {
+    movimento {
+      terrestre_basico_q: 6
+    }
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO_BOM }
     info_talentos {
@@ -3837,6 +3840,123 @@ modelo {
     posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
   }
 }
+# Meninos.
+modelo {
+  id: 'Humano Menininho'
+  id_entidade_base: 'Humanx Plebeu Base'
+  entidade {
+    rotulo: 'menininho'
+    bonus_tamanho { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'idade' } } }  # miudo
+    info_classes { id: 'plebeu' nivel: 1 }
+    dados_vida: '1d4+3'
+    modelo_3d { id: 'human_commoner_male_child' }
+    cor { r: 1 g: 1 b: 1 }
+    atributos {
+      # -4 forca, +2 des, -2 con.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 5 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'idade' valor: -2 } } }
+    }
+    info_talentos {
+      gerais { id: 'agil' }
+    }
+    tesouro {
+      moedas { pc: 3 }
+    }
+    # Pericias: 5 = 4+1 de humano.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'arte_da_fuga' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+  }
+}
+modelo {
+  id: 'Humano Menino'
+  id_entidade_base: 'Humanx Plebeu Base'
+  entidade {
+    rotulo: 'menino'
+    bonus_tamanho { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'idade' } } }  # pequeno
+    info_classes { id: 'plebeu' nivel: 1 }
+    dados_vida: '1d4+3'
+    modelo_3d { id: 'human_commoner_male_child' }
+    cor { r: 1 g: 1 b: 1 }
+    atributos {
+      # -4 forca, +2 des, -2 con.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'idade' valor: -2 } } }
+    }
+    info_talentos {
+      gerais { id: 'agil' }
+    }
+    tesouro {
+      moedas { pc: 3 }
+    }
+    # Pericias: 5 = 4+1 de humano.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'arte_da_fuga' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+  }
+}
+# Meninas.
+modelo {
+  id: 'Humana Menininha'
+  id_entidade_base: 'Humanx Plebeu Base'
+  entidade {
+    rotulo: 'menininha'
+    bonus_tamanho { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'idade' } } }  # miudo
+    info_classes { id: 'plebeu' nivel: 1 }
+    dados_vida: '1d4+3'
+    modelo_3d { id: 'human_commoner_female_child' }
+    cor { r: 1 g: 1 b: 1 }
+    atributos {
+      # -4 forca, +2 des, -2 con.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'idade' valor: -2 } } }
+    }
+    info_talentos {
+      gerais { id: 'agil' }
+    }
+    tesouro {
+      moedas { pc: 3 }
+    }
+    # Pericias: 5 = 4+1 de humano.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'arte_da_fuga' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+  }
+}
+
+modelo {
+  id: 'Humana Menina'
+  id_entidade_base: 'Humanx Plebeu Base'
+  entidade {
+    rotulo: 'menina'
+    bonus_tamanho { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -1 origem: 'idade' } } }  # pequeno
+    info_classes { id: 'plebeu' nivel: 1 }
+    dados_vida: '1d4+3'
+    modelo_3d { id: 'human_commoner_female_child' }
+    cor { r: 1 g: 1 b: 1 }
+    atributos {
+      # -4 forca, +2 des, -2 con.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'idade' valor: -2 } } }
+    }
+    info_talentos {
+      gerais { id: 'agil' }
+    }
+    tesouro {
+      moedas { pc: 3 }
+    }
+    # Pericias: 5 = 4+1 de humano.
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+    info_pericias { id: 'arte_da_fuga' pontos: 1 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+  }
+}
+
+
 # Plebeus homens.
 # base.
 modelo {
@@ -3872,7 +3992,7 @@ modelo {
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'nao_proficiente' valor: -4 } } }
     }
     info_talentos {
-      gerais { id: 'auto_suficiente' origem: 'humano' }
+      gerais { id: 'auto_suficiente' }
     }
     # 150 PO em pertences, mas carrega pouco consigo.
     tesouro {
@@ -4290,6 +4410,9 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
     }
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
 }
 modelo {
@@ -4297,10 +4420,13 @@ modelo {
   id_entidade_base: 'Aristocrata Base'
   entidade {
     raca: 'humano'
-    posicao_acao { x: 0.25 y: 0 z: 1 }
-    posicao_acao_secundaria { x: 0.25 y: 0.25 z: 1 }
+    posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
+    posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'Humano' }
+    }
+    movimento {
+      terrestre_basico_q: 6
     }
   }
 }
