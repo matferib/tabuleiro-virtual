@@ -4551,7 +4551,8 @@ tabela_classes {
     pericias: 'cavalgar'
     pericias: 'sobrevivencia'
     pericias: 'natacao'
-
+    habilidades_por_nivel { id: 'esquiva_sobrenatural' nivel: 2 }
+    habilidades_por_nivel { id: 'esquiva_sobrenatural_aprimorada' nivel: 5 }
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {

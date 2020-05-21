@@ -1159,6 +1159,18 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 3
+    coluna: 8
+    rotulo: "F"
+    cor_rotulo {}
+    textura: "icon_flank.png"
+    id: CONTROLE_ALTERNAR_FLANQUEANDO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Flanquear."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
     coluna: 10
     rotulo: "S"
     cor_rotulo {}
