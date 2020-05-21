@@ -1470,6 +1470,27 @@ void Tabuleiro::AlternaEmCorpoACorpoNotificando() {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::AlternaFlanqueandoEntidadesSelecionadasNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+    const auto& proto = entidade_selecionada->Proto();
+    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, &grupo_notificacoes);
+    e_antes->mutable_dados_ataque_global()->set_flanqueando(proto.dados_ataque_global().flanqueando());
+    e_depois->mutable_dados_ataque_global()->set_flanqueando(!proto.dados_ataque_global().flanqueando());
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);

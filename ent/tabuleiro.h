@@ -172,6 +172,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
+  /** Alterna o bit de flanquando para as entidades selecionadas. */
+  void AlternaFlanqueandoEntidadesSelecionadasNotificando();
+
   /** Alterna estado em corpo a corpo para as entidades selecionadas. */
   void AlternaEmCorpoACorpoNotificando();
 

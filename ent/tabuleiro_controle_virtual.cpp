@@ -418,6 +418,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ALTERNA_CURA:
       AlternaUltimoPontoVidaListaPontosVida();
       break;
+    case CONTROLE_ALTERNAR_FLANQUEANDO:
+      AlternaFlanqueandoEntidadesSelecionadasNotificando();
+      break;
     case CONTROLE_LUZ:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
       break;
@@ -1405,6 +1408,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_LUZ,                [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_luz();
+    } },
+    { CONTROLE_ALTERNAR_FLANQUEANDO,        [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_global().flanqueando();
     } },
     { CONTROLE_QUEDA,              [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().caida();
