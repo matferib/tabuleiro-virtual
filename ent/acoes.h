@@ -64,13 +64,13 @@ class Acao {
       const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
-  void TocaSomInicial() const;
-  void TocaSucessoOuFracasso() const;
+  void TocaSomInicial(const Olho& camera) const;
+  void TocaSomSucessoOuFracasso(const Olho& camera) const;
   void DesenhaGeometriaAcao() const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
   // Funcao auxiliar para atualizar alvo. Deve ser chamada manualmente por cada subclasse.
-  virtual void AtualizaAposAtraso(int intervalo_ms) = 0;
+  virtual void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade(int intervalo_ms);

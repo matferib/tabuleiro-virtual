@@ -124,7 +124,7 @@ class AcaoSinalizacao : public Acao {
     }
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     const int DURACAO_SINALIZACAO_MS = 500;
     estado_ -= TAMANHO_MAXIMO * intervalo_ms / DURACAO_SINALIZACAO_MS;
   }
@@ -164,7 +164,7 @@ class AcaoPocao: public Acao {
     if (duracao_ms_ > INTERVALO_MS * 2) gl::DesenhaVbo(bolhas_[2]);
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (duracao_ms_ == 0) {
       // Priemeiro frame.
       ++duracao_ms_;
@@ -213,7 +213,7 @@ class AcaoAgarrar : public Acao {
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     finalizada_ = !AtualizaAlvo(intervalo_ms);
   }
 
@@ -338,7 +338,7 @@ class AcaoDeltaPontosVida : public Acao {
     }
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (faltam_ms_ == duracao_total_ms_) {
       // Primeiro frame. Apenas posiciona na posicao inicial. Importante pos UI para nao pular o efeito.
       --faltam_ms_;
@@ -457,9 +457,9 @@ class AcaoDispersao : public Acao {
     DesenhaGeometriaAcao();
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (efeito_ == 0.0f) {
-      TocaSucessoOuFracasso();
+      TocaSomSucessoOuFracasso(camera);
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
       const auto& pos_origem = (entidade_origem != nullptr) && (acao_proto_.geometria() == ACAO_GEO_CONE)
           ? entidade_origem->Pos() : acao_proto_.pos_tabuleiro();
@@ -562,13 +562,13 @@ class AcaoProjetilArea: public Acao {
     }
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     switch (estagio_) {
       case INICIAL:
         AtualizaInicial(intervalo_ms);
         break;
       case VOO:
-        AtualizaVoo(intervalo_ms);
+        AtualizaVoo(intervalo_ms, camera);
         break;
       case ATINGIU_ALVO: {
         AtualizaDispersao(intervalo_ms);
@@ -628,7 +628,7 @@ class AcaoProjetilArea: public Acao {
     VLOG(1) << "Atualizando dispersao: efeito_q: " << efeito_q_ << ", maximo: " << efeito_maximo_q_;
   }
 
-  void AtualizaVoo(int intervalo_ms) {
+  void AtualizaVoo(int intervalo_ms, const Olho& camera) {
     VLOG(1) << "Atualizando voo";
     // Recalcula vetor.
     dx_ = pos_impacto_.x() - pos_.x();
@@ -657,7 +657,7 @@ class AcaoProjetilArea: public Acao {
         pos_.z() == pos_impacto_.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
-      TocaSucessoOuFracasso();
+      TocaSomSucessoOuFracasso(camera);
       return;
     }
   }
@@ -702,7 +702,7 @@ class AcaoProjetil : public Acao {
     pos_ = entidade_origem->PosicaoAcao();
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (estagio_ == INICIAL) {
       estagio_ = VOO;
       AtualizaVoo(intervalo_ms);
@@ -853,7 +853,7 @@ class AcaoRaio : public Acao {
     }
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
       VLOG(1) << "Terminando acao pois origem nao existe mais.";
@@ -954,7 +954,7 @@ class AcaoCorpoCorpo : public Acao {
     }
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
       VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
@@ -989,7 +989,7 @@ class AcaoCorpoCorpo : public Acao {
     bool terminou_alvo = false;
     if (progresso_ >= 0.5f) {
       if (!tocou_som) {
-        TocaSucessoOuFracasso();
+        TocaSomSucessoOuFracasso(camera);
       }
       terminou_alvo = !AtualizaAlvo(intervalo_ms);
     }
@@ -1086,7 +1086,7 @@ class AcaoFeitico : public Acao {
     DesenhaGeometriaAcao();
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.por_entidade(0).id());
     if (e == nullptr) {
       LOG(ERROR) << "Terminando acao feitico: origem ou destino nao existe mais.";
@@ -1130,7 +1130,7 @@ class AcaoCriacaoEntidade : public Acao {
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
   }
 
-  void AtualizaAposAtraso(int intervalo_ms) override {
+  void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
   }
 
   bool Finalizada() const override {
@@ -1182,19 +1182,21 @@ void Acao::Atualiza(int intervalo_ms, const Olho& camera) {
     return;
   }
   if (!tocou_som_inicial_) {
-    TocaSomInicial();
+    TocaSomInicial(camera);
     tocou_som_inicial_ = true;
   }
-  AtualizaAposAtraso(intervalo_ms);
+  AtualizaAposAtraso(intervalo_ms, camera);
 }
 
-void Acao::TocaSomInicial() const {
+void Acao::TocaSomInicial(const Olho& camera) const {
+  if (camera.pos().id_cenario() == CENARIO_INVALIDO && camera.pos().id_cenario() != IdCenario()) return;
   if (!acao_proto_.som_inicial().empty()) {
     som::Toca(acao_proto_.som_inicial());
   }
 }
 
-void Acao::TocaSucessoOuFracasso() const {
+void Acao::TocaSomSucessoOuFracasso(const Olho& camera) const {
+  if (camera.pos().id_cenario() == CENARIO_INVALIDO && camera.pos().id_cenario() != IdCenario()) return;
   if (acao_proto_.bem_sucedida()) {
     if (!acao_proto_.som_sucesso().empty()) {
       som::Toca(acao_proto_.som_sucesso());
