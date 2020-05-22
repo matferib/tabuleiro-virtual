@@ -6192,6 +6192,9 @@ void Tabuleiro::TrataComandoDesfazer() {
     VLOG(1) << "Lista de eventos vazia.";
     return;
   }
+  for (auto id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+    AdicionaAcaoTextoLogado(id, "comando desfazer emitido");
+  }
   --evento_corrente_;
   ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
@@ -6216,6 +6219,9 @@ void Tabuleiro::TrataComandoRefazer() {
   if (evento_corrente_ == lista_eventos_.end()) {
     VLOG(1) << "Não há ações para refazer.";
     return;
+  }
+  for (auto id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+    AdicionaAcaoTextoLogado(id, "comando refazer emitido");
   }
   ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
