@@ -1,3 +1,5 @@
+Sugestao: desfazer dar mensagem.
+Fazer furia maior de barbaro e limitar usos por dia.
 Teste de esquiva sobrenatural aprimorada.
 Modelo 3d de adaga.
 Conjuracao aumentada: forca e destreza melhorados.
@@ -134,7 +136,6 @@ Bonus magico nao esta sendo aplicado nos ataques seguintes (ordem_ataque).
 Nos complementos, ignorar case.
 Modelar multishot (tiro multiplo).
 Pontos raciais de elfo.
-Sugestao: desfazer dar mensagem.
 Zerar botoes ao passar rodada.
 Reflexos some no inicio da acao (nao espera ela acontecer).
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
