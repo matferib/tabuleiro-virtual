@@ -1,3 +1,4 @@
+Vincular luz a numero de tochas.
 Teia tem que criar o objeto da area.
 Fazer furia maior de barbaro e limitar usos por dia.
 Unit test de esquiva sobrenatural aprimorada.
@@ -27,8 +28,6 @@ Entender a desconexao: dar mensagem pro cliente, tentar reconectar.
 Scrollbar na janela de feiticos.
 
 Modificador de raio_quadrados para acao (ver feitico cativar).
-Pergaminhos pro grupo.
-Ideia: coroinhas podem ir e voltar com itens e poções.
 
 Fazer empunhadura de rajada.
 Criar ataques naturais com dano basico. Ja fiz mordida.
