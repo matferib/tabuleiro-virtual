@@ -7177,6 +7177,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
+      icone: 'icon_hold.png'
       id: 'Feitiço a Distância'
       permite_salvacao: true
       tipo_salvacao: TS_VONTADE
@@ -7211,6 +7212,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
       afeta_apenas: TIPO_MORTO_VIVO
+      icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -7245,6 +7247,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
       afeta_apenas:  TIPO_ANIMAL
+      icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -7253,7 +7256,6 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holdMonster.htm'
     id: 'imobilizar_monstro'
     nome_ingles: 'hold monster'
     nome: 'imobilizar monstro'
@@ -7278,6 +7280,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
+      icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -7286,7 +7289,6 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holdMonsterMass.htm'
     id: 'imobilizar_monstro_massa'
     nome_ingles: 'hold monster, mass'
     nome: 'imobilizar monstro em massa'
@@ -7305,6 +7307,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
+      icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -7313,7 +7316,6 @@ tabela_feiticos {
     escola: 'encantamento'
   }
   armas {
-    link: 'https://www.d20srd.org/srd/spells/holdPersonMass.htm'
     id: 'imobilizar_pessoa_massa'
     nome_ingles: 'hold person, mass'
     nome: 'imobilizar pessoa em massa'
@@ -7333,6 +7335,7 @@ tabela_feiticos {
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
       afeta_apenas:  TIPO_HUMANOIDE
+      icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
         modificador_rodadas: MR_RODADAS_NIVEL

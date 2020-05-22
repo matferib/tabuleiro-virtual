@@ -694,6 +694,7 @@ pagina {
     textura: ""
     id: CONTROLE_ACAO_ANTERIOR
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Seleciona ação anterior da lista completa."
   }
   dados_botoes {
@@ -705,6 +706,7 @@ pagina {
     textura: ""
     id: CONTROLE_ACAO_PROXIMA
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Seleciona próxima ação da lista completa."
   }
   dados_botoes {
@@ -716,7 +718,8 @@ pagina {
     textura: ""
     id: CONTROLE_ALTERNA_CURA
     forma: FORMA_RETANGULO
-    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    #visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Alterna entre cura e dano."
   }
   dados_botoes {
@@ -728,6 +731,7 @@ pagina {
     textura: ""
     id: CONTROLE_DANO_AUTOMATICO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
     dica: "Liga/desliga dano automático."
   }
   # Linha de baixo
@@ -801,7 +805,10 @@ pagina {
     id: CONTROLE_BONUS_DANO_NEGATIVO
     forma: FORMA_RETANGULO
     dica: "Modificadores de dano"
-    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO } }
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -816,6 +823,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -831,6 +839,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -846,6 +855,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -861,6 +871,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -876,6 +887,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -891,6 +903,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -906,6 +919,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -921,6 +935,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
   dados_botoes {
@@ -936,6 +951,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
   }
 
@@ -948,7 +964,10 @@ pagina {
     id: CONTROLE_BONUS_ATAQUE_NEGATIVO
     forma: FORMA_RETANGULO
     dica: "Modificadores de ataque"
-    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO } }
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -961,6 +980,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador +1 ataque"
@@ -976,6 +996,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador +2 ataque"
@@ -991,6 +1012,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador +4 ataque"
@@ -1006,6 +1028,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador +8 ataque"
@@ -1021,6 +1044,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador +16 ataque"
@@ -1036,6 +1060,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador -1 ataque"
@@ -1051,6 +1076,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador -2 ataque"
@@ -1066,6 +1092,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador -4 ataque"
@@ -1081,6 +1108,7 @@ pagina {
     visibilidade {
       referencia { id: CONTROLE_DANO_AUTOMATICO }
       referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO  }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
     }
     forma: FORMA_RETANGULO
     dica: "Modificador -8 ataque"
@@ -1096,6 +1124,7 @@ pagina {
     textura: "icon_light.png"
     id: CONTROLE_LUZ
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Liga/desliga luz para entidades selecionadas."
   }
   dados_botoes {
@@ -1107,6 +1136,7 @@ pagina {
     textura: "icon_slide.png"
     id: CONTROLE_QUEDA
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Liga/desliga queda para entidades selecionadas."
   }
   dados_botoes {
@@ -1119,6 +1149,7 @@ pagina {
     id: CONTROLE_SELECIONAVEL
     forma: FORMA_RETANGULO
     mestre_apenas: true
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Torna entidades selecionadas selecionaveis para jogadores."
   }
   dados_botoes {
@@ -1130,6 +1161,7 @@ pagina {
     textura: "icon_fight_defensively.png"
     id: CONTROLE_LUTA_DEFENSIVA
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Entra em luta defensiva."
   }
   dados_botoes {
@@ -1141,6 +1173,7 @@ pagina {
     textura: "icon_total_defense.png"
     id: CONTROLE_DEFESA_TOTAL
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Entra em defesa total."
   }
   dados_botoes {
@@ -1166,6 +1199,7 @@ pagina {
     id: CONTROLE_ALTERNAR_FLANQUEANDO
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Flanquear."
   }
   dados_botoes {
@@ -1178,6 +1212,7 @@ pagina {
     id: CONTROLE_SURPRESO
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Surpreso."
   }
   dados_botoes {
@@ -1190,6 +1225,7 @@ pagina {
     id: CONTROLE_INVESTIDA
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Investida (carga)."
   }
   dados_botoes {
@@ -1202,6 +1238,7 @@ pagina {
     id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE
     forma: FORMA_RETANGULO
     mestre_apenas: true
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Alterna os modelos desligaveis da entidade."
   }
   dados_botoes {
@@ -1214,6 +1251,7 @@ pagina {
     id: CONTROLE_MODO_MONTAR
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Montar/desmontar."
   }
   dados_botoes {
@@ -1226,6 +1264,7 @@ pagina {
     id: CONTROLE_ALTERNAR_EM_CORPO_A_CORPO
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Alternar 'em corpo a corpo'."
   }
 
@@ -1238,6 +1277,7 @@ pagina {
     textura: "icon_no_miss.png"
     id: CONTROLE_FALHA_NEGATIVO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Ignora chance de falha."
   }
   dados_botoes {
@@ -1249,6 +1289,7 @@ pagina {
     textura: "icon_20_miss.png"
     id: CONTROLE_FALHA_20
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Chance de falha de 20%."
   }
   dados_botoes {
@@ -1260,6 +1301,7 @@ pagina {
     textura: "icon_50_miss.png"
     id: CONTROLE_FALHA_50
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Chance de falha de 50%."
   }
   dados_botoes {
@@ -1271,6 +1313,7 @@ pagina {
     textura: "icon_feather.png"
     id: CONTROLE_VOO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Liga/desliga vôo para entidades selecionadas."
   }
   dados_botoes {
@@ -1282,6 +1325,7 @@ pagina {
     textura: "icon_hide.png"
     id: CONTROLE_VISIBILIDADE
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Liga/desliga invisibilidade para entidades selecionadas."
   }
   dados_botoes {
@@ -1293,6 +1337,7 @@ pagina {
     textura: "icon_grapple.png"
     id: CONTROLE_AGARRANDO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Agarra/desagarra personagem."
   }
 
@@ -1308,6 +1353,7 @@ pagina {
     id: CONTROLE_NOP
     forma: FORMA_RETANGULO
     picking_apenas: true
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: ""
   }
   dados_botoes {
@@ -1321,6 +1367,7 @@ pagina {
     forma: FORMA_TRIANGULO
     rotacao_graus: 180.0
     translacao_y: 0.3
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Move entidade selecionada para direcao contraria ao visualizador"
   }
   dados_botoes {
@@ -1334,6 +1381,7 @@ pagina {
     forma: FORMA_TRIANGULO
     rotacao_graus: 0.0
     translacao_y: -0.3
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Move entidade selecionada para direcao do visualizador"
   }
   dados_botoes {
@@ -1347,6 +1395,7 @@ pagina {
     forma: FORMA_TRIANGULO
     rotacao_graus: 270.0
     translacao_y: 0.5
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Move entidade selecionada para esquerda do visualizador"
   }
   dados_botoes {
@@ -1360,6 +1409,7 @@ pagina {
     forma: FORMA_TRIANGULO
     rotacao_graus: 90.0
     translacao_y: 0.5
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Move entidade selecionada para direita do visualizador"
   }
   dados_botoes {
@@ -1371,7 +1421,8 @@ pagina {
     textura: ""
     id: CONTROLE_CIMA_VERTICAL
     forma: FORMA_RETANGULO
-    dica: "Movimento vertical."
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Movimento vertical para cima."
   }
   dados_botoes {
     tamanho: 1
@@ -1382,7 +1433,8 @@ pagina {
     textura: ""
     id: CONTROLE_BAIXO_VERTICAL
     forma: FORMA_RETANGULO
-    dica: "Movimento vertical."
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Movimento vertical para baixo."
   }
 
   # Cameras.
