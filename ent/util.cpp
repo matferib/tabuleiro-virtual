@@ -1751,6 +1751,52 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
   }
 }
 
+// Retorna o complemento para atributos e salvacao.
+std::pair<int, int> ComplementoFuria(int nivel_barbaro) {
+  if (nivel_barbaro == 0) {
+    return {0, 0};
+  } else if (nivel_barbaro < 11) {
+    return {4, 2};
+  } else if (nivel_barbaro < 20) {
+    return {6, 3};
+  } else {
+    return {8, 4};
+  }
+}
+
+void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+ if (Nivel("barbaro", entidade.Proto()) >= 17) return;
+  std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+  PreencheNotificacaoEvento(
+      entidade.Id(), "fadiga_furia_barbaro", EFEITO_FADIGA, 100,
+      &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+}
+
+bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  const int nivel_barbaro = Nivel("barbaro", entidade.Proto());
+  if (nivel_barbaro < 1) return false;
+  bool possui_furia = entidade.PossuiEfeito(EFEITO_FURIA_BARBARO);
+  // TODO verificar usos.
+  if (possui_furia) {
+    PreencheNotificacaoRemocaoEvento(
+        entidade.Proto(), EFEITO_FURIA_BARBARO, n_grupo->add_notificacao(),
+        n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+    PreencheNotificacaoFadigaFuria(tabelas, entidade, n_grupo, n_desfazer);
+  } else {
+    // Entra em furia.
+    auto [complemento, complemento_salvacao] = ComplementoFuria(nivel_barbaro);
+    // Para ver novo modificador.
+    Bonus bc = BonusAtributo(TA_CONSTITUICAO, entidade.Proto());
+    AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
+    const int rodadas = 3 + ModificadorAtributo(bc);
+    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+    PreencheNotificacaoEventoComComplementos(
+        entidade.Id(), "furia_barbaro", EFEITO_FURIA_BARBARO, {complemento, complemento_salvacao}, rodadas,
+        &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+  }
+  return !possui_furia;
+}
+
 void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   if (proto.formas_alternativas_size() < 2) {
     LOG(INFO) << "Nao foi possivel alterar forma, entidade " << RotuloEntidade(proto) << "nao possui formas alternativas.";
@@ -2058,12 +2104,30 @@ void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
   }
 }
 
+void PreencheNotificacaoEventoComComplementos(
+    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::vector<int>& complementos, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
+  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
+  for (int c : complementos) {
+    evento->add_complementos(c);
+  }
+  auto* evento_antes = e_antes->add_evento();
+  *evento_antes = *evento;
+  evento_antes->set_rodadas(-1);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
+}
+
+
 void PreencheNotificacaoEventoComComplementoStr(
     unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
+  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -5066,7 +5130,7 @@ TipoEvasao TipoEvasaoPersonagem(const EntidadeProto& proto) {
   return proto.dados_defesa().evasao();
 }
 
-void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n) {
+void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
   for (const auto& evento_proto : proto.evento()) {
@@ -5075,6 +5139,9 @@ void PreencheNotificacaoRemocaoEvento(const EntidadeProto& proto, TipoEfeito te,
     auto* evento_depois = e_depois->add_evento();
     *evento_depois = evento_proto;
     evento_depois->set_rodadas(-1);
+  }
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
   }
 }
 

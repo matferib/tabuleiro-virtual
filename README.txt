@@ -10,3 +10,4 @@ megaraptor: <a href='https://en.wikipedia.org/wiki/Megaraptor#/media/File:Megara
 som steel:<a href='https://freesound.org/people/Erdie/sounds/27858/'>https://freesound.org/people/Erdie/sounds/27858/</a>
 som miss: https://freesound.org/people/CGEffex/sounds/93081/
 som punch: https://freesound.org/people/ztrees1/sounds/134934/
+som whip: https://freesound.org/people/CGEffex/sounds/93100/

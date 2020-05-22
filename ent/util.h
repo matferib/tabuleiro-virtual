@@ -373,6 +373,11 @@ enum tipo_dano_e {
   TD_NAO_LETAL = 1
 };
 
+// Adiciona a notificacao de alternar furia ao grupo e desfazer.
+// Retorna true se a entidade entrou em furia.
+void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+
 // Preenche a notificacao de forma alternativa para a entidade, alternando para a proxima, ou para a original se ja estiver na ultima.
 void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
@@ -413,10 +418,13 @@ void PreencheNotificacaoEvento(
 void PreencheNotificacaoEventoComComplementoStr(
     unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoEventoComComplementos(
+    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::vector<int>& complementos, int rodadas,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Dado um tipo de evento, remove todos daquele tipo.
 void PreencheNotificacaoRemocaoEvento(
-    const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n);
+    const EntidadeProto& proto, TipoEfeito te, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(

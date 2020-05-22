@@ -235,7 +235,11 @@ compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
 print 'compilar_testes : %r' % compilar_testes
 if compilar_testes:
   env['CPPPATH'] += ['./googletest/googletest/googletest/include', './googletest/googletest/googlemock/include']
-  env['LIBPATH'] += ['./googletest/googletest/lib/', './googletest/googletest/bazel-bin']
+  if sistema == 'apple':
+    env['LIBPATH'] += ['./googletest/googletest/bazel-bin']
+    env['RPATH'] += ['./googletest/googletest/bazel-bin']
+  else:
+    env['LIBPATH'] += ['./googletest/googletest/lib/', './googletest/googletest/bazel-bin']
   env['LIBS'] += ['pthread', 'gtest']
   #env['RPATH'] = ['./googletest/googletest/lib/', './googletest/googletest/bazel-bin']
   env.Program(

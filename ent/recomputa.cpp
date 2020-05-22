@@ -781,15 +781,6 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   return true;
 }
 
-void AplicaFimFuriaBarbaro(EntidadeProto* proto) {
-  if (Nivel("barbaro", *proto) >= 17) return;
-  auto* evento = proto->add_evento();
-  evento->set_id_efeito(EFEITO_FADIGA);
-  evento->set_descricao("fadiga_furia_barbaro");
-  // Dura pelo resto do encontro.
-  evento->set_rodadas(100);
-}
-
 void AplicaFimAlinhamentoArma(const std::string& rotulo, EntidadeProto* proto) {
   // Encontra o dado de ataque.
   for (auto& da : *proto->mutable_dados_ataque()) {
@@ -938,9 +929,6 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
         RemoveBonus(TB_BASE, "resistencia_magia", proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
       }
     }
-    break;
-    case EFEITO_FURIA_BARBARO:
-      AplicaFimFuriaBarbaro(proto);
     break;
     case EFEITO_ABENCOAR_ARMA:
     case EFEITO_TENDENCIA_EM_ARMA: {

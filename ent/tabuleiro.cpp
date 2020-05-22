@@ -1470,6 +1470,27 @@ void Tabuleiro::AlternaEmCorpoACorpoNotificando() {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::AlternaFlanqueandoEntidadesSelecionadasNotificando() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) continue;
+    const auto& proto = entidade_selecionada->Proto();
+    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, &grupo_notificacoes);
+    e_antes->mutable_dados_ataque_global()->set_flanqueando(proto.dados_ataque_global().flanqueando());
+    e_depois->mutable_dados_ataque_global()->set_flanqueando(!proto.dados_ataque_global().flanqueando());
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -7391,7 +7412,9 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
       }
       AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
       atraso_s += 0.5f;
-    } else if (evento->id_efeito() == EFEITO_QUEIMANDO_FOGO_ALQUIMICO) {
+    } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_FURIA_BARBARO) {
+      PreencheNotificacaoFadigaFuria(tabelas_, entidade, grupo, nullptr);
+    } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_QUEIMANDO_FOGO_ALQUIMICO) {
       int dano = -RolaValor("1d6");
       auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
       if (resultado.causa == ALT_IMUNIDADE) {
@@ -8027,77 +8050,33 @@ void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tip
   }
 }
 
-
 void Tabuleiro::AlternaFuria() {
-  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
-  if (entidade == nullptr) return;
-  const int nivel_barbaro = Nivel("barbaro", entidade->Proto());
-  if (nivel_barbaro < 1) return;
-  auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL));
-  {
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    *e_antes->mutable_evento() = entidade->Proto().evento();
-    if (e_antes->evento().empty()) {
-      // dummy pra sinalizar que nao tem nada.
-      auto* ev = e_antes->add_evento();
-      ev->set_id_efeito(EFEITO_INVALIDO);
-      ev->set_rodadas(-1);
+  auto grupo = NovoGrupoNotificacoes();
+  for (auto id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    const auto& entidade = BuscaEntidade(id);
+    if (entidade == nullptr) continue;
+    // TODO verificar se ta ligando.
+    if (PreencheNotificacaoAlternarFuria(tabelas_, *entidade, grupo.get(), nullptr)) {
+      auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+      n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+      *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+      Cor c;
+      c.set_r(1.0f);
+      c.set_g(0.2f);
+      c.set_b(0.2f);
+      c.set_a(0.5f);
+      n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+      TrataNotificacao(*n_efeito);
+      central_->AdicionaNotificacaoRemota(n_efeito.release());
     }
   }
-  {
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
-    *e_depois->mutable_evento() = entidade->Proto().evento();
-    int i = 0;
-    for (const auto& e : entidade->Proto().evento()) {
-      if (e.id_efeito() == EFEITO_FURIA_BARBARO) {
-        break;
-      }
-      ++i;
-    }
-
-    if (i < entidade->Proto().evento().size()) {
-      // Sai da furia.
-      e_depois->mutable_evento(i)->set_rodadas(-1);
-    } else {
-      // Entra em furia.
-      int complemento;
-      if (nivel_barbaro < 11) {
-        complemento = 4;
-      } else if (nivel_barbaro < 20) {
-        complemento = 6;
-      } else {
-        complemento = 8;
-      }
-      // Para ver novo modificador.
-      auto bc = entidade->Proto().atributos().constituicao();
-      AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
-      auto* evento = AdicionaEvento("furia_barbaro", EFEITO_FURIA_BARBARO, 3 + ModificadorAtributo(bc), false, &ids_unicos, e_depois);
-      evento->add_complementos(complemento);
-      evento->add_complementos(complemento / 2);
-      evento->set_descricao("furia_barbaro");
-      evento->set_rodadas(3 + ModificadorAtributo(bc));
-      {
-        auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
-        n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
-        *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
-        Cor c;
-        c.set_r(1.0f);
-        c.set_g(0.2f);
-        c.set_b(0.2f);
-        c.set_a(0.5f);
-        n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
-        TrataNotificacao(*n_efeito);
-        central_->AdicionaNotificacaoRemota(n_efeito.release());
-      }
-    }
+  if (grupo->notificacao().empty()) {
+    return;
   }
   // Vai notificar remoto.
-  TrataNotificacao(*n);
+  TrataNotificacao(*grupo);
   // Desfazer.
-  AdicionaNotificacaoListaEventos(*n);
+  AdicionaNotificacaoListaEventos(*grupo);
 }
 
 void Tabuleiro::AlternaDefesaTotal() {

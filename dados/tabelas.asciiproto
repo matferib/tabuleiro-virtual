@@ -2186,7 +2186,7 @@ tabela_efeitos {
     # É identico a furia, mas tem outros efeitos especificos como fadiga.
     id: EFEITO_FURIA_BARBARO
     nome: 'fúria de bárbaro'
-    formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 2 4)'
+    formato_complementos: 'bonus de força e constituição e bônus de vontade (exemplo: 4 2)'
     consequencia {
       atributos {
         forca { bonus_individual { tipo: TB_MORAL por_origem { indice_complemento: 0 origem: 'furia' } } }
@@ -4551,7 +4551,8 @@ tabela_classes {
     pericias: 'cavalgar'
     pericias: 'sobrevivencia'
     pericias: 'natacao'
-
+    habilidades_por_nivel { id: 'esquiva_sobrenatural' nivel: 2 }
+    habilidades_por_nivel { id: 'esquiva_sobrenatural_aprimorada' nivel: 5 }
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {

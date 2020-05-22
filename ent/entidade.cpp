@@ -148,7 +148,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   AtualizaModelo3d(novo_proto);
   // mantem o tipo.
-  proto_.CopyFrom(novo_proto);
+  proto_ = novo_proto;
   CorrigeCamposDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
@@ -280,11 +280,13 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
     default: ;
   }
 #endif
-  vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, VBO_COM_MODELAGEM);
-  if (!vd_.vbos_nao_gravados.Vazio()) {
-    vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+  if (pd != nullptr) {
+    vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, VBO_COM_MODELAGEM);
+    if (!vd_.vbos_nao_gravados.Vazio()) {
+      vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+    }
+    V_ERRO("Erro atualizacao de VBOs");
   }
-  V_ERRO("Erro atualizacao de VBOs");
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {

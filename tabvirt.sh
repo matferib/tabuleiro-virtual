@@ -6,5 +6,5 @@ if [ "$1" == "debug" ]; then
 #ddd -tui ./tabvirt
 lldb ./tabvirt
 else
-./tabvirt $@
+./tabvirt --logtostderr $@
 fi
