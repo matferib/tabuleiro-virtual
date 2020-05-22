@@ -1225,7 +1225,7 @@ void ConfiguraListaItensMagicos(
     ent::RecomputaDependencias(tabelas, proto_retornado);
     // AtualizaUI.
     f_atualiza_ui(tabelas, gerador, *proto_retornado);
-    lista->setCurrentRow(indice);
+    lista->setCurrentRow(indice >= itens->size() ? - 1 : indice);
   });
   lambda_connect(botao_doar, SIGNAL(clicked()), [tipo, dialogo, &tabelas, lista, &gerador, &proto, proto_retornado, central] {
     const int indice = lista->currentRow();
@@ -2189,7 +2189,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
   std::function<void(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto)> f_atualiza_ui =
-      [](const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) { AtualizaUI(tabelas, gerador, proto); };
+      [](const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+    AtualizaUI(tabelas, gerador, proto);
+  };
   PreencheConfiguraTesouro(this, dialogo, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
 
   gerador.texto_notas->appendPlainText((entidade.notas().c_str()));
@@ -2997,7 +2999,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   });
 
   std::function<void(const ent::Tabelas&, ifg::qt::Ui::DialogoForma&, const ent::EntidadeProto&)> f_atualiza_ui =
-    [](const ent::Tabelas&, ifg::qt::Ui::DialogoForma&, const ent::EntidadeProto&) {};
+    [](const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoForma& gerador, const ent::EntidadeProto& proto) {
+      // Tem que fazer a funcao de atualiza funcionar com tesouros...
+    AtualizaUITesouro(tabelas, gerador, proto);
+  };
   PreencheConfiguraTesouro(this, dialogo, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
 
   // Ao aceitar o diálogo, aplica as mudancas.
