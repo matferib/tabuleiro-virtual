@@ -1482,6 +1482,7 @@ pagina {
     textura: "icon_first_person_camera.png"
     id: CONTROLE_CAMERA_PRIMEIRA_PESSOA
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
     dica: "Poe a camera em primeira pessoa ao personagem selecionado."
   }
   dados_botoes {
@@ -1504,6 +1505,7 @@ pagina {
     textura: "icon_darkvision.png"
     id: CONTROLE_VISAO_ESCURO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
     dica: "Liga/desliga visão no escuro (requer câmera presa)."
   }
   dados_botoes {
@@ -1528,6 +1530,7 @@ pagina {
     mestre_apenas: true
     textura: "icon_erase_initiatives.png"
     forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
     #translacao_x: -0.53
   }
   dados_botoes {
@@ -1539,6 +1542,7 @@ pagina {
     rotulo: "R"
     dica: "Rola iniciativas de entidades selecionadas."
     textura: "icon_roll_initiative.png"
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
     #translacao_x: -0.53
   }
   dados_botoes {
