@@ -1146,6 +1146,8 @@ float DistanciaAbsoluta(const Entidade& ea, const Entidade& ed, const Posicao& p
 }
 
 float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  return DistanciaAbsoluta(ea, ed, pos_alvo);
+#if 0
   // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
   float mult_tamanho = ea.MultiplicadorTamanho();
   float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
@@ -1166,6 +1168,7 @@ float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Po
   distancia_m += distancia_absoluta;
   VLOG(1) << "retornando distancia_m: " << distancia_m;
   return std::max(0.0f, distancia_m);
+#endif
 }
 
 std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
@@ -1193,10 +1196,10 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
                 "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()),
             false, distancia_m);
       }
-    } else if (alcance_minimo_m > 0 && distancia_m + TAMANHO_LADO_QUADRADO_2 < alcance_minimo_m) {
+    } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
       // Adicionei uma margem de erro para o minimo tb, pq as entidades normalmente nao ocupam o quadrado todo.
       std::string texto =
-          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância com margem: %0.1f", alcance_minimo_m, distancia_m + TAMANHO_LADO_QUADRADO_2);
+          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_m);
       return std::make_tuple(texto, false, distancia_m);
     }
     VLOG(1) << "Alcance ok alcance_m: " << alcance_m << ", alcance_minimo_m: " << alcance_minimo_m << ", distancia_m: " << distancia_m;
