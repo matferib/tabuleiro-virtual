@@ -1,17 +1,13 @@
-Botao de flanquear.
 Teia tem que criar o objeto da area.
-Sugestao: desfazer dar mensagem.
 Fazer furia maior de barbaro e limitar usos por dia.
 Unit test de esquiva sobrenatural aprimorada.
-Modelo 3d de adaga.
 Conjuracao aumentada: forca e destreza melhorados.
 Fazer proficiencia em arma.
 Casting time de magias (summon monster, nature ally etc).
 Feiticos automaticos respeitar o descritor de bom mal caos ordem.
 Teste de esquiva sobrenatural aprimorada.
-Conjuracao aumentada: forca e destreza melhorados.
-Nova tabela de encontro para batalha de Tilverton.
 
+Nova tabela de encontro para batalha de Tilverton.
 Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
 Concentracao em criaturas enredadas.
