@@ -7834,7 +7834,7 @@ void Tabuleiro::MudaEntidadeCameraPresa(unsigned int id) {
 }
 
 void Tabuleiro::MudaEntidadeCameraPresa() {
-  if (!camera_presa_ || ids_camera_presa_.size() <= 1) {
+  if (!camera_presa_ || ids_camera_presa_.size() < 1) {
     LOG(INFO) << "Nao posso alternar camera, camera_presa_ " << camera_presa_
               << ", ids_entidades_selecionadas_.size(): " << ids_entidades_selecionadas_.size();
     return;
