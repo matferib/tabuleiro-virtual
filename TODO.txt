@@ -1,33 +1,27 @@
-Teste de esquiva sobrenatural aprimorada.
-Modelo 3d de adaga.
-Conjuracao aumentada: forca e destreza melhorados.
+Botao de flanquear.
+Teia tem que criar o objeto da area.
+
 Fazer proficiencia em arma.
-Bolar tendencias aleatorias (tipo TD_NORMALMENTE_NEUTRO_BOM).
-Desfazer de movimenta ta fazendo entidade sumir (finas laminas de dundar). Ta indo pro cenário principal.
-Modelo 3d de escudo muito grande
-Nova tabela de encontro para batalha de Tilverton.
 Casting time de magias (summon monster, nature ally etc).
 Feiticos automaticos respeitar o descritor de bom mal caos ordem.
+Teste de esquiva sobrenatural aprimorada.
+Conjuracao aumentada: forca e destreza melhorados.
+Nova tabela de encontro para batalha de Tilverton.
 
 Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
-Teia tem que criar o objeto da area.
 Concentracao em criaturas enredadas.
 Movimento reduzido ou anulado em criaturas enredadas.
 Comando de dano por teclado nao gera desfazer??
 Menu para recarregar tabelas.
-Botao de flanquear.
 Lista de entidades afetadas ordenada.
 Nao consigo desagarrar sem acao.
 Tab igual shift tab, zera ataques.
 Feedback de ctrl z.
 
-Fogo alquimico verde.
 Circulo magico contra mal: implementar aura.
-
 Fazer lufada de vento.
 Teste da CD de envenenamento (nao eh por nivel).
-Pedra encantada: acertando automatico.
 
 Entender a desconexao: dar mensagem pro cliente, tentar reconectar.
 Scrollbar na janela de feiticos.
@@ -37,7 +31,6 @@ Pergaminhos pro grupo.
 Ideia: coroinhas podem ir e voltar com itens e poções.
 
 Fazer empunhadura de rajada.
-Modelo3d adaga.
 Criar ataques naturais com dano basico. Ja fiz mordida.
 Drenar forca vital: terminar.
 Testar se outras classes tb funcionam a aleatoriedade.
