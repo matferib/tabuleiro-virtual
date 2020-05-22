@@ -2623,6 +2623,26 @@ tabela_itens_mundanos {
     nome: 'bolsa de cola'
     custo { po: 50 }
   }
+  itens {
+    id: 'tocha'
+    nome: 'tocha'
+    custo { pc: 1 }
+  }
+  itens {
+    id: 'tocha'
+    nome: 'tocha'
+    custo { pc: 1 }
+  }
+  itens {
+    id: 'corda_canhamo'
+    nome: 'corda de cânhamo (15m, 10q)'
+    custo { po: 1 }
+  }
+  itens {
+    id: 'corda_seda'
+    nome: 'corda de seda (15m, 10q)'
+    custo { po: 10 }
+  }
 }
 
 tabela_botas {
@@ -3051,6 +3071,13 @@ tabela_pergaminhos {
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'arma_abencoada'
+    nome: 'Arma Abençoada (shillelagh)'
+    duracao_rodadas: 10
+    tipo_efeito: EFEITO_ARMA_ABENCOADA
+    custo_po: 50
+  }
   pocoes {
     id: 'abencoar_arma'
     nome: 'Abençoar Arma'

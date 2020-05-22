@@ -481,6 +481,7 @@ fixo {
     textura: "icon_roll_skill.png"
     forma: FORMA_RETANGULO
     mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: "Rola uma pericia."
   }
   dados_botoes {
@@ -495,7 +496,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola dados."
-    visibilidade { referencia { tipo: VIS_INVERSO_DE id: CONTROLE_DADOS } }
+    visibilidade {
+      referencia { tipo: VIS_INVERSO_DE id: CONTROLE_DADOS }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -509,7 +513,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d4."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -523,7 +530,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d6."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -537,7 +547,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d8."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -551,7 +564,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d10."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -579,7 +595,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d20."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
@@ -593,7 +612,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d100."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
 
   dados_botoes {
@@ -607,6 +629,9 @@ fixo {
     textura: "icon_ruler.png"
     id: CONTROLE_REGUA
     forma: FORMA_RETANGULO
+    visibilidade {
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
     dica: "Modo régua (requer câmera presa)."
   }
   dados_botoes {
@@ -620,6 +645,7 @@ fixo {
     textura: "icon_enter.png"
     id: CONTROLE_TRANSICAO
     forma: FORMA_RETANGULO
+    # Este nao depende de entidade.
     dica: "Entra em um objeto."
   }
   dados_botoes {
