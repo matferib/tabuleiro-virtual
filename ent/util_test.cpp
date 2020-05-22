@@ -2509,6 +2509,94 @@ TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
   }
 }
 
+TEST(TesteEfeitos, TesteFuriaFadiga) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(10, TA_FORCA, &proto);
+  AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
+  AtribuiBaseAtributo(10, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(3);
+  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+
+  {
+    auto grupo = NovoGrupoNotificacoes();
+    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    ASSERT_EQ(grupo->notificacao().size(), 1);
+    e->AtualizaParcial(grupo->notificacao(0).entidade());
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 14);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 14);
+    EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 3);
+  }
+  {
+    auto grupo = NovoGrupoNotificacoes();
+    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    ASSERT_EQ(grupo->notificacao().size(), 2);
+    e->AtualizaParcial(grupo->notificacao(0).entidade());
+    e->AtualizaParcial(grupo->notificacao(1).entidade());
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 8);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, e->Proto())), 8);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 10);
+    EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 1);
+  }
+}
+
+TEST(TesteEfeitos, TesteFuriaSemFadiga17) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(10, TA_FORCA, &proto);
+  AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
+  AtribuiBaseAtributo(10, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(17);
+  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+
+  {
+    auto grupo = NovoGrupoNotificacoes();
+    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    ASSERT_EQ(grupo->notificacao().size(), 1);
+    e->AtualizaParcial(grupo->notificacao(0).entidade());
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 16);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 16);
+    EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 8);
+  }
+  {
+    auto grupo = NovoGrupoNotificacoes();
+    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    ASSERT_EQ(grupo->notificacao().size(), 1);
+    e->AtualizaParcial(grupo->notificacao(0).entidade());
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 10);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, e->Proto())), 10);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 10);
+    EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 5);
+  }
+}
+
+TEST(TesteEfeitos, TesteFuriaFazerDesfazer) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(10, TA_FORCA, &proto);
+  AtribuiBaseAtributo(10, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(3);
+  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+
+  auto grupo = NovoGrupoNotificacoes();
+  EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+  ASSERT_EQ(grupo->notificacao().size(), 1);
+  e->AtualizaParcial(grupo->notificacao(0).entidade());
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 14);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 14);
+  EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 3);
+  e->AtualizaParcial(grupo->notificacao(0).entidade_antes());
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 10) << BonusAtributo(TA_FORCA, e->Proto()).DebugString();
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, e->Proto())), 10);
+  EXPECT_EQ(e->Salvacao(*e, TS_VONTADE), 1);
+}
+
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGarra) {
   const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
@@ -3898,6 +3986,7 @@ TEST(TesteModelo, CamposResetadosNaoSetados) {
 
 TEST(TesteModelo, TodasAcoesTemTipo) {
   for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    LOG(INFO) << "modelo: " << modelo.id();
     const auto& proto = modelo.entidade();
     auto e = NovaEntidadeParaTestes(proto, g_tabelas);
     for (const auto& da : e->Proto().dados_ataque()) {
