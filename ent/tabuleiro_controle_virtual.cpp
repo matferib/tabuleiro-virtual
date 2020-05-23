@@ -1012,7 +1012,7 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           break;
         }
         case VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA: {
-          if (EntidadePrimeiraPessoaOuSelecionada() == nullptr) {
+          if (IdsPrimeiraPessoaOuEntidadesSelecionadas().empty()) {
             return false;
           }
           break;
