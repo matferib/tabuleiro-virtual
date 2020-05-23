@@ -2276,7 +2276,6 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
   EntraModoClique(MODO_NORMAL);
   if (tipo_objeto != OBJ_ENTIDADE) {
     LOG(INFO) << "Tipo invalido para esquiva";
