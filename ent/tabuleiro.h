@@ -266,6 +266,7 @@ class Tabuleiro : public ntf::Receptor {
   void LimpaIniciativasNotificando();
   void IniciaIniciativaParaCombate();
   void ProximaIniciativa();
+  void ProximaIniciativa(ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
   void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
   /** Retorna o id da iniciativa corrente, ou IdInvalido. */

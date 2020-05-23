@@ -2443,11 +2443,8 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   if (EmModoMestreIncluindoSecundario()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-      passa_rodada =
-        !iniciativas_.empty() &&
-        std::any_of(entidades.begin(), entidades.end(),
-                    [this](const Entidade* e) { return e->Id() == iniciativas_.rbegin()->id; });
     } else {
+      // Apaga todas iniciativas.
       for (const auto& di : iniciativas_) {
         const auto* entidade = BuscaEntidade(di.id);
         if (entidade != nullptr) {
@@ -2474,7 +2471,6 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   // Processar e desfazer.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
   for (const auto* entidade : entidades) {
     if (entidade->Tipo() != TE_ENTIDADE) {
       continue;
@@ -2494,11 +2490,16 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
     //TrataNotificacao(*n);
   }
-  if (passa_rodada) {
-    PassaUmaRodadaNotificando(/*ui=*/false, &grupo_notificacoes);
-  }
+  // Apaga as iniciativas.
   TrataNotificacao(grupo_notificacoes);
-  AtualizaIniciativas(&grupo_notificacoes);
+  {
+    auto grupo_atualizacoes = NovoGrupoNotificacoes();
+    AtualizaIniciativas(grupo_atualizacoes.get());
+    TrataNotificacao(*grupo_atualizacoes);
+    for (auto& n : *grupo_atualizacoes->mutable_notificacao()) {
+      grupo_notificacoes.add_notificacao()->Swap(&n);
+    }
+  }
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
   SelecionaEntidadeIniciativa();
 }
@@ -2721,6 +2722,10 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
     e_antes->set_surpreso(true);
     e_depois->set_surpreso(false);
   }
+  if (entidade.Proto().dados_ataque_global().flanqueando()) {
+    e_antes->mutable_dados_ataque_global()->set_flanqueando(true);
+    e_depois->mutable_dados_ataque_global()->set_flanqueando(false);
+  }
   e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
   auto* dga = e_antes->mutable_dados_ataque_global();
@@ -2755,9 +2760,53 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   }
 }
 
+void Tabuleiro::ProximaIniciativa(ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  {
+    auto grupo_1 = NovoGrupoNotificacoes();
+
+    // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
+    const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
+    if (entidade_iniciativa_antes != nullptr) {
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), grupo_1.get());
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo_1.get());
+    }
+
+    // Atualiza a lista de iniciativa.
+    auto* n = grupo_1->add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+    SerializaIniciativas(n->mutable_tabuleiro_antes());
+    SerializaIniciativas(n->mutable_tabuleiro());
+    n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
+    if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
+      n->mutable_tabuleiro()->set_indice_iniciativa(0);
+      PassaUmaRodadaNotificando(/*ui=*/false, grupo_1.get());
+    }
+    std::copy(grupo_1->notificacao().begin(), grupo_1->notificacao().end(), RepeatedPtrFieldBackInserter(grupo->mutable_notificacao()));
+    std::copy(grupo_1->notificacao().begin(), grupo_1->notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer->mutable_notificacao()));
+  }
+
+  {
+    auto grupo_2 = NovoGrupoNotificacoes();
+    // Por ultimo, zera os controles da entidade corrente.
+    const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
+    if (entidade_iniciativa != nullptr) {
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, grupo_2.get());
+      ZeraControlesEntidadeNotificando(*entidade_iniciativa, grupo_2.get());
+      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
+      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, grupo_2.get(),
+                                    /*expira_eventos_zerados=*/false);
+      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, grupo_2.get());
+      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, grupo_2.get());
+      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, grupo_2.get());
+    }
+    std::copy(grupo_2->notificacao().begin(), grupo_2->notificacao().end(), RepeatedPtrFieldBackInserter(grupo->mutable_notificacao()));
+    std::copy(grupo_2->notificacao().begin(), grupo_2->notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer->mutable_notificacao()));
+  }
+}
+
 void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ == -1) {
-    LOG(INFO) << "Nao ha indice de iniativa";
+    LOG(INFO) << "Nao ha indice de iniciativa";
     return;
   }
   if (!EmModoMestreIncluindoSecundario()) {
@@ -2775,53 +2824,10 @@ void Tabuleiro::ProximaIniciativa() {
     return;
   }
 
-  ntf::Notificacao grupo_desfazer;
-
-  {
-    ntf::Notificacao grupo;
-    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
-    // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
-    const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
-    if (entidade_iniciativa_antes != nullptr) {
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), &grupo);
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
-    }
-
-    // Atualiza a lista de iniciativa.
-    auto* n = grupo.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
-    SerializaIniciativas(n->mutable_tabuleiro_antes());
-    SerializaIniciativas(n->mutable_tabuleiro());
-    n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
-    if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
-      n->mutable_tabuleiro()->set_indice_iniciativa(0);
-      PassaUmaRodadaNotificando(/*ui=*/false, &grupo);
-    }
-    TrataNotificacao(grupo);
-    grupo_desfazer.Swap(&grupo);
-  }
-
-  {
-    ntf::Notificacao grupo;
-    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    // Por ultimo, zera os controles da entidade corrente.
-    const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
-    if (entidade_iniciativa != nullptr) {
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, &grupo);
-      ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
-      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
-      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, &grupo,
-                                    /*expira_eventos_zerados=*/false);
-      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, &grupo);
-      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, &grupo);
-      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, &grupo);
-    }
-    TrataNotificacao(grupo);
-    std::copy(grupo.notificacao().begin(), grupo.notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer.mutable_notificacao()));
-  }
-
-  AdicionaNotificacaoListaEventos(grupo_desfazer);
+  ntf::Notificacao grupo;
+  ProximaIniciativa(&grupo, nullptr);
+  TrataNotificacao(grupo);
+  AdicionaNotificacaoListaEventos(grupo);
 }
 
 void Tabuleiro::SerializaIniciativas(TabuleiroProto* tabuleiro) const {
@@ -4725,7 +4731,7 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
       VLOG(1) << "Adicionando entidade a iniciativa";
       atualizar_remoto = true;  // adicao.
       entidades_adicionar.push_back(entidade);
-    } else {
+    } else if (entidade->TemIniciativa()) {
       if (entidade->Iniciativa() != it->second->iniciativa ||
           entidade->ModificadorIniciativa() != it->second->modificador) {
         // Como nao esta marcada como presente, sera removida. E depois, adicionada.
@@ -4737,9 +4743,10 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
         it->second->presente = true;
       }
     }
+    // else entidade nao esta presente.
   }
   // Remove nao presentes.
-  //bool passa_uma_rodada = false;
+  bool passa_iniciativa = false;
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
@@ -4749,10 +4756,10 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
       atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
-      } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
+      } else if (indice_iniciativa_ == i) {
         VLOG(1) << "Era ultimo, voltar para comeco";
         indice_iniciativa_ = 0;
-        //passa_uma_rodada = true;
+        passa_iniciativa = true;
       }
       // Senao, ignora pq nao faz diferenca, mesmo que i == indice.
       // Agora pode remover.
@@ -4762,13 +4769,6 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
       ++i;
     }
   }
-  // Nao passa para o caso em que as iniciativas ficaram vazias.
-  //if (!iniciativas_.empty() && passa_uma_rodada) {
-  //   VLOG(1) << "Passando uma rodada";
-    // se notificacao for nullptr, vai fazer imediatamente.
-  //  PassaUmaRodadaNotificando(grupo_notificacao);
-  //}
-
   // Adiciona novas entidades (ou atualizadas).
   for (const auto* entidade : entidades_adicionar) {
     // Acha ponto de insercao.
@@ -4790,6 +4790,10 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
 
   if (iniciativas_.empty()) {
     indice_iniciativa_ = -1;
+  } else if (passa_iniciativa) {
+    if (grupo_notificacao != nullptr) {
+      ProximaIniciativa(grupo_notificacao, nullptr);
+    }
   }
   // Atualiza a iniciativa dos clientes remotos.
   if (atualizar_remoto) {
@@ -7658,12 +7662,16 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   if (modo_clique_ == MODO_AGUARDANDO && modo != MODO_SAIR_AGUARDANDO) {
-    LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo; 
+    LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo;
     return;
   }
   RodaNoRetorno roda_no_retorno([this]() {
     auto n_cursor = ntf::NovaNotificacao(ntf::TN_MUDAR_CURSOR);
     n_cursor->set_id_generico(modo_clique_);
+    if (const auto* e = EntidadePrimeiraPessoaOuSelecionada(); e != nullptr) {
+      n_cursor->mutable_entidade()->set_id(e->Id());
+      *n_cursor->mutable_entidade()->add_dados_ataque() = e->DadoCorrenteNaoNull();
+    }
     central_->AdicionaNotificacao(n_cursor.release());
     central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
   });

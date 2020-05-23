@@ -1,3 +1,5 @@
+
+Ao limpar iniciativa, pensar melhor em como passar rodada (e passar apenas para a proxima iniciativa). Do jeito que ta ta passando uma rodada inteira.
 Vincular luz a numero de tochas.
 Teia tem que criar o objeto da area.
 Fazer furia maior de barbaro e limitar usos por dia.
