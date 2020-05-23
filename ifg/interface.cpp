@@ -632,7 +632,10 @@ void InterfaceGrafica::TrataEscolherAliados(const ntf::Notificacao& notificacao)
     });
     ent::AcaoProto acao = notificacao.acao();
     acao.clear_ids_afetados();
-    for (auto& [indice, id] : mapa_indice_id) {
+    for (auto& it : mapa_indice_id) {
+      // Wndows reclama que indice nao eh capturado aqui usando structured binding initialisation.
+      const auto indice = it.first;
+      const auto id = it.second;
       if (ent::c_any(indices, indice)) {
         acao.add_ids_afetados(id);
       } else {
