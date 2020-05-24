@@ -768,7 +768,10 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
 // Retorna o modificador de incrementos. Assume alcance e municao.
 int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
 // Distancia da acao da ea para a ed. Pos alvo indica a posicao exata no alvo.
-float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+float DistanciaAbsoluta(const Posicao& pos_atacante, const Posicao& pos_alvo);
+// As funcoes a seguir computam varias distancias diferentes e retorna a minima ou a maxima delas.
+float DistanciaMaximaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique);
+float DistanciaMinimaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique);
 
 // Acesso a pericias do proto.
 InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
@@ -1058,8 +1061,11 @@ bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& f
 // Retorna true se o feitico for de uma escola proibida.
 bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado);
 
+// Retorna os itens mundadnos que geram ataques automaticos, como fogo alquimico, agua benta etc.
+const std::vector<std::string>& ItemsQueGeramAtaques();
+
 // Retorna true se ataque vier de item mundano.
-bool EhItemMundano(const DadosAtaque& da);
+bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
 

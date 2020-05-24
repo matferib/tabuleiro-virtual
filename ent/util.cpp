@@ -1128,51 +1128,42 @@ int ModificadorDano(
   return modificador;
 }
 
-float DistanciaAbsoluta(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  Posicao pos_acao_a = ea.PosicaoAcao();
-  Posicao pos_acao_d = ed.PosicaoAcao();
-  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-  Vector3 vd;
-  if (pos_alvo.has_x()) {
-    vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
-    VLOG(1) << "Usando posicao real para distancia absoluta";
-  } else {
-    vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
-    VLOG(1) << "Usando posicao fixa para distancia absoluta";
-  }
-  const float resultado = (va - vd).length();
+float DistanciaAbsoluta(const Posicao& pos_atacante, const Posicao& pos_alvo) {
+  const float resultado = (PosParaVector3(pos_atacante) - PosParaVector3(pos_alvo)).length();
   VLOG(1) << "Distancia absoluta: " << resultado;
   return resultado;
 }
 
-float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  return DistanciaAbsoluta(ea, ed, pos_alvo);
-#if 0
-  // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
-  float mult_tamanho = ea.MultiplicadorTamanho();
-  float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
-  VLOG(1) << "raio_a: " << raio_a;
+// Teste varias distancias diferentes e usa a menor.
+// Entidade a entidade;
+// Entidade ao ponto clique;
+// Ponto de acao a entidade.
+float DistanciaMinimaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique) {
+  const Posicao pos_acao = ea.PosicaoAcao();
+  // Raio de acao da entidade, de forma aproximada.
+  const float raio = DistanciaAbsoluta(pos_acao, ea.Pos());
+  // Essa é a ideal, mas nem sempre a entidade esta com giro correto.
+  float distancia = DistanciaAbsoluta(pos_acao, pos_clique);
+  // Posicao da entidade a posicao clicada descontando raio.
+  distancia = std::min(distancia, std::max(0.0f, DistanciaAbsoluta(ea.Pos(), pos_clique) - raio));
+  VLOG(1) << "Distancia minima: " << distancia;
+  return distancia;
+}
 
-  // Distancia entre pontos.
-  float distancia_absoluta = DistanciaAbsoluta(ea, ed, pos_alvo);
-
-  float distancia_m = - raio_a;
-  if (pos_alvo.has_x()) {
-    const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
-    distancia_m -= MARGEM_ERRO;
-    VLOG(1) << "Descontando margem fixa '" << MARGEM_ERRO << "' da distancia";
-  } else {
-    distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "Descontando por tamanho '" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2) << "' da distancia";
-  }
-  distancia_m += distancia_absoluta;
-  VLOG(1) << "retornando distancia_m: " << distancia_m;
-  return std::max(0.0f, distancia_m);
-#endif
+float DistanciaMaximaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique) {
+  const Posicao pos_acao = ea.PosicaoAcao();
+  // Raio de acao da entidade, de forma aproximada.
+  const float raio = DistanciaAbsoluta(pos_acao, ea.Pos());
+  // Essa é a ideal, mas nem sempre a entidade esta com giro correto.
+  float distancia = DistanciaAbsoluta(pos_acao, pos_clique);
+  // Posicao da entidade a posicao clicada descontando raio.
+  distancia = std::max(distancia, std::max(0.0f, DistanciaAbsoluta(ea.Pos(), pos_clique) - raio));
+  VLOG(1) << "Distancia maxima: " << distancia;
+  return distancia;
 }
 
 std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
-    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_clique) {
   const auto& da = ea.DadoCorrenteNaoNull();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da.has_municao() && da.municao() == 0) {
@@ -1184,25 +1175,22 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
   }
 
   const float alcance_m = ea.AlcanceAtaqueMetros();
-  float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
-  float distancia_m = 0.0f;
-  if (alcance_m >= 0) {
-    distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
-    if (distancia_m > alcance_m) {
-      int total_incrementos = distancia_m / alcance_m;
-      if (total_incrementos > da.incrementos()) {
-        return std::make_tuple(
-            StringPrintf(
-                "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()),
-            false, distancia_m);
-      }
-    } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
-      // Adicionei uma margem de erro para o minimo tb, pq as entidades normalmente nao ocupam o quadrado todo.
-      std::string texto =
-          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_m);
-      return std::make_tuple(texto, false, distancia_m);
+  if (alcance_m < 0) {
+    return std::make_tuple("Ataque sem alcance", false, 0.0f);
+  }
+  // Usa a menor distancia para verificar alcance maximo.
+  const float distancia_m = DistanciaMinimaAcaoAlvoMetros(ea, pos_clique);
+  if (distancia_m > alcance_m) {
+    int total_incrementos = distancia_m / alcance_m;
+    if (total_incrementos > da.incrementos()) {
+      return std::make_tuple(
+          StringPrintf("Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()), false, distancia_m);
     }
-    VLOG(1) << "Alcance ok alcance_m: " << alcance_m << ", alcance_minimo_m: " << alcance_minimo_m << ", distancia_m: " << distancia_m;
+  }
+  // Se houver alcance minimo, verifica com a menor distancia.
+  const float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
+  if (float distancia_para_alcance_minimo_m = DistanciaMaximaAcaoAlvoMetros(ea, pos_clique); alcance_minimo_m > 0 && distancia_para_alcance_minimo_m < alcance_minimo_m) {
+    return std::make_tuple(StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_para_alcance_minimo_m), false, distancia_para_alcance_minimo_m);
   }
   return std::make_tuple("", true, distancia_m);
 }
@@ -1989,8 +1977,13 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   return nullptr;
 }
 
-bool EhItemMundano(const DadosAtaque& da) {
-  return c_any<std::vector<std::string>>({"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }, da.id_arma());
+const std::vector<std::string>& ItemsQueGeramAtaques() {
+  static const std::vector<std::string> v = {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" };
+  return v; 
+}
+
+bool AtaqueDeItemMundano(const DadosAtaque& da) {
+  return c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.id_arma()) || c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.grupo());
 }
 
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
@@ -2025,7 +2018,7 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->id_arma();
     }
     if (da_depois->has_municao()) {
-      if (EhItemMundano(*da_depois)) {
+      if (AtaqueDeItemMundano(*da_depois)) {
         const std::string id_arma = da_depois->id_arma();
         PreencheConsumoItemMundano(da_depois->id_arma(), entidade, proto);
         // Hack: aqui so para criar vazio se num tiver nada. Nao vai remover nada mesmo.

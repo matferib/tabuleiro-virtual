@@ -91,7 +91,7 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
   }
  
   for (const auto& da : proto->dados_ataque()) {
-    if (EhItemMundano(da)) {
+    if (AtaqueDeItemMundano(da)) {
       // Para protos antigos que nao tinham isso nos mundanos.
       if (mapa_tipo_quantidade[da.id_arma()] == 0 && da.municao() > 0) {
         for (unsigned int i = 0; i < da.municao(); ++i) {

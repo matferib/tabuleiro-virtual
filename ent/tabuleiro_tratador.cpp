@@ -1173,7 +1173,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!acertou_direto && entidade_destino != nullptr && entidade_origem != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     float alcance_m = entidade_origem->AlcanceAtaqueMetros();
-    const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade_origem, *entidade_destino, pos_entidade_destino);
+    const float distancia_m = DistanciaMaximaAcaoAlvoMetros(*entidade_origem, pos_entidade_destino);
     const int total_incrementos = distancia_m / alcance_m;
     VLOG(1) << "nao acertou projetil de area direto, vendo posicao de impacto. total de incrementos: " << total_incrementos;
     if (total_incrementos > 0) {
@@ -1712,7 +1712,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
   if (HaValorListaPontosVida()) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-    auto pos_alvo = entidade_destino->Tipo() != TE_ENTIDADE || opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
+    auto pos_alvo = pos_entidade_destino;
     float distancia_m = 0.0f;
     // Verifica alcance.
     {

@@ -2699,14 +2699,15 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     ++mapa_tipo_quantidade[im.id()];
   }
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return EhItemMundano(da);
+    return AtaqueDeItemMundano(da);
   }, proto->mutable_dados_ataque());
   for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
     if (mapa_tipo_quantidade[id] > 0) {
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
-      da->set_municao(mapa_tipo_quantidade[id]);;
+      da->set_municao(mapa_tipo_quantidade[id]);
       da->set_grupo(id);
       da->set_rotulo(id);
+      da->set_id_arma(id);
       da->set_empunhadura(EA_ARMA_ESCUDO);
     }
   }
