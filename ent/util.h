@@ -89,6 +89,7 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
 /** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
+ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai);
 
 /** Altera a cor corrente para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
@@ -375,8 +376,8 @@ enum tipo_dano_e {
 
 // Adiciona a notificacao de alternar furia ao grupo e desfazer.
 // Retorna true se a entidade entrou em furia.
-void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
-bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* grupo_desfazer);
+bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* grupo_desfazer);
 
 // Preenche a notificacao de forma alternativa para a entidade, alternando para a proxima, ou para a original se ja estiver na ultima.
 void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);

@@ -35,6 +35,8 @@ namespace ent {
 
 namespace {
 
+using google::protobuf::StringPrintf;
+
 const char* ROTULO_PADRAO = "-";
 const char* TEXTURA_VAZIA = "";
 const char* TEXTURAS_DIFEREM = "~";
@@ -573,18 +575,22 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
         if (!duplo) {
-          PassaUmaRodadaNotificando(/*ui=*/true);
+          auto grupo = NovoGrupoNotificacoes();
+          PreenchePassaUmaRodada(/*passar_para_todos=*/true, grupo.get(), nullptr, /*expira_eventos_zerados=*/false);
+          TrataNotificacao(*grupo);
+          AdicionaNotificacaoListaEventos(*grupo);
         } else {
-          ntf::Notificacao grupo_notificacoes;
-          grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
           // O clique duplo tera passado uma rodada já.
-          for (int i = 0; i < 9; ++i) {
-            auto* n = grupo_notificacoes.add_notificacao();
-            PassaUmaRodadaNotificando(/*ui=*/true, n);
-            TrataNotificacao(*n);
-          }
           // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.
-          AdicionaNotificacaoListaEventos(grupo_notificacoes);
+          auto grupo = NovoGrupoNotificacoes();
+          auto grupo_desfazer = NovoGrupoNotificacoes();
+          for (int i = 0; i < 9; ++i) {
+            auto grupo = NovoGrupoNotificacoes();
+            PreenchePassaUmaRodada(/*passar_para_todos=*/true, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
+            // Tem que ir fazendo rodada a rodada para as entidades irem sendo atualizadas corretamente.
+            TrataNotificacao(*grupo);
+          }
+          AdicionaNotificacaoListaEventos(*grupo_desfazer);
         }
       } else {
         ZeraRodadasNotificando();
@@ -1247,13 +1253,15 @@ void Tabuleiro::DesenhaIniciativas() {
   PosicionaRaster2d(raster_x, raster_y);
 
   MudaCor(COR_AMARELA);
-  char titulo[100] = { '\0' };
-  snprintf(titulo, 99, "Iniciativa: %d/%d",
-           iniciativas_[indice_iniciativa_].iniciativa, iniciativas_[indice_iniciativa_].modificador);
+  std::string titulo = StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_iniciativa_].iniciativa, iniciativas_[indice_iniciativa_].modificador);
   gl::DesenhaStringAlinhadoEsquerda(titulo);
   MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
   int num_desenhadas = 0;
+  if (!iniciativa_valida_) {
+    gl::DesenhaStringAlinhadoEsquerda("INVALIDA");
+    raster_y -= (altura_fonte + 2);
+  }
 
   std::vector<DadosIniciativa> entidades_na_ordem_desenho;
   entidades_na_ordem_desenho.reserve(iniciativas_.size());

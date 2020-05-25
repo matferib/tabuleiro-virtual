@@ -103,13 +103,18 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
   return n;
 }
 
-std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
-    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai) {
   if (pai->tipo() != ntf::TN_GRUPO_NOTIFICACOES) {
     LOG(WARNING) << "Notificacao pai nao eh grupo, conferir se chamou errado usando pai->add_notificacao().";
   }
   auto* n = pai->add_notificacao();
   n->set_tipo(tipo);
+  return n; 
+}
+
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+  auto* n = NovaNotificacaoFilha(tipo, pai);
   n->mutable_entidade_antes()->set_id(proto.id());
   n->mutable_entidade()->set_id(proto.id());
   return std::make_tuple(n, n->mutable_entidade_antes(), n->mutable_entidade());
