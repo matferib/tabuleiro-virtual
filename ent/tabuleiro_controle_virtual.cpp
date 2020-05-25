@@ -1238,7 +1238,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (indice_iniciativa_ == -1 || iniciativas_.empty() || indice_iniciativa_ >= (int)iniciativas_.size()) {
+  if (indice_iniciativa_ < 0 || iniciativas_.empty()) {
     //LOG(INFO) << "Nao " << indice_iniciativa_ << ", iniciativas_.size " << iniciativas_.size();
     return;
   }
@@ -1252,21 +1252,20 @@ void Tabuleiro::DesenhaIniciativas() {
   raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
+  const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
   MudaCor(COR_AMARELA);
-  std::string titulo = StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_iniciativa_].iniciativa, iniciativas_[indice_iniciativa_].modificador);
-  gl::DesenhaStringAlinhadoEsquerda(titulo);
+  std::string titulo = iniciativa_valida_
+    ? StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
+    : "Iniciativa Inválida";
+  gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(titulo));
   MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
   int num_desenhadas = 0;
-  if (!iniciativa_valida_) {
-    gl::DesenhaStringAlinhadoEsquerda("INVALIDA");
-    raster_y -= (altura_fonte + 2);
-  }
 
   std::vector<DadosIniciativa> entidades_na_ordem_desenho;
   entidades_na_ordem_desenho.reserve(iniciativas_.size());
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin() + indice_iniciativa_, iniciativas_.end());
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin(), iniciativas_.begin() + indice_iniciativa_);
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin() + indice_corrigido, iniciativas_.end());
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin(), iniciativas_.begin() + indice_corrigido);
 
   for (const auto& di : entidades_na_ordem_desenho) {
     Entidade* entidade = BuscaEntidade(di.id);

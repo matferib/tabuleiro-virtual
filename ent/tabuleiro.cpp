@@ -4703,7 +4703,7 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 }
 
 void Tabuleiro::AtualizaIniciativas() {
-  if (EmModoMestre()) return;
+  if (!EmModoMestre()) return;
 
   // Ha tres casos a se considerar: adicao de nova entidade, atualizacao e remocao.
   bool atualizar_remoto = false;
@@ -4783,6 +4783,7 @@ void Tabuleiro::AtualizaIniciativas() {
   if (iniciativas_.empty()) {
     indice_iniciativa_ = -1;
     iniciativa_valida_ = false;
+    VLOG(1) << "Iniciativas vazias, desligando";
   }
   // Atualiza a iniciativa dos clientes remotos.
   if (atualizar_remoto) {
