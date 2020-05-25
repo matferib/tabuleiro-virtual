@@ -1159,11 +1159,11 @@ class Tabuleiro : public ntf::Receptor {
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
   void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
-  void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void ConsomeAtaquesLivresRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void ConsomeAtaquesLivresRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
   // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
   void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);
 

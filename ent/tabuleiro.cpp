@@ -1472,24 +1472,23 @@ void Tabuleiro::AlternaEmCorpoACorpoNotificando() {
 }
 
 void Tabuleiro::AlternaFlanqueandoEntidadesSelecionadasNotificando() {
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  auto grupo = NovoGrupoNotificacoes();
   for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) continue;
     const auto& proto = entidade_selecionada->Proto();
     auto [n, e_antes, e_depois] = NovaNotificacaoFilha(
-        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, &grupo_notificacoes);
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo.get());
     e_antes->mutable_dados_ataque_global()->set_flanqueando(proto.dados_ataque_global().flanqueando());
     e_depois->mutable_dados_ataque_global()->set_flanqueando(!proto.dados_ataque_global().flanqueando());
   }
-  if (grupo_notificacoes.notificacao_size() == 0) {
+  if (grupo->notificacao_size() == 0) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  TrataNotificacao(grupo_notificacoes);
+  TrataNotificacao(*grupo);
   // Para desfazer.
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(*grupo);
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
@@ -2473,7 +2472,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   for (const auto* entidade : entidades) {
     if (!entidade->TemIniciativa()) continue;
     VLOG(1) << "Apagando iniciativa de id " << entidade->Id();
-    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade->Proto(), grupo_desfazer.get());
+    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, grupo_desfazer.get());
     e_antes->set_iniciativa(entidade->Iniciativa());
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
     TrataNotificacao(*n);
@@ -2686,10 +2685,8 @@ void Tabuleiro::TrataAtualizarIniciativaNotificando(const ntf::Notificacao& noti
   SelecionaEntidadeIniciativa();
 }
 
-void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo) {
-  ntf::Notificacao* n = grupo->add_notificacao();
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo);
   if (entidade.Proto().em_corpo_a_corpo()) {
     e_antes->set_em_corpo_a_corpo(true);
     e_depois->set_em_corpo_a_corpo(false);
@@ -2730,9 +2727,11 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   COPIA_SE_NAO_ZERO(chance_falha);
 #undef COPIA_SE_NAO_ZERO
 
-  const auto* t = Talento("desviar_objetos", entidade.Proto());
-  if (t != nullptr && t->usado_na_rodada()) {
+  if (const auto* t = Talento("desviar_objetos", entidade.Proto()); t != nullptr && t->usado_na_rodada()) {
     PreencheNotificacaoObjetoDesviado(false, entidade, n, n);
+  }
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
   }
 }
 
@@ -2741,6 +2740,9 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
   auto* n = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_LISTA_INICIATIVA, grupo.get());
   SerializaIniciativas(n->mutable_tabuleiro_antes());
   SerializaIniciativas(n->mutable_tabuleiro());
+  auto grupo_desfazer = NovoGrupoNotificacoes();
+  // Faz agora pra ficar na ordem certa.
+  auto* n_desfazer = grupo_desfazer->add_notificacao();
 
   int nova_iniciativa = indice_iniciativa_;
   bool passar_rodada_para_sem_iniciativas = false;
@@ -2758,8 +2760,8 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
     // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
     const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa_antes != nullptr) {
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), grupo.get());
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo.get());
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), grupo.get(), grupo_desfazer.get());
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo.get(), grupo_desfazer.get());
     }
     // Atualiza a lista de iniciativa.
     if (++nova_iniciativa >= (int)iniciativas_.size()) {
@@ -2774,20 +2776,21 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
     // Zera os controles da entidade corrente.
     const auto* entidade_iniciativa = BuscaEntidade(nova_iniciativa >= 0 && nova_iniciativa < iniciativas_.size() ? iniciativas_[nova_iniciativa].id : Entidade::IdInvalido);
     if (entidade_iniciativa != nullptr) {
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, grupo.get());
-      ZeraControlesEntidadeNotificando(*entidade_iniciativa, grupo.get());
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      ZeraControlesEntidadeNotificando(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
-      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, grupo.get(), nullptr, /*expira_eventos_zerados=*/false);
-      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, grupo.get());
-      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, grupo.get());
-      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, grupo.get());
+      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
+      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
     }
   }
   if (passar_rodada_para_sem_iniciativas) {
-    PreenchePassaUmaRodada(/*passar_para_todos=*/false, grupo.get(), nullptr, /*expira_eventos_zerados=*/false);
+    PreenchePassaUmaRodada(/*passar_para_todos=*/false, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
   }
   TrataNotificacao(*grupo);
-  AdicionaNotificacaoListaEventos(*grupo);
+  *n_desfazer = *n;
+  AdicionaNotificacaoListaEventos(*grupo_desfazer);
 }
 
 void Tabuleiro::ProximaIniciativa() {
@@ -7389,7 +7392,7 @@ std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidad
     dano += resultado.resistido;
     if (dano == 0) return {0,  StringPrintf("fogo alquimico: resistido %d", resultado.resistido)};
   }
-  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer->add_notificacao());
+  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
   return {dano, StringPrintf("fogo alquimico: %d", dano)};
 }
 
@@ -7407,7 +7410,7 @@ std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade&
       return {0, texto};
     }
   }
-  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer->add_notificacao());
+  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
   return {dano, texto};
 }
 
@@ -7488,38 +7491,40 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vec
   }
 }
 
-void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   const auto& dd = entidade.Proto().dados_defesa();
   if (!dd.has_entidade_esquiva()) return;
   const auto* entidade_esquivada = BuscaEntidade(dd.entidade_esquiva());
   if (entidade_esquivada != nullptr && !entidade_esquivada->Morta() && entidade_esquivada->IdCenario() == entidade.IdCenario()) return;
 
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  proto_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
-  proto_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo);
+  e_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
+  e_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
+  }
 }
 
-void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
 }
 
-void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   if (entidade.PontosVida() >= entidade.MaximoPontosVida() && entidade.DanoNaoLetal() == 0) return;
   if (entidade.Proto().morta()) return;
   if (CuraAcelerada(entidade.Proto()) == 0) {
     return;
   }
 
-  PreencheNotificacaoCuraAcelerada(entidade, grupo->add_notificacao());
+  auto* n = grupo->add_notificacao();
+  PreencheNotificacaoCuraAcelerada(entidade, n);
+  *grupo_desfazer->add_notificacao() = *n;
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 
-void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  proto_depois->set_reiniciar_ataque(true);
+// TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
+void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  auto [e_antes, e_depois] = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  e_depois->set_reiniciar_ataque(true);
 }
 
 void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados) {
@@ -7533,11 +7538,11 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
     if (passar_para_todos || !entidade.TemIniciativa()) {
       std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
       AtualizaEventosAoPassarRodada(entidade, &ids_unicos, grupo, grupo_desfazer, expira_eventos_zerados);
-      AtualizaEsquivaAoPassarRodada(entidade, grupo);
-      AtualizaMovimentoAoPassarRodada(entidade, grupo);
-      AtualizaCuraAceleradaAoPassarRodada(entidade, grupo);
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), grupo);
-      ReiniciaAtaqueAoPassarRodada(entidade, grupo);
+      AtualizaEsquivaAoPassarRodada(entidade, grupo, grupo_desfazer);
+      AtualizaMovimentoAoPassarRodada(entidade, grupo, grupo_desfazer);
+      AtualizaCuraAceleradaAoPassarRodada(entidade, grupo, grupo_desfazer);
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), grupo, grupo_desfazer);
+      ReiniciaAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
     }
   }
 

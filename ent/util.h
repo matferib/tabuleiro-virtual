@@ -89,6 +89,8 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
 /** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* pai);
 ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai);
 
 /** Altera a cor corrente para cor. Nao considera alpha. */
@@ -474,7 +476,7 @@ ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entid
 ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade);
 
 // Adiciona ao grupo uma notificacao de atualizacao dos ataques da entidade.
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo);
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
 
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);

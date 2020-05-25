@@ -120,6 +120,11 @@ std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFil
   return std::make_tuple(n, n->mutable_entidade_antes(), n->mutable_entidade());
 }
 
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* pai) {
+  return NovaNotificacaoFilha(tipo, entidade.Proto(), pai);
+}
+
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
@@ -1712,19 +1717,16 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo) {
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidadeProto(
-      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
-  *proto_antes->mutable_dados_ataque() = proto.dados_ataque();
-  *proto_depois->mutable_dados_ataque() = proto.dados_ataque();
-  for (auto& da : *proto_depois->mutable_dados_ataque()) {
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
+  *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+  *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+  for (auto& da : *e_depois->mutable_dados_ataque()) {
     if (da.has_taxa_refrescamento() && da.usado_rodada() &&
         (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
       // Trata o caso de ataques consumidos so ao fim da rodada.
       int valor = 0;
-      auto* da_depois = EncontraAtaque(da, proto_depois);
+      auto* da_depois = EncontraAtaque(da, e_depois);
       try {
         valor = RolaValor(da_depois->taxa_refrescamento());
       } catch (const std::exception& e) {
@@ -1741,6 +1743,9 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
         da.set_limite_vezes(da.limite_vezes_original());
       }
     }
+  }
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
   }
 }
 
