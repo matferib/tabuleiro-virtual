@@ -611,8 +611,8 @@ class Tabuleiro : public ntf::Receptor {
 
  private:
   struct DadosIniciativa {
-    unsigned int id;
-    //unsigned int id_unico_evento = -1;  // para eventos.
+    unsigned int id;  // entidade.
+    int id_unico_evento = -1;  // para eventos.
     int iniciativa;
     int modificador;
     bool presente;  // usado durante atualizacao de iniciativa.

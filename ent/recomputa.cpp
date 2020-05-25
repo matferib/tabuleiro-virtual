@@ -1881,6 +1881,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : a_remover) {
     proto->mutable_info_classes()->DeleteSubrange(i, 1);
   }
+  bool possui_esquiva_sobrenatural = false;
   for (auto& ic : *proto->mutable_info_classes()) {
     {
       const auto& classe_tabelada = tabelas.Classe(ic.id());
@@ -1890,6 +1891,15 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
         ic.clear_pericias();
         ic.clear_progressao_feitico();
         ic.MergeFrom(classe_tabelada);
+        if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
+          if (possui_esquiva_sobrenatural) {
+            auto* hn = ic.add_habilidades_por_nivel();
+            hn->set_id("esquiva_sobrenatural_aprimorada");
+            hn->set_nivel(ic.nivel());
+          } else {
+            possui_esquiva_sobrenatural = true;
+          }
+        }
       }
     }
     if (ic.has_atributo_conjuracao() || ic.has_id_para_progressao_de_magia()) {

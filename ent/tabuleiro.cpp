@@ -1393,7 +1393,7 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEvento(entidade_selecionada->Id(), /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEventoSemComplemento(entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -1477,8 +1477,8 @@ void Tabuleiro::AlternaFlanqueandoEntidadesSelecionadasNotificando() {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) continue;
     const auto& proto = entidade_selecionada->Proto();
-    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(
-        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo.get());
+    auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo->add_notificacao());
     e_antes->mutable_dados_ataque_global()->set_flanqueando(proto.dados_ataque_global().flanqueando());
     e_depois->mutable_dados_ataque_global()->set_flanqueando(!proto.dados_ataque_global().flanqueando());
   }
@@ -2775,7 +2775,7 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
 
   {
     // Zera os controles da entidade corrente.
-    const auto* entidade_iniciativa = BuscaEntidade(nova_iniciativa >= 0 && nova_iniciativa < iniciativas_.size() ? iniciativas_[nova_iniciativa].id : Entidade::IdInvalido);
+    const auto* entidade_iniciativa = BuscaEntidade(nova_iniciativa >= 0 && nova_iniciativa < static_cast<int>(iniciativas_.size()) ? iniciativas_[nova_iniciativa].id : Entidade::IdInvalido);
     if (entidade_iniciativa != nullptr) {
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
       ZeraControlesEntidadeNotificando(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
@@ -7367,10 +7367,12 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
     // nao salvou: criar o efeito do dano primario ou secundario.
     if (!veneno.primario_aplicado()) {
       veneno_str = StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
-      PreencheNotificacaoEventoParaVenenoPrimario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer);
+      PreencheNotificacaoEventoParaVenenoPrimario(
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     } else {
       veneno_str = StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
-      PreencheNotificacaoEventoParaVenenoSecundario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer);
+      PreencheNotificacaoEventoParaVenenoSecundario(
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     }
   }
   if (!veneno.primario_aplicado()) {

@@ -91,6 +91,16 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
+std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade& entidade) {
+  if (!entidade.TemIniciativa()) return std::nullopt;
+  return DadosIniciativa{entidade.Iniciativa(), entidade.ModificadorIniciativa()};
+}
+
+std::optional<DadosIniciativa> DadosIniciativaEvento(const EntidadeProto::Evento& evento) {
+  if (!evento.has_iniciativa()) return std::nullopt;
+  return DadosIniciativa{evento.iniciativa(), evento.modificador_iniciativa()};
+}
+
 std::unique_ptr<ntf::Notificacao> NovoGrupoNotificacoes() {
   auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES));
   return n;
@@ -109,7 +119,7 @@ ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai) {
   }
   auto* n = pai->add_notificacao();
   n->set_tipo(tipo);
-  return n; 
+  return n;
 }
 
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
@@ -1765,10 +1775,23 @@ std::pair<int, int> ComplementoFuria(int nivel_barbaro) {
 void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
  if (Nivel("barbaro", entidade.Proto()) >= 17) return;
   std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-  PreencheNotificacaoEvento(
-      entidade.Id(), "fadiga_furia_barbaro", EFEITO_FADIGA, 100,
+  PreencheNotificacaoEventoSemComplemento(
+      entidade.Id(), DadosIniciativaEntidade(entidade), "fadiga_furia_barbaro", EFEITO_FADIGA, 100,
       &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
 }
+
+void PreencheNotificacaoEntrarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  auto [complemento, complemento_salvacao] = ComplementoFuria(Nivel("barbaro", entidade.Proto()));
+  // Para ver novo modificador.
+  Bonus bc = BonusAtributo(TA_CONSTITUICAO, entidade.Proto());
+  AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
+  const int rodadas = 3 + ModificadorAtributo(bc);
+  std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+  PreencheNotificacaoEventoComComplementos(
+      entidade.Id(), DadosIniciativaEntidade(entidade), "furia_barbaro", EFEITO_FURIA_BARBARO, {complemento, complemento_salvacao}, rodadas,
+      &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+}
+
 
 bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   const int nivel_barbaro = Nivel("barbaro", entidade.Proto());
@@ -1781,16 +1804,7 @@ bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& en
         n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
     PreencheNotificacaoFadigaFuria(tabelas, entidade, n_grupo, n_desfazer);
   } else {
-    // Entra em furia.
-    auto [complemento, complemento_salvacao] = ComplementoFuria(nivel_barbaro);
-    // Para ver novo modificador.
-    Bonus bc = BonusAtributo(TA_CONSTITUICAO, entidade.Proto());
-    AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-    const int rodadas = 3 + ModificadorAtributo(bc);
-    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-    PreencheNotificacaoEventoComComplementos(
-        entidade.Id(), "furia_barbaro", EFEITO_FURIA_BARBARO, {complemento, complemento_salvacao}, rodadas,
-        &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+    PreencheNotificacaoEntrarFuria(tabelas, entidade, n_grupo, n_desfazer);
   }
   return !possui_furia;
 }
@@ -2077,12 +2091,12 @@ void PreencheNotificacaoRecarregamento(
   }
 }
 
-void PreencheNotificacaoEvento(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos,
+void PreencheNotificacaoEventoSemComplemento(
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos,
     ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
+  auto* evento = AdicionaEvento(dados_iniciativa, origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2092,11 +2106,11 @@ void PreencheNotificacaoEvento(
 }
 
 void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, nivel_conjurador, efeito_adicional, da.acao(), ids_unicos, entidade_destino, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, dados_iniciativa, nivel_conjurador, efeito_adicional, da.acao(), ids_unicos, entidade_destino, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2108,11 +2122,10 @@ void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
 }
 
 void PreencheNotificacaoEventoComComplementos(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::vector<int>& complementos, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, const std::vector<int>& complementos, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
+  auto* evento = AdicionaEvento(dados_iniciativa, /*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
   for (int c : complementos) {
     evento->add_complementos(c);
   }
@@ -2126,11 +2139,10 @@ void PreencheNotificacaoEventoComComplementos(
 
 
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
+  auto* evento = AdicionaEvento(dados_iniciativa, /*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -2156,11 +2168,11 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
 }
 
 bool PreencheNotificacaoEventoParaVenenoComum(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   // A origem ficara veneno: %d, pois veneno é cumulativo.
   std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
-  PreencheNotificacaoEvento(id_entidade, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -2170,9 +2182,9 @@ bool PreencheNotificacaoEventoParaVenenoComum(
 }  // namespace
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
@@ -2188,9 +2200,9 @@ void PreencheNotificacaoEventoParaVenenoPrimario(
 }
 
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
   auto* e_depois = n->mutable_entidade();
   auto* evento = e_depois->mutable_evento(0);
   evento->mutable_complementos()->Resize(6, 0);
@@ -3419,7 +3431,7 @@ int AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+    const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   // Pega antes de criar o evento.
   int id_unico = AchaIdUnicoEvento(*ids_unicos);
   auto* e = proto->add_evento();
@@ -3429,20 +3441,10 @@ EntidadeProto::Evento* AdicionaEvento(
   e->set_id_unico(id_unico);
   e->set_origem(origem);
   ids_unicos->push_back(id_unico);
-  return e;
-}
-
-
-EntidadeProto::Evento* AdicionaEventoOld(
-    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
-  // Pega antes de criar o evento.
-  int id_unico = AchaIdUnicoEvento(eventos, proto->evento());
-  auto* e = proto->add_evento();
-  e->set_id_efeito(id_efeito);
-  e->set_rodadas(continuo ? 1 : rodadas);
-  e->set_continuo(continuo);
-  e->set_id_unico(id_unico);
+  if (dados_iniciativa.has_value()) {
+    e->set_iniciativa(dados_iniciativa->iniciativa);
+    e->set_modificador_iniciativa(dados_iniciativa->modificador);
+  }
   return e;
 }
 
@@ -3627,14 +3629,14 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
   const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
                         (!efeito_adicional.has_rodadas() &&
                          !efeito_adicional.has_modificador_rodadas() &&
                          !efeito_adicional.has_dado_modificador_rodadas());
-  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
+  auto* e = AdicionaEvento(dados_iniciativa, efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
   if (efeito_adicional.has_requer_modelo_ativo()) {
     e->set_requer_modelo_ativo(efeito_adicional.requer_modelo_ativo());
   }
@@ -3757,7 +3759,7 @@ void AdicionaEventoItemMagico(
   for (unsigned int i = 0; i < efeitos_origens.size(); ++i) {
     auto tipo_efeito = efeitos_origens[i].first;
     const std::string& origem = efeitos_origens[i].second;
-    auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
+    auto* evento = AdicionaEvento(std::nullopt, origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
     if (item.complementos().empty() && !item.complementos_variavel().empty()) {
       for (const auto& cv : item.complementos_variavel()) {
         int valor = 0;
@@ -4211,7 +4213,7 @@ bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_ta
 }
 
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
+    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
   const int nivel_conjurador = NivelConjurador(id_classe, proto);
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
@@ -4246,7 +4248,7 @@ bool NotificacaoConsequenciaFeitico(
     std::string string_efeitos;
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
        PreencheNotificacaoEventoEfeitoAdicional(
-           entidade.Id(), nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+           entidade.Id(), dados_iniciativa, nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
        string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
     }
     if (!string_efeitos.empty()) {
@@ -5819,7 +5821,7 @@ float AplicaEfeitosAdicionais(
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
     PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-        entidade_origem.Id(), da, nivel_conjurador, entidade_destino, efeito_adicional,
+        entidade_origem.Id(), DadosIniciativaEntidade(entidade_origem), da, nivel_conjurador, entidade_destino, efeito_adicional,
         ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_efeito.release());
     atraso_s += 0.5f;
@@ -5833,7 +5835,7 @@ float AplicaEfeitosAdicionais(
     for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
       PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-          entidade_origem.Id(), da, nivel_conjurador, entidade_origem, efeito_adicional,
+          entidade_origem.Id(), DadosIniciativaEntidade(entidade_origem), da, nivel_conjurador, entidade_origem, efeito_adicional,
           ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
       central->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;

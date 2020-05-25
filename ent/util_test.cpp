@@ -355,7 +355,7 @@ TEST(TesteArmas, TesteMetamorfoseTorrida) {
   std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
   std::vector<int> ids_unicos;
   ntf::Notificacao n;
-  PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+  PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   alvo->AtualizaParcial(n.entidade());
   ASSERT_FALSE(alvo->Proto().evento().empty());
   const auto& evento = alvo->Proto().evento(0);
@@ -395,7 +395,7 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
@@ -409,12 +409,14 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=10, .modificador=3}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
     EXPECT_EQ(evento.id_unico(), 0);
     EXPECT_EQ(evento.rodadas(), 20);
+    EXPECT_EQ(evento.iniciativa(), 10);
+    EXPECT_EQ(evento.modificador_iniciativa(), 3);
   }
   {
     proto_alvo.set_pontos_vida(101);
@@ -423,12 +425,14 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=10, .modificador=3}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_CEGO);
     EXPECT_EQ(evento.id_unico(), 0);
     EXPECT_EQ(evento.rodadas(), 2);
+    EXPECT_EQ(evento.iniciativa(), 10);
+    EXPECT_EQ(evento.modificador_iniciativa(), 3);
   }
   {
     proto_alvo.set_pontos_vida(201);
@@ -471,12 +475,14 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=5, .modificador=4}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_ATORDOADO);
     EXPECT_EQ(evento.id_unico(), 0);
     EXPECT_EQ(evento.rodadas(), 4);
+    EXPECT_EQ(evento.iniciativa(), 5);
+    EXPECT_EQ(evento.modificador_iniciativa(), 4);
   }
   {
     proto_alvo.set_pontos_vida(51);
@@ -486,12 +492,14 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=5, .modificador=4}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_ATORDOADO);
     EXPECT_EQ(evento.id_unico(), 0);
     EXPECT_EQ(evento.rodadas(), 2);
+    EXPECT_EQ(evento.iniciativa(), 5);
+    EXPECT_EQ(evento.modificador_iniciativa(), 4);
   }
   {
     proto_alvo.set_pontos_vida(101);
@@ -500,12 +508,14 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=5, .modificador=4}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_ATORDOADO);
     EXPECT_EQ(evento.id_unico(), 0);
     EXPECT_EQ(evento.rodadas(), 1);
+    EXPECT_EQ(evento.iniciativa(), 5);
+    EXPECT_EQ(evento.modificador_iniciativa(), 4);
   }
   {
     proto_alvo.set_pontos_vida(151);
@@ -542,7 +552,7 @@ TEST(TesteArmas, TestePoderDivino) {
   {
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=3, .modificador=6}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_PODER_DIVINO);
@@ -550,6 +560,8 @@ TEST(TesteArmas, TestePoderDivino) {
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, alvo->Proto())), 16);
     EXPECT_EQ(alvo->Proto().bba().base(), 15);
     EXPECT_EQ(BonusTotal(alvo->Proto().pontos_vida_temporarios_por_fonte()), 10);
+    EXPECT_EQ(evento.iniciativa(), 3);
+    EXPECT_EQ(evento.modificador_iniciativa(), 6);
   }
 }
 
@@ -583,10 +595,12 @@ TEST(TesteArmas, TestePalavraDoPoderMatar) {
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_MORTE);
+    EXPECT_FALSE(evento.has_iniciativa());
+    EXPECT_FALSE(evento.has_modificador_iniciativa());
   }
   {
     proto_alvo.set_pontos_vida(101);
@@ -624,7 +638,7 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
     g_dados_teste.push(3);
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
@@ -641,7 +655,7 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
     g_dados_teste.push(1);
     std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
@@ -658,7 +672,7 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
     g_dados_teste.push(5);
     std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_PENALIDADE_FORCA);
@@ -2129,7 +2143,7 @@ TEST(TesteDependencias, TesteAgarrar2) {
 TEST(TesteDependencias, TesteVirtude) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"virtude", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(DadosIniciativa{.iniciativa=3, .modificador=4}, /*origem*/"virtude", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -2208,7 +2222,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
 TEST(TesteDependencias, TesteAjuda) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(std::nullopt, /*origem=*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(5);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -2234,9 +2248,9 @@ TEST(TesteDependencias, TesteAjuda) {
 TEST(TesteDependencias, TesteAjuda2) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(std::nullopt, /*origem=*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(5);
-  ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  ev = AdicionaEvento(std::nullopt, /*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(6);
   int id_segundo_evento = ev->id_unico();
   RecomputaDependencias(g_tabelas, &proto);
@@ -2259,7 +2273,7 @@ TEST(TesteDependencias, TesteAjuda3) {
   g_dados_teste.push(4);
   EntidadeProto proto;
   std::vector<int> ids_unicos;
-  auto* ev = AdicionaEvento(/*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
+  auto* ev = AdicionaEvento(std::nullopt, /*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(7);
   RecomputaDependencias(g_tabelas, &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
@@ -2397,6 +2411,82 @@ TEST(TesteMatriz, TesteMatriz) {
   }
 }
 
+TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
+  EntidadeProto ea;
+  ea.mutable_dados_ataque_global()->set_flanqueando(true);
+  {
+    EntidadeProto ed;
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ed;
+    auto* ic = ed.add_info_classes();
+    ic->set_id("barbaro");
+    ic->set_nivel(5);  // ganha esquiva sobrenatural.
+    RecomputaDependencias(g_tabelas, &ed);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ed;
+    auto* ic = ed.add_info_classes();
+    ic->set_id("ladino");
+    ic->set_nivel(8);  // ganha esquiva sobrenatural.
+    RecomputaDependencias(g_tabelas, &ed);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ed;
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("barbaro");
+      ic->set_nivel(2);  // ganha esquiva.
+    }
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("ladino");
+      ic->set_nivel(4);  // ganha esquiva.
+    }
+    RecomputaDependencias(g_tabelas, &ed);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ed;
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("barbaro");
+      ic->set_nivel(1);  // sem esquiva.
+    }
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("ladino");
+      ic->set_nivel(4);  // sem esquiva.
+    }
+    RecomputaDependencias(g_tabelas, &ed);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+  {
+    EntidadeProto ed;
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("barbaro");
+      ic->set_nivel(2);  // sem esquiva.
+    }
+    {
+      auto* ic = ed.add_info_classes();
+      ic->set_id("ladino");
+      ic->set_nivel(3);  // sem esquiva.
+    }
+    RecomputaDependencias(g_tabelas, &ed);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+  }
+}
+
 TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
   {
     EntidadeProto ea;
@@ -2463,20 +2553,20 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
   }
 }
 
-TEST(TesteSalvacaoDinamica, TesteRodadasDinamico) {
+TEST(TesteRodadasDinamico, TesteRodadasDinamico) {
   ntf::Notificacao n;
   EntidadeProto proto;
   std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
   std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
   PreencheNotificacaoEventoEfeitoAdicional(
-      proto.id(), /*nivel*/3, *e, g_tabelas.Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+      proto.id(), std::nullopt, /*nivel*/3, *e, g_tabelas.Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   ASSERT_FALSE(n.entidade().evento().empty());
   EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
   ASSERT_EQ(ids_unicos.size(), 1ULL);
   EXPECT_EQ(n.entidade().evento(0).id_unico(), ids_unicos[0]);
 }
 
-TEST(TesteSalvacaoDinamica, TesteRodadasDinamicoDependenciaAnterior) {
+TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior) {
   ntf::Notificacao n;
   EntidadeProto proto;
   {
@@ -2500,7 +2590,7 @@ TEST(TesteSalvacaoDinamica, TesteRodadasDinamicoDependenciaAnterior) {
 }
 
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
-TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
+TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
   {
     EntidadeProto proto;
     auto* ic = proto.add_info_classes();
@@ -2510,9 +2600,9 @@ TEST(TesteSalvacaoDinamica, TesteEfeitosAdicionaisMultiplos) {
     ntf::Notificacao n;
     std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
     PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), /*nivel*/3, *e, g_tabelas.Feitico("teia").acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+        proto.id(), std::nullopt, /*nivel*/3, *e, g_tabelas.Feitico("teia").acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
     PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), /*nivel*/ 3, *e,
+        proto.id(), std::nullopt, /*nivel*/ 3, *e,
         g_tabelas.Feitico("teia").acao().efeitos_adicionais(1), &ids_unicos,
         n.add_notificacao(), nullptr);
     e->AtualizaParcial(n.notificacao(0).entidade());
@@ -3030,12 +3120,14 @@ TEST(TesteFeiticos, TesteProtegerOutro) {
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
-    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(proto.id(), DadosIniciativa{.iniciativa=2, .modificador=2}, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
     ASSERT_FALSE(n.entidade().evento().empty());
     const auto& evento = n.entidade().evento(0);
     EXPECT_EQ(evento.id_efeito(), EFEITO_PROTEGER_OUTRO);
     ASSERT_FALSE(evento.complementos().empty());
     EXPECT_EQ(evento.complementos(0), 123);
+    EXPECT_EQ(evento.iniciativa(), 2);
+    EXPECT_EQ(evento.modificador_iniciativa(), 2);
   }
 
 }
@@ -4221,7 +4313,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   // d4 de reflexos.
   g_dados_teste.push(1);
   PreencheNotificacaoEventoEfeitoAdicional(
-      proto.id(), NivelConjuradorParaAcao(acao, *entidade), *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+      proto.id(), std::nullopt, NivelConjuradorParaAcao(acao, *entidade), *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   const int proximo = proto.evento().size();
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
@@ -5082,7 +5174,7 @@ TEST(TesteDominios, TesteRenovacao) {
     // Nada acontece.
     ntf::Notificacao n;
     auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -5, TD_LETAL, &n, nullptr);
-    EXPECT_FALSE(n.has_tipo());
+    EXPECT_FALSE(n.has_tipo()) << "delta: " << delta << ", texto: " << texto;
   }
   {
     // Ativa renovacao.

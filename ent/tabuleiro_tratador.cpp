@@ -1126,7 +1126,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
       PreencheNotificacaoEventoEfeitoAdicional(
-          entidade->Id(), nivel_expulsao, *entidade_destino, efeito_adicional,
+          entidade->Id(), DadosIniciativaEntidade(entidade), nivel_expulsao, *entidade_destino, efeito_adicional,
           &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
@@ -1612,7 +1612,7 @@ void AtualizaAtaquesAposAtaqueIndividual(
 }
 
 std::string TrataVeneno(
-    const DadosAtaque& da,
+    const DadosAtaque& da, const std::optional<DadosIniciativa>& dados_iniciativa,
     Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   if (entidade_destino->ImuneVeneno()) {
@@ -1633,7 +1633,7 @@ std::string TrataVeneno(
     if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
       primario_aplicado = true;
       PreencheNotificacaoEventoParaVenenoPrimario(
-          entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+          entidade_destino->Id(), dados_iniciativa, veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
     }
   } else {
     veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
@@ -1648,7 +1648,7 @@ std::string TrataVeneno(
     google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
     std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
     PreencheNotificacaoEventoComComplementoStr(
-        entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
+        entidade_destino->Id(), dados_iniciativa, origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
         ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
   }
   central->AdicionaNotificacao(n_veneno.release());
@@ -1656,7 +1656,7 @@ std::string TrataVeneno(
 }
 
 std::string TrataDoenca(
-    const DadosAtaque& da,
+    const DadosAtaque& da, const std::optional<DadosIniciativa>& dados_iniciativa,
     const Entidade& entidade_origem, Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   if (entidade_destino->ImuneDoenca()) {
@@ -1683,7 +1683,7 @@ std::string TrataDoenca(
   try {
     rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
     PreencheNotificacaoEventoComComplementoStr(
-        entidade_destino->Id(), origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
+        entidade_destino->Id(), dados_iniciativa, origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
         ids_unicos_entidade_destino, n_doenca.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_doenca.release());
   } catch (...) {
@@ -1847,14 +1847,14 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     if (resultado.Sucesso() && da.has_veneno()) {
-      std::string veneno_str = TrataVeneno(da, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+      std::string veneno_str = TrataVeneno(da, DadosIniciativaEntidade(*entidade_origem), entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(veneno_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), veneno_str);
     }
     // Doença.
     if (resultado.Sucesso() && da.has_doenca()) {
-      std::string doenca_str = TrataDoenca(da, *entidade_origem, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+      std::string doenca_str = TrataDoenca(da, DadosIniciativaEntidade(*entidade_origem), *entidade_origem, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(doenca_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), doenca_str);

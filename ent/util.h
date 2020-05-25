@@ -5,6 +5,7 @@
 #include <cctype>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -28,6 +29,15 @@ class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
 class Tabelas;
+
+struct DadosIniciativa {
+  int iniciativa = 0;
+  int modificador = 0;
+};
+
+std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade& entidade);
+inline std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade* entidade) { return entidade == nullptr ? std::nullopt : DadosIniciativaEntidade(*entidade); }
+std::optional<DadosIniciativa> DadosIniciativaEvento(const EntidadeProto::Evento& evento);
 
 // Util para rodar codigo ao sair de escopo.
 class RodaNoRetorno {
@@ -414,15 +424,15 @@ void PreencheNotificacaoRecarregamento(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Adiciona um evento do tipo passado a entidade.
-// Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
-void PreencheNotificacaoEvento(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, int rodadas,
+// Referencia é quem criou o evento. O efeito usará a iniciativa da referencia.
+void PreencheNotificacaoEventoSemComplemento(
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementos(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::vector<int>& complementos, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, const std::vector<int>& complementos, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Dado um tipo de evento, remove todos daquele tipo.
@@ -431,21 +441,21 @@ void PreencheNotificacaoRemocaoEvento(
 
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 inline void PreencheNotificacaoEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   return PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-      id_origem, DadosAtaque::default_instance(), nivel_conjurador,
+      id_origem, dados_iniciativa, DadosAtaque::default_instance(), nivel_conjurador,
       entidade_destino, efeito_adicional, ids_unicos, n, n_desfazer);
 }
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
@@ -729,9 +739,9 @@ inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadePr
 // (normalmente proto preenchido nao contem tudo).
 // Params ids_unicos é in/out.
 EntidadeProto::Evento* AdicionaEvento(
-    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
+    const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador,
     const AcaoProto::EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
@@ -848,7 +858,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 // Para os demais, cria um ataque com o efeito do feitico.
 // Retorna true se criou um ataque.
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
+    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
