@@ -819,7 +819,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       return;
     }
     if (ent::NotificacaoConsequenciaFeitico(
-          tabelas_, id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+          tabelas_, DadosIniciativaEntidade(entidade), id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
     }
 
