@@ -2011,6 +2011,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+      LOG(INFO) << "contador rodadas: " << notificacao.tabuleiro().contador_rodadas();
       if (notificacao.local()) {
         auto nr = ntf::NovaNotificacao(notificacao.tipo());
         nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
@@ -7547,9 +7548,12 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
     }
   }
 
-  auto* nr = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_RODADAS, grupo);
-  nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
-  nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
+  {
+    auto* nr = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_RODADAS, grupo);
+    nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+    nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
+    *grupo_desfazer->add_notificacao() = *nr;
+  }
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {
