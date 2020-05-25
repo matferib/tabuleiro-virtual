@@ -38,6 +38,10 @@ DadosAtaque* DadosAtaquePorGrupoOuCria(const std::string& grupo, EntidadeProto* 
   return da;
 }
 
+const ntf::Notificacao& NotificacaoFilhaOuPadrao(const ntf::Notificacao& n, int indice = 0) {
+  return indice >= 0 && indice < n.notificacao().size() ? n.notificacao(indice) : ntf::Notificacao::default_instance();
+}
+
 }  // namespace
 
 TEST(TesteBonus, TesteBonusCumulativo) {
@@ -1472,6 +1476,7 @@ TEST(TesteVazamento, TesteVazamento) {
 
 TEST(TesteVezes, TesteVezes) {
   EntidadeProto proto;
+  proto.set_gerar_agarrar(false);
   {
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("espada_longa");
@@ -1488,17 +1493,17 @@ TEST(TesteVezes, TesteVezes) {
   }
 
   RecomputaDependencias(g_tabelas, &proto);
-  // Vai ter criado o agarrar tb.
-  ASSERT_EQ(proto.dados_ataque().size(), 2);
+  ASSERT_EQ(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).id_arma(), "espada_curta");
 }
 
-TEST(TesteVezes, TesteVezes2) {
+TEST(TesteVezes, TesteRefrescamento) {
   EntidadeProto proto;
   {
     proto.set_gerar_agarrar(false);
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("espada_longa");
+    da->set_grupo("espada_longa");
     da->set_limite_vezes(0);
     da->set_mantem_com_limite_zerado(true);
     da->set_taxa_refrescamento("1");
@@ -1507,21 +1512,26 @@ TEST(TesteVezes, TesteVezes2) {
   }
   std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
   ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
-  ntf::Notificacao grupo;
-  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), &grupo);
-  ASSERT_EQ(grupo.notificacao().size(), 1);
-  e->AtualizaParcial(grupo.notificacao(0).entidade());
-  ASSERT_EQ(e->Proto().dados_ataque_size(), 1) << grupo.notificacao(0).entidade().DebugString();
-  EXPECT_EQ(e->Proto().dados_ataque(0).limite_vezes(), 3) << e->Proto().dados_ataque(0).DebugString();
+  auto grupo = NovoGrupoNotificacoes();
+  auto grupo_desfazer = NovoGrupoNotificacoes();
+  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), grupo.get(), grupo_desfazer.get());
+  {
+    e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo).entidade());
+    EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).limite_vezes(), 3) << e->Proto().dados_ataque(0).DebugString();
+  }
+  {
+    e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo_desfazer).entidade_antes());
+    EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).limite_vezes(), 0) << e->Proto().dados_ataque(0).DebugString();
+  }
 }
 
-TEST(TesteVezes, TesteVezes3) {
+TEST(TesteVezes, TesteRefrescamento2) {
   EntidadeProto proto;
   {
     proto.set_gerar_agarrar(false);
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("espada_longa");
+    da->set_grupo("espada_longa");
     da->set_limite_vezes(0);
     da->set_mantem_com_limite_zerado(true);
     da->set_taxa_refrescamento("2");
@@ -1530,14 +1540,21 @@ TEST(TesteVezes, TesteVezes3) {
   }
   std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
   ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
-  ntf::Notificacao grupo;
-  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), &grupo);
-  ASSERT_EQ(grupo.notificacao().size(), 1);
-  e->AtualizaParcial(grupo.notificacao(0).entidade());
-  ASSERT_EQ(e->Proto().dados_ataque_size(), 1) << grupo.notificacao(0).entidade().DebugString();
-  EXPECT_EQ(e->Proto().dados_ataque(0).limite_vezes(), 0) << e->Proto().dados_ataque(0).DebugString();
-  EXPECT_EQ(e->Proto().dados_ataque(0).disponivel_em(), 1) << e->Proto().dados_ataque(0).DebugString();
+
+  auto grupo = NovoGrupoNotificacoes();
+  auto grupo_desfazer = NovoGrupoNotificacoes();
+  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), grupo.get(), grupo_desfazer.get());
+
+  {
+    e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo).entidade());
+    EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).limite_vezes(), 0) << e->Proto().dados_ataque(0).DebugString();
+    EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).disponivel_em(), 1) << e->Proto().dados_ataque(0).DebugString();
+  }
+  {
+    e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo_desfazer).entidade_antes());
+    EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).limite_vezes(), 0) << e->Proto().dados_ataque(0).DebugString();
+    EXPECT_FALSE(DadosAtaquePorGrupo("espada_longa", e->Proto()).has_disponivel_em()) << e->Proto().dados_ataque(0).DebugString();
+  }
 }
 
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
