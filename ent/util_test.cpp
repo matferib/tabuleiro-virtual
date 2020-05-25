@@ -1474,7 +1474,7 @@ TEST(TesteVazamento, TesteVazamento) {
   }
 }
 
-TEST(TesteVezes, TesteVezes) {
+TEST(TesteVezes, TesteRemoveLimiteVezesExpirados) {
   EntidadeProto proto;
   proto.set_gerar_agarrar(false);
   {

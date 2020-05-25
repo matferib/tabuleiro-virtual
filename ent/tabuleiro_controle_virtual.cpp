@@ -1256,7 +1256,7 @@ void Tabuleiro::DesenhaIniciativas() {
   MudaCor(COR_AMARELA);
   std::string titulo = iniciativa_valida_
     ? StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
-    : "Iniciativa Inválida";
+    : "Iniciativa INVÁLIDA (passar para próxima)";
   gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(titulo));
   MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
