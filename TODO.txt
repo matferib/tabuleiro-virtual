@@ -1,4 +1,3 @@
-Fazer proficiencia em arma.
 Vincular luz a numero de tochas.
 Teia tem que criar o objeto da area.
 Casting time de magias (summon monster, nature ally etc).
