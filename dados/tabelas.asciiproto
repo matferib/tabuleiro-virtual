@@ -1201,6 +1201,10 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_NUBLAR
+    nome: 'nublar'
+  }
+  efeitos {
     id: EFEITO_ESCUDO_ENTROPICO
     nome: 'escudo entrópico'
   }
@@ -5278,10 +5282,13 @@ tabela_classes {
     pericias_por_nivel: 4
     # d12
     # visao escuro 12q
+    # sem constituicao
+    # sem mente: imune a efeitos mentais.
     # imune a efeitos mentais
     # imune a veneno, sono, paralisia, atordoamento, doenca, efeitos de morte.
     # imune a critico, dano nao letal, dreno de habilidade, dreno de energia, fadiga, exaustao
     # imune a efeitos que demandem fortitude save.
+    # Usa carisma para testes de concentracao.
   }
   info_classes {
     id: 'verme' nome: 'Verme'
@@ -5293,20 +5300,6 @@ tabela_classes {
     # sem mente: imune a efeitos mentais.
     # visao escuro 12q
   }
-  info_classes {
-    id: 'morto_vivo' nome: 'Morto-Vivo'
-    tipo_classe: TC_MONSTRO
-    progressao_bba: PBBA_MEIO
-    salvacoes_fortes: TS_VONTADE
-    pericias_por_nivel: 4
-    # d12
-    # sem mente: imune a efeitos mentais.
-    # visao escuro 12q
-    # sem constituicao
-    # Usa carisma para testes de concentracao.
-    # imune a critico.
-  }
-
 }
 
 tabela_pericias {
