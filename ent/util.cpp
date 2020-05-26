@@ -3101,6 +3101,9 @@ TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* pro
   for (auto& t : *proto->mutable_info_talentos()->mutable_outros()) {
     if (chave_talento == t.id()) return &t;
   }
+  for (auto& t : *proto->mutable_info_talentos()->mutable_automaticos()) {
+    if (chave_talento == t.id()) return &t;
+  }
   return proto->mutable_info_talentos()->add_outros();
 }
 
@@ -3122,6 +3125,9 @@ const TalentoProto* Talento(const std::string& chave_talento, const std::string&
     if (chave_talento == t.id() && complemento == t.complemento()) return &t;
   }
   for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id() && complemento == t.complemento()) return &t;
+  }
+  for (const auto& t : entidade.info_talentos().automaticos()) {
     if (chave_talento == t.id() && complemento == t.complemento()) return &t;
   }
   return nullptr;
@@ -4871,11 +4877,27 @@ bool PermiteEscudo(const EntidadeProto& proto) {
   return true;
 }
 
-bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto) {
-  if (escudo == "broquel" || escudo.find("leve_") == 0 || escudo.find("pesado_") == 0) {
+bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto) {
+  if (id_escudo == "broquel" || id_escudo.find("leve_") == 0 || id_escudo.find("pesado_") == 0) {
     return PossuiTalento("usar_escudo", proto);
-  } else if (escudo == "corpo") {
+  } else if (id_escudo == "corpo") {
     return PossuiTalento("usar_escudo_corpo", proto);
+  }
+  return true;
+}
+
+bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) {
+  if (arma_tabelada.id() == "adaga") { LOG(INFO) << "arma tabelada: " << arma_tabelada.DebugString(); }
+  if (arma_tabelada.id().empty()) return true;
+  if (c_any(arma_tabelada.categoria(), CAT_ARMA_NATURAL)) return true;
+  if (arma_tabelada.has_categoria_pericia()) {
+    if (arma_tabelada.categoria_pericia() == CATPER_SIMPLES) {
+      return PossuiTalento("usar_armas_simples", proto) || PossuiTalento("usar_uma_arma_simples", arma_tabelada.id(), proto);
+    } else if (arma_tabelada.categoria_pericia() == CATPER_COMUM) {
+      return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", arma_tabelada.id(), proto);
+    } else if (arma_tabelada.categoria_pericia() == CATPER_EXOTICA) {
+      return PossuiTalento("usar_arma_exotica", arma_tabelada.id(), proto);
+    }
   }
   return true;
 }

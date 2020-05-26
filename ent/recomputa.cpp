@@ -216,8 +216,8 @@ int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
   int penalidade = tabelas.Escudo(dd.id_escudo()).penalidade_armadura();
   if (dd.escudo_obra_prima()) --penalidade;
   if (dd.material_escudo() == DESC_ADAMANTE) --penalidade;
-  if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade -= 2;
-  if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
+  else if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade -= 2;
+  else if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
   return std::max(0, penalidade);
 }
 
@@ -1890,6 +1890,8 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
         ic.clear_habilidades_por_nivel();
         ic.clear_pericias();
         ic.clear_progressao_feitico();
+        ic.clear_talentos_automaticos();
+        ic.clear_talentos_com_complemento_automaticos();
         ic.MergeFrom(classe_tabelada);
         if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
           if (possui_esquiva_sobrenatural) {
@@ -1957,6 +1959,11 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
       proto->mutable_info_talentos()->add_automaticos()->set_id(id_talento);
+    }
+    for (const auto& tc : classe_tabelada.talentos_com_complemento_automaticos()) {
+      auto* talento = proto->mutable_info_talentos()->add_automaticos();
+      talento->set_id(tc.id());
+      talento->set_complemento(tc.complemento());
     }
   }
 }
@@ -2786,10 +2793,14 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+  LimpaBonus(TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
   if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+  }
+  if (!TalentoComArma(arma, proto)) {
+    AtribuiOuRemoveBonus(-4, TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   }
   // Aplica diferenca de tamanho de arma.
   TamanhoEntidade tamanho = proto.tamanho();

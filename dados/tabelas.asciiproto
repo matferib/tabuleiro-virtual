@@ -222,6 +222,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '500g' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'adaga'
@@ -237,6 +238,7 @@ tabela_armas {
     peso { medio: '0.5kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'adaga_de_soco'
@@ -249,6 +251,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '0.5kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'manopla_com_cravos'
@@ -260,6 +263,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '05kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_leve'
@@ -271,9 +275,10 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
-    id: 'foice_curta'
+    id: 'foice_curta' # sickle
     categoria: CAT_LEVE
     categoria: CAT_CAC
     nome: 'foice curta'
@@ -284,6 +289,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
     pode_derrubar: true
+    categoria_pericia: CATPER_SIMPLES
   }
   # One-Handed Melee Weapons
   armas {
@@ -297,6 +303,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '15Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_pesada'
@@ -307,6 +314,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_estrela'
@@ -319,6 +327,7 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_CONCUSSAO
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'lanca_curta'
@@ -334,6 +343,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   # Two-Handed Melee Weapons
   armas {
@@ -351,6 +361,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'lanca_longa'
@@ -366,6 +377,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'bordao'
@@ -379,6 +391,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   # Ranged Weapons
   armas {
@@ -396,6 +409,7 @@ tabela_armas {
       requer_carregamento: true
       tipo_carregamento: TC_RODADA_COMPLETA
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'besta_leve'
@@ -412,6 +426,7 @@ tabela_armas {
       requer_carregamento: true
       tipo_carregamento: TC_MOVIMENTO
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'dardo'
@@ -423,6 +438,7 @@ tabela_armas {
     alcance_quadrados: 4
     peso { medio: '250g' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'azagaia'
@@ -433,6 +449,7 @@ tabela_armas {
     alcance_quadrados: 6
     peso { medio: '1Kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'funda'
@@ -458,8 +475,9 @@ tabela_armas {
         aceleracao_m_s_2: 0.04
       }
     }
+    categoria_pericia: CATPER_SIMPLES
   }
-  # Fim armas leves.
+  # Fim armas simples.
 
   # Armas comuns.
   armas {
@@ -4147,12 +4165,19 @@ tabela_talentos {
     nome: 'Usar uma arma simples'
     descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para plebeus.'
     tipo_complemento: TCT_ARMA_SIMPLES
+    nao_pode_ser_escolhido: true
   }
   talentos {
     id: 'usar_arma_comum'
     nome: 'Usar arma comum'
     tipo_complemento: TCT_ARMA_COMUM
     descricao: 'Não sofre penalidade nos ataques com uma arma comum específica.'
+  }
+  talentos {
+    id: 'usar_armas_comuns'
+    nome: 'usar todas armas comuns'
+    descricao: 'Para classes que sabem usar todas as armas comuns.'
+    nao_pode_ser_escolhido: true
   }
   talentos {
     id: 'usar_arma_exotica'
@@ -4429,6 +4454,8 @@ tabela_classes {
     id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -4447,7 +4474,10 @@ tabela_classes {
   }
   info_classes {
     id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
-
+    talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     pericias: 'escalar'
     pericias: 'adestrar_animais'
     pericias: 'intimidacao'
@@ -4566,6 +4596,8 @@ tabela_classes {
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
 
     pericias_por_nivel: 4
     pericias: 'escalar'
@@ -4589,6 +4621,8 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 6
@@ -4648,6 +4682,16 @@ tabela_classes {
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'dardo' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'cimitarra' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'foice_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'funda' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca' }
+ 
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
@@ -4698,6 +4742,8 @@ tabela_classes {
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
@@ -4765,7 +4811,13 @@ tabela_classes {
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
     pericias_por_nivel: 8
-
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'besta_de_mao' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'porrete' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_curta' }
     pericias: 'avaliacao'
     pericias: 'equilibrio'
     pericias: 'blefar'
@@ -4880,6 +4932,11 @@ tabela_classes {
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     tipo_magia: TM_ARCANA
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_pesada' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_leve' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
     pericias_por_nivel: 2
     precisa_memorizar: true
     progressao_feitico {
@@ -4932,6 +4989,7 @@ tabela_classes {
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     tipo_magia: TM_ARCANA
+    talentos_automaticos: 'usar_armas_simples'
     id_para_magia: 'mago'
     pericias_por_nivel: 2
     progressao_feitico {
@@ -4974,7 +5032,19 @@ tabela_classes {
   }
   info_classes {
     id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
-
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_leve' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_pesada' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'machadinha' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'azagaia' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'kama' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'nunchaku' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'sai' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'shuriken' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'siangham' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'funda' }
     pericias_por_nivel: 4
     pericias: 'equilibrio'
     pericias: 'escalar'
@@ -5009,7 +5079,10 @@ tabela_classes {
     id: 'aristocrata'
     nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
     talentos_automaticos: 'usar_escudo'
-    talentos_automaticos: 'usar_escudo_aprimorado'
+    talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
+ 
     tipo_classe: TC_PDM
     pericias_por_nivel: 4
     pericias: 'avaliacao'
@@ -5068,7 +5141,9 @@ tabela_classes {
   info_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
     tipo_classe: TC_PDM
-
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
+ 
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
     pericias_por_nivel: 6
     pericias: 'avaliacao'

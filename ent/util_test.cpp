@@ -1480,11 +1480,28 @@ TEST(TesteVazamento, TesteVazamento) {
   evento->set_id_efeito(EFEITO_CURA_ACELERADA);
   evento->add_complementos(5);
   RecomputaDependencias(g_tabelas, &proto);
-  int tamanho = proto.ByteSize();
-  for (int i = 0; i < 100; ++i) {
+  const int tamanho = proto.ByteSize();
+  for (int i = 0; i < 2; ++i) {
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i << ", proto: " << proto.ShortDebugString();
+    //break;
+  }
+}
+
+TEST(TesteVazamento, TesteVazamento2) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("ladino");
+  ic->set_nivel(6);
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_FLECHA_ACIDA);
+  evento->set_rodadas(5);
+  RecomputaDependencias(g_tabelas, &proto);
+  const int tamanho = proto.ByteSize();
+  for (int i = 0; i < 5; ++i) {
     RecomputaDependencias(g_tabelas, &proto);
     EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
-    break;
+    //break;
   }
 }
 
@@ -1787,6 +1804,9 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
   auto* ic = proto.add_info_classes();
   ic->set_id("clerigo");
   ic->set_nivel(3);
+  auto* talento = proto.mutable_info_talentos()->add_gerais();
+  talento->set_id("usar_armas_comuns");
+  talento->set_complemento("espada_longa");
   // Ataques.
   {
     auto* da = proto.add_dados_ataque();
@@ -1886,6 +1906,7 @@ TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
 
 TEST(TesteDependencias, TesteInvestida) {
   EntidadeProto proto;
+  proto.mutable_info_talentos()->add_gerais()->set_id("usar_armas_comuns");
   // Ataques.
   {
     auto* da = proto.add_dados_ataque();
@@ -3060,6 +3081,10 @@ TEST(TesteFeiticos, TesteOracao) {
     auto* ic = proto.add_info_classes();
     ic->set_id("clerigo");
     ic->set_nivel(3);
+    auto* talento = proto.mutable_info_talentos()->add_gerais();
+    talento->set_id("usar_armas_comuns");
+    talento->set_complemento("espada_curta");
+ 
     AtribuiBaseAtributo(12, TA_FORCA, &proto);
     AtribuiBaseAtributo(16, TA_DESTREZA, &proto);
     AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
@@ -4433,16 +4458,16 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
   EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 15) << proto.dados_defesa().DebugString();
   ASSERT_GE(proto.dados_ataque().size(), 8);
   // Desarmado atordoante.
-  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 5) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 5) << "id_arma: " <<  proto.dados_ataque(0).id_arma() << ", bonus ataque: " << proto.dados_ataque(0).bonus_ataque().DebugString();
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8+2");
   EXPECT_EQ(proto.dados_ataque(0).dificuldade_salvacao(), 15);
   // Kama +1: derrubar, +3 ataque, +2 força, +1 arma, +1 foco em arma, -1 rajada. Dano: +2 de força, +1 arma.
-  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 6) << proto.dados_ataque(0).DebugString();
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 6) << "id_arma: " <<  proto.dados_ataque(1).id_arma() << ", bonus ataque: " << proto.dados_ataque(1).bonus_ataque().DebugString();
   EXPECT_TRUE(proto.dados_ataque(1).dano().empty());
   EXPECT_TRUE(proto.dados_ataque(1).ataque_derrubar());
   // Desarmado: +3 ataque, +2 força, -1 rajada. Dano: +2 de força.
-  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 4) << proto.dados_ataque(2).DebugString();
-  EXPECT_EQ(proto.dados_ataque(3).dano(), "1d8+2") << proto.dados_ataque(2).DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 4) << proto.dados_ataque(2).bonus_ataque().DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "1d8+2") << proto.dados_ataque(2).bonus_dano().DebugString();
   // Kama +1 sem rajada: derrubar, +3 ataque, +2 força, +1 foco em arma. Dano: +2 de força, +1 arma.
   EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 7);
   EXPECT_TRUE(proto.dados_ataque(5).dano().empty());
@@ -4727,12 +4752,18 @@ TEST(TesteEscudo, TesteEscudoComPenalidade) {
   proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
   {
     auto* da = proto.add_dados_ataque();
+    da->set_id_arma("adaga");
+    da->set_empunhadura(EA_ARMA_ESCUDO);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
     da->set_id_arma("azagaia");
     da->set_empunhadura(EA_ARMA_ESCUDO);
   }
   RecomputaDependencias(g_tabelas, &proto);
 
   EXPECT_EQ(-1, proto.dados_ataque(0).bonus_ataque_final());
+  EXPECT_EQ(-5, proto.dados_ataque(1).bonus_ataque_final());
 }
 
 TEST(TesteEscudo, TesteEscudoTalentoGuerreiro) {
@@ -4751,6 +4782,9 @@ TEST(TesteEscudo, TesteEscudoBesta) {
   auto* ic = proto.add_info_classes();
   ic->set_id("guerreiro");
   ic->set_nivel(1);
+  auto* talento = proto.mutable_info_talentos()->add_outros();
+  talento->set_id("usar_arma_exotica");
+  talento->set_complemento("besta_de_mao");
   {
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("besta_de_mao");
