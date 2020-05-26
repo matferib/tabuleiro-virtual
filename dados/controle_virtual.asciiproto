@@ -581,7 +581,10 @@ fixo {
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "Rola um d12."
-    visibilidade { referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A } }
+    visibilidade {
+      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
   }
   dados_botoes {
     tamanho: 1
