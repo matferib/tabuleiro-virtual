@@ -221,6 +221,15 @@ int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
   return std::max(0, penalidade);
 }
 
+int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
+  if (dd.armadura_obra_prima()) --penalidade;
+  if (dd.material_armadura() == DESC_ADAMANTE) --penalidade;
+  else if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
+  return std::max(0, penalidade);
+}
+
 google::protobuf::RepeatedField<int> TiposDanoParaAtaqueFisico(const google::protobuf::RepeatedField<int>& tipos_dano) {
   google::protobuf::RepeatedField<int> tipos_ataque_fisico;
   for (int td : tipos_dano) {
@@ -2787,8 +2796,6 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
   const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
-  // TODO verificar pericias nas armaduras e escudos.
-  //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
   const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
@@ -2798,6 +2805,10 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   const int bba_distancia = proto.bba().distancia();
   if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+  }
+  if (!TalentoComArmadura(tabelas.Armadura(proto.dados_defesa().id_armadura()), proto)) {
+    const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
+    AtribuiOuRemoveBonus(-penalidade_ataque_armadura, TB_PENALIDADE_ARMADURA, "armadura_sem_talento", bonus_ataque);
   }
   if (!TalentoComArma(arma, proto)) {
     AtribuiOuRemoveBonus(-4, TB_SEM_NOME, "nao_proficiente", bonus_ataque);

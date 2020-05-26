@@ -973,6 +973,8 @@ bool DestrezaNaCAContraAtaque(
 bool PermiteEscudo(const EntidadeProto& proto);
 // Retorna true se o personagem puder usar o escudo passado (por chave).
 bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto);
+// Retorna true se o personagem puder usar a armadura passada (por chave).
+bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto);
 // Retorna true se o personagem puder usar a arma passada (por chave).
 bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto);
 

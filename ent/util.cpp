@@ -4886,8 +4886,21 @@ bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto) 
   return true;
 }
 
+bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto) {
+  if (armadura_tabelada.id().empty()) return true;
+  if (armadura_tabelada.has_tipo()) {
+    if (armadura_tabelada.tipo() == TA_LEVE) {
+      return PossuiTalento("usar_armadura_leve", proto);
+    } else if (armadura_tabelada.tipo() == TA_MEDIO) {
+      return PossuiTalento("usar_armadura_media", proto);
+    } else if (armadura_tabelada.tipo() == TA_PESADO) {
+      return PossuiTalento("usar_armadura_pesada", proto);
+    }
+  }
+  return true;
+}
+
 bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) {
-  if (arma_tabelada.id() == "adaga") { LOG(INFO) << "arma tabelada: " << arma_tabelada.DebugString(); }
   if (arma_tabelada.id().empty()) return true;
   if (c_any(arma_tabelada.categoria(), CAT_ARMA_NATURAL)) return true;
   if (arma_tabelada.has_categoria_pericia()) {

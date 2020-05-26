@@ -4456,6 +4456,9 @@ tabela_classes {
     talentos_automaticos: 'usar_escudo_corpo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -4476,6 +4479,9 @@ tabela_classes {
     id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
     pericias: 'escalar'
@@ -4491,6 +4497,10 @@ tabela_classes {
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
@@ -4544,6 +4554,7 @@ tabela_classes {
     tipo_magia: TM_DIVINA
     tipo_classe: TC_PDM
     precisa_memorizar: true
+    talentos_automaticos: 'usar_armas_simples'
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31'   }
@@ -4598,7 +4609,8 @@ tabela_classes {
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
-
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
     pericias_por_nivel: 4
     pericias: 'escalar'
     pericias: 'oficios'
@@ -4621,6 +4633,7 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armadura_leve'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
     tipo_magia: TM_DIVINA
@@ -4691,7 +4704,8 @@ tabela_classes {
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca_curta' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'funda' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca' }
- 
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
@@ -4744,6 +4758,9 @@ tabela_classes {
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
@@ -4861,6 +4878,15 @@ tabela_classes {
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armadura_leve'
+    #talentos_automaticos: 'usar_armadura_media'  # TODO ha uma confusao aqui. Na entrada de bardo nao diz se pode usar ou nao, mas nos talentos diz que sim.
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_longa' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'porrete' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'chicote' }
     tipo_magia: TM_ARCANA
     pericias_por_nivel: 6
     progressao_feitico {
@@ -5082,7 +5108,9 @@ tabela_classes {
     talentos_automaticos: 'usar_escudo_corpo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
- 
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_classe: TC_PDM
     pericias_por_nivel: 4
     pericias: 'avaliacao'
@@ -5118,6 +5146,7 @@ tabela_classes {
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
     tipo_classe: TC_PDM
+    #talentos_automaticos: 'usar_uma_armas_simples'  # tem que escolher a arma
 
     pericias_por_nivel: 2
     pericias: 'escalar'
@@ -5143,7 +5172,6 @@ tabela_classes {
     tipo_classe: TC_PDM
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armadura_leve'
- 
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
     pericias_por_nivel: 6
     pericias: 'avaliacao'
