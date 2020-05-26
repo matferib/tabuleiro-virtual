@@ -143,6 +143,8 @@ class Entidade {
 
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
+  /** @return o nivel do personagem para a classe. */
+  int NivelClasse(const std::string& id_classe) const;
   /** @return o nivel de conjurador do personagem. */
   int NivelConjurador(const std::string& classe) const;
   /** Bonus base de ataque total do personagem. */
@@ -295,7 +297,7 @@ class Entidade {
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;
-  bool ImuneFurtivo() const;
+  bool ImuneFurtivo(const Entidade& atacante) const;
   bool ImuneAcaoMental() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   void AtaqueAnterior() {

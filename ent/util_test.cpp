@@ -2411,6 +2411,60 @@ TEST(TesteMatriz, TesteMatriz) {
   }
 }
 
+TEST(TesteFurtivo, TesteFurtivo) {
+  {
+    const auto& modelo = g_tabelas.ModeloEntidade("Carniçal");
+    auto ed = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    EXPECT_TRUE(ed->ImuneFurtivo(*ed));
+  }
+  {
+    EntidadeProto proto;
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_NUBLAR);  // da camuflagem.
+    evento->set_rodadas(1);
+    evento->set_id_unico(1);
+    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto* icl = proto.add_info_classes();
+    icl->set_id("ladino");
+    icl->set_nivel(4);
+    auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    EXPECT_TRUE(ed->ImuneFurtivo(*ea));
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("barbaro");
+    ic->set_nivel(5);  // ganha esquiva sobrenatural aprimorada.
+    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
+    EXPECT_TRUE(ed->ImuneFurtivo(*ed));
+    ic->set_id("ladino");
+    ic->set_nivel(9);
+    auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    EXPECT_FALSE(ed->ImuneFurtivo(*ea));
+  }
+  {
+    EntidadeProto proto;
+    auto* icb = proto.add_info_classes();
+    icb->set_id("barbaro");
+    icb->set_nivel(2);  // ganha esquiva sobrenatural.
+    auto* icl = proto.add_info_classes();
+    icl->set_id("ladino");
+    icl->set_nivel(4);  // ganha esquiva sobrenatural, converte em aprimorada.
+    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);  // nivel total 6.
+    EXPECT_TRUE(ed->ImuneFurtivo(*ed));
+    {
+      icl->set_nivel(9);  // nivel ladino 9.
+      auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+      EXPECT_TRUE(ed->ImuneFurtivo(*ea));
+    }
+    {
+      icl->set_nivel(10);  // nivel ladino 10.
+      auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+      EXPECT_FALSE(ed->ImuneFurtivo(*ea));
+    }
+  }
+}
+
 TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
   EntidadeProto ea;
   ea.mutable_dados_ataque_global()->set_flanqueando(true);

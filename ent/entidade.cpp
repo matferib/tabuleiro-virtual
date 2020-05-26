@@ -1022,6 +1022,10 @@ int Entidade::NivelPersonagem() const {
   return ent::NivelPersonagem(proto_);
 }
 
+int Entidade::NivelClasse(const std::string& id_classe) const {
+  return ent::Nivel(id_classe, proto_);
+}
+
 int Entidade::NivelConjurador(const std::string& id_classe) const {
   return ::ent::NivelConjurador(id_classe, proto_);
 }
@@ -2050,8 +2054,15 @@ bool Entidade::ImuneCritico() const {
          TemSubTipoDnD(SUBTIPO_ENXAME) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_);
 }
 
-bool Entidade::ImuneFurtivo() const {
-  return proto_.dados_defesa().imune_furtivo();
+bool Entidade::ImuneFurtivo(const Entidade& atacante) const {
+  if (proto_.dados_defesa().imune_furtivo()) return true;
+  if (PossuiHabilidadeEspecial("esquiva_sobrenatural_aprimorada", proto_)) {
+    const int nivel_defesa = NivelClasse("ladino") + NivelClasse("barbaro");
+    const int nivel_atacante = atacante.NivelClasse("ladino");
+    if (nivel_atacante - nivel_defesa < 4) return true;
+  }
+  if (ChanceFalhaDefesa(atacante.DadoCorrenteNaoNull()) > 0) return true;
+  return ImuneCritico();
 }
 
 bool Entidade::ImuneAcaoMental() const {
@@ -2345,7 +2356,9 @@ int Entidade::ChanceFalhaDefesa(const DadosAtaque& da) const {
   if (PossuiEventoNaoPossuiOutro(EFEITO_DESLOCAMENTO, EFEITO_FOGO_DAS_FADAS, proto_)) chance = 50;
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
-  if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
+  if (PossuiEvento(EFEITO_PISCAR, proto_)) {
+    chance = c_any(da.descritores(), DESC_FORCA) ? 20 : 50;
+  }
   if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_)) chance = 50;
   return chance;
 }

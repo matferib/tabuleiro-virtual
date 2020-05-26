@@ -1830,7 +1830,7 @@ float Tabuleiro::TrataAcaoIndividual(
         delta_pv += LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
-      if (!entidade_destino->ImuneFurtivo() && !acao_cura) {
+      if (!entidade_destino->ImuneFurtivo(*entidade_origem) && !acao_cura) {
         if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
             && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
           int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
