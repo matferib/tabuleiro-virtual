@@ -1,11 +1,6 @@
-
-Ao limpar iniciativa, pensar melhor em como passar rodada (e passar apenas para a proxima iniciativa). Do jeito que ta ta passando uma rodada inteira.
+Fazer proficiencia em arma.
 Vincular luz a numero de tochas.
 Teia tem que criar o objeto da area.
-Fazer furia maior de barbaro e limitar usos por dia.
-Unit test de esquiva sobrenatural aprimorada.
-Conjuracao aumentada: forca e destreza melhorados.
-Fazer proficiencia em arma.
 Casting time de magias (summon monster, nature ally etc).
 Feiticos automaticos respeitar o descritor de bom mal caos ordem.
 Teste de esquiva sobrenatural aprimorada.
@@ -22,6 +17,8 @@ Nao consigo desagarrar sem acao.
 Tab igual shift tab, zera ataques.
 Feedback de ctrl z.
 
+Conjuracao aumentada: forca e destreza melhorados.
+Fazer furia maior de barbaro e limitar usos por dia.
 Circulo magico contra mal: implementar aura.
 Fazer lufada de vento.
 Teste da CD de envenenamento (nao eh por nivel).
