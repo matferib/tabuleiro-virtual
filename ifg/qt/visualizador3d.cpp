@@ -415,7 +415,12 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
           break;
         case ent::Tabuleiro::MODO_SINALIZACAO:
         case ent::Tabuleiro::MODO_ACAO:
-          setCursor(QCursor(Qt::CrossCursor));
+          if (!notificacao.entidade().dados_ataque().empty() &&
+              !notificacao.entidade().dados_ataque(0).acao().has_tipo()) {
+            setCursor(QCursor(Qt::ForbiddenCursor));
+          } else {
+            setCursor(QCursor(Qt::CrossCursor));
+          }
           break;
         case ent::Tabuleiro::MODO_AJUDA:
           setCursor(QCursor(Qt::WhatsThisCursor));
