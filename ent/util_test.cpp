@@ -2712,17 +2712,20 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
     std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
     ntf::Notificacao n;
     std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
+    const auto& feitico = g_tabelas.Feitico("aterrorizar");
+    ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 2);
     PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), std::nullopt, /*nivel*/3, *e, g_tabelas.Feitico("teia").acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+        proto.id(), std::nullopt, /*nivel=*/3, *e,
+        feitico.acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
     PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), std::nullopt, /*nivel*/ 3, *e,
-        g_tabelas.Feitico("teia").acao().efeitos_adicionais(1), &ids_unicos,
+        proto.id(), std::nullopt, /*nivel=*/3, *e,
+        feitico.acao().efeitos_adicionais(1), &ids_unicos,
         n.add_notificacao(), nullptr);
     e->AtualizaParcial(n.notificacao(0).entidade());
     e->AtualizaParcial(n.notificacao(1).entidade());
     ASSERT_EQ(e->Proto().evento().size(), 2);
-    EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_ENREDADO);
-    EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_OUTRO);
+    EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_AMEDRONTADO);
+    EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_ABALADO);
     ASSERT_EQ(ids_unicos.size(), 2ULL);
     EXPECT_EQ(ids_unicos[0], 0);
     EXPECT_EQ(ids_unicos[1], 1);
