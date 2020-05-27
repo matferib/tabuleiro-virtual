@@ -1065,11 +1065,17 @@ float Entidade::Z(bool delta_voo) const {
 }
 
 float Entidade::ZOlho() const {
+  if (Tipo() != TE_ENTIDADE) {
+    return Pos().z();
+  }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * ponto).z);
 }
 
 float Entidade::AlturaOlho() const {
+  if (Tipo() != TE_ENTIDADE) {
+    return 0.0f; 
+  }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
 }
@@ -1582,6 +1588,9 @@ const Posicao Entidade::PosicaoAcao() const {
     auto pos = Vector4ParaPosicao(matriz * ponto);
     pos.set_id_cenario(IdCenario());
     return pos;
+  }
+  if (Tipo() != TE_ENTIDADE) {
+    return Pos();
   }
   auto pos = PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
   pos.set_id_cenario(IdCenario());
@@ -2487,6 +2496,10 @@ bool Entidade::PossuiEfeito(TipoEfeito id_efeito) const {
   return ent::PossuiEvento(id_efeito, proto_);
 }
 
+bool Entidade::PossuiUmDosEfeitos(const std::vector<TipoEfeito>& ids_efeitos) const {
+  return ent::PossuiUmDosEventos(ids_efeitos, proto_);
+}
+
 bool Entidade::PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento) const {
   if (complemento.has_value()) {
     return ent::PossuiTalento(talento, *complemento, proto_);
@@ -2512,6 +2525,13 @@ bool Entidade::Caotica() const {
 bool Entidade::Ordeira() const {
   auto ts = proto_.tendencia().simples();
   return ts == TD_LEAL_BOM || ts == TD_LEAL_NEUTRO || ts == TD_LEAL_MAU;
+}
+
+bool Entidade::PodeMover() const {
+  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA})) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace ent

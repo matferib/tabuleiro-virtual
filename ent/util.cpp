@@ -3474,9 +3474,11 @@ const EfeitoAdicional* EfeitoAnterior(const EfeitoAdicional& efeito_adicional, c
   return nullptr;
 }
 
-// Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo.
+// Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo. Caso nao haja alvo, nao preenchera rodadas que depende disso.
 constexpr int kEfeitoContinuo = std::numeric_limits<int>::max();
-int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const EntidadeProto& lancador, const Entidade& alvo) {
+int Rodadas(
+    int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const EntidadeProto& lancador,
+    const Entidade* alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_rodadas()) {
     VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
@@ -3509,7 +3511,8 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
         modificador = kEfeitoContinuo;
       break;
       case MR_PALAVRA_PODER_ATORDOAR: {
-        const int pv = alvo.PontosVida();
+        if (alvo == nullptr) break;
+        const int pv = alvo->PontosVida();
         if (pv <= 50) {
           modificador = RolaValor("4d4");;
         } else if (pv <= 100) {
@@ -3520,7 +3523,8 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
       }
       break;
       case MR_PALAVRA_PODER_CEGAR: {
-        const int pv = alvo.PontosVida();
+        if (alvo == nullptr) break;
+        const int pv = alvo->PontosVida();
         if (pv <= 50) {
           modificador = kEfeitoContinuo;
         } else if (pv <= 100) {
@@ -3641,7 +3645,7 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
     unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
-  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, alvo);
+  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, &alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
                         (!efeito_adicional.has_rodadas() &&
                          !efeito_adicional.has_modificador_rodadas() &&
@@ -4955,27 +4959,27 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referenc
 
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
   const auto& classe_feitico_ativa = referencia.Proto().classe_feitico_ativa();
-  const int nivel = referencia.NivelConjurador(classe_feitico_ativa);
+  const int nivel_conjurador = referencia.NivelConjurador(classe_feitico_ativa);
   const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
-  VLOG(1) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
+  VLOG(1) << "usando nivel: " << nivel_conjurador << " para classe: " << referencia.Proto().classe_feitico_ativa();
   PassaAtributosReferencia(feitico, referencia, modelo);
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {
       case TD_RODADAS_NIVEL:
-        duracao_rodadas = nivel;
+        duracao_rodadas = nivel_conjurador;
         break;
       case TD_MINUTOS_NIVEL:
-        duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
+        duracao_rodadas = nivel_conjurador * MINUTOS_PARA_RODADAS;
         break;
       case TD_10_MINUTOS_NIVEL:
-        duracao_rodadas = 10 * nivel * MINUTOS_PARA_RODADAS;
+        duracao_rodadas = 10 * nivel_conjurador * MINUTOS_PARA_RODADAS;
         break;
       case TD_HORAS_NIVEL:
-        duracao_rodadas = nivel * HORAS_PARA_RODADAS;
+        duracao_rodadas = nivel_conjurador * HORAS_PARA_RODADAS;
         break;
       case TD_2_HORAS_NIVEL:
-        duracao_rodadas = 2 * nivel * HORAS_PARA_RODADAS;
+        duracao_rodadas = 2 * nivel_conjurador * HORAS_PARA_RODADAS;
         break;
       default:
         break;
@@ -4996,8 +5000,8 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
       evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto().evento()));
     }
   }
-  if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
-    int modificador = nivel * parametros.multiplicador_nivel_dano();
+  if (parametros.multiplicador_nivel_dano() > 0 && nivel_conjurador > 0) {
+    int modificador = nivel_conjurador * parametros.multiplicador_nivel_dano();
     if (parametros.has_maximo_modificador_dano()) {
       modificador = std::min(parametros.maximo_modificador_dano(), modificador);
     }
@@ -5022,7 +5026,7 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
         break;
       }
       case TMA_BBA_NIVEL_CONJURADOR:
-        modificador_ataque = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
+        modificador_ataque = nivel_conjurador;
         break;
       default:
         break;
@@ -5054,6 +5058,13 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
               nivel_feitico >= 0
               ? 10 + nivel_feitico + referencia.ModificadorAtributoConjuracao()
               : da.dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+          if (!da.acao_fixa().efeitos_adicionais().empty()) {
+            for (auto& ea : *da.mutable_acao_fixa()->mutable_efeitos_adicionais()) {
+              if (ea.has_modificador_rodadas()) {
+                ea.set_rodadas(Rodadas(nivel_conjurador, ea, da.acao_fixa(), referencia.Proto(), /*alvo=*/nullptr));
+              }
+            }
+          }
         }
         break;
       case TMS_NENHUM:
@@ -5836,7 +5847,7 @@ bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto)
 
 void ResolveEfeitoAdicional(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, EfeitoAdicional* efeito_adicional, AcaoProto* acao_proto) {
   if (!efeito_adicional->has_rodadas()) {
-    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, lancador, alvo));
+    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, lancador, &alvo));
   }
 }
 

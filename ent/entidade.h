@@ -257,7 +257,8 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   /** @return true se a entidade tiver o efeito. */
-  bool PossuiEfeito(TipoEfeito efeito) const;
+  bool PossuiEfeito(TipoEfeito id_efeito) const;
+  bool PossuiUmDosEfeitos(const std::vector<TipoEfeito>& ids_efeitos) const;
 
   bool PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento = std::nullopt) const;
 
@@ -345,6 +346,8 @@ class Entidade {
 
   bool ImuneVeneno() const;
   bool ImuneDoenca() const;
+
+  bool PodeMover() const;
 
   /** Por padrao, apenas entidades podem ser afetadas por acao. */
   inline bool PodeSerAfetadoPorAcoes() const {

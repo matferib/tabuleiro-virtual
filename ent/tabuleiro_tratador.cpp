@@ -1006,7 +1006,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), MODO_ACAO, &parametros_desenho_);
   // Preenche os dados comuns.
   unsigned int id, tipo_objeto;
@@ -2378,7 +2378,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     float atraso_s = 0.0f;
     for (auto id_selecionado : ids_origem) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
-      if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
+      if (entidade == nullptr || !entidade->DadoCorrenteNaoNull().acao().has_tipo()) {
         continue;
       }
       atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade_destino, pos_tabuleiro, id_entidade_destino, atraso_s);
@@ -3173,16 +3173,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       }
     }
   }
-  // Colisao
+  // Colisao: pega o menor dx, dy e dz entre todas as entidades (todas moverão isso).
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  const std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
+  const std::vector<unsigned int> ids = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
   Entidade* entidade_referencia = nullptr;
-  if (ids_colisao.size() == 1) {
-    entidade_referencia = BuscaEntidade(ids_colisao[0]);
-  } else if (ids_colisao.size() > 1) {
+  if (ids.size() == 1) {
+    entidade_referencia = BuscaEntidade(ids[0]);
+  } else if (ids.size() > 1) {
     Vector2 media;
     // Media.
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3190,10 +3190,10 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       media.x += entidade->X();
       media.y += entidade->Y();
     }
-    media /= ids_colisao.size();
+    media /= ids.size();
     // Maior distancia para normalizacao.
     float maior = 0.0f;
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3206,7 +3206,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     vetor_referencia.normalize();
     vetor_referencia *= maior;
     float menor_distancia = std::numeric_limits<float>::max();
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3221,6 +3221,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     }
   }
 
+  // Usa a referencia para pegar a colisao.
   if (entidade_referencia != nullptr) {
     auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
     vetor_movimento.normalize();
@@ -3231,10 +3232,14 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : ids_colisao) {
+  for (unsigned int id : ids) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
+    }
+    if (!entidade_selecionada->PodeMover()) {
+      AdicionaAcaoTextoLogado(entidade_selecionada->Id(), "entidade não pode mover", /*atraso_s=*/0.0f);
+      return;
     }
     VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
 
@@ -3285,6 +3290,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     AtualizaOlho(0, true  /*forcar*/);
   }
+  RequerAtualizacaoLuzesPontuais();
 }
 
 void Tabuleiro::TrataTranslacaoZ(float delta) {

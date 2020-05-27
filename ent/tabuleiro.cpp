@@ -1759,9 +1759,7 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
 
 void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
   AdicionaAcaoTexto(id, texto, atraso_s, local_apenas);
-  auto* entidade_destino = BuscaEntidade(id);
-  AdicionaLogEvento(google::protobuf::StringPrintf(
-          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
+  AdicionaLogEvento(id, texto);
 }
 
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
@@ -7554,7 +7552,9 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
     auto* nr = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_RODADAS, grupo);
     nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
     nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
-    *grupo_desfazer->add_notificacao() = *nr;
+    if (grupo_desfazer != nullptr) {
+      *grupo_desfazer->add_notificacao() = *nr;
+    }
   }
 }
 

@@ -221,6 +221,8 @@ enum TipoEfeito {
   EFEITO_DOMINAR_ANIMAL = 142;
   EFEITO_DOMINAR_PESSOA = 143;
   EFEITO_DESTRUICAO_MORTO_VIVO = 144;
+  // Diferente de imobilizado, porque ainda pode se mexer, mas não pode mover. Ver teia.
+  EFEITO_NAO_PODE_MOVER = 145;
 }
 
 enum TipoEfeitoModelo {
