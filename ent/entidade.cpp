@@ -1979,7 +1979,7 @@ int Entidade::BonusAtaque() const {
 }
 
 int Entidade::BonusAtaqueToque() const {
-  if (PossuiTalento("acuidade_arma", proto_)) {
+  if (PossuiTalento("acuidade_arma")) {
     if (!proto_.bba().has_cac() || !proto_.bba().has_distancia()) return AtaqueCaInvalido;
     return std::max(proto_.bba().cac(), proto_.bba().distancia());
   } else {
@@ -1999,7 +1999,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
 
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
-      PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+      PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   if (proto_.dados_defesa().has_ca()) {
@@ -2485,6 +2485,13 @@ void Entidade::AtualizaMatrizAcaoSecundaria(const Matrix4& matriz) {
 
 bool Entidade::PossuiEfeito(TipoEfeito id_efeito) const {
   return ent::PossuiEvento(id_efeito, proto_);
+}
+
+bool Entidade::PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento) const {
+  if (complemento.has_value()) {
+    return ent::PossuiTalento(talento, *complemento, proto_);
+  }
+  return ent::PossuiTalento(talento, proto_);
 }
 
 bool Entidade::Boa() const {

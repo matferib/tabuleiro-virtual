@@ -1373,6 +1373,44 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
+  EntidadeProto proto;
+  proto.set_gerar_agarrar(false);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("druida");
+  ic->set_nivel(6);
+  AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
+  RecomputaDependencias(g_tabelas, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Clérigo");
+  da->set_id_arma("invocar_aliado_natureza_i");
+  RecomputaDependencias(g_tabelas, &proto);
+  AcaoProto acao = da->acao();
+  ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
+  ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 5);
+  ASSERT_EQ(acao.parametros_lancamento().parametros(0).id_modelo_entidade(), "Rato Atroz IANI");
+  const auto& modelo_rato = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(0).id_modelo_entidade());
+  EntidadeProto proto_rato = modelo_rato.entidade();
+  ASSERT_TRUE(modelo_rato.has_parametros());
+
+  {
+    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
+    EXPECT_EQ(proto_rato.dados_vida(), "1d8+1");
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto_rato)), 10);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_rato)), 12);
+  }
+
+  {
+    proto.mutable_info_talentos()->add_gerais()->set_id("potencializar_invocacao");
+    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
+    EXPECT_EQ(proto_rato.dados_vida(), "1d8+1+2");
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto_rato)), 14);
+    EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_rato)), 16);
+  }
+}
+
 TEST(TesteTalentoPericias, TesteTabeladoTalentos) {
   for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
     EntidadeProto proto = modelo.entidade();

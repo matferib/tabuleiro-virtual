@@ -3663,6 +3663,7 @@ tabela_talentos {
     id: 'potencializar_invocacao'
     nome: 'Potencializar Invocação'
     # Foco em Magia (conjuração)
+    # pre_requisitos { talentos: [ 'ataque_desarmado_aprimorado' ] }
     descricao: 'As criaturas invocadas recebem +4 For e +4 Cons.'
   }
   talentos {

@@ -1704,6 +1704,10 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
       proto.selecionavel_para_jogador() ? ", [selecionável]" : "");
 }
 
+std::string RotuloEntidade(const Entidade& entidade) {
+  return RotuloEntidade(entidade.Proto());
+}
+
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
   switch (n.tipo()) {
     case ntf::TN_GRUPO_NOTIFICACOES: {
@@ -4924,18 +4928,26 @@ int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitic
 
 namespace {
 
-void PassaAtributosReferencia(const ArmaProto& feitico, const EntidadeProto& referencia, EntidadeProto* modelo) {
-  if (referencia.has_iniciativa()) {
-    modelo->set_iniciativa(referencia.iniciativa());
+void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referencia, EntidadeProto* modelo) {
+  if (referencia.TemIniciativa()) {
+    modelo->set_iniciativa(referencia.Iniciativa());
   }
   modelo->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
-  if (referencia.has_cor()) {
+  if (referencia.Proto().has_cor()) {
     Cor cor_destino = !modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
-    CombinaCorComPeso(0.3, referencia.cor(), &cor_destino);
+    CombinaCorComPeso(0.3, referencia.Proto().cor(), &cor_destino);
     *modelo->mutable_cor() = cor_destino;
   }
   if (feitico.escola() == "conjuracao") {
     modelo->set_conjurada(true);
+    if (referencia.PossuiTalento("potencializar_invocacao")) {
+      AtribuiBonus(4, TB_MELHORIA, "potencializar_invocacao", BonusAtributo(TA_FORCA, modelo));
+      AtribuiBonus(4, TB_MELHORIA, "potencializar_invocacao", BonusAtributo(TA_CONSTITUICAO, modelo));
+      if (!modelo->dados_vida().empty()) {
+        const int bonus_pv = NivelPersonagem(*modelo) * 2;
+        modelo->set_dados_vida(StringPrintf("%s+%d", modelo->dados_vida().c_str(), bonus_pv));
+      }
+    }
   }
 }
 
@@ -4946,7 +4958,7 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
   const int nivel = referencia.NivelConjurador(classe_feitico_ativa);
   const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
   VLOG(1) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
-  PassaAtributosReferencia(feitico, referencia.Proto(), modelo);
+  PassaAtributosReferencia(feitico, referencia, modelo);
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {

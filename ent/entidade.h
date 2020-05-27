@@ -2,6 +2,7 @@
 #define ENT_ENTIDADE_H
 
 #include <boost/timer/timer.hpp>
+#include <optional>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -257,6 +258,8 @@ class Entidade {
 
   /** @return true se a entidade tiver o efeito. */
   bool PossuiEfeito(TipoEfeito efeito) const;
+
+  bool PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento = std::nullopt) const;
 
   // Acesso simplificado a alinhamento parcial.
   bool Boa() const;

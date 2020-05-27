@@ -1,3 +1,4 @@
+Terminar a iniciativa de eventos.
 Vincular luz a numero de tochas.
 Teia tem que criar o objeto da area.
 Casting time de magias (summon monster, nature ally etc).
@@ -16,7 +17,6 @@ Nao consigo desagarrar sem acao.
 Tab igual shift tab, zera ataques.
 Feedback de ctrl z.
 
-Conjuracao aumentada: forca e destreza melhorados.
 Fazer furia maior de barbaro e limitar usos por dia.
 Circulo magico contra mal: implementar aura.
 Fazer lufada de vento.
@@ -47,7 +47,6 @@ Armadilha de fogo: dano variavel.
 Fazer mais um bicho do summon nature ally iv.
 Botao de aplicar efeitos na UI.
 Feiticos de druida ate 5o nivel.
-Criaturas conjuradas herdar iniciativa da referencia.
 Druida 10.
 Feiticos de cura e infligir em massa para clerigo.
 Modificadores de ataque e dano de elementais.
