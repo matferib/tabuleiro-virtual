@@ -1219,6 +1219,10 @@ tabela_armas {
 
 tabela_efeitos {
   efeitos {
+    id: EFEITO_NAO_PODE_MOVER
+    nome: 'não pode se mover, mas pode mexer'
+  }
+  efeitos {
     id: EFEITO_NUBLAR
     nome: 'nublar'
   }
@@ -5955,6 +5959,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Muralha de Vento'
       elemento: DESC_AR
@@ -10528,35 +10533,40 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço a Distância'
-      tipo: ACAO_DISPERSAO
-      geometria: ACAO_GEO_ESFERA
-      raio_quadrados: 4
-      efeito_area: true
-      duracao_s: 0.350
-      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      icone: 'icon_web.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: true
-      resultado_ao_salvar: RS_ANULOU
-      tipo_salvacao: TS_REFLEXO
-      # Nao salvou, efeito completo.
-      efeitos_adicionais {
-        efeito: EFEITO_ENREDADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
-      efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'não pode mover, ver descricao.'
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
-      # Se salvou, fica enredado.
-      efeitos_adicionais_se_salvou {
-        efeito: EFEITO_ENREDADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Teia'
     }
+    #acao {
+    #  id: 'Feitiço a Distância'
+    #  tipo: ACAO_DISPERSAO
+    #  geometria: ACAO_GEO_ESFERA
+    #  raio_quadrados: 4
+    #  efeito_area: true
+    #  duracao_s: 0.350
+    #  cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+    #  icone: 'icon_web.png'
+    #  permite_ataque_vs_defesa: false
+    #  ignora_resistencia_magia: true
+    #  permite_salvacao: true
+    #  resultado_ao_salvar: RS_ANULOU
+    #  tipo_salvacao: TS_REFLEXO
+    #  # Nao salvou, efeito completo.
+    #  efeitos_adicionais {
+    #    efeito: EFEITO_ENREDADO
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #  efeitos_adicionais {
+    #    efeito: EFEITO_OUTRO
+    #    descricao: 'não pode mover, ver descricao.'
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #  # Se salvou, fica enredado.
+    #  efeitos_adicionais_se_salvou {
+    #    efeito: EFEITO_ENREDADO
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #}
     escola: 'conjuracao'
   }
 
@@ -11789,6 +11799,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Terra Mole'
       elemento: DESC_TERRA
@@ -11843,7 +11854,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço de Toque'
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       permite_salvacao: false
       id_modelo_entidade: 'Armadilha'
@@ -11881,6 +11892,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
+      id: 'Criação de Entidade'
       elemento: DESC_FOGO
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Armadilha de Fogo'

@@ -2237,6 +2237,54 @@ modelo {
   }
 }
 modelo {
+  id: 'Teia'
+  entidade {
+    tipo: TE_FORMA
+    escala { x: 12 y: 12 z: 12 }  # unidades em diametro (metros) para entidades forma.
+    sub_tipo: TF_ESFERA
+    info_textura { id: 'icon_web.png' escala_x: 0.5 escala_y: 0.5 }
+    cor { r: 1 g: 1 b: 1 a: 0.8 }
+    pode_ser_afetada_por_acao: false
+    gerar_agarrar: false
+    faz_sombra: false
+    dados_ataque {
+      alcance_q: 4
+      ignora_origem: true
+      incrementa_proximo_ataque: false
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+        icone: 'icon_web.png'
+        permite_ataque_vs_defesa: false
+        ignora_resistencia_magia: true
+        permite_salvacao: true
+        resultado_ao_salvar: RS_ANULOU
+        tipo_salvacao: TS_REFLEXO
+        # Nao salvou, efeito completo.
+        efeitos_adicionais {
+          efeito: EFEITO_ENREDADO
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+        efeitos_adicionais {
+          efeito: EFEITO_NAO_PODE_MOVER
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+        # Se salvou, fica enredado.
+        efeitos_adicionais_se_salvou {
+          efeito: EFEITO_ENREDADO
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+      }
+    }
+    ignora_luz: true
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Esfera Flamejante'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
