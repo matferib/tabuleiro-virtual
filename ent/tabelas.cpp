@@ -239,7 +239,9 @@ void Tabelas::RecarregaMapas() {
         arma.mutable_acao()->set_id("Ataque Corpo a Corpo");
       }
     }
-    arma.add_categoria(CAT_ARMA);
+    if (c_none(ItemsQueGeramAtaques(), arma.id())) {
+      arma.add_categoria(CAT_ARMA);
+    }
     ConverteDano(&arma);
     if (arma.info_modelo_3d().id().empty()) {
       if (arma.id().find("espada") != std::string::npos) {
