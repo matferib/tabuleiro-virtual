@@ -103,6 +103,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_TIPO_TESOURO:
+      TrataEscolherTipoTesouro(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS:
       TrataEscolherAliados(notificacao);
       return true;
@@ -158,6 +161,59 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
+//----------------------
+// Escolher Tipo Tesouro
+//----------------------
+void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notificacao) {
+  std::vector<ent::TipoItem> mapa_indice_tipo;
+  std::vector<std::string> nomes_itens;
+  for (ent::TipoItem tipo : { ent::TIPO_ANEL, ent::TIPO_MANTO, ent::TIPO_LUVAS, ent::TIPO_BRACADEIRAS,
+                              ent::TIPO_POCAO, ent::TIPO_AMULETO, ent::TIPO_BOTAS, ent::TIPO_CHAPEU,
+                              ent::TIPO_PERGAMINHO_ARCANO, ent::TIPO_PERGAMINHO_DIVINO, ent::TIPO_ITEM_MUNDANO}) {
+    const auto& itens = ItensProto(tipo, notificacao.entidade());
+    if (itens.empty()) continue;
+    nomes_itens.push_back(ent::NomeTipoItem(tipo));
+    mapa_indice_tipo.push_back(tipo);
+  }
+  if (nomes_itens.empty()) return;
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemLista(
+      "Escolha o tipo de item", nomes_itens,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherTipoTesouro,
+          this, notificacao, mapa_indice_tipo,
+          _1, _2));
+
+
+}
+
+void InterfaceGrafica::VoltaEscolherTipoTesouro(const ntf::Notificacao notificacao, std::vector<ent::TipoItem> mapa_indice_tipo, bool ok, int indice_tipo) {
+  ent::RodaNoRetorno([this] () {
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
+  if (!ok) {
+    return;
+  }
+  if (indice_tipo < 0 || indice_tipo >= mapa_indice_tipo.size()) {
+    // TODO erro
+    return;
+  }
+  const auto* receptor = tabuleiro_->BuscaEntidade(notificacao.id_referencia());
+  const auto* doador = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
+  if (receptor == nullptr || doador == nullptr) {
+    LOG(ERROR) << (receptor == nullptr && doador == nullptr
+        ? "receptor e doador são nulos" 
+        : (receptor == nullptr ? "receptor é nulo" : "doador é nulo"));
+    // TODO dar mensagem de erro.
+    return;
+  }
+  ent::TipoItem tipo = mapa_indice_tipo[indice_tipo];
+  auto grupo = ent::NovoGrupoNotificacoes();
+  ent::PreencheNotificacoesTransicaoUmTipoTesouro(tabelas_, tipo, *doador, *receptor, grupo.get(), /*n_desfazer=*/nullptr);
+  tabuleiro_->TrataNotificacao(*grupo);
+  tabuleiro_->AdicionaNotificacaoListaEventos(*grupo);
+}
+
 //-----------------
 // Escolher Pericia
 //-----------------
@@ -175,7 +231,6 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
   std::vector<std::string> nomes_pericias;
   std::vector<std::string> mapa_indice_id;
   for (auto& it : mapa_nomes) {
-
     nomes_pericias.push_back(it.first);
     mapa_indice_id.push_back(it.second);
   }
@@ -188,7 +243,7 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
 }
 
 void InterfaceGrafica::VoltaEscolherPericia(
-    ntf::Notificacao notificacao, std::vector<std::string> mapa_indice_id,
+    const ntf::Notificacao notificacao, std::vector<std::string> mapa_indice_id,
     bool ok, int indice_selecao) {
   if (ok && indice_selecao >= 0 && indice_selecao <= (int)mapa_indice_id.size()) {
     if (notificacao.notificacao().empty() && notificacao.has_entidade()) {
