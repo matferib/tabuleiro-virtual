@@ -1,10 +1,19 @@
-Terminar a iniciativa de eventos.
-Vincular luz a numero de tochas.
-Teia tem que criar o objeto da area.
-Casting time de magias (summon monster, nature ally etc).
-Feiticos automaticos respeitar o descritor de bom mal caos ordem.
-Teste de esquiva sobrenatural aprimorada.
+Sessao:
+* fazer andalara.
+* Fazer os 4 acompanhantes.
+* Bolar a missão: 
+  - começar com um resgate em uma casa sendo assaltada
+  - passar por um bloqueio de vultos.
 
+Icone para gas sono.
+Acao de recarregar arma.
+Teste de concentração para enredados.
+Vincular luz a numero de tochas.
+Casting time de magias (summon monster, nature ally etc).
+Terminar a iniciativa de eventos.
+
+Fazer furia maior de barbaro e limitar usos por dia.
+Feiticos automaticos respeitar o descritor de bom mal caos ordem.
 Nova tabela de encontro para batalha de Tilverton.
 Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
@@ -15,9 +24,7 @@ Menu para recarregar tabelas.
 Lista de entidades afetadas ordenada.
 Nao consigo desagarrar sem acao.
 Tab igual shift tab, zera ataques.
-Feedback de ctrl z.
 
-Fazer furia maior de barbaro e limitar usos por dia.
 Circulo magico contra mal: implementar aura.
 Fazer lufada de vento.
 Teste da CD de envenenamento (nao eh por nivel).
