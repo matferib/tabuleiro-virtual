@@ -1240,6 +1240,11 @@ tabela_efeitos {
     nome: 'não pode se mover, mas pode mexer'
   }
   efeitos {
+    id: EFEITO_CONJURANDO
+    nome: 'conjurando'
+    # Descricao: o complemento str é uma entidade serializada que contem todos os parametros necessários para executar a magia.
+  }
+  efeitos {
     id: EFEITO_NUBLAR
     nome: 'nublar'
   }
@@ -5487,6 +5492,7 @@ tabela_pericias {
     sinergias { id: 'disfarces' }
     sinergias { id: 'intimidacao' }
     sinergias { id: 'prestidigitacao' }
+    id_resistido: 'sentir_motivacao'
   }
   pericias {
     id: 'cavalgar'
@@ -5592,6 +5598,7 @@ tabela_pericias {
     # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ladino'  'aristocrata'  ]
     sem_treinamento: true
     atributo: TA_CARISMA
+    id_resistido: 'diplomacia'
   }
   pericias {
     id: 'disfarces'
@@ -5623,6 +5630,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    id_resistido: 'observar'
   }
   pericias {
     id: 'falar_idioma'
@@ -5644,6 +5652,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    id_resistido: 'ouvir'
   }
   pericias {
     id: 'identificar_magia'
@@ -5673,6 +5682,7 @@ tabela_pericias {
     # classes: [  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    id_resistido: 'esconderse'
   }
   pericias {
     id: 'obter_informacao'
@@ -5747,6 +5757,7 @@ tabela_pericias {
     # classes: [  'barbaro'  'bardo'  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    id_resistido: 'furtividade'
   }
   pericias {
     id: 'prestidigitacao'
@@ -5786,6 +5797,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_SABEDORIA
     sinergias { id: 'diplomacia' }
+    id_resistido: 'blefar'
   }
   pericias {
     id: 'sobrevivencia'
@@ -6143,6 +6155,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_i'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza I'
     nome_ingles: "summon nature's ally I"
     alcance_quadrados: 5
@@ -6186,6 +6199,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_ii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza II'
     nome_ingles: "summon nature's ally II"
     alcance_quadrados: 5
@@ -6246,6 +6260,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_iii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza III'
     nome_ingles: "summon nature's ally III"
     alcance_quadrados: 5
@@ -6321,6 +6336,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_iv'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza IV'
     nome_ingles: "summon nature's ally IV"
     alcance_quadrados: 5
@@ -6383,6 +6399,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_v'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza V'
     nome_ingles: "summon nature's ally V"
     alcance_quadrados: 5
@@ -6430,6 +6447,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_vi'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza VI'
     nome_ingles: "summon nature's ally VI"
     alcance_quadrados: 5
@@ -6483,6 +6501,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_vii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza VII'
     nome_ingles: "summon nature's ally VII"
     alcance_quadrados: 5
@@ -10083,6 +10102,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_i'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas I'
     nome_ingles: 'summon monster I'
     alcance_quadrados: 5
@@ -10126,6 +10146,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_criaturas_ii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas II'
     nome_ingles: 'summon monster II'
     alcance_quadrados: 5
@@ -10174,6 +10195,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas III'
     nome_ingles: 'summon monster III'
     alcance_quadrados: 5
@@ -10199,6 +10221,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iv'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas IV'
     nome_ingles: 'summon monster IV'
     alcance_quadrados: 5
@@ -10224,6 +10247,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_v'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas V'
     nome_ingles: 'summon monster V'
     alcance_quadrados: 5
@@ -10249,6 +10273,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_vi'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VI'
     nome_ingles: 'summon monster VI'
     alcance_quadrados: 5
@@ -10274,6 +10299,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_vii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VII'
     nome_ingles: 'summon monster VII'
     alcance_quadrados: 5
@@ -10295,6 +10321,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_viii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VIII'
     nome_ingles: 'summon monster VIII'
     alcance_quadrados: 5
@@ -10316,6 +10343,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_ix'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas IX'
     nome_ingles: 'summon monster IX'
     alcance_quadrados: 5
@@ -11880,6 +11908,7 @@ tabela_feiticos {
   }
   armas {
     id: 'convocar_relampagos'
+    tempo_execucao_rodadas: 1
     nome_ingles: 'call lightning'
     nome: 'convocar relâmpagos'
     info_classes {

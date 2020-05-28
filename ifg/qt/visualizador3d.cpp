@@ -426,7 +426,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
           setCursor(QCursor(Qt::WhatsThisCursor));
           break;
         case ent::Tabuleiro::MODO_REGUA:
-          setCursor(QCursor(Qt::SizeBDiagCursor));
+          setCursor(QCursor(Qt::CrossCursor));
+          break;
+        case ent::Tabuleiro::MODO_PERICIA:
+          setCursor(QCursor(Qt::PointingHandCursor));
+          break;
+        case ent::Tabuleiro::MODO_ROLA_DADO:
+          setCursor(QCursor(Qt::OpenHandCursor));
           break;
         default:
           setCursor(QCursor(Qt::ArrowCursor));

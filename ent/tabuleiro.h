@@ -323,6 +323,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
 
+  /** Trata o botao do modo de pericia pressionado. */
+  void TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
+
   /** Alterna a furia da entidade selecionada. */
   void AlternaFuria();
 
@@ -439,7 +442,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataTranslacaoZ(float delta);
 
   /** Rola a pericia do proto e mostra notifica clientes. */
-  void TrataRolarPericiaNotificando(const std::string& pericia, const EntidadeProto& proto);
+  void TrataRolarPericiaNotificando(const std::string& pericia, float atraso_s, const EntidadeProto& proto);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();
@@ -462,6 +465,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Altera o desenho entre os modos de debug (para OpenGL ES). */
   void AlternaModoDebug();
+
+  /** Entra no modo clique de pericia com as informações passadas. */
+  void EntraModoPericia(const std::string& id_pericia, const ntf::Notificacao& notificacao);
 
   /** No modo acao, cada clique gera uma acao. */
   void AlternaModoAcao();
@@ -508,6 +514,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_DOACAO,            // usado para doar itens de um personagem para outro.
     MODO_AGUARDANDO,        // Quando entra nesse modo, os cliques ficam invalidos. So sai quando receber MODO_SAIR_AGUARDANDO.
     MODO_SAIR_AGUARDANDO,   // vide acima.
+    MODO_PERICIA,      // O clique rolará a perícia do personagem.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -1442,6 +1449,7 @@ class Tabuleiro : public ntf::Receptor {
 
   ntf::Notificacao notificacao_selecao_transicao_;
   ntf::Notificacao notificacao_doacao_;
+  ntf::Notificacao notificacao_pericia_;
 
   // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
   struct LuzPontual {

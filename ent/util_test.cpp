@@ -4334,6 +4334,7 @@ TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
     EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_TRUE(da.ataque_toque());
     EXPECT_EQ(da.municao(), 1U);
     EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
   }

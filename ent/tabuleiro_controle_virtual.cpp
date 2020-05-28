@@ -864,6 +864,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_ESQUIVA:     return CONTROLE_MODO_ESQUIVA;
     case Tabuleiro::MODO_MONTAR:      return CONTROLE_MODO_MONTAR;
     case Tabuleiro::MODO_AGUARDANDO:  return CONTROLE_MODO_AGUARDANDO;
+    case Tabuleiro::MODO_PERICIA:     return CONTROLE_ROLAR_PERICIA;
     default:                          return CONTROLE_AJUDA;
   }
 }

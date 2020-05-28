@@ -147,5 +147,5 @@ message Notificacao {
   repeated Notificacao notificacao = 14;
   // Para mensagens poderem usar de forma generica.
   optional int32 id_generico = 23;
-  optional int32 str_generica = 24;
+  optional string str_generica = 24;
 }

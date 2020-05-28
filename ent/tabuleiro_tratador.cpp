@@ -2270,6 +2270,35 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   return atraso_s;
 }
 
+void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+  EntraModoClique(MODO_NORMAL);
+  float atraso_s = 0.0f;
+  if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
+    TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, notificacao_pericia_.entidade());
+    atraso_s += 1.0f;
+  } else {
+    for (const auto& n : notificacao_pericia_.notificacao()) {
+      TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, n.entidade());
+      atraso_s += 1.0f;
+    }
+  }
+  const auto& pericia_tabelada = tabelas_.Pericia(notificacao_pericia_.str_generica());
+  if (pericia_tabelada.id_resistido().empty()) {
+    return;
+  }
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    return;
+  }
+  const auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE || entidade->Id() == notificacao_pericia_.entidade().id()) {
+    return;
+  }
+  TrataRolarPericiaNotificando(pericia_tabelada.id_resistido(), atraso_s, entidade->Proto());
+}
+
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
@@ -2289,19 +2318,6 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
     LOG(INFO) << "Defesor nullptr";
     return;
   }
-  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
-  n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(
-      entidade_defensora->Proto().dados_defesa().has_entidade_esquiva()
-      ? entidade_defensora->Proto().dados_defesa().entidade_esquiva()
-      : Entidade::IdInvalido);
-  n->mutable_entidade()->set_id(entidade_defensora->Id());
-  n->mutable_entidade()->mutable_dados_defesa()->set_entidade_esquiva(id);
-  AdicionaNotificacaoListaEventos(*n);
-  central_->AdicionaNotificacao(n.release());
-  AdicionaAcaoTexto(
-      entidade_defensora->Id(),
-      StringPrintf("esquivando de %s", RotuloEntidade(entidade_atacante).c_str()));
 }
 
 void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro) {
@@ -2824,6 +2840,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           return;  // Mantem o MODO_ACAO.
         }
         break;
+      case MODO_PERICIA:
+        TrataBotaoPericiaPressionadoPosPicking(id, tipo_objeto);
+        return;
       case MODO_ESQUIVA:
         TrataBotaoEsquivaPressionadoPosPicking(id, tipo_objeto);
         return;
@@ -3492,7 +3511,6 @@ void Tabuleiro::TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
   auto* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao ha entidade para usar feitico";
@@ -3518,7 +3536,7 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, const EntidadeProto& proto) {
+void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, float atraso_s, const EntidadeProto& proto) {
   const auto& pericia = Pericia(id_pericia, proto);
   if (!pericia.has_id()) {
     LOG(ERROR) << "Personagem " << RotuloEntidade(proto) << " nao tem pericia " << id_pericia;
@@ -3530,11 +3548,11 @@ void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, cons
   if (treinado || pericia_tabelada.sem_treinamento()) {
     const int bonus = ent::BonusTotal(pericia.bonus());
     const int dado = ent::RolaDado(20);
-    texto = google::protobuf::StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
+    texto = StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
   } else {
-    texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
+    texto = StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
   }
-  AdicionaAcaoTextoLogado(proto.id(), texto);
+  AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s);
 }
 
 }  // namespace ent

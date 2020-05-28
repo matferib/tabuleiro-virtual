@@ -7341,6 +7341,27 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
+std::string PreencheNotificacaoFimConjuracao(
+    const Tabelas& tabelas, const Entidade& entidade, EntidadeProto::Evento* evento_depois,
+    std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  if (evento_depois->complementos_str().empty()) {
+    return "falha ao terminar conjuração: sem complemento";
+  }
+  EntidadeProto ep;
+  if (!google::protobuf::TextFormat::ParseFromString(evento_depois->complementos_str(0), &ep)) {
+    return "falha ao decodificar feitico sendo conjurado";
+  }
+  if (ep.info_classes().empty() || ep.dados_ataque().empty()) {
+    return "falha apos decodificar feitico conjurado: sem classe";
+  }
+  const auto& feitico_tabelado = tabelas.Feitico(ep.dados_ataque(0).id_arma());
+  ExecutaFeitico(
+    tabelas, feitico_tabelado, ep.info_classes(0).nivel_conjurador(), ep.info_classes(0).id(),
+    ep.has_iniciativa() ? std::make_optional(DadosIniciativa{ep.iniciativa(), ep.modificador_iniciativa()}) : std::nullopt, entidade,
+    grupo, grupo_desfazer);
+  return StringPrintf("conjuração de %s terminada", feitico_tabelado.nome().c_str());
+}
+
 std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   // Aplica veneno.
   if (evento_depois->complementos_str().empty()) {
@@ -7437,7 +7458,9 @@ std::string AtualizaParalisiaAposPassarRodada(const Tabelas& tabelas, const Enti
   }
 }
 
-void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados) {
+void Tabuleiro::AtualizaEventosAoPassarRodada(
+    const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo,
+    ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados) {
   std::vector<const EntidadeProto::Evento*> eventos_decrementados;
   for (const auto& evento : entidade.Proto().evento()) {
     if (evento.continuo()) continue;
@@ -7468,6 +7491,9 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vec
         AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
         atraso_s += 0.5f;
       }
+    } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_CONJURANDO) {
+      std::string texto = PreencheNotificacaoFimConjuracao(tabelas_, entidade, evento_depois, ids_unicos, grupo, grupo_desfazer);
+      AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s);
     } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_FURIA_BARBARO) {
       PreencheNotificacaoFadigaFuria(tabelas_, entidade, grupo, grupo_desfazer);
     } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_QUEIMANDO_FOGO_ALQUIMICO) {
@@ -7556,6 +7582,22 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
       *grupo_desfazer->add_notificacao() = *nr;
     }
   }
+  auto gc = *grupo;
+  for (auto& n : *gc.mutable_notificacao()) {
+    n.clear_entidade_antes();
+    if (n.entidade().dados_ataque().empty()) {
+      n.clear_entidade();
+    } else {
+      auto das = n.entidade().dados_ataque();
+      for (auto& da : das) {
+        auto dac = da;
+        da.Clear();
+        da.set_id_arma(dac.id_arma());
+      }
+      *n.mutable_entidade()->mutable_dados_ataque() = das;
+    }
+  }
+  LOG(INFO) << "grupo " << gc.DebugString();
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {
@@ -7598,6 +7640,12 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
   AdicionaNotificacaoListaEventos(n);
 }
 
+void Tabuleiro::EntraModoPericia(const std::string& id_pericia, const ntf::Notificacao& notificacao) {
+  EntraModoClique(MODO_PERICIA);
+  notificacao_pericia_ = notificacao;
+  notificacao_pericia_.set_str_generica(id_pericia);
+}
+
 void Tabuleiro::AlternaModoAcao() {
   if (modo_clique_ == MODO_ACAO) {
     EntraModoClique(MODO_NORMAL);
@@ -7608,9 +7656,9 @@ void Tabuleiro::AlternaModoAcao() {
 
 void Tabuleiro::AlternaModoEsquiva() {
   if (modo_clique_ == MODO_ESQUIVA) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_ESQUIVA;
+    EntraModoClique(MODO_ESQUIVA);
   }
 }
 
@@ -7624,18 +7672,18 @@ void Tabuleiro::AlternaModoTransicao() {
 
 void Tabuleiro::AlternaModoDado(int faces) {
   if (modo_clique_ == MODO_ROLA_DADO && faces == faces_dado_) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_ROLA_DADO;
     faces_dado_ = faces;
+    EntraModoClique(MODO_ROLA_DADO);
   }
 }
 
 void Tabuleiro::AlternaModoRegua() {
   if (modo_clique_ == MODO_REGUA) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_REGUA;
+    EntraModoClique(MODO_REGUA);
   }
 }
 
@@ -7644,9 +7692,9 @@ void Tabuleiro::AlternaModoTerreno() {
     return;
   }
   if (modo_clique_ == MODO_TERRENO) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_TERRENO;
+    EntraModoClique(MODO_TERRENO);
   }
 }
 
@@ -7655,9 +7703,9 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
     return;
   }
   if (modo_clique_ == MODO_REMOCAO_DE_GRUPO) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_REMOCAO_DE_GRUPO;
+    EntraModoClique(MODO_REMOCAO_DE_GRUPO);
   }
 }
 

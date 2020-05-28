@@ -246,13 +246,7 @@ void InterfaceGrafica::VoltaEscolherPericia(
     const ntf::Notificacao notificacao, std::vector<std::string> mapa_indice_id,
     bool ok, int indice_selecao) {
   if (ok && indice_selecao >= 0 && indice_selecao <= (int)mapa_indice_id.size()) {
-    if (notificacao.notificacao().empty() && notificacao.has_entidade()) {
-      tabuleiro_->TrataRolarPericiaNotificando(mapa_indice_id[indice_selecao], notificacao.entidade());
-    } else {
-      for (const auto& n : notificacao.notificacao()) {
-        tabuleiro_->TrataRolarPericiaNotificando(mapa_indice_id[indice_selecao], n.entidade());
-      }
-    }
+    tabuleiro_->EntraModoPericia(mapa_indice_id[indice_selecao], notificacao);
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }

@@ -1,15 +1,19 @@
-Sessao:
+Sessão:
 * fazer andalara.
 * Fazer os 4 acompanhantes.
-* Bolar a missão: 
-  - começar com um resgate em uma casa sendo assaltada
+* Bolar a missão:
+  - começar com um resgate em uma casa: chegando lá, incendiada.
+  - passar para a próxima: assalto.
+  - a outra: dizimada.
   - passar por um bloqueio de vultos.
+  - Passar pelas finas lâminas.
+  - chegar ao portão.
 
+Casting time de magias: testes de concentração por dano.
 Icone para gas sono.
 Acao de recarregar arma.
 Teste de concentração para enredados.
 Vincular luz a numero de tochas.
-Casting time de magias (summon monster, nature ally etc).
 Terminar a iniciativa de eventos.
 
 Fazer furia maior de barbaro e limitar usos por dia.

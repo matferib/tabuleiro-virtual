@@ -60,7 +60,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 146.
+// Proximo id: 147.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -223,6 +223,8 @@ enum TipoEfeito {
   EFEITO_DESTRUICAO_MORTO_VIVO = 144;
   // Diferente de imobilizado, porque ainda pode se mexer, mas não pode mover. Ver teia.
   EFEITO_NAO_PODE_MOVER = 145;
+  // Indica que personagem está conjurando.
+  EFEITO_CONJURANDO = 146;
 }
 
 enum TipoEfeitoModelo {
@@ -768,6 +770,8 @@ message PericiaProto {
     optional string restricao = 2;
   }
   repeated InfoSinergia sinergias = 7;
+  // Para pericias resistidas.
+  optional string id_resistido = 8;
 }
 
 // Talentos.

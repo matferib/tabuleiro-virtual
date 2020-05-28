@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <google/protobuf/text_format.h>
 #include <limits>
 #include <queue>
 #include <random>
@@ -1732,9 +1733,26 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 }
 
 void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
-  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
-  *e_antes->mutable_dados_ataque() = proto.dados_ataque();
-  *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+  ntf::Notificacao* np = nullptr;
+  bool reusando = false;
+  for (auto& n : *grupo->mutable_notificacao()) {
+    if (n.entidade().id() == proto.id() && !n.entidade().dados_ataque().empty()) {
+      if (np != nullptr) {
+        LOG(ERROR) << "Grupo contem mais de uma notificacao de ataque!!i Ignorando a primeira.";
+      }
+      np = &n; 
+      reusando = true;
+    }
+  }
+  EntidadeProto *e_antes, *e_depois;
+  if (np != nullptr) {
+    e_antes = np->mutable_entidade_antes();
+    e_depois = np->mutable_entidade();
+  } else {
+    std::tie(np, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
+    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+  }
   for (auto& da : *e_depois->mutable_dados_ataque()) {
     if (da.has_taxa_refrescamento() && da.usado_rodada() &&
         (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
@@ -1758,8 +1776,8 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
       }
     }
   }
-  if (grupo_desfazer != nullptr) {
-    *grupo_desfazer->add_notificacao() = *n;
+  if (grupo_desfazer != nullptr && !reusando) {
+    *grupo_desfazer->add_notificacao() = *np;
   }
 }
 
@@ -4157,7 +4175,7 @@ bool FeiticoGeraAcao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) 
 
 void CriaNovoAtaqueComFeitico(
     const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, const EntidadeProto& proto,
-    ntf::Notificacao* n) {
+    ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
   {
     *e_depois->mutable_dados_ataque() = proto.dados_ataque();
@@ -4189,10 +4207,13 @@ void CriaNovoAtaqueComFeitico(
       e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
     }
   }
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
 void PreencheNotificacaoAcaoFeiticoPessoal(
-    unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n) {
+    unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   n->set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_id_entidade_origem(id);
@@ -4204,6 +4225,9 @@ void PreencheNotificacaoAcaoFeiticoPessoal(
   a->set_afeta_pontos_vida(false);
   a->set_gera_outras_acoes(true);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
 void PreencheNotificacaoAcaoFeiticoPessoalDispersao(
@@ -4224,6 +4248,49 @@ bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_ta
   AcaoProto acao = feitico_tabelado.acao().id().empty() ? AcaoProto::default_instance() : tabelas.Acao(feitico_tabelado.acao().id());
   acao.MergeFrom(feitico_tabelado.acao());
   return acao.pessoal() && acao.tipo() == ACAO_DISPERSAO;
+}
+
+// Retorna true se uma acao foi criada.
+bool ExecutaFeitico(
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe,
+    const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
+    ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
+  // e isso depende do tabuleiro. Deixar desligado por agora.
+  //if (FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
+  //PreencheNotificacaoAcaoFeiticoPessoalDispersao(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
+  //  return false;
+  //} else if (FeiticoPessoal(tabelas, feitico_tabelado)) {
+  if (FeiticoPessoal(tabelas, feitico_tabelado) && !FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
+    // Aplica o efeito do feitico no personagem diretamente.
+    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+    std::string string_efeitos;
+    for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
+       PreencheNotificacaoEventoEfeitoAdicional(
+           entidade.Id(), dados_iniciativa, nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
+    }
+    if (!string_efeitos.empty()) {
+      string_efeitos.pop_back();
+      string_efeitos.pop_back();
+    }
+    // Adiciona uma acao de feitico pessoal.
+    PreencheNotificacaoAcaoFeiticoPessoal(
+        entidade.Id(), string_efeitos, /*atraso_s=*/0,
+        grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    return false;
+  } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
+    CriaNovoAtaqueComFeitico(
+        tabelas, feitico_tabelado, id_classe, entidade.Proto(),
+        grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    return true;
+  }
+  return false;
+
+}
+
+// TODO
+void PreencheNotificacaoAcao() {
 }
 
 bool NotificacaoConsequenciaFeitico(
@@ -4250,33 +4317,35 @@ bool NotificacaoConsequenciaFeitico(
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
     return false;
   }
-  // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
-  // e isso depende do tabuleiro. Deixar desligado por agora.
-  //if (FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
-  //PreencheNotificacaoAcaoFeiticoPessoalDispersao(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
-  //  return false;
-  //} else if (FeiticoPessoal(tabelas, feitico_tabelado)) {
-  if (FeiticoPessoal(tabelas, feitico_tabelado) && !FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
-    // Aplica o efeito do feitico no personagem diretamente.
-    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-    std::string string_efeitos;
-    for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-       PreencheNotificacaoEventoEfeitoAdicional(
-           entidade.Id(), dados_iniciativa, nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
-       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
+  if (feitico_tabelado.tempo_execucao_rodadas() > 0) {
+    EntidadeProto ep;
+    ep.set_id(entidade.Id());
+    auto* ic = ep.add_info_classes();
+    ic->set_id(id_classe);
+    ic->set_nivel_conjurador(nivel_conjurador);
+    if (dados_iniciativa.has_value()) {
+      ep.set_iniciativa(dados_iniciativa->iniciativa);
+      ep.set_modificador_iniciativa(dados_iniciativa->modificador);
     }
-    if (!string_efeitos.empty()) {
-      string_efeitos.pop_back();
-      string_efeitos.pop_back();
-    }
-    // Adiciona uma acao de feitico pessoal.
-    PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
+    ep.add_dados_ataque()->set_id_arma(feitico_tabelado.id());
+    std::string entidade_str;
+    google::protobuf::TextFormat::PrintToString(ep, &entidade_str);
+    auto ids_unicos = IdsUnicosEntidade(entidade);
+    PreencheNotificacaoEventoComComplementoStr(
+        entidade.Id(), std::nullopt, /*origem=*/feitico_tabelado.nome(), EFEITO_CONJURANDO, entidade_str,
+        feitico_tabelado.tempo_execucao_rodadas(), &ids_unicos, grupo->add_notificacao(), nullptr);
+    auto* a = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, grupo)->mutable_acao();
+    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    auto* por_entidade = a->add_por_entidade();
+    por_entidade->set_id(entidade.Id());
+    por_entidade->set_texto(StringPrintf(
+          "conjurando por %d rodada%s",
+          feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""));
+    a->set_afeta_pontos_vida(false);
+    a->set_local_apenas(false);
     return false;
-  } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
-    CriaNovoAtaqueComFeitico(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
-    return true;
   }
-  return false;
+  return ExecutaFeitico(tabelas, feitico_tabelado, nivel_conjurador, id_classe, dados_iniciativa, entidade, grupo, nullptr);
 }
 
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
