@@ -2999,7 +2999,7 @@ std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto
   return StringPrintf(
       "%s%s",
       dano->c_str(),
-      modificador_dano != 0 ? google::protobuf::StringPrintf("%+d", modificador_dano).c_str() : "");
+      !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "");
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
