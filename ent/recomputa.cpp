@@ -2484,6 +2484,9 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
   }
+  if (da->acao().has_elemento()) {
+    da->set_elemento(da->acao().elemento());
+  }
   if (da->acao().has_alinhamento_bem_mal()) {
     da->set_alinhamento_bem_mal(da->acao().alinhamento_bem_mal());
   }
@@ -2905,7 +2908,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     // municao.
     if (primeiro->has_municao()) da->set_municao(primeiro->municao());
     da->set_descarregada(primeiro->descarregada());
-    // Elemento.
+    // Acao.
     if (primeiro->has_acao()) *da->mutable_acao() = primeiro->acao();
     // material.
     if (primeiro->material_arma() == DESC_NENHUM) da->clear_material_arma();
@@ -2913,6 +2916,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     // tipo ataque fisico.
     if (primeiro->tipo_ataque_fisico().empty()) da->tipo_ataque_fisico();
     else *da->mutable_tipo_ataque_fisico() = primeiro->tipo_ataque_fisico();
+    if (primeiro->has_elemento()) da->set_elemento(primeiro->elemento());
     // Alinhamento.
     if (primeiro->has_alinhamento_bem_mal()) da->set_alinhamento_bem_mal(primeiro->alinhamento_bem_mal());
     else da->clear_alinhamento_bem_mal();
