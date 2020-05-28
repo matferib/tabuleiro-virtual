@@ -136,15 +136,18 @@ tabela_armas {
   armas {
     id: 'gas_alquimico_sono'
     nome: 'gás alquímico do sono'
+    dano { invariavel: '' }
     categoria: CAT_ARREMESSO
     categoria: CAT_DISTANCIA
     preco: '30 PO'
     alcance_quadrados: 2
     tipo_dano: TD_OUTRO
     acao {
+      id: 'Ataque a Distância'
+      icone: 'icon_sleep.png'
       cor { r: 1.0 g: 1.0 b: 1.0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
-      icone: 'icon_sleep_gas.png'
+      ataque_toque: true
       elemento: DESC_VENENO
       permite_salvacao: true
       dificuldade_salvacao_base: 15
