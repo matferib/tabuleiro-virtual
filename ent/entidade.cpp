@@ -1829,9 +1829,7 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
   }
   try {
     // Valor minimo de dano é 1, caso haja algum dano.
-    int valor;
-    std::vector<std::pair<int, int>> dados;
-    std::tie(valor, dados) = GeraPontosVida(s);
+    auto [valor, dados] = GeraPontosVida(s);
     std::string texto_dados;
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
