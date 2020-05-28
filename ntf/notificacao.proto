@@ -9,7 +9,7 @@ import "ent/tabuleiro.proto";
 package ntf;
 option java_package = "com.matferib.Tabuleiro.ntf";
 
-// Proximo: 79.
+// Proximo: 80.
 enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
@@ -85,6 +85,7 @@ enum Tipo {
   TN_ENTRAR_MODO_DOACAO = 76;
   TN_ABRIR_DIALOGO_ESCOLHER_ALIADOS_INIMIGOS = 77;  // para feiticos que afetam apenas inimigos/aliados na área.
   TN_MUDAR_CURSOR = 78;  // notifica que cursor deve ser mudado.
+  TN_ABRIR_DIALOGO_ESCOLHER_TIPO_TESOURO = 79;
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
