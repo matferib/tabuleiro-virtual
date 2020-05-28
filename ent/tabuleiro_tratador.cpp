@@ -1928,10 +1928,8 @@ float Tabuleiro::TrataAcaoIndividual(
         // Cria uma atualizacao do efeito.
         const auto* evento = AchaEvento(rrd.id_unico, entidade_destino->Proto());
         if (evento != nullptr && evento->id_efeito() == EFEITO_PELE_ROCHOSA && !evento->complementos().empty()) {
-          LOG(INFO) << "dano absorvido" << dano_absorvido;
           std::unique_ptr<ntf::Notificacao> nefeito(new ntf::Notificacao);
-          EntidadeProto *proto_antes, *proto_depois;
-          std::tie(proto_antes, proto_depois) =
+          auto [proto_antes, proto_depois] =
               ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
           *proto_antes->add_evento() = *evento;
           auto* evento_depois = proto_depois->add_evento();
