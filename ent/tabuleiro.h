@@ -775,7 +775,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
-  void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+  void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forcar, unsigned int id, unsigned int tipo_objeto);
 
   void TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d);
 

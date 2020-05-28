@@ -4573,6 +4573,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.PergaminhoDivino(id);
     default: ;
   }
+  LOG(ERROR) << "tipo de item invalido: " << TipoItem_Name(tipo);
   return ItemMagicoProto::default_instance();
 }
 
@@ -4598,6 +4599,11 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
     *item_novo = *item;
     item_novo->set_em_uso(manter_uso);
   }
+}
+
+std::string NomeTipoItem(TipoItem tipo) {
+  std::string nome = TipoItem_Name(tipo);
+  return nome.find("TIPO_") == 0 ? nome.substr(5) : nome;
 }
 
 const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
@@ -5696,14 +5702,51 @@ void CriaTesouroTodoVazio(EntidadeProto::DadosTesouro* tesouro) {
   LimpaMoedas(tesouro->mutable_moedas());
 }
 
+void PreencheNotificacoesTransicaoUmTipoTesouro(
+    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  {
+    // Doador perde so o tipo passado.
+    auto [n_perdeu, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
+
+    AtribuiTesouroOuCriaVazio(ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_antes));
+    auto* itens_perdidos = ItensProtoMutavel(tipo, e_depois);
+    itens_perdidos->Clear();
+    itens_perdidos->Add();
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_perdeu;
+    }
+  }
+  {
+    // Receptor ganha alem do que ja tem.
+    auto [n_ganhou, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
+    AtribuiTesouroOuCriaVazio(ItensProto(tipo, receptor.Proto()), ItensProtoMutavel(tipo, e_antes));
+    MergeTesouro(ItensProto(tipo, receptor.Proto()), ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_depois));
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_ganhou;
+    }
+  }
+  {
+    // Texto de transicao.
+    auto* acao = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, n_grupo)->mutable_acao();
+    acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    const auto& tesouro_doador = ItensProto(tipo, doador.Proto());;
+    std::string texto;
+    MergeMensagemTesouro(tesouro_doador,
+        [&tabelas, tipo](const std::string& id) -> const ItemMagicoProto& { return ItemTabela(tabelas, tipo, id); }, &texto);
+    acao->set_texto(texto);
+    acao->add_por_entidade()->set_id(receptor.Id());
+  }
+}
+
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   {
     // Doador perde tudo.
-    ntf::Notificacao* n_perdeu;
-    EntidadeProto* e_antes;
-    EntidadeProto* e_depois;
-    std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
+    auto [n_perdeu, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
 
     auto* tesouro_perdeu_antes = e_antes->mutable_tesouro();
@@ -5720,10 +5763,7 @@ void PreencheNotificacoesTransicaoTesouro(
   }
   {
     // Receptor ganha alem do que ja tem.
-    ntf::Notificacao* n_ganhou;
-    EntidadeProto* e_antes;
-    EntidadeProto* e_depois;
-    std::tie(n_ganhou, e_antes, e_depois) = NovaNotificacaoFilha(
+    auto [n_ganhou, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
     auto* tesouro_ganhou_antes = e_antes->mutable_tesouro();
     const auto& tesouro_receptor = receptor.Proto().tesouro();
@@ -5743,9 +5783,7 @@ void PreencheNotificacoesTransicaoTesouro(
   }
   {
     // Texto de transicao.
-    auto* n_texto = n_grupo->add_notificacao();
-    n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
-    auto* acao = n_texto->mutable_acao();
+    auto* acao = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, n_grupo)->mutable_acao();
     acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     const auto& tesouro_doador = doador.Proto().tesouro();
     std::string texto = tesouro_doador.tesouro();

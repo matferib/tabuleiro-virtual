@@ -2492,7 +2492,7 @@ void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigne
   AdicionaNotificacaoListaEventos(grupo);
 }
 
-void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forcar, unsigned int id, unsigned int tipo_objeto) {
   if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
     LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
     return;
@@ -2523,11 +2523,18 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       LOG(INFO) << "Receptor tem que ser diferente";
       return;
     }
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacoesTransicaoTesouro(tabelas_, *doador, *receptor, &n, /*n_desfazer=*/nullptr);
-    TrataNotificacao(n);
-    AdicionaNotificacaoListaEventos(n);
+    if (forcar) {
+      auto grupo = NovoGrupoNotificacoes();
+      PreencheNotificacoesTransicaoTesouro(tabelas_, *doador, *receptor, grupo.get(), /*n_desfazer=*/nullptr);
+      TrataNotificacao(*grupo);
+      AdicionaNotificacaoListaEventos(*grupo);
+    } else {
+      auto n = NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_TIPO_TESOURO);
+      n->set_id_referencia(receptor->Id());
+      n->mutable_entidade()->set_id(doador->Id());
+      *n->mutable_entidade()->mutable_tesouro() = doador->Proto().tesouro();
+      central_->AdicionaNotificacao(std::move(n));
+    }
     return;
   }
 
@@ -2836,7 +2843,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
         break;
       case MODO_TRANSICAO:
-        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, alterna_selecao, id, tipo_objeto);
         break;
       case MODO_REGUA:
         TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);

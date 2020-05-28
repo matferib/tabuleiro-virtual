@@ -396,6 +396,8 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
 
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+void PreencheNotificacoesTransicaoUmTipoTesouro(
+    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
 // Preenche o tesouro_final para enviar uma atualizacao parcial para a entidade. Tesouros vazios terão uma entrada fake para indicar que é vazio no merge.
 void AtribuiTesouroTodoOuCriaVazios(
@@ -928,6 +930,7 @@ const ItemMagicoProto& ItemTabela(
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
 
 // Retorna o repeated do tipo passado para o proto.
+std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes.
