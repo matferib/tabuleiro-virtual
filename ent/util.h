@@ -911,7 +911,7 @@ ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
 
 // Return true se a acao ignora reducao de dano.
 inline bool IgnoraReducaoDano(const DadosAtaque* da, const AcaoProto& acao) {
-  return (da != nullptr && da->has_elemento()) || acao.ignora_reducao_dano_barbaro();
+  return (da != nullptr && (da->has_elemento() || !da->eh_arma())) || acao.ignora_reducao_dano_barbaro();
 }
 
 // Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
