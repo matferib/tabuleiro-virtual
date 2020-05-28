@@ -136,15 +136,32 @@ tabela_armas {
   armas {
     id: 'bolsa_cola'
     nome: 'bolsa de cola'
+    dano { invariavel: '' }
     categoria: CAT_DISTANCIA
     preco: '50 PO'
     alcance_quadrados: 2
     tipo_dano: TD_OUTRO
     acao {
+      id: 'Ataque a Distância'
       cor { r: 1.0 g: 1.0 b: 1.0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_web.png'
+               ignora_reducao_dano_barbaro: true
+      ataque_toque: true
+      dificuldade_salvacao_base: 15
+      tipo_salvacao: TS_REFLEXO
+      permite_salvacao: true
       efeitos_adicionais {
+        efeito: EFEITO_NAO_PODE_MOVER
+        dado_modificador_rodadas: '2d4'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        rodadas_base_igual_efeito_anterior: true
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
+      }
+      efeitos_adicionais_se_salvou {
         efeito: EFEITO_ENREDADO
         dado_modificador_rodadas: '2d4'
         afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
