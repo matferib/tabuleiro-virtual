@@ -1293,6 +1293,18 @@ float Tabuleiro::TrataAcaoProjetilArea(
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
+      }
+    }
     por_entidade->set_delta(delta_pv);
 
     // Para desfazer.
@@ -1466,6 +1478,18 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
       }
     }
 
@@ -2038,7 +2062,6 @@ float Tabuleiro::TrataAcaoIndividual(
       }
     }
 
-    LOG(INFO) << "delta: " << delta_pv;
     if (delta_pv < 0) {
       auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
       if (res.has_value()) {
