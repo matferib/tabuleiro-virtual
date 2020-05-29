@@ -5781,14 +5781,15 @@ modelo {
       gerais { id: 'magia_natural' }        # 6
       gerais { id: 'ataques_multiplos' }    # 9
     }
+    # Total: 10 * 5 + 3 * 5 = 65 (max 13).
     info_pericias { id: 'adestrar_animais' pontos: 10 }
     info_pericias { id: 'concentracao' pontos: 13 }
-    info_pericias { id: 'observar' pontos: 13 }
-    info_pericias { id: 'ouvir' pontos: 13 }
-    info_pericias { id: 'conhecimento_natureza' pontos: 13 }
+    info_pericias { id: 'observar' pontos: 11 }
+    info_pericias { id: 'ouvir' pontos: 11 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 5 }
     info_pericias { id: 'sobrevivencia' pontos: 5 }
     info_pericias { id: 'identificar_magia' pontos: 5 }
-    info_pericias { id: 'cura' pontos: 6 }
+    info_pericias { id: 'cura' pontos: 5 }
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       aneis { id: 'protecao_1' em_uso: true }

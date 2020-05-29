@@ -508,7 +508,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 34.
+// Proximo id: 35.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -543,6 +543,7 @@ message DadosDefesa {
   optional int32 resistencia_magia_racial = 27;
   optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
+  repeated TipoEfeito imunidade_efeitos = 34;
   message ImunidadeFeitico {
     optional string id_feitico = 1;
     optional int32 id_unico = 2;

@@ -14197,6 +14197,21 @@ tabela_racas {
     nome: 'Meio-Elfo'
     descricao: 'Mistura entre elfos e humanos.'
     tamanho: TM_MEDIO
+    # Medium: As Medium creatures, half-elves have no special bonuses or penalties due to their size.
+    # Half-elf base land speed is 30 feet.
+    dados_defesa {
+      imunidade_efeitos: EFEITO_SONO
+      bonus_salvacao_encantamento { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+    }
+    #Low-Light Vision: A half-elf can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of poor illumination. She retains the ability to distinguish color and detail under these conditions.
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'diplomacia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'obter_informacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    #Elven Blood: For all effects related to race, a half-elf is considered an elf.
+    #Automatic Languages: Common and Elven. Bonus Languages: Any (other than secret languages, such as Druidic).
+    #Favored Class: Any. When determining whether a multiclass half-elf takes an experience point penalty, her highest-level class does not count.
     movimento {
       terrestre_basico_q: 6
     }
