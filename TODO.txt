@@ -9,6 +9,7 @@ Sessão:
   - Passar pelas finas lâminas.
   - chegar ao portão.
 
+Halfling druida: esta com mais pericias que deveria (se baseou em humano?)
 Casting time de magias:
 - testes de concentração por dano (deixar a mensagem mais tempo)
 - Colocar para outros tipos de ações tb.
