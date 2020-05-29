@@ -303,7 +303,7 @@ class AcaoDeltaPontosVida : public Acao {
     }
     VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
     num_linhas_ = 1 + std::count(string_texto_.begin(), string_texto_.end(), '\n');
-    duracao_total_ms_ = acao_proto_.has_duracao_s() ? acao_proto_.duracao_s() * 1000 : DURACAO_UMA_LINHA_MS * num_linhas_;
+    duracao_total_ms_ = std::max<int>(5000, acao_proto_.has_duracao_s() ? acao_proto_.duracao_s() * 1000 : DURACAO_UMA_LINHA_MS * num_linhas_);
     faltam_ms_ = duracao_total_ms_;
   }
 
@@ -347,7 +347,7 @@ class AcaoDeltaPontosVida : public Acao {
       if (pos_2d_.has_y()) {
         pos_2d_.set_y(pos_2d_.y() + (static_cast<float>(intervalo_ms) * max_delta_y_) / duracao_total_ms_);
       } else {
-        pos_.set_z(pos_.z() + intervalo_ms * num_linhas_ * MAX_DELTA_Z_POR_LINHA / duracao_total_ms_);
+        pos_.set_z(pos_.z() + (static_cast<float>(intervalo_ms) * VELOCIDADE_ROLAGEM_M_POR_MS));
       }
       faltam_ms_ -= intervalo_ms;
     }
@@ -390,7 +390,7 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   constexpr static int DURACAO_UMA_LINHA_MS = 2000;
-  constexpr static float MAX_DELTA_Z_POR_LINHA = 0.5f;
+  constexpr static float VELOCIDADE_ROLAGEM_M_POR_MS = 0.0002f;
 
   int delta_acao_ = 0;
   std::string string_texto_;
