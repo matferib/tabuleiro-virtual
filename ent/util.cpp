@@ -5337,7 +5337,24 @@ int DesviaObjetoSeAplicavel(
   return 0;
 }
 
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta_pv, const EntidadeProto& proto) {
+  if (delta_pv >= 0) return std::nullopt;
+  if (!PossuiEvento(EFEITO_CONJURANDO, proto)) return std::nullopt;
+  auto resultado = RolaPericia(tabelas, "concentracao", proto);
+  if (!resultado.has_value()) {
+    LOG(ERROR) << "Pericia concentracao invalida, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  auto [rolou, valor, texto] = *resultado;
+  if (!rolou) {
+    LOG(ERROR) << "Pericia concentracao nao rolada, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  const bool passou = valor >= 15 - delta_pv;
+  return std::make_tuple(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
+}
+
+std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     const EntidadeProto& proto, int delta_pv, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (delta_pv >= 0) {
     return std::make_pair(delta_pv, "");
@@ -6134,6 +6151,23 @@ bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& f
 
 bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado) {
   return c_any(escolas_proibidas, feitico_tabelado.escola());
+}
+
+std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto) {
+  const auto& pericia_personagem = Pericia(id_pericia, proto);
+  if (!pericia_personagem.has_id()) {
+    return std::nullopt;
+  }
+  const auto& pericia_tabelada = tabelas.Pericia(pericia_personagem.id());
+  const bool treinado = pericia_personagem.pontos() > 0;
+  if (treinado || pericia_tabelada.sem_treinamento()) {
+    const int bonus = ent::BonusTotal(pericia_personagem.bonus());
+    const int dado = ent::RolaDado(20);
+    const int total = dado + bonus;
+    return std::make_tuple(true, total, StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, total));
+  } else {
+    return std::make_tuple(false, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
+  }
 }
 
 }  // namespace ent

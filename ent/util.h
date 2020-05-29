@@ -1016,8 +1016,12 @@ int CompartilhaDanoSeAplicavel(
 
 // Caso a entidade tenha dominio renovar, ativa caso fique negativo.
 // Caso haja uso do poder, adiciona ao grupo a notificacao.
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
+
+// Se esta conjurando e delta é negativo, testa concentração do personagem (15 + (-delta)).
+// Retorna true se passou, false caso contrário. Em caso de erro, retorna nullopt.
+std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta, const EntidadeProto& proto);
 
 // Se alvo possuir desviar objetos e puder usar, anula o ataque.
 int DesviaObjetoSeAplicavel(
@@ -1093,6 +1097,10 @@ const std::vector<std::string>& ItemsQueGeramAtaques();
 bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
+
+// Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
+// Em caso de erro, retorna nullopt.
+std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
 
 }  // namespace ent
 

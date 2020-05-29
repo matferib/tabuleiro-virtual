@@ -1285,7 +1285,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
@@ -1460,7 +1460,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     {
       auto n_uso_poder = std::make_unique<ntf::Notificacao>();
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv_pos_salvacao, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv_pos_salvacao = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
@@ -2029,12 +2029,26 @@ float Tabuleiro::TrataAcaoIndividual(
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+
+    LOG(INFO) << "delta: " << delta_pv;
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
       }
     }
 
@@ -3537,21 +3551,12 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
 }
 
 void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, float atraso_s, const EntidadeProto& proto) {
-  const auto& pericia = Pericia(id_pericia, proto);
-  if (!pericia.has_id()) {
-    LOG(ERROR) << "Personagem " << RotuloEntidade(proto) << " nao tem pericia " << id_pericia;
+  auto resultado = RolaPericia(tabelas_, id_pericia, proto);
+  if (!resultado.has_value()) {
+    LOG(ERROR) << "Pericia invalida " << id_pericia;
     return;
   }
-  const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
-  const bool treinado = pericia.pontos() > 0;
-  std::string texto;
-  if (treinado || pericia_tabelada.sem_treinamento()) {
-    const int bonus = ent::BonusTotal(pericia.bonus());
-    const int dado = ent::RolaDado(20);
-    texto = StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
-  } else {
-    texto = StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
-  }
+  std::string texto = std::get<2>(*resultado);
   AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s);
 }
 
