@@ -9,10 +9,13 @@ Sessão:
   - Passar pelas finas lâminas.
   - chegar ao portão.
 
-Casting time de magias: testes de concentração por dano.
-Icone para gas sono.
-Acao de recarregar arma.
+Casting time de magias:
+- testes de concentração por dano (deixar a mensagem mais tempo)
+- Colocar para outros tipos de ações tb.
 Teste de concentração para enredados.
+Icone para gas sono.
+
+Acao de recarregar municao da arma (basear em procurar, cada 5 pontos uma munição?).
 Vincular luz a numero de tochas.
 Terminar a iniciativa de eventos.
 
