@@ -1757,8 +1757,28 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   TrataNotificacao(na);
 }
 
+void Tabuleiro::AdicionaAcaoTextoComDuracaoAtraso(unsigned int id, const std::string& texto, float atraso_s, float duracao_s, bool local_apenas) {
+  ntf::Notificacao na;
+  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na.mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_texto(texto);
+  a->set_afeta_pontos_vida(false);
+  a->set_local_apenas(local_apenas);
+  a->set_duracao_s(duracao_s);
+  a->set_atraso_s(atraso_s);
+  TrataNotificacao(na);
+}
+
 void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
   AdicionaAcaoTexto(id, texto, atraso_s, local_apenas);
+  AdicionaLogEvento(id, texto);
+}
+
+void Tabuleiro::AdicionaAcaoTextoLogadoComDuracaoAtraso(unsigned int id, const std::string& texto, float duracao_s, float atraso_s, bool local_apenas) {
+  AdicionaAcaoTextoComDuracaoAtraso(id, texto, duracao_s, atraso_s, local_apenas);
   AdicionaLogEvento(id, texto);
 }
 

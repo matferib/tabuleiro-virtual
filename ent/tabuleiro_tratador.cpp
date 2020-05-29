@@ -1297,7 +1297,8 @@ float Tabuleiro::TrataAcaoProjetilArea(
       auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
       if (res.has_value()) {
         auto [passou, texto] = *res;
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
         if (!passou) {
           auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
           PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
@@ -1484,7 +1485,8 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
       if (res.has_value()) {
         auto [passou, texto] = *res;
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
         if (!passou) {
           auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
           PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
@@ -2066,7 +2068,8 @@ float Tabuleiro::TrataAcaoIndividual(
       auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
       if (res.has_value()) {
         auto [passou, texto] = *res;
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), texto);
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
         if (!passou) {
           auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
           PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
