@@ -5306,6 +5306,11 @@ TEST(TesteRacas, TesteMeioElfo) {
   }
   std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
   EXPECT_EQ(BonusTotal(ed->Proto().movimento().terrestre_q()), 6);
+  EXPECT_EQ(ValorFinalPericia("ouvir", ed->Proto()), 1);
+  EXPECT_EQ(ValorFinalPericia("procurar", ed->Proto()), 1);
+  EXPECT_EQ(ValorFinalPericia("observar", ed->Proto()), 1);
+  EXPECT_EQ(ValorFinalPericia("diplomacia", ed->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("obter_informacao", ed->Proto()), 2);
   EXPECT_TRUE(ed->ImuneEfeito(EFEITO_SONO));
 }
 
