@@ -303,7 +303,7 @@ class Entidade {
   bool ImuneCritico() const;
   bool ImuneFurtivo(const Entidade& atacante) const;
   bool ImuneAcaoMental() const;
-  bool ImuneEfeito(TipoEfeito efeito);
+  bool ImuneEfeito(TipoEfeito efeito) const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   void AtaqueAnterior() {
     vd_.ataques_na_rodada = std::max(0, vd_.ataques_na_rodada-1); vd_.ultimo_ataque_ms = 0;

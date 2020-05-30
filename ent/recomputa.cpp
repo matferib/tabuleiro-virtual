@@ -1505,6 +1505,7 @@ void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, Entidad
 // Reseta todos os campos computados que tem que ser feito no inicio.
 void ResetComputados(EntidadeProto* proto) {
   proto->mutable_dados_defesa()->clear_cura_acelerada();
+  *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixas();
 }
 
 void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1541,9 +1542,9 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
   proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->MergeFrom(raca_tabelada.dados_defesa().imunidade_efeitos());
-  auto last = std::unique(proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->mutable_begin(), proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->mutable_end());
-  proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->erase(last, proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->mutable_end());
- 
+  auto last = std::unique(proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->begin(), proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->end());
+  proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->erase(last, proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->end());
+
   for (const auto& dados_ataque_raca : raca_tabelada.dados_ataque()) {
     if (c_none_of(proto->dados_ataque(), [&raca_tabelada, &dados_ataque_raca](const DadosAtaque& da) {
           return da.id_raca() == raca_tabelada.id() && da.rotulo() == dados_ataque_raca.rotulo();
@@ -1575,6 +1576,9 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
       }
       AplicaBonusPenalidadeOuRemove(info_pericia_raca.bonus(), pericia->mutable_bonus());
     }
+  }
+  if (raca_tabelada.has_movimento()) {
+    proto->mutable_movimento()->MergeFrom(raca_tabelada.movimento());
   }
 }
 

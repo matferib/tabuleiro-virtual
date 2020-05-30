@@ -2072,6 +2072,10 @@ bool Entidade::ImuneFurtivo(const Entidade& atacante) const {
   return ImuneCritico();
 }
 
+bool Entidade::ImuneEfeito(TipoEfeito efeito) const {
+  return ent::EntidadeImuneEfeito(proto_, efeito);
+}
+
 bool Entidade::ImuneAcaoMental() const {
   return ent::ImuneAcaoMental(proto_);
 }

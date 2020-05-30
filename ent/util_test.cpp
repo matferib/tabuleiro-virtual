@@ -1543,6 +1543,24 @@ TEST(TesteVazamento, TesteVazamento2) {
   }
 }
 
+TEST(TesteVazamento, TesteVazamento3) {
+  EntidadeProto proto;
+  proto.set_raca("meio_elfo");
+  auto* ic = proto.add_info_classes();
+  ic->set_id("barbaro");
+  ic->set_nivel(6);
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_QUEIMANDO_FOGO_ALQUIMICO);
+  evento->set_rodadas(1);
+  RecomputaDependencias(g_tabelas, &proto);
+  const int tamanho = proto.ByteSize();
+  for (int i = 0; i < 5; ++i) {
+    RecomputaDependencias(g_tabelas, &proto);
+    EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
+    //break;
+  }
+}
+
 TEST(TesteVezes, TesteRemoveLimiteVezesExpirados) {
   EntidadeProto proto;
   proto.set_gerar_agarrar(false);
@@ -5276,6 +5294,21 @@ TEST(TestFeiticos, RodadasBaseAnterior) {
   }
 }
 
+TEST(TesteRacas, TesteMeioElfo) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(15, TA_CONSTITUICAO, &proto);  // com bonus de anao, vai para 17.
+  AtribuiBaseAtributo(10, TA_CARISMA, &proto);  // com penalidade de anao, vai para 8.
+  proto.set_raca("meio_elfo");
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+  EXPECT_EQ(BonusTotal(ed->Proto().movimento().terrestre_q()), 6);
+  EXPECT_TRUE(ed->ImuneEfeito(EFEITO_SONO));
+}
+
 TEST(TesteRacas, TesteAnao) {
   EntidadeProto proto;
   AtribuiBaseAtributo(15, TA_CONSTITUICAO, &proto);  // com bonus de anao, vai para 17.
@@ -5397,14 +5430,14 @@ TEST(TesteDominios, TesteRenovacao) {
   {
     // Nada acontece.
     ntf::Notificacao n;
-    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -5, TD_LETAL, &n, nullptr);
+    auto [delta, texto] = RenovaSeTiverDominioRenovacao(e->Proto(), -5, TD_LETAL, &n, nullptr);
     EXPECT_FALSE(n.has_tipo()) << "delta: " << delta << ", texto: " << texto;
   }
   {
     // Ativa renovacao.
     g_dados_teste.push(5); // d8 + 2 = 7
     ntf::Notificacao n;
-    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -6, TD_LETAL, &n, nullptr);
+    auto [delta, texto] = RenovaSeTiverDominioRenovacao(e->Proto(), -6, TD_LETAL, &n, nullptr);
     EXPECT_TRUE(n.has_tipo());
     EXPECT_EQ(delta, 1) << ", texto: " << texto;  // mudou de -6 para 1 por causa da renovacao.
     EXPECT_FALSE(texto.empty());
@@ -5414,7 +5447,7 @@ TEST(TesteDominios, TesteRenovacao) {
   }
   {
     ntf::Notificacao n;
-    auto [delta, texto] = RenovaSeTiverDominioRenovar(e->Proto(), -6, TD_LETAL, &n, nullptr);
+    auto [delta, texto] = RenovaSeTiverDominioRenovacao(e->Proto(), -6, TD_LETAL, &n, nullptr);
     EXPECT_EQ(delta, -6) << ", texto: " << texto << ", delta: " << delta;  // nao muda, ja usou.
     EXPECT_FALSE(n.has_tipo());
     EXPECT_TRUE(texto.empty());

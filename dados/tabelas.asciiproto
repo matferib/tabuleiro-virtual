@@ -131,6 +131,8 @@ tabela_armas {
       cor { r: 0.0 g: 0.5 b: 0.0 }
       icone: 'icon_acid.png'
       elemento: DESC_ACIDO
+      som_sucesso: 'glass_break'
+      som_fracasso: 'glass_break'
     }
   }
   armas {
@@ -146,7 +148,7 @@ tabela_armas {
       cor { r: 1.0 g: 1.0 b: 1.0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_web.png'
-               ignora_reducao_dano_barbaro: true
+      ignora_reducao_dano_barbaro: true
       ataque_toque: true
       dificuldade_salvacao_base: 15
       tipo_salvacao: TS_REFLEXO
@@ -215,6 +217,8 @@ tabela_armas {
       }
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
+      som_sucesso: 'glass_break'
+      som_fracasso: 'glass_break'
     }
   }
 
@@ -14092,7 +14096,11 @@ tabela_racas {
       taxa_refrescamento: "14400"  # 1 dia
       mantem_com_limite_zerado: true
     }
-    # visao no escuro 12 q
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
     # ajuste de nivel: 1
   }
   racas {
@@ -14114,6 +14122,7 @@ tabela_racas {
     # +1 ataque contra orc e goblin
     # +4 CA contra gigantes.
     # +2 avaliacao
+    bonus_pericias { id: 'avaliacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +2 craft stone metal
     # +4 contra empurrao ou trip.
     # Pericias em algumas armas.
@@ -14198,12 +14207,11 @@ tabela_racas {
     descricao: 'Mistura entre elfos e humanos.'
     tamanho: TM_MEDIO
     # Medium: As Medium creatures, half-elves have no special bonuses or penalties due to their size.
-    # Half-elf base land speed is 30 feet.
     dados_defesa {
-      imunidade_efeitos: EFEITO_SONO
+      imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
       bonus_salvacao_encantamento { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
     }
-    #Low-Light Vision: A half-elf can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of poor illumination. She retains the ability to distinguish color and detail under these conditions.
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
     bonus_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
     bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
@@ -14228,6 +14236,9 @@ tabela_racas {
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
     tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
 }
 

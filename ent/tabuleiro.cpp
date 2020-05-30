@@ -7407,11 +7407,11 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
     if (!veneno.primario_aplicado()) {
       veneno_str = StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
       PreencheNotificacaoEventoParaVenenoPrimario(
-          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     } else {
       veneno_str = StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
       PreencheNotificacaoEventoParaVenenoSecundario(
-          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     }
   }
   if (!veneno.primario_aplicado()) {

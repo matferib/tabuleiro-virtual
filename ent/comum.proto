@@ -543,7 +543,10 @@ message DadosDefesa {
   optional int32 resistencia_magia_racial = 27;
   optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
+  // Recomputado.
   repeated TipoEfeito imunidade_efeitos = 34;
+  // Para monstros usarem.
+  repeated TipoEfeito imunidade_efeitos_fixas = 35;
   message ImunidadeFeitico {
     optional string id_feitico = 1;
     optional int32 id_unico = 2;
@@ -1111,6 +1114,8 @@ message VenenoProto {
   optional bool primario_aplicado = 13;
   // O atributo usado para calcular a CD.
   optional TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
+  // Para gases de sono (que ignoram imunidade a sono).
+  optional bool sono = 15;
 }
 
 message DoencaProto {

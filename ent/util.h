@@ -454,10 +454,10 @@ inline void PreencheNotificacaoEventoEfeitoAdicional(
 }
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
@@ -879,6 +879,7 @@ bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna true se a entidade for imune ao feitico.
 bool EntidadeImuneFeitico(const EntidadeProto& proto, const std::string& id);
+bool EntidadeImuneEfeito(const EntidadeProto& proto, TipoEfeito efeito);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);

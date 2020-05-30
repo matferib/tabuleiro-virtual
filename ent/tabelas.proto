@@ -28,6 +28,8 @@ message RacaProto {
   optional SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
   optional Movimento movimento = 11;
+  optional TipoVisao tipo_visao = 12;
+  optional int32 alcance_visao_m = 13;
 }
 
 message ArmaduraOuEscudoProto {

@@ -1659,7 +1659,7 @@ std::string TrataVeneno(
     if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
       primario_aplicado = true;
       PreencheNotificacaoEventoParaVenenoPrimario(
-          entidade_destino->Id(), dados_iniciativa, veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+          entidade_destino->Id(), dados_iniciativa, veneno, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
     }
   } else {
     veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());

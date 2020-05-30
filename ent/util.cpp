@@ -2194,7 +2194,11 @@ bool PreencheNotificacaoEventoParaVenenoComum(
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   // A origem ficara veneno: %d, pois veneno é cumulativo.
   std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
-  PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  if (veneno.sono()) {
+    PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_SONO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  } else {
+    PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  }
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -2204,39 +2208,43 @@ bool PreencheNotificacaoEventoParaVenenoComum(
 }  // namespace
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
-  auto* e_depois = n->mutable_entidade();
-  auto* evento = e_depois->mutable_evento(0);
-  evento->mutable_complementos()->Resize(6, 0);
-  for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
-    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano(i));
-    if (indice_complemento < 0 || indice_complemento >= 6) continue;
-    if (veneno.dano_inicial().size() != veneno.tipo_dano().size()) {
-      LOG(ERROR) << "Veneno mal formado: tamanho de dano incial e tipo dano diferem: " << veneno.dano_inicial().size() << ", " << veneno.tipo_dano().size();
-      continue;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, /*rodadas=*/veneno.sono() ? 10 : DIA_EM_RODADAS, ids_unicos, n, n_desfazer)) return;
+  if (!veneno.sono()) {
+    auto* e_depois = n->mutable_entidade();
+    auto* evento = e_depois->mutable_evento(0);
+    evento->mutable_complementos()->Resize(6, 0);
+    for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
+      int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano(i));
+      if (indice_complemento < 0 || indice_complemento >= 6) continue;
+      if (veneno.dano_inicial().size() != veneno.tipo_dano().size()) {
+        LOG(ERROR) << "Veneno mal formado: tamanho de dano incial e tipo dano diferem: " << veneno.dano_inicial().size() << ", " << veneno.tipo_dano().size();
+        continue;
+      }
+      evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
     }
-    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
   }
 }
 
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
-  auto* e_depois = n->mutable_entidade();
-  auto* evento = e_depois->mutable_evento(0);
-  evento->mutable_complementos()->Resize(6, 0);
-  for (int i = 0; i < veneno.tipo_dano_secundario().size(); ++i) {
-    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano_secundario(i));
-    if (indice_complemento < 0 || indice_complemento >= 6) continue;
-    if (veneno.dano_secundario().size() != veneno.tipo_dano_secundario().size()) {
-      LOG(ERROR) << "Veneno mal formado: tamanho de dano secundario e tipo dano secundario diferem: "
-                 << veneno.dano_secundario().size() << ", " << veneno.tipo_dano_secundario().size();
-      continue;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, /*rodadas=*/veneno.sono() ? RolaDado(4) * MINUTOS_PARA_RODADAS : DIA_EM_RODADAS, ids_unicos, n, n_desfazer)) return;
+  if (!veneno.sono()) {
+    auto* e_depois = n->mutable_entidade();
+    auto* evento = e_depois->mutable_evento(0);
+    evento->mutable_complementos()->Resize(6, 0);
+    for (int i = 0; i < veneno.tipo_dano_secundario().size(); ++i) {
+      int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano_secundario(i));
+      if (indice_complemento < 0 || indice_complemento >= 6) continue;
+      if (veneno.dano_secundario().size() != veneno.tipo_dano_secundario().size()) {
+        LOG(ERROR) << "Veneno mal formado: tamanho de dano secundario e tipo dano secundario diferem: "
+                   << veneno.dano_secundario().size() << ", " << veneno.tipo_dano_secundario().size();
+        continue;
+      }
+      evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_secundario(i)));
     }
-    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_secundario(i)));
   }
 }
 
@@ -4406,6 +4414,10 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
   return fn.para_lancar(indice);
 }
 
+bool EntidadeImuneEfeito(const EntidadeProto& proto, TipoEfeito efeito) {
+  return c_any(proto.dados_defesa().imunidade_efeitos(), (int)efeito);
+}
+
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
   if (elemento == DESC_NENHUM) return false;
   if ((elemento == DESC_MENTAL || elemento == DESC_MENTAL_PADRAO_VISIVEL) && ImuneAcaoMental(proto)) return true; 
@@ -5351,7 +5363,7 @@ std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const 
     return std::nullopt;
   }
   const bool passou = valor >= 15 - delta_pv;
-  return std::make_tuple(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
+  return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
 }
 
 std::pair<int, std::string> RenovaSeTiverDominioRenovacao(

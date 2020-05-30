@@ -1917,10 +1917,10 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
 bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
   int nivel_alvo = NivelPersonagem(alvo);
   int nivel_base = efeito.referencia_dados_vida_nivel_conjurador() ? nivel_conjurador : 0;
-  if (entidade.ImuneEfeito(efeito.efeito())) {
+  if (EntidadeImuneEfeito(alvo, efeito.efeito())) {
     return false;
   }
-  if (efeito.has_afeta_apenas_dados_vida_igual_a() && nivel_alvo != (nivel_base + efeito.afeta_apenas_dados_vida_igual_a()) {
+  if (efeito.has_afeta_apenas_dados_vida_igual_a() && nivel_alvo != (nivel_base + efeito.afeta_apenas_dados_vida_igual_a())) {
     return false;
   }
   if (efeito.has_afeta_apenas_tamanhos_menores_ou_igual_a() && alvo.tamanho() > efeito.afeta_apenas_tamanhos_menores_ou_igual_a()) {
