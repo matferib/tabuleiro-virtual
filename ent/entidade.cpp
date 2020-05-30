@@ -1789,12 +1789,8 @@ int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
   return ent::Salvacao(proto_, Bonus::default_instance(), EntidadeProto::default_instance(), tipo);
 }
 
-int Entidade::SalvacaoFeitico(const Entidade& atacante, TipoSalvacao tipo) const {
-  const auto* da = atacante.DadoCorrente();
-  if (da == nullptr) {
-    da = &DadosAtaque::default_instance();
-  }
-  return ent::SalvacaoFeitico(tabelas_.Feitico(da->id_arma()), proto_, atacante.Proto(), tipo);
+int Entidade::SalvacaoFeitico(const Entidade& atacante, const DadosAtaque& da) const {
+  return ent::SalvacaoFeitico(tabelas_.Feitico(da.id_arma()), proto_, atacante.Proto(), da.tipo_salvacao());
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {

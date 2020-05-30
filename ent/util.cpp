@@ -1598,7 +1598,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     }
   } else if (da.has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
-    int bonus = da.eh_feitico() ? ed.SalvacaoFeitico(ea, da.tipo_salvacao()) : ed.Salvacao(ea, da.tipo_salvacao());
+    int bonus = da.eh_feitico() ? ed.SalvacaoFeitico(ea, da) : ed.Salvacao(ea, da.tipo_salvacao());
     int total = d20 + bonus;
     std::string str_evasao;
     if (total >= da.dificuldade_salvacao()) {
