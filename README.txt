@@ -11,3 +11,4 @@ som steel:<a href='https://freesound.org/people/Erdie/sounds/27858/'>https://fre
 som miss: https://freesound.org/people/CGEffex/sounds/93081/
 som punch: https://freesound.org/people/ztrees1/sounds/134934/
 som whip: https://freesound.org/people/CGEffex/sounds/93100/
+som glass_break: https://freesound.org/people/unfa/sounds/221528/
