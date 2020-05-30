@@ -1646,25 +1646,27 @@ TEST(TesteVezes, TesteRefrescamento2) {
 
 TEST(TesteTalentoPericias, TesteTalentoPericias) {
   EntidadeProto proto;
-  auto* ic = proto.add_info_classes();
-  ic->set_id("ladino");
-  ic->set_nivel(1);
-  AtribuiBaseAtributo(12, TA_FORCA, &proto);
-  AtribuiBaseAtributo(14, TA_DESTREZA, &proto);
-  proto.mutable_info_talentos()->add_gerais()->set_id("maos_leves");
-  auto* p = PericiaCriando("usar_cordas", &proto);
-  p->set_pontos(5);
-  RecomputaDependencias(g_tabelas, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ladino");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(12, TA_FORCA, &proto);
+    AtribuiBaseAtributo(14, TA_DESTREZA, &proto);
+    proto.mutable_info_talentos()->add_gerais()->set_id("maos_leves");
+    PericiaCriando("usar_cordas", &proto)->set_pontos(5);
+    RecomputaDependencias(g_tabelas, &proto);
+  }
 
   // 2 des, 2 talento, 5 pontos de classe.
-  EXPECT_EQ(9, BonusTotal(p->bonus()));
+  EXPECT_EQ(9, BonusTotal(Pericia("usar_cordas", proto).bonus())) << "bonus: " << Pericia("usar_cordas", proto).bonus().DebugString();
   // 1 forca, 2 sinergia.
-  EXPECT_EQ(3, BonusTotal(Pericia("escalar", proto).bonus()));
+  EXPECT_EQ(3, BonusTotal(Pericia("escalar", proto).bonus())) << "bonus: " << Pericia("escalar", proto).bonus().DebugString();
 
   // Pericia deixa de ser de classe.
-  ic->set_id("guerreiro");
+  ASSERT_FALSE(proto.info_classes().empty());
+  proto.mutable_info_classes(0)->set_id("guerreiro");
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(6, BonusTotal(p->bonus()));
+  EXPECT_EQ(6, BonusTotal(Pericia("usar_cordas", proto).bonus()));
   // Sem sinergia.
   EXPECT_EQ(1, BonusTotal(Pericia("escalar", proto).bonus()));
 }

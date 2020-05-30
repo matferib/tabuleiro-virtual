@@ -1592,21 +1592,20 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
 
   // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
-  std::unordered_map<std::string, InfoPericia*> mapa_pericias_proto;
+  std::unordered_map<std::string, InfoPericia> mapa_pericias_proto;
   for (auto& ip : *proto->mutable_info_pericias()) {
-    mapa_pericias_proto[ip.id()] = &ip;
+    mapa_pericias_proto[ip.id()].Swap(&ip);
   }
+  proto->clear_info_pericias();
 
   // Cria todas as pericias do personagem.
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Acha a pericia no personagem se houver para pegar os pontos e calcular a graduacao.
     auto it = mapa_pericias_proto.find(pt.id());
     if (it == mapa_pericias_proto.end()) {
-      auto* pericia_proto = proto->add_info_pericias();
-      pericia_proto->set_id(pt.id());
-      mapa_pericias_proto[pt.id()] = pericia_proto;
+      mapa_pericias_proto[pt.id()].set_id(pt.id());
     } else {
-      it->second->mutable_restricoes_sinergia()->Clear();
+      it->second.mutable_restricoes_sinergia()->Clear();
     }
   }
 
@@ -1615,25 +1614,25 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
-    auto* pericia_proto = mapa_pericias_proto[pt.id()];
-    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto->pontos() : pericia_proto->pontos() / 2;
-    AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto->mutable_bonus());
+    auto& pericia_proto = mapa_pericias_proto[pt.id()];
+    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
+    AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto.mutable_bonus());
 
     // Sinergia.
     for (const auto& s : pt.sinergias()) {
-      auto* pericia_alvo = mapa_pericias_proto[s.id()];
-      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo->mutable_bonus());
+      auto& pericia_alvo = mapa_pericias_proto[s.id()];
+      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo.mutable_bonus());
       if (!s.restricao().empty()) {
-        pericia_alvo->add_restricoes_sinergia(s.restricao());
+        pericia_alvo.add_restricoes_sinergia(s.restricao());
       }
     }
 
     // Atributo.
-    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
+    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
 
     if (pt.id() == "esconderse") {
       // Bonus de tamanho.
-      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto->mutable_bonus());
+      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto.mutable_bonus());
     }
 
     // Talento.
@@ -1641,13 +1640,18 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     if (par_pericia_talentos != talentos_por_pericia.end()) {
       for (const auto* talento : par_pericia_talentos->second) {
         const int bonus_talento = PossuiTalento(talento->id(), *proto) ? BonusTalento(pt.id(), *talento) : 0;
-        AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
+        AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto.mutable_bonus());
       }
     }
 
     // Heroismo
-    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto->mutable_bonus());
-   //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
+    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto.mutable_bonus());
+   //LOG(INFO) << "pericia_proto: " << pericia_proto.ShortDebugString();
+  }
+
+  // Atribui de volt ao proto.
+  for (auto& it : mapa_pericias_proto) {
+    proto->add_info_pericias()->Swap(&it.second);
   }
 }
 
