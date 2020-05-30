@@ -194,7 +194,7 @@ void InterfaceGrafica::VoltaEscolherTipoTesouro(const ntf::Notificacao notificac
   if (!ok) {
     return;
   }
-  if (indice_tipo < 0 || indice_tipo >= mapa_indice_tipo.size()) {
+  if (indice_tipo < 0 || indice_tipo >= (int)mapa_indice_tipo.size()) {
     // TODO erro
     return;
   }
