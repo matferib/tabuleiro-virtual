@@ -151,8 +151,8 @@ tabela_armas {
       ataque_toque: true
       elemento: DESC_VENENO
       permite_salvacao: true
-      som_sucesso: 'glass_break'
-      som_fracasso: 'glass_break'
+      som_sucesso: 'glass_break.wav'
+      som_fracasso: 'glass_break.wav'
     }
   }
   armas {

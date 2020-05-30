@@ -131,8 +131,8 @@ tabela_armas {
       cor { r: 0.0 g: 0.5 b: 0.0 }
       icone: 'icon_acid.png'
       elemento: DESC_ACIDO
-      som_sucesso: 'glass_break'
-      som_fracasso: 'glass_break'
+      som_sucesso: 'glass_break.wav'
+      som_fracasso: 'glass_break.wav'
     }
   }
   armas {
@@ -217,8 +217,8 @@ tabela_armas {
       }
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
-      som_sucesso: 'glass_break'
-      som_fracasso: 'glass_break'
+      som_sucesso: 'glass_break.wav'
+      som_fracasso: 'glass_break.wav'
     }
   }
 

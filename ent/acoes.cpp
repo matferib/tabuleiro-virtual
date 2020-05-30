@@ -706,12 +706,12 @@ class AcaoProjetil : public Acao {
   void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (estagio_ == INICIAL) {
       estagio_ = VOO;
-      AtualizaVoo(intervalo_ms);
+      AtualizaVoo(intervalo_ms, camera);
       // Atualiza depois, para ter dx, e dy.
       AtualizaRotacaoZFonte(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
       AtualizaLuzOrigem(intervalo_ms);
     } else if (estagio_ == VOO) {
-      AtualizaVoo(intervalo_ms);
+      AtualizaVoo(intervalo_ms, camera);
     } else if (estagio_ == ATINGIU_ALVO) {
       if (!AtualizaAlvo(intervalo_ms)) {
         VLOG(1) << "Terminando acao projetil, alvo atualizado.";
@@ -739,7 +739,7 @@ class AcaoProjetil : public Acao {
   }
 
  private:
-  void AtualizaVoo(int intervalo_ms) {
+  void AtualizaVoo(int intervalo_ms, const Olho& camera) {
     Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
     if (entidade_destino == nullptr) {
       VLOG(1) << "Finalizando projetil, destino não existe.";
@@ -774,6 +774,7 @@ class AcaoProjetil : public Acao {
         pos_.z() == pos_destino.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
+      TocaSomSucessoOuFracasso(camera);
       return;
     }
   }

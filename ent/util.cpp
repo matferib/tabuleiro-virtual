@@ -6011,6 +6011,7 @@ float AplicaEfeitosAdicionais(
       continue;
     }
     if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
+      ConcatenaString(StringPrintf("imune ou não afetada por %s", EfeitoParaString(efeito_adicional.efeito()).c_str()), por_entidade->mutable_texto());
       continue;
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
