@@ -136,6 +136,22 @@ std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFil
   return NovaNotificacaoFilha(tipo, entidade.Proto(), pai);
 }
 
+std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& texto, const EntidadeProto& proto, const std::optional<float> atraso_s) {
+  auto na = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na->mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(proto.id());
+  por_entidade->set_texto(texto);
+  a->set_afeta_pontos_vida(false);
+  a->set_local_apenas(false);
+  if (atraso_s.has_value()) {
+    LOG(INFO) << "atraso_s: " << *atraso_s;
+    a->set_atraso_s(*atraso_s);
+  }
+  return na;
+}
+
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
@@ -4297,13 +4313,43 @@ bool ExecutaFeitico(
 
 }
 
-// TODO
-void PreencheNotificacaoAcao() {
+std::optional<std::pair<bool, std::string>> TestaConcentracao(const Tabelas& tabelas, int cd, const EntidadeProto& proto) {
+  auto resultado = RolaPericia(tabelas, "concentracao", proto);
+  if (!resultado.has_value()) {
+    LOG(ERROR) << "Pericia concentracao invalida, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  auto [rolou, valor, texto] = *resultado;
+  if (!rolou) {
+    LOG(ERROR) << "Pericia concentracao nao rolada, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  const bool passou = valor >= cd;
+  return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
+}
+
+std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta_pv, const EntidadeProto& proto) {
+  if (delta_pv >= 0) return std::nullopt;
+  if (!PossuiEvento(EFEITO_CONJURANDO, proto)) return std::nullopt;
+  return TestaConcentracao(tabelas, 15 - delta_pv, proto);
 }
 
 bool NotificacaoConsequenciaFeitico(
     const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
+  float atraso_s = 0.0f;
+  if (PossuiEvento(EFEITO_ENREDADO, proto)) {
+    auto resultado = TestaConcentracao(tabelas, 15 + nivel, proto);
+    if (resultado.has_value()) {
+      auto [passou, texto] = *resultado;
+      grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(texto, proto, atraso_s).get());
+      atraso_s += 1.0f;
+      if (!passou) {
+        VLOG(1) << "perdeu feitico por estar enredado";
+        return false;
+      }
+    }
+  }
   const int nivel_conjurador = NivelConjurador(id_classe, proto);
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
   // dos feiticos conhecidos.
@@ -4342,15 +4388,9 @@ bool NotificacaoConsequenciaFeitico(
     PreencheNotificacaoEventoComComplementoStr(
         entidade.Id(), std::nullopt, /*origem=*/feitico_tabelado.nome(), EFEITO_CONJURANDO, entidade_str,
         feitico_tabelado.tempo_execucao_rodadas(), &ids_unicos, grupo->add_notificacao(), nullptr);
-    auto* a = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, grupo)->mutable_acao();
-    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-    auto* por_entidade = a->add_por_entidade();
-    por_entidade->set_id(entidade.Id());
-    por_entidade->set_texto(StringPrintf(
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(StringPrintf(
           "conjurando por %d rodada%s",
-          feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""));
-    a->set_afeta_pontos_vida(false);
-    a->set_local_apenas(false);
+          feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""), proto, atraso_s).get());
     return false;
   }
   return ExecutaFeitico(tabelas, feitico_tabelado, nivel_conjurador, id_classe, dados_iniciativa, entidade, grupo, nullptr);
@@ -5347,23 +5387,6 @@ int DesviaObjetoSeAplicavel(
   PreencheNotificacaoObjetoDesviado(true, alvo, &n, grupo_desfazer->add_notificacao());
   tabuleiro->TrataNotificacao(n);
   return 0;
-}
-
-std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta_pv, const EntidadeProto& proto) {
-  if (delta_pv >= 0) return std::nullopt;
-  if (!PossuiEvento(EFEITO_CONJURANDO, proto)) return std::nullopt;
-  auto resultado = RolaPericia(tabelas, "concentracao", proto);
-  if (!resultado.has_value()) {
-    LOG(ERROR) << "Pericia concentracao invalida, nunca deveria acontecer";
-    return std::nullopt;
-  }
-  auto [rolou, valor, texto] = *resultado;
-  if (!rolou) {
-    LOG(ERROR) << "Pericia concentracao nao rolada, nunca deveria acontecer";
-    return std::nullopt;
-  }
-  const bool passou = valor >= 15 - delta_pv;
-  return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
 }
 
 std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
