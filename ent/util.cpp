@@ -136,7 +136,7 @@ std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFil
   return NovaNotificacaoFilha(tipo, entidade.Proto(), pai);
 }
 
-std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& texto, const EntidadeProto& proto, const std::optional<float> atraso_s) {
+std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTextoLogada(const std::string& texto, const EntidadeProto& proto, const std::optional<float> atraso_s) {
   auto na = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = na->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
@@ -145,6 +145,7 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& te
   por_entidade->set_texto(texto);
   a->set_afeta_pontos_vida(false);
   a->set_local_apenas(false);
+  a->set_adiciona_ao_log_se_local(true);
   if (atraso_s.has_value()) {
     a->set_atraso_s(*atraso_s);
   }
@@ -4388,7 +4389,7 @@ bool NotificacaoConsequenciaFeitico(
   }
   auto [passou_falha, texto_falha] = VerificaChancesDeFalha(tabelas, feitico_tabelado, nivel, proto);
   if (!passou_falha || !texto_falha.empty()) {
-    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(texto_falha, proto, atraso_s).get());
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTextoLogada(texto_falha, proto, atraso_s).get());
     atraso_s += 2.0f;
     if (!passou_falha) return false;
   }
@@ -4410,7 +4411,7 @@ bool NotificacaoConsequenciaFeitico(
     PreencheNotificacaoEventoComComplementoStr(
         entidade.Id(), std::nullopt, /*origem=*/feitico_tabelado.nome(), EFEITO_CONJURANDO, entidade_str,
         feitico_tabelado.tempo_execucao_rodadas(), &ids_unicos, grupo->add_notificacao(), nullptr);
-    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(StringPrintf(
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTextoLogada(StringPrintf(
           "conjurando por %d rodada%s",
           feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""), proto, atraso_s).get());
     return false;

@@ -2102,6 +2102,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadesNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
+      if (notificacao.local() && notificacao.acao().adiciona_ao_log_se_local()) {
+        const auto& [id, texto] = IdTextoAcao(notificacao.acao());
+        AdicionaLogEvento(id, texto);
+      }
       std::unique_ptr<Acao> acao(NovaAcao(tabelas_, notificacao.acao(), this, texturas_, m3d_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
@@ -4736,7 +4740,7 @@ void Tabuleiro::AtualizaIniciativas() {
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& [id, entidade] : entidades_) {
     if (!entidade->TemIniciativa()) {
-      VLOG(3) << "Entidade sem iniciativa";
+      VLOG(3) << "Entidade sem iniciativa: " << id;  // esse id aqui é so pro compilador ficar feliz.
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
@@ -7571,7 +7575,7 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
 
 // TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
-  auto [e_antes, e_depois] = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  auto e_depois = std::get<1>(ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao()));
   e_depois->set_reiniciar_ataque(true);
 }
 

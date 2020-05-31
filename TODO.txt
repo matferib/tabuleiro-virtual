@@ -1,3 +1,13 @@
+Ver se as magias de dominio estao usando nivel certo do personagem (tipo maos flamejantes para dominio do fogo).
+Ensurdecido: chance de falha de magia.
+Mobilidade: pensar em uma forma (se tiver iniciativa e nao estiver na dele, considera como oportunidade).
+Visao na penumbra automatico para meio elfos.
+Especialização em combate: arcos e arcos compostos estao separados.
+Adicionar dominio de viagem.
+Habilidade esquiva sobrenatural nao ta aparecendo na UI.
+Links de talentos.
+Ui de talentos, colocar origem.
+
 Sessão:
 * fazer andalara.
 * Fazer os 4 acompanhantes.
@@ -73,7 +83,6 @@ Se perder conexao tentar reconectar.
 Botao de doar no menu de pergaminhos.
 Para armas de arremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
 Barra de progresso de carregamento.
-Ui de talentos, colocar origem.
 Fazer objetos esfumacarem tb.
 Colocar posicao da acao na UI.
 Icone para amedrontado e abalado.

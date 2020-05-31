@@ -103,7 +103,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 100.
+// Proximo id: 101.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -347,6 +347,7 @@ message AcaoProto {
   optional string som_sucesso = 94;
   optional string som_fracasso = 95;
   optional string som_inicial = 96;
+  optional bool adiciona_ao_log_se_local = 100;
 }
 
 // Como uma arma esta empunhada.

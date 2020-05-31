@@ -1833,6 +1833,13 @@ const std::string& TextoAcao(const AcaoProto& acao_proto) {
   return acao_proto.texto();
 }
 
+std::pair<unsigned int, std::string> IdTextoAcao(const AcaoProto& acao_proto) {
+  if (TemAlgumDestino(acao_proto) && acao_proto.por_entidade(0).has_texto()) {
+    return std::make_pair(acao_proto.por_entidade(0).id(), acao_proto.por_entidade(0).texto());
+  }
+  return std::make_pair(Entidade::IdInvalido, acao_proto.texto());
+}
+
 int DeltaAcao(const AcaoProto& acao_proto) {
   if (TemAlgumDestino(acao_proto) && acao_proto.por_entidade(0).has_delta()) {
     return acao_proto.por_entidade(0).delta();

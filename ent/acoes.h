@@ -125,6 +125,7 @@ Acao* NovaAcao(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* t
 
 // Helpers para pegar da acao. Tenta de por_entidade(0), senao pega da acao mesmo.
 const std::string& TextoAcao(const AcaoProto& acao_proto);
+std::pair<unsigned int, std::string> IdTextoAcao(const AcaoProto& acao_proto);
 int DeltaAcao(const AcaoProto& acao_proto);
 
 // Combina os efeitos adicionais com combina_com.
