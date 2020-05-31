@@ -107,16 +107,19 @@ enum TipoCarregamento {
   TC_RODADA_COMPLETA = 2;
 }
 
-enum TipoComponente {
+enum TipoComponenteMaterial {
   COMP_NENHUM = 0;
   COMP_FOCO = 1;
   COMP_MATERIAL = 2;
 }
 
 message InfoComponente {
-  optional TipoComponente tipo = 1;
+  optional TipoComponenteMaterial tipo = 1;
   optional Moedas custo = 2;
   optional string descricao = 3;
+  optional bool verbal = 4 [default=true];
+  optional bool somatico = 5 [default=true];
+  optional bool material = 6 [default=true];
 }
 
 // Proximo id: 39.

@@ -13333,42 +13333,6 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'detectar_veneno'
-    nome: 'detectar veneno'
-    nome_ingles: 'detect poison'
-    info_classes {
-      id: 'clerigo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 0
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 0
-    }
-    info_classes {
-      id: 'paladino'
-      nivel: 1
-    }
-    info_classes {
-      id: 'ranger'
-      nivel: 1
-    }
-    ataque_toque: true
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      duracao_s: 0.5
-      permite_salvacao: false
-      permite_ataque_vs_defesa: false
-      ataque_distancia: false
-    }
-    escola: 'adivinhacao'
-  }
-
-  armas {
     id: 'pedra_encantada'
     nome_ingles: 'magic stone'
     nome: 'pedra encantada'

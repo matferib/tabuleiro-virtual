@@ -6408,7 +6408,10 @@ modelo {
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 }  } }
+      carisma {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
     }
     dados_ataque {
       id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_APENAS

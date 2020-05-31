@@ -146,7 +146,6 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& te
   a->set_afeta_pontos_vida(false);
   a->set_local_apenas(false);
   if (atraso_s.has_value()) {
-    VLOG(1) << "atraso_s: " << *atraso_s;
     a->set_atraso_s(*atraso_s);
   }
   return na;
@@ -4334,43 +4333,66 @@ std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const 
   return TestaConcentracao(tabelas, 15 - delta_pv, proto);
 }
 
-bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
-  const auto& proto = entidade.Proto();
-  float atraso_s = 0.0f;
+std::pair<bool, std::string> VerificaChancesDeFalha(const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel, const EntidadeProto& proto) {
+  std::string texto;
   if (PossuiEvento(EFEITO_ENREDADO, proto)) {
     auto resultado = TestaConcentracao(tabelas, 15 + nivel, proto);
     if (resultado.has_value()) {
-      auto [passou, texto] = *resultado;
-      grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(texto, proto, atraso_s).get());
-      atraso_s += 1.0f;
+      auto [passou, texto_enredado] = *resultado;
       if (!passou) {
-        VLOG(1) << "perdeu feitico por estar enredado";
-        return false;
+        return *resultado;
       }
+      texto = texto_enredado;
     }
   }
-  const int nivel_conjurador = NivelConjurador(id_classe, proto);
-  // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
-  // dos feiticos conhecidos.
+  // TODO: efeitos metamagicos como magia silenciosa anulam isso.
+  if (PossuiEvento(EFEITO_ENSURDECIDO, proto) && feitico_tabelado.componente().verbal()) {
+    int d100 = RolaDado(100);
+    if (d100 <= 20) {
+      return std::make_pair(false, StringPrintf("falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str()));
+    }
+    texto = StringPrintf("passou em falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str());
+  }
+  return std::make_pair(true, texto);
+}
+
+const ArmaProto& FeiticoTabeladoOuConvertido(
+    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const EntidadeProto& proto) {
   const EntidadeProto::InfoConhecido& ic =
       ClassePrecisaMemorizar(tabelas, id_classe)
         ? FeiticoConhecido(id_classe, FeiticoParaLancar(id_classe, nivel, indice, proto), proto)
         : FeiticoConhecido(id_classe, nivel, indice, proto);
-
+  // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
+  // dos feiticos conhecidos.
   std::string id_conversao_espontanea;
   if (conversao_espontanea) {
     id_conversao_espontanea = tabelas.FeiticoConversaoEspontanea(
-        id_classe, nivel,
-        Mal(entidade.Proto()) ? Tabelas::COI_INFLIGIR : Tabelas::COI_CURA);
+        id_classe, nivel, Mal(proto) ? Tabelas::COI_INFLIGIR : Tabelas::COI_CURA);
   }
   const auto& feitico_tabelado = tabelas.Feitico(id_conversao_espontanea.empty() ? ic.id() : id_conversao_espontanea);
   if (!feitico_tabelado.has_id()) {
     // Nao ha entrada.
     LOG(ERROR) << "Nao ha feitico id '" << ic.id() << "' tabelado: InfoConhecido: " << ic.ShortDebugString()
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
+  }
+  return feitico_tabelado;
+}
+
+bool NotificacaoConsequenciaFeitico(
+    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
+  const auto& proto = entidade.Proto();
+  float atraso_s = 0.0f;
+  const auto& feitico_tabelado = FeiticoTabeladoOuConvertido(tabelas, id_classe, conversao_espontanea, nivel, indice, entidade.Proto());
+  if (!feitico_tabelado.has_id()) {
     return false;
   }
+  auto [passou_falha, texto_falha] = VerificaChancesDeFalha(tabelas, feitico_tabelado, nivel, proto);
+  if (!passou_falha || !texto_falha.empty()) {
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(texto_falha, proto, atraso_s).get());
+    atraso_s += 2.0f;
+    if (!passou_falha) return false;
+  }
+  const int nivel_conjurador = NivelConjurador(id_classe, proto);
   if (feitico_tabelado.tempo_execucao_rodadas() > 0) {
     EntidadeProto ep;
     ep.set_id(entidade.Id());
