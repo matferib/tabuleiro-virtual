@@ -7602,6 +7602,8 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
       *grupo_desfazer->add_notificacao() = *nr;
     }
   }
+#if 0
+  // Util para investigar a mensagem de passar uma rodada.
   auto gc = *grupo;
   for (auto& n : *gc.mutable_notificacao()) {
     n.clear_entidade_antes();
@@ -7618,6 +7620,7 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
     }
   }
   LOG(INFO) << "grupo " << gc.DebugString();
+#endif
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {
