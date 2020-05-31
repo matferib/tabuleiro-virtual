@@ -1398,21 +1398,20 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 }  // namespace
 
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade) {
   const auto* da = ea.DadoCorrente();
   if (da == nullptr) da = &DadosAtaque::default_instance();
-  return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo);
+  return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo, ataque_oportunidade);
 }
 
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
-    const Entidade& ed, const Posicao& pos_alvo) {
+    const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade) {
   const int ataque_origem = ea.BonusAtaque();
 
-  const int d20_agarrar_defesa = RolaDado(20);
   const int bonus_agarrar_defesa = ed.Proto().bba().agarrar();
 
-  const int ca_destino = da->ataque_agarrar() ? d20_agarrar_defesa + bonus_agarrar_defesa : ed.CA(ea, CATipoAtaque(*da));
+  const int ca_destino = da->ataque_agarrar() ? RolaDado(20) + bonus_agarrar_defesa : ed.CA(ea, CATipoAtaque(*da), ataque_oportunidade);
 
   ResultadoAtaqueVsDefesa resultado;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {

@@ -335,10 +335,10 @@ struct ResultadoAtaqueVsDefesa {
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
-    const Entidade& ed, const Posicao& pos_alvo);
+    const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
 ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);

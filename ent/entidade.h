@@ -297,7 +297,7 @@ class Entidade {
     CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(const Entidade& atacante, TipoCA tipo) const;
+  int CA(const Entidade& atacante, TipoCA tipo, bool vs_oportunidade = false) const;
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;

@@ -1996,23 +1996,30 @@ int Entidade::BonusAtaqueToqueDistancia() const {
   return proto_.bba().distancia();
 }
 
-int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
+int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
 
+  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+  const bool destreza_na_ca = DestrezaNaCAContraAtaque(da, proto_, atacante.Proto());
+
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
-      PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+      destreza_na_ca && PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
-  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+  // TODO na verdade, é so para ataques de oportunidade oriundos de movimento.
+  const int bonus_mobilidade =
+      destreza_na_ca && vs_oportunidade && !proto_.caida() && PossuiTalento("mobilidade") ? 4 : 0;
+  //LOG(INFO) << "destrezanaca: " << destreza_na_ca << ", vs_oportunidade: " << vs_oportunidade << ", caido: " << proto_.caida() << ", PossuiTalento(mobilidade): " << PossuiTalento("mobilidade") << ", bonus mobilidade: " << bonus_mobilidade;
+  AtribuiBonus(bonus_mobilidade, TB_ESQUIVA, "mobilidade", &outros_bonus);
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
-      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
+      return destreza_na_ca 
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
+      return destreza_na_ca 
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }

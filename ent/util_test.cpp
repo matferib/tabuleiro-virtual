@@ -1373,6 +1373,37 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TesteMobilidade) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  const auto& modelo_trex = g_tabelas.ModeloEntidade("Orc Capitão");
+  auto trex = NovaEntidadeParaTestes(modelo_trex.entidade(), g_tabelas);
+  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  modelo_druida.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("mobilidade");
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  // 10 acerta na pinta.
+  g_dados_teste.push(10);
+  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+  EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  // 9 ja erra.
+  g_dados_teste.push(9);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+  EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+  // Com mobilidade, 10 erra (+4 na CA).
+  g_dados_teste.push(10);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
+  EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+  // Caido, ganha +4 e perde mobilidade.
+  {
+    EntidadeProto atu;
+    atu.set_caida(true);
+    druida->AtualizaParcial(atu);
+  }
+  g_dados_teste.push(6);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
+  EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+}
+
 TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
   EntidadeProto proto;
   proto.set_gerar_agarrar(false);

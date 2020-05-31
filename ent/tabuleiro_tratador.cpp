@@ -1780,8 +1780,9 @@ float Tabuleiro::TrataAcaoIndividual(
     if (modo_dano_automatico_) {
       VLOG(1) << "--------------------------";
       VLOG(1) << "iniciando ataque vs defesa";
+      const bool ataque_oportunidade = entidade_origem->TemIniciativa() && IdIniciativaCorrente() != entidade_origem->Id();
       resultado =
-          AtaqueVsDefesa(distancia_m, *acao_proto, *entidade_origem, *entidade_destino, pos_alvo);
+          AtaqueVsDefesa(distancia_m, *acao_proto, *entidade_origem, *entidade_destino, pos_alvo, ataque_oportunidade);
       VLOG(1) << "--------------------------";
       AdicionaLogEvento(entidade_origem->Id(), resultado.texto);
       por_entidade->set_texto(resultado.texto);
