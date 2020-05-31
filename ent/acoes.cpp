@@ -303,7 +303,8 @@ class AcaoDeltaPontosVida : public Acao {
     }
     VLOG(2) << "String delta: " << string_delta_ << ", string texto: " << string_texto_;
     num_linhas_ = 1 + std::count(string_texto_.begin(), string_texto_.end(), '\n');
-    faltam_ms_ = duracao_total_ms_ = DURACAO_UMA_LINHA_MS * num_linhas_;
+    duracao_total_ms_ = std::max<int>(5000, acao_proto_.has_duracao_s() ? acao_proto_.duracao_s() * 1000 : DURACAO_UMA_LINHA_MS * num_linhas_);
+    faltam_ms_ = duracao_total_ms_;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -346,7 +347,7 @@ class AcaoDeltaPontosVida : public Acao {
       if (pos_2d_.has_y()) {
         pos_2d_.set_y(pos_2d_.y() + (static_cast<float>(intervalo_ms) * max_delta_y_) / duracao_total_ms_);
       } else {
-        pos_.set_z(pos_.z() + intervalo_ms * num_linhas_ * MAX_DELTA_Z_POR_LINHA / duracao_total_ms_);
+        pos_.set_z(pos_.z() + (static_cast<float>(intervalo_ms) * VELOCIDADE_ROLAGEM_M_POR_MS));
       }
       faltam_ms_ -= intervalo_ms;
     }
@@ -389,7 +390,7 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   constexpr static int DURACAO_UMA_LINHA_MS = 2000;
-  constexpr static float MAX_DELTA_Z_POR_LINHA = 0.5f;
+  constexpr static float VELOCIDADE_ROLAGEM_M_POR_MS = 0.0002f;
 
   int delta_acao_ = 0;
   std::string string_texto_;
@@ -705,12 +706,12 @@ class AcaoProjetil : public Acao {
   void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     if (estagio_ == INICIAL) {
       estagio_ = VOO;
-      AtualizaVoo(intervalo_ms);
+      AtualizaVoo(intervalo_ms, camera);
       // Atualiza depois, para ter dx, e dy.
       AtualizaRotacaoZFonte(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
       AtualizaLuzOrigem(intervalo_ms);
     } else if (estagio_ == VOO) {
-      AtualizaVoo(intervalo_ms);
+      AtualizaVoo(intervalo_ms, camera);
     } else if (estagio_ == ATINGIU_ALVO) {
       if (!AtualizaAlvo(intervalo_ms)) {
         VLOG(1) << "Terminando acao projetil, alvo atualizado.";
@@ -738,7 +739,7 @@ class AcaoProjetil : public Acao {
   }
 
  private:
-  void AtualizaVoo(int intervalo_ms) {
+  void AtualizaVoo(int intervalo_ms, const Olho& camera) {
     Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
     if (entidade_destino == nullptr) {
       VLOG(1) << "Finalizando projetil, destino não existe.";
@@ -773,6 +774,7 @@ class AcaoProjetil : public Acao {
         pos_.z() == pos_destino.z()) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
+      TocaSomSucessoOuFracasso(camera);
       return;
     }
   }
@@ -1916,8 +1918,11 @@ const std::vector<unsigned int> EntidadesAfetadasPorAcao(
 bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, const AcaoProto::EfeitoAdicional& efeito, const EntidadeProto& alvo) {
   int nivel_alvo = NivelPersonagem(alvo);
   int nivel_base = efeito.referencia_dados_vida_nivel_conjurador() ? nivel_conjurador : 0;
-  if (efeito.has_afeta_apenas_dados_vida_igual_a()) {
-    return nivel_alvo == (nivel_base + efeito.afeta_apenas_dados_vida_igual_a());
+  if (EntidadeImuneEfeito(alvo, efeito.efeito())) {
+    return false;
+  }
+  if (efeito.has_afeta_apenas_dados_vida_igual_a() && nivel_alvo != (nivel_base + efeito.afeta_apenas_dados_vida_igual_a())) {
+    return false;
   }
   if (efeito.has_afeta_apenas_tamanhos_menores_ou_igual_a() && alvo.tamanho() > efeito.afeta_apenas_tamanhos_menores_ou_igual_a()) {
     return false;

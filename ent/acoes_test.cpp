@@ -346,10 +346,12 @@ TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoBolsaCola) {
   auto modelo_aranha = g_tabelas.ModeloEntidade("Aranha Gigante Enorme");
   auto alvo_enorme = NovaEntidadeParaTestes(modelo_aranha.entidade(), g_tabelas);
   const auto& bolsa_cola = g_tabelas.Arma("bolsa_cola");
-  ASSERT_EQ(bolsa_cola.acao().efeitos_adicionais_size(), 1);
+  ASSERT_EQ(bolsa_cola.acao().efeitos_adicionais_size(), 2);
   {
     EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_pequeno->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_pequeno->Proto()));
     EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_enorme->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_enorme->Proto()));
   }
 }
 

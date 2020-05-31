@@ -5,6 +5,7 @@
 #include <cctype>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -28,6 +29,15 @@ class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
 class Tabelas;
+
+struct DadosIniciativa {
+  int iniciativa = 0;
+  int modificador = 0;
+};
+
+std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade& entidade);
+inline std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade* entidade) { return entidade == nullptr ? std::nullopt : DadosIniciativaEntidade(*entidade); }
+std::optional<DadosIniciativa> DadosIniciativaEvento(const EntidadeProto::Evento& evento);
 
 // Util para rodar codigo ao sair de escopo.
 class RodaNoRetorno {
@@ -89,6 +99,9 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
 /** Retorna a notificacao filha, com proto antes e depois preenchidos pelo id de proto. */
 std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
     ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai);
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* pai);
+ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai);
 
 /** Altera a cor corrente para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
@@ -375,14 +388,16 @@ enum tipo_dano_e {
 
 // Adiciona a notificacao de alternar furia ao grupo e desfazer.
 // Retorna true se a entidade entrou em furia.
-void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
-bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* grupo_desfazer);
+bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* grupo_desfazer);
 
 // Preenche a notificacao de forma alternativa para a entidade, alternando para a proxima, ou para a original se ja estiver na ultima.
 void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeProto& proto, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+void PreencheNotificacoesTransicaoUmTipoTesouro(
+    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
 // Preenche o tesouro_final para enviar uma atualizacao parcial para a entidade. Tesouros vazios terão uma entrada fake para indicar que é vazio no merge.
 void AtribuiTesouroTodoOuCriaVazios(
@@ -411,15 +426,15 @@ void PreencheNotificacaoRecarregamento(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Adiciona um evento do tipo passado a entidade.
-// Tem uma parte tricky aqui, que se mais de um efeito for adicionado de uma vez so, os id_unico irao se repetir.
-void PreencheNotificacaoEvento(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, int rodadas,
+// Referencia é quem criou o evento. O efeito usará a iniciativa da referencia.
+void PreencheNotificacaoEventoSemComplemento(
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoComComplementos(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito te, const std::vector<int>& complementos, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito te, const std::vector<int>& complementos, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Dado um tipo de evento, remove todos daquele tipo.
@@ -428,21 +443,21 @@ void PreencheNotificacaoRemocaoEvento(
 
 // Retorna o id unico gerado (-1 em caso de erro).
 void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 inline void PreencheNotificacaoEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador, const Entidade& entidade_destino, const AcaoProto::EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   return PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-      id_origem, DadosAtaque::default_instance(), nivel_conjurador,
+      id_origem, dados_iniciativa, DadosAtaque::default_instance(), nivel_conjurador,
       entidade_destino, efeito_adicional, ids_unicos, n, n_desfazer);
 }
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 
 // Preenche n com o tipo passado, setando id da entidade antes e depois em n.
@@ -473,7 +488,7 @@ ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entid
 ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade);
 
 // Adiciona ao grupo uma notificacao de atualizacao dos ataques da entidade.
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo);
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
 
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);
@@ -726,9 +741,9 @@ inline int AchaIdUnicoEvento(const google::protobuf::RepeatedPtrField<EntidadePr
 // (normalmente proto preenchido nao contem tudo).
 // Params ids_unicos é in/out.
 EntidadeProto::Evento* AdicionaEvento(
-    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
+    const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto);
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador,
     const AcaoProto::EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos, const Entidade& alvo, EntidadeProto* proto);
 
@@ -768,7 +783,10 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
 // Retorna o modificador de incrementos. Assume alcance e municao.
 int ModificadorAlcance(float distancia_m, const AcaoProto& ap, const Entidade& ea);
 // Distancia da acao da ea para a ed. Pos alvo indica a posicao exata no alvo.
-float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+float DistanciaAbsoluta(const Posicao& pos_atacante, const Posicao& pos_alvo);
+// As funcoes a seguir computam varias distancias diferentes e retorna a minima ou a maxima delas.
+float DistanciaMaximaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique);
+float DistanciaMinimaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique);
 
 // Acesso a pericias do proto.
 InfoPericia* PericiaCriando(const std::string& id, EntidadeProto* proto);
@@ -838,11 +856,16 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
 std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
 
+bool ExecutaFeitico(
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe,
+    const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
+    ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer); 
+
 // Preenche as notificacoes de consequencia de um feitico. Para feiticos pessoais, o efeito sera aplicado.
 // Para os demais, cria um ataque com o efeito do feitico.
 // Retorna true se criou um ataque.
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
+    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo);
 
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n);
 
@@ -856,6 +879,7 @@ bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna true se a entidade for imune ao feitico.
 bool EntidadeImuneFeitico(const EntidadeProto& proto, const std::string& id);
+bool EntidadeImuneEfeito(const EntidadeProto& proto, TipoEfeito efeito);
 
 // retorna o descritor em formato texto.
 const char* TextoDescritor(int descritor);
@@ -893,7 +917,7 @@ ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
 
 // Return true se a acao ignora reducao de dano.
 inline bool IgnoraReducaoDano(const DadosAtaque* da, const AcaoProto& acao) {
-  return (da != nullptr && da->has_elemento()) || acao.ignora_reducao_dano_barbaro();
+  return (da != nullptr && (da->has_elemento() || !da->eh_arma())) || acao.ignora_reducao_dano_barbaro();
 }
 
 // Retorna true se a acao afetar o alvo. Alguns tipos de acoes afetam tipos de
@@ -912,6 +936,7 @@ const ItemMagicoProto& ItemTabela(
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
 
 // Retorna o repeated do tipo passado para o proto.
+std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes.
@@ -956,7 +981,11 @@ bool DestrezaNaCAContraAtaque(
 // Retorna true se puder usar escudo. Algumas condicoes impedem isso (atordoado).
 bool PermiteEscudo(const EntidadeProto& proto);
 // Retorna true se o personagem puder usar o escudo passado (por chave).
-bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto);
+bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto);
+// Retorna true se o personagem puder usar a armadura passada (por chave).
+bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto);
+// Retorna true se o personagem puder usar a arma passada (por chave).
+bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto);
 
 // Dado o feitico que originou, os parametros e a entidade de referencia, preenche `modelo`.
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo);
@@ -988,8 +1017,12 @@ int CompartilhaDanoSeAplicavel(
 
 // Caso a entidade tenha dominio renovar, ativa caso fique negativo.
 // Caso haja uso do poder, adiciona ao grupo a notificacao.
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     const EntidadeProto& proto, int delta_pontos_vida, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
+
+// Se esta conjurando e delta é negativo, testa concentração do personagem (15 + (-delta)).
+// Retorna true se passou, false caso contrário. Em caso de erro, retorna nullopt.
+std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta, const EntidadeProto& proto);
 
 // Se alvo possuir desviar objetos e puder usar, anula o ataque.
 int DesviaObjetoSeAplicavel(
@@ -1058,10 +1091,17 @@ bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& f
 // Retorna true se o feitico for de uma escola proibida.
 bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado);
 
+// Retorna os itens mundadnos que geram ataques automaticos, como fogo alquimico, agua benta etc.
+const std::vector<std::string>& ItemsQueGeramAtaques();
+
 // Retorna true se ataque vier de item mundano.
-bool EhItemMundano(const DadosAtaque& da);
+bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
+
+// Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
+// Em caso de erro, retorna nullopt.
+std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
 
 }  // namespace ent
 

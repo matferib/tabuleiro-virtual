@@ -60,7 +60,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 146.
+// Proximo id: 147.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -221,6 +221,10 @@ enum TipoEfeito {
   EFEITO_DOMINAR_ANIMAL = 142;
   EFEITO_DOMINAR_PESSOA = 143;
   EFEITO_DESTRUICAO_MORTO_VIVO = 144;
+  // Diferente de imobilizado, porque ainda pode se mexer, mas não pode mover. Ver teia.
+  EFEITO_NAO_PODE_MOVER = 145;
+  // Indica que personagem está conjurando.
+  EFEITO_CONJURANDO = 146;
 }
 
 enum TipoEfeitoModelo {
@@ -504,7 +508,7 @@ enum TipoEvasao {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 34.
+// Proximo id: 35.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -539,6 +543,10 @@ message DadosDefesa {
   optional int32 resistencia_magia_racial = 27;
   optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
+  // Recomputado.
+  repeated TipoEfeito imunidade_efeitos = 34;
+  // Para monstros usarem.
+  repeated TipoEfeito imunidade_efeitos_fixas = 35;
   message ImunidadeFeitico {
     optional string id_feitico = 1;
     optional int32 id_unico = 2;
@@ -715,6 +723,11 @@ message InfoClasse {
   optional TipoClasse tipo_classe = 26;
   // Talentos que a classe ganha automaticamente.
   repeated string talentos_automaticos = 29;
+  message TalentoComComplementos {
+    optional string id = 1;
+    optional string complemento = 2;
+  }
+  repeated TalentoComComplementos talentos_com_complemento_automaticos = 31;
 }
 
 // Informacao sobre a pericia do personagem.
@@ -761,6 +774,8 @@ message PericiaProto {
     optional string restricao = 2;
   }
   repeated InfoSinergia sinergias = 7;
+  // Para pericias resistidas.
+  optional string id_resistido = 8;
 }
 
 // Talentos.
@@ -823,6 +838,10 @@ message TalentoProto {
   optional string origem = 13;
 
   optional bool usado_na_rodada = 14;
+
+  // Indica que nao pode ser escolhido por jogador.
+  // Ou ganha por classe, ou nao tem.
+  optional bool nao_pode_ser_escolhido = 15;
 }
 
 message HabilidadeEspecialProto {
@@ -1095,6 +1114,8 @@ message VenenoProto {
   optional bool primario_aplicado = 13;
   // O atributo usado para calcular a CD.
   optional TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
+  // Para gases de sono (que ignoram imunidade a sono).
+  optional bool sono = 15;
 }
 
 message DoencaProto {

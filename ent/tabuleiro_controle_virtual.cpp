@@ -35,6 +35,8 @@ namespace ent {
 
 namespace {
 
+using google::protobuf::StringPrintf;
+
 const char* ROTULO_PADRAO = "-";
 const char* TEXTURA_VAZIA = "";
 const char* TEXTURAS_DIFEREM = "~";
@@ -573,18 +575,22 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_RODADA:
       if (!alterna_selecao) {
         if (!duplo) {
-          PassaUmaRodadaNotificando(/*ui=*/true);
+          auto grupo = NovoGrupoNotificacoes();
+          PreenchePassaUmaRodada(/*passar_para_todos=*/true, grupo.get(), nullptr, /*expira_eventos_zerados=*/false);
+          TrataNotificacao(*grupo);
+          AdicionaNotificacaoListaEventos(*grupo);
         } else {
-          ntf::Notificacao grupo_notificacoes;
-          grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
           // O clique duplo tera passado uma rodada já.
-          for (int i = 0; i < 9; ++i) {
-            auto* n = grupo_notificacoes.add_notificacao();
-            PassaUmaRodadaNotificando(/*ui=*/true, n);
-            TrataNotificacao(*n);
-          }
           // Tem um bug aqui que precisara de 2 desfazer para desfazer o duplo clique, mas ok.
-          AdicionaNotificacaoListaEventos(grupo_notificacoes);
+          auto grupo = NovoGrupoNotificacoes();
+          auto grupo_desfazer = NovoGrupoNotificacoes();
+          for (int i = 0; i < 9; ++i) {
+            auto grupo = NovoGrupoNotificacoes();
+            PreenchePassaUmaRodada(/*passar_para_todos=*/true, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
+            // Tem que ir fazendo rodada a rodada para as entidades irem sendo atualizadas corretamente.
+            TrataNotificacao(*grupo);
+          }
+          AdicionaNotificacaoListaEventos(*grupo_desfazer);
         }
       } else {
         ZeraRodadasNotificando();
@@ -858,6 +864,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_ESQUIVA:     return CONTROLE_MODO_ESQUIVA;
     case Tabuleiro::MODO_MONTAR:      return CONTROLE_MODO_MONTAR;
     case Tabuleiro::MODO_AGUARDANDO:  return CONTROLE_MODO_AGUARDANDO;
+    case Tabuleiro::MODO_PERICIA:     return CONTROLE_ROLAR_PERICIA;
     default:                          return CONTROLE_AJUDA;
   }
 }
@@ -1012,7 +1019,7 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           break;
         }
         case VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA: {
-          if (EntidadePrimeiraPessoaOuSelecionada() == nullptr) {
+          if (IdsPrimeiraPessoaOuEntidadesSelecionadas().empty()) {
             return false;
           }
           break;
@@ -1232,7 +1239,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (indice_iniciativa_ == -1 || iniciativas_.empty() || indice_iniciativa_ >= (int)iniciativas_.size()) {
+  if (indice_iniciativa_ < 0 || iniciativas_.empty()) {
     //LOG(INFO) << "Nao " << indice_iniciativa_ << ", iniciativas_.size " << iniciativas_.size();
     return;
   }
@@ -1246,19 +1253,20 @@ void Tabuleiro::DesenhaIniciativas() {
   raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
+  const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
   MudaCor(COR_AMARELA);
-  char titulo[100] = { '\0' };
-  snprintf(titulo, 99, "Iniciativa: %d/%d",
-           iniciativas_[indice_iniciativa_].iniciativa, iniciativas_[indice_iniciativa_].modificador);
-  gl::DesenhaStringAlinhadoEsquerda(titulo);
+  std::string titulo = iniciativa_valida_
+    ? StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
+    : "Iniciativa INVÁLIDA (passar para próxima)";
+  gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(titulo));
   MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
   int num_desenhadas = 0;
 
   std::vector<DadosIniciativa> entidades_na_ordem_desenho;
   entidades_na_ordem_desenho.reserve(iniciativas_.size());
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin() + indice_iniciativa_, iniciativas_.end());
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin(), iniciativas_.begin() + indice_iniciativa_);
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin() + indice_corrigido, iniciativas_.end());
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin(), iniciativas_.begin() + indice_corrigido);
 
   for (const auto& di : entidades_na_ordem_desenho) {
     Entidade* entidade = BuscaEntidade(di.id);

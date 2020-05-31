@@ -91,7 +91,7 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
   }
  
   for (const auto& da : proto->dados_ataque()) {
-    if (EhItemMundano(da)) {
+    if (AtaqueDeItemMundano(da)) {
       // Para protos antigos que nao tinham isso nos mundanos.
       if (mapa_tipo_quantidade[da.id_arma()] == 0 && da.municao() > 0) {
         for (unsigned int i = 0; i < da.municao(); ++i) {
@@ -1022,6 +1022,10 @@ int Entidade::NivelPersonagem() const {
   return ent::NivelPersonagem(proto_);
 }
 
+int Entidade::NivelClasse(const std::string& id_classe) const {
+  return ent::Nivel(id_classe, proto_);
+}
+
 int Entidade::NivelConjurador(const std::string& id_classe) const {
   return ::ent::NivelConjurador(id_classe, proto_);
 }
@@ -1061,11 +1065,17 @@ float Entidade::Z(bool delta_voo) const {
 }
 
 float Entidade::ZOlho() const {
+  if (Tipo() != TE_ENTIDADE) {
+    return Pos().z();
+  }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * ponto).z);
 }
 
 float Entidade::AlturaOlho() const {
+  if (Tipo() != TE_ENTIDADE) {
+    return 0.0f; 
+  }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
 }
@@ -1579,6 +1589,9 @@ const Posicao Entidade::PosicaoAcao() const {
     pos.set_id_cenario(IdCenario());
     return pos;
   }
+  if (Tipo() != TE_ENTIDADE) {
+    return Pos();
+  }
   auto pos = PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
   pos.set_id_cenario(IdCenario());
   return pos;
@@ -1776,12 +1789,8 @@ int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
   return ent::Salvacao(proto_, Bonus::default_instance(), EntidadeProto::default_instance(), tipo);
 }
 
-int Entidade::SalvacaoFeitico(const Entidade& atacante, TipoSalvacao tipo) const {
-  const auto* da = atacante.DadoCorrente();
-  if (da == nullptr) {
-    da = &DadosAtaque::default_instance();
-  }
-  return ent::SalvacaoFeitico(tabelas_.Feitico(da->id_arma()), proto_, atacante.Proto(), tipo);
+int Entidade::SalvacaoFeitico(const Entidade& atacante, const DadosAtaque& da) const {
+  return ent::SalvacaoFeitico(tabelas_.Feitico(da.id_arma()), proto_, atacante.Proto(), da.tipo_salvacao());
 }
 
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
@@ -1816,9 +1825,7 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
   }
   try {
     // Valor minimo de dano é 1, caso haja algum dano.
-    int valor;
-    std::vector<std::pair<int, int>> dados;
-    std::tie(valor, dados) = GeraPontosVida(s);
+    auto [valor, dados] = GeraPontosVida(s);
     std::string texto_dados;
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
@@ -1975,7 +1982,7 @@ int Entidade::BonusAtaque() const {
 }
 
 int Entidade::BonusAtaqueToque() const {
-  if (PossuiTalento("acuidade_arma", proto_)) {
+  if (PossuiTalento("acuidade_arma")) {
     if (!proto_.bba().has_cac() || !proto_.bba().has_distancia()) return AtaqueCaInvalido;
     return std::max(proto_.bba().cac(), proto_.bba().distancia());
   } else {
@@ -1995,7 +2002,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
 
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
-      PossuiTalento("esquiva", proto_) && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+      PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
   AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
   const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   if (proto_.dados_defesa().has_ca()) {
@@ -2050,8 +2057,19 @@ bool Entidade::ImuneCritico() const {
          TemSubTipoDnD(SUBTIPO_ENXAME) || PossuiEvento(EFEITO_FORMA_GASOSA, proto_);
 }
 
-bool Entidade::ImuneFurtivo() const {
-  return proto_.dados_defesa().imune_furtivo();
+bool Entidade::ImuneFurtivo(const Entidade& atacante) const {
+  if (proto_.dados_defesa().imune_furtivo()) return true;
+  if (PossuiHabilidadeEspecial("esquiva_sobrenatural_aprimorada", proto_)) {
+    const int nivel_defesa = NivelClasse("ladino") + NivelClasse("barbaro");
+    const int nivel_atacante = atacante.NivelClasse("ladino");
+    if (nivel_atacante - nivel_defesa < 4) return true;
+  }
+  if (ChanceFalhaDefesa(atacante.DadoCorrenteNaoNull()) > 0) return true;
+  return ImuneCritico();
+}
+
+bool Entidade::ImuneEfeito(TipoEfeito efeito) const {
+  return ent::EntidadeImuneEfeito(proto_, efeito);
 }
 
 bool Entidade::ImuneAcaoMental() const {
@@ -2345,7 +2363,9 @@ int Entidade::ChanceFalhaDefesa(const DadosAtaque& da) const {
   if (PossuiEventoNaoPossuiOutro(EFEITO_DESLOCAMENTO, EFEITO_FOGO_DAS_FADAS, proto_)) chance = 50;
   // TODO
   // Esse caso é mais complicado porque depende de outros fatores (poder ver invisibilidade, por exemplo).
-  if (PossuiEvento(EFEITO_PISCAR, proto_)) chance = 50;
+  if (PossuiEvento(EFEITO_PISCAR, proto_)) {
+    chance = c_any(da.descritores(), DESC_FORCA) ? 20 : 50;
+  }
   if (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_)) chance = 50;
   return chance;
 }
@@ -2474,6 +2494,17 @@ bool Entidade::PossuiEfeito(TipoEfeito id_efeito) const {
   return ent::PossuiEvento(id_efeito, proto_);
 }
 
+bool Entidade::PossuiUmDosEfeitos(const std::vector<TipoEfeito>& ids_efeitos) const {
+  return ent::PossuiUmDosEventos(ids_efeitos, proto_);
+}
+
+bool Entidade::PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento) const {
+  if (complemento.has_value()) {
+    return ent::PossuiTalento(talento, *complemento, proto_);
+  }
+  return ent::PossuiTalento(talento, proto_);
+}
+
 bool Entidade::Boa() const {
   auto ts = proto_.tendencia().simples();
   return ts == TD_CAOTICO_BOM || ts == TD_NEUTRO_BOM || ts == TD_LEAL_BOM;
@@ -2492,6 +2523,13 @@ bool Entidade::Caotica() const {
 bool Entidade::Ordeira() const {
   auto ts = proto_.tendencia().simples();
   return ts == TD_LEAL_BOM || ts == TD_LEAL_NEUTRO || ts == TD_LEAL_MAU;
+}
+
+bool Entidade::PodeMover() const {
+  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA})) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace ent

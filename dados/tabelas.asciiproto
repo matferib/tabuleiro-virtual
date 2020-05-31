@@ -131,20 +131,39 @@ tabela_armas {
       cor { r: 0.0 g: 0.5 b: 0.0 }
       icone: 'icon_acid.png'
       elemento: DESC_ACIDO
+      som_sucesso: 'glass_break.wav'
+      som_fracasso: 'glass_break.wav'
     }
   }
   armas {
     id: 'bolsa_cola'
     nome: 'bolsa de cola'
+    dano { invariavel: '' }
     categoria: CAT_DISTANCIA
     preco: '50 PO'
     alcance_quadrados: 2
     tipo_dano: TD_OUTRO
     acao {
+      id: 'Ataque a Distância'
       cor { r: 1.0 g: 1.0 b: 1.0 }
       escala { x: 0.2 y: 0.2 z: 0.2 }
       icone: 'icon_web.png'
+      ignora_reducao_dano_barbaro: true
+      ataque_toque: true
+      dificuldade_salvacao_base: 15
+      tipo_salvacao: TS_REFLEXO
+      permite_salvacao: true
       efeitos_adicionais {
+        efeito: EFEITO_NAO_PODE_MOVER
+        dado_modificador_rodadas: '2d4'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_ENREDADO
+        rodadas_base_igual_efeito_anterior: true
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
+      }
+      efeitos_adicionais_se_salvou {
         efeito: EFEITO_ENREDADO
         dado_modificador_rodadas: '2d4'
         afeta_apenas_tamanhos_menores_ou_igual_a: TM_GRANDE
@@ -198,6 +217,8 @@ tabela_armas {
       }
       consequencia: TC_INFLAMA_ALVO
       elemento: DESC_FOGO
+      som_sucesso: 'glass_break.wav'
+      som_fracasso: 'glass_break.wav'
     }
   }
 
@@ -222,6 +243,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '500g' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'adaga'
@@ -237,6 +259,7 @@ tabela_armas {
     peso { medio: '0.5kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'adaga_de_soco'
@@ -249,6 +272,7 @@ tabela_armas {
     multiplicador_critico: 3
     peso { medio: '0.5kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'manopla_com_cravos'
@@ -260,6 +284,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '05kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_leve'
@@ -271,9 +296,10 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
-    id: 'foice_curta'
+    id: 'foice_curta' # sickle
     categoria: CAT_LEVE
     categoria: CAT_CAC
     nome: 'foice curta'
@@ -284,6 +310,7 @@ tabela_armas {
     peso { medio: '1kg' }
     tipo_dano: TD_CORTANTE
     pode_derrubar: true
+    categoria_pericia: CATPER_SIMPLES
   }
   # One-Handed Melee Weapons
   armas {
@@ -297,6 +324,7 @@ tabela_armas {
     alcance_quadrados: 2
     peso { medio: '15Kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_pesada'
@@ -307,6 +335,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '4kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'maca_estrela'
@@ -319,6 +348,7 @@ tabela_armas {
     peso { medio: '3kg' }
     tipo_dano: TD_CONCUSSAO
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'lanca_curta'
@@ -334,6 +364,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   # Two-Handed Melee Weapons
   armas {
@@ -351,6 +382,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'lanca_longa'
@@ -366,6 +398,7 @@ tabela_armas {
     acao {
       icone: 'icon_spear.png'
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'bordao'
@@ -379,6 +412,7 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '2kg' }
     tipo_dano: TD_CONCUSSAO
+    categoria_pericia: CATPER_SIMPLES
   }
   # Ranged Weapons
   armas {
@@ -396,6 +430,7 @@ tabela_armas {
       requer_carregamento: true
       tipo_carregamento: TC_RODADA_COMPLETA
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'besta_leve'
@@ -412,6 +447,7 @@ tabela_armas {
       requer_carregamento: true
       tipo_carregamento: TC_MOVIMENTO
     }
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'dardo'
@@ -423,6 +459,7 @@ tabela_armas {
     alcance_quadrados: 4
     peso { medio: '250g' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'azagaia'
@@ -433,6 +470,7 @@ tabela_armas {
     alcance_quadrados: 6
     peso { medio: '1Kg' }
     tipo_dano: TD_PERFURANTE
+    categoria_pericia: CATPER_SIMPLES
   }
   armas {
     id: 'funda'
@@ -458,8 +496,9 @@ tabela_armas {
         aceleracao_m_s_2: 0.04
       }
     }
+    categoria_pericia: CATPER_SIMPLES
   }
-  # Fim armas leves.
+  # Fim armas simples.
 
   # Armas comuns.
   armas {
@@ -1200,6 +1239,19 @@ tabela_armas {
 }
 
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_NAO_PODE_MOVER
+    nome: 'não pode se mover, mas pode mexer'
+  }
+  efeitos {
+    id: EFEITO_CONJURANDO
+    nome: 'conjurando'
+    # Descricao: o complemento str é uma entidade serializada que contem todos os parametros necessários para executar a magia.
+  }
+  efeitos {
+    id: EFEITO_NUBLAR
+    nome: 'nublar'
+  }
   efeitos {
     id: EFEITO_ESCUDO_ENTROPICO
     nome: 'escudo entrópico'
@@ -3641,6 +3693,7 @@ tabela_talentos {
     id: 'potencializar_invocacao'
     nome: 'Potencializar Invocação'
     # Foco em Magia (conjuração)
+    # pre_requisitos { talentos: [ 'ataque_desarmado_aprimorado' ] }
     descricao: 'As criaturas invocadas recebem +4 For e +4 Cons.'
   }
   talentos {
@@ -4143,12 +4196,19 @@ tabela_talentos {
     nome: 'Usar uma arma simples'
     descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para plebeus.'
     tipo_complemento: TCT_ARMA_SIMPLES
+    nao_pode_ser_escolhido: true
   }
   talentos {
     id: 'usar_arma_comum'
     nome: 'Usar arma comum'
     tipo_complemento: TCT_ARMA_COMUM
     descricao: 'Não sofre penalidade nos ataques com uma arma comum específica.'
+  }
+  talentos {
+    id: 'usar_armas_comuns'
+    nome: 'usar todas armas comuns'
+    descricao: 'Para classes que sabem usar todas as armas comuns.'
+    nao_pode_ser_escolhido: true
   }
   talentos {
     id: 'usar_arma_exotica'
@@ -4425,6 +4485,11 @@ tabela_classes {
     id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     pericias: 'escalar'
     pericias: 'oficios'
     pericias: 'oficios_alquimia'
@@ -4443,7 +4508,13 @@ tabela_classes {
   }
   info_classes {
     id: 'combatente' nome: 'Combatente' progressao_bba: PBBA_UM
-
+    talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     pericias: 'escalar'
     pericias: 'adestrar_animais'
     pericias: 'intimidacao'
@@ -4457,6 +4528,10 @@ tabela_classes {
   info_classes {
     id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_magia: TM_DIVINA
     possui_dominio: true
     precisa_memorizar: true
@@ -4510,6 +4585,7 @@ tabela_classes {
     tipo_magia: TM_DIVINA
     tipo_classe: TC_PDM
     precisa_memorizar: true
+    talentos_automaticos: 'usar_armas_simples'
     progressao_feitico {
       para_nivel {}
       para_nivel { magias_por_dia: '31'   }
@@ -4562,7 +4638,10 @@ tabela_classes {
   info_classes {
     id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
     talentos_automaticos: 'usar_escudo'
-
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
     pericias_por_nivel: 4
     pericias: 'escalar'
     pericias: 'oficios'
@@ -4585,6 +4664,9 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 6
@@ -4644,6 +4726,17 @@ tabela_classes {
   info_classes {
     id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'dardo' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'cimitarra' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'foice_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'funda' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'lanca' }
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     pericias_por_nivel: 4
@@ -4694,6 +4787,11 @@ tabela_classes {
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_magia: TM_DIVINA
     precisa_memorizar: true
     progressao_expulsao: PEXP_UM_MENOS_TRES
@@ -4761,7 +4859,13 @@ tabela_classes {
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
     pericias_por_nivel: 8
-
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'besta_de_mao' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'porrete' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_curta' }
     pericias: 'avaliacao'
     pericias: 'equilibrio'
     pericias: 'blefar'
@@ -4805,6 +4909,15 @@ tabela_classes {
   info_classes {
     id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
     talentos_automaticos: 'usar_escudo'
+    talentos_automaticos: 'usar_armadura_leve'
+    #talentos_automaticos: 'usar_armadura_media'  # TODO ha uma confusao aqui. Na entrada de bardo nao diz se pode usar ou nao, mas nos talentos diz que sim.
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_longa' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'porrete' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_curta' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'chicote' }
     tipo_magia: TM_ARCANA
     pericias_por_nivel: 6
     progressao_feitico {
@@ -4876,6 +4989,11 @@ tabela_classes {
   info_classes {
     id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     tipo_magia: TM_ARCANA
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_pesada' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_leve' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
     pericias_por_nivel: 2
     precisa_memorizar: true
     progressao_feitico {
@@ -4928,6 +5046,7 @@ tabela_classes {
   info_classes {
     id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
     tipo_magia: TM_ARCANA
+    talentos_automaticos: 'usar_armas_simples'
     id_para_magia: 'mago'
     pericias_por_nivel: 2
     progressao_feitico {
@@ -4970,7 +5089,19 @@ tabela_classes {
   }
   info_classes {
     id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
-
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_leve' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_pesada' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'machadinha' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'azagaia' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'kama' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'nunchaku' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'bordao' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'sai' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'shuriken' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_exotica' complemento: 'siangham' }
+    talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'funda' }
     pericias_por_nivel: 4
     pericias: 'equilibrio'
     pericias: 'escalar'
@@ -5005,7 +5136,12 @@ tabela_classes {
     id: 'aristocrata'
     nome: 'Aristocrata' progressao_bba: PBBA_TRES_QUARTOS
     talentos_automaticos: 'usar_escudo'
-    talentos_automaticos: 'usar_escudo_aprimorado'
+    talentos_automaticos: 'usar_escudo_corpo'
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armas_comuns'
+    talentos_automaticos: 'usar_armadura_leve'
+    talentos_automaticos: 'usar_armadura_media'
+    talentos_automaticos: 'usar_armadura_pesada'
     tipo_classe: TC_PDM
     pericias_por_nivel: 4
     pericias: 'avaliacao'
@@ -5041,6 +5177,7 @@ tabela_classes {
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
     tipo_classe: TC_PDM
+    #talentos_automaticos: 'usar_uma_armas_simples'  # tem que escolher a arma
 
     pericias_por_nivel: 2
     pericias: 'escalar'
@@ -5064,7 +5201,8 @@ tabela_classes {
   info_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
     tipo_classe: TC_PDM
-
+    talentos_automaticos: 'usar_armas_simples'
+    talentos_automaticos: 'usar_armadura_leve'
     # O especialista pode escolher 10 pericias quaisquer. Vou colocar todas.
     pericias_por_nivel: 6
     pericias: 'avaliacao'
@@ -5278,10 +5416,13 @@ tabela_classes {
     pericias_por_nivel: 4
     # d12
     # visao escuro 12q
+    # sem constituicao
+    # sem mente: imune a efeitos mentais.
     # imune a efeitos mentais
     # imune a veneno, sono, paralisia, atordoamento, doenca, efeitos de morte.
     # imune a critico, dano nao letal, dreno de habilidade, dreno de energia, fadiga, exaustao
     # imune a efeitos que demandem fortitude save.
+    # Usa carisma para testes de concentracao.
   }
   info_classes {
     id: 'verme' nome: 'Verme'
@@ -5293,20 +5434,6 @@ tabela_classes {
     # sem mente: imune a efeitos mentais.
     # visao escuro 12q
   }
-  info_classes {
-    id: 'morto_vivo' nome: 'Morto-Vivo'
-    tipo_classe: TC_MONSTRO
-    progressao_bba: PBBA_MEIO
-    salvacoes_fortes: TS_VONTADE
-    pericias_por_nivel: 4
-    # d12
-    # sem mente: imune a efeitos mentais.
-    # visao escuro 12q
-    # sem constituicao
-    # Usa carisma para testes de concentracao.
-    # imune a critico.
-  }
-
 }
 
 tabela_pericias {
@@ -5369,6 +5496,7 @@ tabela_pericias {
     sinergias { id: 'disfarces' }
     sinergias { id: 'intimidacao' }
     sinergias { id: 'prestidigitacao' }
+    id_resistido: 'sentir_motivacao'
   }
   pericias {
     id: 'cavalgar'
@@ -5474,6 +5602,7 @@ tabela_pericias {
     # classes: [  'bardo'  'clerigo'  'druida'  'monge'  'paladino'  'ladino'  'aristocrata'  ]
     sem_treinamento: true
     atributo: TA_CARISMA
+    id_resistido: 'diplomacia'
   }
   pericias {
     id: 'disfarces'
@@ -5505,6 +5634,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    id_resistido: 'observar'
   }
   pericias {
     id: 'falar_idioma'
@@ -5526,6 +5656,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    id_resistido: 'ouvir'
   }
   pericias {
     id: 'identificar_magia'
@@ -5555,6 +5686,7 @@ tabela_pericias {
     # classes: [  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    id_resistido: 'esconderse'
   }
   pericias {
     id: 'obter_informacao'
@@ -5629,6 +5761,7 @@ tabela_pericias {
     # classes: [  'barbaro'  'bardo'  'druida'  'monge'  'ranger'  'ladino'  'aristocrata' ]
     sem_treinamento: true
     atributo: TA_SABEDORIA
+    id_resistido: 'furtividade'
   }
   pericias {
     id: 'prestidigitacao'
@@ -5668,6 +5801,7 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_SABEDORIA
     sinergias { id: 'diplomacia' }
+    id_resistido: 'blefar'
   }
   pericias {
     id: 'sobrevivencia'
@@ -5858,6 +5992,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Muralha de Vento'
       elemento: DESC_AR
@@ -6024,6 +6159,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_i'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza I'
     nome_ingles: "summon nature's ally I"
     alcance_quadrados: 5
@@ -6067,6 +6203,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_ii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza II'
     nome_ingles: "summon nature's ally II"
     alcance_quadrados: 5
@@ -6127,6 +6264,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_iii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza III'
     nome_ingles: "summon nature's ally III"
     alcance_quadrados: 5
@@ -6202,6 +6340,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_iv'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza IV'
     nome_ingles: "summon nature's ally IV"
     alcance_quadrados: 5
@@ -6264,6 +6403,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_v'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza V'
     nome_ingles: "summon nature's ally V"
     alcance_quadrados: 5
@@ -6311,6 +6451,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_vi'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza VI'
     nome_ingles: "summon nature's ally VI"
     alcance_quadrados: 5
@@ -6364,6 +6505,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_vii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar aliado da natureza VII'
     nome_ingles: "summon nature's ally VII"
     alcance_quadrados: 5
@@ -9964,6 +10106,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_i'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas I'
     nome_ingles: 'summon monster I'
     alcance_quadrados: 5
@@ -10007,6 +10150,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_criaturas_ii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas II'
     nome_ingles: 'summon monster II'
     alcance_quadrados: 5
@@ -10055,6 +10199,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas III'
     nome_ingles: 'summon monster III'
     alcance_quadrados: 5
@@ -10080,6 +10225,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iv'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas IV'
     nome_ingles: 'summon monster IV'
     alcance_quadrados: 5
@@ -10105,6 +10251,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_v'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas V'
     nome_ingles: 'summon monster V'
     alcance_quadrados: 5
@@ -10130,6 +10277,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_vi'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VI'
     nome_ingles: 'summon monster VI'
     alcance_quadrados: 5
@@ -10155,6 +10303,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_vii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VII'
     nome_ingles: 'summon monster VII'
     alcance_quadrados: 5
@@ -10176,6 +10325,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_viii'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas VIII'
     nome_ingles: 'summon monster VIII'
     alcance_quadrados: 5
@@ -10197,6 +10347,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_ix'
+    tempo_execucao_rodadas: 1 
     nome: 'invocar criaturas IX'
     nome_ingles: 'summon monster IX'
     alcance_quadrados: 5
@@ -10431,35 +10582,40 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço a Distância'
-      tipo: ACAO_DISPERSAO
-      geometria: ACAO_GEO_ESFERA
-      raio_quadrados: 4
-      efeito_area: true
-      duracao_s: 0.350
-      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      icone: 'icon_web.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: true
-      resultado_ao_salvar: RS_ANULOU
-      tipo_salvacao: TS_REFLEXO
-      # Nao salvou, efeito completo.
-      efeitos_adicionais {
-        efeito: EFEITO_ENREDADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
-      efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'não pode mover, ver descricao.'
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
-      # Se salvou, fica enredado.
-      efeitos_adicionais_se_salvou {
-        efeito: EFEITO_ENREDADO
-        modificador_rodadas: MR_10_MINUTOS_NIVEL
-      }
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Teia'
     }
+    #acao {
+    #  id: 'Feitiço a Distância'
+    #  tipo: ACAO_DISPERSAO
+    #  geometria: ACAO_GEO_ESFERA
+    #  raio_quadrados: 4
+    #  efeito_area: true
+    #  duracao_s: 0.350
+    #  cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+    #  icone: 'icon_web.png'
+    #  permite_ataque_vs_defesa: false
+    #  ignora_resistencia_magia: true
+    #  permite_salvacao: true
+    #  resultado_ao_salvar: RS_ANULOU
+    #  tipo_salvacao: TS_REFLEXO
+    #  # Nao salvou, efeito completo.
+    #  efeitos_adicionais {
+    #    efeito: EFEITO_ENREDADO
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #  efeitos_adicionais {
+    #    efeito: EFEITO_OUTRO
+    #    descricao: 'não pode mover, ver descricao.'
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #  # Se salvou, fica enredado.
+    #  efeitos_adicionais_se_salvou {
+    #    efeito: EFEITO_ENREDADO
+    #    modificador_rodadas: MR_10_MINUTOS_NIVEL
+    #  }
+    #}
     escola: 'conjuracao'
   }
 
@@ -11692,6 +11848,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Terra Mole'
       elemento: DESC_TERRA
@@ -11746,7 +11903,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      id: 'Feitiço de Toque'
+      id: 'Criação de Entidade'
       tipo: ACAO_CRIACAO_ENTIDADE
       permite_salvacao: false
       id_modelo_entidade: 'Armadilha'
@@ -11755,6 +11912,7 @@ tabela_feiticos {
   }
   armas {
     id: 'convocar_relampagos'
+    tempo_execucao_rodadas: 1
     nome_ingles: 'call lightning'
     nome: 'convocar relâmpagos'
     info_classes {
@@ -11784,6 +11942,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
+      id: 'Criação de Entidade'
       elemento: DESC_FOGO
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Armadilha de Fogo'
@@ -13937,7 +14096,11 @@ tabela_racas {
       taxa_refrescamento: "14400"  # 1 dia
       mantem_com_limite_zerado: true
     }
-    # visao no escuro 12 q
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
     # ajuste de nivel: 1
   }
   racas {
@@ -13959,6 +14122,7 @@ tabela_racas {
     # +1 ataque contra orc e goblin
     # +4 CA contra gigantes.
     # +2 avaliacao
+    bonus_pericias { id: 'avaliacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +2 craft stone metal
     # +4 contra empurrao ou trip.
     # Pericias em algumas armas.
@@ -14042,6 +14206,20 @@ tabela_racas {
     nome: 'Meio-Elfo'
     descricao: 'Mistura entre elfos e humanos.'
     tamanho: TM_MEDIO
+    # Medium: As Medium creatures, half-elves have no special bonuses or penalties due to their size.
+    dados_defesa {
+      imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+      bonus_salvacao_encantamento { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial'} } } }
+    bonus_pericias { id: 'diplomacia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'obter_informacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    #Elven Blood: For all effects related to race, a half-elf is considered an elf.
+    #Automatic Languages: Common and Elven. Bonus Languages: Any (other than secret languages, such as Druidic).
+    #Favored Class: Any. When determining whether a multiclass half-elf takes an experience point penalty, her highest-level class does not count.
     movimento {
       terrestre_basico_q: 6
     }
@@ -14058,6 +14236,9 @@ tabela_racas {
       carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
     tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
 }
 

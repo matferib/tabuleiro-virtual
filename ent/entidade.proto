@@ -166,7 +166,8 @@ message EntidadeProto {
   message Evento {
     // Atencao: a atualizacao parcial de eventos so atualiza rodadas e complementos.
     optional int32 rodadas = 1;            // se -1, sinaliza remocao.
-    optional int32 iniciativa = 15;        // A iniciativa de quem criou, se relevante.
+    optional int32 iniciativa = 15;              // A iniciativa de quem criou, se relevante.
+    optional int32 modificador_iniciativa = 16;  // modificador de iniciativa de quem criou.
     optional bytes descricao = 2;          // aparentemente eu salvei coisa em formato binario aqui, nao funciona como string.
     optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     repeated int32 complementos = 3;       // Alguns efeitos tem complementos.

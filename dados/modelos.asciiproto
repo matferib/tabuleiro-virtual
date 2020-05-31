@@ -2237,6 +2237,54 @@ modelo {
   }
 }
 modelo {
+  id: 'Teia'
+  entidade {
+    tipo: TE_FORMA
+    escala { x: 12 y: 12 z: 12 }  # unidades em diametro (metros) para entidades forma.
+    sub_tipo: TF_ESFERA
+    info_textura { id: 'icon_web.png' escala_x: 0.5 escala_y: 0.5 }
+    cor { r: 1 g: 1 b: 1 a: 0.8 }
+    pode_ser_afetada_por_acao: false
+    gerar_agarrar: false
+    faz_sombra: false
+    dados_ataque {
+      alcance_q: 4
+      ignora_origem: true
+      incrementa_proximo_ataque: false
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        cor { r: 1.0 g: 1.0 b: 1.0 a: 1.0 }
+        icone: 'icon_web.png'
+        permite_ataque_vs_defesa: false
+        ignora_resistencia_magia: true
+        permite_salvacao: true
+        resultado_ao_salvar: RS_ANULOU
+        tipo_salvacao: TS_REFLEXO
+        # Nao salvou, efeito completo.
+        efeitos_adicionais {
+          efeito: EFEITO_ENREDADO
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+        efeitos_adicionais {
+          efeito: EFEITO_NAO_PODE_MOVER
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+        # Se salvou, fica enredado.
+        efeitos_adicionais_se_salvou {
+          efeito: EFEITO_ENREDADO
+          modificador_rodadas: MR_10_MINUTOS_NIVEL
+        }
+      }
+    }
+    ignora_luz: true
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Esfera Flamejante'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
@@ -5733,14 +5781,15 @@ modelo {
       gerais { id: 'magia_natural' }        # 6
       gerais { id: 'ataques_multiplos' }    # 9
     }
+    # Total: 10 * 5 + 3 * 5 = 65 (max 13).
     info_pericias { id: 'adestrar_animais' pontos: 10 }
     info_pericias { id: 'concentracao' pontos: 13 }
-    info_pericias { id: 'observar' pontos: 13 }
-    info_pericias { id: 'ouvir' pontos: 13 }
-    info_pericias { id: 'conhecimento_natureza' pontos: 13 }
+    info_pericias { id: 'observar' pontos: 11 }
+    info_pericias { id: 'ouvir' pontos: 11 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 5 }
     info_pericias { id: 'sobrevivencia' pontos: 5 }
     info_pericias { id: 'identificar_magia' pontos: 5 }
-    info_pericias { id: 'cura' pontos: 6 }
+    info_pericias { id: 'cura' pontos: 5 }
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       aneis { id: 'protecao_1' em_uso: true }
@@ -5848,6 +5897,9 @@ modelo {
   entidade {
     dados_vida: '9d8+23'
     raca: 'humano'
+    info_pericias { id: 'sobrevivencia' pontos: 10 }
+    info_pericias { id: 'cura' pontos: 10 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 8 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
@@ -7477,6 +7529,7 @@ modelo {
 modelo {
   id: 'Orc'
   entidade {
+    rotulo: 'orc'
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '1d8+1' info_textura { id: 'orc.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -7504,6 +7557,7 @@ modelo {
 modelo {
   id: 'Orc Lanceiro'
   entidade {
+    rotulo: 'orc lanceiro'
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '1d8' info_textura { id: 'orc_spear.png' largura: 0.6 translacao_x: 0.2 } cor { g: 0.7 b: 0.4 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -7531,6 +7585,7 @@ modelo {
 modelo {
   id: 'Orc Sargento'
   entidade {
+    rotulo: 'orc sargento'
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '3d8+3' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.7 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -7563,6 +7618,7 @@ modelo {
 modelo {
   id: 'Orc Tenente'
   entidade {
+    rotulo: 'orc tenente'
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '5d12+5' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.5 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -7597,11 +7653,11 @@ modelo {
 modelo {
   id: 'Orc Capitão'
   entidade {
+    rotulo: 'orc capitão'
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '7d12+7'
     info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.3 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    rotulo_especial: 'Não pode ser flanqueado\nreducao de dano 1/- armas e ataques naturais'
     dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 0 }
     dados_ataque { id_arma: 'machado_grande' bonus_magico: 1 empunhadura: EA_2_MAOS ordem_ataque: 1 }
     dados_ataque { id_arma: 'arco_longo_composto_5' obra_prima: true municao: 20 ordem_ataque: 0 }

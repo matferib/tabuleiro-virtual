@@ -216,8 +216,17 @@ int PenalidadeEscudo(const Tabelas& tabelas, const EntidadeProto& proto) {
   int penalidade = tabelas.Escudo(dd.id_escudo()).penalidade_armadura();
   if (dd.escudo_obra_prima()) --penalidade;
   if (dd.material_escudo() == DESC_ADAMANTE) --penalidade;
-  if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade -= 2;
-  if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
+  else if (dd.material_escudo() == DESC_MADEIRA_NEGRA) penalidade -= 2;
+  else if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
+  return std::max(0, penalidade);
+}
+
+int PenalidadeArmadura(const Tabelas& tabelas, const EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  int penalidade = tabelas.Armadura(dd.id_armadura()).penalidade_armadura();
+  if (dd.armadura_obra_prima()) --penalidade;
+  if (dd.material_armadura() == DESC_ADAMANTE) --penalidade;
+  else if (dd.material_escudo() == DESC_MITRAL) penalidade -= 3;
   return std::max(0, penalidade);
 }
 
@@ -1496,6 +1505,7 @@ void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, Entidad
 // Reseta todos os campos computados que tem que ser feito no inicio.
 void ResetComputados(EntidadeProto* proto) {
   proto->mutable_dados_defesa()->clear_cura_acelerada();
+  *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixas();
 }
 
 void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1531,6 +1541,10 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   if (!raca_tabelada.dados_defesa().resistencia_elementos().empty()) {
     *proto->mutable_dados_defesa()->mutable_resistencia_elementos() = raca_tabelada.dados_defesa().resistencia_elementos();
   }
+  proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->MergeFrom(raca_tabelada.dados_defesa().imunidade_efeitos());
+  auto last = std::unique(proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->begin(), proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->end());
+  proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->erase(last, proto->mutable_dados_defesa()->mutable_imunidade_efeitos()->end());
+
   for (const auto& dados_ataque_raca : raca_tabelada.dados_ataque()) {
     if (c_none_of(proto->dados_ataque(), [&raca_tabelada, &dados_ataque_raca](const DadosAtaque& da) {
           return da.id_raca() == raca_tabelada.id() && da.rotulo() == dados_ataque_raca.rotulo();
@@ -1563,6 +1577,9 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
       AplicaBonusPenalidadeOuRemove(info_pericia_raca.bonus(), pericia->mutable_bonus());
     }
   }
+  if (raca_tabelada.has_movimento()) {
+    proto->mutable_movimento()->MergeFrom(raca_tabelada.movimento());
+  }
 }
 
 void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
@@ -1575,21 +1592,20 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
 
   // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
-  std::unordered_map<std::string, InfoPericia*> mapa_pericias_proto;
+  std::unordered_map<std::string, InfoPericia> mapa_pericias_proto;
   for (auto& ip : *proto->mutable_info_pericias()) {
-    mapa_pericias_proto[ip.id()] = &ip;
+    mapa_pericias_proto[ip.id()].Swap(&ip);
   }
+  proto->clear_info_pericias();
 
   // Cria todas as pericias do personagem.
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Acha a pericia no personagem se houver para pegar os pontos e calcular a graduacao.
     auto it = mapa_pericias_proto.find(pt.id());
     if (it == mapa_pericias_proto.end()) {
-      auto* pericia_proto = proto->add_info_pericias();
-      pericia_proto->set_id(pt.id());
-      mapa_pericias_proto[pt.id()] = pericia_proto;
+      mapa_pericias_proto[pt.id()].set_id(pt.id());
     } else {
-      it->second->mutable_restricoes_sinergia()->Clear();
+      it->second.mutable_restricoes_sinergia()->Clear();
     }
   }
 
@@ -1598,25 +1614,25 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
-    auto* pericia_proto = mapa_pericias_proto[pt.id()];
-    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto->pontos() : pericia_proto->pontos() / 2;
-    AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto->mutable_bonus());
+    auto& pericia_proto = mapa_pericias_proto[pt.id()];
+    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
+    AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto.mutable_bonus());
 
     // Sinergia.
     for (const auto& s : pt.sinergias()) {
-      auto* pericia_alvo = mapa_pericias_proto[s.id()];
-      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo->mutable_bonus());
+      auto& pericia_alvo = mapa_pericias_proto[s.id()];
+      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo.mutable_bonus());
       if (!s.restricao().empty()) {
-        pericia_alvo->add_restricoes_sinergia(s.restricao());
+        pericia_alvo.add_restricoes_sinergia(s.restricao());
       }
     }
 
     // Atributo.
-    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto->mutable_bonus());
+    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
 
     if (pt.id() == "esconderse") {
       // Bonus de tamanho.
-      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto->mutable_bonus());
+      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto.mutable_bonus());
     }
 
     // Talento.
@@ -1624,13 +1640,18 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     if (par_pericia_talentos != talentos_por_pericia.end()) {
       for (const auto* talento : par_pericia_talentos->second) {
         const int bonus_talento = PossuiTalento(talento->id(), *proto) ? BonusTalento(pt.id(), *talento) : 0;
-        AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto->mutable_bonus());
+        AtribuiOuRemoveBonus(bonus_talento, TB_TALENTO, "talento", pericia_proto.mutable_bonus());
       }
     }
 
     // Heroismo
-    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto->mutable_bonus());
-   //LOG(INFO) << "pericia_proto: " << pericia_proto->ShortDebugString();
+    AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto.mutable_bonus());
+   //LOG(INFO) << "pericia_proto: " << pericia_proto.ShortDebugString();
+  }
+
+  // Atribui de volt ao proto.
+  for (auto& it : mapa_pericias_proto) {
+    proto->add_info_pericias()->Swap(&it.second);
   }
 }
 
@@ -1881,6 +1902,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   for (int i : a_remover) {
     proto->mutable_info_classes()->DeleteSubrange(i, 1);
   }
+  bool possui_esquiva_sobrenatural = false;
   for (auto& ic : *proto->mutable_info_classes()) {
     {
       const auto& classe_tabelada = tabelas.Classe(ic.id());
@@ -1889,7 +1911,18 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
         ic.clear_habilidades_por_nivel();
         ic.clear_pericias();
         ic.clear_progressao_feitico();
+        ic.clear_talentos_automaticos();
+        ic.clear_talentos_com_complemento_automaticos();
         ic.MergeFrom(classe_tabelada);
+        if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
+          if (possui_esquiva_sobrenatural) {
+            auto* hn = ic.add_habilidades_por_nivel();
+            hn->set_id("esquiva_sobrenatural_aprimorada");
+            hn->set_nivel(ic.nivel());
+          } else {
+            possui_esquiva_sobrenatural = true;
+          }
+        }
       }
     }
     if (ic.has_atributo_conjuracao() || ic.has_id_para_progressao_de_magia()) {
@@ -1947,6 +1980,11 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
       proto->mutable_info_talentos()->add_automaticos()->set_id(id_talento);
+    }
+    for (const auto& tc : classe_tabelada.talentos_com_complemento_automaticos()) {
+      auto* talento = proto->mutable_info_talentos()->add_automaticos();
+      talento->set_id(tc.id());
+      talento->set_complemento(tc.complemento());
     }
   }
 }
@@ -2458,6 +2496,9 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   if (da->acao().has_icone()) {
     da->set_icone(da->acao().icone());
   }
+  if (da->acao().has_elemento()) {
+    da->set_elemento(da->acao().elemento());
+  }
   if (da->acao().has_alinhamento_bem_mal()) {
     da->set_alinhamento_bem_mal(da->acao().alinhamento_bem_mal());
   }
@@ -2699,14 +2740,15 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     ++mapa_tipo_quantidade[im.id()];
   }
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return EhItemMundano(da);
+    return AtaqueDeItemMundano(da);
   }, proto->mutable_dados_ataque());
   for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
     if (mapa_tipo_quantidade[id] > 0) {
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
-      da->set_municao(mapa_tipo_quantidade[id]);;
+      da->set_municao(mapa_tipo_quantidade[id]);
       da->set_grupo(id);
       da->set_rotulo(id);
+      da->set_id_arma(id);
       da->set_empunhadura(EA_ARMA_ESCUDO);
     }
   }
@@ -2769,16 +2811,22 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
   const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
-  // TODO verificar pericias nas armaduras e escudos.
-  //const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
   const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
+  LimpaBonus(TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
   if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
+  }
+  if (!TalentoComArmadura(tabelas.Armadura(proto.dados_defesa().id_armadura()), proto)) {
+    const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
+    AtribuiOuRemoveBonus(-penalidade_ataque_armadura, TB_PENALIDADE_ARMADURA, "armadura_sem_talento", bonus_ataque);
+  }
+  if (!TalentoComArma(arma, proto)) {
+    AtribuiOuRemoveBonus(-4, TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   }
   // Aplica diferenca de tamanho de arma.
   TamanhoEntidade tamanho = proto.tamanho();
@@ -2872,7 +2920,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     // municao.
     if (primeiro->has_municao()) da->set_municao(primeiro->municao());
     da->set_descarregada(primeiro->descarregada());
-    // Elemento.
+    // Acao.
     if (primeiro->has_acao()) *da->mutable_acao() = primeiro->acao();
     // material.
     if (primeiro->material_arma() == DESC_NENHUM) da->clear_material_arma();
@@ -2880,6 +2928,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     // tipo ataque fisico.
     if (primeiro->tipo_ataque_fisico().empty()) da->tipo_ataque_fisico();
     else *da->mutable_tipo_ataque_fisico() = primeiro->tipo_ataque_fisico();
+    if (primeiro->has_elemento()) da->set_elemento(primeiro->elemento());
     // Alinhamento.
     if (primeiro->has_alinhamento_bem_mal()) da->set_alinhamento_bem_mal(primeiro->alinhamento_bem_mal());
     else da->clear_alinhamento_bem_mal();

@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <google/protobuf/text_format.h>
 #include <limits>
 #include <queue>
 #include <random>
@@ -91,6 +92,16 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 
 }  // namespace
 
+std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade& entidade) {
+  if (!entidade.TemIniciativa()) return std::nullopt;
+  return DadosIniciativa{entidade.Iniciativa(), entidade.ModificadorIniciativa()};
+}
+
+std::optional<DadosIniciativa> DadosIniciativaEvento(const EntidadeProto::Evento& evento) {
+  if (!evento.has_iniciativa()) return std::nullopt;
+  return DadosIniciativa{evento.iniciativa(), evento.modificador_iniciativa()};
+}
+
 std::unique_ptr<ntf::Notificacao> NovoGrupoNotificacoes() {
   auto n = std::unique_ptr<ntf::Notificacao>(ntf::NovaNotificacao(ntf::TN_GRUPO_NOTIFICACOES));
   return n;
@@ -103,16 +114,42 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacao(ntf::Tipo tipo, const Entidade
   return n;
 }
 
-std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
-    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+ntf::Notificacao* NovaNotificacaoFilha(ntf::Tipo tipo, ntf::Notificacao* pai) {
   if (pai->tipo() != ntf::TN_GRUPO_NOTIFICACOES) {
     LOG(WARNING) << "Notificacao pai nao eh grupo, conferir se chamou errado usando pai->add_notificacao().";
   }
   auto* n = pai->add_notificacao();
   n->set_tipo(tipo);
+  return n;
+}
+
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const EntidadeProto& proto, ntf::Notificacao* pai) {
+  auto* n = NovaNotificacaoFilha(tipo, pai);
   n->mutable_entidade_antes()->set_id(proto.id());
   n->mutable_entidade()->set_id(proto.id());
   return std::make_tuple(n, n->mutable_entidade_antes(), n->mutable_entidade());
+}
+
+std::tuple<ntf::Notificacao*, EntidadeProto*, EntidadeProto*> NovaNotificacaoFilha(
+    ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* pai) {
+  return NovaNotificacaoFilha(tipo, entidade.Proto(), pai);
+}
+
+std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& texto, const EntidadeProto& proto, const std::optional<float> atraso_s) {
+  auto na = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na->mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(proto.id());
+  por_entidade->set_texto(texto);
+  a->set_afeta_pontos_vida(false);
+  a->set_local_apenas(false);
+  if (atraso_s.has_value()) {
+    VLOG(1) << "atraso_s: " << *atraso_s;
+    a->set_atraso_s(*atraso_s);
+  }
+  return na;
 }
 
 void MudaCor(const float* cor) {
@@ -1128,51 +1165,42 @@ int ModificadorDano(
   return modificador;
 }
 
-float DistanciaAbsoluta(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  Posicao pos_acao_a = ea.PosicaoAcao();
-  Posicao pos_acao_d = ed.PosicaoAcao();
-  Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-  Vector3 vd;
-  if (pos_alvo.has_x()) {
-    vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
-    VLOG(1) << "Usando posicao real para distancia absoluta";
-  } else {
-    vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
-    VLOG(1) << "Usando posicao fixa para distancia absoluta";
-  }
-  const float resultado = (va - vd).length();
+float DistanciaAbsoluta(const Posicao& pos_atacante, const Posicao& pos_alvo) {
+  const float resultado = (PosParaVector3(pos_atacante) - PosParaVector3(pos_alvo)).length();
   VLOG(1) << "Distancia absoluta: " << resultado;
   return resultado;
 }
 
-float DistanciaAcaoAoAlvoMetros(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  return DistanciaAbsoluta(ea, ed, pos_alvo);
-#if 0
-  // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
-  float mult_tamanho = ea.MultiplicadorTamanho();
-  float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
-  VLOG(1) << "raio_a: " << raio_a;
+// Teste varias distancias diferentes e usa a menor.
+// Entidade a entidade;
+// Entidade ao ponto clique;
+// Ponto de acao a entidade.
+float DistanciaMinimaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique) {
+  const Posicao pos_acao = ea.PosicaoAcao();
+  // Raio de acao da entidade, de forma aproximada.
+  const float raio = DistanciaAbsoluta(pos_acao, ea.Pos());
+  // Essa é a ideal, mas nem sempre a entidade esta com giro correto.
+  float distancia = DistanciaAbsoluta(pos_acao, pos_clique);
+  // Posicao da entidade a posicao clicada descontando raio.
+  distancia = std::min(distancia, std::max(0.0f, DistanciaAbsoluta(ea.Pos(), pos_clique) - raio));
+  VLOG(1) << "Distancia minima: " << distancia;
+  return distancia;
+}
 
-  // Distancia entre pontos.
-  float distancia_absoluta = DistanciaAbsoluta(ea, ed, pos_alvo);
-
-  float distancia_m = - raio_a;
-  if (pos_alvo.has_x()) {
-    const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
-    distancia_m -= MARGEM_ERRO;
-    VLOG(1) << "Descontando margem fixa '" << MARGEM_ERRO << "' da distancia";
-  } else {
-    distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "Descontando por tamanho '" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2) << "' da distancia";
-  }
-  distancia_m += distancia_absoluta;
-  VLOG(1) << "retornando distancia_m: " << distancia_m;
-  return std::max(0.0f, distancia_m);
-#endif
+float DistanciaMaximaAcaoAlvoMetros(const Entidade& ea, const Posicao& pos_clique) {
+  const Posicao pos_acao = ea.PosicaoAcao();
+  // Raio de acao da entidade, de forma aproximada.
+  const float raio = DistanciaAbsoluta(pos_acao, ea.Pos());
+  // Essa é a ideal, mas nem sempre a entidade esta com giro correto.
+  float distancia = DistanciaAbsoluta(pos_acao, pos_clique);
+  // Posicao da entidade a posicao clicada descontando raio.
+  distancia = std::max(distancia, std::max(0.0f, DistanciaAbsoluta(ea.Pos(), pos_clique) - raio));
+  VLOG(1) << "Distancia maxima: " << distancia;
+  return distancia;
 }
 
 std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
-    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+    const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_clique) {
   const auto& da = ea.DadoCorrenteNaoNull();
   if ((ap.tipo() == ACAO_PROJETIL || ap.tipo() == ACAO_PROJETIL_AREA) &&
       da.has_municao() && da.municao() == 0) {
@@ -1184,25 +1212,22 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
   }
 
   const float alcance_m = ea.AlcanceAtaqueMetros();
-  float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
-  float distancia_m = 0.0f;
-  if (alcance_m >= 0) {
-    distancia_m = DistanciaAcaoAoAlvoMetros(ea, ed, pos_alvo);
-    if (distancia_m > alcance_m) {
-      int total_incrementos = distancia_m / alcance_m;
-      if (total_incrementos > da.incrementos()) {
-        return std::make_tuple(
-            StringPrintf(
-                "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()),
-            false, distancia_m);
-      }
-    } else if (alcance_minimo_m > 0 && distancia_m < alcance_minimo_m) {
-      // Adicionei uma margem de erro para o minimo tb, pq as entidades normalmente nao ocupam o quadrado todo.
-      std::string texto =
-          StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_m);
-      return std::make_tuple(texto, false, distancia_m);
+  if (alcance_m < 0) {
+    return std::make_tuple("Ataque sem alcance", false, 0.0f);
+  }
+  // Usa a menor distancia para verificar alcance maximo.
+  const float distancia_m = DistanciaMinimaAcaoAlvoMetros(ea, pos_clique);
+  if (distancia_m > alcance_m) {
+    int total_incrementos = distancia_m / alcance_m;
+    if (total_incrementos > da.incrementos()) {
+      return std::make_tuple(
+          StringPrintf("Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()), false, distancia_m);
     }
-    VLOG(1) << "Alcance ok alcance_m: " << alcance_m << ", alcance_minimo_m: " << alcance_minimo_m << ", distancia_m: " << distancia_m;
+  }
+  // Se houver alcance minimo, verifica com a menor distancia.
+  const float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
+  if (float distancia_para_alcance_minimo_m = DistanciaMaximaAcaoAlvoMetros(ea, pos_clique); alcance_minimo_m > 0 && distancia_para_alcance_minimo_m < alcance_minimo_m) {
+    return std::make_tuple(StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_para_alcance_minimo_m), false, distancia_para_alcance_minimo_m);
   }
   return std::make_tuple("", true, distancia_m);
 }
@@ -1589,7 +1614,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
     }
   } else if (da.has_dificuldade_salvacao()) {
     int d20 = RolaDado(20);
-    int bonus = da.eh_feitico() ? ed.SalvacaoFeitico(ea, da.tipo_salvacao()) : ed.Salvacao(ea, da.tipo_salvacao());
+    int bonus = da.eh_feitico() ? ed.SalvacaoFeitico(ea, da) : ed.Salvacao(ea, da.tipo_salvacao());
     int total = d20 + bonus;
     std::string str_evasao;
     if (total >= da.dificuldade_salvacao()) {
@@ -1696,6 +1721,10 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
       proto.selecionavel_para_jogador() ? ", [selecionável]" : "");
 }
 
+std::string RotuloEntidade(const Entidade& entidade) {
+  return RotuloEntidade(entidade.Proto());
+}
+
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
   switch (n.tipo()) {
     case ntf::TN_GRUPO_NOTIFICACOES: {
@@ -1719,19 +1748,33 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo) {
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidadeProto(
-      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
-  *proto_antes->mutable_dados_ataque() = proto.dados_ataque();
-  *proto_depois->mutable_dados_ataque() = proto.dados_ataque();
-  for (auto& da : *proto_depois->mutable_dados_ataque()) {
+void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  ntf::Notificacao* np = nullptr;
+  bool reusando = false;
+  for (auto& n : *grupo->mutable_notificacao()) {
+    if (n.entidade().id() == proto.id() && !n.entidade().dados_ataque().empty()) {
+      if (np != nullptr) {
+        LOG(ERROR) << "Grupo contem mais de uma notificacao de ataque!!i Ignorando a primeira.";
+      }
+      np = &n; 
+      reusando = true;
+    }
+  }
+  EntidadeProto *e_antes, *e_depois;
+  if (np != nullptr) {
+    e_antes = np->mutable_entidade_antes();
+    e_depois = np->mutable_entidade();
+  } else {
+    std::tie(np, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo);
+    *e_antes->mutable_dados_ataque() = proto.dados_ataque();
+    *e_depois->mutable_dados_ataque() = proto.dados_ataque();
+  }
+  for (auto& da : *e_depois->mutable_dados_ataque()) {
     if (da.has_taxa_refrescamento() && da.usado_rodada() &&
         (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
       // Trata o caso de ataques consumidos so ao fim da rodada.
       int valor = 0;
-      auto* da_depois = EncontraAtaque(da, proto_depois);
+      auto* da_depois = EncontraAtaque(da, e_depois);
       try {
         valor = RolaValor(da_depois->taxa_refrescamento());
       } catch (const std::exception& e) {
@@ -1748,6 +1791,9 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
         da.set_limite_vezes(da.limite_vezes_original());
       }
     }
+  }
+  if (grupo_desfazer != nullptr && !reusando) {
+    *grupo_desfazer->add_notificacao() = *np;
   }
 }
 
@@ -1767,10 +1813,23 @@ std::pair<int, int> ComplementoFuria(int nivel_barbaro) {
 void PreencheNotificacaoFadigaFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
  if (Nivel("barbaro", entidade.Proto()) >= 17) return;
   std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-  PreencheNotificacaoEvento(
-      entidade.Id(), "fadiga_furia_barbaro", EFEITO_FADIGA, 100,
+  PreencheNotificacaoEventoSemComplemento(
+      entidade.Id(), DadosIniciativaEntidade(entidade), "fadiga_furia_barbaro", EFEITO_FADIGA, 100,
       &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
 }
+
+void PreencheNotificacaoEntrarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  auto [complemento, complemento_salvacao] = ComplementoFuria(Nivel("barbaro", entidade.Proto()));
+  // Para ver novo modificador.
+  Bonus bc = BonusAtributo(TA_CONSTITUICAO, entidade.Proto());
+  AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
+  const int rodadas = 3 + ModificadorAtributo(bc);
+  std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+  PreencheNotificacaoEventoComComplementos(
+      entidade.Id(), DadosIniciativaEntidade(entidade), "furia_barbaro", EFEITO_FURIA_BARBARO, {complemento, complemento_salvacao}, rodadas,
+      &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+}
+
 
 bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   const int nivel_barbaro = Nivel("barbaro", entidade.Proto());
@@ -1783,16 +1842,7 @@ bool PreencheNotificacaoAlternarFuria(const Tabelas& tabelas, const Entidade& en
         n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
     PreencheNotificacaoFadigaFuria(tabelas, entidade, n_grupo, n_desfazer);
   } else {
-    // Entra em furia.
-    auto [complemento, complemento_salvacao] = ComplementoFuria(nivel_barbaro);
-    // Para ver novo modificador.
-    Bonus bc = BonusAtributo(TA_CONSTITUICAO, entidade.Proto());
-    AtribuiBonus(complemento, TB_MORAL, "furia_barbaro", &bc);
-    const int rodadas = 3 + ModificadorAtributo(bc);
-    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-    PreencheNotificacaoEventoComComplementos(
-        entidade.Id(), "furia_barbaro", EFEITO_FURIA_BARBARO, {complemento, complemento_salvacao}, rodadas,
-        &ids_unicos, n_grupo->add_notificacao(), n_desfazer != nullptr ? n_desfazer->add_notificacao() : nullptr);
+    PreencheNotificacaoEntrarFuria(tabelas, entidade, n_grupo, n_desfazer);
   }
   return !possui_furia;
 }
@@ -1989,8 +2039,13 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   return nullptr;
 }
 
-bool EhItemMundano(const DadosAtaque& da) {
-  return c_any<std::vector<std::string>>({"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }, da.id_arma());
+const std::vector<std::string>& ItemsQueGeramAtaques() {
+  static const std::vector<std::string> v = {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" };
+  return v; 
+}
+
+bool AtaqueDeItemMundano(const DadosAtaque& da) {
+  return c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.id_arma()) || c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.grupo());
 }
 
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
@@ -2025,7 +2080,7 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->id_arma();
     }
     if (da_depois->has_municao()) {
-      if (EhItemMundano(*da_depois)) {
+      if (AtaqueDeItemMundano(*da_depois)) {
         const std::string id_arma = da_depois->id_arma();
         PreencheConsumoItemMundano(da_depois->id_arma(), entidade, proto);
         // Hack: aqui so para criar vazio se num tiver nada. Nao vai remover nada mesmo.
@@ -2074,12 +2129,12 @@ void PreencheNotificacaoRecarregamento(
   }
 }
 
-void PreencheNotificacaoEvento(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos,
+void PreencheNotificacaoEventoSemComplemento(
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, int rodadas, std::vector<int>* ids_unicos,
     ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
+  auto* evento = AdicionaEvento(dados_iniciativa, origem, tipo_efeito, rodadas, false, ids_unicos, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2089,11 +2144,11 @@ void PreencheNotificacaoEvento(
 }
 
 void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-    unsigned int id_origem, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, const DadosAtaque& da, int nivel_conjurador, const Entidade& entidade_destino, const EfeitoAdicional& efeito_adicional,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   EntidadeProto *e_antes, *e_depois;
   std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino, n);
-  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, nivel_conjurador, efeito_adicional, da.acao(), ids_unicos, entidade_destino, e_depois);
+  auto* evento = AdicionaEventoEfeitoAdicional(id_origem, dados_iniciativa, nivel_conjurador, efeito_adicional, da.acao(), ids_unicos, entidade_destino, e_depois);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
   evento_antes->set_rodadas(-1);
@@ -2105,11 +2160,10 @@ void PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
 }
 
 void PreencheNotificacaoEventoComComplementos(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::vector<int>& complementos, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, const std::vector<int>& complementos, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
+  auto* evento = AdicionaEvento(dados_iniciativa, /*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
   for (int c : complementos) {
     evento->add_complementos(c);
   }
@@ -2123,11 +2177,10 @@ void PreencheNotificacaoEventoComComplementos(
 
 
 void PreencheNotificacaoEventoComComplementoStr(
-    unsigned int id_entidade, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito tipo_efeito, const std::string& complemento_str, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
-  auto* evento = AdicionaEvento(/*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidadeComId(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, id_entidade, n);
+  auto* evento = AdicionaEvento(dados_iniciativa, /*origem=*/origem, tipo_efeito, rodadas, /*continuo=*/false, ids_unicos, e_depois);
   evento->add_complementos_str(complemento_str);
   auto* evento_antes = e_antes->add_evento();
   *evento_antes = *evento;
@@ -2153,11 +2206,15 @@ int TipoDanoParaComplemento(TipoDanoVeneno tipo) {
 }
 
 bool PreencheNotificacaoEventoParaVenenoComum(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   // A origem ficara veneno: %d, pois veneno é cumulativo.
   std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
-  PreencheNotificacaoEvento(id_entidade, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  if (veneno.sono()) {
+    PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_SONO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  } else {
+    PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_DANO_ATRIBUTO_VENENO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
+  }
   if (n->entidade().evento_size() != 1) {
     LOG(ERROR) << "Falha criando veneno: tamanho de evento invalido, " << n->entidade().evento_size();
     return false;
@@ -2167,39 +2224,43 @@ bool PreencheNotificacaoEventoParaVenenoComum(
 }  // namespace
 
 void PreencheNotificacaoEventoParaVenenoPrimario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
-  auto* e_depois = n->mutable_entidade();
-  auto* evento = e_depois->mutable_evento(0);
-  evento->mutable_complementos()->Resize(6, 0);
-  for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
-    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano(i));
-    if (indice_complemento < 0 || indice_complemento >= 6) continue;
-    if (veneno.dano_inicial().size() != veneno.tipo_dano().size()) {
-      LOG(ERROR) << "Veneno mal formado: tamanho de dano incial e tipo dano diferem: " << veneno.dano_inicial().size() << ", " << veneno.tipo_dano().size();
-      continue;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, /*rodadas=*/veneno.sono() ? 10 : DIA_EM_RODADAS, ids_unicos, n, n_desfazer)) return;
+  if (!veneno.sono()) {
+    auto* e_depois = n->mutable_entidade();
+    auto* evento = e_depois->mutable_evento(0);
+    evento->mutable_complementos()->Resize(6, 0);
+    for (int i = 0; i < veneno.tipo_dano().size(); ++i) {
+      int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano(i));
+      if (indice_complemento < 0 || indice_complemento >= 6) continue;
+      if (veneno.dano_inicial().size() != veneno.tipo_dano().size()) {
+        LOG(ERROR) << "Veneno mal formado: tamanho de dano incial e tipo dano diferem: " << veneno.dano_inicial().size() << ", " << veneno.tipo_dano().size();
+        continue;
+      }
+      evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
     }
-    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_inicial(i)));
   }
 }
 
 void PreencheNotificacaoEventoParaVenenoSecundario(
-    unsigned int id_entidade, const VenenoProto& veneno, int rodadas,
+    unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
-  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, veneno, rodadas, ids_unicos, n, n_desfazer)) return;
-  auto* e_depois = n->mutable_entidade();
-  auto* evento = e_depois->mutable_evento(0);
-  evento->mutable_complementos()->Resize(6, 0);
-  for (int i = 0; i < veneno.tipo_dano_secundario().size(); ++i) {
-    int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano_secundario(i));
-    if (indice_complemento < 0 || indice_complemento >= 6) continue;
-    if (veneno.dano_secundario().size() != veneno.tipo_dano_secundario().size()) {
-      LOG(ERROR) << "Veneno mal formado: tamanho de dano secundario e tipo dano secundario diferem: "
-                 << veneno.dano_secundario().size() << ", " << veneno.tipo_dano_secundario().size();
-      continue;
+  if (!PreencheNotificacaoEventoParaVenenoComum(id_entidade, dados_iniciativa, veneno, /*rodadas=*/veneno.sono() ? RolaDado(4) * MINUTOS_PARA_RODADAS : DIA_EM_RODADAS, ids_unicos, n, n_desfazer)) return;
+  if (!veneno.sono()) {
+    auto* e_depois = n->mutable_entidade();
+    auto* evento = e_depois->mutable_evento(0);
+    evento->mutable_complementos()->Resize(6, 0);
+    for (int i = 0; i < veneno.tipo_dano_secundario().size(); ++i) {
+      int indice_complemento = TipoDanoParaComplemento(veneno.tipo_dano_secundario(i));
+      if (indice_complemento < 0 || indice_complemento >= 6) continue;
+      if (veneno.dano_secundario().size() != veneno.tipo_dano_secundario().size()) {
+        LOG(ERROR) << "Veneno mal formado: tamanho de dano secundario e tipo dano secundario diferem: "
+                   << veneno.dano_secundario().size() << ", " << veneno.tipo_dano_secundario().size();
+        continue;
+      }
+      evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_secundario(i)));
     }
-    evento->mutable_complementos()->Set(indice_complemento, -RolaValor(veneno.dano_secundario(i)));
   }
 }
 
@@ -2980,7 +3041,7 @@ std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto
   return StringPrintf(
       "%s%s",
       dano->c_str(),
-      modificador_dano != 0 ? google::protobuf::StringPrintf("%+d", modificador_dano).c_str() : "");
+      !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "");
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
@@ -3086,6 +3147,9 @@ TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* pro
   for (auto& t : *proto->mutable_info_talentos()->mutable_outros()) {
     if (chave_talento == t.id()) return &t;
   }
+  for (auto& t : *proto->mutable_info_talentos()->mutable_automaticos()) {
+    if (chave_talento == t.id()) return &t;
+  }
   return proto->mutable_info_talentos()->add_outros();
 }
 
@@ -3107,6 +3171,9 @@ const TalentoProto* Talento(const std::string& chave_talento, const std::string&
     if (chave_talento == t.id() && complemento == t.complemento()) return &t;
   }
   for (const auto& t : entidade.info_talentos().outros()) {
+    if (chave_talento == t.id() && complemento == t.complemento()) return &t;
+  }
+  for (const auto& t : entidade.info_talentos().automaticos()) {
     if (chave_talento == t.id() && complemento == t.complemento()) return &t;
   }
   return nullptr;
@@ -3416,7 +3483,7 @@ int AchaIdUnicoEvento(
 }
 
 EntidadeProto::Evento* AdicionaEvento(
-    const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+    const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& origem, TipoEfeito id_efeito, int rodadas, bool continuo, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   // Pega antes de criar o evento.
   int id_unico = AchaIdUnicoEvento(*ids_unicos);
   auto* e = proto->add_evento();
@@ -3426,20 +3493,10 @@ EntidadeProto::Evento* AdicionaEvento(
   e->set_id_unico(id_unico);
   e->set_origem(origem);
   ids_unicos->push_back(id_unico);
-  return e;
-}
-
-
-EntidadeProto::Evento* AdicionaEventoOld(
-    const RepeatedPtrField<EntidadeProto::Evento>& eventos,
-    TipoEfeito id_efeito, int rodadas, bool continuo, EntidadeProto* proto) {
-  // Pega antes de criar o evento.
-  int id_unico = AchaIdUnicoEvento(eventos, proto->evento());
-  auto* e = proto->add_evento();
-  e->set_id_efeito(id_efeito);
-  e->set_rodadas(continuo ? 1 : rodadas);
-  e->set_continuo(continuo);
-  e->set_id_unico(id_unico);
+  if (dados_iniciativa.has_value()) {
+    e->set_iniciativa(dados_iniciativa->iniciativa);
+    e->set_modificador_iniciativa(dados_iniciativa->modificador);
+  }
   return e;
 }
 
@@ -3459,9 +3516,11 @@ const EfeitoAdicional* EfeitoAnterior(const EfeitoAdicional& efeito_adicional, c
   return nullptr;
 }
 
-// Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo.
+// Retorna o valor de rodadas ou kEfeitoContinuo se efeito for continuo. Caso nao haja alvo, nao preenchera rodadas que depende disso.
 constexpr int kEfeitoContinuo = std::numeric_limits<int>::max();
-int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const EntidadeProto& lancador, const Entidade& alvo) {
+int Rodadas(
+    int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao, const EntidadeProto& lancador,
+    const Entidade* alvo) {
   VLOG(1) << "Calculo de rodadas: nivel de conjurador: " << nivel_conjurador;
   if (efeito_adicional.has_rodadas()) {
     VLOG(1) << "Calculo de rodadas, valor de rodadas: " << efeito_adicional.rodadas();
@@ -3494,7 +3553,8 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
         modificador = kEfeitoContinuo;
       break;
       case MR_PALAVRA_PODER_ATORDOAR: {
-        const int pv = alvo.PontosVida();
+        if (alvo == nullptr) break;
+        const int pv = alvo->PontosVida();
         if (pv <= 50) {
           modificador = RolaValor("4d4");;
         } else if (pv <= 100) {
@@ -3505,7 +3565,8 @@ int Rodadas(int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const
       }
       break;
       case MR_PALAVRA_PODER_CEGAR: {
-        const int pv = alvo.PontosVida();
+        if (alvo == nullptr) break;
+        const int pv = alvo->PontosVida();
         if (pv <= 50) {
           modificador = kEfeitoContinuo;
         } else if (pv <= 100) {
@@ -3624,14 +3685,14 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 }
 
 EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
-    unsigned int id_origem, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
+    unsigned int id_origem, const std::optional<DadosIniciativa>& dados_iniciativa, int nivel_conjurador, const EfeitoAdicional& efeito_adicional, const AcaoProto& acao,
     std::vector<int>* ids_unicos,  const Entidade& alvo, EntidadeProto* proto) {
-  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, alvo);
+  const int rodadas = Rodadas(nivel_conjurador, efeito_adicional, acao, *proto, &alvo);
   const bool continuo = rodadas == kEfeitoContinuo ||
                         (!efeito_adicional.has_rodadas() &&
                          !efeito_adicional.has_modificador_rodadas() &&
                          !efeito_adicional.has_dado_modificador_rodadas());
-  auto* e = AdicionaEvento(efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
+  auto* e = AdicionaEvento(dados_iniciativa, efeito_adicional.origem(), efeito_adicional.efeito(), rodadas, continuo, ids_unicos, proto);
   if (efeito_adicional.has_requer_modelo_ativo()) {
     e->set_requer_modelo_ativo(efeito_adicional.requer_modelo_ativo());
   }
@@ -3754,7 +3815,7 @@ void AdicionaEventoItemMagico(
   for (unsigned int i = 0; i < efeitos_origens.size(); ++i) {
     auto tipo_efeito = efeitos_origens[i].first;
     const std::string& origem = efeitos_origens[i].second;
-    auto* evento = AdicionaEvento(origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
+    auto* evento = AdicionaEvento(std::nullopt, origem, tipo_efeito, rodadas, continuo, ids_unicos, proto);
     if (item.complementos().empty() && !item.complementos_variavel().empty()) {
       for (const auto& cv : item.complementos_variavel()) {
         int valor = 0;
@@ -4138,7 +4199,7 @@ bool FeiticoGeraAcao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) 
 
 void CriaNovoAtaqueComFeitico(
     const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, const EntidadeProto& proto,
-    ntf::Notificacao* n) {
+    ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
   {
     *e_depois->mutable_dados_ataque() = proto.dados_ataque();
@@ -4170,10 +4231,13 @@ void CriaNovoAtaqueComFeitico(
       e_antes->add_dados_ataque();   // ataque invalido para sinalizar para apagar.
     }
   }
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
 void PreencheNotificacaoAcaoFeiticoPessoal(
-    unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n) {
+    unsigned int id, const std::string& string_efeitos, float atraso_s, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   n->set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_id_entidade_origem(id);
@@ -4185,6 +4249,9 @@ void PreencheNotificacaoAcaoFeiticoPessoal(
   a->set_afeta_pontos_vida(false);
   a->set_gera_outras_acoes(true);
   if (atraso_s != 0.0f) a->set_atraso_s(atraso_s);
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
 void PreencheNotificacaoAcaoFeiticoPessoalDispersao(
@@ -4207,9 +4274,82 @@ bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_ta
   return acao.pessoal() && acao.tipo() == ACAO_DISPERSAO;
 }
 
+// Retorna true se uma acao foi criada.
+bool ExecutaFeitico(
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe,
+    const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
+    ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
+  // e isso depende do tabuleiro. Deixar desligado por agora.
+  //if (FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
+  //PreencheNotificacaoAcaoFeiticoPessoalDispersao(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
+  //  return false;
+  //} else if (FeiticoPessoal(tabelas, feitico_tabelado)) {
+  if (FeiticoPessoal(tabelas, feitico_tabelado) && !FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
+    // Aplica o efeito do feitico no personagem diretamente.
+    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
+    std::string string_efeitos;
+    for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
+       PreencheNotificacaoEventoEfeitoAdicional(
+           entidade.Id(), dados_iniciativa, nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
+       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
+    }
+    if (!string_efeitos.empty()) {
+      string_efeitos.pop_back();
+      string_efeitos.pop_back();
+    }
+    // Adiciona uma acao de feitico pessoal.
+    PreencheNotificacaoAcaoFeiticoPessoal(
+        entidade.Id(), string_efeitos, /*atraso_s=*/0,
+        grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    return false;
+  } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
+    CriaNovoAtaqueComFeitico(
+        tabelas, feitico_tabelado, id_classe, entidade.Proto(),
+        grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    return true;
+  }
+  return false;
+
+}
+
+std::optional<std::pair<bool, std::string>> TestaConcentracao(const Tabelas& tabelas, int cd, const EntidadeProto& proto) {
+  auto resultado = RolaPericia(tabelas, "concentracao", proto);
+  if (!resultado.has_value()) {
+    LOG(ERROR) << "Pericia concentracao invalida, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  auto [rolou, valor, texto] = *resultado;
+  if (!rolou) {
+    LOG(ERROR) << "Pericia concentracao nao rolada, nunca deveria acontecer";
+    return std::nullopt;
+  }
+  const bool passou = valor >= cd;
+  return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
+}
+
+std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta_pv, const EntidadeProto& proto) {
+  if (delta_pv >= 0) return std::nullopt;
+  if (!PossuiEvento(EFEITO_CONJURANDO, proto)) return std::nullopt;
+  return TestaConcentracao(tabelas, 15 - delta_pv, proto);
+}
+
 bool NotificacaoConsequenciaFeitico(
-    const Tabelas& tabelas, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
+    const Tabelas& tabelas, const std::optional<DadosIniciativa>& dados_iniciativa, const std::string& id_classe, bool conversao_espontanea, int nivel, int indice, const Entidade& entidade, ntf::Notificacao* grupo) {
   const auto& proto = entidade.Proto();
+  float atraso_s = 0.0f;
+  if (PossuiEvento(EFEITO_ENREDADO, proto)) {
+    auto resultado = TestaConcentracao(tabelas, 15 + nivel, proto);
+    if (resultado.has_value()) {
+      auto [passou, texto] = *resultado;
+      grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(texto, proto, atraso_s).get());
+      atraso_s += 1.0f;
+      if (!passou) {
+        VLOG(1) << "perdeu feitico por estar enredado";
+        return false;
+      }
+    }
+  }
   const int nivel_conjurador = NivelConjurador(id_classe, proto);
   // Busca feitico. Se precisa memorizar, busca de ParaLancar, caso contrario, os valores que vem aqui ja sao
   // dos feiticos conhecidos.
@@ -4231,33 +4371,29 @@ bool NotificacaoConsequenciaFeitico(
                << ". id_classe: " << id_classe << ", nivel: " << nivel << ", indice: " << indice;
     return false;
   }
-  // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
-  // e isso depende do tabuleiro. Deixar desligado por agora.
-  //if (FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
-  //PreencheNotificacaoAcaoFeiticoPessoalDispersao(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
-  //  return false;
-  //} else if (FeiticoPessoal(tabelas, feitico_tabelado)) {
-  if (FeiticoPessoal(tabelas, feitico_tabelado) && !FeiticoPessoalDispersao(tabelas, feitico_tabelado)) {
-    // Aplica o efeito do feitico no personagem diretamente.
-    std::vector<int> ids_unicos = IdsUnicosEntidade(entidade);
-    std::string string_efeitos;
-    for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
-       PreencheNotificacaoEventoEfeitoAdicional(
-           entidade.Id(), nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
-       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
+  if (feitico_tabelado.tempo_execucao_rodadas() > 0) {
+    EntidadeProto ep;
+    ep.set_id(entidade.Id());
+    auto* ic = ep.add_info_classes();
+    ic->set_id(id_classe);
+    ic->set_nivel_conjurador(nivel_conjurador);
+    if (dados_iniciativa.has_value()) {
+      ep.set_iniciativa(dados_iniciativa->iniciativa);
+      ep.set_modificador_iniciativa(dados_iniciativa->modificador);
     }
-    if (!string_efeitos.empty()) {
-      string_efeitos.pop_back();
-      string_efeitos.pop_back();
-    }
-    // Adiciona uma acao de feitico pessoal.
-    PreencheNotificacaoAcaoFeiticoPessoal(entidade.Id(), string_efeitos, /*atraso_s=*/0, grupo->add_notificacao());
+    ep.add_dados_ataque()->set_id_arma(feitico_tabelado.id());
+    std::string entidade_str;
+    google::protobuf::TextFormat::PrintToString(ep, &entidade_str);
+    auto ids_unicos = IdsUnicosEntidade(entidade);
+    PreencheNotificacaoEventoComComplementoStr(
+        entidade.Id(), std::nullopt, /*origem=*/feitico_tabelado.nome(), EFEITO_CONJURANDO, entidade_str,
+        feitico_tabelado.tempo_execucao_rodadas(), &ids_unicos, grupo->add_notificacao(), nullptr);
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTexto(StringPrintf(
+          "conjurando por %d rodada%s",
+          feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""), proto, atraso_s).get());
     return false;
-  } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
-    CriaNovoAtaqueComFeitico(tabelas, feitico_tabelado, id_classe, proto, grupo->add_notificacao());
-    return true;
   }
-  return false;
+  return ExecutaFeitico(tabelas, feitico_tabelado, nivel_conjurador, id_classe, dados_iniciativa, entidade, grupo, nullptr);
 }
 
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
@@ -4316,6 +4452,10 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
   const auto& fn = FeiticosNivel(id_classe, nivel, proto);
   if (indice < 0 || indice >= fn.para_lancar().size()) return EntidadeProto::InfoLancar::default_instance();
   return fn.para_lancar(indice);
+}
+
+bool EntidadeImuneEfeito(const EntidadeProto& proto, TipoEfeito efeito) {
+  return c_any(proto.dados_defesa().imunidade_efeitos(), (int)efeito);
 }
 
 bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
@@ -4554,6 +4694,7 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.PergaminhoDivino(id);
     default: ;
   }
+  LOG(ERROR) << "tipo de item invalido: " << TipoItem_Name(tipo);
   return ItemMagicoProto::default_instance();
 }
 
@@ -4579,6 +4720,11 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
     *item_novo = *item;
     item_novo->set_em_uso(manter_uso);
   }
+}
+
+std::string NomeTipoItem(TipoItem tipo) {
+  std::string nome = TipoItem_Name(tipo);
+  return nome.find("TIPO_") == 0 ? nome.substr(5) : nome;
 }
 
 const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
@@ -4866,11 +5012,40 @@ bool PermiteEscudo(const EntidadeProto& proto) {
   return true;
 }
 
-bool TalentoComEscudo(const std::string& escudo, const EntidadeProto& proto) {
-  if (escudo == "broquel" || escudo.find("leve_") == 0 || escudo.find("pesado_") == 0) {
+bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto) {
+  if (id_escudo == "broquel" || id_escudo.find("leve_") == 0 || id_escudo.find("pesado_") == 0) {
     return PossuiTalento("usar_escudo", proto);
-  } else if (escudo == "corpo") {
+  } else if (id_escudo == "corpo") {
     return PossuiTalento("usar_escudo_corpo", proto);
+  }
+  return true;
+}
+
+bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto) {
+  if (armadura_tabelada.id().empty()) return true;
+  if (armadura_tabelada.has_tipo()) {
+    if (armadura_tabelada.tipo() == TA_LEVE) {
+      return PossuiTalento("usar_armadura_leve", proto);
+    } else if (armadura_tabelada.tipo() == TA_MEDIO) {
+      return PossuiTalento("usar_armadura_media", proto);
+    } else if (armadura_tabelada.tipo() == TA_PESADO) {
+      return PossuiTalento("usar_armadura_pesada", proto);
+    }
+  }
+  return true;
+}
+
+bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) {
+  if (arma_tabelada.id().empty()) return true;
+  if (c_any(arma_tabelada.categoria(), CAT_ARMA_NATURAL)) return true;
+  if (arma_tabelada.has_categoria_pericia()) {
+    if (arma_tabelada.categoria_pericia() == CATPER_SIMPLES) {
+      return PossuiTalento("usar_armas_simples", proto) || PossuiTalento("usar_uma_arma_simples", arma_tabelada.id(), proto);
+    } else if (arma_tabelada.categoria_pericia() == CATPER_COMUM) {
+      return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", arma_tabelada.id(), proto);
+    } else if (arma_tabelada.categoria_pericia() == CATPER_EXOTICA) {
+      return PossuiTalento("usar_arma_exotica", arma_tabelada.id(), proto);
+    }
   }
   return true;
 }
@@ -4884,18 +5059,26 @@ int NivelFeiticoParaClasse(const std::string& id_classe, const ArmaProto& feitic
 
 namespace {
 
-void PassaAtributosReferencia(const ArmaProto& feitico, const EntidadeProto& referencia, EntidadeProto* modelo) {
-  if (referencia.has_iniciativa()) {
-    modelo->set_iniciativa(referencia.iniciativa());
+void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referencia, EntidadeProto* modelo) {
+  if (referencia.TemIniciativa()) {
+    modelo->set_iniciativa(referencia.Iniciativa());
   }
   modelo->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
-  if (referencia.has_cor()) {
+  if (referencia.Proto().has_cor()) {
     Cor cor_destino = !modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
-    CombinaCorComPeso(0.3, referencia.cor(), &cor_destino);
+    CombinaCorComPeso(0.3, referencia.Proto().cor(), &cor_destino);
     *modelo->mutable_cor() = cor_destino;
   }
   if (feitico.escola() == "conjuracao") {
     modelo->set_conjurada(true);
+    if (referencia.PossuiTalento("potencializar_invocacao")) {
+      AtribuiBonus(4, TB_MELHORIA, "potencializar_invocacao", BonusAtributo(TA_FORCA, modelo));
+      AtribuiBonus(4, TB_MELHORIA, "potencializar_invocacao", BonusAtributo(TA_CONSTITUICAO, modelo));
+      if (!modelo->dados_vida().empty()) {
+        const int bonus_pv = NivelPersonagem(*modelo) * 2;
+        modelo->set_dados_vida(StringPrintf("%s+%d", modelo->dados_vida().c_str(), bonus_pv));
+      }
+    }
   }
 }
 
@@ -4903,27 +5086,27 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const EntidadeProto& ref
 
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
   const auto& classe_feitico_ativa = referencia.Proto().classe_feitico_ativa();
-  const int nivel = referencia.NivelConjurador(classe_feitico_ativa);
+  const int nivel_conjurador = referencia.NivelConjurador(classe_feitico_ativa);
   const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
-  VLOG(1) << "usando nivel: " << nivel << " para classe: " << referencia.Proto().classe_feitico_ativa();
-  PassaAtributosReferencia(feitico, referencia.Proto(), modelo);
+  VLOG(1) << "usando nivel: " << nivel_conjurador << " para classe: " << referencia.Proto().classe_feitico_ativa();
+  PassaAtributosReferencia(feitico, referencia, modelo);
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
     switch (parametros.tipo_duracao()) {
       case TD_RODADAS_NIVEL:
-        duracao_rodadas = nivel;
+        duracao_rodadas = nivel_conjurador;
         break;
       case TD_MINUTOS_NIVEL:
-        duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
+        duracao_rodadas = nivel_conjurador * MINUTOS_PARA_RODADAS;
         break;
       case TD_10_MINUTOS_NIVEL:
-        duracao_rodadas = 10 * nivel * MINUTOS_PARA_RODADAS;
+        duracao_rodadas = 10 * nivel_conjurador * MINUTOS_PARA_RODADAS;
         break;
       case TD_HORAS_NIVEL:
-        duracao_rodadas = nivel * HORAS_PARA_RODADAS;
+        duracao_rodadas = nivel_conjurador * HORAS_PARA_RODADAS;
         break;
       case TD_2_HORAS_NIVEL:
-        duracao_rodadas = 2 * nivel * HORAS_PARA_RODADAS;
+        duracao_rodadas = 2 * nivel_conjurador * HORAS_PARA_RODADAS;
         break;
       default:
         break;
@@ -4944,8 +5127,8 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
       evento->set_id_unico(AchaIdUnicoEvento(referencia.Proto().evento()));
     }
   }
-  if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
-    int modificador = nivel * parametros.multiplicador_nivel_dano();
+  if (parametros.multiplicador_nivel_dano() > 0 && nivel_conjurador > 0) {
+    int modificador = nivel_conjurador * parametros.multiplicador_nivel_dano();
     if (parametros.has_maximo_modificador_dano()) {
       modificador = std::min(parametros.maximo_modificador_dano(), modificador);
     }
@@ -4970,7 +5153,7 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
         break;
       }
       case TMA_BBA_NIVEL_CONJURADOR:
-        modificador_ataque = referencia.NivelConjurador(referencia.Proto().classe_feitico_ativa());
+        modificador_ataque = nivel_conjurador;
         break;
       default:
         break;
@@ -5002,6 +5185,13 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
               nivel_feitico >= 0
               ? 10 + nivel_feitico + referencia.ModificadorAtributoConjuracao()
               : da.dificuldade_salvacao() + referencia.ModificadorAtributoConjuracao());
+          if (!da.acao_fixa().efeitos_adicionais().empty()) {
+            for (auto& ea : *da.mutable_acao_fixa()->mutable_efeitos_adicionais()) {
+              if (ea.has_modificador_rodadas()) {
+                ea.set_rodadas(Rodadas(nivel_conjurador, ea, da.acao_fixa(), referencia.Proto(), /*alvo=*/nullptr));
+              }
+            }
+          }
         }
         break;
       case TMS_NENHUM:
@@ -5199,7 +5389,7 @@ int DesviaObjetoSeAplicavel(
   return 0;
 }
 
-std::pair<int, std::string> RenovaSeTiverDominioRenovar(
+std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     const EntidadeProto& proto, int delta_pv, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (delta_pv >= 0) {
     return std::make_pair(delta_pv, "");
@@ -5633,14 +5823,51 @@ void CriaTesouroTodoVazio(EntidadeProto::DadosTesouro* tesouro) {
   LimpaMoedas(tesouro->mutable_moedas());
 }
 
+void PreencheNotificacoesTransicaoUmTipoTesouro(
+    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+  {
+    // Doador perde so o tipo passado.
+    auto [n_perdeu, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
+
+    AtribuiTesouroOuCriaVazio(ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_antes));
+    auto* itens_perdidos = ItensProtoMutavel(tipo, e_depois);
+    itens_perdidos->Clear();
+    itens_perdidos->Add();
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_perdeu;
+    }
+  }
+  {
+    // Receptor ganha alem do que ja tem.
+    auto [n_ganhou, e_antes, e_depois] = NovaNotificacaoFilha(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
+    AtribuiTesouroOuCriaVazio(ItensProto(tipo, receptor.Proto()), ItensProtoMutavel(tipo, e_antes));
+    MergeTesouro(ItensProto(tipo, receptor.Proto()), ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_depois));
+
+    if (n_desfazer != nullptr) {
+      *n_desfazer->add_notificacao() = *n_ganhou;
+    }
+  }
+  {
+    // Texto de transicao.
+    auto* acao = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, n_grupo)->mutable_acao();
+    acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    const auto& tesouro_doador = ItensProto(tipo, doador.Proto());;
+    std::string texto;
+    MergeMensagemTesouro(tesouro_doador,
+        [&tabelas, tipo](const std::string& id) -> const ItemMagicoProto& { return ItemTabela(tabelas, tipo, id); }, &texto);
+    acao->set_texto(texto);
+    acao->add_por_entidade()->set_id(receptor.Id());
+  }
+}
+
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   {
     // Doador perde tudo.
-    ntf::Notificacao* n_perdeu;
-    EntidadeProto* e_antes;
-    EntidadeProto* e_depois;
-    std::tie(n_perdeu, e_antes, e_depois) = NovaNotificacaoFilha(
+    auto [n_perdeu, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
 
     auto* tesouro_perdeu_antes = e_antes->mutable_tesouro();
@@ -5657,10 +5884,7 @@ void PreencheNotificacoesTransicaoTesouro(
   }
   {
     // Receptor ganha alem do que ja tem.
-    ntf::Notificacao* n_ganhou;
-    EntidadeProto* e_antes;
-    EntidadeProto* e_depois;
-    std::tie(n_ganhou, e_antes, e_depois) = NovaNotificacaoFilha(
+    auto [n_ganhou, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
     auto* tesouro_ganhou_antes = e_antes->mutable_tesouro();
     const auto& tesouro_receptor = receptor.Proto().tesouro();
@@ -5680,9 +5904,7 @@ void PreencheNotificacoesTransicaoTesouro(
   }
   {
     // Texto de transicao.
-    auto* n_texto = n_grupo->add_notificacao();
-    n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
-    auto* acao = n_texto->mutable_acao();
+    auto* acao = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, n_grupo)->mutable_acao();
     acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     const auto& tesouro_doador = doador.Proto().tesouro();
     std::string texto = tesouro_doador.tesouro();
@@ -5784,7 +6006,7 @@ bool MesmaTendencia(TendenciaSimplificada tendencia, const EntidadeProto& proto)
 
 void ResolveEfeitoAdicional(int nivel_conjurador, const EntidadeProto& lancador, const Entidade& alvo, EfeitoAdicional* efeito_adicional, AcaoProto* acao_proto) {
   if (!efeito_adicional->has_rodadas()) {
-    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, lancador, alvo));
+    efeito_adicional->set_rodadas(Rodadas(nivel_conjurador, *efeito_adicional, *acao_proto, lancador, &alvo));
   }
 }
 
@@ -5812,11 +6034,12 @@ float AplicaEfeitosAdicionais(
       continue;
     }
     if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
+      ConcatenaString(StringPrintf("imune ou não afetada por %s", EfeitoParaString(efeito_adicional.efeito()).c_str()), por_entidade->mutable_texto());
       continue;
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
     PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-        entidade_origem.Id(), da, nivel_conjurador, entidade_destino, efeito_adicional,
+        entidade_origem.Id(), DadosIniciativaEntidade(entidade_origem), da, nivel_conjurador, entidade_destino, efeito_adicional,
         ids_unicos_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_efeito.release());
     atraso_s += 0.5f;
@@ -5830,7 +6053,7 @@ float AplicaEfeitosAdicionais(
     for (const auto& efeito_adicional : acao_proto->efeitos_adicionais_conjurador()) {
       std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
       PreencheNotificacaoEventoEfeitoAdicionalComAtaque(
-          entidade_origem.Id(), da, nivel_conjurador, entidade_origem, efeito_adicional,
+          entidade_origem.Id(), DadosIniciativaEntidade(entidade_origem), da, nivel_conjurador, entidade_origem, efeito_adicional,
           ids_unicos_origem, n_efeito.get(), grupo_desfazer->add_notificacao());
       central->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
@@ -5964,6 +6187,23 @@ bool FeiticoDominio(const std::vector<std::string>& dominios, const ArmaProto& f
 
 bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, const ArmaProto& feitico_tabelado) {
   return c_any(escolas_proibidas, feitico_tabelado.escola());
+}
+
+std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto) {
+  const auto& pericia_personagem = Pericia(id_pericia, proto);
+  if (!pericia_personagem.has_id()) {
+    return std::nullopt;
+  }
+  const auto& pericia_tabelada = tabelas.Pericia(pericia_personagem.id());
+  const bool treinado = pericia_personagem.pontos() > 0;
+  if (treinado || pericia_tabelada.sem_treinamento()) {
+    const int bonus = ent::BonusTotal(pericia_personagem.bonus());
+    const int dado = ent::RolaDado(20);
+    const int total = dado + bonus;
+    return std::make_tuple(true, total, StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, total));
+  } else {
+    return std::make_tuple(false, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
+  }
 }
 
 }  // namespace ent

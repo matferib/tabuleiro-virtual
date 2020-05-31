@@ -2,6 +2,7 @@
 #define ENT_ENTIDADE_H
 
 #include <boost/timer/timer.hpp>
+#include <optional>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -143,6 +144,8 @@ class Entidade {
 
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
+  /** @return o nivel do personagem para a classe. */
+  int NivelClasse(const std::string& id_classe) const;
   /** @return o nivel de conjurador do personagem. */
   int NivelConjurador(const std::string& classe) const;
   /** Bonus base de ataque total do personagem. */
@@ -254,7 +257,10 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   /** @return true se a entidade tiver o efeito. */
-  bool PossuiEfeito(TipoEfeito efeito) const;
+  bool PossuiEfeito(TipoEfeito id_efeito) const;
+  bool PossuiUmDosEfeitos(const std::vector<TipoEfeito>& ids_efeitos) const;
+
+  bool PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento = std::nullopt) const;
 
   // Acesso simplificado a alinhamento parcial.
   bool Boa() const;
@@ -295,8 +301,9 @@ class Entidade {
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;
-  bool ImuneFurtivo() const;
+  bool ImuneFurtivo(const Entidade& atacante) const;
   bool ImuneAcaoMental() const;
+  bool ImuneEfeito(TipoEfeito efeito) const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
   void AtaqueAnterior() {
     vd_.ataques_na_rodada = std::max(0, vd_.ataques_na_rodada-1); vd_.ultimo_ataque_ms = 0;
@@ -334,12 +341,14 @@ class Entidade {
   bool TemProximaSalvacao() const { return proto_.has_proxima_salvacao(); }
   /** Retorna o bonus de salvacao de um tipo para entidade. */
   int Salvacao(const Entidade& atacante, TipoSalvacao tipo) const;
-  int SalvacaoFeitico(const Entidade& atacante, TipoSalvacao tipo) const;
+  int SalvacaoFeitico(const Entidade& atacante, const DadosAtaque& da) const;
   int SalvacaoSemAtacante(TipoSalvacao tipo) const;
   int SalvacaoVeneno() const;
 
   bool ImuneVeneno() const;
   bool ImuneDoenca() const;
+
+  bool PodeMover() const;
 
   /** Por padrao, apenas entidades podem ser afetadas por acao. */
   inline bool PodeSerAfetadoPorAcoes() const {

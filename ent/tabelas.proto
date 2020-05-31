@@ -28,6 +28,8 @@ message RacaProto {
   optional SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
   optional Movimento movimento = 11;
+  optional TipoVisao tipo_visao = 12;
+  optional int32 alcance_visao_m = 13;
 }
 
 message ArmaduraOuEscudoProto {
@@ -117,7 +119,7 @@ message InfoComponente {
   optional string descricao = 3;
 }
 
-// Proximo id: 38.
+// Proximo id: 39.
 message ArmaProto {
   optional string id = 1;
   optional string nome = 2;
@@ -227,6 +229,8 @@ message ArmaProto {
   // Se verdadeiro, arma pode ser usada para derrubar.
   optional bool pode_derrubar = 35;
   optional InfoComponente componente = 36;
+  // tempo_conjuracao, casting_time;
+  optional int32 tempo_execucao_rodadas = 38;
 }
 
 message TabelaArmaduraOuEscudo {

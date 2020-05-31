@@ -316,6 +316,7 @@ void Tabuleiro::EstadoInicial() {
 
   // iniciativa.
   indice_iniciativa_ = -1;
+  iniciativa_valida_ = false;
   iniciativas_.clear();
 }
 
@@ -1392,7 +1393,7 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEvento(entidade_selecionada->Id(), /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEventoSemComplemento(entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -1471,24 +1472,23 @@ void Tabuleiro::AlternaEmCorpoACorpoNotificando() {
 }
 
 void Tabuleiro::AlternaFlanqueandoEntidadesSelecionadasNotificando() {
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  auto grupo = NovoGrupoNotificacoes();
   for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) continue;
     const auto& proto = entidade_selecionada->Proto();
-    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(
-        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, &grupo_notificacoes);
+    auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(
+        ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, grupo->add_notificacao());
     e_antes->mutable_dados_ataque_global()->set_flanqueando(proto.dados_ataque_global().flanqueando());
     e_depois->mutable_dados_ataque_global()->set_flanqueando(!proto.dados_ataque_global().flanqueando());
   }
-  if (grupo_notificacoes.notificacao_size() == 0) {
+  if (grupo->notificacao_size() == 0) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  TrataNotificacao(grupo_notificacoes);
+  TrataNotificacao(*grupo);
   // Para desfazer.
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(*grupo);
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
@@ -1757,11 +1757,29 @@ void Tabuleiro::AdicionaAcaoTexto(unsigned int id, const std::string& texto, flo
   TrataNotificacao(na);
 }
 
+void Tabuleiro::AdicionaAcaoTextoComDuracaoAtraso(unsigned int id, const std::string& texto, float atraso_s, float duracao_s, bool local_apenas) {
+  ntf::Notificacao na;
+  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na.mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  auto* por_entidade = a->add_por_entidade();
+  por_entidade->set_id(id);
+  por_entidade->set_texto(texto);
+  a->set_afeta_pontos_vida(false);
+  a->set_local_apenas(local_apenas);
+  a->set_duracao_s(duracao_s);
+  a->set_atraso_s(atraso_s);
+  TrataNotificacao(na);
+}
+
 void Tabuleiro::AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s, bool local_apenas) {
   AdicionaAcaoTexto(id, texto, atraso_s, local_apenas);
-  auto* entidade_destino = BuscaEntidade(id);
-  AdicionaLogEvento(google::protobuf::StringPrintf(
-          "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
+  AdicionaLogEvento(id, texto);
+}
+
+void Tabuleiro::AdicionaAcaoTextoLogadoComDuracaoAtraso(unsigned int id, const std::string& texto, float duracao_s, float atraso_s, bool local_apenas) {
+  AdicionaAcaoTextoComDuracaoAtraso(id, texto, duracao_s, atraso_s, local_apenas);
+  AdicionaLogEvento(id, texto);
 }
 
 void Tabuleiro::AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s, bool local_apenas) {
@@ -1967,13 +1985,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_PROXIMA_INICIATIVA: {
+      // So acontece quando cliente envia a notificacao. Confere se o id esta certo.
       if (notificacao.entidade().id() == IdIniciativaCorrente()) {
         ProximaIniciativa();
       }
       return true;
     }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA: {
-      AtualizaIniciativaNotificando(notificacao);
+      TrataAtualizarIniciativaNotificando(notificacao);
       return true;
     }
     case ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO: {
@@ -2010,6 +2029,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+      LOG(INFO) << "contador rodadas: " << notificacao.tabuleiro().contador_rodadas();
       if (notificacao.local()) {
         auto nr = ntf::NovaNotificacao(notificacao.tipo());
         nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
@@ -2439,15 +2459,11 @@ void Tabuleiro::RefrescaTerrenoParaClientes() {
 // ApagaIniciativas.
 void Tabuleiro::LimpaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
-  bool passa_rodada = false;
   if (EmModoMestreIncluindoSecundario()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-      passa_rodada =
-        !iniciativas_.empty() &&
-        std::any_of(entidades.begin(), entidades.end(),
-                    [this](const Entidade* e) { return e->Id() == iniciativas_.rbegin()->id; });
     } else {
+      // Apaga todas iniciativas.
       for (const auto& di : iniciativas_) {
         const auto* entidade = BuscaEntidade(di.id);
         if (entidade != nullptr) {
@@ -2471,35 +2487,16 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     }
   }
 
-  // Processar e desfazer.
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
+  auto grupo_desfazer = NovoGrupoNotificacoes();
   for (const auto* entidade : entidades) {
-    if (entidade->Tipo() != TE_ENTIDADE) {
-      continue;
-    }
+    if (!entidade->TemIniciativa()) continue;
     VLOG(1) << "Apagando iniciativa de id " << entidade->Id();
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->set_id(entidade->Id());
-    if (entidade->TemIniciativa()) {
-      e_antes->set_iniciativa(entidade->Iniciativa());
-    } else {
-      e_antes->set_iniciativa(INICIATIVA_INVALIDA);
-    }
-    auto* e_depois = n->mutable_entidade();
-    e_depois->set_id(entidade->Id());
+    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, grupo_desfazer.get());
+    e_antes->set_iniciativa(entidade->Iniciativa());
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
-    //TrataNotificacao(*n);
+    TrataNotificacao(*n);
   }
-  if (passa_rodada) {
-    PassaUmaRodadaNotificando(/*ui=*/false, &grupo_notificacoes);
-  }
-  TrataNotificacao(grupo_notificacoes);
-  AtualizaIniciativas(&grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(*grupo_desfazer);
   SelecionaEntidadeIniciativa();
 }
 
@@ -2588,12 +2585,19 @@ void Tabuleiro::RolaIniciativasNotificando() {
   TrataNotificacao(grupo_rotulo);
 }
 
+unsigned int Tabuleiro::IdIniciativaCorrente() const {
+  if (!iniciativa_valida_ || indice_iniciativa_ < 0 || indice_iniciativa_ >= (int)iniciativas_.size()) {
+    return Entidade::IdInvalido;
+  }
+  return iniciativas_[indice_iniciativa_].id;
+}
+
+
 void Tabuleiro::IniciaIniciativaParaCombate() {
   if (!EmModoMestreIncluindoSecundario()) {
     LOG(INFO) << "Apenas mestre pode iniciar as iniciativas para combate.";
     return;
   }
-  // TODO desfazer.
   std::vector<const Entidade*> entidades_com_iniciativa;
   if (indice_iniciativa_ == -1) {
     for (auto& id_ent : entidades_) {
@@ -2622,9 +2626,10 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
       e->set_modificador_iniciativa(entidade->ModificadorIniciativa());
     }
     tabuleiro->set_indice_iniciativa(indice_iniciativa_ == -1 ? 0 : -1);
+    tabuleiro->set_iniciativa_valida(indice_iniciativa_ == -1 ? true : false);
   }
-  AdicionaNotificacaoListaEventos(n);
   TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 void Tabuleiro::AtualizaPorTemporizacao() {
@@ -2690,18 +2695,8 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
 }
 
-void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao) {
-  iniciativas_.clear();
-  iniciativas_.reserve(notificacao.tabuleiro().entidade_size());
-  for (const auto& entidade : notificacao.tabuleiro().entidade()) {
-    DadosIniciativa dados;
-    dados.id = entidade.id();
-    dados.iniciativa = entidade.iniciativa();
-    dados.modificador = entidade.modificador_iniciativa();
-    iniciativas_.push_back(dados);
-  }
-  indice_iniciativa_ = notificacao.tabuleiro().indice_iniciativa();
-  VLOG(1) << "Indice iniciativa: " << indice_iniciativa_;
+void Tabuleiro::TrataAtualizarIniciativaNotificando(const ntf::Notificacao& notificacao) {
+  DeserializaIniciativas(notificacao.tabuleiro());
   // Repassa aos outros.
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
@@ -2709,10 +2704,8 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   SelecionaEntidadeIniciativa();
 }
 
-void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo) {
-  ntf::Notificacao* n = grupo->add_notificacao();
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo);
   if (entidade.Proto().em_corpo_a_corpo()) {
     e_antes->set_em_corpo_a_corpo(true);
     e_depois->set_em_corpo_a_corpo(false);
@@ -2720,6 +2713,10 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   if (entidade.Proto().surpreso()) {
     e_antes->set_surpreso(true);
     e_depois->set_surpreso(false);
+  }
+  if (entidade.Proto().dados_ataque_global().flanqueando()) {
+    e_antes->mutable_dados_ataque_global()->set_flanqueando(true);
+    e_depois->mutable_dados_ataque_global()->set_flanqueando(false);
   }
   e_depois->set_reiniciar_ataque(true);
   const auto& dge = entidade.Proto().dados_ataque_global();
@@ -2749,18 +2746,80 @@ void ZeraControlesEntidadeNotificando(const Entidade& entidade, ntf::Notificacao
   COPIA_SE_NAO_ZERO(chance_falha);
 #undef COPIA_SE_NAO_ZERO
 
-  const auto* t = Talento("desviar_objetos", entidade.Proto());
-  if (t != nullptr && t->usado_na_rodada()) {
+  if (const auto* t = Talento("desviar_objetos", entidade.Proto()); t != nullptr && t->usado_na_rodada()) {
     PreencheNotificacaoObjetoDesviado(false, entidade, n, n);
   }
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
+  }
+}
+
+void Tabuleiro::ProximaIniciativaModoMestre() {
+  auto grupo = NovoGrupoNotificacoes();
+  auto* n = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_LISTA_INICIATIVA, grupo.get());
+  SerializaIniciativas(n->mutable_tabuleiro_antes());
+  SerializaIniciativas(n->mutable_tabuleiro());
+  auto grupo_desfazer = NovoGrupoNotificacoes();
+  // Faz agora pra ficar na ordem certa.
+  auto* n_desfazer = grupo_desfazer->add_notificacao();
+
+  int nova_iniciativa = indice_iniciativa_;
+  bool passar_rodada_para_sem_iniciativas = false;
+  if (!iniciativa_valida_) {
+    // Vai para o indice valido se nao for.
+    if (nova_iniciativa >= (int)iniciativas_.size()) {
+      nova_iniciativa = 0;
+      passar_rodada_para_sem_iniciativas = true;
+    } else if (nova_iniciativa < 0) {
+      // Acontece?
+      nova_iniciativa = 0;
+    }
+  } else {
+    // Entidade antes de mudar a iniciativa.
+    // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
+    const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
+    if (entidade_iniciativa_antes != nullptr) {
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), grupo.get(), grupo_desfazer.get());
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo.get(), grupo_desfazer.get());
+    }
+    // Atualiza a lista de iniciativa.
+    if (++nova_iniciativa >= (int)iniciativas_.size()) {
+      nova_iniciativa = 0;
+      passar_rodada_para_sem_iniciativas = true;
+    }
+  }
+  n->mutable_tabuleiro()->set_indice_iniciativa(nova_iniciativa);
+  n->mutable_tabuleiro()->set_iniciativa_valida(true);
+
+  {
+    // Zera os controles da entidade corrente.
+    const auto* entidade_iniciativa = BuscaEntidade(nova_iniciativa >= 0 && nova_iniciativa < static_cast<int>(iniciativas_.size()) ? iniciativas_[nova_iniciativa].id : Entidade::IdInvalido);
+    if (entidade_iniciativa != nullptr) {
+      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      ZeraControlesEntidadeNotificando(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
+      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
+      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+    }
+  }
+  if (passar_rodada_para_sem_iniciativas) {
+    PreenchePassaUmaRodada(/*passar_para_todos=*/false, grupo.get(), grupo_desfazer.get(), /*expira_eventos_zerados=*/false);
+  }
+  TrataNotificacao(*grupo);
+  *n_desfazer = *n;
+  AdicionaNotificacaoListaEventos(*grupo_desfazer);
 }
 
 void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ == -1) {
-    LOG(INFO) << "Nao ha indice de iniativa";
+    LOG(INFO) << "Nao ha indice de iniciativa";
     return;
   }
-  if (!EmModoMestreIncluindoSecundario()) {
+  if (EmModoMestreIncluindoSecundario()) {
+    ProximaIniciativaModoMestre();
+  } else {
     // So permite ao jogador passar se for a vez dele.
     unsigned int id_iniciativa = IdIniciativaCorrente();
     if (!IdPresoACamera(id_iniciativa)) {
@@ -2772,56 +2831,22 @@ void Tabuleiro::ProximaIniciativa() {
     n->set_servidor_apenas(true);
     n->mutable_entidade()->set_id(id_iniciativa);
     central_->AdicionaNotificacaoRemota(n.release());
-    return;
   }
+}
 
-  ntf::Notificacao grupo_desfazer;
-
-  {
-    ntf::Notificacao grupo;
-    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
-    // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
-    const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
-    if (entidade_iniciativa_antes != nullptr) {
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), &grupo);
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, &grupo);
-    }
-
-    // Atualiza a lista de iniciativa.
-    auto* n = grupo.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
-    SerializaIniciativas(n->mutable_tabuleiro_antes());
-    SerializaIniciativas(n->mutable_tabuleiro());
-    n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
-    if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
-      n->mutable_tabuleiro()->set_indice_iniciativa(0);
-      PassaUmaRodadaNotificando(/*ui=*/false, &grupo);
-    }
-    TrataNotificacao(grupo);
-    grupo_desfazer.Swap(&grupo);
+void Tabuleiro::DeserializaIniciativas(const TabuleiroProto& tabuleiro) {
+  iniciativas_.clear();
+  iniciativas_.reserve(tabuleiro.entidade_size());
+  for (const auto& entidade : tabuleiro.entidade()) {
+    DadosIniciativa dados;
+    dados.id = entidade.id();
+    dados.iniciativa = entidade.iniciativa();
+    dados.modificador = entidade.modificador_iniciativa();
+    iniciativas_.push_back(dados);
   }
-
-  {
-    ntf::Notificacao grupo;
-    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    // Por ultimo, zera os controles da entidade corrente.
-    const auto* entidade_iniciativa = BuscaEntidade(IdIniciativaCorrente());
-    if (entidade_iniciativa != nullptr) {
-      ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa, &grupo);
-      ZeraControlesEntidadeNotificando(*entidade_iniciativa, &grupo);
-      std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_iniciativa));
-      AtualizaEventosAoPassarRodada(*entidade_iniciativa, &ids_unicos, &grupo,
-                                    /*expira_eventos_zerados=*/false);
-      AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, &grupo);
-      AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, &grupo);
-      AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, &grupo);
-    }
-    TrataNotificacao(grupo);
-    std::copy(grupo.notificacao().begin(), grupo.notificacao().end(), RepeatedPtrFieldBackInserter(grupo_desfazer.mutable_notificacao()));
-  }
-
-  AdicionaNotificacaoListaEventos(grupo_desfazer);
+  indice_iniciativa_ = tabuleiro.indice_iniciativa();
+  iniciativa_valida_ = tabuleiro.iniciativa_valida();
+  VLOG(1) << "Indice iniciativa: " << indice_iniciativa_ << ", valida: " << iniciativa_valida_;
 }
 
 void Tabuleiro::SerializaIniciativas(TabuleiroProto* tabuleiro) const {
@@ -2829,6 +2854,7 @@ void Tabuleiro::SerializaIniciativas(TabuleiroProto* tabuleiro) const {
     SerializaIniciativaParaEntidade(di, tabuleiro->add_entidade());
   }
   tabuleiro->set_indice_iniciativa(indice_iniciativa_);
+  tabuleiro->set_iniciativa_valida(iniciativa_valida_);
 }
 
 void Tabuleiro::SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const {
@@ -4302,9 +4328,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       }
     }
     parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_iniciativa_corrente(
-        indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
-        iniciativas_[indice_iniciativa_].id == entidade->Id());
+    parametros_desenho_.set_iniciativa_corrente(IdIniciativaCorrente() == entidade->Id());
     bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() ||
                            parametros_desenho_.has_desenha_mapa_oclusao() ||
                            parametros_desenho_.has_desenha_mapa_luzes()) &&
@@ -4697,13 +4721,9 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   EnfileiraTempo(timer_todas, &tempos_atualiza_parcial_);
 }
 
-void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
-  // Apenas o mestre roda pois ele atualiza as iniciativas de forma geral.
-  if ((grupo_notificacao == nullptr && !EmModoMestre()) ||
-      (grupo_notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
-    return;
-  }
-  int indice_antes = indice_iniciativa_;
+void Tabuleiro::AtualizaIniciativas() {
+  if (!EmModoMestre()) return;
+
   // Ha tres casos a se considerar: adicao de nova entidade, atualizacao e remocao.
   bool atualizar_remoto = false;
   std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
@@ -4714,32 +4734,33 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
 
   // Adicao e modificacao.
   std::vector<const Entidade*> entidades_adicionar;
-  for (auto& id_ent : entidades_) {
-    const auto* entidade = id_ent.second.get();
+  for (auto& [id, entidade] : entidades_) {
     if (!entidade->TemIniciativa()) {
       VLOG(3) << "Entidade sem iniciativa";
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
     if (it == mapa_iniciativas.end()) {
+      // Entidade ausente, sera adicionada.
       VLOG(1) << "Adicionando entidade a iniciativa";
       atualizar_remoto = true;  // adicao.
-      entidades_adicionar.push_back(entidade);
+      entidades_adicionar.push_back(entidade.get());
     } else {
-      if (entidade->Iniciativa() != it->second->iniciativa ||
-          entidade->ModificadorIniciativa() != it->second->modificador) {
-        // Como nao esta marcada como presente, sera removida. E depois, adicionada.
-        VLOG(1) << "Atualizando entidade na iniciativa";
-        atualizar_remoto = true;  // atualizacao.
-        entidades_adicionar.push_back(entidade);
-      } else {
-        VLOG(2) << "Entidade " << entidade->Id() << " presente";
+      // Entidade presente.
+      const auto* entidade_no_mapa = it->second;
+      if (entidade->Iniciativa() == entidade_no_mapa->iniciativa &&
+          entidade->ModificadorIniciativa() == it->second->modificador) {
+        VLOG(2) << "Entidade " << entidade->Id() << " presente e nao alterada";
         it->second->presente = true;
+      } else {
+        // Deixa como nao presente, sera removida. E depois, adicionada.
+        atualizar_remoto = true;  // atualizacao.
+        VLOG(1) << "Atualizando entidade na iniciativa";
+        entidades_adicionar.push_back(entidade.get());
       }
     }
   }
-  // Remove nao presentes.
-  //bool passa_uma_rodada = false;
+  // Remove os nao marcados como presente.
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
@@ -4749,12 +4770,9 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
       atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
-      } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
-        VLOG(1) << "Era ultimo, voltar para comeco";
-        indice_iniciativa_ = 0;
-        //passa_uma_rodada = true;
+      } else if (indice_iniciativa_ == i) {
+        iniciativa_valida_ = false;
       }
-      // Senao, ignora pq nao faz diferenca, mesmo que i == indice.
       // Agora pode remover.
       iniciativas_.erase(iniciativas_.begin() + i);
       VLOG(1) << "Removido, indice depois: " << indice_iniciativa_ << ", tamanho depois: " << iniciativas_.size();
@@ -4762,13 +4780,6 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
       ++i;
     }
   }
-  // Nao passa para o caso em que as iniciativas ficaram vazias.
-  //if (!iniciativas_.empty() && passa_uma_rodada) {
-  //   VLOG(1) << "Passando uma rodada";
-    // se notificacao for nullptr, vai fazer imediatamente.
-  //  PassaUmaRodadaNotificando(grupo_notificacao);
-  //}
-
   // Adiciona novas entidades (ou atualizadas).
   for (const auto* entidade : entidades_adicionar) {
     // Acha ponto de insercao.
@@ -4783,25 +4794,21 @@ void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* grupo_notificacao) {
     di.iniciativa = entidade->Iniciativa();
     di.modificador = entidade->ModificadorIniciativa();
     iniciativas_.insert(iniciativas_.begin() + posicao, di);
-    if (indice_iniciativa_ > posicao) {
+    if (indice_iniciativa_ >= posicao) {
       ++indice_iniciativa_;
     }
   }
 
   if (iniciativas_.empty()) {
     indice_iniciativa_ = -1;
+    iniciativa_valida_ = false;
+    VLOG(1) << "Iniciativas vazias, desligando";
   }
   // Atualiza a iniciativa dos clientes remotos.
   if (atualizar_remoto) {
-    auto n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
-    SerializaIniciativas(n_local->mutable_tabuleiro());
-    if (grupo_notificacao != nullptr) {
-      auto* n = grupo_notificacao->add_notificacao();
-      *n = *n_local;
-      // Importante para desfazer.
-      n->mutable_tabuleiro_antes()->set_indice_iniciativa(indice_antes);
-    }
-    central_->AdicionaNotificacaoRemota(n_local.release());
+    auto n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
+    SerializaIniciativas(n->mutable_tabuleiro());
+    central_->AdicionaNotificacaoRemota(n.release());
   }
 }
 
@@ -7354,10 +7361,126 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
-void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
-                                              std::vector<int>* ids_unicos,
-                                              ntf::Notificacao* grupo,
-                                              bool expira_eventos_zerados) {
+std::string PreencheNotificacaoFimConjuracao(
+    const Tabelas& tabelas, const Entidade& entidade, EntidadeProto::Evento* evento_depois,
+    std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  if (evento_depois->complementos_str().empty()) {
+    return "falha ao terminar conjuração: sem complemento";
+  }
+  EntidadeProto ep;
+  if (!google::protobuf::TextFormat::ParseFromString(evento_depois->complementos_str(0), &ep)) {
+    return "falha ao decodificar feitico sendo conjurado";
+  }
+  if (ep.info_classes().empty() || ep.dados_ataque().empty()) {
+    return "falha apos decodificar feitico conjurado: sem classe";
+  }
+  const auto& feitico_tabelado = tabelas.Feitico(ep.dados_ataque(0).id_arma());
+  ExecutaFeitico(
+    tabelas, feitico_tabelado, ep.info_classes(0).nivel_conjurador(), ep.info_classes(0).id(),
+    ep.has_iniciativa() ? std::make_optional(DadosIniciativa{ep.iniciativa(), ep.modificador_iniciativa()}) : std::nullopt, entidade,
+    grupo, grupo_desfazer);
+  return StringPrintf("conjuração de %s terminada", feitico_tabelado.nome().c_str());
+}
+
+std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  // Aplica veneno.
+  if (evento_depois->complementos_str().empty()) {
+    return "";
+  }
+  // Parse do efeito.
+  VenenoProto veneno;
+  if (!google::protobuf::TextFormat::ParseFromString(evento_depois->complementos_str(0), &veneno)) {
+    return "";
+  }
+  std::string veneno_str;
+  int d20 = RolaDado(20);
+  int bonus = entidade.SalvacaoVeneno();
+  int total = d20 + bonus;
+  // É possivel que ela esteja imune devido a neutralizar veneno.
+  if (entidade.ImuneVeneno()) {
+    veneno_str = "imune a veneno";
+  } else if (total >= veneno.cd()) {
+    // salvou.
+    veneno_str = StringPrintf("salvou veneno %s (%d + %d >= %d)", veneno.primario_aplicado() ? "secundário" : "primário", d20, bonus, veneno.cd());
+  } else {
+    // nao salvou: criar o efeito do dano primario ou secundario.
+    if (!veneno.primario_aplicado()) {
+      veneno_str = StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
+      PreencheNotificacaoEventoParaVenenoPrimario(
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    } else {
+      veneno_str = StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
+      PreencheNotificacaoEventoParaVenenoSecundario(
+          entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+    }
+  }
+  if (!veneno.primario_aplicado()) {
+    // Aplicou primario, renova pra secundario.
+    evento_depois->set_rodadas(10);
+    veneno.set_primario_aplicado(true);
+    std::string veneno_proto_str;
+    google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
+    *evento_depois->mutable_complementos_str(0) = veneno_proto_str;
+  }
+  return veneno_str;
+}
+
+std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  int dano = -RolaValor("1d6");
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
+  if (resultado.causa == ALT_IMUNIDADE) {
+    return {0, "fogo alquimico: imune"};
+  }
+  if (resultado.causa == ALT_RESISTENCIA) {
+    dano += resultado.resistido;
+    if (dano == 0) return {0,  StringPrintf("fogo alquimico: resistido %d", resultado.resistido)};
+  }
+  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+  return {dano, StringPrintf("fogo alquimico: %d", dano)};
+}
+
+std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  int dano = -RolaValor("2d4");
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
+  if (resultado.causa == ALT_IMUNIDADE) {
+    return {0, "flecha ácida: imune"};
+  }
+  std::string texto;
+  if (resultado.causa == ALT_RESISTENCIA) {
+    dano += resultado.resistido;
+    texto = StringPrintf("flecha ácida: resistido %d", resultado.resistido);
+    if (dano == 0) {
+      return {0, texto};
+    }
+  }
+  PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
+  return {dano, texto};
+}
+
+std::string AtualizaParalisiaAposPassarRodada(const Tabelas& tabelas, const Entidade& entidade, EntidadeProto::Evento* evento_depois) {
+  if (!evento_depois->has_dificuldade_salvacao() || !evento_depois->has_tipo_salvacao()) {
+    return "Paralisia sem CD ou tipo de salvação, rolar manualmente.";
+  }
+  // TODO: pegar a origem do efeito. Nao eh tao dificil.
+  int nao_usado;
+  bool salvou;
+  std::string texto;
+  DadosAtaque da;
+  da.set_tipo_salvacao(evento_depois->tipo_salvacao());
+  da.set_dificuldade_salvacao(evento_depois->dificuldade_salvacao());
+  auto dummy = NovaEntidadeFalsa(tabelas);
+  std::tie(nao_usado, salvou, texto) = AtaqueVsSalvacao(0, da, *dummy, entidade);
+  if (salvou) {
+    evento_depois->set_rodadas(-1);
+    return StringPrintf("paralisia quebrada: %s", texto.c_str());
+  } else {
+    return StringPrintf("paralisia permanece: %s", texto.c_str());
+  }
+}
+
+void Tabuleiro::AtualizaEventosAoPassarRodada(
+    const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo,
+    ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados) {
   std::vector<const EntidadeProto::Evento*> eventos_decrementados;
   for (const auto& evento : entidade.Proto().evento()) {
     if (evento.continuo()) continue;
@@ -7368,189 +7491,136 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(const Entidade& entidade,
   if (eventos_decrementados.empty()) {
     return;
   }
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade.Proto(), grupo);
+  ntf::Notificacao* n_desfazer = nullptr;
+  if (grupo_desfazer != nullptr) {
+    // Faz agora pra ordem ficar certa independente do que as funcoes abaixo adicionem.
+    n_desfazer = grupo_desfazer->add_notificacao();
+  }
   float atraso_s = 0.0f;
   for (const auto& evento : eventos_decrementados) {
-    *proto_antes->add_evento() = *evento;
-    auto* evento_depois = proto_depois->add_evento();
+    *e_antes->add_evento() = *evento;
+    auto* evento_depois = e_depois->add_evento();
     *evento_depois = *evento;
     if (evento->id_efeito() != EFEITO_VENENO || !PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade.Proto())) {
       evento_depois->set_rodadas(evento_depois->rodadas() - 1);
     }
     if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_VENENO) {
-      // Aplica veneno.
-      if (evento->complementos_str().empty()) {
-        continue;
+      std::string veneno_str = AtualizaVenenoAposZerarDuracao(entidade, evento_depois, ids_unicos, grupo, grupo_desfazer);
+      if (!veneno_str.empty()) {
+        AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
+        atraso_s += 0.5f;
       }
-      // Parse do efeito.
-      VenenoProto veneno;
-      if (!google::protobuf::TextFormat::ParseFromString(evento->complementos_str(0), &veneno)) {
-        continue;
-      }
-      std::string veneno_str;
-      auto* n_veneno = grupo->add_notificacao();
-      int d20 = RolaDado(20);
-      int bonus = entidade.SalvacaoVeneno();
-      int total = d20 + bonus;
-      // É possivel que ela esteja imune devido a neutralizar veneno.
-      if (!entidade.ImuneVeneno() && total < veneno.cd()) {
-        // nao salvou: criar o efeito do dano.
-        if (!veneno.primario_aplicado()) {
-          veneno_str = google::protobuf::StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoPrimario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
-        } else {
-          veneno_str = google::protobuf::StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
-          PreencheNotificacaoEventoParaVenenoSecundario(entidade.Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos, n_veneno, nullptr);
-        }
-      } else {
-        // salvou.
-        veneno_str = google::protobuf::StringPrintf("salvou veneno %s (%d + %d >= %d)", veneno.primario_aplicado() ? "secundário" : "primário", d20, bonus, veneno.cd());
-      }
-      if (!veneno.primario_aplicado()) {
-        // Aplicou primario, renova pra secundario.
-        evento_depois->set_rodadas(10);
-        veneno.set_primario_aplicado(true);
-        std::string veneno_proto_str;
-        google::protobuf::TextFormat::PrintToString(veneno, &veneno_proto_str);
-        *evento_depois->mutable_complementos_str(0) = veneno_proto_str;
-      }
-      AdicionaAcaoTextoLogado(entidade.Id(), veneno_str, atraso_s);
-      atraso_s += 0.5f;
+    } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_CONJURANDO) {
+      std::string texto = PreencheNotificacaoFimConjuracao(tabelas_, entidade, evento_depois, ids_unicos, grupo, grupo_desfazer);
+      AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s);
     } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_FURIA_BARBARO) {
-      PreencheNotificacaoFadigaFuria(tabelas_, entidade, grupo, nullptr);
+      PreencheNotificacaoFadigaFuria(tabelas_, entidade, grupo, grupo_desfazer);
     } else if (evento_depois->rodadas() == 0 && evento->id_efeito() == EFEITO_QUEIMANDO_FOGO_ALQUIMICO) {
-      int dano = -RolaValor("1d6");
-      auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
-      if (resultado.causa == ALT_IMUNIDADE) {
-        AdicionaAcaoTextoLogado(entidade.Id(), "fogo alquimico: imune", atraso_s);
-        atraso_s += 0.5f;
-        continue;
-      }
-      if (resultado.causa == ALT_RESISTENCIA) {
-        dano += resultado.resistido;
-        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("fogo alquimico: resistido %d", resultado.resistido), atraso_s);
-        atraso_s += 0.5f;
-        if (dano == 0) continue;
-      }
-      PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
-      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("fogo alquimico: %d", dano), atraso_s);
+      const auto& [dano, texto] = AtualizaFogoAlquimicoAposZerarDuracao(entidade, evento_depois, grupo, grupo_desfazer);
+      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, texto, atraso_s);
       atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_FLECHA_ACIDA) {
-      int dano = -RolaValor("2d4");
-      auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
-      if (resultado.causa == ALT_IMUNIDADE) {
-        AdicionaAcaoTextoLogado(entidade.Id(), "flecha ácida: imune", atraso_s);
+      const auto& [dano, texto] = AtualizaFlechaAcidaAposPassarRodada(entidade, evento_depois, grupo, grupo_desfazer);
+      if (!texto.empty()) {
+        AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s);
         atraso_s += 0.5f;
-        continue;
       }
-      if (resultado.causa == ALT_RESISTENCIA) {
-        dano += resultado.resistido;
-        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("flecha ácida: resistido %d", resultado.resistido), atraso_s);
-        atraso_s += 0.5f;
-        if (dano == 0) continue;
-      }
-      PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), nullptr);
       AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_PARALISIA) {
-      if (!evento->has_dificuldade_salvacao() || !evento->has_tipo_salvacao()) {
-        AdicionaAcaoTextoLogado(
-            entidade.Id(), "Não foi possivel rolar paralisia automaticamente, rolar manualmente", atraso_s);
-        LOG(ERROR) << "evento: " << evento->DebugString();
-        atraso_s += 0.5f;
-        continue;
-      }
-      // TODO: pegar a origem do efeito. Nao eh tao dificil.
-      int nao_usado;
-      bool salvou;
-      std::string texto;
-      DadosAtaque da;
-      da.set_tipo_salvacao(evento->tipo_salvacao());
-      da.set_dificuldade_salvacao(evento->dificuldade_salvacao());
-      auto dummy = NovaEntidadeFalsa(tabelas_);
-      std::tie(nao_usado, salvou, texto) = AtaqueVsSalvacao(0, da, *dummy, entidade);
-      if (salvou) {
-        AdicionaAcaoTextoLogado(
-            entidade.Id(), StringPrintf("paralisia quebrada: %s", texto.c_str()),
-            atraso_s);
-        evento_depois->set_rodadas(-1);
-      } else {
-        AdicionaAcaoTextoLogado(entidade.Id(), StringPrintf("paralisia permanece: %s", texto.c_str()), atraso_s);
-      }
+      const std::string& texto = AtualizaParalisiaAposPassarRodada(tabelas_, entidade, evento_depois);
+      AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s);
       atraso_s += 0.5f;
     }
   }
+  if (n_desfazer != nullptr) {
+    *n_desfazer = *n;
+  }
 }
 
-void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   const auto& dd = entidade.Proto().dados_defesa();
   if (!dd.has_entidade_esquiva()) return;
   const auto* entidade_esquivada = BuscaEntidade(dd.entidade_esquiva());
   if (entidade_esquivada != nullptr && !entidade_esquivada->Morta() && entidade_esquivada->IdCenario() == entidade.IdCenario()) return;
 
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  proto_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
-  proto_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo);
+  e_antes->mutable_dados_defesa()->set_entidade_esquiva(dd.entidade_esquiva());
+  e_depois->mutable_dados_defesa()->set_entidade_esquiva(Entidade::IdInvalido);
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
+  }
 }
 
-void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
 }
 
-void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
+void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   if (entidade.PontosVida() >= entidade.MaximoPontosVida() && entidade.DanoNaoLetal() == 0) return;
   if (entidade.Proto().morta()) return;
   if (CuraAcelerada(entidade.Proto()) == 0) {
     return;
   }
 
-  PreencheNotificacaoCuraAcelerada(entidade, grupo->add_notificacao());
+  auto* n = grupo->add_notificacao();
+  PreencheNotificacaoCuraAcelerada(entidade, n);
+  *grupo_desfazer->add_notificacao() = *n;
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 
-void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo) {
-  auto* n = grupo->add_notificacao();
-  EntidadeProto *proto_antes, *proto_depois;
-  std::tie(proto_antes, proto_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
-  proto_depois->set_reiniciar_ataque(true);
+// TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
+void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  auto [e_antes, e_depois] = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  e_depois->set_reiniciar_ataque(true);
 }
 
-void Tabuleiro::PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo, bool expira_eventos_zerados) {
+void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
-  VLOG(1) << "passando rodada";
-  ntf::Notificacao alias_grupo;
-  ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  VLOG(1) << "passando rodada para " << (passar_para_todos ? "todos" : "entidades com iniciativa");
 
-  // Apenas pela UI atualiza essas coisas. Caso contrario, deixa para proxima iniciativa.
   for (auto& id_entidade : entidades_) {
     auto& entidade = *id_entidade.second.get();
-    if (ui || !entidade.TemIniciativa()) {
+    if (passar_para_todos || !entidade.TemIniciativa()) {
       std::vector<int> ids_unicos(IdsUnicosEntidade(entidade));
-      AtualizaEventosAoPassarRodada(entidade, &ids_unicos, &grupo_notificacoes,
-                                    expira_eventos_zerados);
-      AtualizaEsquivaAoPassarRodada(entidade, &grupo_notificacoes);
-      AtualizaMovimentoAoPassarRodada(entidade, &grupo_notificacoes);
-      AtualizaCuraAceleradaAoPassarRodada(entidade, &grupo_notificacoes);
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), &grupo_notificacoes);
-      ReiniciaAtaqueAoPassarRodada(entidade, &grupo_notificacoes);
+      AtualizaEventosAoPassarRodada(entidade, &ids_unicos, grupo, grupo_desfazer, expira_eventos_zerados);
+      AtualizaEsquivaAoPassarRodada(entidade, grupo, grupo_desfazer);
+      AtualizaMovimentoAoPassarRodada(entidade, grupo, grupo_desfazer);
+      AtualizaCuraAceleradaAoPassarRodada(entidade, grupo, grupo_desfazer);
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), grupo, grupo_desfazer);
+      ReiniciaAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
     }
   }
 
-  auto* nr = grupo_notificacoes.add_notificacao();
-  nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
-  nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
-  nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
-
-  if (grupo == nullptr) {
-    TrataNotificacao(grupo_notificacoes);
-    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  {
+    auto* nr = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_RODADAS, grupo);
+    nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+    nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
+    if (grupo_desfazer != nullptr) {
+      *grupo_desfazer->add_notificacao() = *nr;
+    }
   }
+#if 0
+  // Util para investigar a mensagem de passar uma rodada.
+  auto gc = *grupo;
+  for (auto& n : *gc.mutable_notificacao()) {
+    n.clear_entidade_antes();
+    if (n.entidade().dados_ataque().empty()) {
+      n.clear_entidade();
+    } else {
+      auto das = n.entidade().dados_ataque();
+      for (auto& da : das) {
+        auto dac = da;
+        da.Clear();
+        da.set_id_arma(dac.id_arma());
+      }
+      *n.mutable_entidade()->mutable_dados_ataque() = das;
+    }
+  }
+  LOG(INFO) << "grupo " << gc.DebugString();
+#endif
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {
@@ -7593,6 +7663,12 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
   AdicionaNotificacaoListaEventos(n);
 }
 
+void Tabuleiro::EntraModoPericia(const std::string& id_pericia, const ntf::Notificacao& notificacao) {
+  EntraModoClique(MODO_PERICIA);
+  notificacao_pericia_ = notificacao;
+  notificacao_pericia_.set_str_generica(id_pericia);
+}
+
 void Tabuleiro::AlternaModoAcao() {
   if (modo_clique_ == MODO_ACAO) {
     EntraModoClique(MODO_NORMAL);
@@ -7603,9 +7679,9 @@ void Tabuleiro::AlternaModoAcao() {
 
 void Tabuleiro::AlternaModoEsquiva() {
   if (modo_clique_ == MODO_ESQUIVA) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_ESQUIVA;
+    EntraModoClique(MODO_ESQUIVA);
   }
 }
 
@@ -7619,18 +7695,18 @@ void Tabuleiro::AlternaModoTransicao() {
 
 void Tabuleiro::AlternaModoDado(int faces) {
   if (modo_clique_ == MODO_ROLA_DADO && faces == faces_dado_) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_ROLA_DADO;
     faces_dado_ = faces;
+    EntraModoClique(MODO_ROLA_DADO);
   }
 }
 
 void Tabuleiro::AlternaModoRegua() {
   if (modo_clique_ == MODO_REGUA) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_REGUA;
+    EntraModoClique(MODO_REGUA);
   }
 }
 
@@ -7639,9 +7715,9 @@ void Tabuleiro::AlternaModoTerreno() {
     return;
   }
   if (modo_clique_ == MODO_TERRENO) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_TERRENO;
+    EntraModoClique(MODO_TERRENO);
   }
 }
 
@@ -7650,20 +7726,24 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
     return;
   }
   if (modo_clique_ == MODO_REMOCAO_DE_GRUPO) {
-    modo_clique_ = MODO_NORMAL;
+    EntraModoClique(MODO_NORMAL);
   } else {
-    modo_clique_ = MODO_REMOCAO_DE_GRUPO;
+    EntraModoClique(MODO_REMOCAO_DE_GRUPO);
   }
 }
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   if (modo_clique_ == MODO_AGUARDANDO && modo != MODO_SAIR_AGUARDANDO) {
-    LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo; 
+    LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo;
     return;
   }
   RodaNoRetorno roda_no_retorno([this]() {
     auto n_cursor = ntf::NovaNotificacao(ntf::TN_MUDAR_CURSOR);
     n_cursor->set_id_generico(modo_clique_);
+    if (const auto* e = EntidadePrimeiraPessoaOuSelecionada(); e != nullptr) {
+      n_cursor->mutable_entidade()->set_id(e->Id());
+      *n_cursor->mutable_entidade()->add_dados_ataque() = e->DadoCorrenteNaoNull();
+    }
     central_->AdicionaNotificacao(n_cursor.release());
     central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
   });

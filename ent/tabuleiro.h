@@ -125,11 +125,12 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza a lista de iniciativas, caso alguma entidade nova tenha aparecido ou saido da lista.
-  * Caso notificacao nao seja nula, assume-se que seja de grupo e ira adicionar a notificacao de passagem
-  * de rodada a ela. Deve ser chamada apenas pelo mestre verdadeiro durante o loop de atualizacao ou pelos
-  * mestres caso notificacao nao seja nullptr.
+  * Caso a iniciativa corrente seja removida, fara iniciativa_valida_ = false.
   */
-  void AtualizaIniciativas(ntf::Notificacao* grupo_notificacao = nullptr);
+  void AtualizaIniciativas();
+
+  /** Trata a notificacao de atualizar iniciativas e notifica remotos se for local. */
+  void TrataAtualizarIniciativaNotificando(const ntf::Notificacao& notificacao);
 
   /** Inverte o bit da entidade. */
   enum bit_e {
@@ -266,15 +267,11 @@ class Tabuleiro : public ntf::Receptor {
   void LimpaIniciativasNotificando();
   void IniciaIniciativaParaCombate();
   void ProximaIniciativa();
+  void ProximaIniciativaModoMestre();
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
   void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
   /** Retorna o id da iniciativa corrente, ou IdInvalido. */
-  unsigned int IdIniciativaCorrente() const {
-    if (indice_iniciativa_ < 0 || indice_iniciativa_ >= (int)iniciativas_.size()) {
-      return Entidade::IdInvalido;
-    }
-    return iniciativas_[indice_iniciativa_].id;
-  }
+  unsigned int IdIniciativaCorrente() const;
 
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
@@ -325,6 +322,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
+
+  /** Trata o botao do modo de pericia pressionado. */
+  void TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
 
   /** Alterna a furia da entidade selecionada. */
   void AlternaFuria();
@@ -442,7 +442,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataTranslacaoZ(float delta);
 
   /** Rola a pericia do proto e mostra notifica clientes. */
-  void TrataRolarPericiaNotificando(const std::string& pericia, const EntidadeProto& proto);
+  void TrataRolarPericiaNotificando(const std::string& pericia, float atraso_s, const EntidadeProto& proto);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();
@@ -465,6 +465,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Altera o desenho entre os modos de debug (para OpenGL ES). */
   void AlternaModoDebug();
+
+  /** Entra no modo clique de pericia com as informações passadas. */
+  void EntraModoPericia(const std::string& id_pericia, const ntf::Notificacao& notificacao);
 
   /** No modo acao, cada clique gera uma acao. */
   void AlternaModoAcao();
@@ -511,6 +514,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_DOACAO,            // usado para doar itens de um personagem para outro.
     MODO_AGUARDANDO,        // Quando entra nesse modo, os cliques ficam invalidos. So sai quando receber MODO_SAIR_AGUARDANDO.
     MODO_SAIR_AGUARDANDO,   // vide acima.
+    MODO_PERICIA,      // O clique rolará a perícia do personagem.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -539,12 +543,10 @@ class Tabuleiro : public ntf::Receptor {
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
   /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum
-   * ficara negativo. Caso grupo nao seja null, a notificacao ira para ele e nao
-   * sera executada. Caso o parametro expira_eventos_zerados seja verdadeiro,
-   * eventos que estejam em zero serão removidos.
-   * Parametro ui indica se a passagem veio pelo clique direto na UI ou nao (indireto ao passar iniciativa).
+   * ficara negativo.
+   * Caso o parametro expira_eventos_zerados seja verdadeiro, eventos que estejam em zero serão removidos.
    */
-  void PassaUmaRodadaNotificando(bool ui, ntf::Notificacao* grupo = nullptr, bool expira_eventos_zerados = false);
+  void PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados = false);
   /** Zera o contador de rodadas do tabuleiro. */
   void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */
@@ -616,8 +618,8 @@ class Tabuleiro : public ntf::Receptor {
 
  private:
   struct DadosIniciativa {
-    unsigned int id;
-    //unsigned int id_unico_evento = -1;  // para eventos.
+    unsigned int id;  // entidade.
+    int id_unico_evento = -1;  // para eventos.
     int iniciativa;
     int modificador;
     bool presente;  // usado durante atualizacao de iniciativa.
@@ -639,8 +641,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona uma acao de texto na entidade. */
   void AdicionaAcaoTexto(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
+  void AdicionaAcaoTextoComDuracaoAtraso(unsigned int id, const std::string& texto, float duracao_s, float atraso_s, bool local_apenas = false);
   // Junta AdicionaAcaoTexto e AdicionaLogEvento.
   void AdicionaAcaoTextoLogado(unsigned int id, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
+  void AdicionaAcaoTextoLogadoComDuracaoAtraso(
+      unsigned int id, const std::string& texto, float duracao_s, float atraso_s, bool local_apenas = false);
   /** Adiciona uma acao de delta pontos de vida sem afetar o destino (display apenas). */
   void AdicionaAcaoDeltaPontosVidaSemAfetar(unsigned int id, int delta, float atraso_s = 0.0f, bool local_apenas = false);
   void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
@@ -780,7 +785,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
-  void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+  void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forcar, unsigned int id, unsigned int tipo_objeto);
 
   void TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d);
 
@@ -1152,6 +1157,7 @@ class Tabuleiro : public ntf::Receptor {
 
   void EscreveInfoGeral(const std::string& info_geral);
 
+  void DeserializaIniciativas(const TabuleiroProto& tabuleiro);
   void SerializaIniciativas(TabuleiroProto* tabuleiro) const;
   void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
 
@@ -1161,16 +1167,13 @@ class Tabuleiro : public ntf::Receptor {
   }
 
   // Atualiza os eventos da entidade ao passar rodadas. As mensagens serao adicionadas ao grupo.
-  void AtualizaEventosAoPassarRodada(const Entidade& entidade,
-                                     std::vector<int>* ids_unicos,
-                                     ntf::Notificacao* grupo,
-                                     bool expira_eventos_zerados);
+  void AtualizaEventosAoPassarRodada(const Entidade& entidade, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer, bool expira_eventos_zerados);
   // Atualiza as resistencias da entidade ao passar rodada (zera contadores). As mensagens serao adicionadas ao grupo.
-  void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void ConsomeAtaquesLivresRodada(const Entidade& entidade, ntf::Notificacao* grupo);
-  void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo);
+  void AtualizaEsquivaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void AtualizaMovimentoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void ConsomeAtaquesLivresRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+  void ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
   // Chamado ao atacar um alvo, possivelmente alterando a esquiva.
   void AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigned int id_destino, ntf::Notificacao* grupo_desfazer);
 
@@ -1432,6 +1435,9 @@ class Tabuleiro : public ntf::Receptor {
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
+  // Indica iniciativa valida. Pode acontecer apos remocoes de ficar invalidado.
+  // Significa que o indice esta certo, mas apontava para outra entidade que foi removida.
+  bool iniciativa_valida_ = false;
   // Qual iniciativa eh a corrente. -1 para nenhuma.
   int indice_iniciativa_;
   // Iniciativas ordenadas.
@@ -1446,6 +1452,7 @@ class Tabuleiro : public ntf::Receptor {
 
   ntf::Notificacao notificacao_selecao_transicao_;
   ntf::Notificacao notificacao_doacao_;
+  ntf::Notificacao notificacao_pericia_;
 
   // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
   struct LuzPontual {

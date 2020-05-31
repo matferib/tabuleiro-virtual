@@ -1006,7 +1006,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), MODO_ACAO, &parametros_desenho_);
   // Preenche os dados comuns.
   unsigned int id, tipo_objeto;
@@ -1126,7 +1126,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
       efeito_adicional.set_efeito(EFEITO_MORTO_VIVO_EXPULSO);
       efeito_adicional.set_rodadas(10);
       PreencheNotificacaoEventoEfeitoAdicional(
-          entidade->Id(), nivel_expulsao, *entidade_destino, efeito_adicional,
+          entidade->Id(), DadosIniciativaEntidade(entidade), nivel_expulsao, *entidade_destino, efeito_adicional,
           &ids_unicos_entidade_destino, n_efeito.get(), grupo_desfazer->add_notificacao());
       central_->AdicionaNotificacao(n_efeito.release());
       atraso_s += 0.5f;
@@ -1173,7 +1173,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
   if (!acertou_direto && entidade_destino != nullptr && entidade_origem != nullptr) {
     // Escolhe direcao aleatoria e soma um quadrado por incremento.
     float alcance_m = entidade_origem->AlcanceAtaqueMetros();
-    const float distancia_m = DistanciaAcaoAoAlvoMetros(*entidade_origem, *entidade_destino, pos_entidade_destino);
+    const float distancia_m = DistanciaMaximaAcaoAlvoMetros(*entidade_origem, pos_entidade_destino);
     const int total_incrementos = distancia_m / alcance_m;
     VLOG(1) << "nao acertou projetil de area direto, vendo posicao de impacto. total de incrementos: " << total_incrementos;
     if (total_incrementos > 0) {
@@ -1285,12 +1285,25 @@ float Tabuleiro::TrataAcaoProjetilArea(
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
       }
     }
     por_entidade->set_delta(delta_pv);
@@ -1460,12 +1473,25 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     {
       auto n_uso_poder = std::make_unique<ntf::Notificacao>();
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv_pos_salvacao, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv_pos_salvacao, TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv_pos_salvacao = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
       }
     }
 
@@ -1612,7 +1638,7 @@ void AtualizaAtaquesAposAtaqueIndividual(
 }
 
 std::string TrataVeneno(
-    const DadosAtaque& da,
+    const DadosAtaque& da, const std::optional<DadosIniciativa>& dados_iniciativa,
     Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   if (entidade_destino->ImuneVeneno()) {
@@ -1633,7 +1659,7 @@ std::string TrataVeneno(
     if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
       primario_aplicado = true;
       PreencheNotificacaoEventoParaVenenoPrimario(
-          entidade_destino->Id(), veneno, /*rodadas=*/DIA_EM_RODADAS, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
+          entidade_destino->Id(), dados_iniciativa, veneno, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
     }
   } else {
     veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
@@ -1648,7 +1674,7 @@ std::string TrataVeneno(
     google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
     std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
     PreencheNotificacaoEventoComComplementoStr(
-        entidade_destino->Id(), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
+        entidade_destino->Id(), dados_iniciativa, origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
         ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
   }
   central->AdicionaNotificacao(n_veneno.release());
@@ -1656,7 +1682,7 @@ std::string TrataVeneno(
 }
 
 std::string TrataDoenca(
-    const DadosAtaque& da,
+    const DadosAtaque& da, const std::optional<DadosIniciativa>& dados_iniciativa,
     const Entidade& entidade_origem, Entidade* entidade_destino, std::vector<int>* ids_unicos_entidade_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   if (entidade_destino->ImuneDoenca()) {
@@ -1683,7 +1709,7 @@ std::string TrataDoenca(
   try {
     rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
     PreencheNotificacaoEventoComComplementoStr(
-        entidade_destino->Id(), origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
+        entidade_destino->Id(), dados_iniciativa, origem, EFEITO_DOENCA, doenca_proto_str, rodadas,
         ids_unicos_entidade_destino, n_doenca.get(), grupo_desfazer->add_notificacao());
     central->AdicionaNotificacao(n_doenca.release());
   } catch (...) {
@@ -1712,7 +1738,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
   if (HaValorListaPontosVida()) {
     // O valor default de posicao nao tem coordenadas, portanto a funcao usara o valor da posicao da entidade.
-    auto pos_alvo = entidade_destino->Tipo() != TE_ENTIDADE || opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade_destino : Posicao();
+    auto pos_alvo = pos_entidade_destino;
     float distancia_m = 0.0f;
     // Verifica alcance.
     {
@@ -1830,7 +1856,7 @@ float Tabuleiro::TrataAcaoIndividual(
         delta_pv += LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
       }
-      if (!entidade_destino->ImuneFurtivo() && !acao_cura) {
+      if (!entidade_destino->ImuneFurtivo(*entidade_origem) && !acao_cura) {
         if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
             && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
           int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
@@ -1847,14 +1873,14 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // TODO: se o tipo de veneno for toque ou inalacao, deve ser aplicado.
     if (resultado.Sucesso() && da.has_veneno()) {
-      std::string veneno_str = TrataVeneno(da, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+      std::string veneno_str = TrataVeneno(da, DadosIniciativaEntidade(*entidade_origem), entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(veneno_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), veneno_str);
     }
     // Doença.
     if (resultado.Sucesso() && da.has_doenca()) {
-      std::string doenca_str = TrataDoenca(da, *entidade_origem, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+      std::string doenca_str = TrataDoenca(da, DadosIniciativaEntidade(*entidade_origem), *entidade_origem, entidade_destino, &ids_unicos_entidade_destino, grupo_desfazer, central_);
       atraso_s += 2.0f;
       ConcatenaString(doenca_str, por_entidade->mutable_texto());
       AdicionaLogEvento(entidade_destino->Id(), doenca_str);
@@ -1928,10 +1954,8 @@ float Tabuleiro::TrataAcaoIndividual(
         // Cria uma atualizacao do efeito.
         const auto* evento = AchaEvento(rrd.id_unico, entidade_destino->Proto());
         if (evento != nullptr && evento->id_efeito() == EFEITO_PELE_ROCHOSA && !evento->complementos().empty()) {
-          LOG(INFO) << "dano absorvido" << dano_absorvido;
           std::unique_ptr<ntf::Notificacao> nefeito(new ntf::Notificacao);
-          EntidadeProto *proto_antes, *proto_depois;
-          std::tie(proto_antes, proto_depois) =
+          auto [proto_antes, proto_depois] =
               ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
           *proto_antes->add_evento() = *evento;
           auto* evento_depois = proto_depois->add_evento();
@@ -2031,12 +2055,26 @@ float Tabuleiro::TrataAcaoIndividual(
     {
       std::unique_ptr<ntf::Notificacao> n_uso_poder(new ntf::Notificacao);
       auto [delta_pos_renovacao, texto_renovacao] =
-          RenovaSeTiverDominioRenovar(entidade_destino->Proto(), delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, n_uso_poder.get(), grupo_desfazer);
+          RenovaSeTiverDominioRenovacao(entidade_destino->Proto(), delta_pv, nao_letal ? TD_NAO_LETAL : TD_LETAL, n_uso_poder.get(), grupo_desfazer);
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
         AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
+      }
+    }
+
+    if (delta_pv < 0) {
+      auto res = TestaConcentracaoSeConjurando(tabelas_, delta_pv, entidade_destino->Proto());
+      if (res.has_value()) {
+        auto [passou, texto] = *res;
+        AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_destino->Id(), texto, 1.0f, atraso_s);
+        atraso_s += 1.0f;
+        if (!passou) {
+          auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+          PreencheNotificacaoRemocaoEvento(entidade_destino->Proto(), EFEITO_CONJURANDO, n.get(), grupo_desfazer->add_notificacao());
+          central_->AdicionaNotificacao(n.release());
+        }
       }
     }
 
@@ -2272,11 +2310,39 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   return atraso_s;
 }
 
+void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
+  if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+  EntraModoClique(MODO_NORMAL);
+  float atraso_s = 0.0f;
+  if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
+    TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, notificacao_pericia_.entidade());
+    atraso_s += 1.0f;
+  } else {
+    for (const auto& n : notificacao_pericia_.notificacao()) {
+      TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, n.entidade());
+      atraso_s += 1.0f;
+    }
+  }
+  const auto& pericia_tabelada = tabelas_.Pericia(notificacao_pericia_.str_generica());
+  if (pericia_tabelada.id_resistido().empty()) {
+    return;
+  }
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    return;
+  }
+  const auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE || entidade->Id() == notificacao_pericia_.entidade().id()) {
+    return;
+  }
+  TrataRolarPericiaNotificando(pericia_tabelada.id_resistido(), atraso_s, entidade->Proto());
+}
+
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
   EntraModoClique(MODO_NORMAL);
   if (tipo_objeto != OBJ_ENTIDADE) {
     LOG(INFO) << "Tipo invalido para esquiva";
@@ -2292,19 +2358,6 @@ void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned
     LOG(INFO) << "Defesor nullptr";
     return;
   }
-  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  n->mutable_entidade_antes()->set_id(entidade_defensora->Id());
-  n->mutable_entidade_antes()->mutable_dados_defesa()->set_entidade_esquiva(
-      entidade_defensora->Proto().dados_defesa().has_entidade_esquiva()
-      ? entidade_defensora->Proto().dados_defesa().entidade_esquiva()
-      : Entidade::IdInvalido);
-  n->mutable_entidade()->set_id(entidade_defensora->Id());
-  n->mutable_entidade()->mutable_dados_defesa()->set_entidade_esquiva(id);
-  AdicionaNotificacaoListaEventos(*n);
-  central_->AdicionaNotificacao(n.release());
-  AdicionaAcaoTexto(
-      entidade_defensora->Id(),
-      StringPrintf("esquivando de %s", RotuloEntidade(entidade_atacante).c_str()));
 }
 
 void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro) {
@@ -2379,7 +2432,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     float atraso_s = 0.0f;
     for (auto id_selecionado : ids_origem) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
-      if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
+      if (entidade == nullptr || !entidade->DadoCorrenteNaoNull().acao().has_tipo()) {
         continue;
       }
       atraso_s = TrataAcaoUmaEntidade(entidade, pos_entidade_destino, pos_tabuleiro, id_entidade_destino, atraso_s);
@@ -2493,7 +2546,7 @@ void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigne
   AdicionaNotificacaoListaEventos(grupo);
 }
 
-void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forcar, unsigned int id, unsigned int tipo_objeto) {
   if (tipo_objeto != OBJ_ENTIDADE && tipo_objeto != OBJ_ENTIDADE_LISTA) {
     LOG(ERROR) << "Apenas entidades podem servir de transicao, tipo: '" << tipo_objeto << "'";
     return;
@@ -2524,11 +2577,18 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       LOG(INFO) << "Receptor tem que ser diferente";
       return;
     }
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacoesTransicaoTesouro(tabelas_, *doador, *receptor, &n, /*n_desfazer=*/nullptr);
-    TrataNotificacao(n);
-    AdicionaNotificacaoListaEventos(n);
+    if (forcar) {
+      auto grupo = NovoGrupoNotificacoes();
+      PreencheNotificacoesTransicaoTesouro(tabelas_, *doador, *receptor, grupo.get(), /*n_desfazer=*/nullptr);
+      TrataNotificacao(*grupo);
+      AdicionaNotificacaoListaEventos(*grupo);
+    } else {
+      auto n = NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_TIPO_TESOURO);
+      n->set_id_referencia(receptor->Id());
+      n->mutable_entidade()->set_id(doador->Id());
+      *n->mutable_entidade()->mutable_tesouro() = doador->Proto().tesouro();
+      central_->AdicionaNotificacao(std::move(n));
+    }
     return;
   }
 
@@ -2820,6 +2880,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           return;  // Mantem o MODO_ACAO.
         }
         break;
+      case MODO_PERICIA:
+        TrataBotaoPericiaPressionadoPosPicking(id, tipo_objeto);
+        return;
       case MODO_ESQUIVA:
         TrataBotaoEsquivaPressionadoPosPicking(id, tipo_objeto);
         return;
@@ -2837,7 +2900,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
         break;
       case MODO_TRANSICAO:
-        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, alterna_selecao, id, tipo_objeto);
         break;
       case MODO_REGUA:
         TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
@@ -3174,16 +3237,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       }
     }
   }
-  // Colisao
+  // Colisao: pega o menor dx, dy e dz entre todas as entidades (todas moverão isso).
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  const std::vector<unsigned int> ids_colisao = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
+  const std::vector<unsigned int> ids = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
   Entidade* entidade_referencia = nullptr;
-  if (ids_colisao.size() == 1) {
-    entidade_referencia = BuscaEntidade(ids_colisao[0]);
-  } else if (ids_colisao.size() > 1) {
+  if (ids.size() == 1) {
+    entidade_referencia = BuscaEntidade(ids[0]);
+  } else if (ids.size() > 1) {
     Vector2 media;
     // Media.
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3191,10 +3254,10 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       media.x += entidade->X();
       media.y += entidade->Y();
     }
-    media /= ids_colisao.size();
+    media /= ids.size();
     // Maior distancia para normalizacao.
     float maior = 0.0f;
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3207,7 +3270,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     vetor_referencia.normalize();
     vetor_referencia *= maior;
     float menor_distancia = std::numeric_limits<float>::max();
-    for (unsigned int id : ids_colisao) {
+    for (unsigned int id : ids) {
       auto* entidade = BuscaEntidade(id);
       if (entidade == nullptr) {
         continue;
@@ -3222,6 +3285,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     }
   }
 
+  // Usa a referencia para pegar a colisao.
   if (entidade_referencia != nullptr) {
     auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
     vetor_movimento.normalize();
@@ -3232,10 +3296,14 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : ids_colisao) {
+  for (unsigned int id : ids) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
+    }
+    if (!entidade_selecionada->PodeMover()) {
+      AdicionaAcaoTextoLogado(entidade_selecionada->Id(), "entidade não pode mover", /*atraso_s=*/0.0f);
+      return;
     }
     VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
 
@@ -3286,6 +3354,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     AtualizaOlho(0, true  /*forcar*/);
   }
+  RequerAtualizacaoLuzesPontuais();
 }
 
 void Tabuleiro::TrataTranslacaoZ(float delta) {
@@ -3482,7 +3551,6 @@ void Tabuleiro::TrataBotaoUsarFeitico(bool conversao_espontanea, int nivel) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
   auto* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao ha entidade para usar feitico";
@@ -3508,23 +3576,14 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, const EntidadeProto& proto) {
-  const auto& pericia = Pericia(id_pericia, proto);
-  if (!pericia.has_id()) {
-    LOG(ERROR) << "Personagem " << RotuloEntidade(proto) << " nao tem pericia " << id_pericia;
+void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, float atraso_s, const EntidadeProto& proto) {
+  auto resultado = RolaPericia(tabelas_, id_pericia, proto);
+  if (!resultado.has_value()) {
+    LOG(ERROR) << "Pericia invalida " << id_pericia;
     return;
   }
-  const auto& pericia_tabelada = tabelas_.Pericia(pericia.id());
-  const bool treinado = pericia.pontos() > 0;
-  std::string texto;
-  if (treinado || pericia_tabelada.sem_treinamento()) {
-    const int bonus = ent::BonusTotal(pericia.bonus());
-    const int dado = ent::RolaDado(20);
-    texto = google::protobuf::StringPrintf("%s: %d + %d = %d", pericia_tabelada.nome().c_str(), dado, bonus, dado + bonus);
-  } else {
-    texto = google::protobuf::StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str());
-  }
-  AdicionaAcaoTextoLogado(proto.id(), texto);
+  std::string texto = std::get<2>(*resultado);
+  AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s);
 }
 
 }  // namespace ent
