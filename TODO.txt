@@ -9,11 +9,8 @@ Sessão:
   - Passar pelas finas lâminas.
   - chegar ao portão.
 
-Halfling druida: esta com mais pericias que deveria (se baseou em humano?)
-Casting time de magias:
-- testes de concentração por dano (deixar a mensagem mais tempo)
-- Colocar para outros tipos de ações tb.
 Teste de concentração para enredados.
+Fazer unit test para verificar pericias faltando ou sobrando.
 Icone para gas sono.
 
 Acao de recarregar municao da arma (basear em procurar, cada 5 pontos uma munição?).
