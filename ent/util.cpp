@@ -146,7 +146,7 @@ std::unique_ptr<ntf::Notificacao> NovaNotificacaoAcaoTexto(const std::string& te
   a->set_afeta_pontos_vida(false);
   a->set_local_apenas(false);
   if (atraso_s.has_value()) {
-    LOG(INFO) << "atraso_s: " << *atraso_s;
+    VLOG(1) << "atraso_s: " << *atraso_s;
     a->set_atraso_s(*atraso_s);
   }
   return na;
