@@ -3272,6 +3272,26 @@ TEST(TesteFeiticos, TesteProtegerOutro) {
 
 }
 
+TEST(TesteFeiticos, TesteMaosFlamejantesComoDominio) {
+  EntidadeProto proto;
+  proto.set_gerar_agarrar(false);
+  AtribuiBaseAtributo(14, TA_INTELIGENCIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(3);
+    auto* ifc = FeiticosClasse("clerigo", &proto);
+    ifc->add_dominios("fogo");
+  }
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  auto grupo = NovoGrupoNotificacoes();
+  ExecutaFeitico(g_tabelas, g_tabelas.Feitico("maos_flamejantes"), 5, "clerigo", std::nullopt, *entidade, grupo.get(), nullptr);
+  for (const auto& n : grupo->notificacao()) {
+    entidade->AtualizaParcial(n.entidade());
+  }
+  EXPECT_EQ(DadosAtaquePorGrupo("mãos flamejantes", entidade->Proto()).dano(), "3d4");
+}
+
 TEST(TesteFeiticos, TesteEsferaFlamejante) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();
