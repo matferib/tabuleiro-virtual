@@ -5897,6 +5897,9 @@ modelo {
   entidade {
     dados_vida: '9d8+23'
     raca: 'humano'
+    info_pericias { id: 'sobrevivencia' pontos: 10 }
+    info_pericias { id: 'cura' pontos: 10 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 8 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
