@@ -859,25 +859,23 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     // Consome o feitico.
     const auto& item = items[indice_lista];
 
-    ntf::Notificacao grupo_notificacao;
-    grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
+    auto grupo_notificacao = ent::NovoGrupoNotificacoes();
     const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
     if (entidade == nullptr) {
       LOG(INFO) << "Erro, entidade nao existe";
       return;
     }
     if (ent::NotificacaoConsequenciaFeitico(
-          tabelas_, DadosIniciativaEntidade(entidade), id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+          tabelas_, DadosIniciativaEntidade(entidade), id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, grupo_notificacao.get())) {
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
     }
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
         id_classe, nivel_gasto, item.indice_gasto, /*usado=*/true, notificacao.entidade());
-    *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
+    *grupo_notificacao->add_notificacao() = *n_alteracao_feitico;
 
-    tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
-    tabuleiro_->TrataNotificacao(grupo_notificacao);
+    tabuleiro_->AdicionaNotificacaoListaEventos(*grupo_notificacao);
+    central_->AdicionaNotificacao(grupo_notificacao.release());
     VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
   };
 
