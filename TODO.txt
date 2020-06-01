@@ -1,6 +1,4 @@
-Ver se as magias de dominio estao usando nivel certo do personagem (tipo maos flamejantes para dominio do fogo).
-Ensurdecido: chance de falha de magia.
-Mobilidade: pensar em uma forma (se tiver iniciativa e nao estiver na dele, considera como oportunidade).
+Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
 Visao na penumbra automatico para meio elfos.
 Especialização em combate: arcos e arcos compostos estao separados.
 Adicionar dominio de viagem.
