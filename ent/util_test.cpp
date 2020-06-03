@@ -5366,6 +5366,7 @@ TEST(TesteRacas, TesteMeioElfo) {
   EXPECT_EQ(ValorFinalPericia("diplomacia", ed->Proto()), 2);
   EXPECT_EQ(ValorFinalPericia("obter_informacao", ed->Proto()), 2);
   EXPECT_TRUE(ed->ImuneEfeito(EFEITO_SONO));
+  EXPECT_EQ(ed->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
 
   // Salvacoes contra alguns ataques.
   std::unique_ptr<Entidade> ea;

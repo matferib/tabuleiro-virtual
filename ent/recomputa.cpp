@@ -1580,6 +1580,12 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   if (raca_tabelada.has_movimento()) {
     proto->mutable_movimento()->MergeFrom(raca_tabelada.movimento());
   }
+  if (raca_tabelada.has_tipo_visao() && !proto->has_tipo_visao()) {
+    proto->set_tipo_visao(raca_tabelada.tipo_visao());
+    if (raca_tabelada.alcance_visao_m() > proto->has_alcance_visao_m()) {
+      proto->set_alcance_visao_m(raca_tabelada.alcance_visao_m());
+    }
+  }
 }
 
 void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
