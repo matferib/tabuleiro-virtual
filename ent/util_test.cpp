@@ -699,6 +699,35 @@ TEST(TesteArmas, TesteArcoLongo) {
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
 }
 
+TEST(TesteArmas, TesteIdBase) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  // Corpo a corpo.
+  auto* da = DadosAtaquePorGrupoOuCria("arco_longo_composto", modelo.mutable_entidade());
+  da->set_tipo_ataque("Ataque a Distância");
+  da->set_id_arma("arco_longo_composto");
+  // Distancia sem pericia.
+  {
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& da = DadosAtaquePorGrupo("arco_longo_composto", plebeu->Proto());
+    EXPECT_FLOAT_EQ(da.alcance_m(), 22 * QUADRADOS_PARA_METROS);
+    EXPECT_EQ(da.incrementos(), 10);
+    EXPECT_EQ(da.bonus_ataque_final(), -4);
+  }
+  {
+    auto* t = modelo.mutable_entidade()->mutable_info_talentos()->add_outros();
+    t->set_id("usar_armas_comuns");
+    t->set_complemento("arco_longo");
+    t = modelo.mutable_entidade()->mutable_info_talentos()->add_outros();
+    t->set_id("foco_em_arma");
+    t->set_complemento("arco_longo");
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& da = DadosAtaquePorGrupo("arco_longo_composto", plebeu->Proto());
+    EXPECT_FLOAT_EQ(da.alcance_m(), 22 * QUADRADOS_PARA_METROS);
+    EXPECT_EQ(da.incrementos(), 10);
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+  }
+}
+
 TEST(TesteArmas, TesteBoleadeira) {
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();

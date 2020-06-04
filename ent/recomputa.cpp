@@ -2998,8 +2998,8 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     }
     AtribuiOuRemoveBonus(da->obra_prima() ? 1 : 0, TB_MELHORIA, "obra_prima", bonus_ataque);
     // Talentos.
-    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma", bonus_ataque);
-    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma_maior", da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma_maior", bonus_ataque);
+    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma", bonus_ataque);
+    AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma_maior", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma_maior", bonus_ataque);
     // Duas maos ou armas naturais.
     switch (da->empunhadura()) {
       case EA_MAO_BOA: {
@@ -3046,9 +3046,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   }
   AtribuiOuRemoveBonus(
-      PossuiTalento("especializacao_arma", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
+      PossuiTalento("especializacao_arma", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma", da->mutable_bonus_dano());
   AtribuiOuRemoveBonus(
-      PossuiTalento("especializacao_arma_maior", da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
+      PossuiTalento("especializacao_arma_maior", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
   // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que valem.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));

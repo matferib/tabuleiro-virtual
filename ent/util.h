@@ -984,6 +984,8 @@ bool PermiteEscudo(const EntidadeProto& proto);
 bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto);
 // Retorna true se o personagem puder usar a armadura passada (por chave).
 bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto);
+// Id da arma base para talentos relacionados (como foco_em_arma).
+const std::string& IdArmaBase(const ArmaProto& arma_tabelada);
 // Retorna true se o personagem puder usar a arma passada (por chave).
 bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto);
 
