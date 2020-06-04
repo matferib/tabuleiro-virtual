@@ -5057,16 +5057,21 @@ bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const En
   return true;
 }
 
+const std::string& IdArmaBase(const ArmaProto& arma_tabelada) {
+  return arma_tabelada.has_id_arma_base() ? arma_tabelada.id_arma_base() : arma_tabelada.id();
+}
+
 bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) {
-  if (arma_tabelada.id().empty()) return true;
+  const std::string& id = IdArmaBase(arma_tabelada);
+  if (id.empty()) return true;
   if (c_any(arma_tabelada.categoria(), CAT_ARMA_NATURAL)) return true;
   if (arma_tabelada.has_categoria_pericia()) {
     if (arma_tabelada.categoria_pericia() == CATPER_SIMPLES) {
-      return PossuiTalento("usar_armas_simples", proto) || PossuiTalento("usar_uma_arma_simples", arma_tabelada.id(), proto);
+      return PossuiTalento("usar_armas_simples", proto) || PossuiTalento("usar_uma_arma_simples", id, proto);
     } else if (arma_tabelada.categoria_pericia() == CATPER_COMUM) {
-      return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", arma_tabelada.id(), proto);
+      return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", id, proto);
     } else if (arma_tabelada.categoria_pericia() == CATPER_EXOTICA) {
-      return PossuiTalento("usar_arma_exotica", arma_tabelada.id(), proto);
+      return PossuiTalento("usar_arma_exotica", id, proto);
     }
   }
   return true;
@@ -5403,7 +5408,7 @@ int DesviaObjetoSeAplicavel(
   if (!DestrezaNaCA(alvo.Proto())) return delta_pontos_vida;
 
   const auto* talento = Talento("desviar_objetos", alvo.Proto());
-  if (talento == nullptr || talento->usado_na_rodada()) return delta_pontos_vida;
+  if (talento == nullptr || talento->usado_na_rodada() || alvo.Proto().surpreso()) return delta_pontos_vida;
   ConcatenaString("projétil desviado", por_entidade->mutable_texto());
   ntf::Notificacao n;
   PreencheNotificacaoObjetoDesviado(true, alvo, &n, grupo_desfazer->add_notificacao());
