@@ -902,6 +902,7 @@ void PreencheConfiguraTalentos(
   }
   TrocaDelegateColuna(0, new MapaDelegate(mapa, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
   TrocaDelegateColuna(1, new ComplementoTalentoDelegate(tabelas, modelo, gerador.tabela_talentos), gerador.tabela_talentos);
+  TrocaDelegateColuna(3, new RichTextDelegate(gerador.tabela_talentos), gerador.tabela_talentos);
 
   gerador.tabela_talentos->setModel(modelo);
   lambda_connect(gerador.botao_adicionar_talento, SIGNAL(clicked()), [&gerador, modelo] () {

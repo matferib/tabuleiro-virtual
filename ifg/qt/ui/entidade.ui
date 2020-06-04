@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1425</width>
-    <height>815</height>
+    <width>1476</width>
+    <height>874</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2829,7 +2829,7 @@ QGroupBox::title {
          <item>
           <widget class="QComboBox" name="combo_evasao_estatica">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2839,6 +2839,9 @@ QGroupBox::title {
            </property>
            <property name="toolTip">
             <string>Tipo de evasão que não vem de classe, por exemplo, familiares.</string>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
            </property>
            <item>
             <property name="text">
@@ -2859,6 +2862,9 @@ QGroupBox::title {
          </item>
          <item>
           <widget class="QComboBox" name="combo_evasao_dinamica">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
