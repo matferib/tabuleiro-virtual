@@ -122,9 +122,10 @@ message InfoComponente {
   optional bool material = 6 [default=true];
 }
 
-// Proximo id: 39.
+// Proximo id: 40.
 message ArmaProto {
   optional string id = 1;
+  optional string id_arma_base = 39;
   optional string nome = 2;
   repeated CategoriaArma categoria = 3;
   optional string preco = 4;
