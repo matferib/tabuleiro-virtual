@@ -1,10 +1,11 @@
+Implementar spiked shield.
+Implementar tiro longo.
+Terminar links de talentos.
+Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
-Visao na penumbra automatico para meio elfos.
-Especialização em combate: arcos e arcos compostos estao separados.
-Adicionar dominio de viagem.
 Habilidade esquiva sobrenatural nao ta aparecendo na UI.
-Links de talentos.
 Ui de talentos, colocar origem.
+Mudar fumble (confirmacao)
 
 Sessão:
 * fazer andalara.
