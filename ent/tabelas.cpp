@@ -413,8 +413,21 @@ void Tabelas::RecarregaMapas() {
     botas_[botas.id()] = &botas;
   }
 
-  for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
+  for (auto& talento : *tabelas_.mutable_tabela_talentos()->mutable_talentos()) {
     talentos_[talento.id()] = &talento;
+    std::vector<std::string> res;
+    SplitStringUsing(talento.nome_ingles(), " ,-'/", &res);
+    for (unsigned int i = 1; i < res.size(); ++i) {
+      if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
+        // Pega o caso do 's.
+        if (res[i].size() > 1 || res[i][0] != 's') {
+          res[i][0] += 'A' - 'a';
+        }
+      }
+    }
+    std::string joined;
+    JoinStrings(res, "", &joined);
+    talento.set_link(StringPrintf("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
   }
 
   for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {
