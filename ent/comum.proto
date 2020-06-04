@@ -780,6 +780,19 @@ message PericiaProto {
 
 // Talentos.
 message PreRequisitoTalento {
+  repeated string talentos = 1;
+  message Atributos {
+    optional int32 forca = 1;
+    optional int32 destreza = 2;
+    optional int32 consituicao = 3;
+    optional int32 inteligencia = 4;
+    optional int32 sabedoria = 5;
+    optional int32 carisma = 6;
+  }
+  optional Atributos atributos = 2;
+  optional InfoClasse nivel = 3;
+  optional int32 bba = 4;
+  repeated InfoPericia pericias = 5;
 }
 
 enum TipoComplementoTalento {
@@ -804,11 +817,13 @@ message TalentoProto {
   optional string id = 1;
   // Nome do talento.
   optional string nome = 2;
+  optional string nome_ingles = 16; 
+  optional string link = 17;
 
   optional TipoComplementoTalento tipo_complemento = 3;
   optional string complemento = 4;
   optional string descricao = 5;
-  optional PreRequisitoTalento pre_requisito = 6;
+  optional PreRequisitoTalento pre_requisitos = 6;
   // Talentos de monstro.
   optional bool monstro = 7;
 
@@ -842,6 +857,13 @@ message TalentoProto {
   // Indica que nao pode ser escolhido por jogador.
   // Ou ganha por classe, ou nao tem.
   optional bool nao_pode_ser_escolhido = 15;
+
+  // Talento pode ser escolhido por guerreiro como bonus.
+  optional bool guerreiro  = 18;
+
+  // Talento pode ser adquirido pela classe no nivel passado.
+  optional int32 ranger = 19;
+  optional int32 monge = 20;
 }
 
 message HabilidadeEspecialProto {
