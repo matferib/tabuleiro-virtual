@@ -158,6 +158,7 @@ TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
 
 TEST(TesteArmas, TesteChicote) {
   auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("tiro_longo");
   // Corpo a corpo.
   auto* da = DadosAtaquePorGrupoOuCria("chicote", modelo.mutable_entidade());
   da->set_tipo_ataque("Ataque Corpo a Corpo");
@@ -711,7 +712,7 @@ TEST(TesteArmas, TesteEscudoComCravos) {
   modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_armadura_leve");
   modelo.mutable_entidade()->mutable_dados_defesa()->set_id_armadura("couro_batido");
   modelo.mutable_entidade()->mutable_dados_defesa()->set_id_escudo("leve_aco");
- 
+
   // Corpo a corpo.
   auto* da = DadosAtaquePorGrupoOuCria("espada_longa_com_escudo", modelo.mutable_entidade());
   da->set_id_arma("espada_longa");
@@ -903,7 +904,7 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
   const auto& da = e->Proto().dados_ataque(0);
   EXPECT_TRUE(da.ataque_toque());
   EXPECT_TRUE(da.ataque_distancia());
-  EXPECT_EQ(da.alcance_q(), 2);
+  EXPECT_FLOAT_EQ(da.alcance_m(), 3.0);
   EXPECT_EQ(da.incrementos(), 5);
   EXPECT_TRUE(da.has_acao());
   EXPECT_EQ(da.dano(), "1d6");
@@ -4121,6 +4122,17 @@ TEST(TesteModelo, TestePlebeu1) {
     EXPECT_EQ(da.incrementos(), 5);
     EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
   }
+  {
+    // Distancia sem pericia com tiro longo.
+    modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("tiro_longo");
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), -4);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 6.0f);
+    EXPECT_EQ(da.incrementos(), 5);
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 10);
+  }
 }
 
 TEST(TesteModelo, TestePlebeu1Grande) {
@@ -4499,6 +4511,19 @@ TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
     EXPECT_EQ(da.bonus_ataque_final(), 4) << da.bonus_ataque().DebugString();
     EXPECT_EQ(da.dano(), "1d8");
     EXPECT_FLOAT_EQ(da.alcance_m(), 24.0f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.incrementos(), 10);
+    EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
+  }
+  LOG(INFO) << "--------";
+  {
+    // Besta com tiro longo.
+    proto.mutable_info_talentos()->add_outros()->set_id("tiro_longo");
+    auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+    const auto& da = DadosAtaquePorGrupo("besta", aris->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 4) << da.bonus_ataque().DebugString();
+    EXPECT_EQ(da.dano(), "1d8");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 36.0f) << da.id_arma();
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     EXPECT_EQ(da.incrementos(), 10);
     EXPECT_EQ(aris->CA(*aris, Entidade::CA_NORMAL), 16);
