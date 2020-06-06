@@ -3558,6 +3558,9 @@ int Rodadas(
   if (efeito_adicional.has_modificador_rodadas()) {
     int modificador = 0;
     switch (efeito_adicional.modificador_rodadas()) {
+      case MR_DRENAR_FORCA_VITAL:
+        return 10 * MINUTOS_PARA_RODADAS * std::max(1, alvo == nullptr ? 1 : alvo->NivelPersonagem());
+      break;
       case MR_MOD_CARISMA:
         modificador = ModificadorAtributo(TA_CARISMA, lancador);
       break;

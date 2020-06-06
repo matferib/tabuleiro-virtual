@@ -79,6 +79,7 @@ enum ModificadorRodadas {
   MR_PALAVRA_PODER_CEGAR = 14;
   MR_CONTINUO = 15;
   MR_MOD_CARISMA = 16;
+  MR_DRENAR_FORCA_VITAL = 17;
 }
 
 enum ModificadorComplementos {

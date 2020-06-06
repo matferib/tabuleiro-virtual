@@ -9372,16 +9372,18 @@ tabela_feiticos {
       id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: false
       tipo_salvacao: TS_VONTADE
+      elemento: DESC_MORTE
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais_conjurador {
         efeito: EFEITO_DRENAR_FORCA_VITAL
-        rodadas: 100  # na verdade, é variavel pelo numero de HD do alvo. Mas aqui ta de bom tamanho.
+        modificador_rodadas: MR_DRENAR_FORCA_VITAL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
       }
     }
-    # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
-    # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
     escola: 'necromancia'
   }
-
   armas {
     id: 'condicao'
     nome_ingles: 'status'
