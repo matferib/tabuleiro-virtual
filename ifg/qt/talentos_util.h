@@ -15,27 +15,6 @@
 namespace ifg {
 namespace qt {
 
-// https://forum.qt.io/topic/21915/qabstracttablemodel-subclass-with-hyperlink/3.
-class RichTextDelegate : public QItemDelegate {
-Q_OBJECT
- public:
-  explicit RichTextDelegate(QTableView* parent) : QItemDelegate(parent), view_(parent) {}
-  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    if (view_->indexWidget(index) != nullptr) return;
-    QLabel *label = new QLabel;
-    label->setTextFormat(Qt::RichText);
-    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    label->setOpenExternalLinks(true);
-    label->setText(index.data().toString());
-    view_->setIndexWidget(index, label);
-  }
-
- private:
-  QTableView *view_ = nullptr;
-};
-
 // Modelo de talento para ser usado pelos views de tabela.
 class ModeloTalentos : public QAbstractTableModel {
  public:
@@ -44,13 +23,13 @@ class ModeloTalentos : public QAbstractTableModel {
   ModeloTalentos(const ent::Tabelas& tabelas, InfoTalentos* talentos, QTableView* tabela)
       : QAbstractTableModel(tabela), tabelas_(tabelas) {
     for (const auto& tg : talentos->gerais()) {
-      modelo_.emplace_back(tg.id(), tg.complemento(), true, tabelas_.Talento(tg.id()).link());
+      modelo_.emplace_back(TT_GERAL, tg.id(), tg.complemento(), tabelas_.Talento(tg.id()).link());
     }
     for (const auto& ta : talentos->automaticos()) {
-      modelo_.emplace_back(ta.id(), ta.complemento(), false, tabelas_.Talento(ta.id()).link());
+      modelo_.emplace_back(TT_AUTOMATICO, ta.id(), ta.complemento(), ta.origem(), tabelas_.Talento(ta.id()).link());
     }
     for (const auto& to : talentos->outros()) {
-      modelo_.emplace_back(to.id(), to.complemento(), false, tabelas_.Talento(to.id()).link());
+      modelo_.emplace_back(TT_OUTROS, to.id(), to.complemento(), to.origem(), tabelas_.Talento(to.id()).link());
     }
   }
 
@@ -59,7 +38,7 @@ class ModeloTalentos : public QAbstractTableModel {
     return modelo_.size();
   }
 
-  // 0: id talento. 1. complemento. 2. geral. 3. link.
+  // 0: id talento. 1. complemento. 2. origem. 3. link.
   int columnCount(const QModelIndex& parent = QModelIndex()) const override {
     return 4;
   }
@@ -67,7 +46,7 @@ class ModeloTalentos : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    modelo_.insert(modelo_.begin() + row, count, IdComplementoGeral("", "", true, ""));
+    modelo_.insert(modelo_.begin() + row, count, DadosTalento(TT_OUTROS));
     endInsertRows();
     return true;
   }
@@ -138,7 +117,7 @@ class ModeloTalentos : public QAbstractTableModel {
       switch (section) {
         case 0: return QVariant(QString::fromUtf8("Talento"));
         case 1: return QVariant(QString::fromUtf8("Complemento"));
-        case 2: return QVariant(QString::fromUtf8("Geral"));
+        case 2: return QVariant(QString::fromUtf8("Origem"));
         case 3: return QVariant(QString::fromUtf8("Link"));
         default: ;
       }
@@ -174,7 +153,7 @@ class ModeloTalentos : public QAbstractTableModel {
         return role == Qt::DisplayRole || role == Qt::EditRole ? QVariant(QString::fromUtf8(modelo_[row].complemento.c_str())) : QVariant();
       case 2:
         // tipo.
-        return role == Qt::DisplayRole ? QVariant(modelo_[row].geral) : QVariant();
+        return role == Qt::DisplayRole ? QVariant(QString::fromStdString(modelo_[row].OrigemString())) : QVariant();
       case 3: {
         // link.
         return role == Qt::DisplayRole ? QVariant(QString::fromUtf8("<a href='%1'>link</a>").arg(QString::fromStdString(modelo_[row].link))) : QVariant();
@@ -209,7 +188,7 @@ class ModeloTalentos : public QAbstractTableModel {
         return true;
       }
       case 2: {
-        modelo_[row].geral = value.toBool();
+        modelo_[row].tipo = static_cast<TipoTalento>(value.toInt());
         emit dataChanged(index, index);
         return true;
       }
@@ -228,25 +207,49 @@ class ModeloTalentos : public QAbstractTableModel {
   InfoTalentos Converte() const {
     InfoTalentos ret;
     for (const auto& icg : modelo_) {
-      auto* t = icg.geral ? ret.add_gerais() : ret.add_outros();
+      ent::TalentoProto* t = nullptr;
+      switch (icg.tipo) {
+        case TT_AUTOMATICO: t = ret.add_automaticos(); break;
+        case TT_GERAL: t = ret.add_gerais(); break;
+        default: t = ret.add_outros();
+      }
       t->set_id(icg.id);
       t->set_complemento(icg.complemento);
+      if (!icg.origem.empty()) t->set_origem(icg.origem);
     }
     return ret;
   }
 
  private:
   const ent::Tabelas& tabelas_;
-  // Esse eh o modelo verdadeiro. Id do talento, origem, geral.
-  struct IdComplementoGeral {
-    IdComplementoGeral(const std::string& id, const std::string& complemento, bool geral, const std::string& link)
-        : id(id), complemento(complemento), geral(geral), link(link) {}
+
+  enum TipoTalento {
+    TT_GERAL, TT_AUTOMATICO, TT_OUTROS
+  };
+  // Esse eh o modelo verdadeiro.
+  struct DadosTalento {
+    DadosTalento(
+        TipoTalento tipo,
+        const std::string& id = "",
+        const std::string& complemento = "",
+        const std::string& origem = "",
+        const std::string& link = "")
+        : tipo(tipo), id(id), complemento(complemento), origem(origem), link(link) {}
+    std::string OrigemString() const {
+      switch (tipo) {
+        case TT_AUTOMATICO: return "auto: " + origem;
+        case TT_GERAL: return "geral";
+        default: return "outros: " + origem;
+      }
+    }
+
+    TipoTalento tipo;
     std::string id;
     std::string complemento;
-    bool geral;
+    std::string origem;
     std::string link;
   };
-  std::vector<IdComplementoGeral> modelo_;
+  std::vector<DadosTalento> modelo_;
 };
 
 class ComplementoTalentoDelegate : public QItemDelegate {
@@ -342,6 +345,28 @@ class ComplementoTalentoDelegate : public QItemDelegate {
   const ent::Tabelas& tabelas_;
   QAbstractTableModel* modelo_;
 };
+
+// https://forum.qt.io/topic/21915/qabstracttablemodel-subclass-with-hyperlink/3.
+class RichTextDelegate : public QItemDelegate {
+Q_OBJECT
+ public:
+  explicit RichTextDelegate(QTableView* parent) : QItemDelegate(parent), view_(parent) {}
+  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    Q_UNUSED(painter);
+    Q_UNUSED(option);
+    if (view_->indexWidget(index) != nullptr) return;
+    QLabel *label = new QLabel;
+    label->setTextFormat(Qt::RichText);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setOpenExternalLinks(true);
+    label->setText(index.data().toString());
+    view_->setIndexWidget(index, label);
+  }
+
+ private:
+  QTableView *view_ = nullptr;
+};
+
 
 }  // namespace qt
 }  // namespace ifg
