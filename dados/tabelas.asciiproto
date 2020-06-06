@@ -526,7 +526,7 @@ tabela_armas {
     categoria_pericia: CATPER_COMUM
   }
   armas {
-    id: 'escudo_pequeno_com_cavos'
+    id: 'escudo_pequeno_com_cravos'
     nome: 'escudo pequeno com cravos'
     preco: 'especial'
     dano { medio: '1d4'}
@@ -4344,9 +4344,8 @@ tabela_talentos {
     nome_ingles: 'shield proficiency'
     descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
   }
-  # TODO A chave certa desse aqui eh ataque_escudo_aprimorado.
   talentos {
-    id: 'usar_escudo_aprimorado'
+    id: 'ataque_escudo_aprimorado'
     nome: 'Ataque com Escudo Aprimorado'
     nome_ingles: 'improved shield bash'
     guerreiro: true

@@ -98,20 +98,10 @@ const ArmaProto& ArmaOutraMao(
     const Tabelas& tabelas, const DadosAtaque& da_mao, const EntidadeProto& proto) {
   const DadosAtaque* da_outra_mao = &da_mao;
   for (const auto& da : proto.dados_ataque()) {
-    if (da.rotulo() == da_mao.rotulo() && da.empunhadura() != da_mao.empunhadura()) {
+    if (da.grupo() == da_mao.grupo() && da.empunhadura() != da_mao.empunhadura()) {
       da_outra_mao = &da;
       break;
     }
-  }
-  if (da_outra_mao == &da_mao) LOG(WARNING) << "Nao encontrei a arma na outra mao, fallback pro mesmo tipo";
-  for (const auto& da : proto.dados_ataque()) {
-    if (da.tipo_ataque() == da_mao.tipo_ataque() && da.empunhadura() != da_mao.empunhadura()) {
-      da_outra_mao = &da;
-      break;
-    }
-  }
-  if (da_outra_mao == &da_mao) {
-    LOG(ERROR) << "Nao encontrei a arma na outra mao, retornando a mesma: " << da_mao.id_arma();
   }
   return tabelas.Arma(da_outra_mao->id_arma());
 }
@@ -2808,6 +2798,11 @@ void RecomputaAlcanceArma(const Tabelas& tabelas, const ArmaProto& arma, const E
   }
 }
 
+bool UsandoEscudoComCravos(const ArmaProto& arma_principal, const ArmaProto& arma_secundaria) {
+  const std::vector<std::string> escudos = {"escudo_grande_com_cravos", "escudo_pequeno_com_cravos"};
+  return c_any(escudos, arma_principal.id()) || c_any(escudos, arma_secundaria.id());
+}
+
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
@@ -2816,7 +2811,15 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
   ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
-  const bool usando_escudo = da->empunhadura() == EA_ARMA_ESCUDO;
+
+  const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
+  const bool usando_escudo =
+    da->empunhadura() == EA_ARMA_ESCUDO ||
+    ((da->empunhadura() == EA_MAO_RUIM || da->empunhadura() == EA_MAO_BOA) &&
+     PossuiTalento("ataque_escudo_aprimorado", proto) &&
+     UsandoEscudoComCravos(arma, arma_outra_mao));
+  //LOG(INFO) << "usando escudo: " << usando_escudo << " para arma " << arma.id()
+  //          << ", pt: " << PossuiTalento("ataque_escudo_aprimorado", proto) << ", uec: " << UsandoEscudoComCravos(arma, arma_outra_mao);
   const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
@@ -3004,7 +3007,6 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     switch (da->empunhadura()) {
       case EA_MAO_BOA: {
         // TODO detectar a arma da outra mao.
-        const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
         int penalidade = PossuiCategoria(CAT_LEVE, arma_outra_mao) || PossuiCategoria(CAT_ARMA_DUPLA, arma) ? -4 : -6;
         if (PossuiTalento("combater_duas_armas", proto)) penalidade += 2;
         AtribuiBonus(penalidade, TB_SEM_NOME, "empunhadura", bonus_ataque);

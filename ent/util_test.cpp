@@ -22,9 +22,13 @@ class CentralColetora : public ntf::CentralNotificacoes {
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
 };
 
-const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto) {
+const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto, int n = 0) {
   for (const auto& da : proto.dados_ataque()) {
-    if (da.grupo() == grupo) return da;
+    if (da.grupo() == grupo) {
+      if (n <= 0) return da;
+      --n;
+      continue;
+    }
   }
   return DadosAtaque::default_instance();
 }
@@ -697,6 +701,46 @@ TEST(TesteArmas, TesteArcoLongo) {
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+}
+
+TEST(TesteArmas, TesteEscudoComCravos) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");  // +1 forca
+  modelo.mutable_entidade()->set_gerar_agarrar(false);
+  modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_armas_comuns");
+  modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_escudo");
+  modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_armadura_leve");
+  modelo.mutable_entidade()->mutable_dados_defesa()->set_id_armadura("couro_batido");
+  modelo.mutable_entidade()->mutable_dados_defesa()->set_id_escudo("leve_aco");
+ 
+  // Corpo a corpo.
+  auto* da = DadosAtaquePorGrupoOuCria("espada_longa_com_escudo", modelo.mutable_entidade());
+  da->set_id_arma("espada_longa");
+  da->set_empunhadura(EA_MAO_BOA);
+  da = DadosAtaquePorGrupoOuCria("espada_longa_com_escudo2", modelo.mutable_entidade());
+  da->set_grupo("espada_longa_com_escudo");
+  da->set_id_arma("escudo_pequeno_com_cravos");
+  da->set_empunhadura(EA_MAO_RUIM);
+  // Distancia sem pericia.
+  {
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& da_espada = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 0);
+    EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
+    const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
+    EXPECT_EQ(da_escudo.bonus_ataque_final(), -7) << da_escudo.DebugString();
+    EXPECT_EQ(da_espada.ca_normal(), 13);
+    EXPECT_EQ(da_escudo.ca_normal(), 13);
+  }
+  LOG(INFO) << "------------";
+  {
+    modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("ataque_escudo_aprimorado");
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& da_espada = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 0);
+    EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
+    const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
+    EXPECT_EQ(da_escudo.bonus_ataque_final(), -7) << da_escudo.DebugString();
+    EXPECT_EQ(da_espada.ca_normal(), 14);
+    EXPECT_EQ(da_escudo.ca_normal(), 14);
+  }
 }
 
 TEST(TesteArmas, TesteIdBase) {
