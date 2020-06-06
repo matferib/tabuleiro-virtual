@@ -427,7 +427,11 @@ void Tabelas::RecarregaMapas() {
     }
     std::string joined;
     JoinStrings(res, "", &joined);
-    talento.set_link(StringPrintf("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
+    if (talento.monstro()) {
+      talento.set_link(StringPrintf("https://www.d20srd.org/srd/monsterFeats.htm#%s", joined.c_str()));
+    } else {
+      talento.set_link(StringPrintf("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
+    }
   }
 
   for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {

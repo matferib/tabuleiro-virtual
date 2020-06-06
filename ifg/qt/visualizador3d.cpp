@@ -920,9 +920,10 @@ void PreencheConfiguraTalentos(
     }
   });
 
-  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
                  [&tabelas, &gerador, proto_retornado, modelo] () {
@@ -2369,6 +2370,11 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &delete_proto_retornado] {
       delete_proto_retornado.reset();
   });
+  QSize tam = qobject_cast<QApplication*>(QApplication::instance())->primaryScreen()->size();
+  if (tam.width() < dialogo->size().width() || tam.height() < dialogo->size().height()) {
+    dialogo->showMaximized();
+    LOG(INFO) << "desktop: " << tam.width() << "x" << tam.height() << ", dialogo: " << dialogo->size().width() << "x" << dialogo->size().height();
+  }
   dialogo->exec();
   delete dialogo;
   return delete_proto_retornado;

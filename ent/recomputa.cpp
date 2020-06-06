@@ -1900,24 +1900,21 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   bool possui_esquiva_sobrenatural = false;
   for (auto& ic : *proto->mutable_info_classes()) {
-    {
-      const auto& classe_tabelada = tabelas.Classe(ic.id());
-      if (classe_tabelada.has_nome()) {
-        ic.clear_salvacoes_fortes();
-        ic.clear_habilidades_por_nivel();
-        ic.clear_pericias();
-        ic.clear_progressao_feitico();
-        ic.clear_talentos_automaticos();
-        ic.clear_talentos_com_complemento_automaticos();
-        ic.MergeFrom(classe_tabelada);
-        if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
-          if (possui_esquiva_sobrenatural) {
-            auto* hn = ic.add_habilidades_por_nivel();
-            hn->set_id("esquiva_sobrenatural_aprimorada");
-            hn->set_nivel(ic.nivel());
-          } else {
-            possui_esquiva_sobrenatural = true;
-          }
+    if (const auto& classe_tabelada = tabelas.Classe(ic.id()); classe_tabelada.has_nome()) {
+      ic.clear_salvacoes_fortes();
+      ic.clear_habilidades_por_nivel();
+      ic.clear_pericias();
+      ic.clear_progressao_feitico();
+      ic.clear_talentos_automaticos();
+      ic.clear_talentos_com_complemento_automaticos();
+      ic.MergeFrom(classe_tabelada);
+      if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
+        if (possui_esquiva_sobrenatural) {
+          auto* hn = ic.add_habilidades_por_nivel();
+          hn->set_id("esquiva_sobrenatural_aprimorada");
+          hn->set_nivel(ic.nivel());
+        } else {
+          possui_esquiva_sobrenatural = true;
         }
       }
     }
@@ -1975,12 +1972,15 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   for (const auto& ic : proto->info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
-      proto->mutable_info_talentos()->add_automaticos()->set_id(id_talento);
+      auto* talento = proto->mutable_info_talentos()->add_automaticos();
+      talento->set_id(id_talento);
+      talento->set_origem(tabelas.Classe(ic.id()).nome());
     }
     for (const auto& tc : classe_tabelada.talentos_com_complemento_automaticos()) {
       auto* talento = proto->mutable_info_talentos()->add_automaticos();
       talento->set_id(tc.id());
       talento->set_complemento(tc.complemento());
+      talento->set_origem(tabelas.Classe(ic.id()).nome());
     }
   }
 }

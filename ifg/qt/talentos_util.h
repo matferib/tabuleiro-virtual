@@ -17,13 +17,14 @@ namespace qt {
 
 // Modelo de talento para ser usado pelos views de tabela.
 class ModeloTalentos : public QAbstractTableModel {
+Q_OBJECT
  public:
   using InfoTalentos = ent::EntidadeProto::InfoTalentos;
 
   ModeloTalentos(const ent::Tabelas& tabelas, InfoTalentos* talentos, QTableView* tabela)
       : QAbstractTableModel(tabela), tabelas_(tabelas) {
     for (const auto& tg : talentos->gerais()) {
-      modelo_.emplace_back(TT_GERAL, tg.id(), tg.complemento(), tabelas_.Talento(tg.id()).link());
+      modelo_.emplace_back(TT_GERAL, tg.id(), tg.complemento(), tg.origem(), tabelas_.Talento(tg.id()).link());
     }
     for (const auto& ta : talentos->automaticos()) {
       modelo_.emplace_back(TT_AUTOMATICO, ta.id(), ta.complemento(), ta.origem(), tabelas_.Talento(ta.id()).link());
@@ -98,16 +99,16 @@ class ModeloTalentos : public QAbstractTableModel {
       qs.setHeight(pai->verticalHeader()->defaultSectionSize());
       switch (section) {
         case 0:
-          qs.setWidth(w * 0.35);
+          qs.setWidth(w * 0.4);
           return QVariant(qs);
         case 1:
-          qs.setWidth(w * 0.35);
+          qs.setWidth(w * 0.4);
           return QVariant(qs);
         case 2:
           qs.setWidth(w * 0.1);
           return QVariant(qs);
         case 3:
-          qs.setWidth(w * 0.2);
+          qs.setWidth(w * 0.1);
           return QVariant(qs);
         default: ;
       }
@@ -153,12 +154,19 @@ class ModeloTalentos : public QAbstractTableModel {
         return role == Qt::DisplayRole || role == Qt::EditRole ? QVariant(QString::fromUtf8(modelo_[row].complemento.c_str())) : QVariant();
       case 2:
         // tipo.
-        return role == Qt::DisplayRole ? QVariant(QString::fromStdString(modelo_[row].OrigemString())) : QVariant();
+        // Nome.
+        if (role == Qt::DisplayRole) {
+          return QVariant(QString::fromStdString(modelo_[row].OrigemString()));
+        } else if (role == Qt::ToolTipRole) {
+          return "origem do talento";
+        } else if (role == Qt::EditRole) {
+          return QVariant(QString::fromUtf8(modelo_[row].origem.c_str()));
+        }
+
       case 3: {
         // link.
         return role == Qt::DisplayRole ? QVariant(QString::fromUtf8("<a href='%1'>link</a>").arg(QString::fromStdString(modelo_[row].link))) : QVariant();
       }
-
     }
     // Nunca deveria chegar aqui.
     LOG(INFO) << "Coluna invalida: " << column;
@@ -179,6 +187,8 @@ class ModeloTalentos : public QAbstractTableModel {
     switch (column) {
       case 0: {
         modelo_[row].id = value.toString().toUtf8().constData();
+        modelo_[row].link = tabelas_.Talento(modelo_[row].id).link();
+        qobject_cast<QTableView*>(parent())->setIndexWidget(index.siblingAtColumn(3), nullptr);
         emit dataChanged(index, index);
         return true;
       }
@@ -188,7 +198,7 @@ class ModeloTalentos : public QAbstractTableModel {
         return true;
       }
       case 2: {
-        modelo_[row].tipo = static_cast<TipoTalento>(value.toInt());
+        modelo_[row].origem = value.toString().toUtf8().constData();
         emit dataChanged(index, index);
         return true;
       }
@@ -197,11 +207,11 @@ class ModeloTalentos : public QAbstractTableModel {
   }
 
   Qt::ItemFlags flags(const QModelIndex & index) const override {
-    if (index.column() == 2) {
+    const unsigned int row = index.row();
+    if ((row < modelo_.size() && modelo_[row].tipo == TT_AUTOMATICO) || index.row() == 3) {
       return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    } else {
-      return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
     }
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
   }
 
   InfoTalentos Converte() const {
