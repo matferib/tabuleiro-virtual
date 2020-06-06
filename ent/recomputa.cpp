@@ -2773,11 +2773,9 @@ void RecomputaAlcanceArma(const Tabelas& tabelas, const ArmaProto& arma, const E
         ;
     }
     const bool arremesso_ou_projetil_area = PossuiCategoria(CAT_ARREMESSO, arma) || PossuiCategoria(CAT_PROJETIL_AREA, arma);
-    const float mod = PossuiTalento("tiro_longo", proto)
+    const float mod = PossuiTalento("tiro_longo", proto) && !EhFeitico(arma)
         ? (arremesso_ou_projetil_area ? 2.0f : 1.5f)
         : 1.0f;
-    LOG(INFO) << "mod: " << mod << " para " << da->id_arma();
-    //da->set_alcance_q((arma.alcance_quadrados() + mod_distancia_quadrados) * mod);
     da->set_alcance_m((arma.alcance_quadrados() + mod_distancia_quadrados) * QUADRADOS_PARA_METROS * mod);
     da->set_alcance_minimo_m(0);
     if (arremesso_ou_projetil_area) {

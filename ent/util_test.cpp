@@ -620,6 +620,7 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
   ic->set_id("mago");
   ic->set_nivel(3);
   AtribuiBaseAtributo(15, TA_INTELIGENCIA, &proto);
+  proto.mutable_info_talentos()->add_outros()->set_id("tiro_longo");
 
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");

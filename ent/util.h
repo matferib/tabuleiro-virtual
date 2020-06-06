@@ -1105,6 +1105,9 @@ void ImprimeDadosRolados();
 // Em caso de erro, retorna nullopt.
 std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
 
+// Retorna true se a arma for um feitico.
+bool EhFeitico(const ArmaProto& arma);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

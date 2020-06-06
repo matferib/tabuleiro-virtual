@@ -6233,4 +6233,8 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
   }
 }
 
+bool EhFeitico(const ArmaProto& arma) {
+  return !arma.info_classes().empty();
+}
+
 }  // namespace ent
