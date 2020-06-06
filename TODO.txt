@@ -1,6 +1,8 @@
+Modificadores de destreza para morto e inconsciente.
+Comando de dano por teclado nao gera desfazer??
+Montado nao funciona quando movimento é remoto.
 Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
-Mudar fumble (confirmacao)
 
 Sessão:
 * fazer andalara.
@@ -13,26 +15,21 @@ Sessão:
   - Passar pelas finas lâminas.
   - chegar ao portão.
 
-Teste de concentração para enredados.
 Fazer unit test para verificar pericias faltando ou sobrando.
-Icone para gas sono.
 
 Acao de recarregar municao da arma (basear em procurar, cada 5 pontos uma munição?).
 Vincular luz a numero de tochas.
 Terminar a iniciativa de eventos.
 
 Fazer furia maior de barbaro e limitar usos por dia.
-Feiticos automaticos respeitar o descritor de bom mal caos ordem.
+Feiticos automaticos de clerigo respeitar o descritor de bom mal caos ordem.
 Nova tabela de encontro para batalha de Tilverton.
-Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
-Concentracao em criaturas enredadas.
 Movimento reduzido ou anulado em criaturas enredadas.
-Comando de dano por teclado nao gera desfazer??
 Menu para recarregar tabelas.
 Lista de entidades afetadas ordenada.
 Nao consigo desagarrar sem acao.
-Tab igual shift tab, zera ataques.
+Fazer tab igual shift tab, zera ataques, ta confuso.
 
 Circulo magico contra mal: implementar aura.
 Fazer lufada de vento.
@@ -45,7 +42,6 @@ Modificador de raio_quadrados para acao (ver feitico cativar).
 
 Fazer empunhadura de rajada.
 Criar ataques naturais com dano basico. Ja fiz mordida.
-Drenar forca vital: terminar.
 Testar se outras classes tb funcionam a aleatoriedade.
 atualizar tabuleiro prontos com entidades atualizadas.
 dano_adicional e elemento_dano_adicional. Testar formiga.
