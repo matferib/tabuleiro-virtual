@@ -1326,16 +1326,29 @@ std::tuple<int, std::string> ComputaCritico(
 // Retorna -1 para falha critica, 0, para falha e total para sucesso.
 std::tuple<int, std::string, bool> ComputaAcertoOuErro(
     int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
-    const EntidadeProto& pea, const EntidadeProto& ped) {
+    const EntidadeProto& pea, const EntidadeProto& ped, bool confirmacao = false) {
   assert(modificador_incrementos <= 0);
   int total = d20 + ataque_origem + modificador_incrementos + outros_modificadores;
   if (d20 == 1) {
-    VLOG(1) << "Falha critica";
-    return std::make_tuple(-1, "falha critica", false);
+    VLOG(1) << "Possivel falha critica";
+    if (confirmacao) {
+      // Para confirmacao precisamos apenas do acerto ou erro.
+      return std::make_tuple(0, "", false);
+    } else {
+      // Confirma a falha.
+      auto [totalc, textoc, acertouc] =
+        ComputaAcertoOuErro(RolaDado(20), ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, agarrar, pea, ped, /*confirmacao=*/true);
+      VLOG(1) << "Confirmacao de falha critica: total: " << totalc << ", texto: " << textoc << ", acertou: " << acertouc;
+      if (acertouc) {
+        return std::make_tuple(0, StringPrintf("falha critica nao confirmada: %s", textoc.c_str()), false);
+      } else {
+        return std::make_tuple(-1, StringPrintf("falha critica confirmada: %s", textoc.c_str()), false);
+      }
+    }
   }
 
   if (agarrar && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
-    return std::make_tuple(0, "Defensor com moviumentação livre", false);
+    return std::make_tuple(0, "Defensor com movimentação livre", false);
   }
 
   if ((d20 != 20 || agarrar) && total < ca_destino) {
