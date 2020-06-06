@@ -325,6 +325,10 @@ public:
     QLabel *label_38;
     QLineEdit *linha_furtivo;
     QHBoxLayout *horizontalLayout_50;
+    QHBoxLayout *horizontalLayout_52;
+    QLabel *label_86;
+    QComboBox *combo_esquiva_sobrenatural;
+    QHBoxLayout *horizontalLayout_69;
     QLabel *label_103;
     QComboBox *combo_evasao_estatica;
     QComboBox *combo_evasao_dinamica;
@@ -2224,11 +2228,32 @@ public:
 
         horizontalLayout_50 = new QHBoxLayout();
         horizontalLayout_50->setObjectName(QString::fromUtf8("horizontalLayout_50"));
+        horizontalLayout_52 = new QHBoxLayout();
+        horizontalLayout_52->setObjectName(QString::fromUtf8("horizontalLayout_52"));
+        label_86 = new QLabel(tab_5);
+        label_86->setObjectName(QString::fromUtf8("label_86"));
+        label_86->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_52->addWidget(label_86);
+
+        combo_esquiva_sobrenatural = new QComboBox(tab_5);
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->setObjectName(QString::fromUtf8("combo_esquiva_sobrenatural"));
+
+        horizontalLayout_52->addWidget(combo_esquiva_sobrenatural);
+
+
+        horizontalLayout_50->addLayout(horizontalLayout_52);
+
+        horizontalLayout_69 = new QHBoxLayout();
+        horizontalLayout_69->setObjectName(QString::fromUtf8("horizontalLayout_69"));
         label_103 = new QLabel(tab_5);
         label_103->setObjectName(QString::fromUtf8("label_103"));
         label_103->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_50->addWidget(label_103);
+        horizontalLayout_69->addWidget(label_103);
 
         combo_evasao_estatica = new QComboBox(tab_5);
         combo_evasao_estatica->addItem(QString());
@@ -2240,7 +2265,7 @@ public:
         combo_evasao_estatica->setSizePolicy(sizePolicy1);
         combo_evasao_estatica->setEditable(false);
 
-        horizontalLayout_50->addWidget(combo_evasao_estatica);
+        horizontalLayout_69->addWidget(combo_evasao_estatica);
 
         combo_evasao_dinamica = new QComboBox(tab_5);
         combo_evasao_dinamica->addItem(QString());
@@ -2251,7 +2276,10 @@ public:
         sizePolicy1.setHeightForWidth(combo_evasao_dinamica->sizePolicy().hasHeightForWidth());
         combo_evasao_dinamica->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_50->addWidget(combo_evasao_dinamica);
+        horizontalLayout_69->addWidget(combo_evasao_dinamica);
+
+
+        horizontalLayout_50->addLayout(horizontalLayout_69);
 
 
         verticalLayout_18->addLayout(horizontalLayout_50);
@@ -3767,6 +3795,11 @@ public:
         linha_furtivo->setToolTip(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", nullptr));
 #endif // QT_CONFIG(tooltip)
         linha_furtivo->setText(QString());
+        label_86->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Esquiva Sobrenatural", nullptr));
+        combo_esquiva_sobrenatural->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoEntidade", "N\303\243o Possui", nullptr));
+        combo_esquiva_sobrenatural->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoEntidade", "Normal", nullptr));
+        combo_esquiva_sobrenatural->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoEntidade", "Aprimorada", nullptr));
+
         label_103->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));
         combo_evasao_estatica->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoEntidade", "Sem Evas\303\243o", nullptr));
         combo_evasao_estatica->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));

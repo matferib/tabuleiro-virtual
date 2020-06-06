@@ -70,6 +70,20 @@ void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_evasao_estatica->blockSignals(false);
 }
 
+int TipoEsquivaSobrenaturalParaIndiceCombo(const ent::EntidadeProto& proto) {
+  if (PossuiHabilidadeEspecial("esquiva_sobrenatural_aprimorada", proto)) {
+    return 2;
+  } else if (PossuiHabilidadeEspecial("esquiva_sobrenatural", proto)) {
+    return 1;
+  }
+  return 0;
+}
+
+void AtualizaUIEsquivaSobrenatural(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.combo_esquiva_sobrenatural->setEnabled(false);
+  gerador.combo_esquiva_sobrenatural->setCurrentIndex(TipoEsquivaSobrenaturalParaIndiceCombo(proto));
+}
+
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
@@ -83,6 +97,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIFeiticos(tabelas, gerador, proto);
   AtualizaUIEventos(tabelas, gerador, proto);
   AtualizaUIEvasao(tabelas, gerador, proto);
+  AtualizaUIEsquivaSobrenatural(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {

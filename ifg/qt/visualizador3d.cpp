@@ -958,6 +958,13 @@ void PreencheConfiguraEvasao(Visualizador3d* this_,
   });
 }
 
+void PreencheConfiguraEsquivaSobrenatural(Visualizador3d* this_,
+                                          ifg::qt::Ui::DialogoEntidade& gerador,
+                                          const ent::EntidadeProto& proto,
+                                          ent::EntidadeProto* proto_retornado) {
+  AtualizaUIEsquivaSobrenatural(this_->tabelas(), gerador, proto);
+}
+
 void PreencheConfiguraInimigosPrediletos(Visualizador3d* this_,
                                          ifg::qt::Ui::DialogoEntidade& gerador,
                                          const ent::EntidadeProto& proto,
@@ -2112,6 +2119,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Evasao estatica e dimamica.
   PreencheConfiguraEvasao(this, gerador, entidade, proto_retornado);
+  // Esquiva sobrenatural.
+  PreencheConfiguraEsquivaSobrenatural(this, gerador, entidade, proto_retornado);
 
   // Feiticos.
   PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);
