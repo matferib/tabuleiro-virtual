@@ -177,6 +177,19 @@ void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
         LOG(ERROR) << "dominios de tamanho errado";
       }
     }
+    if (classe_tabelada.id() == "mago") {
+      const auto& fc = ent::FeiticosClasse(ic.id(), proto);
+      if (!fc.especializacao().empty()) {
+        StringAppendF(
+            &string_nivel, ", especialização: %s, %s",
+            fc.especializacao().c_str(),
+            fc.escolas_proibidas().size() != 2
+              ? "faltando escolas proibidas"
+              : StringPrintf("escolas proibidas: %s, %s", fc.escolas_proibidas(0).c_str(), fc.escolas_proibidas(1).c_str()).c_str());
+      } else {
+        StringAppendF(&string_nivel, ", sem especialização");
+      }
+    }
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
   }
   if (indice_antes < proto.info_classes().size()) {
@@ -204,7 +217,7 @@ void AtualizaUIClassesNiveis(
   std::vector<QObject*> objs = {
       gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe, gerador.combo_raca,
-      gerador.combo_dominio_1, gerador.combo_dominio_2,
+      gerador.combo_dominio_1, gerador.combo_dominio_2, gerador.combo_especializacao_escola, gerador.combo_escola_proibida_1, gerador.combo_escola_proibida_2
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -248,6 +261,20 @@ void AtualizaUIClassesNiveis(
       gerador.combo_dominio_1->setToolTip("");
       SelecionaIndicePorId("nenhum", gerador.combo_dominio_2);
       gerador.combo_dominio_2->setToolTip("");
+    }
+    if (classe_tabelada.id() == "mago") {
+      const auto& fc = ent::FeiticosClasse(classe_tabelada.id(), proto);
+      gerador.combo_especializacao_escola->setEnabled(true);
+      SelecionaIndicePorId(fc.especializacao().empty() ? "nenhuma" : fc.especializacao(), gerador.combo_especializacao_escola);
+      const bool habilitar = gerador.combo_especializacao_escola->itemData(gerador.combo_especializacao_escola->currentIndex()).toString().toStdString() != "nenhuma";
+      gerador.combo_escola_proibida_1->setEnabled(habilitar);
+      gerador.combo_escola_proibida_2->setEnabled(habilitar);
+      SelecionaIndicePorId(fc.escolas_proibidas().size() < 1 ? "nenhuma" : fc.escolas_proibidas(0), gerador.combo_escola_proibida_1);
+      SelecionaIndicePorId(fc.escolas_proibidas().size() < 2 ? "nenhuma" : fc.escolas_proibidas(1), gerador.combo_escola_proibida_2);
+    } else {
+      gerador.combo_especializacao_escola->setEnabled(false);
+      gerador.combo_escola_proibida_1->setEnabled(false);
+      gerador.combo_escola_proibida_2->setEnabled(false);
     }
   }
 
@@ -416,7 +443,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   for (const auto* item : lista_itens) {
     selecionados.insert(gerador.lista_ataques->row(item));
   }
- 
+
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
     gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(tabelas, da).c_str()));
@@ -427,7 +454,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     if (indice == -1 || indice >= proto.dados_ataque().size()) continue;
     gerador.lista_ataques->item(indice)->setSelected(true);
   }
- 
+
   // BBA.
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {

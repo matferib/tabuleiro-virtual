@@ -2635,6 +2635,9 @@ QGroupBox::title {
             </item>
             <item>
              <widget class="QComboBox" name="combo_especializacao_escola">
+              <property name="toolTip">
+               <string>Caso mago seja especialista, escolha uma esocla de magia</string>
+              </property>
               <item>
                <property name="text">
                 <string>Nenhuma</string>
@@ -2683,7 +2686,17 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
+             <widget class="QLabel" name="label_88">
+              <property name="text">
+               <string>Proibidas</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QComboBox" name="combo_escola_proibida_1">
+              <property name="toolTip">
+               <string>Caso mago seja especialista, escolha uma escola proibida (exceto adivinhação)</string>
+              </property>
               <item>
                <property name="text">
                 <string>Nenhuma</string>
@@ -2728,6 +2741,9 @@ QGroupBox::title {
             </item>
             <item>
              <widget class="QComboBox" name="combo_escola_proibida_2">
+              <property name="toolTip">
+               <string>Caso mago seja especialista, escolha uma escola proibida (exceto adivinhação)</string>
+              </property>
               <item>
                <property name="text">
                 <string>Nenhuma</string>
