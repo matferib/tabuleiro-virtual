@@ -5776,6 +5776,38 @@ TEST(TesteCondicoes, TesteIndefeso) {
   EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 5);
 }
 
+TEST(TesteTabelas, TesteFeiticoAleatorioClerigo) {
+  Tabelas::DadosParaFeiticoAleatorio dfa;
+  dfa.id_classe = "clerigo";
+  dfa.nivel = 1;
+  dfa.descritores_proibidos.emplace({DESC_MAL, DESC_CAOS});
+  dfa.feiticos_excluidos = {"bencao", "maldicao_menor", "infligir_ferimentos_leves"};
+  for (int i = 0; i < 100; ++i) {
+    const auto& id = g_tabelas.FeiticoAleatorio(dfa);
+    EXPECT_FALSE(id.empty());
+    EXPECT_NE(id, "bencao");
+    EXPECT_NE(id, "maldicao_menor");
+    EXPECT_NE(id, "infligir_ferimentos_leves");
+    EXPECT_NE(g_tabelas.Feitico(id).acao().alinhamento_bem_mal(), DESC_MAL);
+    EXPECT_NE(g_tabelas.Feitico(id).acao().alinhamento_bem_mal(), DESC_LEAL);
+  }
+}
+
+TEST(TesteTabelas, TesteFeiticoAleatorioMago) {
+  Tabelas::DadosParaFeiticoAleatorio dfa;
+  dfa.id_classe = "clerigo";
+  dfa.nivel = 1;
+  dfa.escolas_proibidas.emplace(std::vector<std::string>{"encantamento", "evocacao"});
+  dfa.feiticos_excluidos = {"escudo_arcano", "armadura_arcana"};
+  for (int i = 0; i < 100; ++i) {
+    const auto& id = g_tabelas.FeiticoAleatorio(dfa);
+    EXPECT_FALSE(id.empty());
+    EXPECT_NE(id, "escudo_arcano");
+    EXPECT_NE(id, "armadura_arcana");
+    EXPECT_NE(g_tabelas.Feitico(id).escola(), "encantamento");
+    EXPECT_NE(g_tabelas.Feitico(id).escola(), "evocacao");
+  }
+}
 
 }  // namespace ent.
 
