@@ -1,5 +1,10 @@
+Fazer os invocar criaturas: estao praticamente todos faltando, especialmente o do nivel (ii, iii)
+Dominios aleatorios de clerigo respeitando tendencia.
+UI: como criar especialista.
 Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
+Feiticos automaticos de clerigo respeitar o descritor de bom mal caos ordem.
+Fazer: manto do caos: dificil bagarai.
 
 Sessão:
 * fazer andalara.
@@ -19,7 +24,6 @@ Vincular luz a numero de tochas.
 Terminar a iniciativa de eventos.
 
 Fazer furia maior de barbaro e limitar usos por dia.
-Feiticos automaticos de clerigo respeitar o descritor de bom mal caos ordem.
 Nova tabela de encontro para batalha de Tilverton.
 Ao criar peao, esta desalgemando
 Movimento reduzido ou anulado em criaturas enredadas.
