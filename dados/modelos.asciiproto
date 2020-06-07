@@ -492,6 +492,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Urso Negro Celestial ICIII'
+  id_entidade_base: 'Urso Negro Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
+modelo {
   id: 'Urso Marrom IANIV'
   id_entidade_base: 'Urso Marrom'
   parametros {
@@ -4994,12 +5002,14 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'clerigo'
+      dominios: 'ordem'
+      dominios: 'cura'
       feiticos_por_nivel {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'luz' }
-        conhecidos { id: 'resistencia' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -5009,10 +5019,10 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'maldicao_menor' }
-        conhecidos { id: 'bencao' }
-        conhecidos { id: 'santuario' }
         conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'bencao' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
@@ -5024,7 +5034,7 @@ modelo {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
-        conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
@@ -5034,7 +5044,7 @@ modelo {
       feiticos_por_nivel {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
-        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
@@ -8532,6 +8542,28 @@ modelo {
     dados_ataque {
       grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d6'
     }
+  }
+}
+modelo {
+  id: 'Urso Negro Celestial'
+  id_entidade_base: 'Urso Negro'
+  entidade {
+    # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 8 complementos: 5 }
+    info_classes {
+      id: 'besta_magica'
+      combinar_com: 0
+    }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque {
+      rotulo: 'mordida (destruir o mal)' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+3'
+      taxa_refrescamento: '14400' # 1 dia
+    }
+    atributos {
+      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
+    }
+    tendencia { simples: TD_LEAL_BOM }
   }
 }
 modelo {
