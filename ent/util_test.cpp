@@ -4422,6 +4422,17 @@ TEST(TesteModelo, TesteVrock) {
   EXPECT_EQ(NivelConjurador(TipoAtaqueParaClasse(g_tabelas, proto.dados_ataque(5).tipo_ataque()), proto), 12);
 }
 
+TEST(TesteModelo, TesteCentopeiaEnormeAbissal) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Centopéia Enorme Abissal");
+  EntidadeProto proto = modelo.entidade();
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  const auto& da = DadosAtaquePorGrupo("destruir_bem", entidade->Proto());
+  EXPECT_EQ(da.grupo(), "destruir_bem");
+  EXPECT_EQ(da.rotulo(), "mordida com veneno");
+  EXPECT_EQ(da.taxa_refrescamento(), "14400");
+  EXPECT_EQ(da.dano(), "2d6+10");
+}
+
 TEST(TesteModelo, TesteModeloVulto) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);

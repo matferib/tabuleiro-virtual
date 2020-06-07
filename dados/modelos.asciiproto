@@ -1289,9 +1289,9 @@ modelo {
     }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
-      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo'
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida_padrao'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
-      alcance_m: 3 dano_basico: '2d6'
+      alcance_m: 3
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
@@ -1300,9 +1300,9 @@ modelo {
       empunhadura: EA_2_MAOS
     }
     dados_ataque {
-      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar'
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' id_arma: 'mordida_padrao'
       veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
-      alcance_m: 3 dano_basico: '2d6'
+      alcance_m: 3
       empunhadura: EA_2_MAOS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
     }
@@ -1332,13 +1332,6 @@ modelo {
       id_efeito: EFEITO_MODELO_ABISSAL ativo: true
     }
     tendencia { simples: TD_NEUTRO_MAU }
-    dados_ataque {
-      rotulo: 'mordida com veneno destruir o bem' tipo_ataque: 'Ataque Corpo a Corpo'
-      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_DESTREZA dano_secundario: '1d6' tipo_dano_secundario: TDV_DESTREZA cd: 14 }
-      alcance_m: 3 dano_basico: '2d6+6'
-      empunhadura: EA_2_MAOS
-      taxa_refrescamento: '14400' # 1 dia
-    }
   }
 }
 

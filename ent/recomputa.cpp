@@ -2738,7 +2738,7 @@ DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadePro
 
 const DadosAtaque& DadosAtaquePrimarioMonstroOuPadrao(const EntidadeProto& proto) {
   for (auto& da : proto.dados_ataque()) {
-    if (da.empunhadura() == EA_MONSTRO_ATAQUE_PRIMARIO) {
+    if (da.empunhadura() == EA_MONSTRO_ATAQUE_PRIMARIO || da.empunhadura() == EA_2_MAOS) {
       return da;
     }
   }
@@ -2805,20 +2805,22 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
         const int nivel = Nivel(*proto);
         auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
         copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
-        auto* dm = DadosAtaquePorGrupoCriando("destruir o mal", proto);
+        auto* dm = DadosAtaquePorGrupoCriando("destruir_mal", proto);
+        copia_principal.set_grupo(dm->grupo());
         copia_principal.set_disponivel_em(dm->disponivel_em());
         dm->Swap(&copia_principal);
-        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_o_mal", dm->mutable_bonus_dano());
+        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_mal", dm->mutable_bonus_dano());
         break;
       }
       case EFEITO_MODELO_ABISSAL: {
         const int nivel = Nivel(*proto);
         auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
         copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
-        auto* dm = DadosAtaquePorGrupoCriando("destruir o bem", proto);
+        auto* dm = DadosAtaquePorGrupoCriando("destruir_bem", proto);
         copia_principal.set_disponivel_em(dm->disponivel_em());
+        copia_principal.set_grupo(dm->grupo());
         dm->Swap(&copia_principal);
-        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_o_bem", dm->mutable_bonus_dano());
+        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_bem", dm->mutable_bonus_dano());
         break;
       }
       case EFEITO_MODELO_VULTO: {
@@ -3203,7 +3205,6 @@ void RecomputaComplementosModelos(const Tabelas& tabelas, EntidadeProto* proto) 
         break;
       }
       case EFEITO_MODELO_ABISSAL: {
-        LOG(INFO) << "modelo: " << modelo.DebugString();
         int nivel = Nivel(*proto);
         modelo.mutable_complementos()->Resize(nivel >= 4 ? 3 : 2, /*default_value=*/0);
         modelo.set_complementos(0, nivel + 5);
