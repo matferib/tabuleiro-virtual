@@ -719,21 +719,28 @@ const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_clas
   return feiticos;
 }
 
-const std::string& Tabelas::FeiticoAleatorio(const std::string& id_classe, int nivel, const std::vector<std::string>& excluindo) const {
-  auto it_classe = feiticos_por_classe_por_nivel_.find(id_classe);
+const std::string& Tabelas::FeiticoAleatorio(const DadosParaFeiticoAleatorio& dfa) const {
+  auto it_classe = feiticos_por_classe_por_nivel_.find(dfa.id_classe);
   if (it_classe == feiticos_por_classe_por_nivel_.end()) return ArmaProto::default_instance().id();
-  auto it_nivel = it_classe->second.find(nivel);
+  auto it_nivel = it_classe->second.find(dfa.nivel);
   if (it_nivel == it_classe->second.end()) return ArmaProto::default_instance().id();
   const std::vector<const ArmaProto*>& feiticos = it_nivel->second;
   std::vector<const std::string*> ids_validos;
   for (const auto& feitico : feiticos) {
-    if (c_none(excluindo, feitico->id())) {
-      ids_validos.emplace_back(&feitico->id());
+    if (c_any(dfa.feiticos_excluidos, feitico->id())) continue;
+    if (dfa.descritores_proibidos.has_value()) {
+      if (c_any(*dfa.descritores_proibidos, feitico->acao().alinhamento_bem_mal()) ||
+          c_any(*dfa.descritores_proibidos, feitico->acao().alinhamento_ordem_caos()) ||
+          c_any(*dfa.descritores_proibidos, feitico->acao().elemento())) {
+        continue;
+      }
     }
+    if (dfa.escolas_proibidas.has_value() && c_any(*dfa.escolas_proibidas, feitico->escola())) continue;
+    ids_validos.emplace_back(&feitico->id());
   }
   if (ids_validos.empty()) return ArmaProto::default_instance().id();
   int indice = RolaDado(ids_validos.size()) - 1;
-  VLOG(1) << "retornando aleatoriamente " << ids_validos[indice] << " para classe " << id_classe << ", nivel " << nivel;
+  VLOG(1) << "retornando aleatoriamente " << ids_validos[indice] << " para classe " << dfa.id_classe << ", nivel " << dfa.nivel;
   return *ids_validos[indice];
 }
 

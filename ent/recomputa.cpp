@@ -1677,11 +1677,45 @@ std::vector<std::string> FeiticosJaConhecidos(const RepeatedPtrField<EntidadePro
   return ret;
 }
 
+std::optional<std::vector<DescritorAtaque>> DescritoresProibidosClerigo(const EntidadeProto& proto) {
+  TendenciaSimplificada tendencia = proto.tendencia().simples();
+  switch (tendencia) {
+    case TD_CAOTICO_BOM: return std::vector<DescritorAtaque>{ DESC_LEAL, DESC_MAL };
+    case TD_CAOTICO_NEUTRO: return std::vector<DescritorAtaque>{ DESC_LEAL};
+    case TD_CAOTICO_MAU: return std::vector<DescritorAtaque>{ DESC_LEAL, DESC_BEM };
+    case TD_NEUTRO_BOM: return std::vector<DescritorAtaque>{ DESC_MAL };
+    case TD_NEUTRO_MAU: return std::vector<DescritorAtaque>{ DESC_BEM };
+    case TD_LEAL_MAU: return std::vector<DescritorAtaque>{ DESC_CAOS, DESC_BEM };
+    case TD_LEAL_NEUTRO: return std::vector<DescritorAtaque>{ DESC_CAOS };
+    case TD_LEAL_BOM: return std::vector<DescritorAtaque>{ DESC_CAOS, DESC_MAL };
+    default: return std::nullopt;
+  }
+}
+
+std::optional<std::vector<std::string>> EscolasProibidasMago(const EntidadeProto& proto) {
+  const auto& ifc = FeiticosClasse("mago", proto);
+  if (!ifc.especializacao().empty()) {
+    return std::vector<std::string>(ifc.escolas_proibidas().begin(), ifc.escolas_proibidas().end());
+  }
+  return std::nullopt;
+}
+
 void PreencheFeiticoConhecidoAleatorio(
     const Tabelas& tabelas, const std::string& id_para_magia, int nivel_magia, const RepeatedPtrField<EntidadeProto::InfoConhecido>& conhecidos,
-    EntidadeProto::InfoConhecido* ic) {
+    const EntidadeProto& proto, EntidadeProto::InfoConhecido* ic) {
   if (ic->id() == "auto") {
-    ic->set_id(tabelas.FeiticoAleatorio(id_para_magia, nivel_magia, FeiticosJaConhecidos(conhecidos)));
+    Tabelas::DadosParaFeiticoAleatorio dfa;
+    dfa.id_classe = id_para_magia;
+    dfa.nivel = nivel_magia;
+    dfa.feiticos_excluidos = FeiticosJaConhecidos(conhecidos);
+    if (id_para_magia == "clerigo") {
+      dfa.descritores_proibidos = DescritoresProibidosClerigo(proto);
+    }
+    if (id_para_magia == "mago") {
+      dfa.escolas_proibidas = EscolasProibidasMago(proto);
+    }
+
+    ic->set_id(tabelas.FeiticoAleatorio(dfa));
     ic->clear_nome();
   }
   if (!ic->has_nome()) {
@@ -1752,7 +1786,8 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
       auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
       for (auto& conhecido : *fn->mutable_conhecidos()) {
         PreencheFeiticoConhecidoAleatorio(
-            tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(), &conhecido);
+            tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(),
+            *proto, &conhecido);
       }
     }
     return;
@@ -1773,7 +1808,8 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
     auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
     for (auto& conhecido : *fn->mutable_conhecidos()) {
       PreencheFeiticoConhecidoAleatorio(
-          tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(), &conhecido);
+          tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(),
+          *proto, &conhecido);
     }
   }
   // TODO invalida feiticos que nao puderem ser usados.
