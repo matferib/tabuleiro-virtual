@@ -2035,7 +2035,7 @@ TEST(TesteDependencias, TesteReducaoDanoModeloAbissal) {
   RecomputaDependencias(g_tabelas, &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
-  EXPECT_EQ(resultado.delta_pv, 0) << resultado.texto;
+  EXPECT_EQ(resultado.delta_pv, -5) << resultado.texto;
 
   da->set_bonus_magico(1);
   RecomputaDependencias(g_tabelas, &proto_ataque);
@@ -3941,21 +3941,20 @@ TEST(TesteImunidades, TesteCelestial) {
   EXPECT_EQ(proto.dados_defesa().resistencia_elementos().size(), 1);
 
   auto* celestial = proto.add_modelos();
+  // RM: 6, resistencia frio, acido ou eletricidade: 5.
   celestial->set_id_efeito(EFEITO_MODELO_CELESTIAL);
-  celestial->add_complementos(6);  // RM
-  celestial->add_complementos(7);  // frio acido eletricidade
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FRIO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_ACIDO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_ELETRICIDADE);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
   // De novo pra ver se num ta quebrando nada.
@@ -3964,11 +3963,11 @@ TEST(TesteImunidades, TesteCelestial) {
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FRIO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_ACIDO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_ELETRICIDADE);
 }
 
@@ -3977,7 +3976,7 @@ TEST(TesteImunidades, TesteAbissal) {
   {
     auto* ic = proto.add_info_classes();
     ic->set_id("druida");
-    ic->set_nivel(1);
+    ic->set_nivel(4);
     auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
     resistencia->set_valor(10);
     resistencia->set_descritor(DESC_ACIDO);
@@ -3990,21 +3989,19 @@ TEST(TesteImunidades, TesteAbissal) {
   EXPECT_EQ(proto.dados_defesa().resistencia_elementos().size(), 2);
 
   auto* celestial = proto.add_modelos();
+  // RM: 9, frio, fogo: 5, reducao: 5.
   celestial->set_id_efeito(EFEITO_MODELO_ABISSAL);
-  celestial->add_complementos(6);  // RM
-  celestial->add_complementos(7);  // frio fogo 
-  celestial->add_complementos(10);  // reducao dano.
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 9);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 11);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FOGO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_FRIO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_FOGO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
   ASSERT_FALSE(proto.dados_defesa().reducao_dano().empty());
@@ -4012,16 +4009,16 @@ TEST(TesteImunidades, TesteAbissal) {
   ASSERT_TRUE(c_any(proto.dados_defesa().reducao_dano(0).descritores(), DESC_MAGICO));
   // De novo pra ver se num ta quebrando nada.
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 9);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).descritor(), DESC_ACIDO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).valor(), 11);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(1).descritor(), DESC_FOGO);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).descritor(), DESC_FRIO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(2).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
-  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 7);
+  ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).valor(), 5);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_FOGO);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
   ASSERT_FALSE(proto.dados_defesa().reducao_dano().empty());
@@ -4445,12 +4442,11 @@ TEST(TesteModelo, TesteModeloVulto) {
 
   auto* vulto = proto.add_modelos();
   vulto->set_id_efeito(EFEITO_MODELO_VULTO);
-  vulto->add_complementos(13);
   vulto->set_ativo(true);
   RecomputaDependencias(g_tabelas, &proto);
   ASSERT_GE(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 2);
-  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 13);
+  EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 12);
 
   vulto->set_ativo(false);
   RecomputaDependencias(g_tabelas, &proto);

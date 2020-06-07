@@ -485,6 +485,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Lobo Demoníaco ICII'
+  id_entidade_base: 'Lobo Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Urso Negro IANII'
   id_entidade_base: 'Urso Negro'
   parametros {
@@ -1323,9 +1330,6 @@ modelo {
     tipo_dnd: TIPO_BESTA_MAGICA
     modelos {
       id_efeito: EFEITO_MODELO_ABISSAL ativo: true
-      complementos: 11 # RM
-      complementos: 5  # resistencia gelo e fogo.
-      complementos: 10 # reducao de dano.
     }
     tendencia { simples: TD_NEUTRO_MAU }
     dados_ataque {
@@ -3533,6 +3537,23 @@ modelo {
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
       alcance_q: 1
     }
+  }
+}
+modelo {
+  id: 'Lobo Abissal'
+  id_entidade_base: 'Lobo'
+  entidade {
+    tendencia { simples: TD_LEAL_MAU }
+    # Primeiro complemento: resistencia magia.
+    # Segundo complemento: resistencia a gelo e fogo.
+    # terceiro complemento: reducao de dano.
+    # Para referencia: reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 7 complementos: 5 }
+    info_classes {
+      id: 'besta_magica'
+      combinar_com: 0
+    }
+    tipo_dnd: TIPO_BESTA_MAGICA
   }
 }
 modelo {

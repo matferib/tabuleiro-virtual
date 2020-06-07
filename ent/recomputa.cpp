@@ -2736,6 +2736,26 @@ DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadePro
   return da;
 }
 
+const DadosAtaque& DadosAtaquePrimarioMonstroOuPadrao(const EntidadeProto& proto) {
+  for (auto& da : proto.dados_ataque()) {
+    if (da.empunhadura() == EA_MONSTRO_ATAQUE_PRIMARIO) {
+      return da;
+    }
+  }
+  return DadosAtaque::default_instance();
+}
+
+DadosAtaque* DadosAtaquePorGrupoCriando(const std::string& grupo, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.grupo() == grupo) {
+      return &da;
+    }
+  }
+  auto* da = proto->add_dados_ataque();
+  da->set_grupo(grupo);
+  return da;
+}
+
 // Cria e remove os dados de ataque que tem que ser criados/removidos.
 // Exemplos de ataques criados: itens mundanos como fogo_alquimico, ataque atordoante.
 // Exemplo de ataques removidos: ataques cujo limite tenha chegado em zero.
@@ -2778,6 +2798,36 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
       }
     }
   }
+  // Ataques de templates.
+  for (auto& modelo : *proto->mutable_modelos()) {
+    switch (modelo.id_efeito()) {
+      case EFEITO_MODELO_CELESTIAL: {
+        const int nivel = Nivel(*proto);
+        auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
+        copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        auto* dm = DadosAtaquePorGrupoCriando("destruir o mal", proto);
+        copia_principal.set_disponivel_em(dm->disponivel_em());
+        dm->Swap(&copia_principal);
+        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_o_mal", dm->mutable_bonus_dano());
+        break;
+      }
+      case EFEITO_MODELO_ABISSAL: {
+        const int nivel = Nivel(*proto);
+        auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
+        copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        auto* dm = DadosAtaquePorGrupoCriando("destruir o bem", proto);
+        copia_principal.set_disponivel_em(dm->disponivel_em());
+        dm->Swap(&copia_principal);
+        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_o_bem", dm->mutable_bonus_dano());
+        break;
+      }
+      case EFEITO_MODELO_VULTO: {
+        break;
+      }
+      default: continue;
+    }
+  }
+
   // Itens mundanos que geram ataques.
   std::unordered_map<std::string, int> mapa_tipo_quantidade;
   for (const auto& im : proto->tesouro().itens_mundanos()) {
@@ -3139,11 +3189,47 @@ void RecomputaDependenciasMovimento(const Tabelas& tabelas, EntidadeProto* proto
   AtribuiOuRemoveBonus(movimento->escalando_basico_q(), TB_BASE, "base", movimento->mutable_escalando_q());
 }
 
+void RecomputaComplementosModelos(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& modelo : *proto->mutable_modelos()) {
+    switch (modelo.id_efeito()) {
+      case EFEITO_MODELO_CELESTIAL: {
+        int nivel = Nivel(*proto);
+        modelo.mutable_complementos()->Resize(nivel >= 4 ? 3 : 2, /*default_value=*/0);
+        modelo.set_complementos(0, std::min(25, nivel + 5));
+        modelo.set_complementos(1, nivel < 8 ? 5 : 10);
+        if (nivel >= 4) {
+          modelo.set_complementos(2, nivel < 12 ? 5 : 10);
+        }
+        break;
+      }
+      case EFEITO_MODELO_ABISSAL: {
+        LOG(INFO) << "modelo: " << modelo.DebugString();
+        int nivel = Nivel(*proto);
+        modelo.mutable_complementos()->Resize(nivel >= 4 ? 3 : 2, /*default_value=*/0);
+        modelo.set_complementos(0, nivel + 5);
+        modelo.set_complementos(1, nivel < 8 ? 5 : 10);
+        if (nivel >= 4) {
+          modelo.set_complementos(2, nivel < 12 ? 5 : 10);
+        }
+        break;
+      }
+      case EFEITO_MODELO_VULTO: {
+        int nivel = Nivel(*proto);
+        modelo.mutable_complementos()->Resize(1, /*default_value=*/0);
+        modelo.set_complementos(0, nivel + 11);
+        break;
+      }
+      default: continue;
+    }
+  }
+}
+
 }  // namespace
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
+  RecomputaComplementosModelos(tabelas, proto);
   RecomputaCriaRemoveDadosAtaque(tabelas, proto);
   RecomputaDependenciasRaciais(tabelas, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);

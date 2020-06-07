@@ -10427,6 +10427,10 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Lobo Abissal'
+          id_modelo_entidade: 'Lobo Abissal ICII'
+        }
+        parametros {
           texto: 'Cachorro Celestial (1d3)'
           id_modelo_entidade: 'Cachorro Celestial ICI'
           quantidade: '1d3'
@@ -10445,6 +10449,26 @@ tabela_feiticos {
           texto: 'Víbora Pequena Abissal (1d3)'
           id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
           quantidade: '1d3'
+        }
+        parametros {
+          texto: 'Cachorro Celestial (1d4+1)'
+          id_modelo_entidade: 'Cachorro Celestial ICI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Coruja Celestial (1d4+1)'
+          id_modelo_entidade: 'Coruja Celestial ICI'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Falcão Abissal (1d4+1)'
+          id_modelo_entidade: 'Falcão Abissal'
+          quantidade: '1d4+1'
+        }
+        parametros {
+          texto: 'Víbora Pequena Abissal (1d4+1)'
+          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
+          quantidade: '1d4+1'
         }
       }
     }
@@ -10476,8 +10500,18 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Lobo Abissal (1d3)'
+          id_modelo_entidade: 'Lobo Abissal ICII'
+          quantidade: '1d3'
+        }
+        parametros {
           texto: 'Urso Negro Celestial'
           id_modelo_entidade: 'Urso Negro Celestial ICIII'
+        }
+        parametros {
+          texto: 'Lobo Abissal (1d3)'
+          id_modelo_entidade: 'Lobo Abissal ICII'
+          quantidade: '1d3'
         }
         parametros {
           texto: 'Cachorro Celestial (1d4+1)'
