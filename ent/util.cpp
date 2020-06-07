@@ -1045,9 +1045,6 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (ed.em_corpo_a_corpo() && tipo_ataque == TipoAtaque::DISTANCIA && !PossuiTalento("tiro_preciso", ea)) {
     modificador -= 4;
   }
-  if (Indefeso(ed) && tipo_ataque == TipoAtaque::CORPO_A_CORPO) {
-    modificador += 4;
-  }
   if (tipo_ataque == TipoAtaque::DISTANCIA) {
     // era tiro_queima_roupa
     if (PossuiTalento("tiro_certeiro", ea) && DistanciaMetros(ea.pos(), ed.pos()) < 9) {
@@ -1112,7 +1109,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
   if (PossuiEvento(EFEITO_ATORDOADO, ed)) {
     modificador += 2;
   }
-  if (ed.caida()) {
+  if (ed.caida() || Indefeso(ed)) {
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
   }
@@ -5402,6 +5399,9 @@ bool Indefeso(const EntidadeProto& proto) {
     return true;
   }
   if (PossuiEvento(EFEITO_SONO, proto)) {
+    return true;
+  }
+  if (proto.morta() || proto.inconsciente()) {
     return true;
   }
   return false;

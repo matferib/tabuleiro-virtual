@@ -2375,6 +2375,18 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   RecomputaAlteracaoConstituicao(total_constituicao_antes, total_constituicao_depois, proto);
 }
 
+void RecomputaDependenciasCondicoes(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
+  auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
+  if (Indefeso(*proto)) {
+    const int total_destreza = BonusTotal(*bonus_destreza);
+    if (total_destreza > 0) {
+      AtribuiBonus(-total_destreza, TB_SEM_NOME, "indefeso", bonus_destreza);
+    }
+  } else {
+    LimpaBonus(TB_SEM_NOME, "indefeso", bonus_destreza);
+  }
+}
+
 void RecomputaDependenciasNiveisNegativos(const Tabelas& tabelas, EntidadeProto* proto) {
   proto->set_niveis_negativos(BonusTotal(proto->niveis_negativos_dinamicos()));
 }
@@ -3101,6 +3113,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
+  RecomputaDependenciasCondicoes(tabelas, proto, entidade);
   auto* bonus_forca = BonusAtributo(TA_FORCA, proto);
   auto* bonus_destreza = BonusAtributo(TA_DESTREZA, proto);
   if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, *proto)) {

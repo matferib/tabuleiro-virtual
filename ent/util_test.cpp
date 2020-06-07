@@ -732,7 +732,6 @@ TEST(TesteArmas, TesteEscudoComCravos) {
     EXPECT_EQ(da_espada.ca_normal(), 13);
     EXPECT_EQ(da_escudo.ca_normal(), 13);
   }
-  LOG(INFO) << "------------";
   {
     modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("ataque_escudo_aprimorado");
     auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
@@ -5767,6 +5766,16 @@ TEST(TesteDominios, TesteProtecao) {
         << "nao encontrei proteger_outro, todos: " << fn2.DebugString();
   }
 }
+
+TEST(TesteCondicoes, TesteIndefeso) {
+  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  modelo.mutable_entidade()->set_gerar_agarrar(false);
+  modelo.mutable_entidade()->set_morta(true);
+
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 5);
+}
+
 
 }  // namespace ent.
 

@@ -1108,6 +1108,9 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
 // Retorna true se a arma for um feitico.
 bool EhFeitico(const ArmaProto& arma);
 
+// Proto esta indefeso (helpless).
+bool Indefeso(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

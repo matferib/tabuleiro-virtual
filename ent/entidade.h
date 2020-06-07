@@ -93,6 +93,9 @@ class Entidade {
     return Achatar(proto_, parametros_desenho_);
   }
 
+  // Personagem esta indefeso (helpless).
+  bool Indefeso() const;
+
   /** Exporta o VBO ja extraido.
   * @throw caso nao haja ainda (por exemplo, carregando modelo 3d).
   */

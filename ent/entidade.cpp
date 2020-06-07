@@ -2539,4 +2539,8 @@ bool Entidade::PodeMover() const {
   return true;
 }
 
+bool Entidade::Indefeso() const {
+  return ent::Indefeso(proto_);
+}
+
 }  // namespace ent
