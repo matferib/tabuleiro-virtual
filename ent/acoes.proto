@@ -376,9 +376,16 @@ message DanoPorTipoDnD {
   optional TipoDnD tipo = 2;
 }
 
+message DanoAdicionalPorTendencia {
+  optional int32 bom = 1;
+  optional int32 mau = 2;
+  optional int32 leal = 3;
+  optional int32 caotico = 4;
+}
+
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 93.
+// Proximo id: 94.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -392,6 +399,8 @@ message DadosAtaque {
   optional int32 bonus_ataque_final = 2;
   // O dano final da arma: 1d8+5.
   optional string dano = 3;
+  // Adicionais de dano de acordo com tendencia do alvo.
+  optional DanoAdicionalPorTendencia dano_adicional_por_tendencia = 93;
   // Se presente, aplicara ao dano de acordo com tipo do alvo. Se nao houver, fallback pra dano.
   repeated DanoPorTipoDnD dano_por_tipo = 79;
   optional int32 margem_critico = 6 [default=20];

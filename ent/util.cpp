@@ -3036,6 +3036,25 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da)
       string_escudo.c_str(), da.ca_surpreso());
 }
 
+int CalculaDanoAdicionalPorTendencia(const DadosAtaque& da, const EntidadeProto& alvo) {
+  if (!da.has_dano_adicional_por_tendencia()) return 0;
+  int dano = 0;
+  const auto& dapt = da.dano_adicional_por_tendencia();
+  if (dapt.bom() > 0 && Bom(alvo)) {
+    dano += dapt.bom();
+  }
+  if (dapt.mau() > 0 && Mau(alvo)) {
+    dano += dapt.mau();
+  }
+  if (dapt.leal() > 0 && Ordeiro(alvo)) {
+    dano += dapt.leal();
+  }
+  if (dapt.caotico() > 0 && Caotico(alvo)) {
+    dano += dapt.caotico();
+  }
+  return dano;
+}
+
 std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
   int modificador_dano = ModificadorDano(da, proto, alvo);
   const std::string* dano = &da.dano();
@@ -3047,10 +3066,12 @@ std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto
       }
     }
   }
+  int dapt = CalculaDanoAdicionalPorTendencia(da, alvo);
   return StringPrintf(
-      "%s%s",
+      "%s%s%s",
       dano->c_str(),
-      !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "");
+      !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "",
+      dapt > 0 ? StringPrintf("+%d", dapt).c_str() : "");
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
@@ -3295,13 +3316,13 @@ RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
   Bonus b;
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
-      (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
+      (Mau(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
       (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
       (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
     AtribuiBonus(2, TB_DEFLEXAO, "protecao_contra_tendencia", &b);
   }
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_BEM, proto_defesa)) ||
-      (Mal(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_MAL, proto_defesa)) ||
+      (Mau(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_MAL, proto_defesa)) ||
       (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_ORDEM, proto_defesa)) ||
       (Caotico(proto_ataque) && PossuiEvento(EFEITO_DISSIPAR_CAOS, proto_defesa))) {
     Bonus b;
@@ -3312,7 +3333,7 @@ Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const Entidade
 
 Bonus BonusContraTendenciaNaSalvacao(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
-      (Mal(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
+      (Mau(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_MAL, proto_defesa)) ||
       (Ordeiro(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_ORDEM, proto_defesa)) ||
       (Caotico(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_CAOS, proto_defesa))) {
     Bonus b;
@@ -4380,7 +4401,7 @@ const ArmaProto& FeiticoTabeladoOuConvertido(
   std::string id_conversao_espontanea;
   if (conversao_espontanea) {
     id_conversao_espontanea = tabelas.FeiticoConversaoEspontanea(
-        id_classe, nivel, Mal(proto) ? Tabelas::COI_INFLIGIR : Tabelas::COI_CURA);
+        id_classe, nivel, Mau(proto) ? Tabelas::COI_INFLIGIR : Tabelas::COI_CURA);
   }
   const auto& feitico_tabelado = tabelas.Feitico(id_conversao_espontanea.empty() ? ic.id() : id_conversao_espontanea);
   if (!feitico_tabelado.has_id()) {

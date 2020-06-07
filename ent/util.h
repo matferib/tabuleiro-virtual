@@ -656,7 +656,7 @@ int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& pr
 
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
-inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
+inline bool Mau(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
 inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
 inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
 // Retorna o bonus contra tendencia de um atacante.

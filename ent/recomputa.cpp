@@ -2808,8 +2808,8 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
         auto* dm = DadosAtaquePorGrupoCriando("destruir_mal", proto);
         copia_principal.set_grupo(dm->grupo());
         copia_principal.set_disponivel_em(dm->disponivel_em());
+        copia_principal.mutable_dano_adicional_por_tendencia()->set_mau(nivel);
         dm->Swap(&copia_principal);
-        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_mal", dm->mutable_bonus_dano());
         break;
       }
       case EFEITO_MODELO_ABISSAL: {
@@ -2819,8 +2819,8 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
         auto* dm = DadosAtaquePorGrupoCriando("destruir_bem", proto);
         copia_principal.set_disponivel_em(dm->disponivel_em());
         copia_principal.set_grupo(dm->grupo());
+        copia_principal.mutable_dano_adicional_por_tendencia()->set_bom(nivel);
         dm->Swap(&copia_principal);
-        AtribuiBonus(nivel, TB_SEM_NOME, "destruir_bem", dm->mutable_bonus_dano());
         break;
       }
       case EFEITO_MODELO_VULTO: {

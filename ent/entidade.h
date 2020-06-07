@@ -365,7 +365,7 @@ class Entidade {
 
   // Acesso a tendencia.
   bool Bom() const { return ::ent::Bom(proto_); }
-  bool Mal() const { return ::ent::Mal(proto_); }
+  bool Mau() const { return ::ent::Mau(proto_); }
   bool Ordeiro() const { return ::ent::Ordeiro(proto_); }
   bool Caotico() const { return ::ent::Caotico(proto_); }
 

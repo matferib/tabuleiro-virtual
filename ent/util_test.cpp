@@ -4430,7 +4430,11 @@ TEST(TesteModelo, TesteCentopeiaEnormeAbissal) {
   EXPECT_EQ(da.grupo(), "destruir_bem");
   EXPECT_EQ(da.rotulo(), "mordida com veneno");
   EXPECT_EQ(da.taxa_refrescamento(), "14400");
-  EXPECT_EQ(da.dano(), "2d6+10");
+  EXPECT_EQ(da.dano(), "2d6+4");
+
+  const auto& modelo_alvo = g_tabelas.ModeloEntidade("Cachorro Celestial");
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(modelo_alvo.entidade(), g_tabelas));
+  EXPECT_EQ(StringDanoParaAcao(da, entidade->Proto(), alvo->Proto()), "2d6+4+6");
 }
 
 TEST(TesteModelo, TesteModeloVulto) {
